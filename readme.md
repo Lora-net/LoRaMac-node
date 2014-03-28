@@ -3,7 +3,7 @@
      \____ \| ___ |    (_   _) ___ |/ ___)  _ \ 
      _____) ) ____| | | || |_| ____( (___| | | |
     (______/|_____)_|_|_| \__)_____)\____)_| |_|
-        ©2013 Semtech
+        (C)2013 Semtech
 
 SX1272/76 radio drivers plus Ping-Pong firmware and LoRa MAC node firmware implementation.
 =====================================
@@ -22,9 +22,13 @@ implementation.
 The available supported hardware platforms schematics and LoRaMac specification
 can be found in the Doc directory.
 
-3. Dependencies
-----------------
+3. Acknowledgements
+-------------------
+The mbed (https://mbed.org/) project was used at the beginning as source of 
+inspiration.
 
+4. Dependencies
+----------------
 This program uses the AES algorithm implementation (http://www.gladman.me.uk/)
 by Brian Gladman.
 
@@ -66,12 +70,45 @@ platforms are:
         EXTENSION HEADER : Yes, 20 pins
         REMARK  : The MCU and Radio are on an IMST iM880A module
 
-4. Usage
+5. Usage
 ---------
 Projects for Ride7 and Keil Integrated Development Environments are available.
 
-5. Changelog
+6. Changelog
 -------------
+2014-03-28, v2.1
+* General
+    1. The timers and RTC management has been rewritten.
+    2. Improved the UART and UP501 GPS drivers.
+    3. Corrected GPIO pin names management.
+    4. Corrected the antenna switch management in the SX1272 driver.
+    5. Added to the radio driver the possibility to choose the preamble length
+       and rxSingle symbol timeout in reception.
+    6. Added Hex coder selector driver for the Bleeper board.
+    7. Changed copyright Unicode character to (C) in all source files.
+    
+* LoRaMac
+    1. MAC commands implemented
+        * LinkCheckReq                 **YES**
+        * LinkCheckAns                 **YES**
+        * LinkADRReq                   **YES**
+        * LinkADRAns                   **YES**
+        * DevStatusReq                 **YES**
+        * DevStatusAns                 **YES**
+        * JoinReq                      **YES**
+        * JoinAccept                   **YES**
+    2. Added acknowledgements retries management.
+      Split the LoRaMacSendOnChannel function in LoRaMacPrepareFrame and
+      LoRaMacSendFrameOnChannel. LoRaMacSendOnChannel now calls the 2 newly
+      defined functions.
+    
+      **WARNING**: By default the acknowledgement retries specific code isn't
+      enabled. The current http://iot.semtech.com server version doesn't support
+      it.
+      
+    3. Corrected issues on JoinRequest and JoinAccept MAC commands.
+      Added LORAMAC_EVENT_INFO_STATUS_MAC_ERROR event info status.
+
 2014-02-21, v2.0
 
 * General
@@ -108,8 +145,8 @@ Projects for Ride7 and Keil Integrated Development Environments are available.
         * LinkADRAns                   **YES**
         * DevStatusReq                 **YES**
         * DevStatusAns                 **YES**
-        * JoinReq                      **YES (Not tested yet)**
-        * JoinAccept                   **YES (Not tested yet)**
+        * JoinReq                      **YES (Not tested)**
+        * JoinAccept                   **YES (Not tested)**
     2. New MAC layer application API implementation.
 * Timers and RTC.
     1. Still some issues. They will be corrected on next revisions of the firmware.
@@ -148,7 +185,7 @@ Projects for Ride7 and Keil Integrated Development Environments are available.
 * LoRaMac has been updated according to Release1 of the specification. Main changes are:
     1. MAC API changed.
     2. Frame format.
-    3 ClassA first ADR implementation.
+    3. ClassA first ADR implementation.
     4. MAC commands implemented
         * LinkCheckReq              **NO**
         * LinkCheckAns              **NO**

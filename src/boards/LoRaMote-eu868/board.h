@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Target board general functions implementation
 
@@ -17,11 +17,13 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 #include "stm32l1xx.h"
 #include "utilities.h"
-#include "delay.h"
 #include "timer.h"
+#include "delay.h"
 #include "gpio.h"
 #include "adc.h"
 #include "spi.h"
@@ -37,6 +39,11 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "rtc-board.h"
 #include "timer-board.h"
 #include "sx1272-board.h"
+
+/*!
+ * Define indicating if an external IO expander is to be used
+ */
+#define BOARD_IOE_EXT
 
 /*!
  * NULL definition
@@ -188,7 +195,7 @@ extern Gpio_t DbgPin4;
  */
 extern Adc_t Adc;
 extern I2c_t I2c;
-extern Uart_t Uart;
+extern Uart_t Uart1;
 
 extern Gpio_t GpsPps;
 extern Gpio_t GpsRx;

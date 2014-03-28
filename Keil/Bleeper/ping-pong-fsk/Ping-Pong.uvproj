@@ -218,7 +218,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <RoSelD>3</RoSelD>
@@ -341,7 +341,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>2</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -412,11 +412,6 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\boards\Bleeper\board.c</FilePath>
-            </File>
-            <File>
-              <FileName>delay-board.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\Bleeper\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -539,6 +534,11 @@
           <GroupName>boards\mcu\stm32</GroupName>
           <Files>
             <File>
+              <FileName>sysIrqHandlers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\boards\mcu\stm32\sysIrqHandlers.c</FilePath>
+            </File>
+            <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
@@ -564,34 +564,14 @@
           <GroupName>peripherals</GroupName>
           <Files>
             <File>
-              <FileName>gpio-ioe.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\peripherals\gpio-ioe.c</FilePath>
-            </File>
-            <File>
-              <FileName>mag3110.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\peripherals\mag3110.c</FilePath>
-            </File>
-            <File>
-              <FileName>mma8451.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\peripherals\mma8451.c</FilePath>
-            </File>
-            <File>
               <FileName>mpl3115.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\peripherals\mpl3115.c</FilePath>
             </File>
             <File>
-              <FileName>sx1509.c</FileName>
+              <FileName>selector.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\peripherals\sx1509.c</FilePath>
-            </File>
-            <File>
-              <FileName>sx9500.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\peripherals\sx9500.c</FilePath>
+              <FilePath>..\..\..\src\peripherals\selector.c</FilePath>
             </File>
           </Files>
         </Group>

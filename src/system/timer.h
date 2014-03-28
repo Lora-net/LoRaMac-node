@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Timer objects and scheduling management
 
@@ -20,14 +20,9 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 typedef struct TimerEvent_s
 {
-#if defined( DEBUG )
-    uint8_t Id;                 //! Timer Id (automatically generated)
-                                // used for debug purposes
-#endif
     uint32_t Timestamp;         //! Current timer value
     uint32_t ReloadValue;       //! Timer delay value
     bool IsRunning;             //! Is the timer currently running
-    bool IsStoppedEarly;        //! Indicates that this timer was stopped early
     void ( *Callback )( void ); //! Timer IRQ callback function
     struct TimerEvent_s *Next;  //! Pointer to the next Timer object.
 }TimerEvent_t;
@@ -78,9 +73,8 @@ void TimerReset( TimerEvent_t *obj );
 void TimerSetValue( TimerEvent_t *obj, uint32_t value );
 
 /*!
- * \brief Manages the hardware timers events
- *
+ * \brief Manages the entry into ARM cortex deep-sleep mode
  */
-void TimerHandleEvent( void );
+void TimerLowPowerHandler( void );
 
 #endif  // __TIMER_H__

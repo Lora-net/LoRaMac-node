@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Bleeper board I2C driver implementation
 
@@ -39,8 +39,8 @@ void I2cMcuInit( I2c_t *obj, PinNames scl, PinNames sda )
     GpioInit( &obj->Scl, scl, PIN_ALTERNATE_FCT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
     GpioInit( &obj->Sda, sda, PIN_ALTERNATE_FCT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
 
-    GPIO_PinAFConfig( obj->Scl.port, obj->Scl.pin, GPIO_AF_I2C2 );
-    GPIO_PinAFConfig( obj->Sda.port, obj->Sda.pin, GPIO_AF_I2C2 ); 
+    GPIO_PinAFConfig( obj->Scl.port, ( obj->Scl.pin & 0x0F ), GPIO_AF_I2C2 );
+    GPIO_PinAFConfig( obj->Sda.port, ( obj->Sda.pin & 0x0F ), GPIO_AF_I2C2 ); 
 }
 
 void I2cMcuFormat( I2c_t *obj, I2cMode mode, I2cDutyCycle dutyCycle, bool I2cAckEnable, I2cAckAddrMode AckAddrMode, uint32_t I2cFrequency )

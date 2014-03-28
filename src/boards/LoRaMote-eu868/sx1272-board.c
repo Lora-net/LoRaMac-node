@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: SX1272 driver specific target board functions implementation
 
@@ -16,6 +16,11 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "radio.h"
 #include "sx1272/sx1272.h"
 #include "sx1272-board.h"
+
+/*!
+ * Flag used to set the RF switch control pins in low power mode when the radio is not active.
+ */
+static bool RadioIsActive = false;
 
 /*!
  * Radio driver structure initialization
@@ -61,18 +66,17 @@ void SX1272IoInit( void )
     GpioInit( &SX1272.DIO4, RADIO_DIO_4, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
     GpioInit( &SX1272.DIO5, RADIO_DIO_5, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
 
-    GpioInit( &AntTx, RADIO_ANT_SWITCH_TX, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    GpioInit( &AntRx, RADIO_ANT_SWITCH_RX, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
+    SX1272AntSwInit( );
 }
 
 void SX1272IoIrqInit( DioIrqHandler **irqHandlers )
 {
-    GpioSetInterrupt( &SX1272.DIO0, IRQ_RISING_EDGE, IRQ_VERY_LOW_PRIORITY, irqHandlers[0] );
-    GpioSetInterrupt( &SX1272.DIO1, IRQ_RISING_EDGE, IRQ_VERY_LOW_PRIORITY, irqHandlers[1] );
-    GpioSetInterrupt( &SX1272.DIO2, IRQ_RISING_EDGE, IRQ_VERY_LOW_PRIORITY, irqHandlers[2] );
-    GpioSetInterrupt( &SX1272.DIO3, IRQ_RISING_EDGE, IRQ_VERY_LOW_PRIORITY, irqHandlers[3] );
-    GpioSetInterrupt( &SX1272.DIO4, IRQ_RISING_EDGE, IRQ_VERY_LOW_PRIORITY, irqHandlers[4] );
-    GpioSetInterrupt( &SX1272.DIO5, IRQ_RISING_EDGE, IRQ_VERY_LOW_PRIORITY, irqHandlers[5] );
+    GpioSetInterrupt( &SX1272.DIO0, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[0] );
+    GpioSetInterrupt( &SX1272.DIO1, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[1] );
+    GpioSetInterrupt( &SX1272.DIO2, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[2] );
+    GpioSetInterrupt( &SX1272.DIO3, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[3] );
+    GpioSetInterrupt( &SX1272.DIO4, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[4] );
+    GpioSetInterrupt( &SX1272.DIO5, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[5] );
 }
 
 void SX1272IoDeInit( void )
@@ -85,9 +89,35 @@ void SX1272IoDeInit( void )
     GpioInit( &SX1272.DIO3, RADIO_DIO_3, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &SX1272.DIO4, RADIO_DIO_4, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &SX1272.DIO5, RADIO_DIO_5, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+}
 
+void SX1272SetAntSwLowPower( bool status )
+{
+    if( RadioIsActive != status )
+    {
+        RadioIsActive = status;
+    
+        if( status == false )
+        {
+            SX1272AntSwInit( );
+        }
+        else
+        {
+            SX1272AntSwDeInit( );
+        }
+    }
+}
+
+void SX1272AntSwInit( void )
+{
+    GpioInit( &AntTx, RADIO_ANT_SWITCH_TX, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
+    GpioInit( &AntRx, RADIO_ANT_SWITCH_RX, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
+}
+
+void SX1272AntSwDeInit( void )
+{
     GpioInit( &AntTx, RADIO_ANT_SWITCH_TX, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &AntRx, RADIO_ANT_SWITCH_RX, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );  
+    GpioInit( &AntRx, RADIO_ANT_SWITCH_RX, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 }
 
 void SX1272SetAntSw( uint8_t rxTx )

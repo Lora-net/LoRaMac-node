@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Target board general functions implementation
 
@@ -21,6 +21,14 @@ Gpio_t Led1;
 Gpio_t Led2;
 Gpio_t Led3;
 
+/*!
+ * Hex coder selector GPIO pins objects
+ */
+Gpio_t Sel1;
+Gpio_t Sel2;
+Gpio_t Sel3;
+Gpio_t Sel4;
+    
 #if defined( USE_DEBUG_PINS )
 Gpio_t DbgPin1;
 Gpio_t DbgPin2;
@@ -33,34 +41,56 @@ I2c_t I2c;
 volatile uint8_t Led3Status = 1;
 
 /*!
+ * Flag to indicate if the MCU is Initialized
+ */
+static bool McuInitialized = false;
+
+/*!
  * Initializes the unused GPIO to a know status
  */
 static void BoardUnusedIoInit( void );
 
 void BoardInitMcu( void )
 {
-    I2cInit( &I2c, I2C_SCL, I2C_SDA );
-    SX1272IoInit( );
-    SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+    if( McuInitialized == false )
+    {
+        // We use IRQ priority group 4 for the entire project
+        // When setting the IRQ, only the preemption priority is used
+        NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 );
 
-    GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &Led3, LED_3, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, Led3Status );
+        // Disable Systick
+        SysTick->CTRL  &= ~SysTick_CTRL_TICKINT_Msk;    // Systick IRQ off 
+        SCB->ICSR |= SCB_ICSR_PENDSTCLR_Msk;            // Clear SysTick Exception pending flag
+
+        I2cInit( &I2c, I2C_SCL, I2C_SDA );
+        SX1272IoInit( );
+        SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+
+        GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+        GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+        GpioInit( &Led3, LED_3, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, Led3Status );
+
+        GpioInit( &Sel1, SEL_1, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
+        GpioInit( &Sel2, SEL_2, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
+        GpioInit( &Sel3, SEL_3, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
+        GpioInit( &Sel4, SEL_4, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
 
 #if defined( USE_DEBUG_PINS )
-    GpioInit( &DbgPin1, J5_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &DbgPin2, J5_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &DbgPin3, J5_3, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &DbgPin4, J5_4, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+        GpioInit( &DbgPin1, J5_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+        GpioInit( &DbgPin2, J5_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+        GpioInit( &DbgPin3, J5_3, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+        GpioInit( &DbgPin4, J5_4, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 #endif
 
-    BoardUnusedIoInit( );
+        BoardUnusedIoInit( );
 
 #ifdef LOW_POWER_MODE_ENABLE
-    RtcInit( );
+        RtcInit( );
 #else
-    TimerHwInit( );
+        TimerHwInit( );
 #endif
+        McuInitialized = true;
+    }
 }
 
 void BoardDeInitMcu( void )
@@ -82,6 +112,11 @@ void BoardDeInitMcu( void )
         GpioInit( &Led3, LED_3, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
     }
 
+    GpioInit( &Sel1, SEL_1, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
+    GpioInit( &Sel2, SEL_2, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
+    GpioInit( &Sel3, SEL_3, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
+    GpioInit( &Sel4, SEL_4, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
+
 #if ( defined( USE_DEBUG_PINS ) && !defined( LOW_POWER_MODE_ENABLE ) )
     GpioInit( &DbgPin1, J5_1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &DbgPin2, J5_2, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
@@ -93,17 +128,14 @@ void BoardDeInitMcu( void )
     GpioInit( &oscHseOut, OSC_HSE_OUT, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
     GpioInit( &oscLseIn, OSC_LSE_IN, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 1 );
     GpioInit( &oscLseOut, OSC_LSE_OUT, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 1 );
+
+    McuInitialized = false;
 }
 
 void BoardInitPeriph( void )
 {
-    if( mpl3115Init( ) != SUCCESS )
-    {
-        GpioWrite( &Led1, 0 );
-        GpioWrite( &Led2, 0 );
-        GpioWrite( &Led3, 0 );
-        while( 1 );
-    }
+    // init Temperature, pressure and altitude sensor
+    mpl3115Init( );
 }
 
 void BoardGetUniqueId( uint8_t *id )
@@ -130,7 +162,7 @@ uint8_t BoardMeasureBatterieLevel( void )
     DelayMs( 1 );
     
     tmpreg = PWR->CR; // get the CR register for a read-modify-write
-	
+    
     for( i = 0; i <= 6; i++ ) 
     {
         PWR->CR = ( ( tmpreg & 0xFFFFFF1F ) | ( i << 5 ) ); // set PVD level from 0 to 6
@@ -191,11 +223,6 @@ static void BoardUnusedIoInit( void )
     Gpio_t j22;
     Gpio_t j23;
 
-    Gpio_t sel1;
-    Gpio_t sel2;
-    Gpio_t sel3;
-    Gpio_t sel4;
-
     Gpio_t sdDet;
     Gpio_t sdDat0;
     Gpio_t sdDat1;
@@ -234,12 +261,6 @@ static void BoardUnusedIoInit( void )
     /* External Connector J2 */
     GpioInit( &j22, J2_2, PIN_ANALOGIC, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
     GpioInit( &j23, J2_3, PIN_ANALOGIC, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 ); 
-    
-    /* Selector */
-    GpioInit( &sel1, SEL_1, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
-    GpioInit( &sel2, SEL_2, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
-    GpioInit( &sel3, SEL_3, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
-    GpioInit( &sel4, SEL_4, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
     
     /* SD Card */
     GpioInit( &sdDet, SD_DET, PIN_ANALOGIC, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );

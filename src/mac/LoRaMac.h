@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: LoRa MAC layer implementation
 
@@ -68,9 +68,22 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 /*!
  * Number of seconds after the start of the second reception window without
- * receiving an acknowledge
+ * receiving an acknowledge.
+ * AckTimeout = ACK_TIMEOUT + Random( -ACK_TIMEOUT_RND, ACK_TIMEOUT_RND )
  */
-#define ACK_TIMEOUT                                 4000000
+#define ACK_TIMEOUT                                 2000000
+
+/*!
+ * Random number of seconds after the start of the second reception window without
+ * receiving an acknowledge
+ * AckTimeout = ACK_TIMEOUT + Random( -ACK_TIMEOUT_RND, ACK_TIMEOUT_RND )
+ */
+#define ACK_TIMEOUT_RND                             1000000
+
+/*!
+ * Maximum number of times the MAC layer tries to get an acknowledge.
+ */
+#define MAX_ACK_RETRIES                             8
 
 /*!
  * RSSI free threshold
@@ -82,17 +95,6 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 #define UP_LINK                                     0
 #define DOWN_LINK                                   1
-
-/*!
- *
- */
-#define LORAMAC_TX_ERROR_TIMEOUT                    0
-
-/*!
- *
- */
-#define LORAMAC_RX_ERROR_TIMEOUT                    0
-#define LORAMAC_RX_ERROR_RADIO                      1
 
 /*!
  * Sets the length of the LoRaMAC footer field.
@@ -209,6 +211,7 @@ typedef enum
     LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT,
     LORAMAC_EVENT_INFO_STATUS_RX_ERROR,
     LORAMAC_EVENT_INFO_STATUS_RX_TIMEOUT,
+    LORAMAC_EVENT_INFO_STATUS_MAC_ERROR,
 }LoRaMacEventInfoStatus_t;
 
 /*!
@@ -342,6 +345,32 @@ uint8_t LoRaMacSendConfirmedFrame( uint8_t fPort, void *fBuffer, uint16_t fBuffe
 uint8_t LoRaMacSend( LoRaMacHeader_t *macHdr, uint8_t *fOpts, uint8_t fPort, void *fBuffer, uint16_t fBufferSize );
 
 /*!
+ * LoRaMAC layer frame buffer initialization.
+ *
+ * \param [IN] channel     Channel parameters
+ * \param [IN] macHdr      MAC header field
+ * \param [IN] fCtrl       MAC frame control field
+ * \param [IN] fOpts       MAC commands buffer
+ * \param [IN] fPort       MAC payload port
+ * \param [IN] fBuffer     MAC data buffer to be sent
+ * \param [IN] fBufferSize MAC data buffer size
+ * \retval status          [0: OK, 1: N/A, 2: No network joined,
+ *                          3: Length or port error, 4: Unknown MAC command]
+ */
+uint8_t LoRaMacPrepareFrame( ChannelParams_t channel,LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl, uint8_t *fOpts, uint8_t fPort, void *fBuffer, uint16_t fBufferSize );
+
+/*!
+ * LoRaMAC layer prepared frame buffer transmission with channel specification
+ *
+ * \remark LoRaMacPrepareFrame must be called at least once before calling this
+ *         function.
+ *
+ * \param [IN] channel     Channel parameters
+ * \retval status          [0: OK, 1: Busy]
+ */
+uint8_t LoRaMacSendFrameOnChannel( ChannelParams_t channel );
+
+/*!
  * LoRaMAC layer generic send frame with channel specification
  *
  * \param [IN] channel     Channel parameters
@@ -355,6 +384,13 @@ uint8_t LoRaMacSend( LoRaMacHeader_t *macHdr, uint8_t *fOpts, uint8_t fPort, voi
  *                          3: Length or port error, 4: Unknown MAC command]
  */
 uint8_t LoRaMacSendOnChannel( ChannelParams_t channel, LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl, uint8_t *fOpts, uint8_t fPort, void *fBuffer, uint16_t fBufferSize );
+
+/*!
+ * Disables/Enables the reception windows opening
+ *
+ * \param [IN] enable [true: enable, false: disable]
+ */
+void LoRaMacTestRxWindowsOn( bool enable );
 
 /*!
  * Enables the MIC field test

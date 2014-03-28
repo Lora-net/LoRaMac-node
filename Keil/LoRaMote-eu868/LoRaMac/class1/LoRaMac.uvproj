@@ -218,7 +218,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <RoSelD>3</RoSelD>
@@ -341,7 +341,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>4</Optim>
+            <Optim>2</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -417,11 +417,6 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\LoRaMote-eu868\board.c</FilePath>
-            </File>
-            <File>
-              <FileName>delay-board.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\LoRaMote-eu868\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -554,6 +549,11 @@
           <GroupName>boards\mcu\stm32</GroupName>
           <Files>
             <File>
+              <FileName>sysIrqHandlers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\sysIrqHandlers.c</FilePath>
+            </File>
+            <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
@@ -637,6 +637,11 @@
               <FileName>delay.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\system\delay.c</FilePath>
+            </File>
+            <File>
+              <FileName>fifo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\system\fifo.c</FilePath>
             </File>
             <File>
               <FileName>gpio.c</FileName>

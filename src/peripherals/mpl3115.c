@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Driver for the MPL3115 Temperature, pressure and altitude sensor
 
@@ -123,9 +123,7 @@ uint8_t mpl3115Init( void )
     mpl3115SetDeviceAddr( MPL3115A_I2C_ADDRESS );
 
     if( mpl3115Initialized == false )
-    {   
-        mpl3115Initialized = true;
-        
+    {          
         mpl3115Read( MPL3115_ID, &regVal );
         if( regVal != 0xC4 )
         {
@@ -148,6 +146,8 @@ uint8_t mpl3115Init( void )
         mpl3115Write( OFF_H_REG, 0xB0 );            // Altitude data offset
     
         mpl3115SetModeActive( );
+    
+        mpl3115Initialized = true;
     }
     return SUCCESS;
 }
@@ -194,32 +194,39 @@ uint8_t mpl3115GetDeviceAddr( void )
 
 float mpl3115ReadAltitude( void )
 {
+    uint8_t counter = 0;
     uint8_t val = 0;
     uint8_t msb = 0, csb = 0, lsb = 0;
     float decimal = 0;
-    uint32_t counter = 0;
-  
+
+    if( mpl3115Initialized == false )
+    {
+        return 0;
+    }
+
     mpl3115SetModeAltimeter( );
     mpl3115ToggleOneShot( );
 
     while( ( val & 0x04 ) != 0x04 )
     {    
         mpl3115Read( STATUS_REG, &val );
+        DelayMs( 10 );
         counter++;
-        if( counter > 0xA000 )
+    
+        if( counter > 20 )
         {    
-            counter = 0;
             mpl3115Initialized = false;
             mpl3115Init( );
             mpl3115SetModeAltimeter( );
             mpl3115ToggleOneShot( );
-
+            counter = 0;
             while( ( val & 0x04 ) != 0x04 )
             {  
                 mpl3115Read( STATUS_REG, &val );
+                DelayMs( 10 );
                 counter++;
-                if( counter > 0xA000 )
-                { 
+                if( counter > 20 )
+                {
                     return( 0 ); //Error out after max of 512ms for a read
                 }
             }
@@ -238,10 +245,15 @@ float mpl3115ReadAltitude( void )
 
 float mpl3115ReadPressure( void )
 {
+    uint8_t counter = 0;
     uint8_t val = 0;
     uint8_t msb = 0, csb = 0, lsb = 0;
     float decimal = 0;
-    uint32_t counter = 0;
+
+    if( mpl3115Initialized == false )
+    {
+        return 0;
+    }
 
     mpl3115SetModeBarometer( );
     mpl3115ToggleOneShot( );
@@ -249,23 +261,27 @@ float mpl3115ReadPressure( void )
     while( ( val & 0x04 ) != 0x04 )
     {    
         mpl3115Read( STATUS_REG, &val );
+        DelayMs( 10 );
         counter++;
-        if( counter > 0xA000  )
-        {    
-            counter = 0;
+    
+        if( counter > 20 )
+        {      
             mpl3115Initialized = false;
             mpl3115Init( );
             mpl3115SetModeBarometer( );
             mpl3115ToggleOneShot( );
+            counter = 0;
             while( ( val & 0x04 ) != 0x04 )
-            {  
-                mpl3115Read( STATUS_REG, &val );
+            {
+                DelayMs( 10 );
                 counter++;
-                if( counter > 0xA000 )
-                { 
+    
+                if( counter > 20 )
+                {
                     return( 0 ); //Error out after max of 512ms for a read
                 }
             }
+                
         }
     }
 
@@ -288,20 +304,42 @@ float mpl3115ReadPressure( void )
 
 float mpl3115ReadTemperature( void )
 {
+    uint8_t counter = 0;
     bool negSign = false;
     uint8_t val = 0;
     uint8_t msb = 0, lsb = 0;
-    uint32_t counter = 0;
+
+    if( mpl3115Initialized == false )
+    {
+        return 0;
+    }
 
     mpl3115ToggleOneShot( );
 
     while( ( val & 0x02 ) != 0x02 )
     {    
         mpl3115Read( STATUS_REG, &val );
+        DelayMs( 10 );
         counter++;
-        if( counter > 0xA000 ) 
-        {    
-            return( 0 ); //Error out after max of 512ms for a read
+    
+        if( counter > 20 )
+        { 
+            mpl3115Initialized = false;
+            mpl3115Init( );
+            mpl3115ToggleOneShot( );
+            counter = 0;
+            while( ( val & 0x02 ) != 0x02 )
+            {
+                mpl3115Read( STATUS_REG, &val );
+                DelayMs( 10 );
+                counter++;
+            
+                if( counter > 20 )
+                { 
+                    return( 0 ); //Error out after max of 512ms for a read
+                }
+            }
+                
         }
     }
 

@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Target board general functions implementation
 
@@ -49,13 +49,18 @@ Gpio_t GpsTx;
 
 Adc_t Adc;
 I2c_t I2c;
-Uart_t Uart;
+Uart_t Uart1;
 
 
 /*!
  * Initializes the unused GPIO to a know status
  */
 static void BoardUnusedIoInit( void );
+
+/*!
+ * Flag to indicate if the MCU is Initialized
+ */
+static bool McuInitialized = false;
 
 void BoardInitPeriph( void )
 {
@@ -76,69 +81,60 @@ void BoardInitPeriph( void )
     GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &Led3, LED_3, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 
+    // init Temperature, pressure and altitude sensor
+    mpl3115Init( );
 
-    if( mpl3115Init( ) != SUCCESS )
-    {
-        GpioWrite( &Led1, 1 );
-        GpioWrite( &Led2, 0 );
-        GpioWrite( &Led3, 0 );
-        while( 1 );
-    }
+    // init Accelerometer
+    mma8451Init( );
+    
+    // init Magnetometer
+    mag3110Init( );
 
-    if( mma8451Init( ) != SUCCESS )
-    {
-        GpioWrite( &Led1, 0 );
-        GpioWrite( &Led2, 1 );
-        GpioWrite( &Led3, 0 );
-        while( 1 );
-    }
+    // init SAR
+    sx9500Init( );
 
-    if( mag3110Init( ) != SUCCESS )
-    {
-        GpioWrite( &Led1, 0 );
-        GpioWrite( &Led2, 0 );
-        GpioWrite( &Led3, 1 );
-        while( 1 );
-    }
-
-    if( sx9500Init( ) != SUCCESS )
-    {
-        GpioWrite( &Led1, 1 );
-        GpioWrite( &Led2, 0 );
-        GpioWrite( &Led3, 1 );
-        while( 1 );
-    }
-
-    up501Init( );
+    // init GPS
+    UP501Init( );
 
     // Switch LED 1, 2, 3 OFF
     GpioWrite( &Led1, 1 );
     GpioWrite( &Led2, 1 );
     GpioWrite( &Led3, 1 );
-
 }
 
 void BoardInitMcu( void )
 {
-    I2cInit( &I2c, I2C_SCL, I2C_SDA );
-    AdcInit( &Adc, BAT_LEVEL );
-    SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
-    SX1272IoInit( );
+    if( McuInitialized == false )
+    {
+        // We use IRQ priority group 4 for the entire project
+        // When setting the IRQ, only the preemption priority is used
+        NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 );
+
+        // Disable Systick
+        SysTick->CTRL  &= ~SysTick_CTRL_TICKINT_Msk;    // Systick IRQ off 
+        SCB->ICSR |= SCB_ICSR_PENDSTCLR_Msk;            // Clear SysTick Exception pending flag
+
+        I2cInit( &I2c, I2C_SCL, I2C_SDA );
+        AdcInit( &Adc, BAT_LEVEL );
+        SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+        SX1272IoInit( );
 
 #if defined( USE_DEBUG_PINS )
-    GpioInit( &DbgPin1, CON_EXT_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &DbgPin2, CON_EXT_3, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &DbgPin3, CON_EXT_7, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &DbgPin4, CON_EXT_9, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+        GpioInit( &DbgPin1, CON_EXT_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+        GpioInit( &DbgPin2, CON_EXT_3, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+        GpioInit( &DbgPin3, CON_EXT_7, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+        GpioInit( &DbgPin4, CON_EXT_9, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 #endif
 
-    BoardUnusedIoInit( );
+        BoardUnusedIoInit( );
 
 #ifdef LOW_POWER_MODE_ENABLE
-    RtcInit( );
+        RtcInit( );
 #else
-    TimerHwInit( );
+        TimerHwInit( );
 #endif
+        McuInitialized = true;
+    }
 }
 
 void BoardDeInitMcu( void )
@@ -148,11 +144,11 @@ void BoardDeInitMcu( void )
     Gpio_t oscLseIn;
     Gpio_t oscLseOut;
 
-//    I2cDeInit( &I2c );
+    I2cDeInit( &I2c );
     SpiDeInit( &SX1272.Spi );
     SX1272IoDeInit( );
 
-#if ( defined( USE_DEBUG_PINS ) && !defined( LOW_POWER_MODE_ENABLE ) )
+#if defined( USE_DEBUG_PINS )
     GpioInit( &DbgPin1, CON_EXT_1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &DbgPin2, CON_EXT_3, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &DbgPin3, CON_EXT_7, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
@@ -164,6 +160,8 @@ void BoardDeInitMcu( void )
 
     GpioInit( &oscLseIn, OSC_LSE_IN, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 1 );
     GpioInit( &oscLseOut, OSC_LSE_OUT, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 1 );
+    
+    McuInitialized = false;
 }
 
 void BoardGetUniqueId( uint8_t *id )
@@ -185,17 +183,13 @@ uint8_t BoardMeasureBatterieLevel( void )
      
     MeasuredLevel = AdcReadChannel( &Adc );
 
-    if( MeasuredLevel >= 3600 )  // 8.7V
+    if( MeasuredLevel >= 3900 )  // 9V
     {
         batteryLevel = 254;
     }
-    else if( MeasuredLevel <= 2500 ) // 6V 
-    {
-        batteryLevel = 0;
-    }
     else
     {
-        batteryLevel = ( MeasuredLevel - 2500 ) * BATTERY_STEP_LEVEL;
+        batteryLevel = ( MeasuredLevel - 1870 ) * BATTERY_STEP_LEVEL; // 1870 => 4.7V = limit of operation for the battery
     }
     return batteryLevel;
 }
@@ -203,23 +197,18 @@ uint8_t BoardMeasureBatterieLevel( void )
 static void BoardUnusedIoInit( void )
 {
 #if !defined( USE_DEBUG_PINS )
-    Gpio_t j51;
-    Gpio_t j52;
-    Gpio_t j53;
-    Gpio_t j54;
-#endif
-    Gpio_t usbDM;
-    Gpio_t usbDP;
-
-    Gpio_t boot1;
-
     Gpio_t conExt1;
     Gpio_t conExt3;
     Gpio_t conExt7;
-    Gpio_t conExt8;
     Gpio_t conExt9;
+#endif
+
+    Gpio_t conExt8;
     Gpio_t conExt13;
-     
+
+    Gpio_t usbDM;
+    Gpio_t usbDP;
+    Gpio_t boot1;
     Gpio_t pin_pb6; 
     Gpio_t wkup1; 
 
@@ -233,10 +222,10 @@ static void BoardUnusedIoInit( void )
   
     /* External Connector J5 */
 #if !defined( USE_DEBUG_PINS )
-    GpioInit( &j51, CON_EXT_1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &j52, CON_EXT_3, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &j53, CON_EXT_7, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &j54, CON_EXT_9, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &conExt1, CON_EXT_1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &conExt3, CON_EXT_3, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &conExt7, CON_EXT_7, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &conExt9, CON_EXT_9, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 #endif
 
     /* USB */

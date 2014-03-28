@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: MCU RTC timer and low power modes management
 
@@ -19,21 +19,33 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * Hardware Time base in us
  */
-#define HW_TIMER_TIME_BASE                              10 
+#define HW_TIMER_TIME_BASE                              100 //us 
 
 /*!
- * Hardware timer counter
+ * Hardware Timer tick counter
  */
-volatile uint32_t TimeoutCntValue;
+volatile uint64_t TimerTickCounter = 1;     
+
+/*!
+ * Saved value of the Tick counter at the start of the next event
+ */
+static uint64_t TimerTickCounterContext = 0;            
+
+/*!
+ * Value trigging the IRQ
+ */
+volatile uint64_t TimeoutCntValue = 0;
+
+void TimerIncrementTickCounter( void );
+
 
 void TimerHwInit( void )
 {
     NVIC_InitTypeDef NVIC_InitStructure;
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-    TIM_OCInitTypeDef  TIM_OCInitStructure;
 
-    /* TIM2 clock enable */
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+    /* TIM2 clock enable */ 
+    RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM2, ENABLE );
 
     /* --------------------------NVIC Configuration -------------------------------*/
     /* Enable the TIM2 gloabal Interrupt */
@@ -42,32 +54,21 @@ void TimerHwInit( void )
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
-    NVIC_Init(&NVIC_InitStructure);
+    NVIC_Init( &NVIC_InitStructure );
 
     TimeoutCntValue = 0;
 
     /* Time base configuration */
-    TIM_TimeBaseStructure.TIM_Period = 319;
+    TIM_TimeBaseStructure.TIM_Period = 3199;
     TIM_TimeBaseStructure.TIM_Prescaler = 0; 
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+    TIM_TimeBaseInit( TIM2, &TIM_TimeBaseStructure );
 
-    TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
-
-    /* Output Compare Timing Mode configuration: Channel1 */
-    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Toggle;
-    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-    TIM_OCInitStructure.TIM_Pulse = 1;
-    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
-
-    TIM_OC1Init(TIM2, &TIM_OCInitStructure);
-
-    TIM_OC1PreloadConfig(TIM2, TIM_OCPreload_Enable);
-    /* TIM IT enable */
-    TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
+    TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE );
 
     /* TIM2 disable counter */
-    TIM_Cmd(TIM2, DISABLE); 
+    TIM_Cmd( TIM2, ENABLE ); 
 }
 
 void TimerHwDeInit( void )
@@ -76,22 +77,70 @@ void TimerHwDeInit( void )
     TIM_DeInit( TIM2 );
 }
 
+uint32_t TimerHwGetMinimumTimeout( void )
+{
+    return( ceil( 2 * HW_TIMER_TIME_BASE ) );
+}
+
 void TimerHwStart( uint32_t val )
 {
-    TimeoutCntValue = ( val - 1 ) / HW_TIMER_TIME_BASE;
-    TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);
-    TIM_Cmd( TIM2, ENABLE );  
+    TimerTickCounterContext = TimerHwGetTimerValue( );
+
+    if( val <= HW_TIMER_TIME_BASE + 1 )
+    {
+        TimeoutCntValue = TimerTickCounterContext + 1;
+    }
+    else
+    {
+        TimeoutCntValue = TimerTickCounterContext + ( ( val - 1 ) / HW_TIMER_TIME_BASE );
+    }
 }
 
 void TimerHwStop( void )
 {
-    TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
+    TIM_ITConfig( TIM2, TIM_IT_CC1, DISABLE );
     TIM_Cmd( TIM2, DISABLE );  
 }
 
-uint32_t TimerHwGetTimerValue( void )
+void TimerHwDelayMs( uint32_t delay )
 {
-     return ( TimeoutCntValue * HW_TIMER_TIME_BASE );
+    uint64_t delayValue = 0;
+    uint64_t timeout = 0;
+
+    delayValue = delay * 1000;
+
+    timeout = TimerHwGetTimerValue( );
+
+    while( ( ( TimerHwGetTimerValue( ) - timeout  ) * HW_TIMER_TIME_BASE ) < delayValue )
+    {
+    }
+}
+
+uint64_t TimerHwGetElapsedTime( void )
+{
+     return( ( ( TimerHwGetTimerValue( ) - TimerTickCounterContext ) + 1 )  * HW_TIMER_TIME_BASE );
+}
+
+uint64_t TimerHwGetTimerValue( void )
+{
+    uint64_t val = 0;
+
+    __disable_irq( );
+
+    val = TimerTickCounter;
+
+    __enable_irq( );
+
+    return( val );
+}
+
+void TimerIncrementTickCounter( void )
+{
+    __disable_irq( );
+
+    TimerTickCounter++;
+
+    __enable_irq( );
 }
 
 /*!
@@ -99,17 +148,22 @@ uint32_t TimerHwGetTimerValue( void )
  */
 void TIM2_IRQHandler( void )
 {
-    if (TIM_GetITStatus(TIM2, TIM_IT_CC1) != RESET)
+    if( TIM_GetITStatus( TIM2, TIM_IT_Update ) != RESET )
     {
-        TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
+        TimerIncrementTickCounter( );
     
-        TimeoutCntValue--;
-    
-        if( TimeoutCntValue == 0 )
+        if( TimerTickCounter == TimeoutCntValue )
         {
-            TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);
-            TIM_Cmd( TIM2, DISABLE );  
             TimerIrqHandler( );
         }
+    
+        TIM_ClearITPendingBit( TIM2, TIM_IT_Update );
     }
+}
+
+void TimerHwEnterLowPowerStopMode( void )
+{
+#ifndef USE_DEBUGGER
+    __WFI( );
+#endif
 }

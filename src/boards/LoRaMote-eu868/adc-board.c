@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Board ADC driver implementation
 
@@ -33,6 +33,12 @@ void AdcMcuFormat( Adc_t *obj, AdcResolution AdcRes, AdcNumConversion AdcNumConv
     while(RCC_GetFlagStatus( RCC_FLAG_HSIRDY ) == RESET );
 
     RCC_APB2PeriphClockCmd( RCC_APB2Periph_ADC1, ENABLE );
+
+    // Setup lowest possible prescaler in oder to be able to operate
+    // at the whole Vdd rage 1.6V to 3.6V
+    ADC_CommonInitTypeDef Adc_CommInitStructure;
+    Adc_CommInitStructure.ADC_Prescaler = ADC_Prescaler_Div4;
+    ADC_CommonInit( &Adc_CommInitStructure );
 
     ADC_InitTypeDef ADC_InitStructure;
 
@@ -96,6 +102,8 @@ void AdcMcuFormat( Adc_t *obj, AdcResolution AdcRes, AdcNumConversion AdcNumConv
 
     ADC_Init( ADC1, &ADC_InitStructure );
 
+    ADC_DelaySelectionConfig( ADC1, ADC_DelayLength_Freeze );
+
     RCC_APB2PeriphClockCmd( RCC_APB2Periph_ADC1, DISABLE );
 
     RCC_HSICmd( DISABLE );
@@ -150,5 +158,3 @@ uint16_t AdcMcuReadChannel( Adc_t *obj )
    
     return ADCdata;
 }
-
-

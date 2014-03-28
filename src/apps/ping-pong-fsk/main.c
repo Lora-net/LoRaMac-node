@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Ping-Pong implementation
 
@@ -93,7 +93,7 @@ int main( void )
 
     Radio.SetChannel( 870000000 );
     Radio.SetTxConfig( MODEM_FSK, 14, 50000, 0, 9600, 0, 8, false, true, false, 3000000 );
-    Radio.SetRxConfig( MODEM_FSK, 100000, 9600, 0, 150000, false, true, false, true );
+    Radio.SetRxConfig( MODEM_FSK, 100000, 9600, 0, 150000, 0, 0, false, true, false, true );
     
     Radio.Rx( RX_TIMEOUT_VALUE );
 
@@ -178,6 +178,7 @@ int main( void )
                 {
                     Buffer[i] = i - 4;
                 }
+                DelayMs( 1 ); 
                 Radio.Send( Buffer, BufferSize );
             }
             else
@@ -196,7 +197,7 @@ int main( void )
             break;
         }
     
-        TimerHandleEvent( );
+        TimerLowPowerHandler( );
     
     }
 }

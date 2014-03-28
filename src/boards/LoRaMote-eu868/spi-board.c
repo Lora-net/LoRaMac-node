@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Bleeper board SPI driver implementation
 
@@ -38,15 +38,15 @@ void SpiInit( Spi_t *obj, PinNames mosi, PinNames miso, PinNames sclk, PinNames 
     GpioInit( &obj->Sclk, sclk, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0 );
 
     // TODO: Make independent of stm32l1xx_gpio.h
-    GPIO_PinAFConfig( obj->Mosi.port, obj->Mosi.pin, GPIO_AF_SPI1 );
-    GPIO_PinAFConfig( obj->Miso.port, obj->Miso.pin, GPIO_AF_SPI1 );
-    GPIO_PinAFConfig( obj->Sclk.port, obj->Sclk.pin, GPIO_AF_SPI1 );
+    GPIO_PinAFConfig( obj->Mosi.port, ( obj->Mosi.pin & 0x0F ), GPIO_AF_SPI1 );
+    GPIO_PinAFConfig( obj->Miso.port, ( obj->Miso.pin & 0x0F ), GPIO_AF_SPI1 );
+    GPIO_PinAFConfig( obj->Sclk.port, ( obj->Sclk.pin & 0x0F ), GPIO_AF_SPI1 );
 
     if( nss != NC )
     {
         GpioInit( &obj->Nss, nss, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
         // TODO: Make independent of stm32l1xx_gpio.h
-        GPIO_PinAFConfig( obj->Nss.port, obj->Nss.pin, GPIO_AF_SPI1 );
+        GPIO_PinAFConfig( obj->Nss.port, ( obj->Nss.pin & 0x0F ), GPIO_AF_SPI1 );
     }
     else
     {
@@ -134,7 +134,12 @@ void SpiFrequency( Spi_t *obj, uint32_t hz )
 
 uint16_t SpiInOut( Spi_t *obj, uint16_t outData )
 {
-    /* Send SPIy data */
+    if( ( obj == NULL ) || ( obj->Spi ) == NULL )
+    {
+        while( 1 );
+    }
+    
+    while( SPI_I2S_GetFlagStatus( obj->Spi, SPI_I2S_FLAG_TXE ) == RESET );
     SPI_I2S_SendData( obj->Spi, outData );
     while( SPI_I2S_GetFlagStatus( obj->Spi, SPI_I2S_FLAG_RXNE ) == RESET );
     return SPI_I2S_ReceiveData( obj->Spi );

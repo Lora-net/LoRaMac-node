@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Helper functions implementation
 
@@ -35,4 +35,31 @@ void memset1( uint8_t *dst, uint8_t value, uint16_t size )
     {
         *dst++ = value;
     }
+}
+
+int8_t Nibble2HexChar( uint8_t a )
+{
+	if( a < 10 )
+    {
+		return '0' + a;
+	}
+    else if( a < 16 )
+    {
+		return 'A' + ( a - 10 );
+	}
+    else
+    {
+		return '?';
+	}
+}
+
+#ifdef __GNUC__
+/* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
+   set to 'Yes') calls __io_putchar() */
+int __io_putchar( int c )
+#else /* __GNUC__ */
+int fputc( int c, FILE *stream )
+#endif
+{
+   return( ITM_SendChar( c ) );
 }

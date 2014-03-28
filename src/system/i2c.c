@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Implements the generic I2C driver
 
@@ -47,7 +47,22 @@ uint8_t I2cWrite( I2c_t *obj, uint8_t deviceAddress, uint8_t registerAddress, ui
 {
     if( I2cInitialized == true )
     {
-        return( I2cMcuWriteBuffer( obj, deviceAddress, registerAddress, data, 1 ) );
+        if( I2cMcuWriteBuffer( obj, deviceAddress, registerAddress, data, 1 ) == FAIL )
+        {
+            // if first attemp fail due to an IRQ, try a second time
+            if( I2cMcuWriteBuffer( obj, deviceAddress, registerAddress, data, 1 ) == FAIL )
+            {
+                return FAIL;
+            }
+            else
+            {
+                return SUCCESS;
+            }
+        }
+        else
+        {
+            return SUCCESS;
+        }
     }
     else
     {
@@ -59,7 +74,22 @@ uint8_t I2cWriteBuffer( I2c_t *obj, uint8_t deviceAddress, uint8_t registerAddre
 {
     if( I2cInitialized == true )
     {
-        return( I2cMcuWriteBuffer( obj, deviceAddress, registerAddress, data, size ) );
+        if( I2cMcuWriteBuffer( obj, deviceAddress, registerAddress, data, size ) == FAIL )
+        {
+            // if first attemp fail due to an IRQ, try a second time
+            if( I2cMcuWriteBuffer( obj, deviceAddress, registerAddress, data, size ) == FAIL )
+            {
+                return FAIL;
+            }
+            else
+            {
+                return SUCCESS;
+            }
+        }
+        else
+        {
+            return SUCCESS;
+        }
     }
     else
     {

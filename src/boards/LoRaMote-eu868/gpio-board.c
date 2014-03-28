@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Bleeper board GPIO driver implementation
 
@@ -16,17 +16,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "gpio-board.h"
 #include "stm32l1xx_gpio.h"
 
-PinNames PinName;
-PinModes PinMode;
-PinConfigs PinConfig;
-PinTypes PinType;
-IrqModes IrqMode;
-IrqPriorities IrqPriority;
-
-
 static GpioIrqHandler *GpioIrq[16];
 
-void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode,  PinConfigs config, PinTypes type, uint32_t value )
+void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, PinTypes type, uint32_t value )
 {
     GPIO_InitTypeDef GPIO_InitStructure;
 
@@ -37,7 +29,7 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode,  PinConfigs config, 
     
     obj->portIndex = ( uint32_t ) pin >> 4;
     
-    obj->pin = ( PinNames )( ( uint32_t )pin % 16 );
+    obj->pin = pin;
     obj->pinIndex = ( 0x01 << ( obj->pin & 0x0F ) );
     
     if( obj->portIndex < 6 )
@@ -127,28 +119,28 @@ void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriori
 
     if( irqPriority == IRQ_VERY_LOW_PRIORITY )
     {
-        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
-        NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 15;
+        NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     }
     else if( irqPriority == IRQ_LOW_PRIORITY )
     {
-        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x07;
-   //     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
+        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 12;
+        NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     }
     else if( irqPriority == IRQ_MEDIUM_PRIORITY )
     {
-        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x03;
-   //     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
+        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
+        NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     }
     else if( irqPriority == IRQ_HIGH_PRIORITY )
     {
-        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
-   //     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
+        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 4;
+        NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     }
     else if( irqPriority == IRQ_VERY_HIGH_PRIORITY )
     {
-        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
-        NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
+        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+        NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     }
     else
     {
@@ -173,6 +165,15 @@ void GpioMcuRemoveInterrupt( Gpio_t *obj )
 
 void GpioMcuWrite( Gpio_t *obj, uint32_t value )
 {
+    if( ( obj == NULL ) || ( obj->port == NULL ) )
+    {
+        while( 1 );
+    }
+    // Check if pin is not connected
+    if( obj->pin == NC )
+    {
+        return;
+    }
     if( value == 0 )
     {
         GPIO_ResetBits( obj->port, obj->pinIndex );
@@ -185,6 +186,15 @@ void GpioMcuWrite( Gpio_t *obj, uint32_t value )
 
 uint32_t GpioMcuRead( Gpio_t *obj )
 {
+    if( obj == NULL )
+    {
+        while( 1 );
+    }
+    // Check if pin is not connected
+    if( obj->pin == NC )
+    {
+        return 0;
+    }
     return GPIO_ReadInputDataBit( obj->port, obj->pinIndex );
 }
 

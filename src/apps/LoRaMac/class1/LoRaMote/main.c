@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: LoRaMac class1 device implementation
 
@@ -162,6 +162,10 @@ void OnLed1TimerEvent( void )
  */
 void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
 {
+    if( info->Status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT )
+    {
+        TxDone = true;
+    }
     if( flags->Bits.JoinAccept == 1 )
     {
 #if( OVER_THE_AIR_ACTIVATION != 0 )
@@ -235,7 +239,7 @@ int main( void )
                 // Relaunch timer for next trial
                 TimerStart( &JoinReqTimer );
             }
-            TimerHandleEvent( );
+            TimerLowPowerHandler( );
 #endif
         }
         if( Led1TimerEvent == true )
@@ -264,8 +268,8 @@ int main( void )
             temperature = ( int16_t )( mpl3115ReadTemperature( ) * 100 );       // in °C * 100
             altitudeBar = ( uint16_t )( mpl3115ReadAltitude( ) * 10 );          // in m * 10
             batteryLevel = BoardMeasureBatterieLevel( );                        // 1 (very low) to 254 (fully charged)
-            up501GetLatestGpsPositionBinary( &latitude, &longitude );
-            altitudeGps = up501GetLatestGpsAltitude( );                         // in m
+            UP501GetLatestGpsPositionBinary( &latitude, &longitude );
+            altitudeGps = UP501GetLatestGpsAltitude( );                         // in m
         
             // Switch LED 1 ON
             GpioWrite( &Led1, 0 );
@@ -291,7 +295,7 @@ int main( void )
             LoRaMacSendFrame( 2, AppData, APP_DATA_SIZE );
         }
 
-        TimerHandleEvent( );
+        TimerLowPowerHandler( );
     }
 }
 

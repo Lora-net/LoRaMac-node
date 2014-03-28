@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Generic radio driver definition
 
@@ -119,9 +119,15 @@ struct Radio_s
      * \param [IN] coderate     Sets the coding rate (LoRa only)
      *                          FSK : N/A ( set to 0 )
      *                          LoRa: [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8] 
-     * \param [IN] afcBandwidth Sets the AFC Bandwidth (FSK only) 
+     * \param [IN] bandwidthAfc Sets the AFC Bandwidth (FSK only) 
      *                          FSK : >= 2600 and <= 250000 Hz
      *                          LoRa: N/A ( set to 0 ) 
+     * \param [IN] preambleLen  Sets the Preamble length (LoRa only) 
+     *                          FSK : N/A ( set to 0 ) 
+     *                          LoRa: Length in symbols (the hardware adds 4 more symbols)
+     * \param [IN] symbTimeout  Sets the RxSingle timeout value (LoRa only) 
+     *                          FSK : N/A ( set to 0 ) 
+     *                          LoRa: timeout in symbols
      * \param [IN] fixLen       Fixed length packets [0: variable, 1: fixed]
      * \param [IN] crcOn        Enables/Disables the CRC [0: OFF, 1: ON]
      * \param [IN] iqInverted   Inverts IQ signals (LoRa only)
@@ -132,7 +138,8 @@ struct Radio_s
      */
     void    ( *SetRxConfig )( RadioModems_t modem, uint32_t bandwidth,
                               uint32_t datarate, uint8_t coderate,
-                              uint32_t afcBandwidth, bool fixLen,
+                              uint32_t bandwidthAfc, uint16_t preambleLen,
+                              uint16_t symbTimeout, bool fixLen,
                               bool crcOn, bool iqInverted, bool rxContinuous );
     /*!
      * \brief Sets the transmission parameters
@@ -159,7 +166,7 @@ struct Radio_s
      * \param [IN] iqInverted   Inverts IQ signals (LoRa only)
      *                          FSK : N/A ( set to 0 )
      *                          LoRa: [0: not inverted, 1: inverted]
-     * \param [IN] timeout      Transmission timeout [ms]
+     * \param [IN] timeout      Transmission timeout [us]
      */
     void    ( *SetTxConfig )( RadioModems_t modem, int8_t power, uint32_t fdev, 
                               uint32_t bandwidth, uint32_t datarate,
@@ -195,7 +202,7 @@ struct Radio_s
     void    ( *Standby )( void );
     /*!
      * \brief Sets the radio in reception mode for the given time
-     * \param [IN] timeout Reception timeout [ms]
+     * \param [IN] timeout Reception timeout [us]
      *                     [0: continuous, others timeout]
      */
     void    ( *Rx )( uint32_t timeout );

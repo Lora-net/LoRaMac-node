@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Helper functions implementation
 
@@ -14,6 +14,15 @@ Maintainer: Miguel Luis and Gregory Cristian
 */
 #ifndef __UTILITIES_H__
 #define __UTILITIES_H__
+
+/*!
+ * \brief Returns the minimum value betwen a and b
+ *
+ * \param [IN] a 1st value
+ * \param [IN] b 2nd value
+ * \retval minValue minimum value
+ */
+#define MIN( a, b ) ( ( ( a ) < ( b ) ) ? ( a ) : ( b ) )
 
 /*!
  * \brief Computes a random number between min and max
@@ -45,5 +54,14 @@ void memcpy1( uint8_t *dst, uint8_t *src, uint16_t size );
  * \param [IN]  size  Number of bytes to be copied
  */
 void memset1( uint8_t *dst, uint8_t value, uint16_t size );
+
+
+/*!
+ * \brief Converts a nibble to an hexadecimal character
+ * 
+ * \param [IN] a   Nibble to be converted
+ * \retval hexChar Converted hexadecimal character
+ */
+int8_t Nibble2HexChar( uint8_t a );
 
 #endif // __UTILITIES_H__

@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Bleeper board I2C driver implementation
 
@@ -94,10 +94,21 @@ void UartMcuFormat( Uart_t *obj, UartMode mode, uint32_t baudrate, WordLength wo
 void UartMcuDeInit( Uart_t *obj );
 
 /*!
- * \brief Initialize the IRQ on the UART
+ * \brief Sends a character to the UART
  *
- * \param [IN] obj  UART object
+ * \param [IN] obj   UART object
+ * \param [IN] data  Character to be sent
+ * \retval status    [0: OK, 1: Busy]
  */
-void UartMcuIrqInit( Uart_t *obj );
+uint8_t UartMcuPutChar( Uart_t *obj, uint8_t data );
+
+/*!
+ * \brief Gets a character from the UART
+ *
+ * \param [IN] obj   UART object
+ * \param [IN] data  Received character
+ * \retval status    [0: OK, 1: Busy]
+ */
+uint8_t UartMcuGetChar( Uart_t *obj, uint8_t *data );
 
 #endif // __UART_MCU_H__

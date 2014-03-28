@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: MCU RTC timer and low power modes management
 
@@ -13,6 +13,7 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 Maintainer: Miguel Luis and Gregory Cristian
 */
 #include <math.h>
+#include <time.h>
 #include "board.h"
 #include "rtc-board.h"
 
@@ -42,6 +43,13 @@ static void RtcSetAlarmConfig( void );
 static void RtcStartWakeUpAlarm( uint32_t timeoutValue );
 
 /*!
+ * \brief Read the MCU internal Calendar value
+ *
+ * \retval Calendar value
+ */
+static uint64_t RtcGetCalendarValue( void );
+
+/*!
  * \brief Clear the RTC flags and Stop all IRQs
  */
 static void RtcClearStatus( void );
@@ -52,16 +60,76 @@ static void RtcClearStatus( void );
 static bool RtcInitalized = false;
 
 /*!
- * \brief Indicates if the RTC is used for Time measure or for 
+ * \brief Flag to indicate if the timestamps until the next event is long enough 
+ * to set the MCU into low power mode
  */
-static bool LowPowerEnable = false;
+static bool RtcTimerEventAllowsLowPower = false;
 
 /*!
- * Value of the RTC registers saved when the RTC is stopped
+ * \brief Flag to disable the LowPower Mode even if the timestamps until the
+ * next event is long enough to allow Low Power mode 
  */
-static uint32_t timerDateValue = 0;
-static uint32_t timerTimeValue = 0;
+static bool LowPowerDisableDuringTask = false;
 
+/*!
+ * Keep the value of the RTC timer when the RTC alarm is set
+ */
+static uint64_t RtcTimerContext = 0;
+
+/*!
+ * Number of seconds in a minute
+ */
+static const uint8_t SecondsInMinute = 60;
+
+/*!
+ * Number of seconds in an hour
+ */
+static const uint16_t SecondsInHour = 3600;
+
+/*!
+ * Number of seconds in a day
+ */
+static const uint32_t SecondsInDay = 86400;
+
+/*!
+ * Number of hours in a day
+ */
+static const uint8_t HoursInDay = 24;
+
+/*!
+ * Number of days in a standard year
+ */
+static const uint16_t DaysInYear = 365;
+
+/*!
+ * Number of days in a leap year
+ */
+static const uint16_t DaysInLeapYear = 366;
+
+/*!
+ * Number of days in a century
+ */
+static const uint16_t DaysInCentury = 36524;
+
+/*!
+ * Number of days in each month on a normal year
+ */
+static const uint8_t DaysInMonth[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+/*!
+ * Number of days in each month on a leap year
+ */
+static const uint8_t DaysInMonthLeapYear[] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+/*!
+ * Hold the previous year value to detect the turn of a century
+ */
+static uint8_t PreviousYear = 0;
+
+/*!
+ * Century counter
+ */
+static uint8_t Century = 0;
 
 void RtcInit( void )
 {
@@ -76,6 +144,8 @@ void RtcInit( void )
 static void RtcSetConfig( void )
 {
     RTC_InitTypeDef RTC_InitStructure;
+    RTC_TimeTypeDef RTC_TimeStruct;
+    RTC_DateTypeDef RTC_DateStruct;
 
     /* Enable the PWR clock */
     RCC_APB1PeriphClockCmd( RCC_APB1Periph_PWR, ENABLE );
@@ -99,13 +169,22 @@ static void RtcSetConfig( void )
 
     /* Enable the RTC Clock */
     RCC_RTCCLKCmd( ENABLE );
+   
+    RTC_TimeStructInit( &RTC_TimeStruct );
+    RTC_DateStructInit( &RTC_DateStruct );
+      
+    RTC_SetDate( RTC_Format_BIN, &RTC_DateStruct );
+    RTC_SetTime( RTC_Format_BIN, &RTC_TimeStruct );    
+    
+    /* Wait for RTC APB registers synchronisation */
+    RTC_WaitForSynchro( );
     
     /* Configure the RTC data register and RTC prescaler */
-    RTC_InitStructure.RTC_AsynchPrediv = 0x01;
+    RTC_InitStructure.RTC_AsynchPrediv = 0x01;    
     RTC_InitStructure.RTC_SynchPrediv  = 0x01;
     RTC_InitStructure.RTC_HourFormat   = RTC_HourFormat_24;
     RTC_Init( &RTC_InitStructure );
-    
+        
     /* Wait for RTC APB registers synchronisation */
     RTC_WaitForSynchro( );
 }
@@ -142,63 +221,66 @@ static void RtcSetAlarmConfig( void )
     RTC_AlarmCmd( RTC_Alarm_A, DISABLE );
 }
 
-
 void RtcStopTimer( void )
 {
-    RTC_TimeTypeDef RTC_TimeStruct;
-    RTC_DateTypeDef RTC_DateStruct;
-
-    // Check if the Alarm A is Enable or not
-    if( ( RTC->CR & RTC_Alarm_A ) == RTC_Alarm_A )
-    {
-        RTC_WaitForSynchro( );
-
-        RTC_GetTime( RTC_Format_BIN, &RTC_TimeStruct ); 
-        RTC_GetDate( RTC_Format_BIN, &RTC_DateStruct ); 
-
-        timerTimeValue = ( RTC_TimeStruct.RTC_Hours * 3600 ) + ( RTC_TimeStruct.RTC_Minutes * 60 ) +
-                        RTC_TimeStruct.RTC_Seconds;
-
-        timerDateValue = ( RTC_DateStruct.RTC_Date - 1 ) * 86400; // number of second in 1 day
-
-    }
-
     RtcClearStatus( );
+}
 
-    RCC_RTCCLKCmd( DISABLE ); 
+uint32_t RtcGetMinimumTimeout( void )
+{
+    return( ceil( 3 * RTC_ALARM_TIME_BASE ) );
 }
 
 void RtcSetTimeout( uint32_t timeout )
 {
     uint32_t timeoutValue = 0;
 
-    if( timeout < 50000 ) 
+    timeoutValue = timeout;
+
+    if( timeoutValue < ( 3 * RTC_ALARM_TIME_BASE ) )
+    {
+        timeoutValue = 3 * RTC_ALARM_TIME_BASE;
+    }
+    
+    if( timeoutValue < 55000 ) 
     {
         // we don't go in Low Power mode for delay below 50ms (needed for LEDs)
-        LowPowerEnable = false;
-        timeoutValue = timeout; 
+        RtcTimerEventAllowsLowPower = false;
     }
     else
     {
-        LowPowerEnable = true;
-        timeoutValue = timeout - MCU_WAKE_UP_TIME;  
+        RtcTimerEventAllowsLowPower = true;
     }
+
+    if( ( LowPowerDisableDuringTask == false ) && ( RtcTimerEventAllowsLowPower == true ) )
+    {
+        timeoutValue = timeoutValue - MCU_WAKE_UP_TIME;  
+    }
+
     RtcStartWakeUpAlarm( timeoutValue ); 
 }
 
-uint32_t RtcGetTimerValue( void )
-{
-    uint32_t timerValue = 0;
 
-    timerValue = ( timerDateValue + timerTimeValue ) * RTC_ALARM_TIME_BASE;
-    
-    return( timerValue );
+uint32_t RtcGetTimerElapsedTime( void )
+{
+    uint64_t CalendarValue = 0;
+
+    CalendarValue = RtcGetCalendarValue( );
+
+    return( ( uint32_t )( ceil ( ( ( CalendarValue - RtcTimerContext ) + 2 ) * RTC_ALARM_TIME_BASE ) ) );
+}
+
+uint64_t RtcGetTimerValue( void )
+{
+    uint64_t CalendarValue = 0;
+
+    CalendarValue = RtcGetCalendarValue( );
+
+    return( ( CalendarValue + 2 ) * RTC_ALARM_TIME_BASE );
 }
 
 static void RtcClearStatus( void )
 {
-    PWR_RTCAccessCmd( ENABLE );
-
     /* Clear RTC Alarm Flag */
     RTC_ClearFlag(RTC_FLAG_ALRAF);
 
@@ -214,66 +296,70 @@ static void RtcStartWakeUpAlarm( uint32_t timeoutValue )
     uint8_t rtcSeconds = 0;
     uint8_t rtcMinutes = 0;
     uint8_t rtcHours = 0;
-    uint8_t rtcDays = 0;
+
+    uint8_t rtcAlarmSeconds = 0;
+    uint8_t rtcAlarmMinutes = 0;
+    uint8_t rtcAlarmHours = 0;
+    uint16_t rtcAlarmDays = 0;
 
     RTC_AlarmTypeDef RTC_AlarmStructure;
     RTC_TimeTypeDef RTC_TimeStruct;
     RTC_DateTypeDef RTC_DateStruct;
 
-    RtcStopTimer( );
-    
+    RtcClearStatus( );
+
+    RTC_GetTime( RTC_Format_BIN, &RTC_TimeStruct ); 
+    RTC_GetDate( RTC_Format_BIN, &RTC_DateStruct ); 
+
+    if( ( PreviousYear == 99 ) && ( RTC_DateStruct.RTC_Year == 0 ) )
+    {
+        Century++;
+    }
+    PreviousYear = RTC_DateStruct.RTC_Year;
+
+    RtcTimerContext = RtcGetCalendarValue( );
+       
     timeoutValue = timeoutValue / RTC_ALARM_TIME_BASE;
 
-    if( timeoutValue >= 86400 )
+    rtcSeconds = timeoutValue % SecondsInMinute;
+    rtcMinutes = ( timeoutValue / SecondsInMinute ) % SecondsInMinute;
+    rtcHours = ( timeoutValue / SecondsInHour ) % HoursInDay;
+
+    rtcAlarmSeconds = ( rtcSeconds + RTC_TimeStruct.RTC_Seconds ) % 60;
+    rtcAlarmMinutes = ( ( ( rtcSeconds + RTC_TimeStruct.RTC_Seconds ) / 60 ) + ( rtcMinutes + RTC_TimeStruct.RTC_Minutes % 60 ) ) % 60;
+    rtcAlarmHours = ( ( ( ( rtcSeconds + RTC_TimeStruct.RTC_Seconds ) / 60 ) + ( rtcMinutes + RTC_TimeStruct.RTC_Minutes % 60 ) ) / 60 ); 
+    rtcAlarmHours = ( rtcAlarmHours + ( rtcHours + RTC_TimeStruct.RTC_Hours ) ) % 24;
+    rtcAlarmDays = ( ( ( ( rtcSeconds + RTC_TimeStruct.RTC_Seconds ) / 60 ) + ( rtcMinutes + RTC_TimeStruct.RTC_Minutes % 60 ) ) / 60 );
+    rtcAlarmDays = ( rtcAlarmDays + ( rtcHours + RTC_TimeStruct.RTC_Hours ) ) / 24;      
+    rtcAlarmDays = ( rtcAlarmDays + ( timeoutValue / SecondsInDay ) + RTC_DateStruct.RTC_Date );        
+
+    if( ( RTC_DateStruct.RTC_Year != 0 ) && ( RTC_DateStruct.RTC_Year % 4 == 0 ) )
     {
-        rtcDays = ( 1 + ( timeoutValue / 86400 ) ) % 31;
-        rtcHours = ( timeoutValue / 3600 ) % 24;
-        rtcMinutes = ( timeoutValue / 60 ) % 60;
-        rtcSeconds = timeoutValue % 60;
-    }
-    else if( timeoutValue >= 3600 )
-    {
-        rtcDays = 1;
-        rtcHours = ( timeoutValue / 3600 ) % 24;
-        rtcMinutes = ( timeoutValue / 60 ) % 60;
-        rtcSeconds = timeoutValue % 60;
-    }
-    else if( timeoutValue >= 60 )
-    {
-        rtcDays = 1;
-        rtcHours = 0;
-        rtcMinutes = ( timeoutValue / 60 ) % 60;
-        rtcSeconds = timeoutValue % 60;
+        if( rtcAlarmDays > DaysInMonthLeapYear[ RTC_DateStruct.RTC_Month - 1 ] )
+        {   
+            rtcAlarmDays = rtcAlarmDays % DaysInMonthLeapYear[ RTC_DateStruct.RTC_Month - 1 ];
+        }
     }
     else
     {
-        rtcDays = 1;
-        rtcHours = 0;
-        rtcMinutes = 0;
-        rtcSeconds = timeoutValue;
+        if( rtcAlarmDays > DaysInMonth[ RTC_DateStruct.RTC_Month - 1 ] )
+        {   
+            rtcAlarmDays = rtcAlarmDays % DaysInMonth[ RTC_DateStruct.RTC_Month - 1 ];
+        }
     }
-
-    /* Enable the RTC Clock */
-    RCC_RTCCLKCmd( ENABLE );
-
-    /* Set the alarm */
+    
+    RTC_AlarmStructure.RTC_AlarmTime.RTC_Seconds = rtcAlarmSeconds;
+    RTC_AlarmStructure.RTC_AlarmTime.RTC_Minutes = rtcAlarmMinutes;
+    RTC_AlarmStructure.RTC_AlarmTime.RTC_Hours   = rtcAlarmHours;
+    RTC_AlarmStructure.RTC_AlarmDateWeekDay      = rtcAlarmDays;
     RTC_AlarmStructure.RTC_AlarmTime.RTC_H12     = RTC_TimeStruct.RTC_H12;
-    RTC_AlarmStructure.RTC_AlarmTime.RTC_Hours   = rtcHours;
-    RTC_AlarmStructure.RTC_AlarmTime.RTC_Minutes = rtcMinutes;
-    RTC_AlarmStructure.RTC_AlarmTime.RTC_Seconds = rtcSeconds;
-    RTC_AlarmStructure.RTC_AlarmDateWeekDay      = rtcDays;
     RTC_AlarmStructure.RTC_AlarmDateWeekDaySel   = RTC_AlarmDateWeekDaySel_Date;
     RTC_AlarmStructure.RTC_AlarmMask             = RTC_AlarmMask_None;
     RTC_SetAlarm( RTC_Format_BIN, RTC_Alarm_A, &RTC_AlarmStructure );
-  
-    /* Set the time to Monday, January 01 xx00 */
-    RTC_DateStructInit( &RTC_DateStruct );
-    RTC_SetDate( RTC_Format_BIN, &RTC_DateStruct );
 
-    /* Set the time to 00h 00mn 00s AM */
-    RTC_TimeStructInit( &RTC_TimeStruct );
-    RTC_SetTime( RTC_Format_BIN, &RTC_TimeStruct );
-
+    /* Wait for RTC APB registers synchronisation */
+    RTC_WaitForSynchro( );
+    
     /* Enable RTC Alarm A Interrupt */
     RTC_ITConfig( RTC_IT_ALRA, ENABLE );
   
@@ -283,15 +369,20 @@ static void RtcStartWakeUpAlarm( uint32_t timeoutValue )
 
 void RtcEnterLowPowerStopMode( void )
 {   
-    if( LowPowerEnable == true )
-    {
+    if( ( LowPowerDisableDuringTask == false ) && ( RtcTimerEventAllowsLowPower == true ) )
+    {   
+        // Disable IRQ while the MCU is being deinitialized to prevent race issues
+        __disable_irq( );
+    
         BoardDeInitMcu( );
-
+    
+        __enable_irq( );
+    
         /* Disable the Power Voltage Detector */
         PWR_PVDCmd( DISABLE );
 
         /* Set MCU in ULP (Ultra Low Power) */
-        PWR_UltraLowPowerCmd( ENABLE ); // add up to 3ms wakeup time
+        PWR_UltraLowPowerCmd( ENABLE ); 
 
         /*Disable fast wakeUp*/
         PWR_FastWakeUpCmd( DISABLE );
@@ -302,10 +393,10 @@ void RtcEnterLowPowerStopMode( void )
 }
 
 void RtcRecoverMcuStatus( void )
-{
+{    
 #ifdef LOW_POWER_MODE_ENABLE
-    if( LowPowerEnable == true )
-    {
+    if( ( LowPowerDisableDuringTask == false ) && ( RtcTimerEventAllowsLowPower == true ) )
+    {    
         // Disable IRQ while the MCU is not running on HSE
         __disable_irq( );
 
@@ -338,7 +429,7 @@ void RtcRecoverMcuStatus( void )
         PWR_PVDCmd( ENABLE );
             
         BoardInitMcu( );  
-                    
+
         __enable_irq( );   
     }
 #endif
@@ -360,15 +451,89 @@ void RTC_Alarm_IRQHandler( void )
     }
 }
 
-void BlockLowPowerDuringTask ( bool Status )
+void BlockLowPowerDuringTask ( bool status )
 {
-    if( Status == true )
+    if( status == true )
     {
         RtcRecoverMcuStatus( );
-        LowPowerEnable = false; 
+    }
+    LowPowerDisableDuringTask = status;
+}
+
+void RtcDelayMs ( uint32_t delay )
+{
+    uint64_t delayValue = 0;
+    uint64_t timeout = 0;
+
+    delayValue = ( uint64_t )( delay * 1000 );
+
+    // Wait delay ms
+    timeout = RtcGetTimerValue( );
+    while( ( ( RtcGetTimerValue( ) - timeout ) ) < delayValue )
+    {
+        __NOP( );
+    }
+}
+
+uint64_t RtcGetCalendarValue( void )
+{
+    uint64_t calendarValue = 0;
+    uint8_t i = 0;
+
+    RTC_TimeTypeDef RTC_TimeStruct;
+    RTC_DateTypeDef RTC_DateStruct;
+
+    RTC_GetTime( RTC_Format_BIN, &RTC_TimeStruct ); 
+    RTC_GetDate( RTC_Format_BIN, &RTC_DateStruct ); 
+
+    RTC_WaitForSynchro( );
+
+    if( ( PreviousYear == 99 ) && ( RTC_DateStruct.RTC_Year == 0 ) )
+    {
+        Century++;
+    }
+    PreviousYear = RTC_DateStruct.RTC_Year;
+
+    // century
+    for( i = 0; i < Century; i++ )
+    {
+        calendarValue += DaysInCentury * SecondsInDay;
+    }
+
+    // years
+    for( i = 0; i < RTC_DateStruct.RTC_Year; i++ )
+    {
+        if( ( i != 0 ) && ( i % 4 == 0 ) )
+        {
+            calendarValue += DaysInLeapYear * SecondsInDay * RTC_DateStruct.RTC_Year;
+        }
+        else
+        {
+            calendarValue += DaysInYear * SecondsInDay * RTC_DateStruct.RTC_Year;
+        }
+    }
+
+    // months
+    if( ( RTC_DateStruct.RTC_Year != 0 ) && ( RTC_DateStruct.RTC_Year % 4 == 0 ) )
+    {
+        for( i = 1; i < RTC_DateStruct.RTC_Month; i++ )
+        {
+            calendarValue += DaysInMonthLeapYear[ i - 1] * SecondsInDay;
+        }
     }
     else
     {
-        LowPowerEnable = true;
-    }
+        for( i = 1;  i < RTC_DateStruct.RTC_Month; i++ )
+        {
+            calendarValue += DaysInMonth[ i ] * SecondsInDay;
+        }
+    }       
+
+    // days
+    calendarValue += ( ( uint32_t )RTC_TimeStruct.RTC_Seconds + 
+                      ( ( uint32_t )RTC_TimeStruct.RTC_Minutes * 60 ) +
+                      ( ( uint32_t )RTC_TimeStruct.RTC_Hours * SecondsInHour ) + 
+                      ( ( uint32_t )RTC_DateStruct.RTC_Date * SecondsInDay ) ); 
+
+    return( calendarValue );
 }

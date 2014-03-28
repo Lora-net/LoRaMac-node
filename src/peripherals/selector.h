@@ -6,24 +6,20 @@
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
     (C)2013 Semtech
 
-Description: Delay functions implementation
+Description: Hex coder selector driver implementation
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#include "board.h"
+#ifndef __SELECTOR_H__
+#define __SELECTOR_H__
 
-void Delay( float s )
-{
-    DelayMs( s * 1000.0f );
-}
+/*!
+ * Gets the current hex coder selector position
+ *
+ * \retval position Hex coder current position ( On error position = 255 )
+ */
+uint8_t SelectorGetValue( void );
 
-void DelayMs( uint32_t ms )
-{
-#ifdef LOW_POWER_MODE_ENABLE  
-    RtcDelayMs( ms );
-#else
-    TimerHwDelayMs( ms );
-#endif
-}
+#endif // __SELECTOR_H__

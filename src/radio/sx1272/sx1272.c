@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Generic SX1272 driver implementation
 
@@ -280,10 +280,8 @@ bool SX1272IsChannelFree( RadioModems_t modem, uint32_t freq, int32_t rssiThresh
     SX1272SetChannel( freq );
     
     SX1272SetOpMode( RF_OPMODE_RECEIVER );
-    
-    while( ( SX1272Read( REG_OPMODE ) & ~RF_OPMODE_MASK ) != RF_OPMODE_RECEIVER )
-    {
-    }
+
+    DelayMs( 1 );
     
     rssi = SX1272ReadRssi( modem );
     
@@ -313,7 +311,8 @@ static uint8_t GetFskBandwidthRegValue( uint32_t bandwidth )
 
 void SX1272SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
                          uint32_t datarate, uint8_t coderate,
-                         uint32_t bandwidthAfc, bool fixLen,
+                         uint32_t bandwidthAfc, uint16_t preambleLen,
+                         uint16_t symbTimeout, bool fixLen,
                          bool crcOn, bool iqInverted, bool rxContinuous )
 {
     SX1272SetModem( modem );
@@ -364,16 +363,6 @@ void SX1272SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
                 datarate = 6;
             }
         
-            /* For low SF, we increase the number of symbol generating a Rx Timeout */
-            if( datarate < 9 )
-            {
-                SX1272Write( REG_LR_SYMBTIMEOUTLSB, 0x08 );
-            }
-            else
-            {
-                SX1272Write( REG_LR_SYMBTIMEOUTLSB, 0x05 );
-            }
-        
             if( ( ( bandwidth == 0 ) && ( ( datarate == 11 ) || ( datarate == 12 ) ) ) ||
                 ( ( bandwidth == 1 ) && ( datarate == 12 ) ) )
             {
@@ -397,8 +386,15 @@ void SX1272SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
 
             SX1272Write( REG_LR_MODEMCONFIG2,
                         ( SX1272Read( REG_LR_MODEMCONFIG2 ) &
-                          RFLR_MODEMCONFIG2_SF_MASK ) |
-                          ( datarate << 4 ) );
+                          RFLR_MODEMCONFIG2_SF_MASK &
+                          RFLR_MODEMCONFIG2_SYMBTIMEOUTMSB_MASK ) |
+                          ( datarate << 4 ) |
+                          ( ( symbTimeout >> 8 ) & ~RFLR_MODEMCONFIG2_SYMBTIMEOUTMSB_MASK ) );
+
+            SX1272Write( REG_LR_SYMBTIMEOUTLSB, ( uint8_t )( symbTimeout & 0xFF ) );
+            
+            SX1272Write( REG_LR_PREAMBLEMSB, ( uint8_t )( ( preambleLen >> 8 ) & 0xFF ) );
+            SX1272Write( REG_LR_PREAMBLELSB, ( uint8_t )( preambleLen & 0xFF ) );
 
             if( datarate == 6 )
             {
@@ -677,8 +673,7 @@ void SX1272Send( uint8_t *buffer, uint8_t size )
             if( ( SX1272Read( REG_OPMODE ) & ~RF_OPMODE_MASK ) == RF_OPMODE_SLEEP )
             {
                 SX1272SetStby( );
-                //DelayMs( 1 );
-                while( ( SX1272Read( REG_OPMODE ) & ~RF_OPMODE_MASK ) != RF_OPMODE_STANDBY );
+                DelayMs( 1 );
             }
             // Write payload buffer
             SX1272WriteFifo( buffer, size );
@@ -835,7 +830,7 @@ void SX1272SetTx( uint32_t timeout )
     }
 
     SX1272.Settings.State = RF_TX_RUNNING;
-    //TimerStart( &TxTimeoutTimer );
+    TimerStart( &TxTimeoutTimer );
     SX1272SetOpMode( RF_OPMODE_TRANSMITTER );
 }
 
@@ -855,7 +850,7 @@ void SX1272Reset( void )
 {
     // Set RESET pin to 1
     GpioInit( &SX1272.Reset, RADIO_RESET, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    
+
     // Wait 1 ms
     DelayMs( 1 );
 
@@ -873,13 +868,21 @@ void SX1272SetOpMode( uint8_t opMode )
     if( opMode != opModePrev )
     {
         opModePrev = opMode;
-        if( opMode == RF_OPMODE_TRANSMITTER )
+        if( opMode == RF_OPMODE_SLEEP )
         {
-             SX1272SetAntSw( 1 );
+            SX1272SetAntSwLowPower( true );
         }
         else
         {
-            SX1272SetAntSw( 0 );
+            SX1272SetAntSwLowPower( false );
+            if( opMode == RF_OPMODE_TRANSMITTER )
+            {
+                 SX1272SetAntSw( 1 );
+            }
+            else
+            {
+                SX1272SetAntSw( 0 );
+            }
         }
         SX1272Write( REG_OPMODE, ( SX1272Read( REG_OPMODE ) & RF_OPMODE_MASK ) | opMode );
     }
@@ -887,6 +890,10 @@ void SX1272SetOpMode( uint8_t opMode )
 
 void SX1272SetModem( RadioModems_t modem )
 {
+    if( SX1272.Spi.Spi == NULL )
+    {
+        while( 1 );
+    }
     if( SX1272.Settings.Modem == modem )
     {
         return;

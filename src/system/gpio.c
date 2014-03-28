@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Generic GPIO driver implementation
 
@@ -19,7 +19,10 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "board.h"
 
 #include "gpio-board.h"
+
+#if defined( BOARD_IOE_EXT )
 #include "gpio-ioe.h"
+#endif
 
 void GpioInit( Gpio_t *obj, PinNames pin, PinModes mode,  PinConfigs config, PinTypes type, uint32_t value )
 {
@@ -29,8 +32,10 @@ void GpioInit( Gpio_t *obj, PinNames pin, PinModes mode,  PinConfigs config, Pin
     }
     else
     {
+#if defined( BOARD_IOE_EXT )
         // IOExt Pin
         GpioIoeInit( obj, pin, mode, config, type, value );
+#endif
     }
 }
 
@@ -42,8 +47,10 @@ void GpioSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriority,
     }
     else
     {
+#if defined( BOARD_IOE_EXT )
         // IOExt Pin
         GpioIoeSetInterrupt( obj, irqMode, irqPriority, irqHandler );
+#endif
     }
 }
 
@@ -55,8 +62,10 @@ void GpioRemoveInterrupt( Gpio_t *obj )
     }
     else
     {
+#if defined( BOARD_IOE_EXT )
         // IOExt Pin
- //       GpioIoeRemoveInterrupt( obj );
+        //GpioIoeRemoveInterrupt( obj );
+#endif
     }
 }
 
@@ -68,8 +77,10 @@ void GpioWrite( Gpio_t *obj, uint32_t value )
     }
     else
     {
+#if defined( BOARD_IOE_EXT )
         // IOExt Pin
         GpioIoeWrite( obj, value );
+#endif
     }
 }
 
@@ -81,7 +92,11 @@ uint32_t GpioRead( Gpio_t *obj )
     }
     else
     {
+#if defined( BOARD_IOE_EXT )
         // IOExt Pin
         return GpioIoeRead( obj );
+#else
+        return 0;
+#endif
     }
 }

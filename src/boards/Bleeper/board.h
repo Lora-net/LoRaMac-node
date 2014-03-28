@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Target board general functions implementation
 
@@ -20,8 +20,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include <string.h>
 #include "stm32l1xx.h"
 #include "utilities.h"
-#include "delay.h"
 #include "timer.h"
+#include "delay.h"
 #include "gpio.h"
 #include "spi.h"
 #include "i2c.h"
@@ -31,6 +31,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "rtc-board.h"
 #include "timer-board.h"
 #include "sx1272-board.h"
+#include "selector.h"
 
 /*!
  * NULL definition
@@ -140,6 +141,14 @@ Maintainer: Miguel Luis and Gregory Cristian
 extern Gpio_t Led1;
 extern Gpio_t Led2;
 extern Gpio_t Led3;
+
+/*!
+ * Hex coder selector GPIO pins objects
+ */
+extern Gpio_t Sel1;
+extern Gpio_t Sel2;
+extern Gpio_t Sel3;
+extern Gpio_t Sel4;
 
 #if defined( USE_DEBUG_PINS )
 /*!

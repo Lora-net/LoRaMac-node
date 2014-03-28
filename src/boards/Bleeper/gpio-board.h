@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: Bleeper board GPIO driver implementation
 
@@ -40,6 +40,13 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
  * \param [IN] irqHandler  Callback function pointer
  */
 void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriority, GpioIrqHandler *irqHandler );
+
+/*!
+ * \brief GPIO IRQ DeInitialization
+ *
+ * \param [IN] obj         Pointer to the GPIO object to be Deinitialized
+ */
+void GpioMcuRemoveInterrupt( Gpio_t *obj );
 
 /*!
  * \brief Writes the given value to the GPIO output

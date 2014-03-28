@@ -4,9 +4,9 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
-Description: LoRaMac classA device implementation
+Description: LoRaMac classB device implementation
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 
@@ -177,6 +177,10 @@ void OnLed2TimerEvent( void )
  */
 void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
 {
+    if( info->Status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT )
+    {
+        TxDone = true;
+    }
     if( flags->Bits.JoinAccept == 1 )
     {
 #if( OVER_THE_AIR_ACTIVATION != 0 )
@@ -266,7 +270,7 @@ int main( void )
                 // Relaunch timer for next trial
                 TimerStart( &JoinReqTimer );
             }
-            TimerHandleEvent( );
+            TimerLowPowerHandler( );
 #endif
         }
         if( Led1TimerEvent == true )
@@ -345,7 +349,7 @@ int main( void )
             //LoRaMacSendConfirmedFrame( 1, AppData, APP_DATA_SIZE, 1 );
         }
 
-        TimerHandleEvent( );
+        TimerLowPowerHandler( );
     }
 }
 
