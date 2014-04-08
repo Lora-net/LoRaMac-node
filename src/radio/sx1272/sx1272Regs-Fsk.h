@@ -661,6 +661,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RF_PREAMBLEDETECT_DETECTORSIZE_1            0x00
 #define RF_PREAMBLEDETECT_DETECTORSIZE_2            0x20  // Default
 #define RF_PREAMBLEDETECT_DETECTORSIZE_3            0x40
+#define RF_PREAMBLEDETECT_DETECTORSIZE_4            0x60
 
 #define RF_PREAMBLEDETECT_DETECTORTOL_MASK          0xE0
 #define RF_PREAMBLEDETECT_DETECTORTOL_0             0x00

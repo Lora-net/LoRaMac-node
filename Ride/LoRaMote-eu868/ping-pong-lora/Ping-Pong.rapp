@@ -1,6 +1,6 @@
 
 <ApplicationBuild Header="ping-pong" Extern=".\Ping-Pong.rapp" Path=".\Ping-Pong.rapp" OutputFile=".\obj\Ping-Pong.elf" sate="98" Config="LoRaMote" >
-	<NodeC Path="..\..\..\src\apps\ping-pong-lora\main.c" Header="main.c" Marker="-1" OutputFile=".\obj\main.o" sate="0" />
+	<NodeC Path="..\..\..\src\apps\ping-pong-lora\LoRaMote\main.c" Header="main.c" Marker="-1" OutputFile=".\obj\main.o" sate="0" />
 	<Group Header="boards" Marker="-1" OutputFile="" sate="96" >
 		<Group Header="LoRaMote" Marker="-1" OutputFile="" sate="96" >
 			<Group Header="cmsis" Marker="-1" OutputFile="" sate="0" >

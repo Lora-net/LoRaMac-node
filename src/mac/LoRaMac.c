@@ -25,7 +25,7 @@ Maintainer: Miguel Luis and Gregory Cristian
  * \remark At the current release time the http://iot.semtech.com server doesn't
  *         support this feature.
  */
-#define ANCKNOWLEDGE_RETRIES_ENABLED                0
+#define ACKNOWLEDGE_RETRIES_ENABLED                0
 
 /*!
  * Maximum PHY layer payload size
@@ -134,7 +134,7 @@ static bool AdrCtrlOn = false;
  */
 static uint32_t AdrAckCounter = 0;
 
-#if( ANCKNOWLEDGE_RETRIES_ENABLED == 1 )
+#if( ACKNOWLEDGE_RETRIES_ENABLED == 1 )
 /*!
  * If the node has sent a FRAME_TYPE_DATA_CONFIRMED this variable indicates
  * if the nodes needs to manage the server acknowledgement.
@@ -214,7 +214,7 @@ static RadioEvents_t RadioEvents;
 static TimerEvent_t RxWindowTimer1;
 static TimerEvent_t RxWindowTimer2;
 
-#if( ANCKNOWLEDGE_RETRIES_ENABLED == 1 )
+#if( ACKNOWLEDGE_RETRIES_ENABLED == 1 )
 /*!
  * Acknowledge timeout timer. Used for packet retransmissions.
  */
@@ -266,7 +266,7 @@ static void OnRxWindow1TimerEvent( void );
  */
 static void OnRxWindow2TimerEvent( void );
 
-#if( ANCKNOWLEDGE_RETRIES_ENABLED == 1 )
+#if( ACKNOWLEDGE_RETRIES_ENABLED == 1 )
 /*!
  * Function executed on AckTimeout timer event
  */
@@ -397,7 +397,7 @@ void LoRaMacInit( LoRaMacEvent_t *events )
     TimerSetValue( &RxWindowTimer1, CLS2_RECEIVE_DELAY1 );
     TimerInit( &RxWindowTimer2, OnRxWindow2TimerEvent ); 
     TimerSetValue( &RxWindowTimer2, CLS2_RECEIVE_DELAY2 );
-#if( ANCKNOWLEDGE_RETRIES_ENABLED == 1 )
+#if( ACKNOWLEDGE_RETRIES_ENABLED == 1 )
     TimerInit( &AckTimeoutTimer, OnAckTimeoutTimerEvent ); 
 #endif
     
@@ -466,7 +466,7 @@ uint8_t LoRaMacSendConfirmedFrame( uint8_t fPort, void *fBuffer, uint16_t fBuffe
 {
     LoRaMacHeader_t macHdr;
 
-#if( ANCKNOWLEDGE_RETRIES_ENABLED == 1 )
+#if( ACKNOWLEDGE_RETRIES_ENABLED == 1 )
     AckTimeoutRetries = retries;
     AckTimeoutRetriesCounter = 0;
 #endif
@@ -506,7 +506,7 @@ uint8_t LoRaMacPrepareFrame( ChannelParams_t channel, LoRaMacHeader_t *macHdr, L
     
     LoRaMacBufferPktLen = 0;
     
-#if( ANCKNOWLEDGE_RETRIES_ENABLED == 1 )
+#if( ACKNOWLEDGE_RETRIES_ENABLED == 1 )
     NodeAckRequested = false;
 #endif
     
@@ -541,7 +541,7 @@ uint8_t LoRaMacPrepareFrame( ChannelParams_t channel, LoRaMacHeader_t *macHdr, L
 
             break;
         case FRAME_TYPE_DATA_CONFIRMED:
-#if( ANCKNOWLEDGE_RETRIES_ENABLED == 1 )
+#if( ACKNOWLEDGE_RETRIES_ENABLED == 1 )
             NodeAckRequested = true;
 #endif
          case FRAME_TYPE_DATA_UNCONFIRMED:
@@ -833,7 +833,7 @@ static void OnRadioTxDone( void )
         TimerStart( &RxWindowTimer2 );
     }
     
-#if( ANCKNOWLEDGE_RETRIES_ENABLED == 1 )
+#if( ACKNOWLEDGE_RETRIES_ENABLED == 1 )
     if( NodeAckRequested == false )
 #endif
     {
@@ -997,7 +997,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t *size, double rssi, double
                     // Check if the frame is an acknowledgement
                     if( fCtrl.Bits.Ack == 1 )
                     {
-#if( ANCKNOWLEDGE_RETRIES_ENABLED == 1 )
+#if( ACKNOWLEDGE_RETRIES_ENABLED == 1 )
                         // An acknowledge has been received thus the UpLinkCounter
                         // is incremented.
                         if( IsUpLinkCounterFixed == false )
@@ -1012,7 +1012,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t *size, double rssi, double
                         IsLoRaMacTransmitting = false;
                         LoRaMacEventFlags.Bits.Tx = 1;
                         LoRaMacEventInfo.TxAckReceived = true;
-#if( ANCKNOWLEDGE_RETRIES_ENABLED == 1 )
+#if( ACKNOWLEDGE_RETRIES_ENABLED == 1 )
                         LoRaMacEventInfo.TxNbRetries = AckTimeoutRetriesCounter;
 #else
                         LoRaMacEventInfo.TxNbRetries = 0;
@@ -1163,7 +1163,7 @@ static void OnRxWindow1TimerEvent( void )
  */
 static void OnRxWindow2TimerEvent( void )
 {
-#if( ANCKNOWLEDGE_RETRIES_ENABLED == 1 )
+#if( ACKNOWLEDGE_RETRIES_ENABLED == 1 )
     if( NodeAckRequested == true )
     {
         TimerSetValue( &AckTimeoutTimer, ACK_TIMEOUT + randr( -ACK_TIMEOUT_RND, ACK_TIMEOUT_RND ) );
@@ -1186,7 +1186,7 @@ static void OnRxWindow2TimerEvent( void )
     }
 }
 
-#if( ANCKNOWLEDGE_RETRIES_ENABLED == 1 )
+#if( ACKNOWLEDGE_RETRIES_ENABLED == 1 )
 /*!
  * Function executed on AckTimeout timer event
  */

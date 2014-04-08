@@ -53,7 +53,7 @@ typedef struct
  */
 void SX1272Reset( void );
 
-/*
+/*!
  * \brief Sets the SX1272 in transmission mode for the given time
  * \param [IN] timeout      Transmission timeout [ms] [0: continuous, others timeout]
  */
@@ -265,6 +265,7 @@ RadioState_t SX1272GetStatus( void )
 
 void SX1272SetChannel( uint32_t freq )
 {
+    SX1272.Settings.Channel = freq;
     freq = ( uint32_t )( ( double )freq / ( double )FREQ_STEP );
     SX1272Write( REG_FRFMSB, ( uint8_t )( ( freq >> 16 ) & 0xFF ) );
     SX1272Write( REG_FRFMID, ( uint8_t )( ( freq >> 8 ) & 0xFF ) );
@@ -294,6 +295,12 @@ bool SX1272IsChannelFree( RadioModems_t modem, uint32_t freq, int32_t rssiThresh
     return true;
 }
 
+/*!
+ * Returns the known FSK bandwidth registers value
+ *
+ * \param [IN] bandwidth Bandwidth value in Hz
+ * \retval regValue Bandwidth register value.
+ */
 static uint8_t GetFskBandwidthRegValue( uint32_t bandwidth )
 {
     uint8_t i;
@@ -385,11 +392,11 @@ void SX1272SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
                            SX1272.Settings.LoRa.LowDatarateOptimize );
 
             SX1272Write( REG_LR_MODEMCONFIG2,
-                        ( SX1272Read( REG_LR_MODEMCONFIG2 ) &
-                          RFLR_MODEMCONFIG2_SF_MASK &
-                          RFLR_MODEMCONFIG2_SYMBTIMEOUTMSB_MASK ) |
-                          ( datarate << 4 ) |
-                          ( ( symbTimeout >> 8 ) & ~RFLR_MODEMCONFIG2_SYMBTIMEOUTMSB_MASK ) );
+                         ( SX1272Read( REG_LR_MODEMCONFIG2 ) &
+                           RFLR_MODEMCONFIG2_SF_MASK &
+                           RFLR_MODEMCONFIG2_SYMBTIMEOUTMSB_MASK ) |
+                           ( datarate << 4 ) |
+                           ( ( symbTimeout >> 8 ) & ~RFLR_MODEMCONFIG2_SYMBTIMEOUTMSB_MASK ) );
 
             SX1272Write( REG_LR_SYMBTIMEOUTLSB, ( uint8_t )( symbTimeout & 0xFF ) );
             
@@ -420,13 +427,23 @@ void SX1272SetTxConfig(  RadioModems_t modem, int8_t power, uint32_t fdev,
                          bool iqInverted, uint32_t timeout )
 {
     uint8_t paConfig = 0;
+    uint8_t paDac = 0;
 
     SX1272SetModem( modem );
     
     paConfig = SX1272Read( REG_PACONFIG );
+    paDac = SX1272Read( REG_PADAC );
     if( ( paConfig & RF_PACONFIG_PASELECT_PABOOST ) == RF_PACONFIG_PASELECT_PABOOST )
     {
-        if( ( SX1272Read( REG_LR_PADAC ) & 0x07 ) == 0x07 )
+        if( power > 17 )
+        {
+            paDac = ( paDac & RF_PADAC_20DBM_MASK ) | RF_PADAC_20DBM_ON;
+        }
+        else
+        {
+            paDac = ( paDac & RF_PADAC_20DBM_MASK ) | RF_PADAC_20DBM_OFF;
+        }
+        if( ( paDac & RF_PADAC_20DBM_ON ) == RF_PADAC_20DBM_ON )
         {
             if( power < 5 )
             {
@@ -464,6 +481,7 @@ void SX1272SetTxConfig(  RadioModems_t modem, int8_t power, uint32_t fdev,
         paConfig = ( paConfig & RFLR_PACONFIG_OUTPUTPOWER_MASK ) | ( uint8_t )( ( uint16_t )( power + 1 ) & 0x0F );
     }
     SX1272Write( REG_PACONFIG, paConfig );
+    SX1272Write( REG_PADAC, paDac );
 
     switch( modem )
     {
@@ -836,14 +854,21 @@ void SX1272SetTx( uint32_t timeout )
 
 double SX1272ReadRssi( RadioModems_t modem )
 {
+    double rssi = 0.0;
+
     switch( modem )
     {
     case MODEM_FSK:
-        return -( double )( ( double )SX1272Read( REG_RSSIVALUE ) / 2.0 );
+        rssi = -( double )( ( double )SX1272Read( REG_RSSIVALUE ) / 2.0 );
+        break;
     case MODEM_LORA:
-        return RssiOffset[SX1272.Settings.LoRa.Bandwidth] + ( double )SX1272Read( REG_LR_RSSIVALUE );
+        rssi = RssiOffset[SX1272.Settings.LoRa.Bandwidth] + ( double )SX1272Read( REG_LR_RSSIVALUE );
+        break;
+    default:
+        rssi = 255;
+        break;
     }
-    return 255;
+    return rssi;
 }
 
 void SX1272Reset( void )
@@ -881,7 +906,7 @@ void SX1272SetOpMode( uint8_t opMode )
             }
             else
             {
-                SX1272SetAntSw( 0 );
+                 SX1272SetAntSw( 0 );
             }
         }
         SX1272Write( REG_OPMODE, ( SX1272Read( REG_OPMODE ) & RF_OPMODE_MASK ) | opMode );

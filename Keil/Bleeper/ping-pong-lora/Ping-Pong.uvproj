@@ -401,7 +401,7 @@
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\apps\ping-pong-lora\main.c</FilePath>
+              <FilePath>..\..\..\src\apps\ping-pong-lora\Bleeper\main.c</FilePath>
             </File>
           </Files>
         </Group>

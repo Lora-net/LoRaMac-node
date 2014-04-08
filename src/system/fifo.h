@@ -21,24 +21,24 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * FIFO
  */
-typedef struct sFifo
+typedef struct Fifo_s
 {
-	uint16_t Begin;
-	uint16_t End;
-	uint8_t *Data;
+    uint16_t Begin;
+    uint16_t End;
+    uint8_t *Data;
     uint16_t Size;
-}tFifo;
+}Fifo_t;
 
-void FifoInit( tFifo *fifo, uint8_t *buffer, uint16_t size );
+void FifoInit( Fifo_t *fifo, uint8_t *buffer, uint16_t size );
 
-void FifoPush( tFifo *fifo, uint8_t data );
+void FifoPush( Fifo_t *fifo, uint8_t data );
 
-uint8_t FifoPop( tFifo *fifo );
+uint8_t FifoPop( Fifo_t *fifo );
 
-void FifoFlush( tFifo *fifo );
+void FifoFlush( Fifo_t *fifo );
 
-bool IsFifoEmpty( tFifo *fifo );
+bool IsFifoEmpty( Fifo_t *fifo );
 
-bool IsFifoFull( tFifo *fifo );
+bool IsFifoFull( Fifo_t *fifo );
 
 #endif // __FIFO_H__

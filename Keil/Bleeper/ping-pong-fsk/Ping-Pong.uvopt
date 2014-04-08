@@ -203,7 +203,7 @@
       <TopLine>72</TopLine>
       <CurrentLine>73</CurrentLine>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\src\apps\ping-pong-fsk\main.c</PathWithFileName>
+      <PathWithFileName>..\..\..\src\apps\ping-pong-fsk\Bleeper\main.c</PathWithFileName>
       <FilenameWithoutPath>main.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>

@@ -101,7 +101,8 @@ void UP501OnPpsSignal( void )
         GpioWrite( &DbgPin2, 0 );
 #endif
         BlockLowPowerDuringTask ( true );
-        UartInit( &Uart1, UART_TX, UART_RX );
+        UartInit( &Uart1, UART_1, UART_TX, UART_RX );
+        UartConfig( &Uart1, RX_ONLY, 9600, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
     }
 }
 

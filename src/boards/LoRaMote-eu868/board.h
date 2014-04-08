@@ -39,6 +39,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "rtc-board.h"
 #include "timer-board.h"
 #include "sx1272-board.h"
+#include "uart-board.h"
 
 /*!
  * Define indicating if an external IO expander is to be used

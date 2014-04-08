@@ -18,30 +18,34 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "uart.h"
 
 /*!
- * Flag to indicates if the UART is initialized 
- */
-static bool UartInitialized = false;
-
-/*!
  * Number of times the UartPutBuffer will try to send the buffer before
  * returning ERROR
  */
 #define TX_BUFFER_RETRY_COUNT                       10
 
-void UartInit( Uart_t *obj, PinNames tx, PinNames rx )
+void UartInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx )
 {
-    if( UartInitialized == false )
+    if( obj->IsInitialized == false )
     {
-        UartInitialized = true;
+        obj->IsInitialized = true;
 
-        UartMcuInit( obj, tx, rx );
-        UartMcuFormat( obj, RX_ONLY, 9600, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
+        UartMcuInit( obj, uartId, tx, rx );
     }
+}
+
+void UartConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_t wordLength, StopBits_t stopBits, Parity_t parity, FlowCtrl_t flowCtrl )
+{
+    if( obj->IsInitialized == false )
+    {
+        // UartInit function must be called first.
+        while( 1 );
+    }
+    UartMcuConfig( obj, mode, baudrate, wordLength, stopBits, parity, flowCtrl );
 }
 
 void UartDeInit( Uart_t *obj )
 {
-    UartInitialized = false;
+    obj->IsInitialized = false;
     UartMcuDeInit( obj );
 }
 

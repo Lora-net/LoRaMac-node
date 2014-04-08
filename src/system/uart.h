@@ -28,11 +28,12 @@ typedef enum
  */
 typedef struct
 {
-    USART_TypeDef* Uart;
+    uint8_t UartId;
+    bool IsInitialized;
     Gpio_t Tx;
     Gpio_t Rx;
-    tFifo FifoTx;
-    tFifo FifoRx;
+    Fifo_t FifoTx;
+    Fifo_t FifoRx;
     /*!
      * IRQ user notification callback prototype.
      */
@@ -40,13 +41,79 @@ typedef struct
 }Uart_t;
 
 /*!
+ * Operation Mode for the UART
+ */
+typedef enum
+{
+    TX_ONLY = 0,
+    RX_ONLY,
+    RX_TX
+}UartMode_t;
+
+/*!
+ * UART word length
+ */
+typedef enum
+{
+    UART_8_BIT = 0,
+    UART_9_BIT
+}WordLength_t;
+
+/*!
+ * UART stop bits
+ */
+typedef enum
+{
+    UART_1_STOP_BIT = 0,
+    UART_0_5_STOP_BIT,
+    UART_2_STOP_BIT,
+    UART_1_5_STOP_BIT
+}StopBits_t;
+
+/*!
+ * UART parity
+ */
+typedef enum
+{
+    NO_PARITY = 0,
+    EVEN_PARITY,
+    ODD_PARITY
+}Parity_t;
+
+/*!
+ * UART flow control
+ */
+typedef enum
+{
+    NO_FLOW_CTRL = 0,
+    RTS_FLOW_CTRL,
+    CTS_FLOW_CTRL,
+    RTS_CTS_FLOW_CTRL
+}FlowCtrl_t;
+
+/*!
  * \brief Initializes the UART object and MCU peripheral
  *
  * \param [IN] obj  UART object
- * \param [IN] scl  UART Tx pin name to be used
- * \param [IN] sda  UART Rx pin name to be used
+ * \param [IN] tx   UART Tx pin name to be used
+ * \param [IN] rx   UART Rx pin name to be used
  */
-void UartInit( Uart_t *obj, PinNames tx, PinNames rx );
+void UartInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx );
+
+/*!
+ * \brief Configures the UART object and MCU peripheral
+ *
+ * \remark UartInit function must be called first.
+ *
+ * \param [IN] obj          UART object
+ * \param [IN] mode         Mode of operation for the UART
+ * \param [IN] baudrate     UART baudrate
+ * \param [IN] wordLength   packet length
+ * \param [IN] stopBits     stop bits setup
+ * \param [IN] parity       packet parity
+ * \param [IN] flowCtrl     UART flow control
+ */
+void UartConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_t wordLength, StopBits_t stopBits, Parity_t parity, FlowCtrl_t flowCtrl );
 
 /*!
  * \brief DeInitializes the UART object and MCU pin

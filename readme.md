@@ -70,12 +70,45 @@ platforms are:
         EXTENSION HEADER : Yes, 20 pins
         REMARK  : The MCU and Radio are on an IMST iM880A module
 
+    - SK-iM880A ( IMST starter kit )
+        MCU     : STM32L151CB - 128K FLASH, 10K RAM, Timers, SPI, I2C,
+                                USART, 
+                                USB 2.0 full-speed device/host/OTG controller,
+                                DAC, ADC, DMA
+        RADIO   : SX1272
+        ANTENNA : Connector for external antenna
+        BUTTONS : 1 Reset, 3 buttons + 2 DIP-Switch
+        LEDS    : 3
+        SENSORS : Potentiometer
+        GPS     : Possible through pin header GPS module connection
+        SDCARD  : No
+        EXTENSION HEADER : Yes, all IMST iM880A module pins
+        REMARK  : None
+
 5. Usage
 ---------
 Projects for Ride7 and Keil Integrated Development Environments are available.
 
 6. Changelog
 -------------
+2014-04-07, v2.2
+* General
+    1. Added IMST SK-iM880A starter kit board support to the project.
+        * The application payload for the SK-iM880A platform is as follows:
+
+        LoRaMac port 3:
+        
+             { 0x00/0x01, 0x00, 0x00, 0x00 }
+              ----------  ----- ----------
+                   |        |       |
+                  LED     POTI     VDD
+    2. Ping-Pong applications have been split per supported board.
+    3. Corrected the SX1272 output power management. 
+       Added a variable to store the current Radio channel.
+       Added missing FSK bit definition.
+    4. Made fifo functions coding style coherent with the project.
+    5. UART driver is now independent of the used MCU
+    
 2014-03-28, v2.1
 * General
     1. The timers and RTC management has been rewritten.
@@ -114,7 +147,6 @@ Projects for Ride7 and Keil Integrated Development Environments are available.
 * General
     1. The LoRaMac applications now sends the LED status plus the sensors values.
        For the LoRaMote platform the application also sends the GPS coordinates.
-       
         * The application payload for the Bleeper platform is as follows:
         
             LoRaMac port 1:
@@ -124,7 +156,6 @@ Projects for Ride7 and Keil Integrated Development Environments are available.
                        |           |           |           |        |
                       LED      PRESSURE   TEMPERATURE  ALTITUDE  BATTERY
                                                      (barometric)
-
         * The application payload for the LoRaMote platform is as follows:
         
             LoRaMac port 2:

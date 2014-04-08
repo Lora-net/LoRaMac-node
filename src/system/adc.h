@@ -43,6 +43,7 @@ void AdcDeInit( Adc_t *obj );
  * \brief Read the analogue voltage value
  *
  * \param [IN] obj  ADC object
+ * \retval value    Analogue pin value
  */
 uint16_t AdcReadChannel( Adc_t *obj );
 

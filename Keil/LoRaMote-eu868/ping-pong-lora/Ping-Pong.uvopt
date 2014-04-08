@@ -203,7 +203,7 @@
       <TopLine>2</TopLine>
       <CurrentLine>21</CurrentLine>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\src\apps\ping-pong-lora\main.c</PathWithFileName>
+      <PathWithFileName>..\..\..\src\apps\ping-pong-lora\LoRaMote\main.c</PathWithFileName>
       <FilenameWithoutPath>main.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
