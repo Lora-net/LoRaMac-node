@@ -20,9 +20,31 @@ Maintainer: Miguel Luis and Gregory Cristian
  *
  * \param [IN] a 1st value
  * \param [IN] b 2nd value
- * \retval minValue minimum value
+ * \retval minValue Minimum value
  */
 #define MIN( a, b ) ( ( ( a ) < ( b ) ) ? ( a ) : ( b ) )
+
+/*!
+ * \brief Returns the maximum value betwen a and b
+ *
+ * \param [IN] a 1st value
+ * \param [IN] b 2nd value
+ * \retval maxValue Maximum value
+ */
+#define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
+
+/*!
+ * \brief  Find First Set
+ *         This function identifies the least significant index or position of the
+ *         bits set to one in the word
+ *
+ * \param [in]  value  Value to find least significant index
+ * \retval bitIndex    Index of least significat bit at one
+ */
+__STATIC_INLINE uint8_t __ffs( uint32_t value )
+{
+    return( uint32_t )( 32 - __CLZ( value & ( -value ) ) );
+}
 
 /*!
  * \brief Computes a random number between min and max

@@ -57,7 +57,7 @@ void SpiDeInit( Spi_t *obj );
 void SpiFormat( Spi_t *obj, int8_t bits, int8_t cpol, int8_t cpha, int8_t slave );
 
 /*!
- * \brief
+ * \brief Sets the SPI speed
  *
  * \param [IN] obj SPI object
  * \param [IN] hz  SPI clock frequency in hz

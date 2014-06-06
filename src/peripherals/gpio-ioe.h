@@ -6,7 +6,7 @@
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
     (C)2013 Semtech
 
-Description: IO extender driver implementation
+Description: IO expander driver implementation
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 

@@ -1,0 +1,4 @@
+
+<Project Header="Project 'LoRaMac-ClassB'" Path=".\LoRaMac.rprj" Project="Yes" OutputFile="" sate="96" ActiveApp="LoRaMac-ClassB" >
+	<ApplicationBuild Header="LoRaMac-ClassB" Extern=".\LoRaMac.rapp" Path=".\LoRaMac.rapp" OutputFile=".\obj\LoRaMac.elf" sate="98" Config="Bleeper-72" />
+</Project>

@@ -31,7 +31,7 @@ typedef struct TimerEvent_s
  * \brief Initializes the timer object
  *
  * \remark TimerSetValue function must be called before starting the timer.
- *         this function initializes Timestamp and ReloadValue at 0.
+ *         this function initializes timestamp and reload value at 0.
  *
  * \param [IN] obj          Structure containing the timer object parameters
  * \param [IN] callback     Function callback called at the end of the timeout

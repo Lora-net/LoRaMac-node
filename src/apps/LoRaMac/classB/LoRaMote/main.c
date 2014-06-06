@@ -235,16 +235,16 @@ int main( void )
     // Random seed initialization
     srand( RAND_SEED );
     // Choose a random device address
-    DevAddr = randr( 0, 0x0FFFFFFF );
+    // NwkID = 0
+    // NwkAddr rand [0, 33554431]
+    DevAddr = randr( 0, 0x01FFFFFF );
 
-    LoRaMacInitNwkIds( DevAddr, NwkSKey, AppSKey );
-    
+    LoRaMacInitNwkIds( 0x000000, DevAddr, NwkSKey, AppSKey );
     IsNetworkJoined = true;
 #else
     // Sends a JoinReq Command every 5 seconds until the network is joined
     TimerInit( &JoinReqTimer, OnJoinReqTimerEvent ); 
     TimerSetValue( &JoinReqTimer, OVER_THE_AIR_ACTIVATION_DUTYCYCLE );
-    TimerStart( &JoinReqTimer );
 #endif
 
     TxNextPacket = true;
@@ -329,12 +329,12 @@ int main( void )
         {
             TxNextPacket = false;
         
-            pressure = ( uint16_t )( mpl3115ReadPressure( ) / 10 );             // in hPa / 10
-            temperature = ( int16_t )( mpl3115ReadTemperature( ) * 100 );       // in °C * 100
-            altitudeBar = ( uint16_t )( mpl3115ReadAltitude( ) * 10 );          // in m * 10
+            pressure = ( uint16_t )( MPL3115ReadPressure( ) / 10 );             // in hPa / 10
+            temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
+            altitudeBar = ( uint16_t )( MPL3115ReadAltitude( ) * 10 );          // in m * 10
             batteryLevel = BoardMeasureBatterieLevel( );                        // 1 (very low) to 254 (fully charged)
-            UP501GetLatestGpsPositionBinary( &latitude, &longitude );
-            altitudeGps = UP501GetLatestGpsAltitude( );                         // in m
+            GpsGetLatestGpsPositionBinary( &latitude, &longitude );
+            altitudeGps = GpsGetLatestGpsAltitude( );                           // in m
         
             // Switch LED 1 ON
             GpioWrite( &Led1, 0 );

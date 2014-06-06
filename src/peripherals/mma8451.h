@@ -25,23 +25,28 @@ Maintainer: Miguel Luis and Gregory Cristian
  */ 
 #define MMA8451_ID                                   0x0D
 
-uint8_t mma8451Init( void );
+/*!
+ * \brief Initializes the device
+ *
+ * \retval status [SUCCESS, FAIL]
+ */
+uint8_t MMA8451Init( void );
 
 /*!
  * \brief Resets the device
  *
  * \retval status [SUCCESS, FAIL]
  */
-uint8_t mma8451Reset( void );
+uint8_t MMA8451Reset( void );
 
 /*!
  * \brief Writes a byte at specified address in the device
  *
- * \param [IN]:	addr
- * \param [IN]:	data
+ * \param [IN]: addr
+ * \param [IN]: data
  * \retval status [SUCCESS, FAIL]
  */
-uint8_t mma8451Write( uint8_t addr, uint8_t data );
+uint8_t MMA8451Write( uint8_t addr, uint8_t data );
 
 /*!
  * \brief Writes a buffer at specified address in the device
@@ -51,7 +56,7 @@ uint8_t mma8451Write( uint8_t addr, uint8_t data );
  * \param [IN]: size
  * \retval status [SUCCESS, FAIL]
  */
-uint8_t mma8451WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size );
+uint8_t MMA8451WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size );
 
 /*!
  * \brief Reads a byte at specified address in the device
@@ -60,7 +65,7 @@ uint8_t mma8451WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size );
  * \param [OUT]: data
  * \retval status [SUCCESS, FAIL]
  */
-uint8_t mma8451Read( uint8_t addr, uint8_t *data );
+uint8_t MMA8451Read( uint8_t addr, uint8_t *data );
 
 /*!
  * \brief Reads a buffer at specified address in the device
@@ -70,20 +75,20 @@ uint8_t mma8451Read( uint8_t addr, uint8_t *data );
  * \param [IN]: size
  * \retval status [SUCCESS, FAIL]
  */
-uint8_t mma8451ReadBuffer( uint8_t addr, uint8_t *data, uint8_t size );
+uint8_t MMA8451ReadBuffer( uint8_t addr, uint8_t *data, uint8_t size );
 
 /*!
  * \brief Sets the I2C device slave address
  *
  * \param [IN]: addr
  */
-void mma8451SetDeviceAddr( uint8_t addr );
+void MMA8451SetDeviceAddr( uint8_t addr );
 
 /*!
  * \brief Gets the I2C device slave address
  *
  * \retval: addr Current device slave address
  */
-uint8_t mma8451GetDeviceAddr( void );
+uint8_t MMA8451GetDeviceAddr( void );
 
 #endif  // __MMA8451_H__

@@ -6,7 +6,7 @@
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
     (C)2013 Semtech
 
-Description: IO Extander implementation (based on the sx1509)
+Description: IO expander implementation (based on the sx1509)
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 

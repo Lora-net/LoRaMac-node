@@ -119,7 +119,7 @@ void AdcMcuFormat( Adc_t *obj, AdcResolution AdcRes, AdcNumConversion AdcNumConv
 
 uint16_t AdcMcuRead( Adc_t *obj, uint8_t channel )
 {
-    uint16_t ADCdata = 0;
+    uint16_t adcData = 0;
 
     /* Enable The HSI (16Mhz) */
     RCC_HSICmd( ENABLE );
@@ -129,10 +129,10 @@ uint16_t AdcMcuRead( Adc_t *obj, uint8_t channel )
 
     RCC_APB2PeriphClockCmd( RCC_APB2Periph_ADC1, ENABLE );
 
-    // temperature or Vref ?
+    // Temperature or Vref measurement
     if( ( channel == ADC_Channel_16 ) || ( channel == ADC_Channel_17 ) )
     {
-        // Yes, enable TemperatureSensor and interenal reference voltage
+        // Yes, enable temperature sensor and internal reference voltage
         ADC_TempSensorVrefintCmd( ENABLE );
     }
 
@@ -161,7 +161,7 @@ uint16_t AdcMcuRead( Adc_t *obj, uint8_t channel )
     {
     }
 
-    ADCdata = ADC_GetConversionValue( ADC1 );
+    adcData = ADC_GetConversionValue( ADC1 );
 
     ADC_Cmd( ADC1, DISABLE );
     
@@ -175,5 +175,5 @@ uint16_t AdcMcuRead( Adc_t *obj, uint8_t channel )
 
     RCC_HSICmd( DISABLE );
    
-    return ADCdata;
+    return adcData;
 }

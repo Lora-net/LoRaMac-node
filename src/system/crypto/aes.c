@@ -521,7 +521,7 @@ return_type aes_set_key( const unsigned char key[], length_type keylen, aes_cont
         break;
     default: 
         ctx->rnd = 0; 
-        return -1;
+        return ( uint_8t )-1;
     }
     block_copy_nn(ctx->ksch, key, keylen);
     hi = (keylen + 28) << 2;
@@ -587,7 +587,7 @@ return_type aes_encrypt( const unsigned char in[N_BLOCK], unsigned char  out[N_B
         copy_and_key( out, s1, ctx->ksch + r * N_BLOCK );
     }
     else
-        return -1;
+        return ( uint_8t )-1;
     return 0;
 }
 

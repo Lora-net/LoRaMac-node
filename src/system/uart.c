@@ -6,7 +6,7 @@
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
     (C)2013 Semtech
 
-Description: Uart basic implementation
+Description: Implements the generic UART driver
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 
@@ -14,6 +14,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 */
 #include "board.h"
 #include "uart-board.h"
+#if defined( USE_USB_CDC )
+#include "uart-usb-board.h"
+#endif
 
 #include "uart.h"
 
@@ -29,7 +32,16 @@ void UartInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx )
     {
         obj->IsInitialized = true;
 
-        UartMcuInit( obj, uartId, tx, rx );
+        if( uartId == UART_USB_CDC )
+        {
+#if defined( USE_USB_CDC )
+            UartUsbInit( obj, uartId, NC, NC );
+#endif
+        }
+        else
+        {
+            UartMcuInit( obj, uartId, tx, rx );
+        }
     }
 }
 
@@ -40,23 +52,63 @@ void UartConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_t w
         // UartInit function must be called first.
         while( 1 );
     }
-    UartMcuConfig( obj, mode, baudrate, wordLength, stopBits, parity, flowCtrl );
+    if( obj->UartId == UART_USB_CDC )
+    {
+#if defined( USE_USB_CDC )
+        UartUsbConfig( obj, mode, baudrate, wordLength, stopBits, parity, flowCtrl );
+#endif
+    }
+    else
+    {
+        UartMcuConfig( obj, mode, baudrate, wordLength, stopBits, parity, flowCtrl );
+    }
 }
 
 void UartDeInit( Uart_t *obj )
 {
     obj->IsInitialized = false;
-    UartMcuDeInit( obj );
+    if( obj->UartId == UART_USB_CDC )
+    {
+#if defined( USE_USB_CDC )
+        UartUsbDeInit( obj );
+#endif
+    }
+    else
+    {
+        UartMcuDeInit( obj );
+    }
 }
 
 uint8_t UartPutChar( Uart_t *obj, uint8_t data )
 {
-    return UartMcuPutChar( obj, data );
+    if( obj->UartId == UART_USB_CDC )
+    {
+#if defined( USE_USB_CDC )
+        return UartUsbPutChar( obj, data );
+#else
+        return 255; // Not supported
+#endif
+    }
+    else
+    {
+        return UartMcuPutChar( obj, data );
+    }
 }
 
 uint8_t UartGetChar( Uart_t *obj, uint8_t *data )
 {
-    return UartMcuGetChar( obj, data );
+    if( obj->UartId == UART_USB_CDC )
+    {
+#if defined( USE_USB_CDC )
+        return UartUsbGetChar( obj, data );
+#else
+        return 255; // Not supported
+#endif
+    }
+    else
+    {
+        return UartMcuGetChar( obj, data );
+    }
 }
 
 uint8_t UartPutBuffer( Uart_t *obj, uint8_t *buffer, uint16_t size )

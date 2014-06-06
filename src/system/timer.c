@@ -33,9 +33,9 @@ static TimerEvent_t *TimerListHead = NULL;
  *         next timer to expire.
  *
  * \param [IN]  obj Timer object to be become the new head
- * \param [IN]  remainingTime Remaining time of the pevious head to be replaced
+ * \param [IN]  remainingTime Remaining time of the previous head to be replaced
  */
-void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime );
+static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime );
 
 /*!
  * \brief Adds a timer to the list.
@@ -46,7 +46,7 @@ void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime );
  * \param [IN]  obj Timer object to be added to the list
  * \param [IN]  remainingTime Remaining time of the running head after which the object may be added
  */
-void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime );
+static void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime );
 
 /*!
  * \brief Sets a timeout with the duration "timestamp"
@@ -54,6 +54,14 @@ void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime );
  * \param [IN] timestamp Delay duration
  */
 static void TimerSetTimeout( TimerEvent_t *obj );
+
+/*!
+ * \brief Check if the Object to be added is not already in the list
+ * 
+ * \param [IN] timestamp Delay duration
+ * \retval [out] true (the object is already in the list) or false  
+ */
+static bool TimerExists( TimerEvent_t *obj );
 
 /*!
  * \brief Read the timer value of the currently running timer
@@ -67,6 +75,7 @@ void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
     obj->ReloadValue = 0;
     obj->IsRunning = false;
     obj->Callback = callback;
+    obj->Next = NULL;
 }
 
 void TimerStart( TimerEvent_t *obj )
@@ -76,8 +85,9 @@ void TimerStart( TimerEvent_t *obj )
 
     __disable_irq( );
 
-    if( obj == NULL )
+    if( ( obj == NULL ) || ( TimerExists( obj ) == true ) )
     {
+        __enable_irq( );
         return;
     }
 
@@ -116,7 +126,7 @@ void TimerStart( TimerEvent_t *obj )
     __enable_irq( );
 }
 
-void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime )
+static void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime )
 {
     uint32_t aggregatedTimestamp = 0;      // hold the sum of timestamps 
     uint32_t aggregatedTimestampNext = 0;  // hold the sum of timestamps up to the next event
@@ -170,7 +180,7 @@ void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime )
     }
 }
 
-void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime )
+static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime )
 {
     TimerEvent_t* cur = TimerListHead;
 
@@ -251,12 +261,13 @@ void TimerStop( TimerEvent_t *obj )
     // List is empty or the Obj to stop does not exist 
     if( ( TimerListHead == NULL ) || ( obj == NULL ) )
     {
+        __enable_irq( );
         return;
     }
 
-    if( TimerListHead == obj )        // Stop the Head                                    
+    if( TimerListHead == obj ) // Stop the Head                                    
     {
-        if( TimerListHead->IsRunning == true )        // The head is already running 
+        if( TimerListHead->IsRunning == true ) // The head is already running 
         {
             elapsedTime = TimerGetValue( );
             if( elapsedTime > obj->Timestamp )
@@ -279,7 +290,7 @@ void TimerStop( TimerEvent_t *obj )
                 TimerListHead = NULL;
             }
         }
-        else                // Stop the head before it is started
+        else // Stop the head before it is started
         {     
             if( TimerListHead->Next != NULL )     
             {
@@ -293,7 +304,7 @@ void TimerStop( TimerEvent_t *obj )
             }
         }
     }
-    else                    // Stop an object within the list
+    else // Stop an object within the list
     {    
         remainingTime = obj->Timestamp;
         
@@ -324,6 +335,21 @@ void TimerStop( TimerEvent_t *obj )
     __enable_irq( );
 }    
     
+static bool TimerExists( TimerEvent_t *obj )
+{
+    TimerEvent_t* cur = TimerListHead;
+
+    while( cur != NULL )
+    {
+        if( cur == obj )
+        {
+            return true;
+        }
+        cur = cur->Next;
+    }
+    return false; 
+}
+
 void TimerReset( TimerEvent_t *obj )
 {
     TimerStop( obj );

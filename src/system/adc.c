@@ -6,7 +6,7 @@
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
     (C)2013 Semtech
 
-Description: Internal ADC implementation
+Description: Implements a generic ADC driver
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 

@@ -60,7 +60,7 @@ typedef struct
      *                     FSK : N/A ( set to 0 )
      *                     LoRa: Raw SNR value
      */
-    void    ( *RxDone )( uint8_t *payload, uint16_t *size, double rssi, double snr, uint8_t rawSnr );
+    void    ( *RxDone )( uint8_t *payload, uint16_t size, double rssi, double snr, uint8_t rawSnr );
     /*!
      * \brief  Rx Timeout callback prototype.
      */
@@ -103,7 +103,18 @@ struct Radio_s
      *
      * \retval isFree         [true: Channel is free, false: Channel is not free]
      */
-     bool    ( *IsChannelFree )( RadioModems_t modem, uint32_t freq, int32_t rssiThresh );
+    bool    ( *IsChannelFree )( RadioModems_t modem, uint32_t freq, int32_t rssiThresh );
+    /*!
+     * \brief Generates a 32 bits random value based on the RSSI readings
+     *
+     * \remark This function sets the radio in LoRa modem mode and disables 
+     *         all interrupts.
+     *         After calling this function either Radio.SetRxConfig or
+     *         Radio.SetTxConfig functions must be called.
+     *
+     * \retval randomValue    32 bits random value
+     */
+    uint32_t ( *Random )( void );
     /*!
      * \brief Sets the reception parameters
      *
@@ -122,8 +133,8 @@ struct Radio_s
      * \param [IN] bandwidthAfc Sets the AFC Bandwidth (FSK only) 
      *                          FSK : >= 2600 and <= 250000 Hz
      *                          LoRa: N/A ( set to 0 ) 
-     * \param [IN] preambleLen  Sets the Preamble length (LoRa only) 
-     *                          FSK : N/A ( set to 0 ) 
+     * \param [IN] preambleLen  Sets the Preamble length
+     *                          FSK : Number of bytes 
      *                          LoRa: Length in symbols (the hardware adds 4 more symbols)
      * \param [IN] symbTimeout  Sets the RxSingle timeout value (LoRa only) 
      *                          FSK : N/A ( set to 0 ) 
@@ -161,8 +172,10 @@ struct Radio_s
      *                          FSK : N/A ( set to 0 )
      *                          LoRa: [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8] 
      * \param [IN] preambleLen  Sets the preamble length
+     *                          FSK : Number of bytes 
+     *                          LoRa: Length in symbols (the hardware adds 4 more symbols)
      * \param [IN] fixLen       Fixed length packets [0: variable, 1: fixed]
-     * \param [IN] crcOn        Enables disbles the CRC [0: OFF, 1: ON]
+     * \param [IN] crcOn        Enables disables the CRC [0: OFF, 1: ON]
      * \param [IN] iqInverted   Inverts IQ signals (LoRa only)
      *                          FSK : N/A ( set to 0 )
      *                          LoRa: [0: not inverted, 1: inverted]
@@ -174,6 +187,13 @@ struct Radio_s
                               bool fixLen, bool crcOn,
                               bool iqInverted, uint32_t timeout );
     /*!
+     * \brief Checks if the given RF frequency is supported by the hardware
+     *
+     * \param [IN] frequency RF frequency to be checked
+     * \retval isSupported [true: supported, false: unsupported]
+     */
+    bool    ( *CheckRfFrequency )( uint32_t frequency );
+    /*!
      * \brief Computes the packet time on air for the given payload
      *
      * \Remark Can only be called once SetRxConfig or SetTxConfig have been called
@@ -183,7 +203,7 @@ struct Radio_s
      *
      * \retval airTime        Computed airTime for the given packet payload length
      */
-     double  ( *TimeOnAir )( RadioModems_t modem, uint8_t pktLen );
+    double  ( *TimeOnAir )( RadioModems_t modem, uint8_t pktLen );
     /*!
      * \brief Sends the buffer of size. Prepares the packet to be sent and sets
      *        the radio in transmission

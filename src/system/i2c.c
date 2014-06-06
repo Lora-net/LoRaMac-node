@@ -49,7 +49,7 @@ uint8_t I2cWrite( I2c_t *obj, uint8_t deviceAddress, uint8_t registerAddress, ui
     {
         if( I2cMcuWriteBuffer( obj, deviceAddress, registerAddress, data, 1 ) == FAIL )
         {
-            // if first attemp fail due to an IRQ, try a second time
+            // if first attempt fails due to an IRQ, try a second time
             if( I2cMcuWriteBuffer( obj, deviceAddress, registerAddress, data, 1 ) == FAIL )
             {
                 return FAIL;
@@ -76,7 +76,7 @@ uint8_t I2cWriteBuffer( I2c_t *obj, uint8_t deviceAddress, uint8_t registerAddre
     {
         if( I2cMcuWriteBuffer( obj, deviceAddress, registerAddress, data, size ) == FAIL )
         {
-            // if first attemp fail due to an IRQ, try a second time
+            // if first attempt fails due to an IRQ, try a second time
             if( I2cMcuWriteBuffer( obj, deviceAddress, registerAddress, data, size ) == FAIL )
             {
                 return FAIL;

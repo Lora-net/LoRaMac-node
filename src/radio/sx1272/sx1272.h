@@ -168,6 +168,18 @@ void SX1272SetChannel( uint32_t freq );
 bool SX1272IsChannelFree( RadioModems_t modem, uint32_t freq, int32_t rssiThresh );
 
 /*!
+ * \brief Generates a 32 bits random value based on the RSSI readings
+ *
+ * \remark This function sets the radio in LoRa modem mode and disables 
+ *         all interrupts.
+ *         After calling this function either SX1272SetRxConfig or
+ *         SX1272SetTxConfig functions must be called.
+ *
+ * \retval randomValue    32 bits random value
+ */
+uint32_t SX1272Random( void );
+
+/*!
  * \brief Sets the reception parameters
  *
  * \param [IN] modem        Radio modem to be used [0: FSK, 1: LoRa]
@@ -185,8 +197,8 @@ bool SX1272IsChannelFree( RadioModems_t modem, uint32_t freq, int32_t rssiThresh
  * \param [IN] bandwidthAfc Sets the AFC Bandwidth (FSK only) 
  *                          FSK : >= 2600 and <= 250000 Hz
  *                          LoRa: N/A ( set to 0 ) 
- * \param [IN] preambleLen  Sets the Preamble length (LoRa only) 
- *                          FSK : N/A ( set to 0 ) 
+ * \param [IN] preambleLen  Sets the Preamble length
+ *                          FSK : Number of bytes 
  *                          LoRa: Length in symbols (the hardware adds 4 more symbols)
  * \param [IN] symbTimeout  Sets the RxSingle timeout value (LoRa only) 
  *                          FSK : N/A ( set to 0 ) 
@@ -225,8 +237,10 @@ void SX1272SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
  *                          FSK : N/A ( set to 0 )
  *                          LoRa: [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8] 
  * \param [IN] preambleLen  Sets the preamble length
+ *                          FSK : Number of bytes 
+ *                          LoRa: Length in symbols (the hardware adds 4 more symbols)
  * \param [IN] fixLen       Fixed length packets [0: variable, 1: fixed]
- * \param [IN] crcOn        Enables disbles the CRC [0: OFF, 1: ON]
+ * \param [IN] crcOn        Enables disables the CRC [0: OFF, 1: ON]
  * \param [IN] iqInverted   Inverts IQ signals (LoRa only)
  *                          FSK : N/A ( set to 0 )
  *                          LoRa: [0: not inverted, 1: inverted]

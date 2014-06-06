@@ -15,28 +15,23 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "board.h"
 #include "mpl3115.h"
 
-static uint8_t I2cDeviceAddr = 0;
-
-static bool mpl3115Initialized = false;
-
-/******************************************************************************
-* Global variables
-******************************************************************************/
-
-/*
- * Hold the last pressure measured
+/*!
+ * Holds the last measured pressure
  */
 float Pressure;
 
-/*
- * Hold the last altitude measured
+/*!
+ * Holds the last measured altitude
  */
 float Altitude;
 
-/*
- * Hold the last Temperature measured
+/*!
+ * Holds the last measured temperature
  */
 float Temperature;
+
+static uint8_t I2cDeviceAddr = 0;
+static bool MPL3115Initialized = false;
 
 /*!
  * \brief Writes a byte at specified address in the device
@@ -45,7 +40,7 @@ float Temperature;
  * \param [IN]:    data
  * \retval status [SUCCESS, FAIL]
  */
-uint8_t mpl3115Write( uint8_t addr, uint8_t data );
+uint8_t MPL3115Write( uint8_t addr, uint8_t data );
 
 /*!
  * \brief Writes a buffer at specified address in the device
@@ -55,7 +50,7 @@ uint8_t mpl3115Write( uint8_t addr, uint8_t data );
  * \param [IN]: size
  * \retval status [SUCCESS, FAIL]
  */
-uint8_t mpl3115WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size );
+uint8_t MPL3115WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size );
 
 /*!
  * \brief Reads a byte at specified address in the device
@@ -64,7 +59,7 @@ uint8_t mpl3115WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size );
  * \param [OUT]: data
  * \retval status [SUCCESS, FAIL]
  */
-uint8_t mpl3115Read( uint8_t addr, uint8_t *data );
+uint8_t MPL3115Read( uint8_t addr, uint8_t *data );
 
 /*!
  * \brief Reads a buffer at specified address in the device
@@ -74,155 +69,156 @@ uint8_t mpl3115Read( uint8_t addr, uint8_t *data );
  * \param [IN]: size
  * \retval status [SUCCESS, FAIL]
  */
-uint8_t mpl3115ReadBuffer( uint8_t addr, uint8_t *data, uint8_t size );
+uint8_t MPL3115ReadBuffer( uint8_t addr, uint8_t *data, uint8_t size );
 
 /*!
  * \brief Sets the I2C device slave address
  *
  * \param [IN]: addr
  */
-void mpl3115SetDeviceAddr( uint8_t addr );
+void MPL3115SetDeviceAddr( uint8_t addr );
 
 /*!
  * \brief Gets the I2C device slave address
  *
  * \retval: addr Current device slave address
  */
-uint8_t mpl3115GetDeviceAddr( void );
+uint8_t MPL3115GetDeviceAddr( void );
 
 /*!
- * \brief Set the device in Marometer Mode
+ * \brief Sets the device in barometer Mode
  */
-void mpl3115SetModeBarometer( void );
+void MPL3115SetModeBarometer( void );
 
 /*!
- * \brief Set the device in Altimeter Mode
+ * \brief Sets the device in altimeter Mode
  */
-void mpl3115SetModeAltimeter( void );
+void MPL3115SetModeAltimeter( void );
 
 /*!
- * \brief Set the device in Standby
+ * \brief Sets the device in standby
  */
-void mpl3115SetModeStandby( void );
+void MPL3115SetModeStandby( void );
 
 /*!
- * \brief Set the device in Measure Mode
+ * \brief Sets the device in active Mode
  */
-void mpl3115SetModeActive( void );
+void MPL3115SetModeActive( void );
 
 /*!
- * \brief Toggle the OST bit causing the sensor to immediately take another reading
+ * \brief Toggles the OST bit causing the sensor to immediately take another
+ *        reading
  */
-void mpl3115ToggleOneShot( void );
+void MPL3115ToggleOneShot( void );
 
 
-uint8_t mpl3115Init( void )
+uint8_t MPL3115Init( void )
 {
     uint8_t regVal = 0;
 
-    mpl3115SetDeviceAddr( MPL3115A_I2C_ADDRESS );
+    MPL3115SetDeviceAddr( MPL3115A_I2C_ADDRESS );
 
-    if( mpl3115Initialized == false )
+    if( MPL3115Initialized == false )
     {          
-        mpl3115Read( MPL3115_ID, &regVal );
+        MPL3115Read( MPL3115_ID, &regVal );
         if( regVal != 0xC4 )
         {
             return FAIL;
         }
     
-        mpl3115Reset( );
+        MPL3115Reset( );
     
         do
         {   // Wait for the RST bit to clear 
-            mpl3115Read( CTRL_REG1, &regVal );
+            MPL3115Read( CTRL_REG1, &regVal );
         }while( regVal );
     
-        mpl3115Write( PT_DATA_CFG_REG, 0x07 );        // Enable data flags 
-        mpl3115Write( CTRL_REG3, 0x11 );            // Open drain, active low interrupts 
-        mpl3115Write( CTRL_REG4, 0x80 );            // Enable DRDY interrupt 
-        mpl3115Write( CTRL_REG5, 0x00 );            // DRDY interrupt routed to INT2 - PTD3 
-        mpl3115Write( CTRL_REG1, 0xA9 );            // Active altitude mode, OSR = 32    
-
-        mpl3115Write( OFF_H_REG, 0xB0 );            // Altitude data offset
+        MPL3115Write( PT_DATA_CFG_REG, 0x07 ); // Enable data flags 
+        MPL3115Write( CTRL_REG3, 0x11 );       // Open drain, active low interrupts 
+        MPL3115Write( CTRL_REG4, 0x80 );       // Enable DRDY interrupt 
+        MPL3115Write( CTRL_REG5, 0x00 );       // DRDY interrupt routed to INT2 - PTD3 
+        MPL3115Write( CTRL_REG1, 0xA9 );       // Active altitude mode, OSR = 32    
+                                               
+        MPL3115Write( OFF_H_REG, 0xB0 );       // Altitude data offset
     
-        mpl3115SetModeActive( );
+        MPL3115SetModeActive( );
     
-        mpl3115Initialized = true;
+        MPL3115Initialized = true;
     }
     return SUCCESS;
 }
 
-uint8_t mpl3115Reset( )
+uint8_t MPL3115Reset( )
 {
     // Reset all registers to POR values
-    if( mpl3115Write( CTRL_REG1, 0x04 ) == SUCCESS )
+    if( MPL3115Write( CTRL_REG1, 0x04 ) == SUCCESS )
     {
         return SUCCESS;
     }
     return FAIL;
 }
 
-uint8_t mpl3115Write( uint8_t addr, uint8_t data )
+uint8_t MPL3115Write( uint8_t addr, uint8_t data )
 {
-    return mpl3115WriteBuffer( addr, &data, 1 );
+    return MPL3115WriteBuffer( addr, &data, 1 );
 }
 
-uint8_t mpl3115WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size )
+uint8_t MPL3115WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size )
 {
     return I2cWriteBuffer( &I2c, I2cDeviceAddr << 1, addr, data, size );
 }
 
-uint8_t mpl3115Read( uint8_t addr, uint8_t *data )
+uint8_t MPL3115Read( uint8_t addr, uint8_t *data )
 {
-    return mpl3115ReadBuffer( addr, data, 1 );
+    return MPL3115ReadBuffer( addr, data, 1 );
 }
 
-uint8_t mpl3115ReadBuffer( uint8_t addr, uint8_t *data, uint8_t size )
+uint8_t MPL3115ReadBuffer( uint8_t addr, uint8_t *data, uint8_t size )
 {
     return I2cReadBuffer( &I2c, I2cDeviceAddr << 1, addr, data, size );
 }
 
-void mpl3115SetDeviceAddr( uint8_t addr )
+void MPL3115SetDeviceAddr( uint8_t addr )
 {
     I2cDeviceAddr = addr;
 }
 
-uint8_t mpl3115GetDeviceAddr( void )
+uint8_t MPL3115GetDeviceAddr( void )
 {
     return I2cDeviceAddr;
 }
 
-float mpl3115ReadAltitude( void )
+float MPL3115ReadAltitude( void )
 {
     uint8_t counter = 0;
     uint8_t val = 0;
     uint8_t msb = 0, csb = 0, lsb = 0;
     float decimal = 0;
 
-    if( mpl3115Initialized == false )
+    if( MPL3115Initialized == false )
     {
         return 0;
     }
 
-    mpl3115SetModeAltimeter( );
-    mpl3115ToggleOneShot( );
+    MPL3115SetModeAltimeter( );
+    MPL3115ToggleOneShot( );
 
     while( ( val & 0x04 ) != 0x04 )
     {    
-        mpl3115Read( STATUS_REG, &val );
+        MPL3115Read( STATUS_REG, &val );
         DelayMs( 10 );
         counter++;
     
         if( counter > 20 )
         {    
-            mpl3115Initialized = false;
-            mpl3115Init( );
-            mpl3115SetModeAltimeter( );
-            mpl3115ToggleOneShot( );
+            MPL3115Initialized = false;
+            MPL3115Init( );
+            MPL3115SetModeAltimeter( );
+            MPL3115ToggleOneShot( );
             counter = 0;
             while( ( val & 0x04 ) != 0x04 )
             {  
-                mpl3115Read( STATUS_REG, &val );
+                MPL3115Read( STATUS_REG, &val );
                 DelayMs( 10 );
                 counter++;
                 if( counter > 20 )
@@ -233,9 +229,9 @@ float mpl3115ReadAltitude( void )
         }
     }
 
-    mpl3115Read( OUT_P_MSB_REG, &msb );        // High byte of integer part of altitude,  
-    mpl3115Read( OUT_P_CSB_REG, &csb );        // Low byte of integer part of altitude 
-    mpl3115Read( OUT_P_LSB_REG, &lsb );        // Decimal part of altitude in bits 7-4
+    MPL3115Read( OUT_P_MSB_REG, &msb ); // High byte of integer part of altitude,  
+    MPL3115Read( OUT_P_CSB_REG, &csb ); // Low byte of integer part of altitude 
+    MPL3115Read( OUT_P_LSB_REG, &lsb ); // Decimal part of altitude in bits 7-4
     
     decimal = ( ( float )( lsb >> 4 ) ) / 16.0;
     Altitude = ( float )( ( msb << 8 ) | csb ) + decimal;
@@ -243,33 +239,33 @@ float mpl3115ReadAltitude( void )
     return( Altitude );
 }
 
-float mpl3115ReadPressure( void )
+float MPL3115ReadPressure( void )
 {
     uint8_t counter = 0;
     uint8_t val = 0;
     uint8_t msb = 0, csb = 0, lsb = 0;
     float decimal = 0;
 
-    if( mpl3115Initialized == false )
+    if( MPL3115Initialized == false )
     {
         return 0;
     }
 
-    mpl3115SetModeBarometer( );
-    mpl3115ToggleOneShot( );
+    MPL3115SetModeBarometer( );
+    MPL3115ToggleOneShot( );
 
     while( ( val & 0x04 ) != 0x04 )
     {    
-        mpl3115Read( STATUS_REG, &val );
+        MPL3115Read( STATUS_REG, &val );
         DelayMs( 10 );
         counter++;
     
         if( counter > 20 )
         {      
-            mpl3115Initialized = false;
-            mpl3115Init( );
-            mpl3115SetModeBarometer( );
-            mpl3115ToggleOneShot( );
+            MPL3115Initialized = false;
+            MPL3115Init( );
+            MPL3115SetModeBarometer( );
+            MPL3115ToggleOneShot( );
             counter = 0;
             while( ( val & 0x04 ) != 0x04 )
             {
@@ -285,9 +281,9 @@ float mpl3115ReadPressure( void )
         }
     }
 
-    mpl3115Read( OUT_P_MSB_REG, &msb );        // High byte of integer part of pressure,  
-    mpl3115Read( OUT_P_CSB_REG, &csb );        // Low byte of integer part of pressure 
-    mpl3115Read( OUT_P_LSB_REG, &lsb );        // Decimal part of pressure in bits 7-4
+    MPL3115Read( OUT_P_MSB_REG, &msb ); // High byte of integer part of pressure,  
+    MPL3115Read( OUT_P_CSB_REG, &csb ); // Low byte of integer part of pressure 
+    MPL3115Read( OUT_P_LSB_REG, &lsb ); // Decimal part of pressure in bits 7-4
 
     Pressure = ( float )( ( msb << 16 | csb << 8 | lsb ) >> 6 );
     lsb &= 0x30; //Bits 5/4 represent the fractional component
@@ -297,40 +293,40 @@ float mpl3115ReadPressure( void )
 
     Pressure = Pressure + decimal;
 
-    mpl3115ToggleOneShot( );
+    MPL3115ToggleOneShot( );
 
     return( Pressure );
 }
 
-float mpl3115ReadTemperature( void )
+float MPL3115ReadTemperature( void )
 {
     uint8_t counter = 0;
     bool negSign = false;
     uint8_t val = 0;
     uint8_t msb = 0, lsb = 0;
 
-    if( mpl3115Initialized == false )
+    if( MPL3115Initialized == false )
     {
         return 0;
     }
 
-    mpl3115ToggleOneShot( );
+    MPL3115ToggleOneShot( );
 
     while( ( val & 0x02 ) != 0x02 )
     {    
-        mpl3115Read( STATUS_REG, &val );
+        MPL3115Read( STATUS_REG, &val );
         DelayMs( 10 );
         counter++;
     
         if( counter > 20 )
         { 
-            mpl3115Initialized = false;
-            mpl3115Init( );
-            mpl3115ToggleOneShot( );
+            MPL3115Initialized = false;
+            MPL3115Init( );
+            MPL3115ToggleOneShot( );
             counter = 0;
             while( ( val & 0x02 ) != 0x02 )
             {
-                mpl3115Read( STATUS_REG, &val );
+                MPL3115Read( STATUS_REG, &val );
                 DelayMs( 10 );
                 counter++;
             
@@ -343,8 +339,8 @@ float mpl3115ReadTemperature( void )
         }
     }
 
-    mpl3115Read( OUT_T_MSB_REG, &msb );        // Integer part of temperature 
-    mpl3115Read( OUT_T_LSB_REG, &lsb );        // Decimal part of temperature in bits 7-4
+    MPL3115Read( OUT_T_MSB_REG, &msb ); // Integer part of temperature 
+    MPL3115Read( OUT_T_LSB_REG, &lsb ); // Decimal part of temperature in bits 7-4
 
     if( msb > 0x7F )
     {
@@ -363,67 +359,67 @@ float mpl3115ReadTemperature( void )
         Temperature = msb + ( float )( ( lsb >> 4 ) / 16.0 );
     }
 
-    mpl3115ToggleOneShot( );
+    MPL3115ToggleOneShot( );
 
     return( Temperature );
 }
 
 
-void mpl3115ToggleOneShot( void )
+void MPL3115ToggleOneShot( void )
 {
     uint8_t val = 0;
 
-    mpl3115SetModeStandby( );
+    MPL3115SetModeStandby( );
 
-    mpl3115Read( CTRL_REG1, &val );
+    MPL3115Read( CTRL_REG1, &val );
     val &= ~(0x02);         //Clear OST bit
-    mpl3115Write( CTRL_REG1, val );
+    MPL3115Write( CTRL_REG1, val );
 
-    mpl3115Read( CTRL_REG1, &val );
+    MPL3115Read( CTRL_REG1, &val );
     val |= 0x02;            //Set OST bit
-    mpl3115Write( CTRL_REG1, val );
+    MPL3115Write( CTRL_REG1, val );
 
-    mpl3115SetModeActive( );
+    MPL3115SetModeActive( );
 }
 
-void mpl3115SetModeBarometer( void )
+void MPL3115SetModeBarometer( void )
 {
     uint8_t val = 0;
 
-    mpl3115SetModeStandby( );
+    MPL3115SetModeStandby( );
 
-    mpl3115Read( CTRL_REG1, &val );
+    MPL3115Read( CTRL_REG1, &val );
     val &= ~( 0x80 );           //Clear ALT bit
-    mpl3115Write( CTRL_REG1, val );
+    MPL3115Write( CTRL_REG1, val );
 
-    mpl3115SetModeActive( );
+    MPL3115SetModeActive( );
 }
 
-void mpl3115SetModeAltimeter( void )
+void MPL3115SetModeAltimeter( void )
 {
     uint8_t val = 0;
 
-    mpl3115SetModeStandby( );
+    MPL3115SetModeStandby( );
 
-    mpl3115Read( CTRL_REG1, &val );
+    MPL3115Read( CTRL_REG1, &val );
     val |= 0x80;                //Set ALT bit
-    mpl3115Write( CTRL_REG1, val );
+    MPL3115Write( CTRL_REG1, val );
 
-    mpl3115SetModeActive( );
+    MPL3115SetModeActive( );
 }
 
-void mpl3115SetModeStandby( void )
+void MPL3115SetModeStandby( void )
 {
     uint8_t val = 0;
-    mpl3115Read( CTRL_REG1, &val );
+    MPL3115Read( CTRL_REG1, &val );
     val &= ~( 0x01 );         //Clear SBYB bit for Standby mode
-    mpl3115Write( CTRL_REG1, val );
+    MPL3115Write( CTRL_REG1, val );
 }
 
-void mpl3115SetModeActive( void )
+void MPL3115SetModeActive( void )
 {
     uint8_t val = 0;
-    mpl3115Read( CTRL_REG1, &val );
+    MPL3115Read( CTRL_REG1, &val );
     val |= 0x01;                  //Set SBYB bit for Active mode
-    mpl3115Write( CTRL_REG1, val );
+    MPL3115Write( CTRL_REG1, val );
 }

@@ -16,65 +16,64 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "mag3110.h"
 
 static uint8_t I2cDeviceAddr = 0;
+static bool MAG3110Initialized = false;
 
-static bool mag3110Initialized = false;
-
-uint8_t mag3110Init( void )
+uint8_t MAG3110Init( void )
 {
     uint8_t regVal = 0;
 
-    mag3110SetDeviceAddr( MAG3110_I2C_ADDRESS );
+    MAG3110SetDeviceAddr( MAG3110_I2C_ADDRESS );
 
-    if( mag3110Initialized == false )
+    if( MAG3110Initialized == false )
     {   
-        mag3110Initialized = true;
+        MAG3110Initialized = true;
         
-        mag3110Read( MAG3110_ID, &regVal );
+        MAG3110Read( MAG3110_ID, &regVal );
         if( regVal != 0xC4 )   // Fixed Device ID Number = 0xC4 
         {
             return FAIL;
         }
     
-        mag3110Reset( );
+        MAG3110Reset( );
     }
     return SUCCESS;
 }
 
-uint8_t mag3110Reset( void )
+uint8_t MAG3110Reset( void )
 {
-    if( mag3110Write( 0x11, 0x10 ) == SUCCESS )     // Reset the mag3110 with CTRL_REG2
+    if( MAG3110Write( 0x11, 0x10 ) == SUCCESS ) // Reset the MAG3110 with CTRL_REG2
     {
         return SUCCESS;
     }
     return FAIL;
 }
 
-uint8_t mag3110Write( uint8_t addr, uint8_t data )
+uint8_t MAG3110Write( uint8_t addr, uint8_t data )
 {
-    return mag3110WriteBuffer( addr, &data, 1 );
+    return MAG3110WriteBuffer( addr, &data, 1 );
 }
 
-uint8_t mag3110WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size )
+uint8_t MAG3110WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size )
 {
-     return I2cWriteBuffer( &I2c, I2cDeviceAddr << 1, addr, data, size );
+    return I2cWriteBuffer( &I2c, I2cDeviceAddr << 1, addr, data, size );
 }
 
-uint8_t mag3110Read( uint8_t addr, uint8_t *data )
+uint8_t MAG3110Read( uint8_t addr, uint8_t *data )
 {
-    return mag3110ReadBuffer( addr, data, 1 );
+    return MAG3110ReadBuffer( addr, data, 1 );
 }
 
-uint8_t mag3110ReadBuffer( uint8_t addr, uint8_t *data, uint8_t size )
+uint8_t MAG3110ReadBuffer( uint8_t addr, uint8_t *data, uint8_t size )
 {
     return I2cReadBuffer( &I2c, I2cDeviceAddr << 1, addr, data, size );
 }
 
-void mag3110SetDeviceAddr( uint8_t addr )
+void MAG3110SetDeviceAddr( uint8_t addr )
 {
     I2cDeviceAddr = addr;
 }
 
-uint8_t mag3110GetDeviceAddr( void )
+uint8_t MAG3110GetDeviceAddr( void )
 {
     return I2cDeviceAddr;
 }

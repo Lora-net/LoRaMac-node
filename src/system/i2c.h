@@ -90,5 +90,4 @@ uint8_t I2cRead( I2c_t *obj, uint8_t deviceAddress, uint8_t registerAddress, uin
  */
 uint8_t I2cReadBuffer( I2c_t *obj, uint8_t deviceAddress, uint8_t registerAddress, uint8_t *data, uint8_t size );
 
-
 #endif  // __I2C_H__

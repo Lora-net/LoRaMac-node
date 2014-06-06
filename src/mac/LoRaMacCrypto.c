@@ -179,12 +179,14 @@ void LoRaMacJoinComputeSKeys( uint8_t *key, uint8_t *appNonce, uint16_t devNonce
     aes_set_key( key, 16, &AesContext );
 
     memset1( nonce, 0, sizeof( nonce ) );
-    LoRaMacMemCpy( appNonce, nonce, 6 );
-    LoRaMacMemCpy( pDevNonce, nonce + 6, 2 );
+    nonce[0] = 0x01;
+    LoRaMacMemCpy( appNonce, nonce + 1, 6 );
+    LoRaMacMemCpy( pDevNonce, nonce + 7, 2 );
     aes_encrypt( nonce, nwkSKey, &AesContext );
 
     memset1( nonce, 0, sizeof( nonce ) );
-    LoRaMacMemCpy( pDevNonce, nonce, 2 );
-    LoRaMacMemCpy( appNonce, nonce + 2, 6 );
+    nonce[0] = 0x02;
+    LoRaMacMemCpy( appNonce, nonce + 1, 6 );
+    LoRaMacMemCpy( pDevNonce, nonce + 7, 2 );
     aes_encrypt( nonce, appSKey, &AesContext );
 }

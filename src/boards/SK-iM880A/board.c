@@ -84,6 +84,7 @@ void BoardInitMcu( void )
         SCB->ICSR |= SCB_ICSR_PENDSTCLR_Msk;            // Clear SysTick Exception pending flag
 
         AdcInit( &Adc, POTI );
+
         SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
         SX1272IoInit( );
 
@@ -163,7 +164,7 @@ uint16_t BoardMeasureVdd( void )
     MeasuredLevel = AdcMcuRead( &Adc , ADC_Channel_17 );
    
     // We don't use the VREF from calibValues here.
-    // calculate the Vaoltage in miliVolt
+    // calculate the Voltage in miliVolt
     milliVolt = ( uint32_t )PDDADC_VREF_BANDGAP * ( uint32_t )PDDADC_MAX_VALUE;
     milliVolt = milliVolt / ( uint32_t ) MeasuredLevel;
 
@@ -173,21 +174,21 @@ uint16_t BoardMeasureVdd( void )
 uint8_t BoardMeasureBatterieLevel( void ) 
 {
     uint8_t batteryLevel = 0;
-    uint16_t MeasuredLevel = 0;
+    uint16_t measuredLevel = 0;
      
-    MeasuredLevel = BoardMeasureVdd( );
+    measuredLevel = BoardMeasureVdd( );
 
-    if( MeasuredLevel >= 3000 )  
+    if( measuredLevel >= 3000 )  
     {
         batteryLevel = 254;
     }
-    else if( MeasuredLevel <= 2400 ) 
+    else if( measuredLevel <= 2400 ) 
     {
-        batteryLevel = 0;
+        batteryLevel = 1;
     }
     else
     {
-        batteryLevel = ( MeasuredLevel - 2400 ) * BATTERY_STEP_LEVEL;
+        batteryLevel = ( measuredLevel - 2400 ) * BATTERY_STEP_LEVEL;
     }
     return batteryLevel;
 }

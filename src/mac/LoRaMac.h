@@ -15,20 +15,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __LORAMAC_H__
 #define __LORAMAC_H__
 
-/*!
- * LoRaMac channels definition
- */
-#define LORA_NB_CHANNELS                            8
-#define LORA_NB_125_CHANNELS                        6
-
-#define LC1                                         868100000
-#define LC2                                         868300000
-#define LC3                                         868500000
-#define LC4                                         868850000
-#define LC5                                         869050000
-#define LC6                                         869525000
-#define LC7                                         868300000
-#define FC1                                         868300000
+// Includes board dependent definitions such as channels frequencies
+#include "LoRaMac-board.h"
 
 /*!
  * Beacon interval in ms
@@ -105,15 +93,29 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * LoRaMAC channels parameters definition
  */
+typedef union
+{
+    int8_t Value;
+    struct
+    {
+        int8_t Min : 4;
+        int8_t Max : 4;
+    }Fields;
+}DrRange_t;
+
 typedef struct
 {
-    uint8_t  Enabled;   // Channel enabled
-    uint32_t Frequency; // [Hz]
-    uint8_t  Datarate;  // LORA [6: 64, 7: 128, 8: 256, 9: 512, 10: 1024, 11: 2048, 12: 4096  chips]
-                        // FSK bits/s
-    uint8_t  Bw;        // [0: 125 kHz, 1: 250 kHz, 2: 500 kHz, 3: Reserved] 
-    int8_t   Power;     // [dBm]
+    uint32_t Frequency; // Hz
+    DrRange_t DrRange;  // Max datarate [0: SF12, 1: SF11, 2: SF10, 3: SF9, 4: SF8, 5: SF7, 6: SF7, 7: FSK]
+                        // Min datarate [0: SF12, 1: SF11, 2: SF10, 3: SF9, 4: SF8, 5: SF7, 6: SF7, 7: FSK]
+    int8_t DutyCycle;   // 0 = 100% .. 15 = 0.003%
 }ChannelParams_t;
+
+typedef struct
+{
+    uint32_t Frequency; // Hz
+    uint8_t  Datarate; // [0: SF12, 1: SF11, 2: SF10, 3: SF9, 4: SF8, 5: SF7, 6: SF7, 7: FSK]
+}Rx2ChannelParams_t;
 
 /*!
  * LoRaMAC frame types
@@ -127,7 +129,6 @@ typedef enum
     FRAME_TYPE_PROPRIETARY           = 0x07,
 }LoRaMacFrameType_t;
 
-
 /*!
  * LoRaMAC mote MAC commands
  */
@@ -135,7 +136,10 @@ typedef enum
 {
     MOTE_MAC_LINK_CHECK_REQ          = 0x02,
     MOTE_MAC_LINK_ADR_ANS            = 0x03,
+    MOTE_MAC_DUTY_CYCLE_ANS          = 0x04,
+    MOTE_MAC_RX2_SETUP_ANS           = 0x05,
     MOTE_MAC_DEV_STATUS_ANS          = 0x06,
+    MOTE_MAC_NEW_CHANNEL_ANS         = 0x07,
 }LoRaMacMoteCmd_t;
 
 /*!
@@ -145,7 +149,10 @@ typedef enum
 {
     SRV_MAC_LINK_CHECK_ANS           = 0x02,
     SRV_MAC_LINK_ADR_REQ             = 0x03,
+    SRV_MAC_DUTY_CYCLE_REQ           = 0x04,
+    SRV_MAC_RX2_SETUP_REQ            = 0x05,
     SRV_MAC_DEV_STATUS_REQ           = 0x06,
+    SRV_MAC_NEW_CHANNEL_REQ          = 0x07,
 }LoRaMacSrvCmd_t;
 
 /*!
@@ -269,14 +276,16 @@ void LoRaMacSetAdrOn( bool enable );
  *
  * \remark To be only used when Over-the-Air activation isn't used.
  *
- * \param [IN] devAddr 32 bits devide address on the network 
+ * \param [IN] netID   24 bits network identifier 
+ *                     ( provided by network operator )
+ * \param [IN] devAddr 32 bits device address on the network 
  *                     (must be unique to the network)
  * \param [IN] nwkSKey Pointer to the network session AES128 key array
  *                     ( 16 bytes )
  * \param [IN] appSKey Pointer to the application session AES128 key array
  *                     ( 16 bytes )
  */
-void LoRaMacInitNwkIds( uint32_t devAddr, uint8_t *nwkSKey, uint8_t *appSKey );
+void LoRaMacInitNwkIds( uint32_t netID, uint32_t devAddr, uint8_t *nwkSKey, uint8_t *appSKey );
 
 /*!
  * Initiates the Over-the-Air activation 
@@ -305,7 +314,8 @@ uint8_t LoRaMacLinkCheckReq( void );
  *
  * \retval status          [0: OK, 1: Busy, 2: No network joined,
  *                          3: Length or port error, 4: Unknown MAC command
- *                          5: Unable to find a free channel]
+ *                          5: Unable to find a free channel
+ *                          6: Device switched off]
  */
 uint8_t LoRaMacSendFrame( uint8_t fPort, void *fBuffer, uint16_t fBufferSize );
 
@@ -320,7 +330,8 @@ uint8_t LoRaMacSendFrame( uint8_t fPort, void *fBuffer, uint16_t fBufferSize );
  *
  * \retval status          [0: OK, 1: Busy, 2: No network joined,
  *                          3: Length or port error, 4: Unknown MAC command
- *                          5: Unable to find a free channel]
+ *                          5: Unable to find a free channel
+ *                          6: Device switched off]
  */
 uint8_t LoRaMacSendConfirmedFrame( uint8_t fPort, void *fBuffer, uint16_t fBufferSize, uint8_t nbRetries );
 
@@ -340,7 +351,8 @@ uint8_t LoRaMacSendConfirmedFrame( uint8_t fPort, void *fBuffer, uint16_t fBuffe
  * \param [IN] fBufferSize MAC data buffer size
  * \retval status          [0: OK, 1: Busy, 2: No network joined,
  *                          3: Length or port error, 4: Unknown MAC command
- *                          5: Unable to find a free channel]
+ *                          5: Unable to find a free channel
+ *                          6: Device switched off]
  */
 uint8_t LoRaMacSend( LoRaMacHeader_t *macHdr, uint8_t *fOpts, uint8_t fPort, void *fBuffer, uint16_t fBufferSize );
 
@@ -384,6 +396,23 @@ uint8_t LoRaMacSendFrameOnChannel( ChannelParams_t channel );
  *                          3: Length or port error, 4: Unknown MAC command]
  */
 uint8_t LoRaMacSendOnChannel( ChannelParams_t channel, LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl, uint8_t *fOpts, uint8_t fPort, void *fBuffer, uint16_t fBufferSize );
+
+/*!
+ * Sets channels datarate
+ *
+ * \param [IN] datrate [DR_SF12, DR_SF11, DR_SF10, DR_SF9,
+                        DR_SF8, DR_SF7, DR_SF7H, DR_FSK]
+ */
+void LoRaMacSetChannelsDatarate( int8_t datrate );
+
+/*!
+ * Sets channels tx output power
+ *
+ * \param [IN] txPower [TX_POWER_20_DBM, TX_POWER_14_DBM,
+                        TX_POWER_11_DBM, TX_POWER_08_DBM,
+                        TX_POWER_05_DBM, TX_POWER_02_DBM]
+ */
+void LoRaMacSetChannelsTxPower( int8_t txPower );
 
 /*!
  * Disables/Enables the reception windows opening

@@ -132,8 +132,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RegHighInputA                               0x6A
 
 /*!
- * \brief Initialize the device
- *
+ * \brief Initializes the device
  */
 void SX1509Init( void );
 
@@ -147,8 +146,8 @@ uint8_t SX1509Reset( void );
 /*!
  * \brief Writes a byte at specified address in the device
  *
- * \param [IN]:	addr
- * \param [IN]:	data
+ * \param [IN]: addr
+ * \param [IN]: data
  * \retval status [SUCCESS, FAIL]
  */
 uint8_t SX1509Write( uint8_t addr, uint8_t data );

@@ -231,16 +231,16 @@ int main( void )
     // Random seed initialization
     srand( RAND_SEED );
     // Choose a random device address
-    DevAddr = randr( 0, 0x0FFFFFFF );
+    // NwkID = 0
+    // NwkAddr rand [0, 33554431]
+    DevAddr = randr( 0, 0x01FFFFFF );
 
-    LoRaMacInitNwkIds( DevAddr, NwkSKey, AppSKey );
-    
+    LoRaMacInitNwkIds( 0x000000, DevAddr, NwkSKey, AppSKey );
     IsNetworkJoined = true;
 #else
     // Sends a JoinReq Command every 5 seconds until the network is joined
     TimerInit( &JoinReqTimer, OnJoinReqTimerEvent ); 
     TimerSetValue( &JoinReqTimer, OVER_THE_AIR_ACTIVATION_DUTYCYCLE );
-    TimerStart( &JoinReqTimer );
 #endif
 
     TxNextPacket = true;

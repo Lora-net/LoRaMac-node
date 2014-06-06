@@ -106,7 +106,7 @@ typedef void( GpioIrqHandler )( void );
 /*!
  * \brief Initializes the given GPIO object
  *
- * \param [IN] obj    Pointer to the GPIO object to be initialized
+ * \param [IN] obj    Pointer to the GPIO object
  * \param [IN] pin    Pin name ( please look in pinName-board.h file )
  * \param [IN] mode   Pin mode [PIN_INPUT, PIN_OUTPUT,
  *                              PIN_ALTERNATE_FCT, PIN_ANALOGIC]
@@ -119,9 +119,9 @@ void GpioInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, PinT
 /*!
  * \brief GPIO IRQ Initialization
  *
- * \param [IN] obj         Pointer to the GPIO object to be initialized
+ * \param [IN] obj         Pointer to the GPIO object
  * \param [IN] irqMode     IRQ mode [NO_IRQ, IRQ_RISING_EDGE,
- *                                  IRQ_FALLING_EDGE, IRQ_RISING_FALLING_EDGE]
+ *                                   IRQ_FALLING_EDGE, IRQ_RISING_FALLING_EDGE]
  * \param [IN] irqPriority IRQ priority [IRQ_VERY_LOW_PRIORITY, IRQ_LOW_PRIORITY
  *                                       IRQ_MEDIUM_PRIORITY, IRQ_HIGH_PRIORITY
  *                                       IRQ_VERY_HIGH_PRIORITY]
@@ -129,21 +129,26 @@ void GpioInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, PinT
  */
 void GpioSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriority, GpioIrqHandler *irqHandler );
 
+/*!
+ * \brief Removes the interrupt from the object
+ *
+ * \param [IN] obj Pointer to the GPIO object
+ */
 void GpioRemoveInterrupt( Gpio_t *obj );
 
 /*!
  * \brief Writes the given value to the GPIO output
  *
- * \param [IN] obj    Pointer to the GPIO object
- * \param [IN] value  New GPIO output value
+ * \param [IN] obj   Pointer to the GPIO object
+ * \param [IN] value New GPIO output value
  */
 void GpioWrite( Gpio_t *obj, uint32_t value );
 
 /*!
  * \brief Reads the current GPIO input value
  *
- * \param [IN] obj    Pointer to the GPIO object
- * \retval value  Current GPIO input value
+ * \param [IN] obj Pointer to the GPIO object
+ * \retval value   Current GPIO input value
  */
 uint32_t GpioRead( Gpio_t *obj );
 

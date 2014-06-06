@@ -17,6 +17,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 #include "fifo.h"
 
+/*!
+ * UART notification identifier
+ */
 typedef enum
 {
     UART_NOTIFY_TX,

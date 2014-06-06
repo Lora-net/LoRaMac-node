@@ -39,7 +39,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define REG_LR_FIFORXCURRENTADDR                    0x10 
 #define REG_LR_IRQFLAGSMASK                         0x11 
 #define REG_LR_IRQFLAGS                             0x12 
-#define REG_LR_NBRXBYTES                            0x13 
+#define REG_LR_RXNBBYTES                            0x13 
 #define REG_LR_RXHEADERCNTVALUEMSB                  0x14 
 #define REG_LR_RXHEADERCNTVALUELSB                  0x15 
 #define REG_LR_RXPACKETCNTVALUEMSB                  0x16 
@@ -58,6 +58,13 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define REG_LR_PAYLOADMAXLENGTH                     0x23 
 #define REG_LR_HOPPERIOD                            0x24 
 #define REG_LR_FIFORXBYTEADDR                       0x25
+#define REG_LR_FEIMSB                               0x28
+#define REG_LR_FEIMID                               0x29
+#define REG_LR_FEILSB                               0x2A
+#define REG_LR_RSSIWIDEBAND                         0x2C
+#define REG_LR_DETECTOPTIMIZE                       0x31
+#define REG_LR_INVERTIQ                             0x33
+#define REG_LR_DETECTIONTHRESHOLD                   0x37
 // end of documented register in datasheet
 // I/O settings
 #define REG_LR_DIOMAPPING1                          0x40
@@ -111,112 +118,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * RegFrf (MHz)
  */
-#define RFLR_FRFMSB_863_MHZ                         0xD7
-#define RFLR_FRFMID_863_MHZ                         0xC0
-#define RFLR_FRFLSB_863_MHZ                         0x00
-#define RFLR_FRFMSB_864_MHZ                         0xD8
-#define RFLR_FRFMID_864_MHZ                         0x00
-#define RFLR_FRFLSB_864_MHZ                         0x00
-#define RFLR_FRFMSB_865_MHZ                         0xD8
-#define RFLR_FRFMID_865_MHZ                         0x40
-#define RFLR_FRFLSB_865_MHZ                         0x00
-#define RFLR_FRFMSB_866_MHZ                         0xD8
-#define RFLR_FRFMID_866_MHZ                         0x80
-#define RFLR_FRFLSB_866_MHZ                         0x00
-#define RFLR_FRFMSB_867_MHZ                         0xD8
-#define RFLR_FRFMID_867_MHZ                         0xC0
-#define RFLR_FRFLSB_867_MHZ                         0x00
-#define RFLR_FRFMSB_868_MHZ                         0xD9
-#define RFLR_FRFMID_868_MHZ                         0x00
-#define RFLR_FRFLSB_868_MHZ                         0x00
-#define RFLR_FRFMSB_869_MHZ                         0xD9
-#define RFLR_FRFMID_869_MHZ                         0x40
-#define RFLR_FRFLSB_869_MHZ                         0x00
-#define RFLR_FRFMSB_870_MHZ                         0xD9
-#define RFLR_FRFMID_870_MHZ                         0x80
-#define RFLR_FRFLSB_870_MHZ                         0x00
-
-#define RFLR_FRFMSB_902_MHZ                         0xE1
-#define RFLR_FRFMID_902_MHZ                         0x80
-#define RFLR_FRFLSB_902_MHZ                         0x00
-#define RFLR_FRFMSB_903_MHZ                         0xE1
-#define RFLR_FRFMID_903_MHZ                         0xC0
-#define RFLR_FRFLSB_903_MHZ                         0x00
-#define RFLR_FRFMSB_904_MHZ                         0xE2
-#define RFLR_FRFMID_904_MHZ                         0x00
-#define RFLR_FRFLSB_904_MHZ                         0x00
-#define RFLR_FRFMSB_905_MHZ                         0xE2
-#define RFLR_FRFMID_905_MHZ                         0x40
-#define RFLR_FRFLSB_905_MHZ                         0x00
-#define RFLR_FRFMSB_906_MHZ                         0xE2
-#define RFLR_FRFMID_906_MHZ                         0x80
-#define RFLR_FRFLSB_906_MHZ                         0x00
-#define RFLR_FRFMSB_907_MHZ                         0xE2
-#define RFLR_FRFMID_907_MHZ                         0xC0
-#define RFLR_FRFLSB_907_MHZ                         0x00
-#define RFLR_FRFMSB_908_MHZ                         0xE3
-#define RFLR_FRFMID_908_MHZ                         0x00
-#define RFLR_FRFLSB_908_MHZ                         0x00
-#define RFLR_FRFMSB_909_MHZ                         0xE3
-#define RFLR_FRFMID_909_MHZ                         0x40
-#define RFLR_FRFLSB_909_MHZ                         0x00
-#define RFLR_FRFMSB_910_MHZ                         0xE3
-#define RFLR_FRFMID_910_MHZ                         0x80
-#define RFLR_FRFLSB_910_MHZ                         0x00
-#define RFLR_FRFMSB_911_MHZ                         0xE3
-#define RFLR_FRFMID_911_MHZ                         0xC0
-#define RFLR_FRFLSB_911_MHZ                         0x00
-#define RFLR_FRFMSB_912_MHZ                         0xE4
-#define RFLR_FRFMID_912_MHZ                         0x00
-#define RFLR_FRFLSB_912_MHZ                         0x00
-#define RFLR_FRFMSB_913_MHZ                         0xE4
-#define RFLR_FRFMID_913_MHZ                         0x40
-#define RFLR_FRFLSB_913_MHZ                         0x00
-#define RFLR_FRFMSB_914_MHZ                         0xE4
-#define RFLR_FRFMID_914_MHZ                         0x80
-#define RFLR_FRFLSB_914_MHZ                         0x00
 #define RFLR_FRFMSB_915_MHZ                         0xE4  // Default
 #define RFLR_FRFMID_915_MHZ                         0xC0  // Default
 #define RFLR_FRFLSB_915_MHZ                         0x00  // Default
-#define RFLR_FRFMSB_916_MHZ                         0xE5
-#define RFLR_FRFMID_916_MHZ                         0x00
-#define RFLR_FRFLSB_916_MHZ                         0x00
-#define RFLR_FRFMSB_917_MHZ                         0xE5
-#define RFLR_FRFMID_917_MHZ                         0x40
-#define RFLR_FRFLSB_917_MHZ                         0x00
-#define RFLR_FRFMSB_918_MHZ                         0xE5
-#define RFLR_FRFMID_918_MHZ                         0x80
-#define RFLR_FRFLSB_918_MHZ                         0x00
-#define RFLR_FRFMSB_919_MHZ                         0xE5
-#define RFLR_FRFMID_919_MHZ                         0xC0
-#define RFLR_FRFLSB_919_MHZ                         0x00
-#define RFLR_FRFMSB_920_MHZ                         0xE6
-#define RFLR_FRFMID_920_MHZ                         0x00
-#define RFLR_FRFLSB_920_MHZ                         0x00
-#define RFLR_FRFMSB_921_MHZ                         0xE6
-#define RFLR_FRFMID_921_MHZ                         0x40
-#define RFLR_FRFLSB_921_MHZ                         0x00
-#define RFLR_FRFMSB_922_MHZ                         0xE6
-#define RFLR_FRFMID_922_MHZ                         0x80
-#define RFLR_FRFLSB_922_MHZ                         0x00
-#define RFLR_FRFMSB_923_MHZ                         0xE6
-#define RFLR_FRFMID_923_MHZ                         0xC0
-#define RFLR_FRFLSB_923_MHZ                         0x00
-#define RFLR_FRFMSB_924_MHZ                         0xE7
-#define RFLR_FRFMID_924_MHZ                         0x00
-#define RFLR_FRFLSB_924_MHZ                         0x00
-#define RFLR_FRFMSB_925_MHZ                         0xE7
-#define RFLR_FRFMID_925_MHZ                         0x40
-#define RFLR_FRFLSB_925_MHZ                         0x00
-#define RFLR_FRFMSB_926_MHZ                         0xE7
-#define RFLR_FRFMID_926_MHZ                         0x80
-#define RFLR_FRFLSB_926_MHZ                         0x00
-#define RFLR_FRFMSB_927_MHZ                         0xE7
-#define RFLR_FRFMID_927_MHZ                         0xC0
-#define RFLR_FRFLSB_927_MHZ                         0x00
-#define RFLR_FRFMSB_928_MHZ                         0xE8
-#define RFLR_FRFMID_928_MHZ                         0x00
-#define RFLR_FRFLSB_928_MHZ                         0x00
 
 /*!
  * RegPaConfig
@@ -347,55 +251,58 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RFLR_IRQFLAGS_FHSSCHANGEDCHANNEL            0x02 
 #define RFLR_IRQFLAGS_CADDETECTED                   0x01 
 
-
+/*!
+ * RegFifoRxNbBytes (Read Only)
+ */
 
 /*!
- * RegFifoRxNbBytes (Read Only)    //
+ * RegRxHeaderCntValueMsb (Read Only)
  */
 
- 
- /*!
- * RegRxHeaderCntValueMsb (Read Only)    //
- */
- 
- 
-  /*!
- * RegRxHeaderCntValueLsb (Read Only)    //
- */
- 
- 
 /*!
- * RegRxPacketCntValueMsb (Read Only)    //
+ * RegRxHeaderCntValueLsb (Read Only)
  */
- 
- 
- /*!
- * RegRxPacketCntValueLsb (Read Only)    //
+
+/*!
+ * RegRxPacketCntValueMsb (Read Only)
  */
- 
- 
- /*!
- * RegModemStat (Read Only)    //
+
+/*!
+ * RegRxPacketCntValueLsb (Read Only)
+ */
+
+/*!
+ * RegModemStat (Read Only)
  */
 #define RFLR_MODEMSTAT_RX_CR_MASK                   0x1F 
 #define RFLR_MODEMSTAT_MODEM_STATUS_MASK            0xE0 
  
 /*!
- * RegPktSnrValue (Read Only)    //
+ * RegPktSnrValue (Read Only)
  */
 
- 
- /*!
- * RegPktRssiValue (Read Only)    //
- */
- 
- 
 /*!
- * RegRssiValue (Read Only)    //
+ * RegPktRssiValue (Read Only)
  */
 
- 
- /*!
+/*!
+ * RegRssiValue (Read Only)
+ */
+
+/*!
+ * RegHopChannel (Read Only)
+ */
+#define RFLR_HOPCHANNEL_PLL_LOCK_TIMEOUT_MASK       0x7F 
+#define RFLR_HOPCHANNEL_PLL_LOCK_FAIL               0x80 
+#define RFLR_HOPCHANNEL_PLL_LOCK_SUCCEED            0x00 // Default
+                                                    
+#define RFLR_HOPCHANNEL_CRCONPAYLOAD_MASK           0xBF
+#define RFLR_HOPCHANNEL_CRCONPAYLOAD_ON             0x40
+#define RFLR_HOPCHANNEL_CRCONPAYLOAD_OFF            0x00 // Default
+
+#define RFLR_HOPCHANNEL_CHANNEL_MASK                0x3F 
+
+/*!
  * RegModemConfig1
  */
 #define RFLR_MODEMCONFIG1_BW_MASK                   0x3F 
@@ -421,7 +328,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RFLR_MODEMCONFIG1_LOWDATARATEOPTIMIZE_ON    0x01 
 #define RFLR_MODEMCONFIG1_LOWDATARATEOPTIMIZE_OFF   0x00 // Default
 
- /*!
+/*!
  * RegModemConfig2
  */
 #define RFLR_MODEMCONFIG2_SF_MASK                   0x0F 
@@ -443,21 +350,6 @@ Maintainer: Miguel Luis and Gregory Cristian
  
 #define RFLR_MODEMCONFIG2_SYMBTIMEOUTMSB_MASK       0xFC 
 #define RFLR_MODEMCONFIG2_SYMBTIMEOUTMSB            0x00 // Default
-                                                    
-                                                    
-/*!                                                 
- * RegHopChannel (Read Only)                        
- */                                                 
-#define RFLR_HOPCHANNEL_PLL_LOCK_TIMEOUT_MASK       0x7F 
-#define RFLR_HOPCHANNEL_PLL_LOCK_FAIL               0x80 
-#define RFLR_HOPCHANNEL_PLL_LOCK_SUCCEED            0x00 // Default
-                                                    
-#define RFLR_HOPCHANNEL_PAYLOAD_CRC16_MASK          0xBF
-#define RFLR_HOPCHANNEL_PAYLOAD_CRC16_ON            0x40
-#define RFLR_HOPCHANNEL_PAYLOAD_CRC16_OFF           0x00 // Default
-
-#define RFLR_HOPCHANNEL_CHANNEL_MASK                0x3F 
-
 
 /*!
  * RegSymbTimeoutLsb
@@ -489,6 +381,45 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 #define RFLR_HOPPERIOD_FREQFOPPINGPERIOD            0x00 // Default
 
+/*!
+ * RegFifoRxByteAddr (Read Only)
+ */
+
+/*!
+ * RegFeiMsb (Read Only)
+ */
+
+/*!
+ * RegFeiMid (Read Only)
+ */
+
+/*!
+ * RegFeiLsb (Read Only)
+ */
+
+/*!
+ * RegRssiWideband (Read Only)
+ */
+
+/*!
+ * RegDetectOptimize
+ */
+#define RFLR_DETECTIONOPTIMIZE_MASK                 0xF8
+#define RFLR_DETECTIONOPTIMIZE_SF7_TO_SF12          0x03 // Default
+#define RFLR_DETECTIONOPTIMIZE_SF6                  0x05
+
+/*!
+ * RegInvertIQ
+ */
+#define RFLR_INVERTIQ_MASK                          0xBF
+#define RFLR_INVERTIQ_OFF                           0x00
+#define RFLR_INVERTIQ_ON                            0x40
+
+/*!
+ * RegDetectionThreshold
+ */
+#define RFLR_DETECTIONTHRESH_SF7_TO_SF12            0x0A // Default
+#define RFLR_DETECTIONTHRESH_SF6                    0x0C
 
 /*!
  * RegDioMapping1
@@ -554,10 +485,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 /*!
  * RegAgcThresh3
- */
- 
-/*!
- * RegFifoRxByteAddr (Read Only)
  */
  
 /*!

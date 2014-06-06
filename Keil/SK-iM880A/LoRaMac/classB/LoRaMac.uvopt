@@ -104,6 +104,8 @@
         <tRfunc>0</tRfunc>
         <tRbox>0</tRbox>
         <tRtrace>1</tRtrace>
+        <sRSysVw>1</sRSysVw>
+        <tRSysVw>1</tRSysVw>
         <sRunDeb>0</sRunDeb>
         <sLrtime>0</sLrtime>
         <nTsel>11</nTsel>
@@ -686,10 +688,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>16</ColumnNumber>
+      <ColumnNumber>20</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>2</TopLine>
-      <CurrentLine>21</CurrentLine>
+      <TopLine>844</TopLine>
+      <CurrentLine>865</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\..\src\mac\LoRaMac.c</PathWithFileName>
       <FilenameWithoutPath>LoRaMac.c</FilenameWithoutPath>

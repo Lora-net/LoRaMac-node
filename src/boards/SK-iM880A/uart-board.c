@@ -173,20 +173,6 @@ void USART1_IRQHandler( void )
 {
     uint8_t data;
 
-    if( USART_GetITStatus( USART1, USART_IT_RXNE ) != RESET )
-    {    
-        data = USART_ReceiveData( USART1 );
-        if( IsFifoFull( &Uart1.FifoRx ) == false )
-        {
-            // Read one byte from the receive data register
-            FifoPush( &Uart1.FifoRx, data );
-        }
-        if( Uart1.IrqNotify != NULL )
-        {
-            Uart1.IrqNotify( UART_NOTIFY_RX );
-        }
-    }
-
     if( USART_GetITStatus( USART1, USART_IT_TXE ) != RESET )
     {    
         if( IsFifoEmpty( &Uart1.FifoTx ) == false )
@@ -203,6 +189,25 @@ void USART1_IRQHandler( void )
         if( Uart1.IrqNotify != NULL )
         {
             Uart1.IrqNotify( UART_NOTIFY_TX );
+        }
+    }
+
+    if( USART_GetITStatus( USART1, USART_IT_ORE_RX ) != RESET )
+    {
+        USART_ReceiveData( USART1 );
+    }
+
+    if( USART_GetITStatus( USART1, USART_IT_RXNE ) != RESET )
+    {    
+        data = USART_ReceiveData( USART1 );
+        if( IsFifoFull( &Uart1.FifoRx ) == false )
+        {
+            // Read one byte from the receive data register
+            FifoPush( &Uart1.FifoRx, data );
+        }
+        if( Uart1.IrqNotify != NULL )
+        {
+            Uart1.IrqNotify( UART_NOTIFY_RX );
         }
     }
 }
