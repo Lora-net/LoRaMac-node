@@ -176,16 +176,16 @@ not of a bootloader and the radio frequency band to be used.
         * LinkCheckAns                       **YES**
         * LinkADRReq                         **YES**
         * LinkADRAns                         **YES**
-        * DutyCycleReq                       **YES** (LoRaMac specification R2.1.3)
-        * DutyCycleAns                       **YES** (LoRaMac specification R2.1.3)
-        * Rx2SetupReq                        **YES** (LoRaMac specification R2.1.3)
-        * Rx2SetupAns                        **YES** (LoRaMac specification R2.1.3)
+        * DutyCycleReq                       **YES** (LoRaMac specification R2.2.1)
+        * DutyCycleAns                       **YES** (LoRaMac specification R2.2.1)
+        * Rx2SetupReq                        **YES** (LoRaMac specification R2.2.1)
+        * Rx2SetupAns                        **YES** (LoRaMac specification R2.2.1)
         * DevStatusReq                       **YES**
         * DevStatusAns                       **YES**
         * JoinReq                            **YES**
-        * JoinAccept                         **YES** (LoRaMac specification R2.1.3)
-        * NewChannelReq                      **YES** (LoRaMac specification R2.1.3)
-        * NewChannelAns                      **YES** (LoRaMac specification R2.1.3)
+        * JoinAccept                         **YES** (LoRaMac specification R2.2.1)
+        * NewChannelReq                      **YES** (LoRaMac specification R2.2.1)
+        * NewChannelAns                      **YES** (LoRaMac specification R2.2.1)
     2. Features implemented
         * Possibility to shut-down the device **YES**
         
@@ -194,8 +194,8 @@ not of a bootloader and the radio frequency band to be used.
         * Acknowledgements retries           **WORK IN PROGRESS**
         
           Not fully debugged. Disabled by default.
-        * Unconfirmed messages retries       **WORK IN PROGRESS** (LoRaMac specification R2.1.3)
-    3. Implemented LoRaMac specification R2.1.3 changes.
+        * Unconfirmed messages retries       **WORK IN PROGRESS** (LoRaMac specification R2.2.1)
+    3. Implemented LoRaMac specification R2.2.1 changes.
     4. Due to new specification the LoRaMacInitNwkIds LoRaMac API function had
        to be modified.
        
