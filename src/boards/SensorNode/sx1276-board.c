@@ -63,8 +63,6 @@ void SX1276IoInit( void )
     GpioInit( &SX1276.DIO3, RADIO_DIO_3, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
     GpioInit( &SX1276.DIO4, RADIO_DIO_4, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
     GpioInit( &SX1276.DIO5, RADIO_DIO_5, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-
-    SX1276AntSwInit( );
 }
 
 void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
@@ -121,7 +119,7 @@ void SX1276SetAntSwLowPower( bool status )
 void SX1276AntSwInit( void )
 {
     GpioInit( &AntSwitchLf, RADIO_ANT_SWITCH_LF, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
-    GpioInit( &AntSwitchHf, RADIO_ANT_SWITCH_HF, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
+    GpioInit( &AntSwitchHf, RADIO_ANT_SWITCH_HF, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
 }
 
 void SX1276AntSwDeInit( void )
@@ -139,15 +137,15 @@ void SX1276SetAntSw( uint8_t rxTx )
 
     SX1276.RxTx = rxTx;
 
-    if( rxTx != 0 )
+    if( rxTx != 0 ) // 1: TX, 0: RX
     {
         GpioWrite( &AntSwitchLf, 0 );
-        GpioWrite( &AntSwitchHf, 0 );
+        GpioWrite( &AntSwitchHf, 1 );
     }
     else
     {
         GpioWrite( &AntSwitchLf, 1 );
-        GpioWrite( &AntSwitchHf, 1 );
+        GpioWrite( &AntSwitchHf, 0 );
     }
 }
 

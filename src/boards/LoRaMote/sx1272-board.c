@@ -63,8 +63,6 @@ void SX1272IoInit( void )
     GpioInit( &SX1272.DIO3, RADIO_DIO_3, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
     GpioInit( &SX1272.DIO4, RADIO_DIO_4, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
     GpioInit( &SX1272.DIO5, RADIO_DIO_5, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-
-    SX1272AntSwInit( );
 }
 
 void SX1272IoIrqInit( DioIrqHandler **irqHandlers )
@@ -132,7 +130,7 @@ void SX1272SetAntSw( uint8_t rxTx )
 
     SX1272.RxTx = rxTx;
 
-    if( rxTx != 0 )
+    if( rxTx != 0 ) // 1: TX, 0: RX
     {
         GpioWrite( &AntRx, 0 );
         GpioWrite( &AntTx, 1 );
