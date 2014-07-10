@@ -125,6 +125,11 @@ not of a bootloader and the radio frequency band to be used.
 
 6. Changelog
 -------------
+2014-07-10, v2.3.RC2
+* General
+    1. Corrected all radios antenna switch low power mode handling.
+    2. SX1276: Corrected antenna switch control.
+
 2014-06-06, v2.3.RC1
 * General
     1. Added the support for SX1276 radio.
