@@ -27,17 +27,23 @@ Maintainer: Miguel Luis and Gregory Cristian
  * Class A&B receive delay in ms
  */
 #define CLS2_RECEIVE_DELAY1                         1000000 - RADIO_WAKEUP_TIME
-#define CLS2_RECEIVE_DELAY2                         ( 2 * CLS2_RECEIVE_DELAY1 )
+#define CLS2_RECEIVE_DELAY2                         2000000 - RADIO_WAKEUP_TIME
+
+/*!
+ * Join accept receive delay in ms
+ */
+#if defined( LORAMAC_R3 )
+#define JOIN_ACEPT_DELAY1                           5000000 - RADIO_WAKEUP_TIME
+#define JOIN_ACEPT_DELAY2                           6000000 - RADIO_WAKEUP_TIME
+#else
+#define JOIN_ACEPT_DELAY1                           1000000 - RADIO_WAKEUP_TIME
+#define JOIN_ACEPT_DELAY2                           2000000 - RADIO_WAKEUP_TIME
+#endif
 
 /*!
  * Class A&B maximum receive window delay in ms
  */
 #define CLS2_MAX_RX_WINDOW                          3000000
-
-/*!
- * Join accept delay in ms
- */
-#define JOIN_ACCEPT_DELAY                           5000000
 
 /*!
  * Maximum allowed gap for the FCNT field
@@ -47,12 +53,12 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * ADR acknowledgement counter limit
  */
-#define ADR_ACK_LIMIT                               16
+#define ADR_ACK_LIMIT                               64
 
 /*!
  * Number of ADR acknowledgement requests before returning to default datarate
  */
-#define ADR_ACK_DELAY                               8
+#define ADR_ACK_DELAY                               32
 
 /*!
  * Number of seconds after the start of the second reception window without
@@ -76,7 +82,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * RSSI free threshold
  */
-#define RSSI_FREE_TH                                -90 // [dBm]
+#define RSSI_FREE_TH                                ( int8_t )( -90 ) // [dBm]
 
 /*! 
  * Frame direction definition
@@ -120,6 +126,19 @@ typedef struct
 /*!
  * LoRaMAC frame types
  */
+#if defined( LORAMAC_R3 )
+typedef enum
+{
+    FRAME_TYPE_JOIN_REQ              = 0x00,
+    FRAME_TYPE_JOIN_ACCEPT           = 0x01,
+    FRAME_TYPE_DATA_UNCONFIRMED_UP   = 0x02,
+    FRAME_TYPE_DATA_UNCONFIRMED_DOWN = 0x03,
+    FRAME_TYPE_DATA_CONFIRMED_UP     = 0x04,
+    FRAME_TYPE_DATA_CONFIRMED_DOWN   = 0x05,
+    FRAME_TYPE_RFU                   = 0x06,
+    FRAME_TYPE_PROPRIETARY           = 0x07,
+}LoRaMacFrameType_t;
+#else
 typedef enum
 {
     FRAME_TYPE_JOIN_REQ              = 0x00,
@@ -128,6 +147,7 @@ typedef enum
     FRAME_TYPE_DATA_CONFIRMED        = 0x03,
     FRAME_TYPE_PROPRIETARY           = 0x07,
 }LoRaMacFrameType_t;
+#endif
 
 /*!
  * LoRaMAC mote MAC commands
@@ -215,10 +235,7 @@ typedef union
 typedef enum
 {
     LORAMAC_EVENT_INFO_STATUS_OK = 0,
-    LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT,
-    LORAMAC_EVENT_INFO_STATUS_RX_ERROR,
-    LORAMAC_EVENT_INFO_STATUS_RX_TIMEOUT,
-    LORAMAC_EVENT_INFO_STATUS_MAC_ERROR,
+    LORAMAC_EVENT_INFO_STATUS_ERROR,
 }LoRaMacEventInfoStatus_t;
 
 /*!

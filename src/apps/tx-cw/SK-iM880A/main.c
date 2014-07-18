@@ -78,6 +78,12 @@ int main( void )
     Radio.Init( NULL );
 
     Radio.SetChannel( RF_FREQUENCY );
+
+    Radio.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
+                                   LORA_SPREADING_FACTOR, LORA_CODINGRATE,
+                                   LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
+                                   true, LORA_IQ_INVERSION_ON, 3000000 );
+    
     /**********************************************/
     /*                  WARNING                   */
     /* The below settings can damage the chipset  */
@@ -93,11 +99,6 @@ int main( void )
     Radio.Write( 0x5A, 0x87 );
     Radio.Write( 0x63, 0x60 );
     Radio.Write( 0x01, 0x83 );
-
-    Radio.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
-                                   LORA_SPREADING_FACTOR, LORA_CODINGRATE,
-                                   LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
-                                   true, LORA_IQ_INVERSION_ON, 3000000 );
 
     TimerInit( &Led4Timer, OnLed4TimerEvent ); 
     TimerSetValue( &Led4Timer, 90000 );

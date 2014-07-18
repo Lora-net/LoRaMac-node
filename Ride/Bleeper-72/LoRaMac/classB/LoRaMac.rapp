@@ -165,7 +165,7 @@
 			</Set>
 			<Set Header="GCC" >
 				<Section Header="Defines" >
-					<Property Header="Defines" Value="USE_DEBUGGER;LOW_POWER_MODE_ENABLE" Removable="1" />
+					<Property Header="Defines" Value="USE_DEBUGGER;LOW_POWER_MODE_ENABLE;LORAMAC_R3" Removable="1" />
 																
 				</Section>
 				<Section Header="OPTIMIZE" >

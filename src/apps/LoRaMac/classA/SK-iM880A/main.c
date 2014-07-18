@@ -177,10 +177,13 @@ void OnLed2TimerEvent( void )
  */
 void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
 {
-    if( info->Status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT )
+    if( info->Status == LORAMAC_EVENT_INFO_STATUS_ERROR )
     {
+        // Schedule a new transmission
         TxDone = true;
+        return;
     }
+
     if( flags->Bits.JoinAccept == 1 )
     {
 #if( OVER_THE_AIR_ACTIVATION != 0 )
@@ -195,6 +198,7 @@ void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
         {
             TxAckReceived = true;
         }
+        // Schedule a new transmission
         TxDone = true;
     }
 
@@ -213,6 +217,7 @@ void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
  */
 int main( void )
 {
+    uint8_t sendFrameStatus = 0;
     uint8_t potiPercentage = 0;
     uint16_t vdd = 0;
 
@@ -299,6 +304,10 @@ int main( void )
         {
             RxDone = false;
             
+            // Switch LED 2 ON
+            GpioWrite( &Led2, 1 );
+            TimerStart( &Led2Timer );
+
             if( AppLedStateOn == true )
             {
                 // Switch LED 3 ON
@@ -340,9 +349,19 @@ int main( void )
             AppData[2] = ( vdd >> 8 ) & 0xFF;
             AppData[3] = vdd & 0xFF;
             
-            // Send the created frame
-            LoRaMacSendFrame( 3, AppData, APP_DATA_SIZE );
-            //LoRaMacSendConfirmedFrame( 3, AppData, APP_DATA_SIZE, 1 );
+            sendFrameStatus = LoRaMacSendFrame( 3, AppData, APP_DATA_SIZE );
+            //sendFrameStatus = LoRaMacSendConfirmedFrame( 3, AppData, APP_DATA_SIZE, 8 );
+            switch( sendFrameStatus )
+            {
+            case 3: // LENGTH_PORT_ERROR
+            case 4: // MAC_CMD_ERROR
+            case 5: // NO_FREE_CHANNEL
+                // Schedule a new transmission
+                TxDone = true;
+                break;
+            default:
+                break;
+            }
         }
 
         TimerLowPowerHandler( );

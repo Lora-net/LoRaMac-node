@@ -36,7 +36,7 @@ Maintainer: Miguel Luis and Gregory Cristian
                                                               //  1: 250 kHz,
                                                               //  2: 500 kHz,
                                                               //  3: Reserved]
-#define LORA_SPREADING_FACTOR                       9         // [SF7..SF12]
+#define LORA_SPREADING_FACTOR                       7         // [SF7..SF12]
 #define LORA_CODINGRATE                             1         // [1: 4/5,
                                                               //  2: 4/6,
                                                               //  3: 4/7,
@@ -70,7 +70,7 @@ typedef enum
 }States_t;
 
 #define RX_TIMEOUT_VALUE                            1000000
-#define BUFFER_SIZE                                 9 // Define the payload size here
+#define BUFFER_SIZE                                 64 // Define the payload size here
 
 const uint8_t PingMsg[] = "PING";
 const uint8_t PongMsg[] = "PONG";
@@ -80,8 +80,8 @@ uint8_t Buffer[BUFFER_SIZE];
 
 States_t State = LOWPOWER;
 
-double RssiValue = 0.0;
-double SnrValue = 0.0;
+int8_t RssiValue = 0;
+int8_t SnrValue = 0;
 
 /*!
  * Radio events function pointer
@@ -96,7 +96,7 @@ void OnTxDone( void );
 /*!
  * \brief Function to be executed on Radio Rx Done event
  */
-void OnRxDone( uint8_t *payload, uint16_t size, double rssi, double snr, uint8_t rawSnr );
+void OnRxDone( uint8_t *payload, uint16_t size, int8_t rssi, int8_t snr );
 
 /*!
  * \brief Function executed on Radio Tx Timeout event
@@ -150,10 +150,10 @@ int main( void )
 
 #elif defined( USE_MODEM_FSK )
 
-    Radio.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, FSK_FDEV, 0,
-                                   FSK_DATARATE, 0,
-                                   FSK_PREAMBLE_LENGTH, FSK_FIX_LENGTH_PAYLOAD_ON,
-                                   true, 0, 3000000 );
+    Radio.SetTxConfig( MODEM_FSK, TX_OUTPUT_POWER, FSK_FDEV, 0,
+                                  FSK_DATARATE, 0,
+                                  FSK_PREAMBLE_LENGTH, FSK_FIX_LENGTH_PAYLOAD_ON,
+                                  true, 0, 3000000 );
     
     Radio.SetRxConfig( MODEM_FSK, FSK_BANDWIDTH, FSK_DATARATE,
                                   0, FSK_AFC_BANDWIDTH, FSK_PREAMBLE_LENGTH,
@@ -276,7 +276,7 @@ void OnTxDone( void )
     State = TX;
 }
 
-void OnRxDone( uint8_t *payload, uint16_t size, double rssi, double snr, uint8_t rawSnr )
+void OnRxDone( uint8_t *payload, uint16_t size, int8_t rssi, int8_t snr )
 {
     Radio.Sleep( );
     BufferSize = size;

@@ -82,13 +82,6 @@ void SX1272ReadFifo( uint8_t *buffer, uint8_t size );
  */
 void SX1272SetOpMode( uint8_t opMode );
 
-/*!
- * \brief Configures the SX1272 with the given modem
- *
- * \param [IN] modem Modem to be used [0: FSK, 1: LoRa] 
- */
-void SX1272SetModem( RadioModems_t modem );
-
 /*
  * SX1272 DIO IRQ callback functions prototype
  */
@@ -144,24 +137,7 @@ const RadioRegisters_t RadioRegsInit[] = RADIO_INIT_REGISTERS_VALUE;
  */
 #define NOISE_ABSOLUTE_ZERO                         -174.0
 #define NOISE_FIGURE                                6.0
-
-const double RssiOffset[] =
-{
-    -137.0,
-    -133.0,
-    -127.0,
-};
-
-/*!
- * Precomputed signal bandwidth 10*Log values
- * Used to compute the LoRa packet RSSI value.
- */
-const double BandwidthLog[] =
-{
-    50.969100130080564143587833158265,
-    53.97940008672037609572522210551,
-    56.989700043360188047862611052755
-};
+#define RSSI_OFFSET                                 -139.0
 
 /*!
  * Precomputed FSK bandwidth registers values
@@ -274,9 +250,9 @@ void SX1272SetChannel( uint32_t freq )
     SX1272Write( REG_FRFLSB, ( uint8_t )( freq & 0xFF ) );
 }
 
-bool SX1272IsChannelFree( RadioModems_t modem, uint32_t freq, int32_t rssiThresh )
+bool SX1272IsChannelFree( RadioModems_t modem, uint32_t freq, int8_t rssiThresh )
 {
-    double rssi = 0;
+    int8_t rssi = 0;
     
     SX1272SetModem( modem );
 
@@ -290,7 +266,7 @@ bool SX1272IsChannelFree( RadioModems_t modem, uint32_t freq, int32_t rssiThresh
     
     SX1272SetSleep( );
     
-    if( rssi > ( double )rssiThresh )
+    if( rssi > rssiThresh )
     {
         return false;
     }
@@ -919,20 +895,20 @@ void SX1272SetTx( uint32_t timeout )
     SX1272SetOpMode( RF_OPMODE_TRANSMITTER );
 }
 
-double SX1272ReadRssi( RadioModems_t modem )
+int8_t SX1272ReadRssi( RadioModems_t modem )
 {
-    double rssi = 0.0;
+    int8_t rssi = 0;
 
     switch( modem )
     {
     case MODEM_FSK:
-        rssi = -( double )( ( double )SX1272Read( REG_RSSIVALUE ) / 2.0 );
+        rssi = -( SX1272Read( REG_RSSIVALUE ) >> 1 );
         break;
     case MODEM_LORA:
-        rssi = RssiOffset[SX1272.Settings.LoRa.Bandwidth] + ( double )SX1272Read( REG_LR_RSSIVALUE );
+        rssi = RSSI_OFFSET + SX1272Read( REG_LR_RSSIVALUE );
         break;
     default:
-        rssi = 255;
+        rssi = -1;
         break;
     }
     return rssi;
@@ -1099,9 +1075,9 @@ void SX1272OnTimeoutIrq( void )
                 TimerStart( &RxTimeoutSyncWord );
             }
         }
-        if( ( RadioEvents != NULL ) && ( RadioEvents->RxError != NULL ) )
+        if( ( RadioEvents != NULL ) && ( RadioEvents->RxTimeout != NULL ) )
         {
-            RadioEvents->RxError( );
+            RadioEvents->RxTimeout( );
         }
         break;
     case RF_TX_RUNNING:
@@ -1194,7 +1170,7 @@ void SX1272OnDio0Irq( void )
 
                 if( ( RadioEvents != NULL ) && ( RadioEvents->RxDone != NULL ) )
                 {
-                    RadioEvents->RxDone( RxBuffer, SX1272.Settings.FskPacketHandler.Size, SX1272.Settings.FskPacketHandler.RssiValue, 0, 0 ); 
+                    RadioEvents->RxDone( RxBuffer, SX1272.Settings.FskPacketHandler.Size, SX1272.Settings.FskPacketHandler.RssiValue, 0 ); 
                 } 
                 SX1272.Settings.FskPacketHandler.PreambleDetected = false;
                 SX1272.Settings.FskPacketHandler.SyncWordDetected = false;
@@ -1227,31 +1203,28 @@ void SX1272OnDio0Irq( void )
                         break;
                     }
 
-                    snr = SX1272Read( REG_LR_PKTSNRVALUE );
-                    if( snr & 0x80 ) // The SNR sign bit is 1
+                    SX1272.Settings.LoRaPacketHandler.SnrValue = SX1272Read( REG_LR_PKTSNRVALUE );
+                    if( SX1272.Settings.LoRaPacketHandler.SnrValue & 0x80 ) // The SNR sign bit is 1
                     {
                         // Invert and divide by 4
-                        SX1272.Settings.LoRaPacketHandler.SnrValue = ( ( ~snr + 1 ) & 0xFF ) >> 2;
-                        SX1272.Settings.LoRaPacketHandler.SnrValue = -SX1272.Settings.LoRaPacketHandler.SnrValue;
+                        snr = ( ( ~SX1272.Settings.LoRaPacketHandler.SnrValue + 1 ) & 0xFF ) >> 2;
+                        snr = -snr;
                     }
                     else
                     {
                         // Divide by 4
-                        SX1272.Settings.LoRaPacketHandler.SnrValue = ( snr & 0xFF ) >> 2;
+                        snr = ( SX1272.Settings.LoRaPacketHandler.SnrValue & 0xFF ) >> 2;
                     }
 
-
+                    int8_t rssi = SX1272Read( REG_LR_PKTRSSIVALUE );
                     if( SX1272.Settings.LoRaPacketHandler.SnrValue < 0 )
                     {
-                        SX1272.Settings.LoRaPacketHandler.RssiValue = NOISE_ABSOLUTE_ZERO +
-                                                                      BandwidthLog[SX1272.Settings.LoRa.Bandwidth] +
-                                                                      NOISE_FIGURE +
-                                                                      ( double )SX1272.Settings.LoRaPacketHandler.SnrValue;
+                        SX1272.Settings.LoRaPacketHandler.RssiValue = RSSI_OFFSET + rssi + ( rssi >> 4 ) +
+                                                                      snr;
                     }
                     else
                     {    
-                        SX1272.Settings.LoRaPacketHandler.RssiValue = RssiOffset[SX1272.Settings.LoRa.Bandwidth] +
-                                                                      ( double )SX1272Read( REG_LR_PKTRSSIVALUE );
+                        SX1272.Settings.LoRaPacketHandler.RssiValue = RSSI_OFFSET + rssi + ( rssi >> 4 );
                     }
 
                     SX1272.Settings.LoRaPacketHandler.Size = SX1272Read( REG_LR_RXNBBYTES );
@@ -1265,7 +1238,7 @@ void SX1272OnDio0Irq( void )
 
                     if( ( RadioEvents != NULL ) && ( RadioEvents->RxDone != NULL ) )
                     {
-                        RadioEvents->RxDone( RxBuffer, SX1272.Settings.LoRaPacketHandler.Size, SX1272.Settings.LoRaPacketHandler.RssiValue, SX1272.Settings.LoRaPacketHandler.SnrValue, snr );
+                        RadioEvents->RxDone( RxBuffer, SX1272.Settings.LoRaPacketHandler.Size, SX1272.Settings.LoRaPacketHandler.RssiValue, SX1272.Settings.LoRaPacketHandler.SnrValue );
                     }
                 }
                 break;
@@ -1385,7 +1358,7 @@ void SX1272OnDio2Irq( void )
                     
                     SX1272.Settings.FskPacketHandler.SyncWordDetected = true;
                 
-                    SX1272.Settings.FskPacketHandler.RssiValue = -( double )( ( double )SX1272Read( REG_RSSIVALUE ) / 2.0 );
+                    SX1272.Settings.FskPacketHandler.RssiValue = -( SX1272Read( REG_RSSIVALUE ) >> 1 );
 
                     SX1272.Settings.FskPacketHandler.AfcValue = ( int32_t )( double )( ( ( uint16_t )SX1272Read( REG_AFCMSB ) << 8 ) |
                                                                            ( uint16_t )SX1272Read( REG_AFCLSB ) ) *

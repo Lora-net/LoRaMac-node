@@ -13,7 +13,13 @@ SX1272/76 radio drivers plus Ping-Pong firmware and LoRa MAC node firmware imple
 The aim of this project is to show an example of the LoRaMac endpoint firmware
 implementation.
 
-**REMARK:** This is a Class A endpoint.
+**REMARK 1:** This is a Class A endpoint.
+
+**REMARK 2:** Implements version R3.0 of LoRaMac specification.
+
+*LoRaMac R3.0 has been made incompatible with previous versions of the specification.*
+
+*By default the LORAMAC_R3 compiler option is enabled. Disabling this option will enable LoRaMac specification R2.2.1*
 
 2. System schematic and definitions
 ------------------------------------
@@ -125,6 +131,50 @@ not of a bootloader and the radio frequency band to be used.
 
 6. Changelog
 -------------
+2014-07-18, v3.0
+* General
+    1. Added to Radio API the possibility to select the modem.
+    2. Corrected RSSI reading formulas as well as changed the RSSI and SNR values from double to int8_t type.
+    3. Changed radio callbacks events to timeout when it is a timeout event and error when it is a CRC error.
+    4. Radio API updated.
+    5. Updated ping-pong applications.
+    6. Updated tx-cw applications.
+    7. Updated LoRaMac applications in order to handle LoRaMac returned functions calls status.
+    8. Updated LoRaMac applications to toggle LED2 each time there is an application payload down link.
+    9. Updated tstIndoor application to handle correctly more than 6 channels.
+    10. Changed the MPL3115 altitude variable from unsigned to signed value.
+    11. Replaced the usage of pow(2, n) by defining POW2 functions. Saves ~2 KBytes of code.
+    12. Corrected an issue potentially arriving when LOW_POWER_MODE_ENABLE wasn't defined.
+        A timer interrupt could be generated while the TimerList could already be emptied.
+
+
+* LoRaMac
+    1. Implemented LoRaMac specification R3.0 changes.
+
+    2. MAC commands implemented
+        * LinkCheckReq                       **YES**
+        * LinkCheckAns                       **YES**
+        * LinkADRReq                         **YES**
+        * LinkADRAns                         **YES**
+        * DutyCycleReq                       **YES**
+        * DutyCycleAns                       **YES**
+        * Rx2SetupReq                        **YES**
+        * Rx2SetupAns                        **YES**
+        * DevStatusReq                       **YES**
+        * DevStatusAns                       **YES**
+        * JoinReq                            **YES**
+        * JoinAccept                         **YES**
+        * NewChannelReq                      **YES**
+        * NewChannelAns                      **YES**
+
+    3. Features implemented
+        * Possibility to shut-down the device **YES**
+
+            Possible by issuing DutyCycleReq MAC command.
+        * Duty cycle management enforcement  **NO**
+        * Acknowledgements retries           **YES**
+        * Unconfirmed messages retries       **YES**
+
 2014-07-10, v2.3.RC2
 * General
     1. Corrected all radios antenna switch low power mode handling.

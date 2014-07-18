@@ -13,8 +13,11 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 Maintainer: Miguel Luis and Gregory Cristian
 */
 #include "board.h"
-#include "timer-board.h"
+#ifdef LOW_POWER_MODE_ENABLE
 #include "rtc-board.h"
+#else
+#include "timer-board.h"
+#endif
 
 /*!
  * This flag is used to make sure we have looped through the main several time to avoid race issues
@@ -200,6 +203,13 @@ void TimerIrqHandler( void )
 {
     uint32_t elapsedTime = 0;
  
+#ifndef LOW_POWER_MODE_ENABLE
+    if( TimerListHead == NULL )
+    {
+        return;  // Only necessary when the standard timer is used as a time base
+    }
+#endif
+
     elapsedTime = TimerGetValue( );
 
     TimerEvent_t* elapsedTimer = NULL;

@@ -48,7 +48,7 @@ typedef struct
 {
     uint8_t  PreambleDetected;
     uint8_t  SyncWordDetected;
-    double   RssiValue;
+    int8_t   RssiValue;
     int32_t  AfcValue;
     uint8_t  RxGain;
     uint16_t Size;
@@ -80,8 +80,8 @@ typedef struct
  */
 typedef struct
 {
-    double SnrValue;
-    double RssiValue;
+    int8_t SnrValue;
+    int8_t RssiValue;
     uint8_t Size;
 }RadioLoRaPacketHandler_t;
 
@@ -150,6 +150,13 @@ void SX1276Init( RadioEvents_t *events );
 RadioState_t SX1276GetStatus( void );
 
 /*!
+ * \brief Configures the radio with the given modem
+ *
+ * \param [IN] modem Modem to be used [0: FSK, 1: LoRa] 
+ */
+void SX1276SetModem( RadioModems_t modem );
+
+/*!
  * \brief Sets the channels configuration
  *
  * \param [IN] freq         Channel RF frequency
@@ -165,7 +172,7 @@ void SX1276SetChannel( uint32_t freq );
  *
  * \retval isFree         [true: Channel is free, false: Channel is not free]
  */
-bool SX1276IsChannelFree( RadioModems_t modem, uint32_t freq, int32_t rssiThresh );
+bool SX1276IsChannelFree( RadioModems_t modem, uint32_t freq, int8_t rssiThresh );
 
 /*!
  * \brief Generates a 32 bits random value based on the RSSI readings
@@ -298,7 +305,7 @@ void SX1276SetRx( uint32_t timeout );
  *
  * \retval rssiValue Current RSSI value in [dBm]
  */
-double SX1276ReadRssi( RadioModems_t modem );
+int8_t SX1276ReadRssi( RadioModems_t modem );
 
 /*!
  * \brief Writes the radio register at the specified address

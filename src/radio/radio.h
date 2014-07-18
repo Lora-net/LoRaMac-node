@@ -53,14 +53,11 @@ typedef struct
      * \param [IN] payload Received buffer pointer
      * \param [IN] size    Received buffer size
      * \param [IN] rssi    RSSI value computed while receiving the frame [dBm]
-     * \param [IN] snr     SNR value computed while receiving the frame
+     * \param [IN] snr     Raw SNR value given by the radio hardware
      *                     FSK : N/A ( set to 0 )
      *                     LoRa: SNR value in dB
-     * \param [IN] rawSnr  Raw SNR value given by the radio hardware
-     *                     FSK : N/A ( set to 0 )
-     *                     LoRa: Raw SNR value
      */
-    void    ( *RxDone )( uint8_t *payload, uint16_t size, double rssi, double snr, uint8_t rawSnr );
+    void    ( *RxDone )( uint8_t *payload, uint16_t size, int8_t rssi, int8_t snr );
     /*!
      * \brief  Rx Timeout callback prototype.
      */
@@ -89,6 +86,12 @@ struct Radio_s
      */
     RadioState_t ( *Status )( void );
     /*!
+     * \brief Configures the radio with the given modem
+     *
+     * \param [IN] modem Modem to be used [0: FSK, 1: LoRa] 
+     */
+    void    ( *SetModem )( RadioModems_t modem );
+    /*!
      * \brief Sets the channel frequency
      *
      * \param [IN] freq         Channel RF frequency
@@ -103,7 +106,7 @@ struct Radio_s
      *
      * \retval isFree         [true: Channel is free, false: Channel is not free]
      */
-    bool    ( *IsChannelFree )( RadioModems_t modem, uint32_t freq, int32_t rssiThresh );
+    bool    ( *IsChannelFree )( RadioModems_t modem, uint32_t freq, int8_t rssiThresh );
     /*!
      * \brief Generates a 32 bits random value based on the RSSI readings
      *
@@ -231,7 +234,7 @@ struct Radio_s
      *
      * \retval rssiValue Current RSSI value in [dBm]
      */
-    double ( *Rssi )( RadioModems_t modem );
+    int8_t ( *Rssi )( RadioModems_t modem );
     /*!
      * \brief Writes the radio register at the specified address
      *

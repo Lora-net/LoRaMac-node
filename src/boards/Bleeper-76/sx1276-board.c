@@ -29,6 +29,7 @@ const struct Radio_s Radio =
 {
     SX1276Init,
     SX1276GetStatus,
+    SX1276SetModem,
     SX1276SetChannel,
     SX1276IsChannelFree,
     SX1276Random,

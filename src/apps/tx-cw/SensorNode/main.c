@@ -108,7 +108,7 @@ int main( void )
     /**********************************************/
 #if ( defined( USE_BAND_433 ) || defined( USE_BAND_470 ) )
 
-    Radio.Write( 0x01, 0x80 );
+    Radio.Write( 0x01, 0x88 );
     Radio.Write( 0x44, 0x7B );
     Radio.Write( 0x3D, 0xA1 );
     Radio.Write( 0x36, 0x01 );
@@ -120,7 +120,7 @@ int main( void )
 
 #elif ( defined( USE_BAND_868 ) || defined( USE_BAND_915 ) )
 
-    Radio.Write( 0x01, 0x88 );
+    Radio.Write( 0x01, 0x80 );
     Radio.Write( 0x3D, 0xA1 );
     Radio.Write( 0x36, 0x01 );
     Radio.Write( 0x1e, 0x08 );

@@ -34,6 +34,14 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 
 /*!
+ * \brief Returns 2 raised to the power of n
+ *
+ * \param [IN] n power value
+ * \retval result of raising 2 to the power n
+ */
+#define POW2( n ) ( 1 << n )
+
+/*!
  * \brief  Find First Set
  *         This function identifies the least significant index or position of the
  *         bits set to one in the word

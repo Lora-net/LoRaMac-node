@@ -58,7 +58,7 @@ static RadioEvents_t RadioEvents;
 /*!
  * \brief Function to be executed on Radio Rx Done event
  */
-void OnRxDone( uint8_t *payload, uint16_t size, double rssi, double snr, uint8_t rawSnr );
+void OnRxDone( uint8_t *payload, uint16_t size, int8_t rssi, int8_t snr );
 
 /*!
  * Main application entry point.
@@ -102,7 +102,7 @@ int main( void )
     }
 }
 
-void OnRxDone( uint8_t *payload, uint16_t size, double rssi, double snr, uint8_t rawSnr )
+void OnRxDone( uint8_t *payload, uint16_t size, int8_t rssi, int8_t snr )
 {
     static uint8_t ledState = 1;
     // Toggle LED 1

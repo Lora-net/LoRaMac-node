@@ -162,10 +162,13 @@ void OnStopTimerEvent( void )
  */
 void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
 {
-    if( info->Status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT )
+    if( info->Status == LORAMAC_EVENT_INFO_STATUS_ERROR )
     {
+        // Schedule a new transmission
         TxDone = true;
+        return;
     }
+
     if( flags->Bits.JoinAccept == 1 )
     {
 #if( OVER_THE_AIR_ACTIVATION != 0 )
@@ -176,6 +179,7 @@ void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
     
     if( flags->Bits.Tx == 1 )
     {
+        // Schedule a new transmission
         TxDone = true;
     }
 }
@@ -185,9 +189,12 @@ void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
  */
 int main( void )
 {
-    //                                   LC1        LC2        LC3        LC4        LC5        LC6
-    const uint32_t channelsFreq[] = { 868100000, 868300000, 868500000, 868200000, 868600000, 869300000 };
+    //                                   LC1        LC2        LC3        LC4        LC5        LC6        LC7        LC8
+    const uint32_t channelsFreq[] = { 868100000, 868300000, 868500000, 868650000, 868800000, 869100000, 869250000, 869400000 };
     const uint8_t  channelsDatarate[] = { DR_SF7, DR_SF10, DR_SF12 };
+
+    uint8_t channelNb = ( sizeof( channelsFreq ) / sizeof( uint32_t ) );
+
     uint8_t tstState = 0;
     int16_t pktCnt = 15;
     ChannelParams_t channel;
@@ -275,7 +282,7 @@ int main( void )
         {
             //for( channelsIndex = 0; channelsIndex < 3; channelsIndex++ )
             {
-                pktCnt = 15 * ( sizeof( channelsFreq ) / sizeof( uint32_t ) );
+                pktCnt = 15 * channelNb;
                 while( pktCnt > 0 )
                 {
                     switch( tstState )
@@ -291,7 +298,7 @@ int main( void )
                             GpioWrite( &Led1, 0 );
                             TimerStart( &Led1Timer );
 
-                            channelsIndex = ( channelsIndex + 1 ) % 6;
+                            channelsIndex = ( channelsIndex + 1 ) % channelNb;
                             tstState = 1;
                             break;
                         case 1: // Wait for end of transmission

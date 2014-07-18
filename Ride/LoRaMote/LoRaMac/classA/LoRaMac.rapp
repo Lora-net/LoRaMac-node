@@ -181,7 +181,7 @@
 			</Set>
 			<Set Header="GCC" >
 				<Section Header="Defines" >
-					<Property Header="Defines" Value="USE_DEBUGGER;LOW_POWER_MODE_ENABLE;USE_BAND_868" Removable="1" />
+					<Property Header="Defines" Value="USE_DEBUGGER;LOW_POWER_MODE_ENABLE;USE_BAND_868;LORAMAC_R3" Removable="1" />
 																									
 				</Section>
 				<Section Header="OPTIMIZE" >
@@ -257,7 +257,7 @@
 			</Set>
 			<Set Header="GCC" >
 				<Section Header="Defines" >
-					<Property Header="Defines" Value="USE_DEBUGGER;LOW_POWER_MODE_ENABLE;USE_BAND_868;USE_BOOTLOADER" Removable="1" />
+					<Property Header="Defines" Value="USE_DEBUGGER;LOW_POWER_MODE_ENABLE;USE_BAND_868;USE_BOOTLOADER;LORAMAC_R3" Removable="1" />
 																									
 				</Section>
 				<Section Header="OPTIMIZE" >
@@ -333,7 +333,7 @@
 			</Set>
 			<Set Header="GCC" >
 				<Section Header="Defines" >
-					<Property Header="Defines" Value="USE_DEBUGGER;LOW_POWER_MODE_ENABLE;USE_BAND_915" Removable="1" />
+					<Property Header="Defines" Value="USE_DEBUGGER;LOW_POWER_MODE_ENABLE;USE_BAND_915;LORAMAC_R3" Removable="1" />
 																									
 				</Section>
 				<Section Header="OPTIMIZE" >
@@ -409,7 +409,7 @@
 			</Set>
 			<Set Header="GCC" >
 				<Section Header="Defines" >
-					<Property Header="Defines" Value="USE_DEBUGGER;LOW_POWER_MODE_ENABLE;USE_BAND_915;USE_BOOTLOADER" Removable="1" />
+					<Property Header="Defines" Value="USE_DEBUGGER;LOW_POWER_MODE_ENABLE;USE_BAND_915;USE_BOOTLOADER;LORAMAC_R3" Removable="1" />
 																									
 				</Section>
 				<Section Header="OPTIMIZE" >

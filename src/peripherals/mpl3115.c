@@ -234,7 +234,7 @@ float MPL3115ReadAltitude( void )
     MPL3115Read( OUT_P_LSB_REG, &lsb ); // Decimal part of altitude in bits 7-4
     
     decimal = ( ( float )( lsb >> 4 ) ) / 16.0;
-    Altitude = ( float )( ( msb << 8 ) | csb ) + decimal;
+    Altitude = ( float )( ( int16_t )( ( msb << 8 ) | csb ) ) + decimal;
 
     return( Altitude );
 }

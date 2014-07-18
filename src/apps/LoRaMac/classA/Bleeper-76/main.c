@@ -177,10 +177,13 @@ void OnLed2TimerEvent( void )
  */
 void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
 {
-    if( info->Status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT )
+    if( info->Status == LORAMAC_EVENT_INFO_STATUS_ERROR )
     {
+        // Schedule a new transmission
         TxDone = true;
+        return;
     }
+
     if( flags->Bits.JoinAccept == 1 )
     {
 #if( OVER_THE_AIR_ACTIVATION != 0 )
@@ -195,6 +198,7 @@ void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
         {
             TxAckReceived = true;
         }
+        // Schedule a new transmission
         TxDone = true;
     }
 
@@ -213,8 +217,9 @@ void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
  */
 int main( void )
 {
+    uint8_t sendFrameStatus = 0;
     uint16_t pressure = 0;
-    uint16_t altitudeBar = 0;
+    int16_t altitudeBar = 0;
     int16_t temperature = 0;
     uint8_t batteryLevel = 0;   
 
@@ -301,6 +306,10 @@ int main( void )
         {
             RxDone = false;
             
+            // Switch LED 2 ON
+            GpioWrite( &Led2, 0 );
+            TimerStart( &Led2Timer );
+
             if( AppLedStateOn == true )
             {
                 // Switch LED 3 ON
@@ -329,7 +338,7 @@ int main( void )
         
             pressure = ( uint16_t )( MPL3115ReadPressure( ) / 10 );             // in hPa / 10
             temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
-            altitudeBar = ( uint16_t )( MPL3115ReadAltitude( ) * 10 );          // in m * 10
+            altitudeBar = ( int16_t )( MPL3115ReadAltitude( ) * 10 );           // in m * 10
             batteryLevel = BoardMeasureBatterieLevel( );                        // 1 (very low) to 254 (fully charged)
         
             // Switch LED 1 ON
@@ -345,8 +354,19 @@ int main( void )
             AppData[6] = altitudeBar & 0xFF;
             AppData[7] = batteryLevel;
             
-            LoRaMacSendFrame( 1, AppData, APP_DATA_SIZE );
-            //LoRaMacSendConfirmedFrame( 1, AppData, APP_DATA_SIZE, 1 );
+            sendFrameStatus = LoRaMacSendFrame( 1, AppData, APP_DATA_SIZE );
+            //sendFrameStatus = LoRaMacSendConfirmedFrame( 1, AppData, APP_DATA_SIZE, 8 );
+            switch( sendFrameStatus )
+            {
+            case 3: // LENGTH_PORT_ERROR
+            case 4: // MAC_CMD_ERROR
+            case 5: // NO_FREE_CHANNEL
+                // Schedule a new transmission
+                TxDone = true;
+                break;
+            default:
+                break;
+            }
         }
 
         TimerLowPowerHandler( );

@@ -89,7 +89,7 @@ Maintainer: Miguel Luis and Gregory Cristian
  * \remark DCycle field isn't used. This channel is Rx only
  */
 // Channel = { Frequency [Hz], Datarate }
-#define RX_WND_2_CHANNEL                                  { 865525000, DR_SF9 }
+#define RX_WND_2_CHANNEL                                  { 869525000, DR_SF9 }
 
 /*!
  * LoRaMac default channels
