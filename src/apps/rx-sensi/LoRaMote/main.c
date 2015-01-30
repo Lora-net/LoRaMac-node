@@ -68,7 +68,7 @@ static RadioEvents_t RadioEvents;
 /*!
  * \brief Function to be executed on Radio Rx Done event
  */
-void OnRxDone( uint8_t *payload, uint16_t size, int8_t rssi, int8_t snr );
+void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr );
 
 /*!
  * Main application entry point.
@@ -91,14 +91,14 @@ int main( void )
     Radio.SetRxConfig( MODEM_LORA, LORA_BANDWIDTH, LORA_SPREADING_FACTOR,
                                    LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGTH,
                                    LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
-                                   true, LORA_IQ_INVERSION_ON, true );
+                                   0, true, 0, 0, LORA_IQ_INVERSION_ON, true );
 
 #elif defined( USE_MODEM_FSK )
 
     Radio.SetRxConfig( MODEM_FSK, FSK_BANDWIDTH, FSK_DATARATE,
                                   0, FSK_AFC_BANDWIDTH, FSK_PREAMBLE_LENGTH,
-                                  0, FSK_FIX_LENGTH_PAYLOAD_ON, true,
-                                  false, true );
+                                  0, FSK_FIX_LENGTH_PAYLOAD_ON, 0, true,
+                                  0, 0, false, true );
 
 #else
     #error "Please define a frequency band in the compiler options."
@@ -112,7 +112,7 @@ int main( void )
     }
 }
 
-void OnRxDone( uint8_t *payload, uint16_t size, int8_t rssi, int8_t snr )
+void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
 {
     static uint8_t ledState = 1;
     // Toggle LED 1

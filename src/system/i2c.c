@@ -43,14 +43,14 @@ void I2cResetBus( I2c_t *obj )
     I2cInit( obj, I2C_SCL, I2C_SDA );
 }
 
-uint8_t I2cWrite( I2c_t *obj, uint8_t deviceAddress, uint8_t registerAddress, uint8_t *data )
+uint8_t I2cWrite( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t data )
 {
     if( I2cInitialized == true )
     {
-        if( I2cMcuWriteBuffer( obj, deviceAddress, registerAddress, data, 1 ) == FAIL )
+        if( I2cMcuWriteBuffer( obj, deviceAddr, addr, &data, 1 ) == FAIL )
         {
             // if first attempt fails due to an IRQ, try a second time
-            if( I2cMcuWriteBuffer( obj, deviceAddress, registerAddress, data, 1 ) == FAIL )
+            if( I2cMcuWriteBuffer( obj, deviceAddr, addr, &data, 1 ) == FAIL )
             {
                 return FAIL;
             }
@@ -70,14 +70,14 @@ uint8_t I2cWrite( I2c_t *obj, uint8_t deviceAddress, uint8_t registerAddress, ui
     }
 }
 
-uint8_t I2cWriteBuffer( I2c_t *obj, uint8_t deviceAddress, uint8_t registerAddress, uint8_t *data, uint8_t size )
+uint8_t I2cWriteBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t *buffer, uint16_t size )
 {
     if( I2cInitialized == true )
     {
-        if( I2cMcuWriteBuffer( obj, deviceAddress, registerAddress, data, size ) == FAIL )
+        if( I2cMcuWriteBuffer( obj, deviceAddr, addr, buffer, size ) == FAIL )
         {
             // if first attempt fails due to an IRQ, try a second time
-            if( I2cMcuWriteBuffer( obj, deviceAddress, registerAddress, data, size ) == FAIL )
+            if( I2cMcuWriteBuffer( obj, deviceAddr, addr, buffer, size ) == FAIL )
             {
                 return FAIL;
             }
@@ -97,11 +97,11 @@ uint8_t I2cWriteBuffer( I2c_t *obj, uint8_t deviceAddress, uint8_t registerAddre
     }
 }
 
-uint8_t I2cRead( I2c_t *obj, uint8_t deviceAddress, uint8_t registerAddress, uint8_t *data )
+uint8_t I2cRead( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t *data )
 {
     if( I2cInitialized == true )
     {
-        return( I2cMcuReadBuffer( obj, deviceAddress, registerAddress, data, 1 ) );
+        return( I2cMcuReadBuffer( obj, deviceAddr, addr, data, 1 ) );
     }
     else
     {
@@ -109,11 +109,11 @@ uint8_t I2cRead( I2c_t *obj, uint8_t deviceAddress, uint8_t registerAddress, uin
     }
 }
 
-uint8_t I2cReadBuffer( I2c_t *obj, uint8_t deviceAddress, uint8_t registerAddress, uint8_t *data, uint8_t size )
+uint8_t I2cReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t *buffer, uint16_t size )
 {
     if( I2cInitialized == true )
     {
-        return( I2cMcuReadBuffer( obj, deviceAddress, registerAddress, data, size ) );
+        return( I2cMcuReadBuffer( obj, deviceAddr, addr, buffer, size ) );
     }
     else
     {

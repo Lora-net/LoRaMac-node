@@ -200,8 +200,11 @@ uint32_t GpioMcuRead( Gpio_t *obj )
 
 void EXTI0_IRQHandler( void )
 {
-#ifdef LOW_POWER_MODE_ENABLE
-    RtcRecoverMcuStatus( );
+#if !defined( USE_NO_TIMER )
+    if( TimerGetLowPowerEnable( ) == true )
+    {
+        RtcRecoverMcuStatus( );
+    }
 #endif
     if( EXTI_GetITStatus( EXTI_Line0 ) != RESET )
     {
@@ -215,8 +218,11 @@ void EXTI0_IRQHandler( void )
 
 void EXTI1_IRQHandler( void )
 {
-#ifdef LOW_POWER_MODE_ENABLE
-    RtcRecoverMcuStatus( );
+#if !defined( USE_NO_TIMER )
+    if( TimerGetLowPowerEnable( ) == true )
+    {
+        RtcRecoverMcuStatus( );
+    }
 #endif
     if( EXTI_GetITStatus( EXTI_Line1 ) != RESET )
     {
@@ -230,8 +236,11 @@ void EXTI1_IRQHandler( void )
 
 void EXTI2_IRQHandler( void )
 {
-#ifdef LOW_POWER_MODE_ENABLE
-    RtcRecoverMcuStatus( );
+#if !defined( USE_NO_TIMER )
+    if( TimerGetLowPowerEnable( ) == true )
+    {
+        RtcRecoverMcuStatus( );
+    }
 #endif
     if( EXTI_GetITStatus( EXTI_Line2 ) != RESET )
     {
@@ -245,8 +254,11 @@ void EXTI2_IRQHandler( void )
 
 void EXTI3_IRQHandler( void )
 {
-#ifdef LOW_POWER_MODE_ENABLE
-    RtcRecoverMcuStatus( );
+#if !defined( USE_NO_TIMER )
+    if( TimerGetLowPowerEnable( ) == true )
+    {
+        RtcRecoverMcuStatus( );
+    }
 #endif
     if( EXTI_GetITStatus( EXTI_Line3 ) != RESET )
     {
@@ -260,8 +272,11 @@ void EXTI3_IRQHandler( void )
 
 void EXTI4_IRQHandler( void )
 {
-#ifdef LOW_POWER_MODE_ENABLE
-    RtcRecoverMcuStatus( );
+#if !defined( USE_NO_TIMER )
+    if( TimerGetLowPowerEnable( ) == true )
+    {
+        RtcRecoverMcuStatus( );
+    }
 #endif
     if( EXTI_GetITStatus( EXTI_Line4 ) != RESET )
     {
@@ -275,8 +290,11 @@ void EXTI4_IRQHandler( void )
 
 void EXTI9_5_IRQHandler( void )
 {
-#ifdef LOW_POWER_MODE_ENABLE
-    RtcRecoverMcuStatus( );
+#if !defined( USE_NO_TIMER )
+    if( TimerGetLowPowerEnable( ) == true )
+    {
+        RtcRecoverMcuStatus( );
+    }
 #endif
     if( EXTI_GetITStatus( EXTI_Line5 ) != RESET )
     {
@@ -326,8 +344,11 @@ void EXTI9_5_IRQHandler( void )
 
 void EXTI15_10_IRQHandler( void )
 {
-#ifdef LOW_POWER_MODE_ENABLE
-    RtcRecoverMcuStatus( );
+#if !defined( USE_NO_TIMER )
+    if( TimerGetLowPowerEnable( ) == true )
+    {
+        RtcRecoverMcuStatus( );
+    }
 #endif
     if( EXTI_GetITStatus( EXTI_Line10 ) != RESET )
     {    

@@ -13,11 +13,10 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 Maintainer: Miguel Luis and Gregory Cristian
 */
 #include "board.h"
-#ifdef LOW_POWER_MODE_ENABLE
 #include "rtc-board.h"
-#else
 #include "timer-board.h"
-#endif
+
+static bool LowPowerModeEnable = true;
 
 /*!
  * This flag is used to make sure we have looped through the main several time to avoid race issues
@@ -71,6 +70,15 @@ static bool TimerExists( TimerEvent_t *obj );
  */
 uint32_t TimerGetValue( void );
 
+void TimerSetLowPowerEnable( bool enable )
+{
+   LowPowerModeEnable = enable; 
+}
+
+bool TimerGetLowPowerEnable( void )
+{
+    return LowPowerModeEnable;
+}
 
 void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
 {
@@ -203,12 +211,13 @@ void TimerIrqHandler( void )
 {
     uint32_t elapsedTime = 0;
  
-#ifndef LOW_POWER_MODE_ENABLE
-    if( TimerListHead == NULL )
+    if( LowPowerModeEnable == false )
     {
-        return;  // Only necessary when the standard timer is used as a time base
+        if( TimerListHead == NULL )
+        {
+            return;  // Only necessary when the standard timer is used as a time base
+        }
     }
-#endif
 
     elapsedTime = TimerGetValue( );
 
@@ -372,11 +381,14 @@ void TimerSetValue( TimerEvent_t *obj, uint32_t value )
 
     TimerStop( obj );
 
-#ifdef LOW_POWER_MODE_ENABLE
-    minValue = RtcGetMinimumTimeout( );
-#else
-    minValue = TimerHwGetMinimumTimeout( );   
-#endif
+    if( LowPowerModeEnable == true )
+    {
+        minValue = RtcGetMinimumTimeout( );
+    }
+    else
+    {
+        minValue = TimerHwGetMinimumTimeout( );   
+    }
     
     if( value < minValue )
     {
@@ -391,11 +403,14 @@ uint32_t TimerGetValue( void )
 {
     uint32_t valTimer = 0;
 
-#ifdef LOW_POWER_MODE_ENABLE
-    valTimer = RtcGetTimerElapsedTime( );
-#else
-    valTimer = TimerHwGetElapsedTime( );    
-#endif
+    if( LowPowerModeEnable == true )
+    {
+        valTimer = RtcGetTimerElapsedTime( );
+    }
+    else
+    {
+        valTimer = TimerHwGetElapsedTime( );    
+    }
 
     return valTimer;
 }
@@ -404,11 +419,14 @@ static void TimerSetTimeout( TimerEvent_t *obj )
 {
     HasLoopedThroughMain = 0;
 
-#ifdef LOW_POWER_MODE_ENABLE
-    RtcSetTimeout( obj->Timestamp );
-#else
-    TimerHwStart( obj->Timestamp );
-#endif
+    if( LowPowerModeEnable == true )
+    {
+        RtcSetTimeout( obj->Timestamp );
+    }
+    else
+    {
+        TimerHwStart( obj->Timestamp );
+    }
 }
 
 void TimerLowPowerHandler( void )
@@ -423,11 +441,14 @@ void TimerLowPowerHandler( void )
         { 
             HasLoopedThroughMain = 0;
     
-#ifdef LOW_POWER_MODE_ENABLE      
-            RtcEnterLowPowerStopMode( );
-#else
-            TimerHwEnterLowPowerStopMode( );
-#endif
+            if( LowPowerModeEnable == true )
+            {
+                RtcEnterLowPowerStopMode( );
+            }
+            else
+            {
+                TimerHwEnterLowPowerStopMode( );
+            }
         }
     }
 }

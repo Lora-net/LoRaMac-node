@@ -21,9 +21,12 @@ void Delay( float s )
 
 void DelayMs( uint32_t ms )
 {
-#ifdef LOW_POWER_MODE_ENABLE  
-    RtcDelayMs( ms );
-#else
-    TimerHwDelayMs( ms );
-#endif
+    if( TimerGetLowPowerEnable( ) == true )
+    {
+        RtcDelayMs( ms );
+    }
+    else
+    {
+        TimerHwDelayMs( ms );
+    }
 }

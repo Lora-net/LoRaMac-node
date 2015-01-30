@@ -89,13 +89,22 @@ void BoardInitMcu( void )
         GpioInit( &DbgPin4, J5_4, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 #endif
         BoardInitPeriph( );
+
+#if( LOW_POWER_MODE_ENABLE )
+        TimerSetLowPowerEnable( true );
+#else
+        TimerSetLowPowerEnable( false );
+#endif
         BoardUnusedIoInit( );
 
-#ifdef LOW_POWER_MODE_ENABLE
-        RtcInit( );
-#else
-        TimerHwInit( );
-#endif
+        if( TimerGetLowPowerEnable( ) == true )
+        {
+            RtcInit( );
+        }
+        else
+        {
+            TimerHwInit( );
+        }
         McuInitialized = true;
     }
 }
@@ -127,12 +136,13 @@ void BoardDeInitMcu( void )
     GpioInit( &DbgPin3, J5_3, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &DbgPin4, J5_4, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 #endif
-    
+
     GpioInit( &ioPin, OSC_HSE_IN, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
     GpioInit( &ioPin, OSC_HSE_OUT, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+
     GpioInit( &ioPin, OSC_LSE_IN, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 1 );
     GpioInit( &ioPin, OSC_LSE_OUT, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 1 );
-
+    
     McuInitialized = false;
 }
 
@@ -236,8 +246,10 @@ static void BoardUnusedIoInit( void )
     GpioInit( &ioPin, SD_CMD, PIN_ANALOGIC, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
     
     /* USB */
+#if !defined( USE_USB_CDC )
     GpioInit( &ioPin, USB_DM, PIN_ANALOGIC, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
     GpioInit( &ioPin, USB_DP, PIN_ANALOGIC, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 ); 
+#endif
     
     /* BOOT1 pin */
     GpioInit( &ioPin, BOOT_1, PIN_ANALOGIC, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 ); 

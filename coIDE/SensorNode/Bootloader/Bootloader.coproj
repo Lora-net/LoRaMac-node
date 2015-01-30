@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Project version="2G - 1.7.7" name="BootLoader">
+  <Target name="BootLoader" isCurrent="1">
+    <Device manufacturerId="9" manufacturerName="ST" chipId="528" chipName="STM32L151C8" boardId="" boardName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="4"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Includepaths>
+          <Includepath path="../../../src"/>
+          <Includepath path="../../../src/boards/SensorNode"/>
+          <Includepath path="../../../src/boards/SensorNode/cmsis"/>
+          <Includepath path="../../../src/boards/mcu/stm32"/>
+          <Includepath path="../../../src/boards/mcu/stm32/cmsis"/>
+          <Includepath path="../../../src/boards/mcu/stm32/stm32l1xx_stdperiph_driver/inc"/>
+          <Includepath path="../../../src/mac"/>
+          <Includepath path="../../../src/peripherals"/>
+          <Includepath path="../../../src/radio"/>
+          <Includepath path="../../../src/system"/>
+          <Includepath path="../../../src/system/crypto"/>
+          <Includepath path="../../../src/boards/SensorNode/usb/dfu/inc"/>
+          <Includepath path="../../../src/boards/mcu/stm32/stm32_usb-fs-device_driver/inc"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="USE_NO_TIMER"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UserEditLinkder" value=""/>
+        <Option name="UseMemoryLayout" value="0"/>
+        <Option name="nostartfiles" value="1"/>
+        <Option name="LTO" value="0"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <Option name="Library" value="Use nano C Library"/>
+        <Option name="UserEditLinker" value="-lm;"/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00010000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00002800" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="../../../src/boards/SensorNode/cmsis/arm-gcc/stm32l1xx_md_flash_bootloader.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="BootLoader"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="STM32L1xx_128.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Components path="./"/>
+  <Files>
+    <File name="boards/SensorNode/usb" path="" type="2"/>
+    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_tim.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_tim.c" type="1"/>
+    <File name="boards" path="" type="2"/>
+    <File name="boards/SensorNode/usb/flash_if.c" path="../../../src/boards/SensorNode/usb/dfu/src/flash_if.c" type="1"/>
+    <File name="boards/SensorNode/cmsis" path="" type="2"/>
+    <File name="boards/SensorNode/STM32_USB-FS-Device_Driver/usb_init.c" path="../../../src/boards/mcu/stm32/STM32_USB-FS-Device_Driver/src/usb_init.c" type="1"/>
+    <File name="peripherals/gpio-ioe.c" path="../../../src/peripherals/gpio-ioe.c" type="1"/>
+    <File name="boards/mcu/stm32/sysIrqHandlers.c" path="../../../src/boards/mcu/stm32/sysIrqHandlers.c" type="1"/>
+    <File name="boards/SensorNode/usb/dfu_mal.c" path="../../../src/boards/SensorNode/usb/dfu/src/dfu_mal.c" type="1"/>
+    <File name="boards/mcu/stm32" path="" type="2"/>
+    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_usart.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_usart.c" type="1"/>
+    <File name="boards/SensorNode/STM32_USB-FS-Device_Driver/usb_regs.c" path="../../../src/boards/mcu/stm32/STM32_USB-FS-Device_Driver/src/usb_regs.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_flash.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_flash.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_i2c.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_i2c.c" type="1"/>
+    <File name="boards/SensorNode/STM32_USB-FS-Device_Driver/usb_mem.c" path="../../../src/boards/mcu/stm32/STM32_USB-FS-Device_Driver/src/usb_mem.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_spi.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_spi.c" type="1"/>
+    <File name="system" path="" type="2"/>
+    <File name="boards/SensorNode" path="" type="2"/>
+    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_syscfg.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_syscfg.c" type="1"/>
+    <File name="boards/SensorNode/cmsis/startup_stm32l1xx_md.s" path="../../../src/boards/SensorNode/cmsis/arm-gcc/startup_stm32l1xx_md.s" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_adc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_adc.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_flash_ramfunc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_flash_ramfunc.c" type="1"/>
+    <File name="boards/mcu/stm32/utilities.c" path="../../../src/boards/mcu/stm32/utilities.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_rcc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_rcc.c" type="1"/>
+    <File name="peripherals/sx9500.c" path="../../../src/peripherals/sx9500.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_pwr.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_pwr.c" type="1"/>
+    <File name="boards/SensorNode/usb/usb_pwr.c" path="../../../src/boards/SensorNode/usb/dfu/src/usb_pwr.c" type="1"/>
+    <File name="peripherals/sx1509.c" path="../../../src/peripherals/sx1509.c" type="1"/>
+    <File name="boards/SensorNode/gpio-board.c" path="../../../src/boards/SensorNode/gpio-board.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_dbgmcu.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_dbgmcu.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_rtc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_rtc.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/misc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/misc.c" type="1"/>
+    <File name="boards/SensorNode/cmsis/system_stm32l1xx.c" path="../../../src/boards/SensorNode/cmsis/system_stm32l1xx.c" type="1"/>
+    <File name="boards/SensorNode/usb/usb_prop.c" path="../../../src/boards/SensorNode/usb/dfu/src/usb_prop.c" type="1"/>
+    <File name="boards/SensorNode/STM32_USB-FS-Device_Driver/usb_sil.c" path="../../../src/boards/mcu/stm32/STM32_USB-FS-Device_Driver/src/usb_sil.c" type="1"/>
+    <File name="boards/SensorNode/STM32_USB-FS-Device_Driver" path="" type="2"/>
+    <File name="boards/SensorNode/usb-dfu-board.c" path="../../../src/boards/SensorNode/usb-dfu-board.c" type="1"/>
+    <File name="boards/SensorNode/usb/usb_desc.c" path="../../../src/boards/SensorNode/usb/dfu/src/usb_desc.c" type="1"/>
+    <File name="boards/SensorNode/STM32_USB-FS-Device_Driver/usb_core.c" path="../../../src/boards/mcu/stm32/STM32_USB-FS-Device_Driver/src/usb_core.c" type="1"/>
+    <File name="boards/SensorNode/STM32_USB-FS-Device_Driver/usb_int.c" path="../../../src/boards/mcu/stm32/STM32_USB-FS-Device_Driver/src/usb_int.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_gpio.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_gpio.c" type="1"/>
+    <File name="boards/mcu" path="" type="2"/>
+    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver" path="" type="2"/>
+    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_dma.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_dma.c" type="1"/>
+    <File name="boards/SensorNode/i2c-board.c" path="../../../src/boards/SensorNode/i2c-board.c" type="1"/>
+    <File name="system/gpio.c" path="../../../src/system/gpio.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_exti.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_exti.c" type="1"/>
+    <File name="peripherals" path="" type="2"/>
+    <File name="boards/SensorNode/usb/usb_istr.c" path="../../../src/boards/SensorNode/usb/dfu/src/usb_istr.c" type="1"/>
+    <File name="system/i2c.c" path="../../../src/system/i2c.c" type="1"/>
+    <File name="main.c" path="../../../src/apps/BootLoader/SensorNode/main.c" type="1"/>
+  </Files>
+</Project>

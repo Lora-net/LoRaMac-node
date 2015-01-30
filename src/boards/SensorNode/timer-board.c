@@ -36,7 +36,25 @@ static uint64_t TimerTickCounterContext = 0;
  */
 volatile uint64_t TimeoutCntValue = 0;
 
+/*!
+ * Increment the Hardware Timer tick counter
+ */
 void TimerIncrementTickCounter( void );
+
+/*!
+ * Counter used for the Delay operations
+ */
+volatile uint32_t TimerDelayCounter = 0;
+
+/*!
+ * Retunr the value of the counter used for a Delay
+ */
+uint32_t TimerHwGetDelayValue( void );
+
+/*!
+ * Increment the value of TimerDelayCounter
+ */
+void TimerIncrementDelayCounter( void );
 
 
 void TimerHwInit( void )
@@ -50,8 +68,8 @@ void TimerHwInit( void )
     /* --------------------------NVIC Configuration -------------------------------*/
     /* Enable the TIM2 gloabal Interrupt */
     NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
     NVIC_Init( &NVIC_InitStructure );
@@ -65,10 +83,39 @@ void TimerHwInit( void )
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
     TIM_TimeBaseInit( TIM2, &TIM_TimeBaseStructure );
 
-    TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE );
+    TIM_ITConfig( TIM2, TIM_IT_Update, ENABLE );
 
     /* TIM2 disable counter */
     TIM_Cmd( TIM2, ENABLE ); 
+        
+        /* TIM3 clock enable */ 
+    RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM3, ENABLE );
+
+    /* --------------------------NVIC Configuration -------------------------------*/
+    /* Enable the TIM3 gloabal Interrupt */
+    NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+
+    NVIC_Init( &NVIC_InitStructure );
+
+    /* Time base configuration */
+    TIM_TimeBaseStructure.TIM_Period = 3199;
+    TIM_TimeBaseStructure.TIM_Prescaler = 10; 
+    TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+    TIM_TimeBaseInit( TIM3, &TIM_TimeBaseStructure );
+
+    TIM_ITConfig( TIM3, TIM_IT_Update, DISABLE );
+
+    /* TIM3 disable counter */
+    TIM_Cmd( TIM3, DISABLE ); 
+
+
+    TIM_ITConfig( TIM3, TIM_IT_Update, ENABLE );
+    TIM_Cmd( TIM3, ENABLE ); 
+    
 }
 
 void TimerHwDeInit( void )
@@ -104,16 +151,21 @@ void TimerHwStop( void )
 
 void TimerHwDelayMs( uint32_t delay )
 {
-    uint64_t delayValue = 0;
-    uint64_t timeout = 0;
+    uint32_t delayValue = 0;
 
-    delayValue = delay * 1000;
+    delayValue = delay;
 
-    timeout = TimerHwGetTimerValue( );
+    TimerDelayCounter = 0;
 
-    while( ( ( TimerHwGetTimerValue( ) - timeout  ) * HW_TIMER_TIME_BASE ) < delayValue )
+    TIM_ITConfig( TIM3, TIM_IT_Update, ENABLE );
+    TIM_Cmd( TIM3, ENABLE ); 
+
+    while( TimerHwGetDelayValue( ) < delayValue )
     {
     }
+
+    TIM_ITConfig( TIM3, TIM_IT_Update, DISABLE );
+    TIM_Cmd( TIM3, DISABLE ); 
 }
 
 uint64_t TimerHwGetElapsedTime( void )
@@ -134,11 +186,33 @@ uint64_t TimerHwGetTimerValue( void )
     return( val );
 }
 
+uint32_t TimerHwGetDelayValue( void )
+{
+    uint32_t val = 0;
+
+    __disable_irq( );
+
+    val = TimerDelayCounter;
+
+    __enable_irq( );
+
+    return( val );
+}
+
 void TimerIncrementTickCounter( void )
 {
     __disable_irq( );
 
     TimerTickCounter++;
+
+    __enable_irq( );
+}
+
+void TimerIncrementDelayCounter( void )
+{
+    __disable_irq( );
+
+    TimerDelayCounter++;
 
     __enable_irq( );
 }
@@ -151,13 +225,24 @@ void TIM2_IRQHandler( void )
     if( TIM_GetITStatus( TIM2, TIM_IT_Update ) != RESET )
     {
         TimerIncrementTickCounter( );
+        TIM_ClearITPendingBit( TIM2, TIM_IT_Update );
     
         if( TimerTickCounter == TimeoutCntValue )
         {
             TimerIrqHandler( );
         }
-    
-        TIM_ClearITPendingBit( TIM2, TIM_IT_Update );
+    }
+}
+
+/*!
+ * Timer IRQ handler
+ */
+void TIM3_IRQHandler( void )
+{
+    if( TIM_GetITStatus( TIM3, TIM_IT_Update ) != RESET )
+    {
+        TimerIncrementDelayCounter( );
+        TIM_ClearITPendingBit( TIM3, TIM_IT_Update );
     }
 }
 

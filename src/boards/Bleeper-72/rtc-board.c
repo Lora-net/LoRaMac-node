@@ -315,28 +315,53 @@ static void RtcStartWakeUpAlarm( uint32_t timeoutValue )
        
     timeoutValue = timeoutValue / RTC_ALARM_TIME_BASE;
 
-    rtcSeconds = ( timeoutValue % SecondsInMinute ) + RTC_TimeStruct.RTC_Seconds;
-    rtcMinutes = ( ( timeoutValue / SecondsInMinute ) % SecondsInMinute ) + RTC_TimeStruct.RTC_Minutes;
-    rtcHours = ( ( timeoutValue / SecondsInHour ) % HoursInDay ) + RTC_TimeStruct.RTC_Hours;
-    rtcDays = ( timeoutValue / SecondsInDay ) + RTC_DateStruct.RTC_Date;
+    if( timeoutValue > 2160000 ) // 25 "days" in tick 
+    {                            // drastically reduce the computation time
+        rtcAlarmSeconds = RTC_TimeStruct.RTC_Seconds;
+        rtcAlarmMinutes = RTC_TimeStruct.RTC_Minutes;
+        rtcAlarmHours = RTC_TimeStruct.RTC_Hours;
+        rtcAlarmDays = 25 + RTC_DateStruct.RTC_Date;  // simply add 25 days to current date and time
 
-    rtcAlarmSeconds = ( rtcSeconds ) % 60;
-    rtcAlarmMinutes = ( ( rtcSeconds / 60 ) + rtcMinutes ) % 60;
-    rtcAlarmHours   = ( ( ( ( rtcSeconds / 60 ) + rtcMinutes ) / 60 ) + rtcHours ) % 24; 
-    rtcAlarmDays    = ( ( ( ( ( rtcSeconds / 60 ) + rtcMinutes ) / 60 ) + rtcHours ) / 24 ) + rtcDays;        
-
-    if( ( RTC_DateStruct.RTC_Year == 0 ) || ( RTC_DateStruct.RTC_Year % 4 == 0 ) )
-    {
-        if( rtcAlarmDays > DaysInMonthLeapYear[ RTC_DateStruct.RTC_Month - 1 ] )
-        {   
-            rtcAlarmDays = rtcAlarmDays % DaysInMonthLeapYear[ RTC_DateStruct.RTC_Month - 1 ];
+        if( ( RTC_DateStruct.RTC_Year == 0 ) || ( RTC_DateStruct.RTC_Year % 4 == 0 ) )
+        {
+            if( rtcAlarmDays > DaysInMonthLeapYear[ RTC_DateStruct.RTC_Month - 1 ] )
+            {   
+                rtcAlarmDays = rtcAlarmDays % DaysInMonthLeapYear[ RTC_DateStruct.RTC_Month - 1];
+            }
         }
+        else
+        {
+            if( rtcAlarmDays > DaysInMonth[ RTC_DateStruct.RTC_Month - 1 ] )
+            {   
+                rtcAlarmDays = rtcAlarmDays % DaysInMonth[ RTC_DateStruct.RTC_Month - 1];
+            }
+        }   
     }
     else
     {
-        if( rtcAlarmDays > DaysInMonth[ RTC_DateStruct.RTC_Month - 1 ] )
-        {   
-            rtcAlarmDays = rtcAlarmDays % DaysInMonth[ RTC_DateStruct.RTC_Month - 1 ];
+        rtcSeconds = ( timeoutValue % SecondsInMinute ) + RTC_TimeStruct.RTC_Seconds;
+        rtcMinutes = ( ( timeoutValue / SecondsInMinute ) % SecondsInMinute ) + RTC_TimeStruct.RTC_Minutes;
+        rtcHours = ( ( timeoutValue / SecondsInHour ) % HoursInDay ) + RTC_TimeStruct.RTC_Hours;
+        rtcDays = ( timeoutValue / SecondsInDay ) + RTC_DateStruct.RTC_Date;
+
+        rtcAlarmSeconds = ( rtcSeconds ) % 60;
+        rtcAlarmMinutes = ( ( rtcSeconds / 60 ) + rtcMinutes ) % 60;
+        rtcAlarmHours   = ( ( ( ( rtcSeconds / 60 ) + rtcMinutes ) / 60 ) + rtcHours ) % 24; 
+        rtcAlarmDays    = ( ( ( ( ( rtcSeconds / 60 ) + rtcMinutes ) / 60 ) + rtcHours ) / 24 ) + rtcDays;        
+
+        if( ( RTC_DateStruct.RTC_Year == 0 ) || ( RTC_DateStruct.RTC_Year % 4 == 0 ) )
+        {
+            if( rtcAlarmDays > DaysInMonthLeapYear[ RTC_DateStruct.RTC_Month - 1 ] )            
+            {   
+                rtcAlarmDays = rtcAlarmDays % DaysInMonthLeapYear[ RTC_DateStruct.RTC_Month - 1 ];  
+            }
+        }
+        else
+        {
+            if( rtcAlarmDays > DaysInMonth[ RTC_DateStruct.RTC_Month - 1 ] )            
+            {   
+                rtcAlarmDays = rtcAlarmDays % DaysInMonth[ RTC_DateStruct.RTC_Month - 1 ];  
+            }
         }
     }
 
@@ -386,45 +411,46 @@ void RtcEnterLowPowerStopMode( void )
 
 void RtcRecoverMcuStatus( void )
 {    
-#ifdef LOW_POWER_MODE_ENABLE
-    if( ( LowPowerDisableDuringTask == false ) && ( RtcTimerEventAllowsLowPower == true ) )
-    {    
-        // Disable IRQ while the MCU is not running on HSE
-        __disable_irq( );
-
-        /* After wake-up from STOP reconfigure the system clock */
-        /* Enable HSE */
-        RCC_HSEConfig( RCC_HSE_ON );
-        
-        /* Wait till HSE is ready */
-        while( RCC_GetFlagStatus( RCC_FLAG_HSERDY ) == RESET )
-        {}
-        
-        /* Enable PLL */
-        RCC_PLLCmd( ENABLE );
-        
-        /* Wait till PLL is ready */
-        while( RCC_GetFlagStatus( RCC_FLAG_PLLRDY ) == RESET )
-        {}
-        
-        /* Select PLL as system clock source */
-        RCC_SYSCLKConfig( RCC_SYSCLKSource_PLLCLK );
-        
-        /* Wait till PLL is used as system clock source */
-        while( RCC_GetSYSCLKSource( ) != 0x0C )
-        {}
-
-        /* Set MCU in ULP (Ultra Low Power) */
-        PWR_UltraLowPowerCmd( DISABLE ); // add up to 3ms wakeup time
-        
-        /* Enable the Power Voltage Detector */
-        PWR_PVDCmd( ENABLE );
+    if( TimerGetLowPowerEnable( ) == true )
+    {
+        if( ( LowPowerDisableDuringTask == false ) && ( RtcTimerEventAllowsLowPower == true ) )
+        {    
+            // Disable IRQ while the MCU is not running on HSE
+            __disable_irq( );
+    
+            /* After wake-up from STOP reconfigure the system clock */
+            /* Enable HSE */
+            RCC_HSEConfig( RCC_HSE_ON );
             
-        BoardInitMcu( );  
-
-        __enable_irq( );   
+            /* Wait till HSE is ready */
+            while( RCC_GetFlagStatus( RCC_FLAG_HSERDY ) == RESET )
+            {}
+            
+            /* Enable PLL */
+            RCC_PLLCmd( ENABLE );
+            
+            /* Wait till PLL is ready */
+            while( RCC_GetFlagStatus( RCC_FLAG_PLLRDY ) == RESET )
+            {}
+            
+            /* Select PLL as system clock source */
+            RCC_SYSCLKConfig( RCC_SYSCLKSource_PLLCLK );
+            
+            /* Wait till PLL is used as system clock source */
+            while( RCC_GetSYSCLKSource( ) != 0x0C )
+            {}
+    
+            /* Set MCU in ULP (Ultra Low Power) */
+            PWR_UltraLowPowerCmd( DISABLE ); // add up to 3ms wakeup time
+            
+            /* Enable the Power Voltage Detector */
+            PWR_PVDCmd( ENABLE );
+                
+            BoardInitMcu( );  
+    
+            __enable_irq( );   
+        }
     }
-#endif
 }
 
 /*!

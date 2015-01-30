@@ -107,6 +107,8 @@ ONE_DESCRIPTOR String_Descriptor[4] =
     {(uint8_t*)Virtual_Com_Port_StringSerial, VIRTUAL_COM_PORT_SIZ_STRING_SERIAL}
   };
 
+static bool IsOpen = false;
+
 /* Extern variables ----------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Extern function prototypes ------------------------------------------------*/
@@ -221,6 +223,18 @@ void Virtual_Com_Port_SetDeviceAddress (void)
 }
 
 /*******************************************************************************
+* Function Name  : Virtual_ComPort_IsOpen.
+* Description    : Indicates if the serial port is opened by the host.
+* Input          : None.
+* Output         : None.
+* Return         : serial port status.
+*******************************************************************************/
+bool Virtual_ComPort_IsOpen( void )
+{
+  return ( bDeviceState == CONFIGURED ) && ( IsOpen == true );
+}
+
+/*******************************************************************************
 * Function Name  : Virtual_Com_Port_Status_In.
 * Description    : Virtual COM Port Status In Routine.
 * Input          : None.
@@ -303,6 +317,15 @@ RESULT Virtual_Com_Port_NoData_Setup(uint8_t RequestNo)
     }
     else if (RequestNo == SET_CONTROL_LINE_STATE)
     {
+      // Checks DTR state
+      if( ( pInformation->USBwValues.bw.bb0 & 0x01 ) != 0 )
+      {
+        IsOpen = true;
+      }
+      else
+      {
+        IsOpen = false;
+      }
       return USB_SUCCESS;
     }
   }

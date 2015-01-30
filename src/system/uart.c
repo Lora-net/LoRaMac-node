@@ -113,24 +113,35 @@ uint8_t UartGetChar( Uart_t *obj, uint8_t *data )
 
 uint8_t UartPutBuffer( Uart_t *obj, uint8_t *buffer, uint16_t size )
 {
-    uint8_t retryCount;
-    uint16_t i;
-
-    for( i = 0; i < size; i++ )
+    if( obj->UartId == UART_USB_CDC )
     {
-        retryCount = 0;
-        while( UartPutChar( obj, buffer[i] ) != 0 )
-        {
-            retryCount++;
+#if defined( USE_USB_CDC )
+        return UartUsbPutBuffer( obj, buffer, size );
+#else
+        return 255; // Not supported
+#endif
+    }
+    else
+    {
+        uint8_t retryCount;
+        uint16_t i;
 
-            // Exit if something goes terribly wrong
-            if( retryCount > TX_BUFFER_RETRY_COUNT )
+        for( i = 0; i < size; i++ )
+        {
+            retryCount = 0;
+            while( UartPutChar( obj, buffer[i] ) != 0 )
             {
-                return 1; // Error
+                retryCount++;
+
+                // Exit if something goes terribly wrong
+                if( retryCount > TX_BUFFER_RETRY_COUNT )
+                {
+                    return 1; // Error
+                }
             }
         }
+        return 0; // OK
     }
-    return 0; // OK
 }
 
 uint8_t UartGetBuffer( Uart_t *obj, uint8_t *buffer, uint16_t size, uint16_t *nbReadBytes )

@@ -26,18 +26,14 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * FIFO buffers size
  */
-#define FIFO_TX_SIZE                                64
-#define FIFO_RX_SIZE                                64
+#define FIFO_RX_SIZE                                256
 
-uint8_t CdcTxBuffer[FIFO_TX_SIZE];
 uint8_t CdcRxBuffer[FIFO_RX_SIZE];
 
 __IO uint32_t UsbPacketTx = 1;
-__IO  uint8_t UsbTxBuffer[64];
-__IO uint32_t UsbTxLength;
+__IO  uint8_t UsbTxBuffer[VIRTUAL_COM_PORT_DATA_SIZE];
 
-__IO  uint8_t UsbRxBuffer[64];
-__IO uint32_t UsbRxLength;
+__IO  uint8_t UsbRxBuffer[VIRTUAL_COM_PORT_DATA_SIZE];
 
 void UartUsbInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx )
 {
@@ -46,7 +42,6 @@ void UartUsbInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx )
 
 void UartUsbConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_t wordLength, StopBits_t stopBits, Parity_t parity, FlowCtrl_t flowCtrl )
 {
-    FifoInit( &obj->FifoTx, CdcTxBuffer, FIFO_RX_SIZE );
     FifoInit( &obj->FifoRx, CdcRxBuffer, FIFO_RX_SIZE );
 }
 
@@ -55,50 +50,47 @@ void UartUsbDeInit( Uart_t *obj )
 
 }
 
-uint8_t UartUsbPutChar( Uart_t *obj, uint8_t data )
+uint8_t UartUsbPutBuffer( Uart_t *obj, uint8_t *buffer, uint16_t size )
 {
-    if( UsbMcuIsDeviceConfigured( ) == false )
+    uint16_t idx = 0;
+    uint16_t usbBufferSize = VIRTUAL_COM_PORT_DATA_SIZE - 1;
+    
+    if( UsbPacketTx == 0 )
     {
-        return 2;
+        return 1; // Busy
     }
 
-    if( IsFifoFull( &obj->FifoTx ) == false )
+    while( size > usbBufferSize )
     {
-        __disable_irq( );
-        FifoPush( &obj->FifoTx, data );
-        __enable_irq( );
-
         if( UsbPacketTx == 1 )
         {
-            /*Sent flag*/
             UsbPacketTx = 0;
-            SetEPTxCount( ENDP1, 0 );
+            
+            UserToPMABufferCopy( buffer + idx, ENDP1_TXADDR, usbBufferSize );
+            size -= usbBufferSize;
+            idx += usbBufferSize;
+
+            SetEPTxCount( ENDP1, usbBufferSize );
             SetEPTxValid( ENDP1 );
         }
-        return 0; // OK
     }
-    return 1; // Busy
-//    if( UsbPacketTx == 1 )
-//    {
-//        /*Sent flag*/
-//        UsbPacketTx = 0;
-//        /* send  packet to PMA*/
-//        UserToPMABufferCopy( ( unsigned char* )&data, ENDP1_TXADDR, 1 );
-//        SetEPTxCount( ENDP1, 1 );
-//        SetEPTxValid( ENDP1 );
-//        return 0; // OK
-//    }
-//    else
-//    {
-//        if( IsFifoFull( &obj->FifoTx ) == false )
-//        {
-//            __disable_irq( );
-//            FifoPush( &obj->FifoTx, data );
-//            __enable_irq( );
-//            return 0; // OK
-//        }
-//    }
-//    return 1; // Busy
+    
+    if( size != 0 )
+    {
+        // Wait for previous transmission finalization
+        while( UsbPacketTx != 1 );
+
+        UsbPacketTx = 0;
+        UserToPMABufferCopy( buffer + idx, ENDP1_TXADDR, size );
+        SetEPTxCount( ENDP1, size );
+        SetEPTxValid( ENDP1 );
+    }
+    return 0; // OK
+}
+
+uint8_t UartUsbPutChar( Uart_t *obj, uint8_t data )
+{
+   return UartUsbPutBuffer( obj, &data, 1 );
 }
 
 uint8_t UartUsbGetChar( Uart_t *obj, uint8_t *data )
@@ -121,33 +113,17 @@ uint8_t UartUsbGetChar( Uart_t *obj, uint8_t *data )
 void EP1_IN_Callback (void)
 {
     UsbPacketTx = 1;
-    
-    UsbTxLength = 0;
-    
-    while( IsFifoEmpty( &UartUsb.FifoTx ) == false )
-    {
-        UsbTxBuffer[UsbTxLength] = FifoPop( &UartUsb.FifoTx );
-        UsbTxLength++;
-    }
-
-    if( UsbTxLength > 0 )
-    {
-        UsbPacketTx = 0;
-        UserToPMABufferCopy( ( unsigned char* )UsbTxBuffer, ENDP1_TXADDR, UsbTxLength );
-        SetEPTxCount( ENDP1, UsbTxLength );
-        SetEPTxValid( ENDP1 );
-
-    }
 }
 
 void EP3_OUT_Callback(void)
 {
     uint8_t i;
+    uint32_t size;
     
-    UsbRxLength = GetEPRxCount( ENDP3 );
-    PMAToUserBufferCopy( ( unsigned char* )UsbRxBuffer, ENDP3_RXADDR, UsbRxLength );
+    size = GetEPRxCount( ENDP3 );
+    PMAToUserBufferCopy( ( unsigned char* )UsbRxBuffer, ENDP3_RXADDR, size );
     
-    for( i = 0; i < UsbRxLength; i++ )
+    for( i = 0; i < size; i++ )
     {
         if( IsFifoFull( &UartUsb.FifoRx ) == false )
         {

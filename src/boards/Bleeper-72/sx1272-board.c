@@ -41,6 +41,7 @@ const struct Radio_s Radio =
     SX1272SetSleep,
     SX1272SetStby, 
     SX1272SetRx,
+    SX1272StartCad,
     SX1272ReadRssi,
     SX1272Write,
     SX1272Read,

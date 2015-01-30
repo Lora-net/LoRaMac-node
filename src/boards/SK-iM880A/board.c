@@ -88,32 +88,37 @@ void BoardInitMcu( void )
         SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
         SX1272IoInit( );
 
+#if( LOW_POWER_MODE_ENABLE )
+        TimerSetLowPowerEnable( true );
+#else
+        TimerSetLowPowerEnable( false );
+#endif
         BoardUnusedIoInit( );
 
-#ifdef LOW_POWER_MODE_ENABLE
-        RtcInit( );
-#else
-        TimerHwInit( );
-#endif
+        if( TimerGetLowPowerEnable( ) == true )
+        {
+            RtcInit( );
+        }
+        else
+        {
+            TimerHwInit( );
+        }
         McuInitialized = true;
     }
 }
 
 void BoardDeInitMcu( void )
 {
-    Gpio_t oscHseIn;
-    Gpio_t oscHseOut;  
-    Gpio_t oscLseIn;
-    Gpio_t oscLseOut;
+    Gpio_t ioPin;
 
     SpiDeInit( &SX1272.Spi );
     SX1272IoDeInit( );
 
-    GpioInit( &oscHseIn, OSC_HSE_IN, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &oscHseOut, OSC_HSE_OUT, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &ioPin, OSC_HSE_IN, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &ioPin, OSC_HSE_OUT, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
 
-    GpioInit( &oscLseIn, OSC_LSE_IN, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 1 );
-    GpioInit( &oscLseOut, OSC_LSE_OUT, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 1 );
+    GpioInit( &ioPin, OSC_LSE_IN, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 1 );
+    GpioInit( &ioPin, OSC_LSE_OUT, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 1 );
     
     McuInitialized = false;
 }
@@ -195,14 +200,15 @@ uint8_t BoardMeasureBatterieLevel( void )
 
 static void BoardUnusedIoInit( void )
 {
-#if !defined( USE_DEBUGGER )
-    Gpio_t jtagTms;
-    Gpio_t jtagTck;
-    Gpio_t jtagTdi;
-    Gpio_t jtagTdo;
-    Gpio_t jtagNrst;
+#if !defined( USE_USB_CDC ) || !defined( USE_DEBUGGER )
+    Gpio_t ioPin;
 #endif
 
+    /* USB */
+#if !defined( USE_USB_CDC )
+    GpioInit( &ioPin, USB_DM, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &ioPin, USB_DP, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+#endif
 #if defined( USE_DEBUGGER )
     DBGMCU_Config( DBGMCU_SLEEP, ENABLE );
     DBGMCU_Config( DBGMCU_STOP, ENABLE);
@@ -212,10 +218,10 @@ static void BoardUnusedIoInit( void )
     DBGMCU_Config( DBGMCU_STOP, DISABLE );
     DBGMCU_Config( DBGMCU_STANDBY, DISABLE );
     
-    GpioInit( &jtagTms, JTAG_TMS, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &jtagTck, JTAG_TCK, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &jtagTdi, JTAG_TDI, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &jtagTdo, JTAG_TDO, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &jtagNrst, JTAG_NRST, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 ); 
+    GpioInit( &ioPin, JTAG_TMS, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &ioPin, JTAG_TCK, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &ioPin, JTAG_TDI, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &ioPin, JTAG_TDO, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &ioPin, JTAG_NRST, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 ); 
 #endif    
 }

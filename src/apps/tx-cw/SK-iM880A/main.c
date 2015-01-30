@@ -82,7 +82,7 @@ int main( void )
     Radio.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
                                    LORA_SPREADING_FACTOR, LORA_CODINGRATE,
                                    LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
-                                   true, LORA_IQ_INVERSION_ON, 3000000 );
+                                   true, 0, 0, LORA_IQ_INVERSION_ON, 3000000 );
     
     /**********************************************/
     /*                  WARNING                   */

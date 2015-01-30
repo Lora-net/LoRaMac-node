@@ -54,8 +54,8 @@ uint8_t SX9500Reset( void );
 /*!
  * \brief Writes a byte at specified address in the device
  *
- * \param [IN]:	addr
- * \param [IN]:	data
+ * \param [IN]: addr
+ * \param [IN]: data
  * \retval status [OK, ERROR, UNSUPPORTED]
  */
 uint8_t SX9500Write( uint8_t addr, uint8_t data );

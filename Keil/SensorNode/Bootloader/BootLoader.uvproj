@@ -362,7 +362,7 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_DEBUGGER</Define>
+              <Define>USE_DEBUGGER USE_NO_TIMER</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\src;..\..\..\src\boards\SensorNode;..\..\..\src\boards\SensorNode\cmsis;..\..\..\src\boards\SensorNode\usb\dfu\inc;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\inc;..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\inc;..\..\..\src\peripherals;..\..\..\src\radio;..\..\..\src\system</IncludePath>
             </VariousControls>

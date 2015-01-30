@@ -26,24 +26,24 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * Class A&B receive delay in ms
  */
-#define CLS2_RECEIVE_DELAY1                         1000000 - RADIO_WAKEUP_TIME
-#define CLS2_RECEIVE_DELAY2                         2000000 - RADIO_WAKEUP_TIME
+#define RECEIVE_DELAY1                              1000000
+#define RECEIVE_DELAY2                              2000000
 
 /*!
  * Join accept receive delay in ms
  */
 #if defined( LORAMAC_R3 )
-#define JOIN_ACEPT_DELAY1                           5000000 - RADIO_WAKEUP_TIME
-#define JOIN_ACEPT_DELAY2                           6000000 - RADIO_WAKEUP_TIME
+#define JOIN_ACCEPT_DELAY1                          5000000
+#define JOIN_ACCEPT_DELAY2                          6000000
 #else
-#define JOIN_ACEPT_DELAY1                           1000000 - RADIO_WAKEUP_TIME
-#define JOIN_ACEPT_DELAY2                           2000000 - RADIO_WAKEUP_TIME
+#define JOIN_ACCEPT_DELAY1                          1000000
+#define JOIN_ACCEPT_DELAY2                          2000000
 #endif
 
 /*!
  * Class A&B maximum receive window delay in ms
  */
-#define CLS2_MAX_RX_WINDOW                          3000000
+#define MAX_RX_WINDOW                               3000000
 
 /*!
  * Maximum allowed gap for the FCNT field
@@ -106,8 +106,8 @@ typedef union
     {
         int8_t Min : 4;
         int8_t Max : 4;
-    }Fields;
-}DrRange_t;
+    }__attribute__((__packed__)) Fields;
+}__attribute__((__packed__)) DrRange_t;
 
 typedef struct
 {
@@ -115,13 +115,13 @@ typedef struct
     DrRange_t DrRange;  // Max datarate [0: SF12, 1: SF11, 2: SF10, 3: SF9, 4: SF8, 5: SF7, 6: SF7, 7: FSK]
                         // Min datarate [0: SF12, 1: SF11, 2: SF10, 3: SF9, 4: SF8, 5: SF7, 6: SF7, 7: FSK]
     int8_t DutyCycle;   // 0 = 100% .. 15 = 0.003%
-}ChannelParams_t;
+}__attribute__((__packed__)) ChannelParams_t;
 
 typedef struct
 {
     uint32_t Frequency; // Hz
     uint8_t  Datarate; // [0: SF12, 1: SF11, 2: SF10, 3: SF9, 4: SF8, 5: SF7, 6: SF7, 7: FSK]
-}Rx2ChannelParams_t;
+}__attribute__((__packed__)) Rx2ChannelParams_t;
 
 /*!
  * LoRaMAC frame types
@@ -137,7 +137,7 @@ typedef enum
     FRAME_TYPE_DATA_CONFIRMED_DOWN   = 0x05,
     FRAME_TYPE_RFU                   = 0x06,
     FRAME_TYPE_PROPRIETARY           = 0x07,
-}LoRaMacFrameType_t;
+}__attribute__((__packed__)) LoRaMacFrameType_t;
 #else
 typedef enum
 {
@@ -146,7 +146,7 @@ typedef enum
     FRAME_TYPE_DATA_UNCONFIRMED      = 0x02,
     FRAME_TYPE_DATA_CONFIRMED        = 0x03,
     FRAME_TYPE_PROPRIETARY           = 0x07,
-}LoRaMacFrameType_t;
+}__attribute__((__packed__)) LoRaMacFrameType_t;
 #endif
 
 /*!
@@ -160,7 +160,7 @@ typedef enum
     MOTE_MAC_RX2_SETUP_ANS           = 0x05,
     MOTE_MAC_DEV_STATUS_ANS          = 0x06,
     MOTE_MAC_NEW_CHANNEL_ANS         = 0x07,
-}LoRaMacMoteCmd_t;
+}__attribute__((__packed__)) LoRaMacMoteCmd_t;
 
 /*!
  * LoRaMAC server MAC commands
@@ -173,7 +173,7 @@ typedef enum
     SRV_MAC_RX2_SETUP_REQ            = 0x05,
     SRV_MAC_DEV_STATUS_REQ           = 0x06,
     SRV_MAC_NEW_CHANNEL_REQ          = 0x07,
-}LoRaMacSrvCmd_t;
+}__attribute__((__packed__)) LoRaMacSrvCmd_t;
 
 /*!
  * LoRaMAC Battery level indicator
@@ -184,7 +184,7 @@ typedef enum
     BAT_LEVEL_EMPTY                  = 0x01,
     BAT_LEVEL_FULL                   = 0xFE,
     BAT_LEVEL_NO_MEASURE             = 0xFF,
-}LoRaMacBatteryLevel_t;
+}__attribute__((__packed__)) LoRaMacBatteryLevel_t;
 
 /*!
  * LoRaMAC header field definition
@@ -197,8 +197,8 @@ typedef union
         uint8_t Major           : 2;
         uint8_t RFU             : 3;
         uint8_t MType           : 3;
-    }Bits;
-}LoRaMacHeader_t;
+    }__attribute__((__packed__)) Bits;
+}__attribute__((__packed__)) LoRaMacHeader_t;
 
 /*!
  * LoRaMAC frame header field definition
@@ -213,8 +213,8 @@ typedef union
         uint8_t Ack             : 1;
         uint8_t AdrAckReq       : 1;
         uint8_t Adr             : 1;
-    }Bits;
-}LoRaMacFrameCtrl_t;
+    }__attribute__((__packed__)) Bits;
+}__attribute__((__packed__)) LoRaMacFrameCtrl_t;
 
 /*!
  * LoRaMAC event flags
@@ -229,14 +229,14 @@ typedef union
         uint8_t LinkCheck       : 1;
         uint8_t                 : 4;
         uint8_t JoinAccept      : 1;
-    }Bits;
-}LoRaMacEventFlags_t;
+    }__attribute__((__packed__)) Bits;
+}__attribute__((__packed__)) LoRaMacEventFlags_t;
 
 typedef enum
 {
     LORAMAC_EVENT_INFO_STATUS_OK = 0,
     LORAMAC_EVENT_INFO_STATUS_ERROR,
-}LoRaMacEventInfoStatus_t;
+}__attribute__((__packed__)) LoRaMacEventInfoStatus_t;
 
 /*!
  * LoRaMAC event information
@@ -250,12 +250,12 @@ typedef struct
     uint8_t RxPort;
     uint8_t *RxBuffer;
     uint8_t RxBufferSize;
-    int8_t RxRssi;
+    int16_t RxRssi;
     uint8_t RxSnr;
     uint16_t Energy;
     uint8_t DemodMargin;
     uint8_t NbGateways;
-}LoRaMacEventInfo_t;
+}__attribute__((__packed__)) LoRaMacEventInfo_t;
 
 /*!
  * LoRaMAC events structure
@@ -270,7 +270,7 @@ typedef struct sLoRaMacEvent
      * \param [IN] info  Details about MAC events occurred
      */
     void ( *MacEvent )( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info );
-}LoRaMacEvent_t;
+}__attribute__((__packed__)) LoRaMacEvent_t;
 
 /*!
  * LoRaMAC layer initialization
@@ -414,6 +414,51 @@ uint8_t LoRaMacSendFrameOnChannel( ChannelParams_t channel );
  */
 uint8_t LoRaMacSendOnChannel( ChannelParams_t channel, LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl, uint8_t *fOpts, uint8_t fPort, void *fBuffer, uint16_t fBufferSize );
 
+/*
+ * TODO: Add documentations
+ */
+void LoRaMacSetChannel( uint8_t id, ChannelParams_t params );
+
+/*
+ * TODO: Add documentations
+ */
+void LoRaMacSetRx2Channel( Rx2ChannelParams_t param );
+
+/*
+ * TODO: Add documentations
+ */
+void LoRaMacSetChannelsMask( uint16_t mask );
+
+/*
+ * TODO: Add documentations
+ */
+void LoRaMacSetChannelsNbRep( uint8_t nbRep );
+
+/*
+ * TODO: Add documentations
+ */
+void LoRaMacSetMaxRxWindow( uint32_t delay );
+
+/*
+ * TODO: Add documentations
+ */
+void LoRaMacSetReceiveDelay1( uint32_t delay );
+
+/*
+ * TODO: Add documentations
+ */
+void LoRaMacSetReceiveDelay2( uint32_t delay );
+
+/*
+ * TODO: Add documentations
+ */
+void LoRaMacSetJoinAcceptDelay1( uint32_t delay );
+
+/*
+ * TODO: Add documentations
+ */
+void LoRaMacSetJoinAcceptDelay2( uint32_t delay );
+
 /*!
  * Sets channels datarate
  *
@@ -437,6 +482,16 @@ void LoRaMacSetChannelsTxPower( int8_t txPower );
  * \param [IN] enable [true: enable, false: disable]
  */
 void LoRaMacTestRxWindowsOn( bool enable );
+
+/*
+ * TODO: Add documentations
+ */
+uint32_t LoRaMacGetUpLinkCounter( void );
+
+/*
+ * TODO: Add documentations
+ */
+uint32_t LoRaMacGetDownLinkCounter( void );
 
 /*!
  * Enables the MIC field test

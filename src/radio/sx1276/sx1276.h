@@ -35,6 +35,7 @@ typedef struct
     uint32_t Datarate;
     uint16_t PreambleLen;
     bool     FixLen;
+    uint8_t  PayloadLen;
     bool     CrcOn;
     bool     IqInverted;
     bool     RxContinuous;
@@ -69,7 +70,10 @@ typedef struct
     uint8_t  Coderate;
     uint16_t PreambleLen;
     bool     FixLen;
+    uint8_t  PayloadLen;
     bool     CrcOn;
+    bool     FreqHopOn;
+    uint8_t  HopPeriod;
     bool     IqInverted;
     bool     RxContinuous;
     uint32_t TxTimeout;
@@ -81,7 +85,7 @@ typedef struct
 typedef struct
 {
     int8_t SnrValue;
-    int8_t RssiValue;
+    int16_t RssiValue;
     uint8_t Size;
 }RadioLoRaPacketHandler_t;
 
@@ -172,7 +176,7 @@ void SX1276SetChannel( uint32_t freq );
  *
  * \retval isFree         [true: Channel is free, false: Channel is not free]
  */
-bool SX1276IsChannelFree( RadioModems_t modem, uint32_t freq, int8_t rssiThresh );
+bool SX1276IsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh );
 
 /*!
  * \brief Generates a 32 bits random value based on the RSSI readings
@@ -213,7 +217,14 @@ uint32_t SX1276Random( void );
  *                          FSK : N/A ( set to 0 ) 
  *                          LoRa: timeout in symbols
  * \param [IN] fixLen       Fixed length packets [0: variable, 1: fixed]
+ * \param [IN] payloadLen   Sets payload length when fixed lenght is used
  * \param [IN] crcOn        Enables/Disables the CRC [0: OFF, 1: ON]
+ * \param [IN] FreqHopOn    Enables disables the intra-packet frequency hopping
+ *                          FSK : N/A ( set to 0 )
+ *                          LoRa: [0: OFF, 1: ON]
+ * \param [IN] HopPeriod    Number of symbols bewteen each hop
+ *                          FSK : N/A ( set to 0 )
+ *                          LoRa: Number of symbols
  * \param [IN] iqInverted   Inverts IQ signals (LoRa only)
  *                          FSK : N/A ( set to 0 )
  *                          LoRa: [0: not inverted, 1: inverted]
@@ -224,7 +235,9 @@ void SX1276SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
                          uint32_t datarate, uint8_t coderate,
                          uint32_t bandwidthAfc, uint16_t preambleLen,
                          uint16_t symbTimeout, bool fixLen,
-                         bool crcOn, bool iqInverted, bool rxContinuous );
+                         uint8_t payloadLen,
+                         bool crcOn, bool FreqHopOn, uint8_t HopPeriod,
+                         bool iqInverted, bool rxContinuous );
 
 /*!
  * \brief Sets the transmission parameters
@@ -252,6 +265,12 @@ void SX1276SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
  *                          LoRa: Length in symbols (the hardware adds 4 more symbols)
  * \param [IN] fixLen       Fixed length packets [0: variable, 1: fixed]
  * \param [IN] crcOn        Enables disables the CRC [0: OFF, 1: ON]
+ * \param [IN] FreqHopOn    Enables disables the intra-packet frequency hopping
+ *                          FSK : N/A ( set to 0 )
+ *                          LoRa: [0: OFF, 1: ON]
+ * \param [IN] HopPeriod    Number of symbols bewteen each hop
+ *                          FSK : N/A ( set to 0 )
+ *                          LoRa: Number of symbols
  * \param [IN] iqInverted   Inverts IQ signals (LoRa only)
  *                          FSK : N/A ( set to 0 )
  *                          LoRa: [0: not inverted, 1: inverted]
@@ -260,8 +279,8 @@ void SX1276SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
 void SX1276SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev, 
                         uint32_t bandwidth, uint32_t datarate,
                         uint8_t coderate, uint16_t preambleLen,
-                        bool fixLen, bool crcOn,
-                        bool iqInverted, uint32_t timeout );
+                        bool fixLen, bool crcOn, bool FreqHopOn,
+                        uint8_t HopPeriod, bool iqInverted, uint32_t timeout );
 
 /*!
  * \brief Computes the packet time on air for the given payload
@@ -301,11 +320,16 @@ void SX1276SetStby( void );
 void SX1276SetRx( uint32_t timeout );
 
 /*!
+ * \brief Start a Channel Activity Detection
+ */
+void SX1276StartCad( void );
+
+/*!
  * \brief Reads the current RSSI value
  *
  * \retval rssiValue Current RSSI value in [dBm]
  */
-int8_t SX1276ReadRssi( RadioModems_t modem );
+int16_t SX1276ReadRssi( RadioModems_t modem );
 
 /*!
  * \brief Writes the radio register at the specified address

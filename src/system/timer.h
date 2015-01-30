@@ -28,6 +28,20 @@ typedef struct TimerEvent_s
 }TimerEvent_t;
 
 /*!
+ * \brief Enables/Disables low power timers usage
+ *
+ * \param [IN] enable [true]RTC timer used, [false]Normal timer used
+ */
+void TimerSetLowPowerEnable( bool enable );
+
+/*!
+ * \brief Initializes the timer object
+ *
+ * \retval enable [true]RTC timer used, [false]Normal timer used
+ */
+bool TimerGetLowPowerEnable( void );
+
+/*!
  * \brief Initializes the timer object
  *
  * \remark TimerSetValue function must be called before starting the timer.

@@ -87,13 +87,13 @@ void BoardInitPeriph( void )
     GpioInit( &Led3, LED_3, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &Led4, LED_4, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 
-    // Init Temperature, pressure and altitude sensor
+    // Init temperature, pressure and altitude sensor
     MPL3115Init( );
 
-    // Init Accelerometer
+    // Init accelerometer
     MMA8451Init( );
     
-    // Init Magnetometer
+    // Init magnetometer
     MAG3110Init( );
 
     // Init SAR
@@ -124,48 +124,67 @@ void BoardInitMcu( void )
         // Disable Systick
         SysTick->CTRL  &= ~SysTick_CTRL_TICKINT_Msk;    // Systick IRQ off 
         SCB->ICSR |= SCB_ICSR_PENDSTCLR_Msk;            // Clear SysTick Exception pending flag
-			
+
         I2cInit( &I2c, I2C_SCL, I2C_SDA );
-        
+
         SpiInit( &SX1276.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
         SX1276IoInit( );
 
-        BoardUnusedIoInit( );
 
 #if defined( USE_USB_CDC )
-        UsbMcuInit( );
-        UartInit( &UartUsb, UART_USB_CDC, NC, NC );
-        UartConfig( &UartUsb, RX_TX, 115200, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
+        {
+            Gpio_t usbDM;
+
+            GpioInit( &usbDM, USB_DM, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
+
+            if( GpioRead( &usbDM ) == 0 )
+            {
+                TimerSetLowPowerEnable( false );
+                UsbMcuInit( );
+                UartInit( &UartUsb, UART_USB_CDC, NC, NC );
+                UartConfig( &UartUsb, RX_TX, 115200, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
+            }
+            else
+            {
+                TimerSetLowPowerEnable( true );
+                GpioInit( &usbDM, USB_DM, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+            }
+        }
+#elif( LOW_POWER_MODE_ENABLE )
+        TimerSetLowPowerEnable( true );
+#else
+        TimerSetLowPowerEnable( false );
 #endif
+        BoardUnusedIoInit( );
 
         GpioInit( &UsbDetect, USB_ON, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
         GpioInit( &BatVal, BAT_LEVEL, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 								
-#ifdef LOW_POWER_MODE_ENABLE
-        RtcInit( );
-#else
-        TimerHwInit( );
-#endif
+        if( TimerGetLowPowerEnable( ) == true )
+        {
+            RtcInit( );
+        }
+        else
+        {
+            TimerHwInit( );
+        }
         McuInitialized = true;
     }
 }
 
 void BoardDeInitMcu( void )
 {
-    Gpio_t oscHseIn;
-    Gpio_t oscHseOut;  
-    Gpio_t oscLseIn;
-    Gpio_t oscLseOut;
+    Gpio_t ioPin;
 
     I2cDeInit( &I2c );
     SpiDeInit( &SX1276.Spi );
     SX1276IoDeInit( );
 
-    GpioInit( &oscHseIn, OSC_HSE_IN, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &oscHseOut, OSC_HSE_OUT, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &ioPin, OSC_HSE_IN, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &ioPin, OSC_HSE_OUT, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 
-    GpioInit( &oscLseIn, OSC_LSE_IN, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &oscLseOut, OSC_LSE_OUT, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &ioPin, OSC_LSE_IN, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &ioPin, OSC_LSE_OUT, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     
     GpioInit( &UsbDetect, USB_ON, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 	
@@ -268,7 +287,7 @@ static void BoardUnusedIoInit( void )
     /* USB */
 #if !defined( USE_USB_CDC )
     GpioInit( &ioPin, USB_DM, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &ioPin, USB_DP, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 ); 
+    GpioInit( &ioPin, USB_DP, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 #endif
 
     GpioInit( &ioPin, TEST_POINT1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );

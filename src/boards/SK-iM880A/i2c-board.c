@@ -20,6 +20,8 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 #define TIMEOUT_MAX                                 0x8000 
 
+I2cAddrSize I2cInternalAddrSize = I2C_ADDR_SIZE_8;
+
 /*!
  * MCU I2C peripherals enumeration
  */
@@ -110,6 +112,11 @@ void I2cMcuDeInit( I2c_t *obj )
     GpioInit( &obj->Sda, obj->Sda.pin, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 }
 
+void I2cSetAddrSize( I2c_t *obj, I2cAddrSize addrSize )
+{
+    I2cInternalAddrSize = addrSize;
+}
+
 uint8_t I2cMcuWriteBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t *buffer, uint16_t size )
 {
     uint32_t timeOut;
@@ -161,7 +168,7 @@ uint8_t I2cMcuWriteBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_
         }
     }
 
-    if( ( addr & 0xFF00 ) != 0x0000 ) 
+    if( I2cInternalAddrSize == I2C_ADDR_SIZE_16 )
     {
         /* Send the device's internal address MSB to write to */
         I2C_SendData( obj->I2c, ( uint8_t )( ( addr & 0xFF00 ) >> 8 )  );
@@ -291,7 +298,7 @@ uint8_t I2cMcuReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t
         }
     }
 
-    if( ( addr & 0xFF00 ) != 0x0000 )
+    if( I2cInternalAddrSize == I2C_ADDR_SIZE_16 )
     {
         /* Send the device's internal address MSB to write to */
         I2C_SendData( obj->I2c, ( uint8_t )( ( addr & 0xFF00 ) >> 8 )  );
@@ -377,7 +384,7 @@ uint8_t I2cMcuReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t
         I2C_AcknowledgeConfig( obj->I2c, DISABLE );  
     
         /* Clear ADDR register by reading SR1 then SR2 register (SR1 has already been read) */
-        (void)obj->I2c->SR2;
+        ( void )obj->I2c->SR2;
     
         /* Send STOP Condition */
         I2C_GenerateSTOP( obj->I2c, ENABLE );
@@ -403,9 +410,29 @@ uint8_t I2cMcuReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t
     }
     else
     {
+        timeOut = TIMEOUT_MAX;
+        while( I2C_CheckEvent( obj->I2c, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED ) == ERROR )
+        {
+            if( ( timeOut-- ) == 0 )
+            {
+                I2cResetBus( obj );
+
+                __enable_irq( );
+                return( FAIL );
+            }
+        }
+        
         while( size )
         {
-             /* Wait for the byte to be received */
+            if( size == 1 )
+            {            
+                /* Disable Acknowledgement */
+                I2C_AcknowledgeConfig( obj->I2c, DISABLE );
+
+                /* Send STOP Condition */
+                I2C_GenerateSTOP( obj->I2c, ENABLE );
+            }
+        
             timeOut = TIMEOUT_MAX;
             while( I2C_GetFlagStatus( obj->I2c, I2C_FLAG_RXNE ) == RESET )
             {
@@ -416,17 +443,8 @@ uint8_t I2cMcuReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t
                     __enable_irq( );
                     return( FAIL );
                 }
-            } 
-        
-            if( size == 1 )
-            {            
-                /* Disable Acknowledgement */
-                I2C_AcknowledgeConfig( obj->I2c, DISABLE );
-
-                /* Send STOP Condition */
-                I2C_GenerateSTOP( obj->I2c, ENABLE );
             }
-        
+            
             /* Read a byte from the device */
             *buffer = I2C_ReceiveData( obj->I2c );
 
@@ -439,7 +457,7 @@ uint8_t I2cMcuReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t
         
         /* Wait to make sure that STOP control bit has been cleared */
         timeOut = TIMEOUT_MAX;
-        while(obj->I2c->CR1 & I2C_CR1_STOP)
+        while( obj->I2c->CR1 & I2C_CR1_STOP )
         {
             if( ( timeOut-- ) == 0 )
             {
@@ -449,10 +467,116 @@ uint8_t I2cMcuReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t
                 return( FAIL );
             }
         }
-        /*!< Re-Enable Acknowledgement to be ready for another reception */
-        I2C_AcknowledgeConfig( obj->I2c, ENABLE );   
     }
+
+    /*!< Re-Enable Acknowledgement to be ready for another reception */
+    I2C_AcknowledgeConfig( obj->I2c, ENABLE );   
 
     __enable_irq( );
     return( SUCCESS );
+}
+
+/* Maximum Timeout values for flags and events waiting loops. These timeouts are
+   not based on accurate values, they just guarantee that the application will 
+   not remain stuck if the I2C communication is corrupted.
+   You may modify these timeout values depending on CPU frequency and application
+   conditions (interrupts routines ...). */   
+#define EE_FLAG_TIMEOUT         ( ( uint32_t )0x1000 )
+#define EE_LONG_TIMEOUT         ( ( uint32_t )( 10 * EE_FLAG_TIMEOUT ) )
+
+/* Maximum number of trials for I2cMcuWaitStandbyState( ) function */
+#define EE_MAX_TRIALS_NUMBER     300
+
+uint8_t I2cMcuWaitStandbyState( I2c_t *obj, uint8_t deviceAddr )
+{
+    uint32_t timeOut;
+    __IO uint16_t tmpSR1 = 0;
+    __IO uint32_t trials = 0;
+
+    __disable_irq( );
+
+    /*!< While the bus is busy */
+    timeOut = EE_LONG_TIMEOUT;
+    while( I2C_GetFlagStatus( obj->I2c, I2C_FLAG_BUSY ) )
+    {
+        if( ( timeOut-- ) == 0 )
+        {
+            I2cResetBus( obj );
+            __enable_irq( );
+            return( FAIL );
+        }
+    }
+  
+    /* Keep looping till the slave acknowledge his address or maximum number 
+       of trials is reached (this number is defined by EE_MAX_TRIALS_NUMBER define
+       in eeProm.h file) */
+    while( 1 )
+    {
+        /*!< Send START condition */
+        I2C_GenerateSTART( obj->I2c, ENABLE );
+    
+        /*!< Test on EV5 and clear it */
+        timeOut = EE_FLAG_TIMEOUT;
+        while( !I2C_CheckEvent( obj->I2c, I2C_EVENT_MASTER_MODE_SELECT ) )
+        {
+            if( ( timeOut-- ) == 0 )
+            {
+                I2cResetBus( obj );
+
+                __enable_irq( );
+                return( FAIL );
+            }
+        }    
+    
+        /*!< Send device address for write */
+        I2C_Send7bitAddress( obj->I2c, deviceAddr, I2C_Direction_Transmitter );
+        
+        /* Wait for ADDR flag to be set (Slave acknowledged his address) */
+        timeOut = EE_LONG_TIMEOUT;
+        do
+        {     
+            /* Get the current value of the SR1 register */
+            tmpSR1 = obj->I2c->SR1;
+            
+            /* Update the timeout value and exit if it reach 0 */
+            if( ( timeOut-- ) == 0 )
+            {
+                I2cResetBus( obj );
+                __enable_irq( );
+                return( FAIL );
+            }
+        }
+        /* Keep looping till the Address is acknowledged or the AF flag is 
+           set (address not acknowledged at time) */
+        while( ( tmpSR1 & ( I2C_SR1_ADDR | I2C_SR1_AF ) ) == 0 );
+         
+        /* Check if the ADDR flag has been set */
+        if ( tmpSR1 & I2C_SR1_ADDR )
+        {
+            /* Clear ADDR Flag by reading SR1 then SR2 registers (SR1 have already 
+               been read) */
+            ( void )obj->I2c->SR2;
+            
+            /*!< STOP condition */    
+            I2C_GenerateSTOP( obj->I2c, ENABLE );
+            
+            /* Exit the function */
+            __enable_irq( );
+            return ( SUCCESS  );
+        }
+        else
+        {
+            /*!< Clear AF flag */
+            I2C_ClearFlag( obj->I2c, I2C_FLAG_AF );                  
+        }
+        
+        /* Check if the maximum allowed number of trials has bee reached */
+        if ( trials++ == EE_MAX_TRIALS_NUMBER )
+        {
+            I2cResetBus( obj );
+            /* If the maximum number of trials has been reached, exit the function */
+            __enable_irq( );
+            return( FAIL );
+        }
+    }
 }

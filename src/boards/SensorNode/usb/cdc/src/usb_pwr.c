@@ -116,100 +116,27 @@ RESULT PowerOff()
 *******************************************************************************/
 void Suspend(void)
 {
-	uint32_t i =0;
 	uint16_t wCNTR;
-	uint32_t tmpreg = 0;
-  __IO uint32_t savePWR_CR=0;
 	/* suspend preparation */
 	/* ... */
-	
-	/*Store CNTR value */
-	wCNTR = _GetCNTR();  
 
-    /* This a sequence to apply a force RESET to handle a robustness case */
-    
-	/*Store endpoints registers status */
-    for (i=0;i<8;i++) EP[i] = _GetENDPOINT(i);
-	
-	/* unmask RESET flag */
-	wCNTR|=CNTR_RESETM;
-	_SetCNTR(wCNTR);
-	
-	/*apply FRES */
-	wCNTR|=CNTR_FRES;
-	_SetCNTR(wCNTR);
-	
-	/*clear FRES*/
-	wCNTR&=~CNTR_FRES;
-	_SetCNTR(wCNTR);
-	
-	/*poll for RESET flag in ISTR*/
-	while((_GetISTR()&ISTR_RESET) == 0);
-	
-	/* clear RESET flag in ISTR */
-	_SetISTR((uint16_t)CLR_RESET);
-	
-	/*restore Enpoints*/
-	for (i=0;i<8;i++)
-	_SetENDPOINT(i, EP[i]);
-	
-	/* Now it is safe to enter macrocell in suspend mode */
+	/* macrocell enters suspend mode */
+	wCNTR = _GetCNTR();
 	wCNTR |= CNTR_FSUSP;
 	_SetCNTR(wCNTR);
-	
+
+	/* ------------------ ONLY WITH BUS-POWERED DEVICES ---------------------- */
+	/* power reduction */
+	/* ... on connected devices */
+
 	/* force low-power mode in the macrocell */
 	wCNTR = _GetCNTR();
 	wCNTR |= CNTR_LPMODE;
 	_SetCNTR(wCNTR);
-	
-	/*prepare entry in low power mode (STOP mode)*/
-	/* Select the regulator state in STOP mode*/
-	savePWR_CR = PWR->CR;
-	tmpreg = PWR->CR;
-	/* Clear PDDS and LPDS bits */
-	tmpreg &= ((uint32_t)0xFFFFFFFC);
-	/* Set LPDS bit according to PWR_Regulator value */
-	tmpreg |= PWR_Regulator_LowPower;
-	/* Store the new value */
-	PWR->CR = tmpreg;
-	/* Set SLEEPDEEP bit of Cortex System Control Register */
-#if defined (STM32F30X) || defined (STM32F37X)
-        SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
-#else
-        SCB->SCR |= SCB_SCR_SLEEPDEEP;       
-#endif
-	
-	/* enter system in STOP mode, only when wakeup flag in not set */
-	if((_GetISTR()&ISTR_WKUP)==0)
-	{
-		__WFI();
-		/* Reset SLEEPDEEP bit of Cortex System Control Register */
-#if defined (STM32F30X) || defined (STM32F37X)
-                SCB->SCR &= (uint32_t)~((uint32_t)SCB_SCR_SLEEPDEEP_Msk); 
-#else
-                SCB->SCR &= (uint32_t)~((uint32_t)SCB_SCR_SLEEPDEEP); 
-#endif
-	}
-	else
-	{
-		/* Clear Wakeup flag */
-		_SetISTR(CLR_WKUP);
-		/* clear FSUSP to abort entry in suspend mode  */
-        wCNTR = _GetCNTR();
-        wCNTR&=~CNTR_FSUSP;
-        _SetCNTR(wCNTR);
-		
-		/*restore sleep mode configuration */ 
-		/* restore Power regulator config in sleep mode*/
-		PWR->CR = savePWR_CR;
-		
-		/* Reset SLEEPDEEP bit of Cortex System Control Register */
-#if defined (STM32F30X) || defined (STM32F37X)		
-                SCB->SCR &= (uint32_t)~((uint32_t)SCB_SCR_SLEEPDEEP_Msk);
-#else
-                SCB->SCR &= (uint32_t)~((uint32_t)SCB_SCR_SLEEPDEEP);
-#endif
-    }
+
+	/* switch-off the clocks */
+	/* ... */
+	Enter_LowPowerMode();
 }
 
 /*******************************************************************************

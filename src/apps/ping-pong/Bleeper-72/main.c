@@ -85,7 +85,7 @@ void OnTxDone( void );
 /*!
  * \brief Function to be executed on Radio Rx Done event
  */
-void OnRxDone( uint8_t *payload, uint16_t size, int8_t rssi, int8_t snr );
+void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr );
 
 /*!
  * \brief Function executed on Radio Tx Timeout event
@@ -130,24 +130,24 @@ int main( void )
     Radio.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
                                    LORA_SPREADING_FACTOR, LORA_CODINGRATE,
                                    LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
-                                   true, LORA_IQ_INVERSION_ON, 3000000 );
+                                   true, 0, 0, LORA_IQ_INVERSION_ON, 3000000 );
     
     Radio.SetRxConfig( MODEM_LORA, LORA_BANDWIDTH, LORA_SPREADING_FACTOR,
                                    LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGTH,
                                    LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
-                                   true, LORA_IQ_INVERSION_ON, true );
+                                   0, true, 0, 0, LORA_IQ_INVERSION_ON, true );
 
 #elif defined( USE_MODEM_FSK )
 
     Radio.SetTxConfig( MODEM_FSK, TX_OUTPUT_POWER, FSK_FDEV, 0,
                                   FSK_DATARATE, 0,
                                   FSK_PREAMBLE_LENGTH, FSK_FIX_LENGTH_PAYLOAD_ON,
-                                  true, 0, 3000000 );
+                                  true, 0, 0, 0, 3000000 );
     
     Radio.SetRxConfig( MODEM_FSK, FSK_BANDWIDTH, FSK_DATARATE,
                                   0, FSK_AFC_BANDWIDTH, FSK_PREAMBLE_LENGTH,
-                                  0, FSK_FIX_LENGTH_PAYLOAD_ON, true,
-                                  false, true );
+                                  0, FSK_FIX_LENGTH_PAYLOAD_ON, 0, true,
+                                  0, 0,false, true );
 
 #else
     #error "Please define a frequency band in the compiler options."
@@ -188,6 +188,11 @@ int main( void )
                         GpioWrite( &Led2, 1 ); // Set LED off
                         Radio.Rx( RX_TIMEOUT_VALUE );
                     }
+					else // valid reception but neither a PING or a PONG message
+                    {    // Set device as master ans start again
+                        isMaster = true;
+                        Radio.Rx( RX_TIMEOUT_VALUE );
+                    }
                 }
             }
             else
@@ -212,6 +217,11 @@ int main( void )
                         DelayMs( 1 );
                         Radio.Send( Buffer, BufferSize );
                     }
+					else // valid reception but not a PING as expected
+                    {    // Set device as master and start again
+                        isMaster = true;
+                        Radio.Rx( RX_TIMEOUT_VALUE );
+                    }   
                 }
             }
             State = LOWPOWER;
@@ -262,10 +272,11 @@ int main( void )
 
 void OnTxDone( void )
 {
+    Radio.Sleep( );
     State = TX;
 }
 
-void OnRxDone( uint8_t *payload, uint16_t size, int8_t rssi, int8_t snr )
+void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
 {
     Radio.Sleep( );
     BufferSize = size;

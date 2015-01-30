@@ -69,6 +69,7 @@ void Virtual_Com_Port_init(void);
 void Virtual_Com_Port_Reset(void);
 void Virtual_Com_Port_SetConfiguration(void);
 void Virtual_Com_Port_SetDeviceAddress (void);
+bool Virtual_ComPort_IsOpen( void );
 void Virtual_Com_Port_Status_In (void);
 void Virtual_Com_Port_Status_Out (void);
 RESULT Virtual_Com_Port_Data_Setup(uint8_t);

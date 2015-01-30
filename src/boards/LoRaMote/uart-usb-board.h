@@ -54,6 +54,16 @@ void UartUsbDeInit( Uart_t *obj );
 uint8_t UartUsbPutChar( Uart_t *obj, uint8_t data );
 
 /*!
+ * \brief Sends a buffer to the UART
+ *
+ * \param [IN] obj    UART object
+ * \param [IN] buffer Buffer to be sent
+ * \param [IN] size   Buffer size
+ * \retval status     [0: OK, 1: Busy, 2: Not configured]
+ */
+uint8_t UartUsbPutBuffer( Uart_t *obj, uint8_t *buffer, uint16_t size );
+
+/*!
  * \brief Gets a character from the UART
  *
  * \param [IN] obj   UART object

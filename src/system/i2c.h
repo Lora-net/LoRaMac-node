@@ -52,42 +52,42 @@ void I2cResetBus( I2c_t *obj );
  * \brief Write data to the I2C device
  *
  * \param [IN] obj              I2C object
- * \param [IN] deviceAddress    device address
- * \param [IN] registerAddress  register address
+ * \param [IN] deviceAddr       device address
+ * \param [IN] addr             data address
  * \param [IN] data             data to write
  */
-uint8_t I2cWrite( I2c_t *obj, uint8_t deviceAddress, uint8_t registerAddress, uint8_t *data );
+uint8_t I2cWrite( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t data );
 
 /*!
  * \brief Write several data to the I2C device
  *
  * \param [IN] obj              I2C object
- * \param [IN] deviceAddress    device address
- * \param [IN] registerAddress  register address
- * \param [IN] data             data buffer to write
- * \param [IN] size             number of data byte to write
+ * \param [IN] deviceAddr       device address
+ * \param [IN] addr             data address
+ * \param [IN] buffer           data buffer to write
+ * \param [IN] size             number of bytes to write
  */
-uint8_t I2cWriteBuffer( I2c_t *obj, uint8_t deviceAddress, uint8_t registerAddress, uint8_t *data, uint8_t size );
+uint8_t I2cWriteBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t *buffer, uint16_t size );
 
 /*!
  * \brief Read data from the I2C device
  *
  * \param [IN] obj              I2C object
- * \param [IN] deviceAddress    device address
- * \param [IN] registerAddress  register address
- * \param [IN] data             data buffer used to store the data read
+ * \param [IN] deviceAddr       device address
+ * \param [IN] addr             data address
+ * \param [OUT] data            variable used to store the data read
  */
-uint8_t I2cRead( I2c_t *obj, uint8_t deviceAddress, uint8_t registerAddress, uint8_t *data );
+uint8_t I2cRead( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t *data );
 
 /*!
  * \brief Read several data byte from the I2C device
  *
  * \param [IN] obj              I2C object
- * \param [IN] deviceAddress    device address
- * \param [IN] registerAddress  register address
- * \param [IN] data             data buffer used to store the data read
+ * \param [IN] deviceAddr       device address
+ * \param [IN] addr             data address
+ * \param [OUT] buffer          data buffer used to store the data read
  * \param [IN] size             number of data byte to read
  */
-uint8_t I2cReadBuffer( I2c_t *obj, uint8_t deviceAddress, uint8_t registerAddress, uint8_t *data, uint8_t size );
+uint8_t I2cReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t *buffer, uint16_t size );
 
 #endif  // __I2C_H__

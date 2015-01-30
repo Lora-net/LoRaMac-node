@@ -242,8 +242,11 @@ int main( void )
 
     // Initialize MAC frame
     macHdr.Value = 0;
+#if defined( LORAMAC_R3 )
+    macHdr.Bits.MType = FRAME_TYPE_DATA_UNCONFIRMED_UP;
+#else
     macHdr.Bits.MType = FRAME_TYPE_DATA_UNCONFIRMED;
-
+#endif
     fCtrl.Value = 0;
     fCtrl.Bits.OptionsLength = 0;
     fCtrl.Bits.FPending      = 0;

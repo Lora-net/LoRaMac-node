@@ -28,13 +28,73 @@ void NMI_Handler( void )
  * \param  None
  * \retval None
  */
-void HardFault_Handler( void )
+#if defined( HARD_FAULT_HANDLER_ENABLED )
+void HardFault_Handler_C( unsigned int *args )
 {
-    /* Go to infinite loop when Hard Fault exception occurs */
-    while( 1 )
-    {
-    }
+    __IO unsigned int stacked_r0;
+    __IO unsigned int stacked_r1;
+    __IO unsigned int stacked_r2;
+    __IO unsigned int stacked_r3;
+    __IO unsigned int stacked_r12;
+    __IO unsigned int stacked_lr;
+    __IO unsigned int stacked_pc;
+    __IO unsigned int stacked_psr;
+
+    stacked_r0 = ( ( unsigned long) args[0] );
+    stacked_r1 = ( ( unsigned long) args[1] );
+    stacked_r2 = ( ( unsigned long) args[2] );
+    stacked_r3 = ( ( unsigned long) args[3] );
+
+    stacked_r12 = ( ( unsigned long) args[4] );
+    stacked_lr = ( ( unsigned long) args[5] );
+    stacked_pc = ( ( unsigned long) args[6] );
+    stacked_psr = ( ( unsigned long) args[7] );
+
+    ( void )stacked_r0;    
+    ( void )stacked_r1;
+    ( void )stacked_r2;
+    ( void )stacked_r3;
+
+    ( void )stacked_r12;
+    ( void )stacked_lr ;
+    ( void )stacked_pc ;
+    ( void )stacked_psr;
+    
+    while( 1 );
 }
+
+#if defined(__CC_ARM)
+__asm void HardFault_Handler(void)
+{
+    TST LR, #4
+    ITE EQ
+    MRSEQ r0, MSP
+    MRSNE r0, PSP
+    B __cpp(HardFault_Handler_C)
+}
+#elif defined(__ICCARM__)
+void HardFault_Handler(void)
+{
+    __asm("TST LR, #4");
+    __asm("ITE EQ");
+    __asm("MRSEQ r0, MSP");
+    __asm("MRSNE r0, PSP");
+    __asm("B HardFault_Handler_C");
+}
+#elif defined(__GNUC__)
+void HardFault_Handler(void)
+{
+    __asm volatile( "TST LR, #4" );
+    __asm volatile( "ITE EQ" );
+    __asm volatile( "MRSEQ R0, MSP" );
+    __asm volatile( "MRSNE R0, PSP" );
+    __asm volatile( "B HardFault_Handler_C" );
+}
+#else
+    #warning Not supported compiler type
+#endif
+
+#endif
 
 /*!
  * \brief  This function handles Memory Manage exception.

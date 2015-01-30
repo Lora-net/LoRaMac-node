@@ -69,8 +69,6 @@ void UsbMcuLeaveLowPowerMode( void )
     {
         bDeviceState = ATTACHED;
     }
-    /*Enable SystemCoreClock*/
-    SystemInit( );
 }
 
 void UsbMcuCableConfig( FunctionalState newState )
@@ -125,7 +123,7 @@ static void IntToUnicode( uint32_t value , uint8_t *pbuf , uint8_t len )
 
 bool UsbMcuIsDeviceConfigured( void )
 {
-    return bDeviceState == CONFIGURED;
+    return Virtual_ComPort_IsOpen( );
 }
 
 void USB_LP_IRQHandler(void)

@@ -13,11 +13,20 @@ SX1272/76 radio drivers plus Ping-Pong firmware and LoRa MAC node firmware imple
 The aim of this project is to show an example of the LoRaMac endpoint firmware
 implementation.
 
-**REMARK 1:** This is a Class A endpoint.
+**REMARK 1:** Next version of the project will include big changes.
 
-**REMARK 2:** Implements version R3.0 of LoRaMac specification.
+*This is the last version based on the Semtech LoRaMac implementation. The next
+version will be based on the [IBM 'LoRaWAN in C'](http://www.research.ibm.com/labs/zurich/ics/lrsc/lmic.html)
+implementation.*
 
-*LoRaMac R3.0 has been made incompatible with previous versions of the specification.*
+*The IBM 'LoRaWAN in C' implementation adds the support of the Class A endpoint
+fully implemented and Class B endpoints.*
+
+*The biggest change resides on the MAC layer API which is completely different.*
+
+**REMARK 2:** This is a Class A endpoint.
+
+**REMARK 3:** Implements version R3.0 of LoRaMac specification.
 
 *By default the LORAMAC_R3 compiler option is enabled. Disabling this option will enable LoRaMac specification R2.2.1*
 
@@ -122,7 +131,7 @@ platforms are:
 
 5. Usage
 ---------
-Projects for Ride7 and Keil Integrated Development Environments are available.
+Projects for CooCox-CoIDE (partial), Ride7 and Keil Integrated Development Environments are available.
 
 One project is available per application and for each hardware platform in each
 development environment. Different targets/configurations have been created in
@@ -131,6 +140,50 @@ not of a bootloader and the radio frequency band to be used.
 
 6. Changelog
 -------------
+2015-01-30, v3.1
+* General
+    1. Started to add support for CooCox CoIDE Integrated Development Environment.
+       Currently only LoRaMote and SensorNode platform projects are available.
+    2. Updated GCC compiler linker scripts.
+    3. Added the support of different tool chains for the HardFault_Handler function.
+
+    4. Corrected Radio drivers I&Q signals inversion to be possible in Rx and in Tx.
+       Added some missing radio state machine initialization.
+    5. Changed the RSSI values type from int8_t to int16_t. We can have RSSI values below -128 dBm.
+    6. Corrected SNR computation on RxDone interrupt.
+    7. Updated radio API to support FHSS and CAD handling.
+    8. Corrected in SetRxConfig function the FSK modem preamble register name.
+    9. Added an invalid bandwidth to the Bandwidths table in order to avoid an error
+       when selecting 250 kHz bandwidth when using FSK modem.
+
+    10. Corrected RTC alarm setup which could be set to an invalid date.
+    11. Added another timer in order increment the tick counter without blocking the normal timer count.
+    12. Added the possibility to switch between low power timers and normal timers on the fly.
+    13. I2C driver corrected the 2 bytes internal address management. 
+        Corrected buffer read function when more that 1 byte was to be read.
+        Added a function to wait for the I2C bus to become IDLE.
+    14. Added an I2C EEPROM driver.
+    15. Corrected and improved USB Virtual COM Port management files.
+        Corrected the USB CDC and USB UART drivers.
+    16. Added the possibility to analyze a hard fault interrupt.
+
+* LoRaMac
+    1. Corrected RxWindow2 Datarate management.
+    2. SrvAckRequested variable was never reset.
+    3. Corrected tstIndoor applications for LoRaMac R3.0 support.
+    4. LoRaMac added the possibility to configure almost all the MAC parameters.
+    5. Corrected the LoRaMacSetNextChannel function. 
+    6. Corrected the port 0 MAC command decoding.
+    7. Changed all structures declarations to be packed.
+    8. Corrected the Acknowledgement retries management when only 1 trial is needed.
+       Before the device was issuing at least 2 trials.
+    9. Corrected server mac new channel req answer.
+    10. Added the functions to read the Up and Down Link sequence counters.
+    11. Corrected SRV_MAC_RX2_SETUP_REQ frequency handling. Added a 100 multiplication.
+    12. Corrected SRV_MAC_NEW_CHANNEL_REQ. Removed the DutyCycle parameter decoding.
+    13. Automatically activate the channel once it is created. 
+    14. Corrected NbRepTimeoutTimer initial value. RxWindow2Delay already contains RxWindow1Delay in it.
+
 2014-07-18, v3.0
 * General
     1. Added to Radio API the possibility to select the modem.

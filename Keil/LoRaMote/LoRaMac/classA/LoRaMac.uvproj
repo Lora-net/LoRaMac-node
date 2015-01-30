@@ -1052,7 +1052,7 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_DEBUGGER LOW_POWER_MODE_ENABLE USE_BAND_868 USE_BOOTLOADER LORAMAC_R3</Define>
+              <Define>USE_DEBUGGER LOW_POWER_MODE_ENABLE USE_BAND_868 LORAMAC_R3 USE_BOOTLOADER</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -2432,7 +2432,7 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_DEBUGGER LOW_POWER_MODE_ENABLE USE_BAND_915 USE_BOOTLOADER LORAMAC_R3</Define>
+              <Define>USE_DEBUGGER LOW_POWER_MODE_ENABLE USE_BAND_915 LORAMAC_R3 USE_BOOTLOADER</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
