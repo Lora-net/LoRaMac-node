@@ -166,7 +166,7 @@ void LoRaMacJoinComputeMic( uint8_t *buffer, uint16_t size, const uint8_t *key, 
 void LoRaMacJoinDecrypt( uint8_t *buffer, uint16_t size, const uint8_t *key, uint8_t *decBuffer )
 {
     memset1( AesContext.ksch, '\0', 240 );
-    aes_set_key( key, size, &AesContext );
+    aes_set_key( key, 16, &AesContext );
     aes_encrypt( buffer, decBuffer, &AesContext );
     // Check if optional CFList is included
     if( size >= 16 )
