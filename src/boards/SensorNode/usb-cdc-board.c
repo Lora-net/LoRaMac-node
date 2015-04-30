@@ -16,7 +16,7 @@ extern LINE_CODING linecoding;
 
 void UsbMcuInit( void )
 {
-    NVIC_InitTypeDef NVIC_InitStructure; 
+    NVIC_InitTypeDef NVIC_InitStructure;
 
     /* Enable the SYSCFG module clock */
     RCC_APB2PeriphClockCmd( RCC_APB2Periph_SYSCFG, ENABLE );
@@ -26,7 +26,7 @@ void UsbMcuInit( void )
     EXTI_InitStructure.EXTI_Line = EXTI_Line18;
     EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
     EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-    EXTI_Init( &EXTI_InitStructure ); 
+    EXTI_Init( &EXTI_InitStructure );
 
     /* Enable USB clock */
     RCC_APB1PeriphClockCmd( RCC_APB1Periph_USB, ENABLE );
@@ -112,7 +112,7 @@ static void IntToUnicode( uint32_t value , uint8_t *pbuf , uint8_t len )
         }
         else
         {
-            pbuf[2 * idx] = ( value >> 28 ) + 'A' - 10; 
+            pbuf[2 * idx] = ( value >> 28 ) + 'A' - 10;
         }
 
         value = value << 4;

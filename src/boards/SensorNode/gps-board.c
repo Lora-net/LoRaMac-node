@@ -45,7 +45,7 @@ void GpsMcuInit( void )
 
     //FifoInit( &Uart1.FifoTx, TxBuffer, FIFO_TX_SIZE );
     FifoInit( &Uart1.FifoRx, RxBuffer, FIFO_RX_SIZE );
-    Uart1.IrqNotify = GpsMcuIrqNotify;    
+    Uart1.IrqNotify = GpsMcuIrqNotify;
 
     //GpioWrite( &GpsPowerEn, 1 );  // power down the GPS
     GpioWrite( &GpsPowerEn, 0 );    // power up the GPS

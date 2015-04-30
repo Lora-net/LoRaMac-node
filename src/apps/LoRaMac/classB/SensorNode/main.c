@@ -123,28 +123,94 @@ static TimerEvent_t JoinReqTimer;
  */
 static bool TxNextPacket = true;
 static bool TxDone = false;
-static bool RxDone = false;
-static bool TxAckReceived = false;
+
+static uint8_t AppPort = 2;
+static uint8_t AppDataSize = APP_DATA_SIZE;
 
 static bool AppLedStateOn = false;
 
 static LoRaMacEvent_t LoRaMacEvents;
 
 static TimerEvent_t Led1Timer;
-volatile bool Led1TimerEvent = false;
-
 static TimerEvent_t Led2Timer;
-volatile bool Led2TimerEvent = false;
-
 static TimerEvent_t Led4Timer;
-volatile bool Led4TimerEvent = false;
+
+/*!
+ *
+ */
+static void PrepareTxFrame( uint8_t port )
+{
+    uint16_t pressure = 0;
+    int16_t altitudeBar = 0;
+    int16_t temperature = 0;
+    int32_t latitude, longitude = 0;
+    uint16_t altitudeGps = 0xFFFF;
+    uint8_t batteryLevel = 0;
+
+    pressure = ( uint16_t )( MPL3115ReadPressure( ) / 10 );             // in hPa / 10
+    temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
+    altitudeBar = ( int16_t )( MPL3115ReadAltitude( ) * 10 );           // in m * 10
+    batteryLevel = BoardMeasureBatterieLevel( );                        // 1 (very low) to 254 (fully charged)
+    GpsGetLatestGpsPositionBinary( &latitude, &longitude );
+    altitudeGps = GpsGetLatestGpsAltitude( );                           // in m
+
+    AppData[0] = AppLedStateOn;
+    AppData[1] = ( pressure >> 8 ) & 0xFF;
+    AppData[2] = pressure & 0xFF;
+    AppData[3] = ( temperature >> 8 ) & 0xFF;
+    AppData[4] = temperature & 0xFF;
+    AppData[5] = ( altitudeBar >> 8 ) & 0xFF;
+    AppData[6] = altitudeBar & 0xFF;
+    AppData[7] = batteryLevel;
+    AppData[8] = ( latitude >> 16 ) & 0xFF;
+    AppData[9] = ( latitude >> 8 ) & 0xFF;
+    AppData[10] = latitude & 0xFF;
+    AppData[11] = ( longitude >> 16 ) & 0xFF;
+    AppData[12] = ( longitude >> 8 ) & 0xFF;
+    AppData[13] = longitude & 0xFF;
+    AppData[14] = ( altitudeGps >> 8 ) & 0xFF;
+    AppData[15] = altitudeGps & 0xFF;
+}
+
+static void ProcessRxFrame( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
+{
+    switch( info->RxPort ) // Check Rx port number
+    {
+        case 1: // The application LED can be controlled on port 1 or 2
+        case 2:
+            if( info->RxBufferSize == 1 )
+            {
+                AppLedStateOn = info->RxBuffer[0];
+                GpioWrite( &Led3, ( ( AppLedStateOn & 0x01 ) != 0 ) ? 0 : 1 );
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+static bool SendFrame( void )
+{
+    uint8_t sendFrameStatus = 0;
+
+    sendFrameStatus = LoRaMacSendFrame( AppPort, AppData, AppDataSize );
+    //sendFrameStatus = LoRaMacSendConfirmedFrame( AppPort, AppData, AppDataSize, 8 );
+    switch( sendFrameStatus )
+    {
+    case 5: // NO_FREE_CHANNEL
+        // Try again later
+        return true;
+    default:
+        return false;
+    }
+}
 
 #if( OVER_THE_AIR_ACTIVATION != 0 )
 
 /*!
- * \brief Function executed on Led 1 Timeout event
+ * \brief Function executed on JoinReq Timeout event
  */
-void OnJoinReqTimerEvent( void )
+static void OnJoinReqTimerEvent( void )
 {
     TxNextPacket = true;
 }
@@ -152,9 +218,9 @@ void OnJoinReqTimerEvent( void )
 #endif
 
 /*!
- * \brief Function executed on Led 1 Timeout event
+ * \brief Function executed on TxNextPacket Timeout event
  */
-void OnTxNextPacketTimerEvent( void )
+static void OnTxNextPacketTimerEvent( void )
 {
     TxNextPacket = true;
 }
@@ -162,17 +228,19 @@ void OnTxNextPacketTimerEvent( void )
 /*!
  * \brief Function executed on Led 1 Timeout event
  */
-void OnLed1TimerEvent( void )
+static void OnLed1TimerEvent( void )
 {
-    Led1TimerEvent = true;
+    // Switch LED 1 OFF
+    GpioWrite( &Led1, 1 );
 }
 
 /*!
  * \brief Function executed on Led 2 Timeout event
  */
-void OnLed2TimerEvent( void )
+static void OnLed2TimerEvent( void )
 {
-    Led2TimerEvent = true;
+    // Switch LED 2 OFF
+    GpioWrite( &Led2, 1 );
 }
 
 /*!
@@ -180,21 +248,15 @@ void OnLed2TimerEvent( void )
  */
 void OnLed4TimerEvent( void )
 {
-    Led4TimerEvent = true;
+    // Switch LED 4 OFF
+    GpioWrite( &Led4, 1 );
 }
 
 /*!
  * \brief Function to be executed on MAC layer event
  */
-void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
+static void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
 {
-    if( info->Status == LORAMAC_EVENT_INFO_STATUS_ERROR )
-    {
-        // Schedule a new transmission
-        TxDone = true;
-        return;
-    }
-
     if( flags->Bits.JoinAccept == 1 )
     {
 #if( OVER_THE_AIR_ACTIVATION != 0 )
@@ -205,22 +267,22 @@ void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
     
     if( flags->Bits.Tx == 1 )
     {
-        if( info->TxAckReceived == true )
-        {
-            TxAckReceived = true;
-        }
-        // Schedule a new transmission
-        TxDone = true;
     }
 
     if( flags->Bits.Rx == 1 )
     {
-        if( ( ( info->RxPort == 1 ) || ( info->RxPort == 2 ) ) && ( info->RxBufferSize > 0 ) )
+        if( flags->Bits.RxData == true )
         {
-            AppLedStateOn = info->RxBuffer[0];
+            ProcessRxFrame( flags, info );
         }
-        RxDone = true;
+
+        // Switch LED 2 ON for each received downlink
+        GpioWrite( &Led2, 0 );
+        TimerStart( &Led2Timer );
     }
+
+    // Schedule a new transmission
+    TxDone = true;
 }
 
 /**
@@ -228,13 +290,10 @@ void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
  */
 int main( void )
 {
+#if( OVER_THE_AIR_ACTIVATION != 0 )
     uint8_t sendFrameStatus = 0;
-    uint16_t pressure = 0;
-    int16_t altitudeBar = 0;
-    int16_t temperature = 0;
-    int32_t latitude, longitude = 0;
-    uint16_t altitudeGps = 0xFFFF;
-    uint8_t batteryLevel = 0;   
+#endif
+    bool trySendingFrameAgain = false;
 
     BoardInitMcu( );
     BoardInitPeriph( );
@@ -266,13 +325,13 @@ int main( void )
     TxNextPacket = true;
     TimerInit( &TxNextPacketTimer, OnTxNextPacketTimerEvent );
     
-    TimerInit( &Led1Timer, OnLed1TimerEvent ); 
+    TimerInit( &Led1Timer, OnLed1TimerEvent );
     TimerSetValue( &Led1Timer, 25000 );
 
-    TimerInit( &Led2Timer, OnLed2TimerEvent ); 
+    TimerInit( &Led2Timer, OnLed2TimerEvent );
     TimerSetValue( &Led2Timer, 25000 );
 
-    TimerInit( &Led4Timer, OnLed4TimerEvent ); 
+    TimerInit( &Led4Timer, OnLed4TimerEvent );
     TimerSetValue( &Led4Timer, 25000 );
 
     LoRaMacSetAdrOn( true );
@@ -286,36 +345,24 @@ int main( void )
             {
                 TxNextPacket = false;
                 
-                LoRaMacJoinReq( DevEui, AppEui, AppKey );
-
-                // Relaunch timer for next trial
-                TimerStart( &JoinReqTimer );
+                sendFrameStatus = LoRaMacJoinReq( DevEui, AppEui, AppKey );
+                switch( sendFrameStatus )
+                {
+                case 1: // BUSY
+                    break;
+                case 0: // OK
+                case 2: // NO_NETWORK_JOINED
+                case 3: // LENGTH_PORT_ERROR
+                case 4: // MAC_CMD_ERROR
+                case 6: // DEVICE_OFF
+                default:
+                    // Relaunch timer for next trial
+                    TimerStart( &JoinReqTimer );
+                    break;
+                }
             }
             TimerLowPowerHandler( );
 #endif
-        }
-        if( Led1TimerEvent == true )
-        {
-            Led1TimerEvent = false;
-            
-            // Switch LED 1 OFF
-            GpioWrite( &Led1, 1 );
-        }
-
-        if( Led2TimerEvent == true )
-        {
-            Led2TimerEvent = false;
-            
-            // Switch LED 2 OFF
-            GpioWrite( &Led2, 1 );
-        }
-
-        if( Led4TimerEvent == true )
-        {
-            Led4TimerEvent = false;
-            
-            // Switch LED 4 OFF
-            GpioWrite( &Led4, 1 );
         }
 
         if( GpsGetPpsDetectedState( ) == true )
@@ -323,34 +370,6 @@ int main( void )
             // Switch LED 4 ON
             GpioWrite( &Led4, 0 );
             TimerStart( &Led4Timer );
-        }
-        
-        if( TxAckReceived == true )
-        {
-            TxAckReceived = false;
-            // Switch LED 2 ON
-            GpioWrite( &Led2, 0 );
-            TimerStart( &Led2Timer );
-        }
-        
-        if( RxDone == true )
-        {
-            RxDone = false;
-            
-            // Switch LED 2 ON
-            GpioWrite( &Led2, 0 );
-            TimerStart( &Led2Timer );
-
-            if( AppLedStateOn == true )
-            {
-                // Switch LED 3 ON
-                GpioWrite( &Led3, 0 );
-            }
-            else
-            {
-                // Switch LED 3 OFF
-                GpioWrite( &Led3, 1 );
-            }
         }
         
         if( TxDone == true )
@@ -363,54 +382,23 @@ int main( void )
             TimerStart( &TxNextPacketTimer );
         }
 
+        if( trySendingFrameAgain == true )
+        {
+            trySendingFrameAgain = SendFrame( );
+        }
         if( TxNextPacket == true )
         {
             TxNextPacket = false;
         
-            pressure = ( uint16_t )( MPL3115ReadPressure( ) / 10 );             // in hPa / 10
-            temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
-            altitudeBar = ( int16_t )( MPL3115ReadAltitude( ) * 10 );           // in m * 10
-            batteryLevel = BoardMeasureBatterieLevel( );                        // 1 (very low) to 254 (fully charged)
-            GpsGetLatestGpsPositionBinary( &latitude, &longitude );
-            altitudeGps = GpsGetLatestGpsAltitude( );                           // in m
-        
+            PrepareTxFrame( AppPort );
+            
             // Switch LED 1 ON
             GpioWrite( &Led1, 0 );
             TimerStart( &Led1Timer );
-        
-            AppData[0] = AppLedStateOn;
-            AppData[1] = ( pressure >> 8 ) & 0xFF;
-            AppData[2] = pressure & 0xFF;
-            AppData[3] = ( temperature >> 8 ) & 0xFF;
-            AppData[4] = temperature & 0xFF;
-            AppData[5] = ( altitudeBar >> 8 ) & 0xFF;
-            AppData[6] = altitudeBar & 0xFF;
-            AppData[7] = batteryLevel;
-            AppData[8] = ( latitude >> 16 ) & 0xFF;
-            AppData[9] = ( latitude >> 8 ) & 0xFF;
-            AppData[10] = latitude & 0xFF;
-            AppData[11] = ( longitude >> 16 ) & 0xFF;
-            AppData[12] = ( longitude >> 8 ) & 0xFF;
-            AppData[13] = longitude & 0xFF;
-            AppData[14] = ( altitudeGps >> 8 ) & 0xFF;
-            AppData[15] = altitudeGps & 0xFF;
-            
-            sendFrameStatus = LoRaMacSendFrame( 2, AppData, APP_DATA_SIZE );
-            //sendFrameStatus = LoRaMacSendConfirmedFrame( 2, AppData, APP_DATA_SIZE, 8 );
-            switch( sendFrameStatus )
-            {
-            case 3: // LENGTH_PORT_ERROR
-            case 4: // MAC_CMD_ERROR
-            case 5: // NO_FREE_CHANNEL
-                // Schedule a new transmission
-                TxDone = true;
-                break;
-            default:
-                break;
-            }
+
+            trySendingFrameAgain = SendFrame( );
         }
 
         TimerLowPowerHandler( );
     }
 }
-

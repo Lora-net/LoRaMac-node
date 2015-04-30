@@ -4,7 +4,7 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    ©2013 Semtech
+    (C)2013 Semtech
 
 Description: SX1276 LoRa modem registers and bits definitions
 
@@ -266,26 +266,23 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * RegFifoRxNbBytes (Read Only)
  */
- 
+
 /*!
  * RegRxHeaderCntValueMsb (Read Only)
  */
- 
+
 /*!
  * RegRxHeaderCntValueLsb (Read Only)
  */
- 
- 
+
 /*!
  * RegRxPacketCntValueMsb (Read Only)
  */
- 
- 
+
 /*!
  * RegRxPacketCntValueLsb (Read Only)
  */
- 
- 
+
 /*!
  * RegModemStat (Read Only)
  */
@@ -296,12 +293,10 @@ Maintainer: Miguel Luis and Gregory Cristian
  * RegPktSnrValue (Read Only)
  */
 
- 
- /*!
+/*!
  * RegPktRssiValue (Read Only)
  */
- 
- 
+
 /*!
  * RegRssiValue (Read Only)
  */
@@ -318,7 +313,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RFLR_HOPCHANNEL_CRCONPAYLOAD_OFF            0x00 // Default
 
 #define RFLR_HOPCHANNEL_CHANNEL_MASK                0x3F 
- 
+
 /*!
  * RegModemConfig1
  */
@@ -365,7 +360,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RFLR_MODEMCONFIG2_RXPAYLOADCRC_OFF          0x00 // Default
  
 #define RFLR_MODEMCONFIG2_SYMBTIMEOUTMSB_MASK       0xFC 
-#define RFLR_MODEMCONFIG2_SYMBTIMEOUTMSB            0x00 // Default                                      
+#define RFLR_MODEMCONFIG2_SYMBTIMEOUTMSB            0x00 // Default
 
 /*!
  * RegSymbTimeoutLsb

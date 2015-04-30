@@ -61,18 +61,20 @@ static void TimerSetTimeout( TimerEvent_t *obj );
  * \brief Check if the Object to be added is not already in the list
  * 
  * \param [IN] timestamp Delay duration
- * \retval [out] true (the object is already in the list) or false  
+ * \retval true (the object is already in the list) or false  
  */
 static bool TimerExists( TimerEvent_t *obj );
 
 /*!
  * \brief Read the timer value of the currently running timer
+ *
+ * \retval value current timer value
  */
 uint32_t TimerGetValue( void );
 
 void TimerSetLowPowerEnable( bool enable )
 {
-   LowPowerModeEnable = enable; 
+   LowPowerModeEnable = enable;
 }
 
 bool TimerGetLowPowerEnable( void )
@@ -197,7 +199,7 @@ static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime )
 
     if( cur != NULL )
     {
-        cur->Timestamp = remainingTime - obj->Timestamp;  
+        cur->Timestamp = remainingTime - obj->Timestamp;
         cur->IsRunning = false;
     }
 
@@ -366,7 +368,7 @@ static bool TimerExists( TimerEvent_t *obj )
         }
         cur = cur->Next;
     }
-    return false; 
+    return false;
 }
 
 void TimerReset( TimerEvent_t *obj )
@@ -387,7 +389,7 @@ void TimerSetValue( TimerEvent_t *obj, uint32_t value )
     }
     else
     {
-        minValue = TimerHwGetMinimumTimeout( );   
+        minValue = TimerHwGetMinimumTimeout( );
     }
     
     if( value < minValue )
@@ -401,18 +403,26 @@ void TimerSetValue( TimerEvent_t *obj, uint32_t value )
 
 uint32_t TimerGetValue( void )
 {
-    uint32_t valTimer = 0;
-
     if( LowPowerModeEnable == true )
     {
-        valTimer = RtcGetTimerElapsedTime( );
+        return RtcGetTimerElapsedTime( );
     }
     else
     {
-        valTimer = TimerHwGetElapsedTime( );    
+        return TimerHwGetElapsedTime( );
     }
+}
 
-    return valTimer;
+TimerTime_t TimerGetCurrentTime( void )
+{
+    if( LowPowerModeEnable == true )
+    {
+        return RtcGetTimerValue( );
+    }
+    else
+    {
+        return TimerHwGetTime( );
+    }
 }
 
 static void TimerSetTimeout( TimerEvent_t *obj )

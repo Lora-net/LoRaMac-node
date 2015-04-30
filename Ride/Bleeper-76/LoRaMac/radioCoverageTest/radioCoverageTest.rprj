@@ -1,0 +1,4 @@
+
+<Project Header="Project 'radioCoverageTest'" Path=".\radioCoverageTest.rprj" Project="Yes" OutputFile="" sate="96" ActiveApp="radioCoverageTest" >
+	<ApplicationBuild Header="radioCoverageTest" Extern=".\radioCoverageTest.rapp" Path=".\radioCoverageTest.rapp" OutputFile=".\obj\radioCoverageTest.elf" sate="98" Config="Bleeper-76-868" />
+</Project>

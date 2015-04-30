@@ -163,7 +163,7 @@ const FskBandwidth_t FskBandwidths[] =
     { 166700, 0x11 },
     { 200000, 0x09 },
     { 250000, 0x01 },
-    {      0, 0x00 }, // Invalid Badwidth
+    { 300000, 0x00 }, // Invalid Badwidth
 };
 
 /*
@@ -641,9 +641,9 @@ void SX1272SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
     }
 }
 
-double SX1272GetTimeOnAir( RadioModems_t modem, uint8_t pktLen )
+uint32_t SX1272GetTimeOnAir( RadioModems_t modem, uint8_t pktLen )
 {
-    double airTime = 0.0;
+    uint32_t airTime = 0;
 
     switch( modem )
     {
@@ -1229,7 +1229,7 @@ void SX1272OnDio0Irq( void )
 
                     if( ( RadioEvents != NULL ) && ( RadioEvents->RxError != NULL ) )
                     {
-                        RadioEvents->RxError( ); 
+                        RadioEvents->RxError( );
                     }
                     SX1272.Settings.FskPacketHandler.PreambleDetected = false;
                     SX1272.Settings.FskPacketHandler.SyncWordDetected = false;
@@ -1272,7 +1272,7 @@ void SX1272OnDio0Irq( void )
 
                 if( ( RadioEvents != NULL ) && ( RadioEvents->RxDone != NULL ) )
                 {
-                    RadioEvents->RxDone( RxBuffer, SX1272.Settings.FskPacketHandler.Size, SX1272.Settings.FskPacketHandler.RssiValue, 0 ); 
+                    RadioEvents->RxDone( RxBuffer, SX1272.Settings.FskPacketHandler.Size, SX1272.Settings.FskPacketHandler.RssiValue, 0 );
                 } 
                 SX1272.Settings.FskPacketHandler.PreambleDetected = false;
                 SX1272.Settings.FskPacketHandler.SyncWordDetected = false;
@@ -1300,7 +1300,7 @@ void SX1272OnDio0Irq( void )
 
                         if( ( RadioEvents != NULL ) && ( RadioEvents->RxError != NULL ) )
                         {
-                            RadioEvents->RxError( ); 
+                            RadioEvents->RxError( );
                         }
                         break;
                     }
@@ -1362,7 +1362,7 @@ void SX1272OnDio0Irq( void )
                 SX1272.Settings.State = RF_IDLE;
                 if( ( RadioEvents != NULL ) && ( RadioEvents->TxDone != NULL ) )
                 {
-                    RadioEvents->TxDone( ); 
+                    RadioEvents->TxDone( );
                 } 
                 break;
             }
@@ -1440,7 +1440,7 @@ void SX1272OnDio1Irq( void )
             default:
                 break;
             }
-            break;      
+            break;
         default:
             break;
     }
@@ -1504,7 +1504,7 @@ void SX1272OnDio2Irq( void )
             default:
                 break;
             }
-            break;      
+            break;
         default:
             break;
     }

@@ -52,7 +52,7 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
 
     GPIO_InitStructure.GPIO_Mode = ( GPIOMode_TypeDef )mode;
     GPIO_InitStructure.GPIO_OType = ( GPIOOType_TypeDef )config;
-    GPIO_InitStructure.GPIO_PuPd = ( GPIOPuPd_TypeDef )type;    
+    GPIO_InitStructure.GPIO_PuPd = ( GPIOPuPd_TypeDef )type;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
     GPIO_InitStructure.GPIO_Pin = obj->pinIndex;
     GPIO_Init( obj->port, &GPIO_InitStructure );
@@ -82,15 +82,15 @@ void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriori
 
     if( irqMode == IRQ_RISING_EDGE )
     {
-        EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising; 
+        EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
     }
     else if( irqMode == IRQ_FALLING_EDGE )
     {
-        EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling; 
+        EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
     }
     else if( irqMode == IRQ_RISING_FALLING_EDGE )
     {
-        EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling; 
+        EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
     }
     else
     {
@@ -158,7 +158,7 @@ void GpioMcuRemoveInterrupt( Gpio_t *obj )
     GpioIrq[obj->pin & 0x0F] = NULL;
 
     EXTI_InitStructure.EXTI_Line = ( 0x01 << ( obj->pin & 0x0F ) );
-    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt; 
+    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
     EXTI_InitStructure.EXTI_LineCmd = DISABLE;
     EXTI_Init(&EXTI_InitStructure);
 }
@@ -200,15 +200,17 @@ uint32_t GpioMcuRead( Gpio_t *obj )
 
 void EXTI0_IRQHandler( void )
 {
+#if !defined( USE_NO_TIMER )
     if( TimerGetLowPowerEnable( ) == true )
     {
         RtcRecoverMcuStatus( );
     }
+#endif
     if( EXTI_GetITStatus( EXTI_Line0 ) != RESET )
     {
         if( GpioIrq[0] != NULL )
         {
-            GpioIrq[0]( ); 
+            GpioIrq[0]( );
         }
         EXTI_ClearITPendingBit( EXTI_Line0 );
     }
@@ -216,15 +218,17 @@ void EXTI0_IRQHandler( void )
 
 void EXTI1_IRQHandler( void )
 {
+#if !defined( USE_NO_TIMER )
     if( TimerGetLowPowerEnable( ) == true )
     {
         RtcRecoverMcuStatus( );
     }
+#endif
     if( EXTI_GetITStatus( EXTI_Line1 ) != RESET )
     {
         if( GpioIrq[1] != NULL )
         {
-            GpioIrq[1]( ); 
+            GpioIrq[1]( );
         }
         EXTI_ClearITPendingBit( EXTI_Line1 );
     }
@@ -232,15 +236,17 @@ void EXTI1_IRQHandler( void )
 
 void EXTI2_IRQHandler( void )
 {
+#if !defined( USE_NO_TIMER )
     if( TimerGetLowPowerEnable( ) == true )
     {
         RtcRecoverMcuStatus( );
     }
+#endif
     if( EXTI_GetITStatus( EXTI_Line2 ) != RESET )
     {
         if( GpioIrq[2] != NULL )
         {
-            GpioIrq[2]( ); 
+            GpioIrq[2]( );
         }
         EXTI_ClearITPendingBit( EXTI_Line2 );
     }
@@ -248,15 +254,17 @@ void EXTI2_IRQHandler( void )
 
 void EXTI3_IRQHandler( void )
 {
+#if !defined( USE_NO_TIMER )
     if( TimerGetLowPowerEnable( ) == true )
     {
         RtcRecoverMcuStatus( );
     }
+#endif
     if( EXTI_GetITStatus( EXTI_Line3 ) != RESET )
     {
         if( GpioIrq[3] != NULL )
         {
-            GpioIrq[3]( ); 
+            GpioIrq[3]( );
         }
         EXTI_ClearITPendingBit( EXTI_Line3 );
     }
@@ -264,15 +272,17 @@ void EXTI3_IRQHandler( void )
 
 void EXTI4_IRQHandler( void )
 {
+#if !defined( USE_NO_TIMER )
     if( TimerGetLowPowerEnable( ) == true )
     {
         RtcRecoverMcuStatus( );
     }
+#endif
     if( EXTI_GetITStatus( EXTI_Line4 ) != RESET )
     {
         if( GpioIrq[4] != NULL )
         {
-            GpioIrq[4]( ); 
+            GpioIrq[4]( );
         }
         EXTI_ClearITPendingBit( EXTI_Line4 );
     }
@@ -280,15 +290,17 @@ void EXTI4_IRQHandler( void )
 
 void EXTI9_5_IRQHandler( void )
 {
+#if !defined( USE_NO_TIMER )
     if( TimerGetLowPowerEnable( ) == true )
     {
         RtcRecoverMcuStatus( );
     }
+#endif
     if( EXTI_GetITStatus( EXTI_Line5 ) != RESET )
     {
         if( GpioIrq[5] != NULL )
         {
-            GpioIrq[5]( ); 
+            GpioIrq[5]( );
         }
         EXTI_ClearITPendingBit( EXTI_Line5 );
     }
@@ -297,7 +309,7 @@ void EXTI9_5_IRQHandler( void )
     {   
         if( GpioIrq[6] != NULL )
         {
-            GpioIrq[6]( ); 
+            GpioIrq[6]( );
         }
         EXTI_ClearITPendingBit( EXTI_Line6 );
     }
@@ -306,7 +318,7 @@ void EXTI9_5_IRQHandler( void )
     {
         if( GpioIrq[7] != NULL )
         {
-            GpioIrq[7]( ); 
+            GpioIrq[7]( );
         }
         EXTI_ClearITPendingBit( EXTI_Line7 );
     }
@@ -315,7 +327,7 @@ void EXTI9_5_IRQHandler( void )
     {
         if( GpioIrq[8] != NULL )
         {
-            GpioIrq[8]( ); 
+            GpioIrq[8]( );
         }
         EXTI_ClearITPendingBit( EXTI_Line8 );
     }
@@ -324,7 +336,7 @@ void EXTI9_5_IRQHandler( void )
     {   
         if( GpioIrq[9] != NULL )
         {
-            GpioIrq[9]( ); 
+            GpioIrq[9]( );
         }
         EXTI_ClearITPendingBit( EXTI_Line9 );
     }
@@ -332,15 +344,17 @@ void EXTI9_5_IRQHandler( void )
 
 void EXTI15_10_IRQHandler( void )
 {
+#if !defined( USE_NO_TIMER )
     if( TimerGetLowPowerEnable( ) == true )
     {
         RtcRecoverMcuStatus( );
     }
+#endif
     if( EXTI_GetITStatus( EXTI_Line10 ) != RESET )
     {    
         if( GpioIrq[10] != NULL )
         {
-            GpioIrq[10]( ); 
+            GpioIrq[10]( );
         }
         EXTI_ClearITPendingBit( EXTI_Line10 );
     }
@@ -349,7 +363,7 @@ void EXTI15_10_IRQHandler( void )
     {    
         if( GpioIrq[11] != NULL )
         {
-            GpioIrq[11]( ); 
+            GpioIrq[11]( );
         }
         EXTI_ClearITPendingBit( EXTI_Line11 );
     }
@@ -358,7 +372,7 @@ void EXTI15_10_IRQHandler( void )
     {    
         if( GpioIrq[12] != NULL )
         {
-            GpioIrq[12]( ); 
+            GpioIrq[12]( );
         }
         EXTI_ClearITPendingBit( EXTI_Line12 );
     }
@@ -367,7 +381,7 @@ void EXTI15_10_IRQHandler( void )
     {    
         if( GpioIrq[13] != NULL )
         {
-            GpioIrq[13]( ); 
+            GpioIrq[13]( );
         }
         EXTI_ClearITPendingBit( EXTI_Line13 );
     }
@@ -376,7 +390,7 @@ void EXTI15_10_IRQHandler( void )
     {    
         if( GpioIrq[14] != NULL )
         {
-            GpioIrq[14]( ); 
+            GpioIrq[14]( );
         }
         EXTI_ClearITPendingBit( EXTI_Line14 );
     }
@@ -385,7 +399,7 @@ void EXTI15_10_IRQHandler( void )
     {    
         if( GpioIrq[15] != NULL )
         {
-            GpioIrq[15]( ); 
+            GpioIrq[15]( );
         }
         EXTI_ClearITPendingBit( EXTI_Line15 );
     }

@@ -170,7 +170,7 @@ const FskBandwidth_t FskBandwidths[] =
     { 166700, 0x11 },
     { 200000, 0x09 },
     { 250000, 0x01 },
-    {      0, 0x00 }, // Invalid Badwidth
+    { 300000, 0x00 }, // Invalid Badwidth
 };
 
 /*
@@ -707,9 +707,9 @@ void SX1276SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
     }
 }
 
-double SX1276GetTimeOnAir( RadioModems_t modem, uint8_t pktLen )
+uint32_t SX1276GetTimeOnAir( RadioModems_t modem, uint8_t pktLen )
 {
-    double airTime = 0.0;
+    uint32_t airTime = 0;
 
     switch( modem )
     {
@@ -1472,7 +1472,7 @@ void SX1276OnDio0Irq( void )
                 SX1276.Settings.State = RF_IDLE;
                 if( ( RadioEvents != NULL ) && ( RadioEvents->TxDone != NULL ) )
                 {
-                    RadioEvents->TxDone( ); 
+                    RadioEvents->TxDone( );
                 } 
                 break;
             }

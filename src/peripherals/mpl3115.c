@@ -346,7 +346,7 @@ float MPL3115ReadTemperature( void )
     {
         val = ~( ( msb << 8 ) + lsb ) + 1;  //2’s complement
         msb = val >> 8;
-        lsb = val & 0x00F0; 
+        lsb = val & 0x00F0;
         negSign = true;
     }
 

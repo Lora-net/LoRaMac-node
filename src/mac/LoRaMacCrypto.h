@@ -73,7 +73,7 @@ void LoRaMacPayloadDecrypt( uint8_t *buffer, uint16_t size, uint8_t *key, uint32
  * \param [IN]  key             AES key to be used
  * \param [OUT] mic             Computed MIC field
  */
-void LoRaMacJoinComputeMic( uint8_t *buffer, uint16_t size, uint8_t *key, uint32_t *mic );
+void LoRaMacJoinComputeMic( uint8_t *buffer, uint16_t size, const uint8_t *key, uint32_t *mic );
 
 /*!
  * Computes the LoRaMAC join frame decryption 
@@ -83,7 +83,7 @@ void LoRaMacJoinComputeMic( uint8_t *buffer, uint16_t size, uint8_t *key, uint32
  * \param [IN]  key             AES key to be used
  * \param [OUT] decBuffer       Decrypted buffer
  */
-void LoRaMacJoinDecrypt( uint8_t *buffer, uint16_t size, uint8_t *key, uint8_t *decBuffer );
+void LoRaMacJoinDecrypt( uint8_t *buffer, uint16_t size, const uint8_t *key, uint8_t *decBuffer );
 
 /*!
  * Computes the LoRaMAC join frame decryption 
@@ -94,6 +94,6 @@ void LoRaMacJoinDecrypt( uint8_t *buffer, uint16_t size, uint8_t *key, uint8_t *
  * \param [OUT] nwkSKey         Network session key
  * \param [OUT] appSKey         Application session key
  */
-void LoRaMacJoinComputeSKeys( uint8_t *key, uint8_t *appNonce, uint16_t devNonce, uint8_t *nwkSKey, uint8_t *appSKey );
+void LoRaMacJoinComputeSKeys( const uint8_t *key, uint8_t *appNonce, uint16_t devNonce, uint8_t *nwkSKey, uint8_t *appSKey );
 
 #endif // __LORAMAC_CRYPTO_H__

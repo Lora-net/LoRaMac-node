@@ -128,7 +128,7 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 #define UART_RX                                     PA_10
 
 #if ( USE_POTENTIOMETER == 1 )
-#define POTI                                        PA_3 
+#define POTI                                        PA_3
 #else
 #define LED_1                                       PA_3
 #endif

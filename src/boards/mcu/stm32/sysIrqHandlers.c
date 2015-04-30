@@ -50,7 +50,7 @@ void HardFault_Handler_C( unsigned int *args )
     stacked_pc = ( ( unsigned long) args[6] );
     stacked_psr = ( ( unsigned long) args[7] );
 
-    ( void )stacked_r0;    
+    ( void )stacked_r0;
     ( void )stacked_r1;
     ( void )stacked_r2;
     ( void )stacked_r3;

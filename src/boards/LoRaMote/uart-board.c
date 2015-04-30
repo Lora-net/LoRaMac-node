@@ -28,7 +28,7 @@ void UartMcuInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx )
     GpioInit( &obj->Rx, rx, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
 
     GPIO_PinAFConfig( obj->Tx.port, ( obj->Tx.pin & 0x0F ), GPIO_AF_USART1 );
-    GPIO_PinAFConfig( obj->Rx.port, ( obj->Rx.pin & 0x0F ), GPIO_AF_USART1 ); 
+    GPIO_PinAFConfig( obj->Rx.port, ( obj->Rx.pin & 0x0F ), GPIO_AF_USART1 );
 }
 
 void UartMcuConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_t wordLength, StopBits_t stopBits, Parity_t parity, FlowCtrl_t flowCtrl )
@@ -89,15 +89,15 @@ void UartMcuConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_
     }
     else if( stopBits == UART_0_5_STOP_BIT )
     {
-        USART_InitStructure.USART_StopBits = 0x1000; 
+        USART_InitStructure.USART_StopBits = 0x1000;
     }
     else if( stopBits == UART_2_STOP_BIT )
     {
-        USART_InitStructure.USART_StopBits = 0x2000; 
+        USART_InitStructure.USART_StopBits = 0x2000;
     }
     else if( stopBits == UART_1_5_STOP_BIT )
     {
-        USART_InitStructure.USART_StopBits = 0x3000; 
+        USART_InitStructure.USART_StopBits = 0x3000;
     }
 
     if( parity == NO_PARITY )
@@ -119,25 +119,25 @@ void UartMcuConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_
     }
     else if( flowCtrl == RTS_FLOW_CTRL ) 
     {
-        USART_InitStructure.USART_HardwareFlowControl = 0x0100; 
+        USART_InitStructure.USART_HardwareFlowControl = 0x0100;
     }
     else if( flowCtrl == CTS_FLOW_CTRL ) 
     {
-        USART_InitStructure.USART_HardwareFlowControl = 0x0200; 
+        USART_InitStructure.USART_HardwareFlowControl = 0x0200;
     }
     else if( flowCtrl == RTS_CTS_FLOW_CTRL ) 
     {
-        USART_InitStructure.USART_HardwareFlowControl = 0x0300; 
+        USART_InitStructure.USART_HardwareFlowControl = 0x0300;
     }
 
     USART_Init( USART1, &USART_InitStructure );
 
-    USART_Cmd( USART1, ENABLE ); 
+    USART_Cmd( USART1, ENABLE );
 }
 
 void UartMcuDeInit( Uart_t *obj )
 {
-    USART_DeInit( USART1 );  
+    USART_DeInit( USART1 );
 
     GpioInit( &obj->Tx, obj->Tx.pin, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &obj->Rx, obj->Rx.pin, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );

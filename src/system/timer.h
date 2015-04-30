@@ -28,6 +28,13 @@ typedef struct TimerEvent_s
 }TimerEvent_t;
 
 /*!
+ * \brief Timer time variable definition
+ */
+#ifndef TimerTime_t
+typedef uint64_t TimerTime_t;
+#endif
+
+/*!
  * \brief Enables/Disables low power timers usage
  *
  * \param [IN] enable [true]RTC timer used, [false]Normal timer used
@@ -85,6 +92,13 @@ void TimerReset( TimerEvent_t *obj );
  * \param [IN] value New timer timeout value
  */
 void TimerSetValue( TimerEvent_t *obj, uint32_t value );
+
+/*!
+ * \brief Read the current time
+ *
+ * \retval time returns current time
+ */
+TimerTime_t TimerGetCurrentTime( void );
 
 /*!
  * \brief Manages the entry into ARM cortex deep-sleep mode

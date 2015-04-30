@@ -173,7 +173,7 @@ uint8_t EepromWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
                     return FAIL;
                 }
                 addr +=  EE_PAGE_SIZE;
-                buffer += EE_PAGE_SIZE;  
+                buffer += EE_PAGE_SIZE;
             }
             if( nbBytes != 0 )
             {

@@ -24,17 +24,17 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * Hardware Timer tick counter
  */
-volatile uint64_t TimerTickCounter = 1;     
+volatile TimerTime_t TimerTickCounter = 1;
 
 /*!
  * Saved value of the Tick counter at the start of the next event
  */
-static uint64_t TimerTickCounterContext = 0;            
+static TimerTime_t TimerTickCounterContext = 0;
 
 /*!
  * Value trigging the IRQ
  */
-volatile uint64_t TimeoutCntValue = 0;
+volatile TimerTime_t TimeoutCntValue = 0;
 
 /*!
  * Increment the Hardware Timer tick counter
@@ -78,7 +78,7 @@ void TimerHwInit( void )
 
     /* Time base configuration */
     TIM_TimeBaseStructure.TIM_Period = 3199;
-    TIM_TimeBaseStructure.TIM_Prescaler = 0; 
+    TIM_TimeBaseStructure.TIM_Prescaler = 0;
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
     TIM_TimeBaseInit( TIM2, &TIM_TimeBaseStructure );
@@ -86,7 +86,7 @@ void TimerHwInit( void )
     TIM_ITConfig( TIM2, TIM_IT_Update, ENABLE );
 
     /* TIM2 disable counter */
-    TIM_Cmd( TIM2, ENABLE ); 
+    TIM_Cmd( TIM2, ENABLE );
         
         /* TIM3 clock enable */ 
     RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM3, ENABLE );
@@ -102,7 +102,7 @@ void TimerHwInit( void )
 
     /* Time base configuration */
     TIM_TimeBaseStructure.TIM_Period = 3199;
-    TIM_TimeBaseStructure.TIM_Prescaler = 10; 
+    TIM_TimeBaseStructure.TIM_Prescaler = 10;
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
     TIM_TimeBaseInit( TIM3, &TIM_TimeBaseStructure );
@@ -110,11 +110,11 @@ void TimerHwInit( void )
     TIM_ITConfig( TIM3, TIM_IT_Update, DISABLE );
 
     /* TIM3 disable counter */
-    TIM_Cmd( TIM3, DISABLE ); 
+    TIM_Cmd( TIM3, DISABLE );
 
 
     TIM_ITConfig( TIM3, TIM_IT_Update, ENABLE );
-    TIM_Cmd( TIM3, ENABLE ); 
+    TIM_Cmd( TIM3, ENABLE );
     
 }
 
@@ -146,7 +146,7 @@ void TimerHwStart( uint32_t val )
 void TimerHwStop( void )
 {
     TIM_ITConfig( TIM2, TIM_IT_CC1, DISABLE );
-    TIM_Cmd( TIM2, DISABLE );  
+    TIM_Cmd( TIM2, DISABLE );
 }
 
 void TimerHwDelayMs( uint32_t delay )
@@ -158,24 +158,24 @@ void TimerHwDelayMs( uint32_t delay )
     TimerDelayCounter = 0;
 
     TIM_ITConfig( TIM3, TIM_IT_Update, ENABLE );
-    TIM_Cmd( TIM3, ENABLE ); 
+    TIM_Cmd( TIM3, ENABLE );
 
     while( TimerHwGetDelayValue( ) < delayValue )
     {
     }
 
     TIM_ITConfig( TIM3, TIM_IT_Update, DISABLE );
-    TIM_Cmd( TIM3, DISABLE ); 
+    TIM_Cmd( TIM3, DISABLE );
 }
 
-uint64_t TimerHwGetElapsedTime( void )
+TimerTime_t TimerHwGetElapsedTime( void )
 {
      return( ( ( TimerHwGetTimerValue( ) - TimerTickCounterContext ) + 1 )  * HW_TIMER_TIME_BASE );
 }
 
-uint64_t TimerHwGetTimerValue( void )
+TimerTime_t TimerHwGetTimerValue( void )
 {
-    uint64_t val = 0;
+    TimerTime_t val = 0;
 
     __disable_irq( );
 
@@ -184,6 +184,12 @@ uint64_t TimerHwGetTimerValue( void )
     __enable_irq( );
 
     return( val );
+}
+
+TimerTime_t TimerHwGetTime( void )
+{
+
+    return TimerHwGetTimerValue( ) * HW_TIMER_TIME_BASE;
 }
 
 uint32_t TimerHwGetDelayValue( void )

@@ -89,6 +89,7 @@ void BoardInitMcu( void )
         GpioInit( &DbgPin4, J1_4, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 #endif
         BoardInitPeriph( );
+
 #if( LOW_POWER_MODE_ENABLE )
         TimerSetLowPowerEnable( true );
 #else

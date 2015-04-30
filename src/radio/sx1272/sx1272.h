@@ -279,16 +279,16 @@ void SX1272SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
                         uint8_t HopPeriod, bool iqInverted, uint32_t timeout );
 
 /*!
- * \brief Computes the packet time on air for the given payload
+ * \brief Computes the packet time on air in us for the given payload
  *
  * \Remark Can only be called once SetRxConfig or SetTxConfig have been called
  *
  * \param [IN] modem      Radio modem to be used [0: FSK, 1: LoRa]
  * \param [IN] pktLen     Packet payload length
  *
- * \retval airTime        Computed airTime for the given packet payload length
+ * \retval airTime        Computed airTime (us) for the given packet payload length
  */
-double SX1272GetTimeOnAir( RadioModems_t modem, uint8_t pktLen );
+uint32_t SX1272GetTimeOnAir( RadioModems_t modem, uint8_t pktLen );
 
 /*!
  * \brief Sends the buffer of size. Prepares the packet to be sent and sets

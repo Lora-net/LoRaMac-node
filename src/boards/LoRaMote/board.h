@@ -159,10 +159,10 @@ Maintainer: Miguel Luis and Gregory Cristian
     
 #define GPS_PPS                                     PA_8
 #define UART_TX                                     PA_9
-#define UART_RX                                     PA_10    
+#define UART_RX                                     PA_10
 
-#define PIN_PB6                                     PB_6    
-#define WKUP1                                       PA_0 
+#define PIN_PB6                                     PB_6
+#define WKUP1                                       PA_0
 
 
 /*!

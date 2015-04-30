@@ -96,7 +96,7 @@ void SX9500LockUntilDetection( void )
     SX9500Write( SX9500_REG_PROXCTRL6, 0x04 );
     SX9500Write( SX9500_REG_PROXCTRL7, 0x40 );
     SX9500Write( SX9500_REG_PROXCTRL8, 0x00 );
-    SX9500Write( SX9500_REG_IRQMSK, 0x60 );  
+    SX9500Write( SX9500_REG_IRQMSK, 0x60 );
            
     val = 0;
                     
@@ -106,5 +106,5 @@ void SX9500LockUntilDetection( void )
     }
 
     SX9500Read( SX9500_REG_STAT, &val );
-    SX9500Read( SX9500_REG_IRQSRC, &val ); 
+    SX9500Read( SX9500_REG_IRQSRC, &val );
 }

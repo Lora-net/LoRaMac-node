@@ -36,13 +36,13 @@ void I2cMcuInit( I2c_t *obj, PinNames scl, PinNames sda )
 
     RCC_APB1PeriphClockCmd( RCC_APB1Periph_I2C2, ENABLE );
 
-    I2C_DeInit( obj->I2c );   
+    I2C_DeInit( obj->I2c );
 
     GpioInit( &obj->Scl, scl, PIN_ALTERNATE_FCT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
     GpioInit( &obj->Sda, sda, PIN_ALTERNATE_FCT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
 
     GPIO_PinAFConfig( obj->Scl.port, ( obj->Scl.pin & 0x0F ), GPIO_AF_I2C2 );
-    GPIO_PinAFConfig( obj->Sda.port, ( obj->Sda.pin & 0x0F ), GPIO_AF_I2C2 ); 
+    GPIO_PinAFConfig( obj->Sda.port, ( obj->Sda.pin & 0x0F ), GPIO_AF_I2C2 );
 }
 
 void I2cMcuFormat( I2c_t *obj, I2cMode mode, I2cDutyCycle dutyCycle, bool I2cAckEnable, I2cAckAddrMode AckAddrMode, uint32_t I2cFrequency )
@@ -223,7 +223,7 @@ uint8_t I2cMcuWriteBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_
 
         if( size == 1 )
         { 
-            I2C_GenerateSTOP( obj->I2c, ENABLE ); 
+            I2C_GenerateSTOP( obj->I2c, ENABLE );
         
             /* Wait to make sure that STOP control bit has been cleared */
             timeOut = TIMEOUT_MAX;
@@ -381,7 +381,7 @@ uint8_t I2cMcuReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t
         }
     
         /* Disable Acknowledgement */
-        I2C_AcknowledgeConfig( obj->I2c, DISABLE );  
+        I2C_AcknowledgeConfig( obj->I2c, DISABLE );
     
         /* Clear ADDR register by reading SR1 then SR2 register (SR1 has already been read) */
         ( void )obj->I2c->SR2;
@@ -470,7 +470,7 @@ uint8_t I2cMcuReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t
     }
 
     /*!< Re-Enable Acknowledgement to be ready for another reception */
-    I2C_AcknowledgeConfig( obj->I2c, ENABLE );   
+    I2C_AcknowledgeConfig( obj->I2c, ENABLE );
 
     __enable_irq( );
     return( SUCCESS );
@@ -567,7 +567,7 @@ uint8_t I2cMcuWaitStandbyState( I2c_t *obj, uint8_t deviceAddr )
         else
         {
             /*!< Clear AF flag */
-            I2C_ClearFlag( obj->I2c, I2C_FLAG_AF );                  
+            I2C_ClearFlag( obj->I2c, I2C_FLAG_AF );
         }
         
         /* Check if the maximum allowed number of trials has bee reached */

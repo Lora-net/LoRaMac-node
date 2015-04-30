@@ -16,6 +16,13 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define __RTC_BOARD_H__
 
 /*!
+ * \brief Timer time variable definition
+ */
+#ifndef TimerTime_t
+typedef uint64_t TimerTime_t;
+#endif
+
+/*!
  * \brief Initializes the RTC timer
  *
  * \remark The timer is based on the RTC
@@ -48,7 +55,7 @@ void RtcSetTimeout( uint32_t timeout );
  *
  * \retval RTC Timer value
  */
-uint64_t RtcGetTimerValue( void );
+TimerTime_t RtcGetTimerValue( void );
 
 /*!
  * \brief Get the RTC timer elapsed time since the last Alarm was set

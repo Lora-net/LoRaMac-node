@@ -87,15 +87,22 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 /*!
  * Second reception window channel definition.
- * \remark DCycle field isn't used. This channel is Rx only
  */
 // Channel = { Frequency [Hz], Datarate }
 #define RX_WND_2_CHANNEL                                  { 434200000, DR_SF9 }
 
 /*!
+ * LoRaMac maximum number of bands
+ */
+#define LORA_MAX_NB_BANDS                           1
+
+// Band = { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
+#define BAND0              { 1, TX_POWER_14_DBM, 0,  0 } //  100.0 %
+
+/*!
  * LoRaMac default channels
  */
-// Channel = { Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, DCycle }
+// Channel = { Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
 #define LC1                { 433300000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 0 }
 #define LC2                { 433500000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 0 }
 #define LC3                { 433700000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 0 }
@@ -104,15 +111,22 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 /*!
  * Second reception window channel definition.
- * \remark DCycle field isn't used. This channel is Rx only
  */
 // Channel = { Frequency [Hz], Datarate }
 #define RX_WND_2_CHANNEL                                  { 473400000, DR_SF9 }
 
 /*!
+ * LoRaMac maximum number of bands
+ */
+#define LORA_MAX_NB_BANDS                           1
+
+// Band = { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
+#define BAND0              { 1, TX_POWER_14_DBM, 0,  0 } //  100.0 %
+
+/*!
  * LoRaMac default channels
  */
-// Channel = { Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, DCycle }
+// Channel = { Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
 #define LC1                { 471300000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 0 }
 #define LC2                { 471500000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 0 }
 #define LC3                { 471700000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 0 }
@@ -121,35 +135,71 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 /*!
  * Second reception window channel definition.
- * \remark DCycle field isn't used. This channel is Rx only
  */
 // Channel = { Frequency [Hz], Datarate }
 #define RX_WND_2_CHANNEL                                  { 869525000, DR_SF9 }
 
 /*!
+ * LoRaMac maximum number of bands
+ */
+#define LORA_MAX_NB_BANDS                           5
+
+/*!
+ * LoRaMac EU868 default bands
+ */
+typedef enum
+{
+    BAND_G1_0,
+    BAND_G1_1,
+    BAND_G1_2,
+    BAND_G1_3,
+    BAND_G1_4,
+}BandId_t;
+
+// Band = { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
+#define BAND0              { 100 , TX_POWER_14_DBM, 0,  0 } //  1.0 %
+#define BAND1              { 100 , TX_POWER_14_DBM, 0,  0 } //  1.0 %
+#define BAND2              { 1000, TX_POWER_14_DBM, 0,  0 } //  0.1 %
+#define BAND3              { 10  , TX_POWER_14_DBM, 0,  0 } // 10.0 %
+#define BAND4              { 100 , TX_POWER_14_DBM, 0,  0 } //  1.0 %
+
+/*!
  * LoRaMac default channels
  */
-// Channel = { Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, DCycle }
-#define LC1                { 868100000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 0 }
-#define LC2                { 868300000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 0 }
-#define LC3                { 868500000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 0 }
+// Channel = { Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
+#define LC1                { 868100000, { ( ( DR_SF7 << 4 )  | DR_SF12 ) }, 1 }
+#define LC2                { 868300000, { ( ( DR_SF7H << 4 ) | DR_SF12 ) }, 1 }
+#define LC3                { 868500000, { ( ( DR_SF7 << 4 )  | DR_SF12 ) }, 1 }
+#define LC4                { 867100000, { ( ( DR_SF7 << 4 )  | DR_SF12 ) }, 0 }
+#define LC5                { 867300000, { ( ( DR_SF7 << 4 )  | DR_SF12 ) }, 0 }
+#define LC6                { 867500000, { ( ( DR_SF7 << 4 )  | DR_SF12 ) }, 0 }
+#define LC7                { 867700000, { ( ( DR_SF7 << 4 )  | DR_SF12 ) }, 0 }
+#define LC8                { 867900000, { ( ( DR_SF7 << 4 )  | DR_SF12 ) }, 0 }
+#define LC9                { 868900000, { ( ( DR_FSK << 4 )  | DR_FSK  ) }, 2 }
 
 #elif defined( USE_BAND_915 )
 
 /*!
  * Second reception window channel definition.
- * \remark DCycle field isn't used. This channel is Rx only
  */
 // Channel = { Frequency [Hz], Datarate }
-#define RX_WND_2_CHANNEL                                  { 903700000, DR_SF9 }
+#define RX_WND_2_CHANNEL                                  { 923300000, DR_SF10 }
+
+/*!
+ * LoRaMac maximum number of bands
+ */
+#define LORA_MAX_NB_BANDS                           1
+
+// Band = { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
+#define BAND0              { 1, TX_POWER_14_DBM, 0,  0 } //  100.0 %
 
 /*!
  * LoRaMac default channels
  */
-// Channel = { Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, DCycle }
-#define LC1                { 902700000, { ( ( DR_SF10 << 4 ) | DR_SF12 ) }, 0 }
-#define LC2                { 902900000, { ( ( DR_SF10 << 4 ) | DR_SF12 ) }, 0 }
-#define LC3                { 903100000, { ( ( DR_SF10 << 4 ) | DR_SF12 ) }, 0 }
+// Channel = { Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
+#define LC1                { 902300000, { ( ( DR_SF10 << 4 ) | DR_SF12 ) }, 0 }
+#define LC2                { 902500000, { ( ( DR_SF10 << 4 ) | DR_SF12 ) }, 0 }
+#define LC3                { 902700000, { ( ( DR_SF10 << 4 ) | DR_SF12 ) }, 0 }
 
 #else
     #error "Please define a frequency band in the compiler options."

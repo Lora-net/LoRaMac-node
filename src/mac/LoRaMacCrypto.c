@@ -150,7 +150,7 @@ void LoRaMacPayloadDecrypt( uint8_t *buffer, uint16_t size, uint8_t *key, uint32
     LoRaMacPayloadEncrypt( buffer, size, key, address, dir, sequenceCounter, decBuffer );
 }
 
-void LoRaMacJoinComputeMic( uint8_t *buffer, uint16_t size, uint8_t *key, uint32_t *mic )
+void LoRaMacJoinComputeMic( uint8_t *buffer, uint16_t size, const uint8_t *key, uint32_t *mic )
 {
     AES_CMAC_Init( AesCmacCtx );
 
@@ -163,14 +163,19 @@ void LoRaMacJoinComputeMic( uint8_t *buffer, uint16_t size, uint8_t *key, uint32
     *mic = ( uint32_t )( Mic[3] << 24 | Mic[2] << 16 | Mic[1] << 8 | Mic[0] );
 }
 
-void LoRaMacJoinDecrypt( uint8_t *buffer, uint16_t size, uint8_t *key, uint8_t *decBuffer )
+void LoRaMacJoinDecrypt( uint8_t *buffer, uint16_t size, const uint8_t *key, uint8_t *decBuffer )
 {
     memset1( AesContext.ksch, '\0', 240 );
     aes_set_key( key, size, &AesContext );
     aes_encrypt( buffer, decBuffer, &AesContext );
+    // Check if optional CFList is included
+    if( size >= 16 )
+    {
+        aes_encrypt( buffer + 16, decBuffer + 16, &AesContext );
+    }
 }
 
-void LoRaMacJoinComputeSKeys( uint8_t *key, uint8_t *appNonce, uint16_t devNonce, uint8_t *nwkSKey, uint8_t *appSKey )
+void LoRaMacJoinComputeSKeys( const uint8_t *key, uint8_t *appNonce, uint16_t devNonce, uint8_t *nwkSKey, uint8_t *appSKey )
 {
     uint8_t nonce[16];
     uint8_t *pDevNonce = ( uint8_t * )&devNonce;

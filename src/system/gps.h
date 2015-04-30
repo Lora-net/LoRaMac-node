@@ -57,6 +57,13 @@ void GpsPpsHandler( bool *parseData );
 bool GpsGetPpsDetectedState( void );
 
 /*!
+ * \brief Indicates if GPS has fix
+ *
+ * \retval hasFix
+ */
+bool GpsHasFix( void );
+
+/*!
  * \brief Converts the latest Position (latitude and longitude) into a binary
  *        number
  */

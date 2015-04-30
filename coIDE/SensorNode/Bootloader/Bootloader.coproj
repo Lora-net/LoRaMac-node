@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<Project version="2G - 1.7.7" name="BootLoader">
+<Project version="2G - 2.0.1" name="BootLoader">
   <Target name="BootLoader" isCurrent="1">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="528" chipName="STM32L151C8" boardId="" boardName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="819" chipName="STM32L151C8U6" boardId="" boardName="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="4"/>
@@ -79,6 +79,7 @@
     <ExcludeFile/>
   </Target>
   <Components path="./"/>
+  <LocalComponents/>
   <Files>
     <File name="boards/SensorNode/usb" path="" type="2"/>
     <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_tim.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_tim.c" type="1"/>
@@ -132,4 +133,5 @@
     <File name="system/i2c.c" path="../../../src/system/i2c.c" type="1"/>
     <File name="main.c" path="../../../src/apps/BootLoader/SensorNode/main.c" type="1"/>
   </Files>
+  <Bookmarks/>
 </Project>

@@ -19,7 +19,7 @@ void AdcMcuInit( Adc_t *obj, PinNames adcInput )
 {
     obj->Adc = ( ADC_TypeDef *)ADC1_BASE;
 
-    ADC_DeInit( obj->Adc );   
+    ADC_DeInit( obj->Adc );
 
     GpioInit( &obj->AdcInput, adcInput, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 }
@@ -161,7 +161,7 @@ uint16_t AdcMcuRead( Adc_t *obj, uint8_t channel )
     if( ( channel == ADC_Channel_16 ) || ( channel == ADC_Channel_17 ) )
     {
         // De-initialize ADC
-        ADC_TempSensorVrefintCmd( DISABLE );    
+        ADC_TempSensorVrefintCmd( DISABLE );
     }
 
     RCC_APB2PeriphClockCmd( RCC_APB2Periph_ADC1, DISABLE );

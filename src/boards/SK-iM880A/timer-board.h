@@ -16,6 +16,13 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define __TIMER_BOARD_H__
 
 /*!
+ * \brief Timer time variable definition
+ */
+#ifndef TimerTime_t
+typedef uint64_t TimerTime_t;
+#endif
+
+/*!
  * \brief Initializes the timer
  *
  * \remark The timer is based on TIM2 with a 10uS time basis
@@ -51,17 +58,22 @@ void TimerHwDelayMs( uint32_t delay );
 /*!
  * \brief Stop the the Standard Timer counter
  */
-void TimerHwStop( void ); 
+void TimerHwStop( void );
 
 /*!
- * \brief Return the value on the timer counter
+ * \brief Return the value of the timer counter
  */
-uint64_t TimerHwGetTimerValue( void );
+TimerTime_t TimerHwGetTimerValue( void );
+
+/*!
+ * \brief Return the value of the current time in us
+ */
+TimerTime_t TimerHwGetTime( void );
 
 /*!
  * \brief Return the value on the timer Tick counter
  */
-uint64_t TimerHwGetElapsedTime( void );
+TimerTime_t TimerHwGetElapsedTime( void );
 
 /*!
  * \brief Set the ARM core in Wait For Interrupt mode (only working if Debug mode is not used)
