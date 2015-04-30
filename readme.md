@@ -10,7 +10,7 @@ SX1272/76 radio drivers plus Ping-Pong firmware and LoRaWAN node firmware implem
 
 1. Introduction
 ----------------
-The aim of this project is to show an example of the LoRaWAN specification endpoint firmware
+The aim of this project is to show examples of the LoRaWAN specification endpoint firmware
 implementation.
 
 **REMARK 1:** It has been decided to continue the maintenance of the Semtech LoRaWAN implementation.
@@ -18,13 +18,14 @@ implementation.
 **REMARK 2:** A new repository will be created on GitHub in order to have a [IBM 'LoRaWAN in C'](http://www.research.ibm.com/labs/zurich/ics/lrsc/lmic.html)
 based implementation.
 
-*The IBM 'LoRaWAN in C' implementation adds the support of the Class A endpoint
-fully implemented and Class B endpoints.*
+*The IBM 'LoRaWAN in C' implementation supports the Class A profile and partial
+Class B support (beacon synchronization).*
 
 * A port of the IBM 'LoRaWAN in C' can be found on [MBED Semtech Team page](http://developer.mbed.org/teams/Semtech/)
 project [LoRaWAN-lmic-app](http://developer.mbed.org/teams/Semtech/code/LoRaWAN-lmic-app/) *
 
-**REMARK 3:** *This is a EU868 band Class A endpoint implementation fully compatible with LoRaWAN 1.0 specification.*
+**REMARK 3:** *The Semtech implementation is a EU868 band Class A endpoint
+implementation fully compatible with LoRaWAN 1.0 specification.*
 
 2. System schematic and definitions
 ------------------------------------
