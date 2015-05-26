@@ -1344,9 +1344,9 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                     ChannelParams_t param;
                     param.DrRange.Value = ( DR_SF7 << 4 )  | DR_SF12;
                     
-                    for( i = 3; i < 8; i += 3 )
+                    for(uint8_t j = 3; j < 6*3; j += 3, i++ )
                     {
-                        param.Frequency = ( LoRaMacPayload[10 + i] | ( LoRaMacPayload[11 + i] << 8 ) | ( LoRaMacPayload[12 + i] << 16 ) ) * 100;
+                        param.Frequency = ( LoRaMacPayload[10 + j] | ( LoRaMacPayload[11 + j] << 8 ) | ( LoRaMacPayload[12 + j] << 16 ) ) * 100;
                         LoRaMacSetChannel( i, param );
                     }
                 }
