@@ -1181,7 +1181,7 @@ static void LoRaMacProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8
                     chParam.Frequency *= 100;
                     chParam.DrRange.Value = payload[macIndex++];
                     
-                    if( ( channelIndex < 3 ) && ( channelIndex > LORA_MAX_NB_CHANNELS ) )
+                    if( ( channelIndex < 3 ) || ( channelIndex > LORA_MAX_NB_CHANNELS ) )
                     {
                         status &= 0xFE; // Channel frequency KO
                     }
