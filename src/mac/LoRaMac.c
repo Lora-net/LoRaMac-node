@@ -1585,14 +1585,12 @@ static void OnRxWindow1TimerEvent( void )
     int8_t datarate = 0;
     uint32_t bandwidth = 0; // LoRa 125 kHz
 
-    if( ChannelsDatarate <= ( Rx1DrOffset + 1 ) )
+    datarate = ChannelsDatarate - Rx1DrOffset;
+    if( datarate < 0 )
     {
         datarate = DR_SF12;
     }
-    else
-    {
-        datarate = ChannelsDatarate - Rx1DrOffset;
-    }
+
     // For higher datarates, we increase the number of symbols generating a Rx Timeout
     if( datarate >= DR_SF9 )
     { // DR_SF7H, DR_SF7, DR_SF8, DR_SF9
