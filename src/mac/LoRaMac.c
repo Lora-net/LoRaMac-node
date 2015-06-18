@@ -1296,6 +1296,11 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
     switch( macHdr.Bits.MType )
     {
         case FRAME_TYPE_JOIN_ACCEPT:
+            if (IsLoRaMacNetworkJoined) {
+              // already joined to network, ignore join accept message
+              break;
+            }
+        
             LoRaMacJoinDecrypt( payload + 1, size - 1, LoRaMacAppKey, LoRaMacPayload + 1 );
 
             LoRaMacPayload[0] = macHdr.Value;
