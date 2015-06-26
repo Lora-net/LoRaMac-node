@@ -1191,11 +1191,11 @@ static void LoRaMacProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8
                         status &= 0xFE; // Channel frequency KO
                     }
 
-                    if( ( chParam.DrRange.Fields.Min > chParam.DrRange.Fields.Max ) &&
-                        ( ( LORAMAC_MIN_DATARATE <= chParam.DrRange.Fields.Min ) &&
-                          ( chParam.DrRange.Fields.Min <= LORAMAC_MAX_DATARATE ) == false ) &&
-                        ( ( LORAMAC_MIN_DATARATE <= chParam.DrRange.Fields.Max ) &&
-                          ( chParam.DrRange.Fields.Max <= LORAMAC_MAX_DATARATE ) == false ) )
+                    if( ( chParam.DrRange.Fields.Min > chParam.DrRange.Fields.Max ) ||
+                        ( ( ( LORAMAC_MIN_DATARATE <= chParam.DrRange.Fields.Min ) &&
+                            ( chParam.DrRange.Fields.Min <= LORAMAC_MAX_DATARATE ) ) == false ) ||
+                        ( ( ( LORAMAC_MIN_DATARATE <= chParam.DrRange.Fields.Max ) &&
+                            ( chParam.DrRange.Fields.Max <= LORAMAC_MAX_DATARATE ) ) == false ) )
                     {
                         status &= 0xFD; // Datarate range KO
                     }
