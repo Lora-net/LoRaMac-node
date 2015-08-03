@@ -1485,7 +1485,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                     if( fCtrl.Bits.FOptsLen > 0 )
                     {
                         // Decode Options field MAC commands
-                        LoRaMacProcessMacCommands( payload, 8, appPayloadStartIndex );
+                        LoRaMacProcessMacCommands( payload, 8, 8 + fCtrl.Bits.FOptsLen );
                     }
                     if( port == 0 )
                     {
