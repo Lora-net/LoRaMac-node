@@ -191,12 +191,6 @@ static ChannelParams_t Channels[LORA_MAX_NB_CHANNELS] =
     LC1,
     LC2,
     LC3,
-    LC4,
-    LC5,
-    LC6,
-    LC7,
-    LC8,
-    LC9,
 };
 #else
 /*!
