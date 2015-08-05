@@ -191,12 +191,6 @@ static ChannelParams_t Channels[LORA_MAX_NB_CHANNELS] =
     LC1,
     LC2,
     LC3,
-    LC4,
-    LC5,
-    LC6,
-    LC7,
-    LC8,
-    LC9,
 };
 #else
 /*!
@@ -1375,6 +1369,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                     // We are not the destination of this frame.
                     LoRaMacEventFlags.Bits.Tx = 1;
                     LoRaMacEventInfo.Status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
+                    LoRaMacState &= ~MAC_TX_RUNNING;
                     return;
                 }
                 
@@ -1485,7 +1480,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                     if( fCtrl.Bits.FOptsLen > 0 )
                     {
                         // Decode Options field MAC commands
-                        LoRaMacProcessMacCommands( payload, 8, appPayloadStartIndex );
+                        LoRaMacProcessMacCommands( payload, 8, 8 + fCtrl.Bits.FOptsLen );
                     }
                     if( port == 0 )
                     {
@@ -1502,6 +1497,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                     
                     LoRaMacEventFlags.Bits.Tx = 1;
                     LoRaMacEventInfo.Status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
+                    LoRaMacState &= ~MAC_TX_RUNNING;
                 }
             }
             break;
@@ -1510,6 +1506,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
         default:
             LoRaMacEventFlags.Bits.Tx = 1;
             LoRaMacEventInfo.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+            LoRaMacState &= ~MAC_TX_RUNNING;
             break;
     }
 }
