@@ -1369,6 +1369,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                     // We are not the destination of this frame.
                     LoRaMacEventFlags.Bits.Tx = 1;
                     LoRaMacEventInfo.Status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
+                    LoRaMacState &= ~MAC_TX_RUNNING;
                     return;
                 }
                 
@@ -1496,6 +1497,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                     
                     LoRaMacEventFlags.Bits.Tx = 1;
                     LoRaMacEventInfo.Status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
+                    LoRaMacState &= ~MAC_TX_RUNNING;
                 }
             }
             break;
@@ -1504,6 +1506,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
         default:
             LoRaMacEventFlags.Bits.Tx = 1;
             LoRaMacEventInfo.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+            LoRaMacState &= ~MAC_TX_RUNNING;
             break;
     }
 }
