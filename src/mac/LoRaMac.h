@@ -114,6 +114,16 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define LORA_MAC_PUBLIC_SYNCWORD                    0x34
 
 /*!
+ * LoRaWAN devices classes definition
+ */
+typedef enum
+{
+    CLASS_A,
+    CLASS_B,
+    CLASS_C,
+}DeviceClass_t;
+
+/*!
  * LoRaMAC channels parameters definition
  */
 typedef union
@@ -147,6 +157,15 @@ typedef struct
     uint32_t Frequency; // Hz
     uint8_t  Datarate;  // [0: SF12, 1: SF11, 2: SF10, 3: SF9, 4: SF8, 5: SF7, 6: SF7, 7: FSK]
 }PACKED Rx2ChannelParams_t;
+
+typedef struct MulticastParams_s
+{
+    uint32_t Address;
+    uint8_t NwkSKey[16];
+    uint8_t AppSKey[16];
+    uint32_t DownLinkCounter;
+    struct MulticastParams_s *Next;
+}PACKED MulticastParams_t;
 
 /*!
  * LoRaMAC frame types
@@ -240,10 +259,10 @@ typedef union
     uint8_t Value;
     struct
     {
-        uint8_t                 : 1;
         uint8_t Tx              : 1;
         uint8_t Rx              : 1;
         uint8_t RxData          : 1;
+        uint8_t Multicast       : 1;
         uint8_t RxSlot          : 2;
         uint8_t LinkCheck       : 1;
         uint8_t JoinAccept      : 1;
@@ -328,6 +347,16 @@ void LoRaMacSetAdrOn( bool enable );
  *                     ( 16 bytes )
  */
 void LoRaMacInitNwkIds( uint32_t netID, uint32_t devAddr, uint8_t *nwkSKey, uint8_t *appSKey );
+
+/*
+ * TODO: Add documentation
+ */
+void LoRaMacMulticastChannelAdd( MulticastParams_t *channelParam );
+
+/*
+ * TODO: Add documentation
+ */
+void LoRaMacMulticastChannelRemove( MulticastParams_t *channelParam );
 
 /*!
  * Initiates the Over-the-Air activation 
@@ -442,6 +471,11 @@ uint8_t LoRaMacSendOnChannel( ChannelParams_t channel, LoRaMacHeader_t *macHdr, 
 /*
  * TODO: Add documentation
  */
+void LoRaMacSetDeviceClass( DeviceClass_t deviceClass );
+
+/*
+ * TODO: Add documentation
+ */
 void LoRaMacSetPublicNetwork( bool enable );
 
 /*
@@ -497,10 +531,9 @@ void LoRaMacSetJoinAcceptDelay2( uint32_t delay );
 /*!
  * Sets channels datarate
  *
- * \param [IN] datrate [DR_SF12, DR_SF11, DR_SF10, DR_SF9,
-                        DR_SF8, DR_SF7, DR_SF7H, DR_FSK]
+ * \param [IN] datarate eu868 - [DR_0, DR_1, DR_2, DR_3, DR_4, DR_5, DR_6, DR_7]
  */
-void LoRaMacSetChannelsDatarate( int8_t datrate );
+void LoRaMacSetChannelsDatarate( int8_t datarate );
 
 /*!
  * Sets channels tx output power

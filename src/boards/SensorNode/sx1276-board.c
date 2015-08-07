@@ -153,6 +153,6 @@ void SX1276SetAntSw( uint8_t rxTx )
 
 bool SX1276CheckRfFrequency( uint32_t frequency )
 {
-    // Implement check. Currently all frequencies are supportted
+    // Implement check. Currently all frequencies are supported
     return true;
 }

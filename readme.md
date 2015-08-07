@@ -13,19 +13,20 @@ SX1272/76 radio drivers plus Ping-Pong firmware and LoRaWAN node firmware implem
 The aim of this project is to show examples of the LoRaWAN specification endpoint firmware
 implementation.
 
-**REMARK 1:** It has been decided to continue the maintenance of the Semtech LoRaWAN implementation.
+**REMARK 1:** *The Semtech implementation is a EU868 band Class A and Class C endpoint
+implementation fully compatible with LoRaWAN 1.0 specification.*
 
-**REMARK 2:** A new repository will be created on GitHub in order to have a [IBM 'LoRaWAN in C'](http://www.research.ibm.com/labs/zurich/ics/lrsc/lmic.html)
-based implementation.
+**REMARK 2:** *The Class C normal operation has been tested using the Actility servers.*
+
+**REMARK 3:** *The Class C Multicast messages handling is not yet tested.*
+
+**Note:**
 
 *The IBM 'LoRaWAN in C' implementation supports the Class A profile and partial
 Class B support (beacon synchronization).*
 
-* A port of the IBM 'LoRaWAN in C' can be found on [MBED Semtech Team page](http://developer.mbed.org/teams/Semtech/)
-project [LoRaWAN-lmic-app](http://developer.mbed.org/teams/Semtech/code/LoRaWAN-lmic-app/) *
-
-**REMARK 3:** *The Semtech implementation is a EU868 band Class A endpoint
-implementation fully compatible with LoRaWAN 1.0 specification.*
+*A port of the IBM 'LoRaWAN in C' can be found on [MBED Semtech Team page](http://developer.mbed.org/teams/Semtech/)
+project [LoRaWAN-lmic-app](http://developer.mbed.org/teams/Semtech/code/LoRaWAN-lmic-app/)*
 
 2. System schematic and definitions
 ------------------------------------
@@ -137,6 +138,30 @@ not of a bootloader and the radio frequency band to be used.
 
 6. Changelog
 -------------
+2015-08-07, v3.3
+* General
+    1. Added the support for LoRaWAN Class C devices.
+    2. Implemented the radios errata note workarounds. SX1276 errata 2.3 "Receiver Spurious Reception of a LoRa Signal" is not yet implemented.
+    3. Increased FSK SyncWord timeout value in order to listen for longer time if a down link is available or not. Makes FSK downlink more reliable.
+    4. Increased the UART USB FIFO buffer size in order to handle bigger chunks of data.
+
+* LoRaWAN
+    1. Renamed data rates as per LoRaWAN specification.
+    2. Added the support for LoRaWAN Class C devices.
+    3. Handling of the MAC commands was done incorrectly the condition to verify the length of the buffer has changed from < to <=.
+    4. Added the possibility to change the channel mask and number of repetitions trough SRV_MAC_LINK_ADR_REQ command when ADR is disabled.
+    5. Corrected Rx1DrOffset management. In previous version DR1 was missing for all offsets.
+    6. Changed confirmed messages function to use default datarate when ADR control is off.
+    7. After a Join accept the node falls back to the default datarate. Enables the user to Join a network using a different datarate from its own default one.
+    8. Corrected default FSK channel frequency.
+    9. Solved a firmware freezing when one of the following situations arrived in OnRxDone callback: bad address, bad MIC, bad frame. (Pull request #10)
+    10. Moved the MAC commands processing to the right places. FOpts field before the Payload and Port 0 just after the decryption. (Pull request #9)
+    11. Weird conditions to check datarate on cmd mac SRV_MAC_NEW_CHANNEL_REQ (Pull request #7)
+    12. Ignore join accept message if already joined (Pull request #6)
+    13. Channel index verification should use OR on SRV_MAC_NEW_CHANNEL_REQ command (Pull request #5)
+    14. Corrected the CFList management on JoinAccept. The for loop indexes were wrong. (Pull request #4)
+    15. Correction of AES key size (Pull request #3)
+
 2015-04-30, v3.2
 * General
     1. Updated LoRaMac implementation according to LoRaWAN R1.0 specification

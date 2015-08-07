@@ -86,16 +86,16 @@
     <File name="peripherals/gpio-ioe.c" path="../../../src/peripherals/gpio-ioe.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/stm32l1xx_tim.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_tim.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/stm32l1xx_flash_ramfunc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_flash_ramfunc.c" type="1"/>
-    <File name="boards/mcu/stm32/sysIrqHandlers.c" path="../../../src/boards/mcu/stm32/sysIrqHandlers.c" type="1"/>
-    <File name="boards/mcu/stm32" path="" type="2"/>
-    <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/stm32l1xx_dbgmcu.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_dbgmcu.c" type="1"/>
     <File name="boards/LoRaMote/i2c-board.c" path="../../../src/boards/LoRaMote/i2c-board.c" type="1"/>
+    <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/stm32l1xx_dbgmcu.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_dbgmcu.c" type="1"/>
+    <File name="boards/mcu/stm32" path="" type="2"/>
+    <File name="boards/mcu/stm32/sysIrqHandlers.c" path="../../../src/boards/mcu/stm32/sysIrqHandlers.c" type="1"/>
     <File name="boards/LoRaMote/STM32_USB-FS-Device_Driver/usb_init.c" path="../../../src/boards/mcu/stm32/STM32_USB-FS-Device_Driver/src/usb_init.c" type="1"/>
     <File name="boards/LoRaMote" path="" type="2"/>
     <File name="boards/LoRaMote/STM32_USB-FS-Device_Driver/usb_int.c" path="../../../src/boards/mcu/stm32/STM32_USB-FS-Device_Driver/src/usb_int.c" type="1"/>
     <File name="system" path="" type="2"/>
-    <File name="boards/LoRaMote/cmsis/system_stm32l1xx.c" path="../../../src/boards/LoRaMote/cmsis/system_stm32l1xx.c" type="1"/>
     <File name="boards/LoRaMote/STM32_USB-FS-Device_Driver/usb_regs.c" path="../../../src/boards/mcu/stm32/STM32_USB-FS-Device_Driver/src/usb_regs.c" type="1"/>
+    <File name="boards/LoRaMote/cmsis/system_stm32l1xx.c" path="../../../src/boards/LoRaMote/cmsis/system_stm32l1xx.c" type="1"/>
     <File name="boards/LoRaMote/usb" path="" type="2"/>
     <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/misc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/misc.c" type="1"/>
     <File name="boards/LoRaMote/usb/flash_if.c" path="../../../src/boards/LoRaMote/usb/dfu/src/flash_if.c" type="1"/>
@@ -109,8 +109,8 @@
     <File name="boards/LoRaMote/usb-dfu-board.c" path="../../../src/boards/LoRaMote/usb-dfu-board.c" type="1"/>
     <File name="boards/LoRaMote/usb/usb_prop.c" path="../../../src/boards/LoRaMote/usb/dfu/src/usb_prop.c" type="1"/>
     <File name="peripherals/sx1509.c" path="../../../src/peripherals/sx1509.c" type="1"/>
-    <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/stm32l1xx_exti.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_exti.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/stm32l1xx_spi.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_spi.c" type="1"/>
+    <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/stm32l1xx_exti.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_exti.c" type="1"/>
     <File name="boards/LoRaMote/usb/usb_pwr.c" path="../../../src/boards/LoRaMote/usb/dfu/src/usb_pwr.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/stm32l1xx_rtc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_rtc.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver" path="" type="2"/>

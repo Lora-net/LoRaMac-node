@@ -363,6 +363,11 @@ void SX1272SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
             SX1272Write( REG_PREAMBLEMSB, ( uint8_t )( ( preambleLen >> 8 ) & 0xFF ) );
             SX1272Write( REG_PREAMBLELSB, ( uint8_t )( preambleLen & 0xFF ) );
 
+            if( fixLen == 1 )
+            {
+                SX1272Write( REG_PAYLOADLENGTH, payloadLen );
+            }
+
             SX1272Write( REG_PACKETCONFIG1,
                          ( SX1272Read( REG_PACKETCONFIG1 ) & 
                            RF_PACKETCONFIG1_CRC_MASK &
@@ -738,10 +743,12 @@ void SX1272Send( uint8_t *buffer, uint8_t size )
             if( SX1272.Settings.LoRa.IqInverted == true )
             {
                 SX1272Write( REG_LR_INVERTIQ, ( ( SX1272Read( REG_LR_INVERTIQ ) & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK ) | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_ON ) );
+                SX1272Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_ON );
             }
             else
             {
                 SX1272Write( REG_LR_INVERTIQ, ( ( SX1272Read( REG_LR_INVERTIQ ) & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK ) | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_OFF ) );
+                SX1272Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_OFF );
             }      
         
             SX1272.Settings.LoRaPacketHandler.Size = size;
@@ -826,10 +833,12 @@ void SX1272SetRx( uint32_t timeout )
             if( SX1272.Settings.LoRa.IqInverted == true )
             {
                 SX1272Write( REG_LR_INVERTIQ, ( ( SX1272Read( REG_LR_INVERTIQ ) & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK ) | RFLR_INVERTIQ_RX_ON | RFLR_INVERTIQ_TX_OFF ) );
+                SX1272Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_ON );
             }
             else
             {
                 SX1272Write( REG_LR_INVERTIQ, ( ( SX1272Read( REG_LR_INVERTIQ ) & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK ) | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_OFF ) );
+                SX1272Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_OFF );
             }         
         
             rxContinuous = SX1272.Settings.LoRa.RxContinuous;
@@ -886,7 +895,7 @@ void SX1272SetRx( uint32_t timeout )
             TimerSetValue( &RxTimeoutSyncWord, ( 8.0 * ( SX1272.Settings.Fsk.PreambleLen +
                                                          ( ( SX1272Read( REG_SYNCCONFIG ) &
                                                             ~RF_SYNCCONFIG_SYNCSIZE_MASK ) +
-                                                         1.0 ) + 1.0 ) /
+                                                         1.0 ) + 10.0 ) /
                                                         ( double )SX1272.Settings.Fsk.Datarate ) * 1e6 );
             TimerStart( &RxTimeoutSyncWord );
         }
@@ -1206,36 +1215,39 @@ void SX1272OnDio0Irq( void )
             switch( SX1272.Settings.Modem )
             {
             case MODEM_FSK:
-                irqFlags = SX1272Read( REG_IRQFLAGS2 );
-                if( ( irqFlags & RF_IRQFLAGS2_CRCOK ) != RF_IRQFLAGS2_CRCOK )
+                if( SX1272.Settings.Fsk.CrcOn == true )
                 {
-                    // Clear Irqs
-                    SX1272Write( REG_IRQFLAGS1, RF_IRQFLAGS1_RSSI | 
-                                                RF_IRQFLAGS1_PREAMBLEDETECT |
-                                                RF_IRQFLAGS1_SYNCADDRESSMATCH );
-                    SX1272Write( REG_IRQFLAGS2, RF_IRQFLAGS2_FIFOOVERRUN );
-
-                    if( SX1272.Settings.Fsk.RxContinuous == false )
+                    irqFlags = SX1272Read( REG_IRQFLAGS2 );
+                    if( ( irqFlags & RF_IRQFLAGS2_CRCOK ) != RF_IRQFLAGS2_CRCOK )
                     {
-                        SX1272.Settings.State = RF_IDLE;
-                        TimerStart( &RxTimeoutSyncWord );
+                        // Clear Irqs
+                        SX1272Write( REG_IRQFLAGS1, RF_IRQFLAGS1_RSSI | 
+                                                    RF_IRQFLAGS1_PREAMBLEDETECT |
+                                                    RF_IRQFLAGS1_SYNCADDRESSMATCH );
+                        SX1272Write( REG_IRQFLAGS2, RF_IRQFLAGS2_FIFOOVERRUN );
+    
+                        if( SX1272.Settings.Fsk.RxContinuous == false )
+                        {
+                            SX1272.Settings.State = RF_IDLE;
+                            TimerStart( &RxTimeoutSyncWord );
+                        }
+                        else
+                        {
+                            // Continuous mode restart Rx chain
+                            SX1272Write( REG_RXCONFIG, SX1272Read( REG_RXCONFIG ) | RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK );
+                        }
+                        TimerStop( &RxTimeoutTimer );
+    
+                        if( ( RadioEvents != NULL ) && ( RadioEvents->RxError != NULL ) )
+                        {
+                            RadioEvents->RxError( );
+                        }
+                        SX1272.Settings.FskPacketHandler.PreambleDetected = false;
+                        SX1272.Settings.FskPacketHandler.SyncWordDetected = false;
+                        SX1272.Settings.FskPacketHandler.NbBytes = 0;
+                        SX1272.Settings.FskPacketHandler.Size = 0;
+                        break;
                     }
-                    else
-                    {
-                        // Continuous mode restart Rx chain
-                        SX1272Write( REG_RXCONFIG, SX1272Read( REG_RXCONFIG ) | RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK );
-                    }
-                    TimerStop( &RxTimeoutTimer );
-
-                    if( ( RadioEvents != NULL ) && ( RadioEvents->RxError != NULL ) )
-                    {
-                        RadioEvents->RxError( );
-                    }
-                    SX1272.Settings.FskPacketHandler.PreambleDetected = false;
-                    SX1272.Settings.FskPacketHandler.SyncWordDetected = false;
-                    SX1272.Settings.FskPacketHandler.NbBytes = 0;
-                    SX1272.Settings.FskPacketHandler.Size = 0;
-                    break;
                 }
 
                 // Read received packet size

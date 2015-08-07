@@ -320,13 +320,13 @@
     <File name="peripherals/mpl3115.c" path="../../../../src/peripherals/mpl3115.c" type="1"/>
     <File name="boards" path="" type="2"/>
     <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/stm32l1xx_usart.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_usart.c" type="1"/>
+    <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/stm32l1xx_tim.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_tim.c" type="1"/>
     <File name="boards/LoRaMote/board.c" path="../../../../src/boards/LoRaMote/board.c" type="1"/>
     <File name="peripherals/gpio-ioe.c" path="../../../../src/peripherals/gpio-ioe.c" type="1"/>
-    <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/stm32l1xx_tim.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_tim.c" type="1"/>
+    <File name="boards/LoRaMote/i2c-board.c" path="../../../../src/boards/LoRaMote/i2c-board.c" type="1"/>
     <File name="radio" path="" type="2"/>
     <File name="boards/mcu/stm32" path="" type="2"/>
     <File name="boards/mcu/stm32/sysIrqHandlers.c" path="../../../../src/boards/mcu/stm32/sysIrqHandlers.c" type="1"/>
-    <File name="boards/LoRaMote/i2c-board.c" path="../../../../src/boards/LoRaMote/i2c-board.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/stm32l1xx_dbgmcu.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_dbgmcu.c" type="1"/>
     <File name="boards/LoRaMote/spi-board.c" path="../../../../src/boards/LoRaMote/spi-board.c" type="1"/>
     <File name="boards/LoRaMote/timer-board.c" path="../../../../src/boards/LoRaMote/timer-board.c" type="1"/>
@@ -349,9 +349,9 @@
     <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/stm32l1xx_syscfg.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_syscfg.c" type="1"/>
     <File name="boards/LoRaMote/sx1272-board.c" path="../../../../src/boards/LoRaMote/sx1272-board.c" type="1"/>
     <File name="peripherals/sx1509.c" path="../../../../src/peripherals/sx1509.c" type="1"/>
+    <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/stm32l1xx_exti.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_exti.c" type="1"/>
     <File name="system/crypto/cmac.c" path="../../../../src/system/crypto/cmac.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/stm32l1xx_spi.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_spi.c" type="1"/>
-    <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/stm32l1xx_exti.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_exti.c" type="1"/>
     <File name="system/crypto/aes.c" path="../../../../src/system/crypto/aes.c" type="1"/>
     <File name="boards/LoRaMote/rtc-board.c" path="../../../../src/boards/LoRaMote/rtc-board.c" type="1"/>
     <File name="mac/LoRaMacCrypto.c" path="../../../../src/mac/LoRaMacCrypto.c" type="1"/>
@@ -367,14 +367,14 @@
     <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/stm32l1xx_rcc.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_rcc.c" type="1"/>
     <File name="boards/mcu" path="" type="2"/>
     <File name="boards/LoRaMote/STM32L1xx_StdPeriph_Driver/stm32l1xx_pwr.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_pwr.c" type="1"/>
+    <File name="radio/sx1272.c" path="../../../../src/radio/sx1272/sx1272.c" type="1"/>
     <File name="system/adc.c" path="../../../../src/system/adc.c" type="1"/>
     <File name="system/gpio.c" path="../../../../src/system/gpio.c" type="1"/>
-    <File name="radio/sx1272.c" path="../../../../src/radio/sx1272/sx1272.c" type="1"/>
     <File name="peripherals/mma8451.c" path="../../../../src/peripherals/mma8451.c" type="1"/>
     <File name="peripherals" path="" type="2"/>
     <File name="boards/LoRaMote/cmsis/startup_stm32l1xx_md.s" path="../../../../src/boards/LoRaMote/cmsis/arm-gcc/startup_stm32l1xx_md.s" type="1"/>
-    <File name="boards/LoRaMote/uart-board.c" path="../../../../src/boards/LoRaMote/uart-board.c" type="1"/>
     <File name="system/i2c.c" path="../../../../src/system/i2c.c" type="1"/>
+    <File name="boards/LoRaMote/uart-board.c" path="../../../../src/boards/LoRaMote/uart-board.c" type="1"/>
     <File name="system/crypto" path="" type="2"/>
     <File name="boards/LoRaMote/gps-board.c" path="../../../../src/boards/LoRaMote/gps-board.c" type="1"/>
   </Files>

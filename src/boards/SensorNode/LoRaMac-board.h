@@ -23,17 +23,17 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * Minimal datarate that can be used by the node
  */
-#define LORAMAC_MIN_DATARATE                        DR_SF12
+#define LORAMAC_MIN_DATARATE                        DR_0
 
 /*!
  * Minimal datarate that can be used by the node
  */
-#define LORAMAC_MAX_DATARATE                        DR_FSK
+#define LORAMAC_MAX_DATARATE                        DR_7
 
 /*!
  * Default datarate used by the node
  */
-#define LORAMAC_DEFAULT_DATARATE                    DR_SF12
+#define LORAMAC_DEFAULT_DATARATE                    DR_0
 
 /*!
  * Minimal Tx output power that can be used by the node
@@ -71,14 +71,14 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * LoRaMac datarates definition
  */
-#define DR_SF12                                     0
-#define DR_SF11                                     1
-#define DR_SF10                                     2
-#define DR_SF9                                      3
-#define DR_SF8                                      4
-#define DR_SF7                                      5
-#define DR_SF7H                                     6
-#define DR_FSK                                      7
+#define DR_0                                        0  // SF12 - BW125
+#define DR_1                                        1  // SF11 - BW125
+#define DR_2                                        2  // SF10 - BW125
+#define DR_3                                        3  // SF9  - BW125
+#define DR_4                                        4  // SF8  - BW125
+#define DR_5                                        5  // SF7  - BW125
+#define DR_6                                        6  // SF7  - BW250
+#define DR_7                                        7  // FSK
 
 /*!
  * LoRaMac default channels definition
@@ -89,7 +89,7 @@ Maintainer: Miguel Luis and Gregory Cristian
  * Second reception window channel definition.
  */
 // Channel = { Frequency [Hz], Datarate }
-#define RX_WND_2_CHANNEL                                  { 434200000, DR_SF9 }
+#define RX_WND_2_CHANNEL                                  { 434200000, DR_3 }
 
 /*!
  * LoRaMac maximum number of bands
@@ -103,9 +103,9 @@ Maintainer: Miguel Luis and Gregory Cristian
  * LoRaMac default channels
  */
 // Channel = { Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
-#define LC1                { 433300000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 0 }
-#define LC2                { 433500000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 0 }
-#define LC3                { 433700000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 0 }
+#define LC1                { 433300000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC2                { 433500000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC3                { 433700000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 
 #elif defined( USE_BAND_470 )
 
@@ -113,7 +113,7 @@ Maintainer: Miguel Luis and Gregory Cristian
  * Second reception window channel definition.
  */
 // Channel = { Frequency [Hz], Datarate }
-#define RX_WND_2_CHANNEL                                  { 473400000, DR_SF9 }
+#define RX_WND_2_CHANNEL                                  { 473400000, DR_3 }
 
 /*!
  * LoRaMac maximum number of bands
@@ -127,9 +127,9 @@ Maintainer: Miguel Luis and Gregory Cristian
  * LoRaMac default channels
  */
 // Channel = { Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
-#define LC1                { 471300000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 0 }
-#define LC2                { 471500000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 0 }
-#define LC3                { 471700000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 0 }
+#define LC1                { 471300000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC2                { 471500000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC3                { 471700000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 
 #elif defined( USE_BAND_868 )
 
@@ -137,7 +137,7 @@ Maintainer: Miguel Luis and Gregory Cristian
  * Second reception window channel definition.
  */
 // Channel = { Frequency [Hz], Datarate }
-#define RX_WND_2_CHANNEL                                  { 869525000, DR_SF9 }
+#define RX_WND_2_CHANNEL                                  { 869525000, DR_3 }
 
 /*!
  * LoRaMac maximum number of bands
@@ -167,15 +167,15 @@ typedef enum
  * LoRaMac default channels
  */
 // Channel = { Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
-#define LC1                { 868100000, { ( ( DR_SF7 << 4 )  | DR_SF12 ) }, 1 }
-#define LC2                { 868300000, { ( ( DR_SF7H << 4 ) | DR_SF12 ) }, 1 }
-#define LC3                { 868500000, { ( ( DR_SF7 << 4 )  | DR_SF12 ) }, 1 }
-#define LC4                { 867100000, { ( ( DR_SF7 << 4 )  | DR_SF12 ) }, 0 }
-#define LC5                { 867300000, { ( ( DR_SF7 << 4 )  | DR_SF12 ) }, 0 }
-#define LC6                { 867500000, { ( ( DR_SF7 << 4 )  | DR_SF12 ) }, 0 }
-#define LC7                { 867700000, { ( ( DR_SF7 << 4 )  | DR_SF12 ) }, 0 }
-#define LC8                { 867900000, { ( ( DR_SF7 << 4 )  | DR_SF12 ) }, 0 }
-#define LC9                { 868900000, { ( ( DR_FSK << 4 )  | DR_FSK  ) }, 2 }
+#define LC1                { 868100000, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 }
+#define LC2                { 868300000, { ( ( DR_6 << 4 ) | DR_0 ) }, 1 }
+#define LC3                { 868500000, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 }
+#define LC4                { 867100000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC5                { 867300000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC6                { 867500000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC7                { 867700000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC8                { 867900000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC9                { 868800000, { ( ( DR_7 << 4 ) | DR_7 ) }, 2 }
 
 #elif defined( USE_BAND_915 )
 
@@ -183,7 +183,7 @@ typedef enum
  * Second reception window channel definition.
  */
 // Channel = { Frequency [Hz], Datarate }
-#define RX_WND_2_CHANNEL                                  { 923300000, DR_SF10 }
+#define RX_WND_2_CHANNEL                                  { 923300000, DR_2 }
 
 /*!
  * LoRaMac maximum number of bands
@@ -197,9 +197,9 @@ typedef enum
  * LoRaMac default channels
  */
 // Channel = { Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
-#define LC1                { 902300000, { ( ( DR_SF10 << 4 ) | DR_SF12 ) }, 0 }
-#define LC2                { 902500000, { ( ( DR_SF10 << 4 ) | DR_SF12 ) }, 0 }
-#define LC3                { 902700000, { ( ( DR_SF10 << 4 ) | DR_SF12 ) }, 0 }
+#define LC1                { 902300000, { ( ( DR_5 << 4 ) | DR_2 ) }, 0 }
+#define LC2                { 902500000, { ( ( DR_5 << 4 ) | DR_2 ) }, 0 }
+#define LC3                { 902700000, { ( ( DR_5 << 4 ) | DR_2 ) }, 0 }
 
 #else
     #error "Please define a frequency band in the compiler options."

@@ -66,6 +66,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define REG_LR_INVERTIQ                             0x33
 #define REG_LR_DETECTIONTHRESHOLD                   0x37
 #define REG_LR_SYNCWORD                             0x39
+#define REG_LR_INVERTIQ2                            0x3B
 
 // end of documented register in datasheet
 // I/O settings
@@ -425,6 +426,12 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 #define RFLR_DETECTIONTHRESH_SF7_TO_SF12            0x0A // Default
 #define RFLR_DETECTIONTHRESH_SF6                    0x0C
+
+/*!
+ * RegInvertIQ2
+ */
+#define RFLR_INVERTIQ2_ON                           0x19
+#define RFLR_INVERTIQ2_OFF                          0x1D
 
 /*!
  * RegDioMapping1

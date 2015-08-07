@@ -26,7 +26,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * FIFO buffers size
  */
-#define FIFO_RX_SIZE                                256
+#define FIFO_RX_SIZE                                512
 
 uint8_t CdcRxBuffer[FIFO_RX_SIZE];
 

@@ -254,20 +254,22 @@ int main( void )
 {
     const ChannelParams_t channels[] = 
     { 
-        { 868100000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 1 },
-        { 868300000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 1 },
-        { 868500000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 1 },
-        { 867100000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 1 },
-        { 867300000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 1 },
-        { 867500000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 1 },
-        { 867700000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 1 },
-        { 867900000, { ( ( DR_SF7 << 4 ) | DR_SF12 ) }, 1 },
+        { 868100000, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 },
+        { 868300000, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 },
+        { 868500000, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 },
+        { 867100000, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 },
+        { 867300000, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 },
+        { 867500000, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 },
+        { 867700000, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 },
+        { 867900000, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 },
      };
-    const uint8_t  channelsDatarate[] = { DR_SF7, DR_SF10, DR_SF12 };
+    const uint8_t  channelsDatarate[] = { DR_5, DR_2, DR_0 };
 
     uint8_t channelNb = ( sizeof( channels ) / sizeof( ChannelParams_t ) );
 
+#if( OVER_THE_AIR_ACTIVATION != 0 )
     uint8_t sendFrameStatus = 0;
+#endif
     uint8_t tstState = 0;
     int16_t pktCnt = NB_PACKETS;
     LoRaMacHeader_t macHdr;
