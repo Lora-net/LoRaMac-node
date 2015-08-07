@@ -558,7 +558,7 @@ void OnChannelCheckTimerEvent( void )
     LoRaMacState &= ~MAC_CHANNEL_CHECK;
     if( LoRaMacSetNextChannel( ) == 0 )
     {
-        if( ( LoRaMacState & MAC_TX_RUNNING ) == MAC_TX_RUNNING )
+        if( ( LoRaMacState & MAC_TX_RUNNING ) != MAC_TX_RUNNING )
         {
            LoRaMacSendFrameOnChannel( Channels[Channel] );
         }
