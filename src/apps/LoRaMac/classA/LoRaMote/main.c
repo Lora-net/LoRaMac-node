@@ -230,7 +230,7 @@ static void OnTxNextPacketTimerEvent( void )
 static void OnLed1TimerEvent( void )
 {
     // Switch LED 1 OFF
-    GpioWrite( &Led1, 1 );
+    GpioWrite( &Led1, 0 );
 }
 
 /*!
@@ -239,7 +239,7 @@ static void OnLed1TimerEvent( void )
 static void OnLed2TimerEvent( void )
 {
     // Switch LED 2 OFF
-    GpioWrite( &Led2, 1 );
+    GpioWrite( &Led2, 0 );
 }
 
 /*!
@@ -267,7 +267,7 @@ static void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
         }
 
         // Switch LED 2 ON for each received downlink
-        GpioWrite( &Led2, 0 );
+        GpioWrite( &Led2, 1 );
         TimerStart( &Led2Timer );
     }
 
@@ -373,7 +373,7 @@ int main( void )
             PrepareTxFrame( AppPort );
             
             // Switch LED 1 ON
-            GpioWrite( &Led1, 0 );
+            GpioWrite( &Led1, 1 );
             TimerStart( &Led1Timer );
 
             trySendingFrameAgain = SendFrame( );
