@@ -42,17 +42,11 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define POW2( n ) ( 1 << n )
 
 /*!
- * \brief  Find First Set
- *         This function identifies the least significant index or position of the
- *         bits set to one in the word
+ * \brief Initializes the pseudo ramdom generator initial value
  *
- * \param [in]  value  Value to find least significant index
- * \retval bitIndex    Index of least significat bit at one
+ * \param [IN] seed Pseudo ramdom generator initial value
  */
-__STATIC_INLINE uint8_t __ffs( uint32_t value )
-{
-    return( uint32_t )( 32 - __CLZ( value & ( -value ) ) );
-}
+void srand1( uint32_t seed );
 
 /*!
  * \brief Computes a random number between min and max
@@ -72,7 +66,7 @@ int32_t randr( int32_t min, int32_t max );
  * \param [IN]  src  Source array
  * \param [IN]  size Number of bytes to be copied
  */
-void memcpy1( uint8_t *dst, uint8_t *src, uint16_t size );
+void memcpy1( uint8_t *dst, const uint8_t *src, uint16_t size );
 
 /*!
  * \brief Set size elements of dst array with value 
@@ -84,7 +78,6 @@ void memcpy1( uint8_t *dst, uint8_t *src, uint16_t size );
  * \param [IN]  size  Number of bytes to be copied
  */
 void memset1( uint8_t *dst, uint8_t value, uint16_t size );
-
 
 /*!
  * \brief Converts a nibble to an hexadecimal character

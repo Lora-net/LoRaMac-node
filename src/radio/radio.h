@@ -98,7 +98,7 @@ struct Radio_s
      *
      * \param status Radio status.[RF_IDLE, RF_RX_RUNNING, RF_TX_RUNNING]
      */
-    RadioState_t ( *Status )( void );
+    RadioState_t ( *GetStatus )( void );
     /*!
      * \brief Configures the radio with the given modem
      *
@@ -298,6 +298,14 @@ struct Radio_s
      * \param [IN] size Number of registers to be read
      */
     void    ( *ReadBuffer )( uint8_t addr, uint8_t *buffer, uint8_t size );
+    /*!
+     * \brief Sets the maximum payload length.
+     *
+     * \param [IN] modem      Radio modem to be used [0: FSK, 1: LoRa]
+     * \param [IN] max        Maximum payload length in bytes
+     */
+    void ( *SetMaxPayloadLength )( RadioModems_t modem, uint8_t max );
+
 };
 
 /*!

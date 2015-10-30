@@ -47,7 +47,7 @@ void TimerIncrementTickCounter( void );
 volatile uint32_t TimerDelayCounter = 0;
 
 /*!
- * Retunr the value of the counter used for a Delay
+ * Return the value of the counter used for a Delay
  */
 uint32_t TimerHwGetDelayValue( void );
 

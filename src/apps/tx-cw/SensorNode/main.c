@@ -21,9 +21,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RF_FREQUENCY                                434000000 // Hz
 #define TX_OUTPUT_POWER                             20        // 20 dBm
 
-#elif defined( USE_BAND_470 )
+#elif defined( USE_BAND_780 )
 
-#define RF_FREQUENCY                                470000000 // Hz
+#define RF_FREQUENCY                                780000000 // Hz
 #define TX_OUTPUT_POWER                             20        // 20 dBm
 
 #elif defined( USE_BAND_868 )
@@ -106,7 +106,7 @@ int main( void )
     /* if wrongly used. DO NOT CHANGE THE VALUES! */
     /*                                            */
     /**********************************************/
-#if ( defined( USE_BAND_433 ) || defined( USE_BAND_470 ) )
+#if defined( USE_BAND_433 )
 
     Radio.Write( 0x01, 0x88 );
     Radio.Write( 0x44, 0x7B );
@@ -118,7 +118,7 @@ int main( void )
     Radio.Write( 0x4D, 0x87 );
     Radio.Write( 0x52, 0x60 );
 
-#elif ( defined( USE_BAND_868 ) || defined( USE_BAND_915 ) )
+#elif ( defined( USE_BAND_780 ) || defined( USE_BAND_868 ) || defined( USE_BAND_915 ) )
 
     Radio.Write( 0x01, 0x80 );
     Radio.Write( 0x3D, 0xA1 );

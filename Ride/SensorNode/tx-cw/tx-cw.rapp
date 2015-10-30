@@ -74,8 +74,8 @@
 	<Configs>
 		<Config Header="tx-cw-433" />
 		<Config Header="tx-cw-433-Bootloader" />
-		<Config Header="tx-cw-470" />
-		<Config Header="tx-cw-470-Bootloader" />
+		<Config Header="tx-cw-780" />
+		<Config Header="tx-cw-780-Bootloader" />
 		<Config Header="tx-cw-868" />
 		<Config Header="tx-cw-868-Bootloader" />
 		<Config Header="tx-cw-915" />
@@ -280,7 +280,7 @@
 			</Set>
 																									
 		</Config>
-		<Config Header="tx-cw-470" >
+		<Config Header="tx-cw-780" >
 			<Set Header="Target" >
 				<Section Header="ProcessorARM" >
 					<Property Header="Processor" Value="STM32L151x8" />
@@ -327,7 +327,7 @@
 			</Set>
 			<Set Header="GCC" >
 				<Section Header="Defines" >
-					<Property Header="Defines" Value="USE_DEBUGGER;USE_BAND_470" Removable="1" />
+					<Property Header="Defines" Value="USE_DEBUGGER;USE_BAND_780" Removable="1" />
 																																																				
 				</Section>
 				<Section Header="OPTIMIZE" >
@@ -356,7 +356,7 @@
 			</Set>
 																									
 		</Config>
-		<Config Header="tx-cw-470-Bootloader" >
+		<Config Header="tx-cw-780-Bootloader" >
 			<Set Header="Target" >
 				<Section Header="ProcessorARM" >
 					<Property Header="Processor" Value="STM32L151x8" />
@@ -403,7 +403,7 @@
 			</Set>
 			<Set Header="GCC" >
 				<Section Header="Defines" >
-					<Property Header="Defines" Value="USE_DEBUGGER;USE_BAND_470;USE_BOOTLOADER" Removable="1" />
+					<Property Header="Defines" Value="USE_DEBUGGER;USE_BAND_780;USE_BOOTLOADER" Removable="1" />
 																																																				
 				</Section>
 				<Section Header="OPTIMIZE" >

@@ -62,8 +62,8 @@
 	<Configs>
 		<Config Header="ping-pong-433-lora" />
 		<Config Header="ping-pong-433-fsk" />
-		<Config Header="ping-pong-470-lora" />
-		<Config Header="ping-pong-470-fsk" />
+		<Config Header="ping-pong-780-lora" />
+		<Config Header="ping-pong-780-fsk" />
 		<Config Header="ping-pong-868-lora" />
 		<Config Header="ping-pong-868-fsk" />
 		<Config Header="ping-pong-915-lora" />
@@ -192,7 +192,7 @@
 			</Set>
 																																			
 		</Config>
-		<Config Header="ping-pong-470-lora" >
+		<Config Header="ping-pong-780-lora" >
 			<Set Header="Target" >
 				<Section Header="ProcessorARM" >
 					<Property Header="Processor" Value="STM32L151xD" />
@@ -239,7 +239,7 @@
 			</Set>
 			<Set Header="GCC" >
 				<Section Header="Defines" >
-					<Property Header="Defines" Value="USE_DEBUGGER;USE_BAND_470;USE_MODEM_LORA" Removable="1" />
+					<Property Header="Defines" Value="USE_DEBUGGER;USE_BAND_780;USE_MODEM_LORA" Removable="1" />
 																																																																						
 				</Section>
 				<Section Header="OPTIMIZE" >
@@ -496,7 +496,7 @@
 			</Set>
 																																			
 		</Config>
-		<Config Header="ping-pong-470-fsk" >
+		<Config Header="ping-pong-780-fsk" >
 			<Set Header="Target" >
 				<Section Header="ProcessorARM" >
 					<Property Header="Processor" Value="STM32L151xD" />
@@ -543,7 +543,7 @@
 			</Set>
 			<Set Header="GCC" >
 				<Section Header="Defines" >
-					<Property Header="Defines" Value="USE_DEBUGGER;USE_BAND_470;USE_MODEM_FSK" Removable="1" />
+					<Property Header="Defines" Value="USE_DEBUGGER;USE_BAND_780;USE_MODEM_FSK" Removable="1" />
 																																																																						
 				</Section>
 				<Section Header="OPTIMIZE" >

@@ -337,7 +337,7 @@
   </Target>
 
   <Target>
-    <TargetName>tx-cw-470</TargetName>
+    <TargetName>tx-cw-780</TargetName>
     <ToolsetNumber>0x4</ToolsetNumber>
     <ToolsetName>ARM-ADS</ToolsetName>
     <TargetOption>
@@ -359,7 +359,7 @@
         <PageWidth>79</PageWidth>
         <PageLength>66</PageLength>
         <TabStop>8</TabStop>
-        <ListingPath>.\lst\tx-cw-470\</ListingPath>
+        <ListingPath>.\lst\tx-cw-780\</ListingPath>
       </OPTLEX>
       <ListingPage>
         <CreateCListing>1</CreateCListing>
@@ -495,7 +495,7 @@
   </Target>
 
   <Target>
-    <TargetName>tx-cw-470-Bootloader</TargetName>
+    <TargetName>tx-cw-780-Bootloader</TargetName>
     <ToolsetNumber>0x4</ToolsetNumber>
     <ToolsetName>ARM-ADS</ToolsetName>
     <TargetOption>
@@ -517,7 +517,7 @@
         <PageWidth>79</PageWidth>
         <PageLength>66</PageLength>
         <TabStop>8</TabStop>
-        <ListingPath>.\lst\tx-cw-470-Bootloader\</ListingPath>
+        <ListingPath>.\lst\tx-cw-780-Bootloader\</ListingPath>
       </OPTLEX>
       <ListingPage>
         <CreateCListing>1</CreateCListing>

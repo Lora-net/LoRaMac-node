@@ -55,7 +55,7 @@ void SX1272Reset( void );
 
 /*!
  * \brief Sets the SX1272 in transmission mode for the given time
- * \param [IN] timeout Transmission timeout [ms] [0: continuous, others timeout]
+ * \param [IN] timeout Transmission timeout [us] [0: continuous, others timeout]
  */
 void SX1272SetTx( uint32_t timeout );
 
@@ -1157,6 +1157,24 @@ void SX1272ReadFifo( uint8_t *buffer, uint8_t size )
     SX1272ReadBuffer( 0, buffer, size );
 }
 
+void SX1272SetMaxPayloadLength( RadioModems_t modem, uint8_t max )
+{
+    SX1272SetModem( modem );
+
+    switch( modem )
+    {
+    case MODEM_FSK:
+        if( SX1272.Settings.Fsk.FixLen == false )
+        {
+            SX1272Write( REG_PAYLOADLENGTH, max );
+        }
+        break;
+    case MODEM_LORA:
+        SX1272Write( REG_LR_PAYLOADMAXLENGTH, max );
+        break;
+    }
+}
+
 void SX1272OnTimeoutIrq( void )
 {
     switch( SX1272.Settings.State )
@@ -1205,7 +1223,7 @@ void SX1272OnTimeoutIrq( void )
 
 void SX1272OnDio0Irq( void )
 {
-    __IO uint8_t irqFlags = 0;
+    volatile uint8_t irqFlags = 0;
 
     switch( SX1272.Settings.State )
     {                

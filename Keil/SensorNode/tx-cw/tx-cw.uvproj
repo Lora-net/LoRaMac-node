@@ -1325,7 +1325,7 @@
       </Groups>
     </Target>
     <Target>
-      <TargetName>tx-cw-470</TargetName>
+      <TargetName>tx-cw-780</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
@@ -1362,14 +1362,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\obj\tx-cw-470\</OutputDirectory>
+          <OutputDirectory>.\obj\tx-cw-780\</OutputDirectory>
           <OutputName>tx-cw</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\lst\tx-cw-470\</ListingPath>
+          <ListingPath>.\lst\tx-cw-780\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -1679,7 +1679,7 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_DEBUGGER USE_BAND_470</Define>
+              <Define>USE_DEBUGGER USE_BAND_780</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\src;..\..\..\src\boards\SensorNode;..\..\..\src\boards\SensorNode\cmsis;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\inc;..\..\..\src\mac;..\..\..\src\peripherals;..\..\..\src\radio;..\..\..\src\system;..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -1984,7 +1984,7 @@
       </Groups>
     </Target>
     <Target>
-      <TargetName>tx-cw-470-Bootloader</TargetName>
+      <TargetName>tx-cw-780-Bootloader</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
@@ -2021,14 +2021,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\obj\tx-cw-470-Bootloader\</OutputDirectory>
+          <OutputDirectory>.\obj\tx-cw-780-Bootloader\</OutputDirectory>
           <OutputName>tx-cw</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\lst\tx-cw-470-Bootloader\</ListingPath>
+          <ListingPath>.\lst\tx-cw-780-Bootloader\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -2338,7 +2338,7 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_DEBUGGER USE_BAND_470 USE_BOOTLOADER</Define>
+              <Define>USE_DEBUGGER USE_BAND_780 USE_BOOTLOADER</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\src;..\..\..\src\boards\SensorNode;..\..\..\src\boards\SensorNode\cmsis;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\inc;..\..\..\src\mac;..\..\..\src\peripherals;..\..\..\src\radio;..\..\..\src\system;..\..\..\src\system\crypto</IncludePath>
             </VariousControls>

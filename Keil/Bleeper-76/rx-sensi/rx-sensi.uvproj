@@ -1205,7 +1205,7 @@
       </Groups>
     </Target>
     <Target>
-      <TargetName>rx-sensi-470-lora</TargetName>
+      <TargetName>rx-sensi-780-lora</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
@@ -1242,14 +1242,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\obj\rx-sensi-470-lora\</OutputDirectory>
+          <OutputDirectory>.\obj\rx-sensi-780-lora\</OutputDirectory>
           <OutputName>rx-sensi</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\lst\rx-sensi-470-lora\</ListingPath>
+          <ListingPath>.\lst\rx-sensi-780-lora\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -1559,7 +1559,7 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_DEBUGGER USE_BAND_470 USE_MODEM_LORA</Define>
+              <Define>USE_DEBUGGER USE_BAND_780 USE_MODEM_LORA</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\src;..\..\..\src\boards\Bleeper-76;..\..\..\src\boards\Bleeper-76\cmsis;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\inc;..\..\..\src\mac;..\..\..\src\peripherals;..\..\..\src\radio;..\..\..\src\system;..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -1804,7 +1804,7 @@
       </Groups>
     </Target>
     <Target>
-      <TargetName>rx-sensi-470-fsk</TargetName>
+      <TargetName>rx-sensi-780-fsk</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
@@ -1841,14 +1841,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\obj\rx-sensi-470-fsk\</OutputDirectory>
+          <OutputDirectory>.\obj\rx-sensi-780-fsk\</OutputDirectory>
           <OutputName>rx-sensi</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\lst\rx-sensi-470-fsk\</ListingPath>
+          <ListingPath>.\lst\rx-sensi-780-fsk\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -2158,7 +2158,7 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_DEBUGGER USE_BAND_470 USE_MODEM_FSK</Define>
+              <Define>USE_DEBUGGER USE_BAND_780 USE_MODEM_FSK</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\src;..\..\..\src\boards\Bleeper-76;..\..\..\src\boards\Bleeper-76\cmsis;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\inc;..\..\..\src\mac;..\..\..\src\peripherals;..\..\..\src\radio;..\..\..\src\system;..\..\..\src\system\crypto</IncludePath>
             </VariousControls>

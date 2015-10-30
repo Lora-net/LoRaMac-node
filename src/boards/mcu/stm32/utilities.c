@@ -23,16 +23,16 @@ Maintainer: Miguel Luis and Gregory Cristian
  * different compiler toolchains implementations.
  */
 // Standard random functions redefinition start
-#define RAND_LOCAL_MAX 2147483647
+#define RAND_LOCAL_MAX 2147483647L
 
-static unsigned long next = 1;
+static uint32_t next = 1;
 
-int rand( void )
+int32_t rand1( void )
 {
-    return ( ( next = next * 1103515245 + 12345 ) % RAND_LOCAL_MAX );
+    return ( ( next = next * 1103515245L + 12345L ) % RAND_LOCAL_MAX );
 }
 
-void srand( unsigned int seed )
+void srand1( uint32_t seed )
 {
     next = seed;
 }
@@ -40,10 +40,10 @@ void srand( unsigned int seed )
 
 int32_t randr( int32_t min, int32_t max )
 {
-    return ( int32_t )rand( ) % ( max - min + 1 ) + min;
+    return ( int32_t )rand1( ) % ( max - min + 1 ) + min;
 }
 
-void memcpy1( uint8_t *dst, uint8_t *src, uint16_t size )
+void memcpy1( uint8_t *dst, const uint8_t *src, uint16_t size )
 {
     while( size-- )
     {
@@ -73,15 +73,4 @@ int8_t Nibble2HexChar( uint8_t a )
     {
         return '?';
     }
-}
-
-#ifdef __GNUC__
-/* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
-   set to 'Yes') calls __io_putchar() */
-int __io_putchar( int c )
-#else /* __GNUC__ */
-int fputc( int c, FILE *stream )
-#endif
-{
-   return( ITM_SendChar( c ) );
 }

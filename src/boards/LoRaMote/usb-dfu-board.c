@@ -22,6 +22,12 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "usb-dfu-board.h"
 
 #include "dfu_mal.h"
+/*!
+ * Unique Devices IDs register set ( STM32L1xxx )
+ */
+#define         ID1                                 ( 0x1FF80050 )
+#define         ID2                                 ( 0x1FF80054 )
+#define         ID3                                 ( 0x1FF80064 )
 
 EXTI_InitTypeDef EXTI_InitStructure;
 

@@ -653,7 +653,7 @@
   </Target>
 
   <Target>
-    <TargetName>rx-sensi-470-lora</TargetName>
+    <TargetName>rx-sensi-780-lora</TargetName>
     <ToolsetNumber>0x4</ToolsetNumber>
     <ToolsetName>ARM-ADS</ToolsetName>
     <TargetOption>
@@ -675,7 +675,7 @@
         <PageWidth>79</PageWidth>
         <PageLength>66</PageLength>
         <TabStop>8</TabStop>
-        <ListingPath>.\lst\rx-sensi-470-lora\</ListingPath>
+        <ListingPath>.\lst\rx-sensi-780-lora\</ListingPath>
       </OPTLEX>
       <ListingPage>
         <CreateCListing>1</CreateCListing>
@@ -811,7 +811,7 @@
   </Target>
 
   <Target>
-    <TargetName>rx-sensi-470-fsk</TargetName>
+    <TargetName>rx-sensi-780-fsk</TargetName>
     <ToolsetNumber>0x4</ToolsetNumber>
     <ToolsetName>ARM-ADS</ToolsetName>
     <TargetOption>
@@ -833,7 +833,7 @@
         <PageWidth>79</PageWidth>
         <PageLength>66</PageLength>
         <TabStop>8</TabStop>
-        <ListingPath>.\lst\rx-sensi-470-fsk\</ListingPath>
+        <ListingPath>.\lst\rx-sensi-780-fsk\</ListingPath>
       </OPTLEX>
       <ListingPage>
         <CreateCListing>1</CreateCListing>
@@ -969,7 +969,7 @@
   </Target>
 
   <Target>
-    <TargetName>rx-sensi-470-lora-Bootloader</TargetName>
+    <TargetName>rx-sensi-780-lora-Bootloader</TargetName>
     <ToolsetNumber>0x4</ToolsetNumber>
     <ToolsetName>ARM-ADS</ToolsetName>
     <TargetOption>
@@ -991,7 +991,7 @@
         <PageWidth>79</PageWidth>
         <PageLength>66</PageLength>
         <TabStop>8</TabStop>
-        <ListingPath>.\lst\rx-sensi-470-lora-Bootloader\</ListingPath>
+        <ListingPath>.\lst\rx-sensi-780-lora-Bootloader\</ListingPath>
       </OPTLEX>
       <ListingPage>
         <CreateCListing>1</CreateCListing>
@@ -1127,7 +1127,7 @@
   </Target>
 
   <Target>
-    <TargetName>rx-sensi-470-fsk-Bootloader</TargetName>
+    <TargetName>rx-sensi-780-fsk-Bootloader</TargetName>
     <ToolsetNumber>0x4</ToolsetNumber>
     <ToolsetName>ARM-ADS</ToolsetName>
     <TargetOption>
@@ -1149,7 +1149,7 @@
         <PageWidth>79</PageWidth>
         <PageLength>66</PageLength>
         <TabStop>8</TabStop>
-        <ListingPath>.\lst\rx-sensi-470-fsk-Bootloader\</ListingPath>
+        <ListingPath>.\lst\rx-sensi-780-fsk-Bootloader\</ListingPath>
       </OPTLEX>
       <ListingPage>
         <CreateCListing>1</CreateCListing>

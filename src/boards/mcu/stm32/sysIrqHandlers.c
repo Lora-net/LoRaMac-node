@@ -31,14 +31,14 @@ void NMI_Handler( void )
 #if defined( HARD_FAULT_HANDLER_ENABLED )
 void HardFault_Handler_C( unsigned int *args )
 {
-    __IO unsigned int stacked_r0;
-    __IO unsigned int stacked_r1;
-    __IO unsigned int stacked_r2;
-    __IO unsigned int stacked_r3;
-    __IO unsigned int stacked_r12;
-    __IO unsigned int stacked_lr;
-    __IO unsigned int stacked_pc;
-    __IO unsigned int stacked_psr;
+    volatile unsigned int stacked_r0;
+    volatile unsigned int stacked_r1;
+    volatile unsigned int stacked_r2;
+    volatile unsigned int stacked_r3;
+    volatile unsigned int stacked_r12;
+    volatile unsigned int stacked_lr;
+    volatile unsigned int stacked_pc;
+    volatile unsigned int stacked_psr;
 
     stacked_r0 = ( ( unsigned long) args[0] );
     stacked_r1 = ( ( unsigned long) args[1] );

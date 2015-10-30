@@ -26,6 +26,18 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 #define PDDADC_VREF_BANDGAP                             1224 // mV
 #define PDDADC_MAX_VALUE                                4096
 
+/*!
+ * Battery level ratio (battery dependent)
+ */
+#define BATTERY_STEP_LEVEL                          0.23
+
+/*!
+ * Unique Devices IDs register set ( STM32L1xxx )
+ */
+#define         ID1                                 ( 0x1FF80050 )
+#define         ID2                                 ( 0x1FF80054 )
+#define         ID3                                 ( 0x1FF80064 )
+
 #if ( USE_POTENTIOMETER == 0 )
 Gpio_t Led1;
 #endif
@@ -123,6 +135,11 @@ void BoardDeInitMcu( void )
     McuInitialized = false;
 }
 
+uint32_t BoardGetRandomSeed( void )
+{
+    return ( ( *( uint32_t* )ID1 ) ^ ( *( uint32_t* )ID2 ) ^ ( *( uint32_t* )ID3 ) );
+}
+
 void BoardGetUniqueId( uint8_t *id )
 {
     id[0] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID3 ) ) >> 24;
@@ -176,7 +193,7 @@ uint16_t BoardMeasureVdd( void )
     return ( uint16_t ) milliVolt;
 }
 
-uint8_t BoardMeasureBatterieLevel( void ) 
+uint8_t BoardGetBatteryLevel( void ) 
 {
     uint8_t batteryLevel = 0;
     uint16_t measuredLevel = 0;

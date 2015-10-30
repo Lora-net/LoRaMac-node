@@ -71,7 +71,7 @@
 	</Group>
 	<Configs>
 		<Config Header="Bleeper-76-433" />
-		<Config Header="Bleeper-76-470" />
+		<Config Header="Bleeper-76-780" />
 		<Config Header="Bleeper-76-868" />
 		<Config Header="Bleeper-76-915" />
 			
@@ -198,7 +198,7 @@
 			</Set>
 																				
 		</Config>
-		<Config Header="Bleeper-76-470" >
+		<Config Header="Bleeper-76-780" >
 			<Set Header="Target" >
 				<Section Header="ProcessorARM" >
 					<Property Header="Processor" Value="STM32L151xD" />
@@ -245,7 +245,7 @@
 			</Set>
 			<Set Header="GCC" >
 				<Section Header="Defines" >
-					<Property Header="Defines" Value="USE_DEBUGGER;LOW_POWER_MODE_ENABLE;USE_BAND_470" Removable="1" />
+					<Property Header="Defines" Value="USE_DEBUGGER;LOW_POWER_MODE_ENABLE;USE_BAND_780" Removable="1" />
 																																											
 				</Section>
 				<Section Header="OPTIMIZE" >

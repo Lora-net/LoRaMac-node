@@ -52,13 +52,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define BOARD_IOE_EXT
 
 /*!
- * NULL definition
- */
-#ifndef NULL
-    #define NULL                                    ( ( void * )0 )
-#endif
-
-/*!
  * Generic definition
  */
 #ifndef SUCCESS
@@ -68,26 +61,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef FAIL
 #define FAIL                                        0  
 #endif
-
-/*!
- * Battery level ratio (battery dependent)
- */
-#define BATTERY_STEP_LEVEL                          0.23
-
-
-/*!
- * Unique Devices IDs register set ( STM32L1xxx )
- */
-#define         ID1                                 ( 0x1FF80050 )
-#define         ID2                                 ( 0x1FF80054 )
-#define         ID3                                 ( 0x1FF80064 )
-
-/*!
- * Random seed generated using the MCU Unique ID
- */
-#define RAND_SEED                                   ( ( *( uint32_t* )ID1 ) ^ \
-                                                      ( *( uint32_t* )ID2 ) ^ \
-                                                      ( *( uint32_t* )ID3 ) )
 
 /*!
  * Board IO Extender pins definitions
@@ -226,11 +199,18 @@ void BoardInitPeriph( void );
 void BoardDeInitMcu( void );
 
 /*!
- * \brief Measure the Battery level
+ * \brief Get the current battery level
  *
  * \retval value  battery level ( 0: very low, 254: fully charged )
  */
-uint8_t BoardMeasureBatterieLevel( void );
+uint8_t BoardGetBatteryLevel( void );
+
+/*!
+ * Returns a pseudo random seed generated using the MCU Unique ID
+ *
+ * \retval seed Generated pseudo random seed
+ */
+uint32_t BoardGetRandomSeed( void );
 
 /*!
  * \brief Gets the board 64 bits unique ID 

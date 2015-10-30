@@ -76,10 +76,10 @@
 		<Config Header="rx-sensi-433-lora-Bootloader" />
 		<Config Header="rx-sensi-433-fsk" />
 		<Config Header="rx-sensi-433-fsk-Bootloader" />
-		<Config Header="rx-sensi-470-lora" />
-		<Config Header="rx-sensi-470-lora-Bootloader" />
-		<Config Header="rx-sensi-470-fsk" />
-		<Config Header="rx-sensi-470-fsk-Bootloader" />
+		<Config Header="rx-sensi-780-lora" />
+		<Config Header="rx-sensi-780-lora-Bootloader" />
+		<Config Header="rx-sensi-780-fsk" />
+		<Config Header="rx-sensi-780-fsk-Bootloader" />
 		<Config Header="rx-sensi-868-lora" />
 		<Config Header="rx-sensi-868-lora-Bootloader" />
 		<Config Header="rx-sensi-868-fsk" />
@@ -288,7 +288,7 @@
 			</Set>
 																														
 		</Config>
-		<Config Header="rx-sensi-470-lora" >
+		<Config Header="rx-sensi-780-lora" >
 			<Set Header="Target" >
 				<Section Header="ProcessorARM" >
 					<Property Header="Processor" Value="STM32L151x8" />
@@ -335,7 +335,7 @@
 			</Set>
 			<Set Header="GCC" >
 				<Section Header="Defines" >
-					<Property Header="Defines" Value="USE_DEBUGGER;USE_BAND_470;USE_MODEM_LORA" Removable="1" />
+					<Property Header="Defines" Value="USE_DEBUGGER;USE_BAND_780;USE_MODEM_LORA" Removable="1" />
 																																																													
 				</Section>
 				<Section Header="OPTIMIZE" >
@@ -364,7 +364,7 @@
 			</Set>
 																														
 		</Config>
-		<Config Header="rx-sensi-470-lora-Bootloader" >
+		<Config Header="rx-sensi-780-lora-Bootloader" >
 			<Set Header="Target" >
 				<Section Header="ProcessorARM" >
 					<Property Header="Processor" Value="STM32L151x8" />
@@ -411,7 +411,7 @@
 			</Set>
 			<Set Header="GCC" >
 				<Section Header="Defines" >
-					<Property Header="Defines" Value="USE_DEBUGGER;USE_BAND_470;USE_MODEM_LORA;USE_BOOTLOADER" Removable="1" />
+					<Property Header="Defines" Value="USE_DEBUGGER;USE_BAND_780;USE_MODEM_LORA;USE_BOOTLOADER" Removable="1" />
 																																																													
 				</Section>
 				<Section Header="OPTIMIZE" >
@@ -896,7 +896,7 @@
 			</Set>
 																														
 		</Config>
-		<Config Header="rx-sensi-470-fsk" >
+		<Config Header="rx-sensi-780-fsk" >
 			<Set Header="Target" >
 				<Section Header="ProcessorARM" >
 					<Property Header="Processor" Value="STM32L151x8" />
@@ -943,7 +943,7 @@
 			</Set>
 			<Set Header="GCC" >
 				<Section Header="Defines" >
-					<Property Header="Defines" Value="USE_DEBUGGER;USE_BAND_470;USE_MODEM_FSK" Removable="1" />
+					<Property Header="Defines" Value="USE_DEBUGGER;USE_BAND_780;USE_MODEM_FSK" Removable="1" />
 																																																													
 				</Section>
 				<Section Header="OPTIMIZE" >
@@ -972,7 +972,7 @@
 			</Set>
 																														
 		</Config>
-		<Config Header="rx-sensi-470-fsk-Bootloader" >
+		<Config Header="rx-sensi-780-fsk-Bootloader" >
 			<Set Header="Target" >
 				<Section Header="ProcessorARM" >
 					<Property Header="Processor" Value="STM32L151x8" />
@@ -1019,7 +1019,7 @@
 			</Set>
 			<Set Header="GCC" >
 				<Section Header="Defines" >
-					<Property Header="Defines" Value="USE_DEBUGGER;USE_BAND_470;USE_MODEM_FSK;USE_BOOTLOADER" Removable="1" />
+					<Property Header="Defines" Value="USE_DEBUGGER;USE_BAND_780;USE_MODEM_FSK;USE_BOOTLOADER" Removable="1" />
 																																																													
 				</Section>
 				<Section Header="OPTIMIZE" >

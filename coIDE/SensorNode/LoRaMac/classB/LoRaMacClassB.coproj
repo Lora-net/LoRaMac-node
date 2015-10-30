@@ -157,7 +157,7 @@
     </DebugOption>
     <ExcludeFile/>
   </Target>
-  <Target name="LoRaMacClassB-470" isCurrent="0">
+  <Target name="LoRaMacClassB-780" isCurrent="0">
     <Device manufacturerId="9" manufacturerName="ST" chipId="819" chipName="STM32L151C8U6" boardId="" boardName="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
@@ -181,7 +181,7 @@
         <DefinedSymbols>
           <Define name="USE_DEBUGGER"/>
           <Define name="LOW_POWER_MODE_ENABLE"/>
-          <Define name="USE_BAND_470"/>
+          <Define name="USE_BAND_780"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
@@ -235,7 +235,7 @@
     </DebugOption>
     <ExcludeFile/>
   </Target>
-  <Target name="LoRaMacClassB-470-Bootloader" isCurrent="0">
+  <Target name="LoRaMacClassB-780-Bootloader" isCurrent="0">
     <Device manufacturerId="9" manufacturerName="ST" chipId="819" chipName="STM32L151C8U6" boardId="" boardName="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
@@ -259,7 +259,7 @@
         <DefinedSymbols>
           <Define name="USE_DEBUGGER"/>
           <Define name="LOW_POWER_MODE_ENABLE"/>
-          <Define name="USE_BAND_470"/>
+          <Define name="USE_BAND_780"/>
           <Define name="USE_BOOTLOADER"/>
         </DefinedSymbols>
       </Compile>

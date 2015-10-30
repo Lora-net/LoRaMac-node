@@ -13,10 +13,15 @@ SX1272/76 radio drivers plus Ping-Pong firmware and LoRaWAN node firmware implem
 The aim of this project is to show examples of the LoRaWAN specification endpoint firmware
 implementation.
 
-**REMARK 1:** *The Semtech implementation is a EU868 band Class A and Class C endpoint
+**REMARK 1:** *The Semtech implementation is a EU868/US915 band Class A and Class C endpoint
 implementation fully compatible with LoRaWAN 1.0 specification.*
 
-**REMARK 2:** *The Class C normal operation has been tested using the Actility servers.*
+**REMARK 2:** *Version 4.0 will be the first version release maintained by STACKFORCE and Semtech.
+This new version will include big changes on the LoRaMac API. The API preview documentation
+can be found inside the doc directory of this repository as a zip file.*
+
+*Please note that a current API to new API wrapper will be available.
+Thus, applications built using current API should work without modifications*
 
 **REMARK 3:** *The Class C Multicast messages handling is not yet tested.*
 
@@ -138,6 +143,45 @@ not of a bootloader and the radio frequency band to be used.
 
 6. Changelog
 -------------
+2015-10-30, V3.4
+* General
+    1. Changed all applications in order to have preprocessing definitions on top of the files and added relevant comments
+    2. Applications LED control is no more done into the timer callback functions but instead on the main while loop.
+    3. Added TimerStop function calls to each timer event callback.
+    4. Corrected timings comments. Timing values are most of the time us based.
+    5. Changed types names for stdint.h names. Helps on code portability
+    6. Renamed rand and srand to rand1 and srand1. Helps on code portability 
+    7. Added some missing variables casts. Helps on code portability 
+    8. Removed NULL definition from board.h
+    9. Added const variable attribute when necessary to functions prototypes 
+    10. Moved ID1, ID2 and ID3 definition from board.h to board.c, usb-cdc-board.c and usb-dfu-board.c
+    11. Removed the definition of RAND_SEED. It has been replaced by a function named BoardGetRandomSeed
+    12. Renamed BoardMeasureBatterieLevel to BoardGetBatteryLevel
+    13. Added SetMaxPayloadLength API function to SX1272 and SX1276 radio drivers
+    14. Changed the name of Radio API Status function to GetStatus
+    15. AES/CMAC Changed types names for stdint.h names. Helps on code portability (Issue #20)
+    16. Moved __ffs function from utilities.h to spi-board.c. This function is only used there.
+    17. Utilities.c removed fputc function redefinition.
+    18. Replaced the usage of __IO attribute by volatile.
+
+* LoRaWAN
+    1. Added support for the US915 band (Normal mode and hybrid mode. Hybrid mode is a temporary configuration up until servers support it automatically) (Issue #16)
+    2. Corrected and simplified the downlink sequence counter management.
+    3. Removed the usage of PACKED attribute for data structures.
+    4. Renamed LoRaMacEvent_t into LoRaMacCallbacks_t and added a function pointer for getting battery level status
+    5. Renamed LoRaMacSetDutyCycleOn into LoRaMacSetTestDutyCycleOn
+    6. Renamed LoRaMacSetMicTest into LoRaMacTestSetMic
+    7. Increased the PHY buffer size to 250
+    8. Removed IsChannelFree check on LoRaMacSetNextChannel function. LoRaWAN is an ALHOA protocol. (Pull request #8)
+    9. LoRaMacEventInfo.TxDatarate now returns LoRaWAN datarate (DR0 -> DR7) instead of (SF12 -> DF7)
+    10. Corrected channel mask management for EU868 band.
+    11. Corrected LoRaMacPrepareFrame behavior function when no applicative payload is present.
+    12. LoRaMac-board.h now implements the settings for the PHY layers specified by LoRaWAN 1.0 specification. ( EU433, CN780, EU868, US915 ) (Issue #19)
+    13. Added LORAMAC_MIN_RX1_DR_OFFSET and LORAMAC_MAX_RX1_DR_OFFSET definitions to LoRaMac-board.h. Can be different upon used PHY layer
+    14. Added the limitation of output power according to the number of enabled channels for US915 band.
+    15. Added the limitation of the applicative payload length according to the datarate. Does not yet take in account the MAC commands buffer. (Issue #15)
+    16. Corrected MacCommandBufferIndex management. (Issue #18)
+
 2015-08-07, v3.3
 * General
     1. Added the support for LoRaWAN Class C devices.

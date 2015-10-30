@@ -1,4 +1,17 @@
+/*
+ / _____)             _              | |
+( (____  _____ ____ _| |_ _____  ____| |__
+ \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ _____) ) ____| | | || |_| ____( (___| | | |
+(______/|_____)_|_|_| \__)_____)\____)_| |_|
+    (C)2013 Semtech
 
+Description: DFU bootloader USB initialisation
+
+License: Revised BSD License, see LICENSE.TXT file include in the project
+
+Maintainer: Miguel Luis and Gregory Cristian
+*/
 #include "usb_lib.h"
 #include "usb_istr.h"
 #include "usb_prop.h"
@@ -7,6 +20,13 @@
 #include "usb_pwr.h"
 
 #include "stm32l1xx_exti.h"
+
+/*!
+ * Unique Devices IDs register set ( STM32L1xxx )
+ */
+#define         ID1                                 ( 0x1FF80050 )
+#define         ID2                                 ( 0x1FF80054 )
+#define         ID3                                 ( 0x1FF80064 )
 
 EXTI_InitTypeDef EXTI_InitStructure;
 

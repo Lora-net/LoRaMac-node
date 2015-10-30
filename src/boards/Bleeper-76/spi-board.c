@@ -18,6 +18,19 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "stm32l1xx_gpio.h"
 
 /*!
+ * \brief  Find First Set
+ *         This function identifies the least significant index or position of the
+ *         bits set to one in the word
+ *
+ * \param [in]  value  Value to find least significant index
+ * \retval bitIndex    Index of least significat bit at one
+ */
+__STATIC_INLINE uint8_t __ffs( uint32_t value )
+{
+    return( uint32_t )( 32 - __CLZ( value & ( -value ) ) );
+}
+
+/*!
  * MCU SPI peripherals enumeration
  */
 typedef enum {

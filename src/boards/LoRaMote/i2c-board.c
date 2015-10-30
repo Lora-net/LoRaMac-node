@@ -490,8 +490,8 @@ uint8_t I2cMcuReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t
 uint8_t I2cMcuWaitStandbyState( I2c_t *obj, uint8_t deviceAddr )
 {
     uint32_t timeOut;
-    __IO uint16_t tmpSR1 = 0;
-    __IO uint32_t trials = 0;
+    volatile uint16_t tmpSR1 = 0;
+    volatile uint32_t trials = 0;
 
     __disable_irq( );
 

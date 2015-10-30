@@ -34,65 +34,44 @@ DEALINGS WITH THE SOFTWARE
 *****************************************************************************/
 //#include <sys/param.h>
 //#include <sys/systm.h> 
+#include <stdint.h>
 #include "aes.h"
 #include "cmac.h"
-#include <string.h>
+#include "utilities.h"
 
 #define LSHIFT(v, r) do {                                       \
-  int i;                                                  \
+  int32_t i;                                                  \
            for (i = 0; i < 15; i++)                                \
                     (r)[i] = (v)[i] << 1 | (v)[i + 1] >> 7;         \
             (r)[15] = (v)[15] << 1;                                 \
     } while (0)
     
 #define XOR(v, r) do {                                          \
-            int i;                                                  \
+            int32_t i;                                                  \
             for (i = 0; i < 16; i++)     \
-	    {	\
+        {   \
                     (r)[i] = (r)[i] ^ (v)[i]; \
-	    }                          \
+        }                          \
     } while (0) \
 
-
-#define MIN(a,b) (((a)<(b))?(a):(b))
-
-
-void memcpy1( u_int8_t *dst, const u_int8_t *src, u_int size );
-void memset1( u_int8_t *dst, u_int8_t value, u_int size );
-
-/*
-static void memcpy1( uint_8t * d, const uint_8t *s, uint_8t nn )
-{
-    while( nn-- )
-        // *((uint_8t*)d)++ = *((uint_8t*)s)++;
-        *d++ = *s++;
-}
-
-static void memset1( uint_8t * d, uint_8t a, uint_8t nn )
-{
-    while( nn-- )
-        // *((uint_8t*)d)++ = *((uint_8t*)s)++;
-        *d++ = a;
-}
-*/
 
 void AES_CMAC_Init(AES_CMAC_CTX *ctx)
 {
             memset1(ctx->X, 0, sizeof ctx->X);
             ctx->M_n = 0;
-	    memset1(ctx->rijndael.ksch, '\0', 240);
+        memset1(ctx->rijndael.ksch, '\0', 240);
 }
     
-void AES_CMAC_SetKey(AES_CMAC_CTX *ctx, const u_int8_t key[AES_CMAC_KEY_LENGTH])
+void AES_CMAC_SetKey(AES_CMAC_CTX *ctx, const uint8_t key[AES_CMAC_KEY_LENGTH])
 {
            //rijndael_set_key_enc_only(&ctx->rijndael, key, 128);
-	   aes_set_key( key, AES_CMAC_KEY_LENGTH, &ctx->rijndael);
+       aes_set_key( key, AES_CMAC_KEY_LENGTH, &ctx->rijndael);
 }
     
-void AES_CMAC_Update(AES_CMAC_CTX *ctx, const u_int8_t *data, u_int len)
+void AES_CMAC_Update(AES_CMAC_CTX *ctx, const uint8_t *data, uint32_t len)
 {
-            u_int mlen;
-	    unsigned char in[16];
+            uint32_t mlen;
+        uint8_t in[16];
     
             if (ctx->M_n > 0) {
                   mlen = MIN(16 - ctx->M_n, len);
@@ -102,17 +81,17 @@ void AES_CMAC_Update(AES_CMAC_CTX *ctx, const u_int8_t *data, u_int len)
                             return;
                    XOR(ctx->M_last, ctx->X);
                     //rijndael_encrypt(&ctx->rijndael, ctx->X, ctx->X);
-		    aes_encrypt( ctx->X, ctx->X, &ctx->rijndael);
+            aes_encrypt( ctx->X, ctx->X, &ctx->rijndael);
                     data += mlen;
                     len -= mlen;
             }
             while (len > 16) {      /* not last block */
-		 
+         
                     XOR(data, ctx->X);
                     //rijndael_encrypt(&ctx->rijndael, ctx->X, ctx->X);
 
                     memcpy1(in, &ctx->X[0], 16); //Bestela ez du ondo iten
-		    aes_encrypt( in, in, &ctx->rijndael);
+            aes_encrypt( in, in, &ctx->rijndael);
                     memcpy1(&ctx->X[0], in, 16);
 
                     data += 16;
@@ -123,16 +102,16 @@ void AES_CMAC_Update(AES_CMAC_CTX *ctx, const u_int8_t *data, u_int len)
             ctx->M_n = len;
 }
    
-void AES_CMAC_Final(u_int8_t digest[AES_CMAC_DIGEST_LENGTH], AES_CMAC_CTX *ctx)
+void AES_CMAC_Final(uint8_t digest[AES_CMAC_DIGEST_LENGTH], AES_CMAC_CTX *ctx)
 {
-            u_int8_t K[16];
-	    unsigned char in[16];
+            uint8_t K[16];
+        uint8_t in[16];
             /* generate subkey K1 */
             memset1(K, '\0', 16);
 
             //rijndael_encrypt(&ctx->rijndael, K, K);
 
-    	    aes_encrypt( K, K, &ctx->rijndael);
+            aes_encrypt( K, K, &ctx->rijndael);
 
             if (K[0] & 0x80) {
                     LSHIFT(K, K);
@@ -140,7 +119,7 @@ void AES_CMAC_Final(u_int8_t digest[AES_CMAC_DIGEST_LENGTH], AES_CMAC_CTX *ctx)
             } else
                     LSHIFT(K, K);
 
-	   
+       
             if (ctx->M_n == 16) {
                     /* last block was a complete block */
                     XOR(K, ctx->M_last);
@@ -159,15 +138,15 @@ void AES_CMAC_Final(u_int8_t digest[AES_CMAC_DIGEST_LENGTH], AES_CMAC_CTX *ctx)
                          ctx->M_last[ctx->M_n] = 0;
    
                   XOR(K, ctx->M_last);
-		  
-		   
+          
+           
            }
            XOR(ctx->M_last, ctx->X);
-	  
+      
            //rijndael_encrypt(&ctx->rijndael, ctx->X, digest);
-	
-	   memcpy1(in, &ctx->X[0], 16); //Bestela ez du ondo iten
-   	   aes_encrypt(in, digest, &ctx->rijndael);
+    
+       memcpy1(in, &ctx->X[0], 16); //Bestela ez du ondo iten
+       aes_encrypt(in, digest, &ctx->rijndael);
            memset1(K, 0, sizeof K);
 
 }

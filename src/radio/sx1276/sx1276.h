@@ -365,4 +365,12 @@ void SX1276WriteBuffer( uint8_t addr, uint8_t *buffer, uint8_t size );
  */
 void SX1276ReadBuffer( uint8_t addr, uint8_t *buffer, uint8_t size );
 
+/*!
+ * \brief Sets the maximum payload length.
+ *
+ * \param [IN] modem      Radio modem to be used [0: FSK, 1: LoRa]
+ * \param [IN] max        Maximum payload length in bytes
+ */
+void SX1276SetMaxPayloadLength( RadioModems_t modem, uint8_t max );
+
 #endif // __SX1276_H__

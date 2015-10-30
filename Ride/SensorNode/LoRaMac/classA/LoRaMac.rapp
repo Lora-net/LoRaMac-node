@@ -84,8 +84,8 @@
 	<Configs>
 		<Config Header="SensorNode-433" />
 		<Config Header="SensorNode-433-Bootloader" />
-		<Config Header="SensorNode-470" />
-		<Config Header="SensorNode-470-Bootloader" />
+		<Config Header="SensorNode-780" />
+		<Config Header="SensorNode-780-Bootloader" />
 		<Config Header="SensorNode-868" />
 		<Config Header="SensorNode-868-Bootloader" />
 		<Config Header="SensorNode-915" />
@@ -290,7 +290,7 @@
 			</Set>
 															
 		</Config>
-		<Config Header="SensorNode-470" >
+		<Config Header="SensorNode-780" >
 			<Set Header="Target" >
 				<Section Header="ProcessorARM" >
 					<Property Header="Processor" Value="STM32L151x8" />
@@ -337,7 +337,7 @@
 			</Set>
 			<Set Header="GCC" >
 				<Section Header="Defines" >
-					<Property Header="Defines" Value="USE_DEBUGGER;LOW_POWER_MODE_ENABLE;USE_BAND_470" Removable="1" />
+					<Property Header="Defines" Value="USE_DEBUGGER;LOW_POWER_MODE_ENABLE;USE_BAND_780" Removable="1" />
 																																		
 				</Section>
 				<Section Header="OPTIMIZE" >
@@ -366,7 +366,7 @@
 			</Set>
 															
 		</Config>
-		<Config Header="SensorNode-470-Bootloader" >
+		<Config Header="SensorNode-780-Bootloader" >
 			<Set Header="Target" >
 				<Section Header="ProcessorARM" >
 					<Property Header="Processor" Value="STM32L151x8" />
@@ -413,7 +413,7 @@
 			</Set>
 			<Set Header="GCC" >
 				<Section Header="Defines" >
-					<Property Header="Defines" Value="USE_DEBUGGER;LOW_POWER_MODE_ENABLE;USE_BAND_470;USE_BOOTLOADER" Removable="1" />
+					<Property Header="Defines" Value="USE_DEBUGGER;LOW_POWER_MODE_ENABLE;USE_BAND_780;USE_BOOTLOADER" Removable="1" />
 																																		
 				</Section>
 				<Section Header="OPTIMIZE" >

@@ -46,7 +46,8 @@ const struct Radio_s Radio =
     SX1272Write,
     SX1272Read,
     SX1272WriteBuffer,
-    SX1272ReadBuffer
+    SX1272ReadBuffer,
+    SX1272SetMaxPayloadLength
 };
 
 /*!

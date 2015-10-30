@@ -30,10 +30,10 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 uint8_t CdcRxBuffer[FIFO_RX_SIZE];
 
-__IO uint32_t UsbPacketTx = 1;
-__IO  uint8_t UsbTxBuffer[VIRTUAL_COM_PORT_DATA_SIZE];
+volatile uint32_t UsbPacketTx = 1;
+volatile  uint8_t UsbTxBuffer[VIRTUAL_COM_PORT_DATA_SIZE];
 
-__IO  uint8_t UsbRxBuffer[VIRTUAL_COM_PORT_DATA_SIZE];
+volatile  uint8_t UsbRxBuffer[VIRTUAL_COM_PORT_DATA_SIZE];
 
 void UartUsbInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx )
 {

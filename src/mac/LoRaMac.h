@@ -18,32 +18,25 @@ Maintainer: Miguel Luis and Gregory Cristian
 // Includes board dependent definitions such as channels frequencies
 #include "LoRaMac-board.h"
 
-#if defined(__CC_ARM) || defined(__GNUC__)
-#define PACKED                                      __attribute__( ( __packed__ ) )
-#elif defined( __ICCARM__ )
-#define PACKED                                      __packed
-#else
-    #warning Not supported compiler type
-#endif
 /*!
- * Beacon interval in ms
+ * Beacon interval in us
  */
 #define BEACON_INTERVAL                             128000000
 
 /*!
- * Class A&B receive delay in ms
+ * Class A&B receive delay in us
  */
 #define RECEIVE_DELAY1                              1000000
 #define RECEIVE_DELAY2                              2000000
 
 /*!
- * Join accept receive delay in ms
+ * Join accept receive delay in us
  */
 #define JOIN_ACCEPT_DELAY1                          5000000
 #define JOIN_ACCEPT_DELAY2                          6000000
 
 /*!
- * Class A&B maximum receive window delay in ms
+ * Class A&B maximum receive window delay in us
  */
 #define MAX_RX_WINDOW                               3000000
 
@@ -133,8 +126,8 @@ typedef union
     {
         int8_t Min : 4;
         int8_t Max : 4;
-    }PACKED Fields;
-}PACKED DrRange_t;
+    }Fields;
+}DrRange_t;
 
 typedef struct
 {
@@ -142,7 +135,7 @@ typedef struct
     int8_t TxMaxPower;
     uint64_t LastTxDoneTime;
     uint64_t TimeOff;
-}PACKED Band_t;
+}Band_t;
 
 typedef struct
 {
@@ -150,13 +143,13 @@ typedef struct
     DrRange_t DrRange;  // Max datarate [0: SF12, 1: SF11, 2: SF10, 3: SF9, 4: SF8, 5: SF7, 6: SF7, 7: FSK]
                         // Min datarate [0: SF12, 1: SF11, 2: SF10, 3: SF9, 4: SF8, 5: SF7, 6: SF7, 7: FSK]
     uint8_t Band;       // Band index
-}PACKED ChannelParams_t;
+}ChannelParams_t;
 
 typedef struct
 {
     uint32_t Frequency; // Hz
     uint8_t  Datarate;  // [0: SF12, 1: SF11, 2: SF10, 3: SF9, 4: SF8, 5: SF7, 6: SF7, 7: FSK]
-}PACKED Rx2ChannelParams_t;
+}Rx2ChannelParams_t;
 
 typedef struct MulticastParams_s
 {
@@ -165,7 +158,7 @@ typedef struct MulticastParams_s
     uint8_t AppSKey[16];
     uint32_t DownLinkCounter;
     struct MulticastParams_s *Next;
-}PACKED MulticastParams_t;
+}MulticastParams_t;
 
 /*!
  * LoRaMAC frame types
@@ -180,7 +173,7 @@ typedef enum
     FRAME_TYPE_DATA_CONFIRMED_DOWN   = 0x05,
     FRAME_TYPE_RFU                   = 0x06,
     FRAME_TYPE_PROPRIETARY           = 0x07,
-}PACKED LoRaMacFrameType_t;
+}LoRaMacFrameType_t;
 
 /*!
  * LoRaMAC mote MAC commands
@@ -194,7 +187,7 @@ typedef enum
     MOTE_MAC_DEV_STATUS_ANS          = 0x06,
     MOTE_MAC_NEW_CHANNEL_ANS         = 0x07,
     MOTE_MAC_RX_TIMING_SETUP_ANS     = 0x08,
-}PACKED LoRaMacMoteCmd_t;
+}LoRaMacMoteCmd_t;
 
 /*!
  * LoRaMAC server MAC commands
@@ -208,7 +201,7 @@ typedef enum
     SRV_MAC_DEV_STATUS_REQ           = 0x06,
     SRV_MAC_NEW_CHANNEL_REQ          = 0x07,
     SRV_MAC_RX_TIMING_SETUP_REQ      = 0x08,
-}PACKED LoRaMacSrvCmd_t;
+}LoRaMacSrvCmd_t;
 
 /*!
  * LoRaMAC Battery level indicator
@@ -219,7 +212,7 @@ typedef enum
     BAT_LEVEL_EMPTY                  = 0x01,
     BAT_LEVEL_FULL                   = 0xFE,
     BAT_LEVEL_NO_MEASURE             = 0xFF,
-}PACKED LoRaMacBatteryLevel_t;
+}LoRaMacBatteryLevel_t;
 
 /*!
  * LoRaMAC header field definition
@@ -232,8 +225,8 @@ typedef union
         uint8_t Major           : 2;
         uint8_t RFU             : 3;
         uint8_t MType           : 3;
-    }PACKED Bits;
-}PACKED LoRaMacHeader_t;
+    }Bits;
+}LoRaMacHeader_t;
 
 /*!
  * LoRaMAC frame header field definition
@@ -248,8 +241,8 @@ typedef union
         uint8_t Ack             : 1;
         uint8_t AdrAckReq       : 1;
         uint8_t Adr             : 1;
-    }PACKED Bits;
-}PACKED LoRaMacFrameCtrl_t;
+    }Bits;
+}LoRaMacFrameCtrl_t;
 
 /*!
  * LoRaMAC event flags
@@ -266,8 +259,8 @@ typedef union
         uint8_t RxSlot          : 2;
         uint8_t LinkCheck       : 1;
         uint8_t JoinAccept      : 1;
-    }PACKED Bits;
-}PACKED LoRaMacEventFlags_t;
+    }Bits;
+}LoRaMacEventFlags_t;
 
 typedef enum
 {
@@ -280,7 +273,7 @@ typedef enum
     LORAMAC_EVENT_INFO_STATUS_DOWNLINK_FAIL,
     LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL,
     LORAMAC_EVENT_INFO_STATUS_MIC_FAIL,
-}PACKED LoRaMacEventInfoStatus_t;
+}LoRaMacEventInfoStatus_t;
 
 /*!
  * LoRaMAC event information
@@ -299,13 +292,13 @@ typedef struct
     uint16_t Energy;
     uint8_t DemodMargin;
     uint8_t NbGateways;
-}PACKED LoRaMacEventInfo_t;
+}LoRaMacEventInfo_t;
 
 /*!
  * LoRaMAC events structure
  * Used to notify upper layers of MAC events
  */
-typedef struct sLoRaMacEvent
+typedef struct sLoRaMacCallbacks
 {
     /*!
      * MAC layer event callback prototype.
@@ -314,15 +307,21 @@ typedef struct sLoRaMacEvent
      * \param [IN] info  Details about MAC events occurred
      */
     void ( *MacEvent )( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info );
-}PACKED LoRaMacEvent_t;
+    /*!
+     * Function callback to get the current battery level
+     *
+     * \retval batteryLevel Current battery level
+     */
+    uint8_t ( *GetBatteryLevel )( void );
+}LoRaMacCallbacks_t;
 
 /*!
  * LoRaMAC layer initialization
  *
- * \param [IN] events        Pointer to a structure defining the LoRaMAC
- *                           callback functions.
+ * \param [IN] callabcks       Pointer to a structure defining the LoRaMAC
+ *                             callback functions.
  */
-void LoRaMacInit( LoRaMacEvent_t *events );
+void LoRaMacInit( LoRaMacCallbacks_t *callabcks );
 
 /*!
  * Enables/Disables the ADR (Adaptive Data Rate)
@@ -468,6 +467,12 @@ uint8_t LoRaMacSendFrameOnChannel( ChannelParams_t channel );
  */
 uint8_t LoRaMacSendOnChannel( ChannelParams_t channel, LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl, uint8_t *fOpts, uint8_t fPort, void *fBuffer, uint16_t fBufferSize );
 
+/*!
+ * ============================================================================
+ * = LoRaMac setup functions                                                  =
+ * ============================================================================
+ */
+
 /*
  * TODO: Add documentation
  */
@@ -481,11 +486,6 @@ void LoRaMacSetPublicNetwork( bool enable );
 /*
  * TODO: Add documentation
  */
-void LoRaMacSetDutyCycleOn( bool enable );
-
-/*
- * TODO: Add documentation
- */
 void LoRaMacSetChannel( uint8_t id, ChannelParams_t params );
 
 /*
@@ -493,10 +493,27 @@ void LoRaMacSetChannel( uint8_t id, ChannelParams_t params );
  */
 void LoRaMacSetRx2Channel( Rx2ChannelParams_t param );
 
+/*!
+ * Sets channels tx output power
+ *
+ * \param [IN] txPower [TX_POWER_20_DBM, TX_POWER_14_DBM,
+                        TX_POWER_11_DBM, TX_POWER_08_DBM,
+                        TX_POWER_05_DBM, TX_POWER_02_DBM]
+ */
+void LoRaMacSetChannelsTxPower( int8_t txPower );
+
+/*!
+ * Sets channels datarate
+ *
+ * \param [IN] datarate eu868 - [DR_0, DR_1, DR_2, DR_3, DR_4, DR_5, DR_6, DR_7]
+ *                      us915 - [DR_0, DR_1, DR_2, DR_3, DR_4]
+ */
+void LoRaMacSetChannelsDatarate( int8_t datarate );
+
 /*
  * TODO: Add documentation
  */
-void LoRaMacSetChannelsMask( uint16_t mask );
+void LoRaMacSetChannelsMask( uint16_t *mask );
 
 /*
  * TODO: Add documentation
@@ -528,29 +545,6 @@ void LoRaMacSetJoinAcceptDelay1( uint32_t delay );
  */
 void LoRaMacSetJoinAcceptDelay2( uint32_t delay );
 
-/*!
- * Sets channels datarate
- *
- * \param [IN] datarate eu868 - [DR_0, DR_1, DR_2, DR_3, DR_4, DR_5, DR_6, DR_7]
- */
-void LoRaMacSetChannelsDatarate( int8_t datarate );
-
-/*!
- * Sets channels tx output power
- *
- * \param [IN] txPower [TX_POWER_20_DBM, TX_POWER_14_DBM,
-                        TX_POWER_11_DBM, TX_POWER_08_DBM,
-                        TX_POWER_05_DBM, TX_POWER_02_DBM]
- */
-void LoRaMacSetChannelsTxPower( int8_t txPower );
-
-/*!
- * Disables/Enables the reception windows opening
- *
- * \param [IN] enable [true: enable, false: disable]
- */
-void LoRaMacTestRxWindowsOn( bool enable );
-
 /*
  * TODO: Add documentation
  */
@@ -561,11 +555,31 @@ uint32_t LoRaMacGetUpLinkCounter( void );
  */
 uint32_t LoRaMacGetDownLinkCounter( void );
 
+/*
+ * ============================================================================
+ * = LoRaMac test functions                                                   =
+ * ============================================================================
+ */
+
+/*!
+ * Disables/Enables the duty cycle enforcement (EU868)
+ *
+ * \param   [IN] enable - Enabled or disables the duty cycle
+ */
+void LoRaMacTestSetDutyCycleOn( bool enable );
+
+/*!
+ * Disables/Enables the reception windows opening
+ *
+ * \param [IN] enable [true: enable, false: disable]
+ */
+void LoRaMacTestRxWindowsOn( bool enable );
+
 /*!
  * Enables the MIC field test
  *
- * \param [IN] txPacketCounter Fixed Tx packet counter value
+ * \param [IN] upLinkCounter Fixed Tx packet counter value
  */
-void LoRaMacSetMicTest( uint16_t txPacketCounter );
+void LoRaMacTestSetMic( uint16_t upLinkCounter );
 
 #endif // __LORAMAC_H__

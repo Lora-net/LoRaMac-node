@@ -16,6 +16,16 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define __LORAMAC_BOARD_H__
 
 /*!
+ * Returns individual channel mask
+ *
+ * \param[IN] channelIndex Channel index 1 based
+ * \retval channelMask
+ */
+#define LC( channelIndex )            ( uint16_t )( 1 << ( channelIndex - 1 ) )
+
+#if defined( USE_BAND_868 )
+
+/*!
  * LoRaMac maximum number of channels
  */
 #define LORA_MAX_NB_CHANNELS                        16
@@ -36,6 +46,16 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define LORAMAC_DEFAULT_DATARATE                    DR_0
 
 /*!
+ * Minimal Rx1 receive datarate offset
+ */
+#define LORAMAC_MIN_RX1_DR_OFFSET                   0
+
+/*!
+ * Maximal Rx1 receive datarate offset
+ */
+#define LORAMAC_MAX_RX1_DR_OFFSET                   5
+
+/*!
  * Minimal Tx output power that can be used by the node
  */
 #define LORAMAC_MIN_TX_POWER                        TX_POWER_02_DBM
@@ -49,14 +69,6 @@ Maintainer: Miguel Luis and Gregory Cristian
  * Default Tx output power used by the node
  */
 #define LORAMAC_DEFAULT_TX_POWER                    TX_POWER_14_DBM
-
-/*!
- * Returns individual channel mask
- *
- * \param[IN] channelIndex Channel index 1 based
- * \retval channelMask
- */
-#define LC( channelIndex )            ( uint16_t )( 1 << ( channelIndex - 1 ) )
 
 /*!
  * LoRaMac TxPower definition
@@ -81,15 +93,10 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define DR_7                                        7  // FSK
 
 /*!
- * LoRaMac default channels definition
- */
-#if defined( USE_BAND_868 )
-
-/*!
  * Second reception window channel definition.
  */
 // Channel = { Frequency [Hz], Datarate }
-#define RX_WND_2_CHANNEL                                  { 869525000, DR_3 }
+#define RX_WND_2_CHANNEL                                  { 869525000, DR_0 }
 
 /*!
  * LoRaMac maximum number of bands
@@ -128,7 +135,6 @@ typedef enum
 #define LC7                { 867700000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 #define LC8                { 867900000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 #define LC9                { 868800000, { ( ( DR_7 << 4 ) | DR_7 ) }, 2 }
-
 
 #else
     #error "Please define a frequency band in the compiler options."

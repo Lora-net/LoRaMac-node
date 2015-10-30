@@ -61,7 +61,7 @@ void SX1276Reset( void );
 
 /*!
  * \brief Sets the SX1276 in transmission mode for the given time
- * \param [IN] timeout Transmission timeout [ms] [0: continuous, others timeout]
+ * \param [IN] timeout Transmission timeout [us] [0: continuous, others timeout]
  */
 void SX1276SetTx( uint32_t timeout );
 
@@ -946,7 +946,54 @@ void SX1276SetRx( uint32_t timeout )
                 SX1276Write( REG_LR_INVERTIQ, ( ( SX1276Read( REG_LR_INVERTIQ ) & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK ) | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_OFF ) );
                 SX1276Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_OFF );
             }         
-        
+
+            // ERRATA 2.3 - Receiver Spurious Reception of a LoRa Signal
+            if( SX1276.Settings.LoRa.Bandwidth < 9 )
+            {
+                SX1276Write( REG_LR_DETECTOPTIMIZE, SX1276Read( REG_LR_DETECTOPTIMIZE ) & 0x7F );
+                SX1276Write( REG_LR_TEST30, 0x00 );
+                switch( SX1276.Settings.LoRa.Bandwidth )
+                {
+                case 0: // 7.8 kHz
+                    SX1276Write( REG_LR_TEST2F, 0x48 );
+                    SX1276SetChannel(SX1276.Settings.Channel + 7.81e3 );
+                    break;
+                case 1: // 10.4 kHz
+                    SX1276Write( REG_LR_TEST2F, 0x44 );
+                    SX1276SetChannel(SX1276.Settings.Channel + 10.42e3 );
+                    break;
+                case 2: // 15.6 kHz
+                    SX1276Write( REG_LR_TEST2F, 0x44 );
+                    SX1276SetChannel(SX1276.Settings.Channel + 15.62e3 );
+                    break;
+                case 3: // 20.8 kHz
+                    SX1276Write( REG_LR_TEST2F, 0x44 );
+                    SX1276SetChannel(SX1276.Settings.Channel + 20.83e3 );
+                    break;
+                case 4: // 31.2 kHz
+                    SX1276Write( REG_LR_TEST2F, 0x44 );
+                    SX1276SetChannel(SX1276.Settings.Channel + 31.25e3 );
+                    break;
+                case 5: // 41.4 kHz
+                    SX1276Write( REG_LR_TEST2F, 0x44 );
+                    SX1276SetChannel(SX1276.Settings.Channel + 41.67e3 );
+                    break;
+                case 6: // 62.5 kHz
+                    SX1276Write( REG_LR_TEST2F, 0x40 );
+                    break;
+                case 7: // 125 kHz
+                    SX1276Write( REG_LR_TEST2F, 0x40 );
+                    break;
+                case 8: // 250 kHz
+                    SX1276Write( REG_LR_TEST2F, 0x40 );
+                    break;
+                }
+            }
+            else
+            {
+                SX1276Write( REG_LR_DETECTOPTIMIZE, SX1276Read( REG_LR_DETECTOPTIMIZE ) | 0x80 );
+            }
+
             rxContinuous = SX1276.Settings.LoRa.RxContinuous;
             
             if( SX1276.Settings.LoRa.FreqHopOn == true )
@@ -1270,6 +1317,24 @@ void SX1276ReadFifo( uint8_t *buffer, uint8_t size )
     SX1276ReadBuffer( 0, buffer, size );
 }
 
+void SX1276SetMaxPayloadLength( RadioModems_t modem, uint8_t max )
+{
+    SX1276SetModem( modem );
+
+    switch( modem )
+    {
+    case MODEM_FSK:
+        if( SX1276.Settings.Fsk.FixLen == false )
+        {
+            SX1276Write( REG_PAYLOADLENGTH, max );
+        }
+        break;
+    case MODEM_LORA:
+        SX1276Write( REG_LR_PAYLOADMAXLENGTH, max );
+        break;
+    }
+}
+
 void SX1276OnTimeoutIrq( void )
 {
     switch( SX1276.Settings.State )
@@ -1318,7 +1383,7 @@ void SX1276OnTimeoutIrq( void )
 
 void SX1276OnDio0Irq( void )
 {
-    __IO uint8_t irqFlags = 0;
+    volatile uint8_t irqFlags = 0;
 
     switch( SX1276.Settings.State )
     {                
