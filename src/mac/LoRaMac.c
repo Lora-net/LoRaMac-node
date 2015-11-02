@@ -1451,6 +1451,7 @@ static void LoRaMacProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8
                         // Data rate ACK = 0
                         // Channel mask  = 0
                         AddMacCommand( MOTE_MAC_LINK_ADR_ANS, 0, 0 );
+                        macIndex += 3;	// Skip over the remaining bytes of the request
                         break;
                     }
                     chMask = ( uint16_t )payload[macIndex++];
