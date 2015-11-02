@@ -1898,9 +1898,16 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                     if( LoRaMacEventFlags.Bits.Multicast == 0 )
                     {
                         // We are not the destination of this frame.
-                        LoRaMacEventFlags.Bits.Tx = 1;
-                        LoRaMacEventInfo.Status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
-                        LoRaMacState &= ~MAC_TX_RUNNING;
+                        // Ignore for confirmed messages.
+                        if (NodeAckRequested == true) {
+                            if( LoRaMacEventFlags.Bits.RxSlot == 0 ) {
+                                OnRxWindow2TimerEvent( );
+                            }
+                        } else {
+                            LoRaMacEventFlags.Bits.Tx = 1;
+                            LoRaMacEventInfo.Status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
+                            LoRaMacState &= ~MAC_TX_RUNNING;
+                        }
                         return;
                     }
                 }
@@ -2039,11 +2046,19 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                 }
                 else
                 {
-                    LoRaMacEventInfo.TxAckReceived = false;
-                    
-                    LoRaMacEventFlags.Bits.Tx = 1;
-                    LoRaMacEventInfo.Status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
-                    LoRaMacState &= ~MAC_TX_RUNNING;
+                    // The frame has a MIC error.
+                    // Ignore for confirmed messages.
+                    if (NodeAckRequested == true) {
+                        if( LoRaMacEventFlags.Bits.RxSlot == 0 ) {
+                            OnRxWindow2TimerEvent( );
+                        }
+                    } else {
+                        LoRaMacEventInfo.TxAckReceived = false;
+
+                        LoRaMacEventFlags.Bits.Tx = 1;
+                        LoRaMacEventInfo.Status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
+                        LoRaMacState &= ~MAC_TX_RUNNING;
+                    }
                 }
             }
             break;
