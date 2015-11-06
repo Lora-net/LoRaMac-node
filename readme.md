@@ -143,6 +143,15 @@ not of a bootloader and the radio frequency band to be used.
 
 6. Changelog
 -------------
+2015-10-06, V3.4.1
+* General
+    1. Bug fixes
+
+* LoRaWAN
+    1. Corrected downlink counter roll over management when several downlinks were missed.
+    2. Corrected the Radio maximum payload length management. Radio was filtering received frames with a length bigger than the transmitted one. 
+    3. Applied Pull request #22 solution proposition.
+
 2015-10-30, V3.4
 * General
     1. Changed all applications in order to have preprocessing definitions on top of the files and added relevant comments

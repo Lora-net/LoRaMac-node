@@ -1451,7 +1451,7 @@ static void LoRaMacProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8
                         // Data rate ACK = 0
                         // Channel mask  = 0
                         AddMacCommand( MOTE_MAC_LINK_ADR_ANS, 0, 0 );
-                        macIndex += 3;	// Skip over the remaining bytes of the request
+                        macIndex += 3;  // Skip over the remaining bytes of the request
                         break;
                     }
                     chMask = ( uint16_t )payload[macIndex++];
@@ -1936,24 +1936,21 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                 if( sequenceCounterDiff < ( 1 << 15 ) )
                 {
                     downLinkCounter += sequenceCounterDiff;
-                }
-
-                // Normal operation
-                if( isMicOk == false )
-                {
                     LoRaMacComputeMic( payload, size - LORAMAC_MFR_LEN, nwkSKey, address, DOWN_LINK, downLinkCounter, &mic );
                     if( micRx == mic )
                     {
                         isMicOk = true;
-                        // Update 32 bits downlink counter
-                        if( LoRaMacEventFlags.Bits.Multicast == 1 )
-                        {
-                            curMulticastParams->DownLinkCounter = downLinkCounter;
-                        }
-                        else
-                        {
-                            DownLinkCounter = downLinkCounter;
-                        }
+                    }
+                }
+                else
+                {
+                    // check for downlink counter roll-over
+                    uint32_t  downLinkCounterTmp = downLinkCounter + 0x10000 + ( int16_t )sequenceCounterDiff;
+                    LoRaMacComputeMic( payload, size - LORAMAC_MFR_LEN, nwkSKey, address, DOWN_LINK, downLinkCounterTmp, &mic );
+                    if( micRx == mic )
+                    {
+                        isMicOk = true;
+                        downLinkCounter = downLinkCounterTmp;
                     }
                 }
 
@@ -1964,6 +1961,16 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                     LoRaMacEventInfo.RxRssi = rssi;
                     LoRaMacEventInfo.RxBufferSize = 0;
                     AdrAckCounter = 0;
+
+                    // Update 32 bits downlink counter
+                    if( LoRaMacEventFlags.Bits.Multicast == 1 )
+                    {
+                        curMulticastParams->DownLinkCounter = downLinkCounter;
+                    }
+                    else
+                    {
+                        DownLinkCounter = downLinkCounter;
+                    }
 
                     if( macHdr.Bits.MType == FRAME_TYPE_DATA_CONFIRMED_DOWN )
                     {
@@ -2117,21 +2124,36 @@ static void OnRadioRxError( void )
  */
 void LoRaMacRxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, uint16_t timeout, bool rxContinuous )
 {
+    uint8_t downlinkDatarate = Datarates[datarate];
+    RadioModems_t modem;
+
     if( Radio.GetStatus( ) == RF_IDLE )
     {
         Radio.SetChannel( freq );
 #if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
         if( datarate == DR_7 )
         {
-            Radio.SetRxConfig( MODEM_FSK, 50e3, Datarates[datarate] * 1e3, 0, 83.333e3, 5, 0, false, 0, true, 0, 0, false, rxContinuous );
+            modem = MODEM_FSK;
+            Radio.SetRxConfig( MODEM_FSK, 50e3, downlinkDatarate * 1e3, 0, 83.333e3, 5, 0, false, 0, true, 0, 0, false, rxContinuous );
         }
         else
         {
-            Radio.SetRxConfig( MODEM_LORA, bandwidth, Datarates[datarate], 1, 0, 8, timeout, false, 0, false, 0, 0, true, rxContinuous );
+            modem = MODEM_LORA;
+            Radio.SetRxConfig( MODEM_LORA, bandwidth, downlinkDatarate, 1, 0, 8, timeout, false, 0, false, 0, 0, true, rxContinuous );
         }
 #elif defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
-        Radio.SetRxConfig( MODEM_LORA, bandwidth, Datarates[datarate], 1, 0, 8, timeout, false, 0, false, 0, 0, true, rxContinuous );
+        modem = MODEM_LORA;
+        Radio.SetRxConfig( MODEM_LORA, bandwidth, downlinkDatarate, 1, 0, 8, timeout, false, 0, false, 0, 0, true, rxContinuous );
 #endif
+        if( RepeaterSupport == true )
+        {
+            Radio.SetMaxPayloadLength( modem, MaxPayloadOfDatarateRepeater[datarate] );
+        }
+        else
+        {
+            Radio.SetMaxPayloadLength( modem, MaxPayloadOfDatarate[datarate] );
+        }
+
         if( rxContinuous == false )
         {
             Radio.Rx( MaxRxWindow );
@@ -2282,6 +2304,17 @@ static void OnMacStateCheckTimerEvent( void )
                 {
                     LoRaMacSendFrameOnChannel( Channels[Channel] );
                 }
+            }
+        }
+        else
+        {
+            /*
+             * For confirmed uplinks, ignore MIC and address errors and keep retrying.
+             */
+            if( ( LoRaMacEventInfo.Status == LORAMAC_EVENT_INFO_STATUS_MIC_FAIL ) ||
+                ( LoRaMacEventInfo.Status == LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL ) )
+            {
+                AckTimeoutRetry = true;
             }
         }
 
