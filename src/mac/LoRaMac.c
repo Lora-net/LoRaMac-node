@@ -2305,6 +2305,14 @@ static void OnMacStateCheckTimerEvent( void )
                     LoRaMacSendFrameOnChannel( Channels[Channel] );
                 }
             }
+        } else {
+                /*
+                 * For confirmed uplinks, ignore MIC and address errors and keep retrying.
+                 */
+                if ((LoRaMacEventInfo.Status == LORAMAC_EVENT_INFO_STATUS_MIC_FAIL) ||
+                    (LoRaMacEventInfo.Status == LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL)) {
+                AckTimeoutRetry = true;
+            }
         }
         else
         {
