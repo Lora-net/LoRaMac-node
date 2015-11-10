@@ -20,7 +20,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * Maximum PHY layer payload size
  */
-#define LORAMAC_PHY_MAXPAYLOAD                      250
+#define LORAMAC_PHY_MAXPAYLOAD                      255
 
 /*!
  * Device IEEE EUI
