@@ -743,7 +743,7 @@ void OnChannelCheckTimerEvent( void )
  */
 static uint8_t AddMacCommand( uint8_t cmd, uint8_t p1, uint8_t p2 )
 {
-    if( MacCommandsBufferIndex > LORA_MAC_COMMAND_MAXLEN )
+    if( MacCommandsBufferIndex >= LORA_MAC_COMMAND_MAXLEN )
     {
         return 2;
     }
@@ -760,7 +760,7 @@ static uint8_t AddMacCommand( uint8_t cmd, uint8_t p1, uint8_t p2 )
         case MOTE_MAC_NEW_CHANNEL_ANS:            // Status: Datarate range OK, Channel frequency OK
         case MOTE_MAC_LINK_ADR_ANS:               // Margin
         case MOTE_MAC_RX_PARAM_SETUP_ANS:         // Status: Datarate ACK, Channel ACK
-            if (MacCommandsBufferIndex > LORA_MAC_COMMAND_MAXLEN)
+            if (MacCommandsBufferIndex >= LORA_MAC_COMMAND_MAXLEN)
             {
                 MacCommandsBufferIndex--;
                 return 2;
@@ -769,7 +769,7 @@ static uint8_t AddMacCommand( uint8_t cmd, uint8_t p1, uint8_t p2 )
             break;
 
         case MOTE_MAC_DEV_STATUS_ANS:
-            if (MacCommandsBufferIndex > (LORA_MAC_COMMAND_MAXLEN-1))
+            if (MacCommandsBufferIndex >= (LORA_MAC_COMMAND_MAXLEN-1))
             {
                 MacCommandsBufferIndex--;
                 return 2;
