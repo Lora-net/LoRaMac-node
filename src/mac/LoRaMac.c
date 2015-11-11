@@ -170,7 +170,8 @@ static uint8_t MacCommandsBufferIndex = 0;
 /*!
  * Buffer containing the MAC layer commands
  */
-static uint8_t MacCommandsBuffer[15];
+#define LORA_MAC_COMMAND_MAXLEN  15
+static uint8_t MacCommandsBuffer[LORA_MAC_COMMAND_MAXLEN];
 
 #if defined( USE_BAND_433 )
 /*!
@@ -731,7 +732,8 @@ void OnChannelCheckTimerEvent( void )
  *                 [MOTE_MAC_LINK_CHECK_REQ,
  *                  MOTE_MAC_LINK_ADR_ANS,
  *                  MOTE_MAC_DUTY_CYCLE_ANS,
- *                  MOTE_MAC_RX2_PARAM_SET_ANS,
+ *                  MOTE_MAC_RX_PARAM_SET_ANS,
+ *                  MOTE_MAC_RX_TIMING_SETUP_ANS,
  *                  MOTE_MAC_DEV_STATUS_ANS
  *                  MOTE_MAC_NEW_CHANNEL_ANS]
  * \param [in] p1  1st parameter ( optional depends on the command )
@@ -741,7 +743,7 @@ void OnChannelCheckTimerEvent( void )
  */
 static uint8_t AddMacCommand( uint8_t cmd, uint8_t p1, uint8_t p2 )
 {
-    if( MacCommandsBufferIndex > 15 )
+    if( MacCommandsBufferIndex >= LORA_MAC_COMMAND_MAXLEN )
     {
         return 2;
     }
@@ -749,45 +751,40 @@ static uint8_t AddMacCommand( uint8_t cmd, uint8_t p1, uint8_t p2 )
     MacCommandsBuffer[MacCommandsBufferIndex++] = cmd;
     switch( cmd )
     {
+        case MOTE_MAC_RX_TIMING_SETUP_ANS:
         case MOTE_MAC_LINK_CHECK_REQ:
-            // No payload for this command
-            break;
-        case MOTE_MAC_LINK_ADR_ANS:
-            // Margin
-            MacCommandsBuffer[MacCommandsBufferIndex++] = p1;
-            break;
         case MOTE_MAC_DUTY_CYCLE_ANS:
-            // No payload for this answer
+            // No payload
             break;
-        case MOTE_MAC_RX_PARAM_SETUP_ANS:
-            // Status: Datarate ACK, Channel ACK
+
+        case MOTE_MAC_NEW_CHANNEL_ANS:            // Status: Datarate range OK, Channel frequency OK
+        case MOTE_MAC_LINK_ADR_ANS:               // Margin
+        case MOTE_MAC_RX_PARAM_SETUP_ANS:         // Status: Datarate ACK, Channel ACK
+            if (MacCommandsBufferIndex >= LORA_MAC_COMMAND_MAXLEN)
+            {
+                MacCommandsBufferIndex--;
+                return 2;
+            }
             MacCommandsBuffer[MacCommandsBufferIndex++] = p1;
             break;
+
         case MOTE_MAC_DEV_STATUS_ANS:
+            if (MacCommandsBufferIndex >= (LORA_MAC_COMMAND_MAXLEN-1))
+            {
+                MacCommandsBufferIndex--;
+                return 2;
+            }
             // 1st byte Battery
             // 2nd byte Margin
             MacCommandsBuffer[MacCommandsBufferIndex++] = p1;
             MacCommandsBuffer[MacCommandsBufferIndex++] = p2;
             break;
-        case MOTE_MAC_NEW_CHANNEL_ANS:
-            // Status: Datarate range OK, Channel frequency OK
-            MacCommandsBuffer[MacCommandsBufferIndex++] = p1;
-            break;
-        case MOTE_MAC_RX_TIMING_SETUP_ANS:
-            // No payload for this answer
-            break;
+
         default:
             return 1;
     }
-    if( MacCommandsBufferIndex <= 15 )
-    {
-        MacCommandsInNextTx = true;
-        return 0;
-    }
-    else
-    {
-        return 2;
-    }
+    MacCommandsInNextTx = true;
+    return 0;
 }
 
 // TODO: Add Documentation
