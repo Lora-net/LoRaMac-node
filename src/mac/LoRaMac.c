@@ -1778,13 +1778,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
     {
         Radio.Sleep( );
     }
-    else
-    {
-        if( LoRaMacEventFlags.Bits.RxSlot == 0 )
-        {
-            OnRxWindow2TimerEvent( );
-        }
-    }
+
     TimerStop( &RxWindowTimer2 );
 
     macHdr.Value = payload[pktHeaderLen++];
@@ -2041,17 +2035,27 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                         }
                     }
 
-                    LoRaMacEventFlags.Bits.Tx = 1;
+                    // LoRaMacEventFlags.Bits.Tx = 1;
                     LoRaMacEventInfo.Status = LORAMAC_EVENT_INFO_STATUS_OK;
                 }
                 else
                 {
                     LoRaMacEventInfo.TxAckReceived = false;
                     
-                    LoRaMacEventFlags.Bits.Tx = 1;
+                    // LoRaMacEventFlags.Bits.Tx = 1;
                     LoRaMacEventInfo.Status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
                     LoRaMacState &= ~MAC_TX_RUNNING;
                 }
+				// The code doesn't be tested yet!!!
+                // In my opion, Tx means a transaction end, but RX2 done is not an intact transaction in ClassC. 
+				if ((LoRaMacDeviceClass == CLASS_C) && (LoRaMacEventFlags.Bits.RxSlot == 1)) 
+				{
+					return;	
+				}
+				else
+				{
+					LoRaMacEventFlags.Bits.Tx = 1;
+				}
             }
             break;
         case FRAME_TYPE_PROPRIETARY:
@@ -2062,6 +2066,11 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
             LoRaMacState &= ~MAC_TX_RUNNING;
             break;
     }
+	
+	if ((LoRaMacDeviceClass == CLASS_C) && (LoRaMacEventFlags.Bits.RxSlot == 0))
+	{
+		OnRxWindow2TimerEvent();
+	}
 }
 
 /*!
@@ -2087,10 +2096,15 @@ static void OnRadioTxTimeout( void )
  */
 static void OnRadioRxTimeout( void )
 {
-    if( LoRaMacDeviceClass != CLASS_C )
-    {
-        Radio.Sleep( );
-    }
+	Radio.Sleep( );
+    
+	if( LoRaMacDeviceClass == CLASS_C )
+	{
+		OnRxWindow2TimerEvent();
+		LoRaMacEventFlags.Bits.Tx = 1;
+		return;
+	}
+	
     if( LoRaMacEventFlags.Bits.RxSlot == 1 )
     {
         LoRaMacEventFlags.Bits.Tx = 1;
@@ -2126,7 +2140,12 @@ void LoRaMacRxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, u
 {
     uint8_t downlinkDatarate = Datarates[datarate];
     RadioModems_t modem;
-
+	
+	if ((LoRaMacDeviceClass == CLASS_C) && (LoRaMacEventFlags.Bits.RxSlot == 0)) 
+	{
+        Radio.Sleep();
+	}
+	
     if( Radio.GetStatus( ) == RF_IDLE )
     {
         Radio.SetChannel( freq );
@@ -2523,6 +2542,11 @@ void LoRaMacChannelRemove( uint8_t id )
 void LoRaMacSetDeviceClass( DeviceClass_t deviceClass )
 {
     LoRaMacDeviceClass = deviceClass;
+    if (deviceClass == CLASS_C)
+    {
+        OnRxWindow2TimerEvent();
+    }
+	
 }
 
 void LoRaMacSetPublicNetwork( bool enable )
