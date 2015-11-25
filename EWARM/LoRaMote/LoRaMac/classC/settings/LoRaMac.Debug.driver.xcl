@@ -1,0 +1,27 @@
+ -B 
+
+"--endian=little" 
+
+"--cpu=Cortex-M3" 
+
+"--fpu=None" 
+
+"-p" 
+
+"D:\Program Files (x86)\IAR Systems\Embedded Workbench 7.2\arm\CONFIG\debugger\ST\STM32L151xB.ddf" 
+
+"--drv_verify_download" 
+
+"--semihosting" 
+
+"--device=STM32L151xB" 
+
+"--drv_interface=SWD" 
+
+"--stlink_reset_strategy=0,0" 
+
+"--drv_swo_clock_setup=72000000,0,2000000" 
+
+
+
+

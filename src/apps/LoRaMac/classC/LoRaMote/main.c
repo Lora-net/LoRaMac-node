@@ -111,7 +111,7 @@ Maintainer: Miguel Luis and Gregory Cristian
  *
  * \remark Please note that ETSI mandates duty cycled transmissions. Use only for test purposes
  */
-#define LORAWAN_DUTYCYCLE_ON                        true
+#define LORAWAN_DUTYCYCLE_ON                        false // true
 
 /*!
  * LoRaWAN application port
@@ -413,8 +413,9 @@ int main( void )
     TimerSetValue( &Led2Timer, 25000 );
 
     LoRaMacSetAdrOn( LORAWAN_ADR_ON );
-    LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
+    LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON ); // false
     LoRaMacSetPublicNetwork( LORAWAN_PUBLIC_NETWORK );
+	LoRaMacTestRxWindowsOn( false ); // Disable RX1
     LoRaMacSetDeviceClass( CLASS_C );
 
     while( 1 )
