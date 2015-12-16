@@ -318,10 +318,10 @@ typedef struct sLoRaMacCallbacks
 /*!
  * LoRaMAC layer initialization
  *
- * \param [IN] callabcks       Pointer to a structure defining the LoRaMAC
+ * \param [IN] callbacks       Pointer to a structure defining the LoRaMAC
  *                             callback functions.
  */
-void LoRaMacInit( LoRaMacCallbacks_t *callabcks );
+void LoRaMacInit( LoRaMacCallbacks_t *callbacks );
 
 /*!
  * Enables/Disables the ADR (Adaptive Data Rate)
