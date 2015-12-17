@@ -164,7 +164,7 @@ void BoardInitMcu( void )
                 GpioInit( &usbDM, USB_DM, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
             }
         }
-#elif( LOW_POWER_MODE_ENABLE )
+#elif defined( LOW_POWER_MODE_ENABLE )
         TimerSetLowPowerEnable( true );
 #else
         TimerSetLowPowerEnable( false );
