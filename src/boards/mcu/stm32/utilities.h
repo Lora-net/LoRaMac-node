@@ -69,6 +69,15 @@ int32_t randr( int32_t min, int32_t max );
 void memcpy1( uint8_t *dst, const uint8_t *src, uint16_t size );
 
 /*!
+ * \brief Copies size elements of src array to dst array reversing the byte order
+ *
+ * \param [OUT] dst  Destination array
+ * \param [IN]  src  Source array
+ * \param [IN]  size Number of bytes to be copied
+ */
+void memcpyr( uint8_t *dst, const uint8_t *src, uint16_t size );
+
+/*!
  * \brief Set size elements of dst array with value 
  * 
  * \remark STM32 Standard memset function only works on pointers that are aligned

@@ -1,5 +1,5 @@
      / _____)             _              | |
-    ( (____  _____ ____ _| |_ _____  ____| |__  
+    ( (____  _____ ____ _| |_ _____  ____| |__
      \____ \| ___ |    (_   _) ___ |/ ___)  _ \
      _____) ) ____| | | || |_| ____( (___| | | |
     (______/|_____)_|_|_| \__)_____)\____)_| |_|
@@ -13,17 +13,24 @@ SX1272/76 radio drivers plus Ping-Pong firmware and LoRaWAN node firmware implem
 The aim of this project is to show examples of the LoRaWAN specification endpoint firmware
 implementation.
 
-**REMARK 1:** *The Semtech implementation is a EU868/US915 band Class A and Class C endpoint
+**REMARK 1:** *The Semtech/STACKFORCE implementation is a EU868/US915 band Class A and Class C endpoint
 implementation fully compatible with LoRaWAN 1.0 specification.*
 
-**REMARK 2:** *Version 4.0 will be the first version release maintained by STACKFORCE and Semtech.
-This new version will include big changes on the LoRaMac API. The API preview documentation
-can be found inside the doc directory of this repository as a zip file.*
+**REMARK 2:** *Version 4.0 is the first version release maintained by STACKFORCE and Semtech.
+This new version includes big changes on the LoRaMac API. The API documentation
+can be found at : http://stackforce.github.io/LoRaMac-doc/ *
 
-*Please note that a current API to new API wrapper will be available.
-Thus, applications built using current API should work without modifications*
+*Please note that a version 3.x API to version 4.x API wrapper is available.
+Thus, applications built using version 3.x API should work without modifications except that 
+one must include LoRaMac-api-v3.h instead of LoRaMac.h file*
 
-**REMARK 3:** *The Class C Multicast messages handling is not yet tested.*
+**Now on the EUIs are to be entered as big endian byte arrays. The MAC layer will reverse the array when necessary.
+Valid for 3.x and 4.x API**
+
+**REMARK 3:** *Each LoRaWAN application examples now include the LoRaWAN certification protocol implmentation.*
+
+**REMARK 4:** *In order to ease the release process the Bleeper-72, Bleeper-76 and SK-iM880A platforms
+will be removed in future releases, unless there are objections.*
 
 **Note:**
 
@@ -143,6 +150,13 @@ not of a bootloader and the radio frequency band to be used.
 
 6. Changelog
 -------------
+2015-12-18, V4.0
+* General
+    1. STACKFORCE new API integration
+    2. Reverse the EUIs arrays in the MAC layer.
+    3. LoRaWAN certification protocol implmentation
+    4. All reported issues and Pull requests have been addressed.
+    
 2015-10-06, V3.4.1
 * General
     1. Bug fixes
@@ -159,10 +173,10 @@ not of a bootloader and the radio frequency band to be used.
     3. Added TimerStop function calls to each timer event callback.
     4. Corrected timings comments. Timing values are most of the time us based.
     5. Changed types names for stdint.h names. Helps on code portability
-    6. Renamed rand and srand to rand1 and srand1. Helps on code portability 
-    7. Added some missing variables casts. Helps on code portability 
+    6. Renamed rand and srand to rand1 and srand1. Helps on code portability
+    7. Added some missing variables casts. Helps on code portability
     8. Removed NULL definition from board.h
-    9. Added const variable attribute when necessary to functions prototypes 
+    9. Added const variable attribute when necessary to functions prototypes
     10. Moved ID1, ID2 and ID3 definition from board.h to board.c, usb-cdc-board.c and usb-dfu-board.c
     11. Removed the definition of RAND_SEED. It has been replaced by a function named BoardGetRandomSeed
     12. Renamed BoardMeasureBatterieLevel to BoardGetBatteryLevel

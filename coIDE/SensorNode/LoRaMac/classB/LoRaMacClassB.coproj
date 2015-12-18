@@ -78,7 +78,7 @@
     </DebugOption>
     <ExcludeFile/>
   </Target>
-  <Target name="LoRaMacClassB-433-Bootloader" isCurrent="0">
+  <Target name="LoRaMacClassB-433-Bootloader" isCurrent="1">
     <Device manufacturerId="9" manufacturerName="ST" chipId="819" chipName="STM32L151C8U6" boardId="" boardName="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
@@ -314,7 +314,7 @@
     </DebugOption>
     <ExcludeFile/>
   </Target>
-  <Target name="LoRaMacClassB-868" isCurrent="1">
+  <Target name="LoRaMacClassB-868" isCurrent="0">
     <Device manufacturerId="9" manufacturerName="ST" chipId="819" chipName="STM32L151C8U6" boardId="" boardName="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
@@ -654,22 +654,22 @@
     <File name="boards/SensorNode" path="" type="2"/>
     <File name="system/timer.c" path="../../../../src/system/timer.c" type="1"/>
     <File name="boards/SensorNode/timer-board.c" path="../../../../src/boards/SensorNode/timer-board.c" type="1"/>
-    <File name="system/uart.c" path="../../../../src/system/uart.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_syscfg.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_syscfg.c" type="1"/>
+    <File name="system/uart.c" path="../../../../src/system/uart.c" type="1"/>
     <File name="peripherals/mag3110.c" path="../../../../src/peripherals/mag3110.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_adc.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_adc.c" type="1"/>
     <File name="boards/SensorNode/cmsis/startup_stm32l1xx_md.s" path="../../../../src/boards/SensorNode/cmsis/arm-gcc/startup_stm32l1xx_md.s" type="1"/>
     <File name="boards/mcu/stm32/utilities.c" path="../../../../src/boards/mcu/stm32/utilities.c" type="1"/>
     <File name="apps" path="" type="2"/>
     <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_rcc.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_rcc.c" type="1"/>
-    <File name="apps/main.c" path="../../../../src/apps/LoRaMac/classB/SensorNode/main.c" type="1"/>
+    <File name="apps/main.c" path="../../../../src/apps/LoRaMac/classA/SensorNode/main.c" type="1"/>
     <File name="peripherals/sx9500.c" path="../../../../src/peripherals/sx9500.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_pwr.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_pwr.c" type="1"/>
     <File name="peripherals/sx1509.c" path="../../../../src/peripherals/sx1509.c" type="1"/>
     <File name="system/crypto/cmac.c" path="../../../../src/system/crypto/cmac.c" type="1"/>
-    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_dbgmcu.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_dbgmcu.c" type="1"/>
-    <File name="boards/SensorNode/gpio-board.c" path="../../../../src/boards/SensorNode/gpio-board.c" type="1"/>
     <File name="system/crypto/aes.c" path="../../../../src/system/crypto/aes.c" type="1"/>
+    <File name="boards/SensorNode/gpio-board.c" path="../../../../src/boards/SensorNode/gpio-board.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_dbgmcu.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_dbgmcu.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_rtc.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_rtc.c" type="1"/>
     <File name="mac/LoRaMacCrypto.c" path="../../../../src/mac/LoRaMacCrypto.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/misc.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/misc.c" type="1"/>
@@ -684,8 +684,8 @@
     <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver" path="" type="2"/>
     <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_dma.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_dma.c" type="1"/>
     <File name="boards/SensorNode/i2c-board.c" path="../../../../src/boards/SensorNode/i2c-board.c" type="1"/>
-    <File name="system/adc.c" path="../../../../src/system/adc.c" type="1"/>
     <File name="system/gpio.c" path="../../../../src/system/gpio.c" type="1"/>
+    <File name="system/adc.c" path="../../../../src/system/adc.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_exti.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_exti.c" type="1"/>
     <File name="peripherals/mma8451.c" path="../../../../src/peripherals/mma8451.c" type="1"/>
     <File name="peripherals" path="" type="2"/>

@@ -428,7 +428,7 @@ typedef enum
  *     Channels[i].DrRange.Value = ( DR_3 << 4 ) | DR_0;
  *     Channels[i].Band = 0;
  * }
- * // 500 kHz channels 
+ * // 500 kHz channels
  * for( uint8_t i = LORA_MAX_NB_CHANNELS - 8; i < LORA_MAX_NB_CHANNELS; i++ )
  * {
  *     Channels[i].Frequency = 903.0e6 + ( i - ( LORA_MAX_NB_CHANNELS - 8 ) ) * 1.6e6;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Project version="2G - 2.0.1" name="LoRaMacClassC">
-  <Target name="LoRaMacClassC-868" isCurrent="1">
+  <Target name="LoRaMacClassC-868" isCurrent="0">
     <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
@@ -8,6 +8,8 @@
         <Option name="UseFPU" value="0"/>
         <Option name="UserEditCompiler" value="-std=c99"/>
         <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
         <Includepaths>
           <Includepath path="../../../../src"/>
           <Includepath path="../../../../src/boards/loramote"/>
@@ -78,7 +80,7 @@
     </DebugOption>
     <ExcludeFile/>
   </Target>
-  <Target name="LoRaMacClassC-868-Bootloader" isCurrent="0">
+  <Target name="LoRaMacClassC-868-Bootloader" isCurrent="1">
     <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
@@ -165,6 +167,8 @@
         <Option name="UseFPU" value="0"/>
         <Option name="UserEditCompiler" value="-std=c99"/>
         <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
         <Includepaths>
           <Includepath path="../../../../src"/>
           <Includepath path="../../../../src/boards/loramote"/>
@@ -243,6 +247,8 @@
         <Option name="UseFPU" value="0"/>
         <Option name="UserEditCompiler" value="-std=c99"/>
         <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
         <Includepaths>
           <Includepath path="../../../../src"/>
           <Includepath path="../../../../src/boards/loramote"/>

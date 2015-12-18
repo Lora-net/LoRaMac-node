@@ -5,12 +5,17 @@
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
     (C)2013 Semtech
+ ___ _____ _   ___ _  _____ ___  ___  ___ ___
+/ __|_   _/_\ / __| |/ / __/ _ \| _ \/ __| __|
+\__ \ | |/ _ \ (__| ' <| _| (_) |   / (__| _|
+|___/ |_/_/ \_\___|_|\_\_| \___/|_|_\\___|___|
+embedded.connectivity.solutions===============
 
 Description: LoRa MAC layer implementation
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 
-Maintainer: Miguel Luis and Gregory Cristian
+Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jäckle ( STACKFORCE )
 */
 #include <stdlib.h>
 #include <stdint.h>
@@ -185,13 +190,13 @@ void LoRaMacJoinComputeSKeys( const uint8_t *key, const uint8_t *appNonce, uint1
 
     memset1( nonce, 0, sizeof( nonce ) );
     nonce[0] = 0x01;
-    LoRaMacMemCpy( appNonce, nonce + 1, 6 );
-    LoRaMacMemCpy( pDevNonce, nonce + 7, 2 );
+    memcpy1( nonce + 1, appNonce, 6 );
+    memcpy1( nonce + 7, pDevNonce, 2 );
     aes_encrypt( nonce, nwkSKey, &AesContext );
 
     memset1( nonce, 0, sizeof( nonce ) );
     nonce[0] = 0x02;
-    LoRaMacMemCpy( appNonce, nonce + 1, 6 );
-    LoRaMacMemCpy( pDevNonce, nonce + 7, 2 );
+    memcpy1( nonce + 1, appNonce, 6 );
+    memcpy1( nonce + 7, pDevNonce, 2 );
     aes_encrypt( nonce, appSKey, &AesContext );
 }

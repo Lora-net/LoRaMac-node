@@ -1,5 +1,5 @@
 
-<ApplicationBuild Header="LoRaMac-ClassB" Extern=".\LoRaMac.rapp" Path=".\LoRaMac.rapp" OutputFile=".\obj\LoRaMac.elf" sate="98" Config="SensorNode-433" >
+<ApplicationBuild Header="LoRaMac-ClassB" Extern=".\LoRaMac.rapp" Path=".\LoRaMac.rapp" OutputFile=".\obj\LoRaMac.elf" sate="98" Config="SensorNode-433-Bootloader" >
 	<NodeC Path="..\..\..\..\src\apps\LoRaMac\classB\SensorNode\main.c" Header="main.c" Marker="-1" OutputFile=".\obj\main.o" sate="0" />
 	<Group Header="boards" Marker="-1" OutputFile="" sate="96" >
 		<Group Header="SensorNode" Marker="-1" OutputFile="" sate="96" >

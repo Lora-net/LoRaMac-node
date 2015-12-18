@@ -39,7 +39,7 @@ I2c_t I2c;
 
 static void DelayLoop( volatile uint32_t nCount )
 {
-    volatile uint32_t index = 0; 
+    volatile uint32_t index = 0;
     for( index = ( 5000 * nCount ); index != 0; index-- )
     {
     }

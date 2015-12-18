@@ -45,6 +45,7 @@
 	</Group>
 	<Group Header="mac" Marker="-1" OutputFile="" sate="96" >
 		<NodeC Path="..\..\..\..\src\mac\LoRaMac.c" Header="LoRaMac.c" Marker="-1" OutputFile=".\obj\LoRaMac.o" sate="0" />
+		<NodeC Path="..\..\..\..\src\mac\LoRaMac-api-v3.c" Header="LoRaMac-api-v3.c" Marker="-1" OutputFile=".\obj\LoRaMac-api-v3.o" sate="0" />
 		<NodeC Path="..\..\..\..\src\mac\LoRaMacCrypto.c" Header="LoRaMacCrypto.c" Marker="-1" OutputFile=".\obj\LoRaMacCrypto.o" sate="0" />
 																																																																								
 	</Group>

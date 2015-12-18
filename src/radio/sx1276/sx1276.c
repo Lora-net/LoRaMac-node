@@ -435,6 +435,7 @@ void SX1276SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
             SX1276.Settings.LoRa.Bandwidth = bandwidth;
             SX1276.Settings.LoRa.Datarate = datarate;
             SX1276.Settings.LoRa.Coderate = coderate;
+            SX1276.Settings.LoRa.PreambleLen = preambleLen;
             SX1276.Settings.LoRa.FixLen = fixLen;
             SX1276.Settings.LoRa.PayloadLen = payloadLen;
             SX1276.Settings.LoRa.CrcOn = crcOn;
@@ -795,7 +796,7 @@ uint32_t SX1276GetTimeOnAir( RadioModems_t modem, uint8_t pktLen )
                                  28 + 16 * SX1276.Settings.LoRa.CrcOn -
                                  ( SX1276.Settings.LoRa.FixLen ? 20 : 0 ) ) /
                                  ( double )( 4 * SX1276.Settings.LoRa.Datarate -
-                                 ( ( SX1276.Settings.LoRa.LowDatarateOptimize > 0 ) ? 8 : 0 ) ) ) *
+                                 ( ( SX1276.Settings.LoRa.LowDatarateOptimize > 0 ) ? 2 : 0 ) ) ) *
                                  ( SX1276.Settings.LoRa.Coderate + 4 );
             double nPayload = 8 + ( ( tmp > 0 ) ? tmp : 0 );
             double tPayload = nPayload * ts;
