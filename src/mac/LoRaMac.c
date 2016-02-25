@@ -1389,6 +1389,8 @@ static void OnMacStateCheckTimerEvent( void )
 
                 McpsConfirm.AckReceived = false;
                 McpsConfirm.NbRetries = AckTimeoutRetriesCounter;
+
+                AdrAckCounter++;
                 if( IsUpLinkCounterFixed == false )
                 {
                     UpLinkCounter++;
@@ -1805,11 +1807,10 @@ static bool DisableChannelInMask( uint8_t id, uint16_t* mask )
 static bool AdrNextDr( bool adrEnabled, bool updateChannelMask, int8_t* datarateOut )
 {
     bool adrAckReq = false;
-    int8_t datarate = ChannelsDatarate;
 
     if( adrEnabled == true )
     {
-        if( datarate == LORAMAC_MIN_DATARATE )
+        if( ChannelsDatarate == LORAMAC_MIN_DATARATE )
         {
             AdrAckCounter = 0;
             adrAckReq = false;
@@ -1856,18 +1857,18 @@ static bool AdrNextDr( bool adrEnabled, bool updateChannelMask, int8_t* datarate
             {
                 AdrAckCounter = 0;
 #if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
-                if( datarate > LORAMAC_MIN_DATARATE )
+                if( ChannelsDatarate > LORAMAC_MIN_DATARATE )
                 {
-                    datarate--;
+                    ChannelsDatarate--;
                 }
 #elif defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
-                if( ( datarate > LORAMAC_MIN_DATARATE ) && ( datarate == DR_8 ) )
+                if( ( ChannelsDatarate > LORAMAC_MIN_DATARATE ) && ( ChannelsDatarate == DR_8 ) )
                 {
-                    datarate = DR_4;
+                    ChannelsDatarate = DR_4;
                 }
-                else if( datarate > LORAMAC_MIN_DATARATE )
+                else if( ChannelsDatarate > LORAMAC_MIN_DATARATE )
                 {
-                    datarate--;
+                    ChannelsDatarate--;
                 }
 #else
 #error "Please define a frequency band in the compiler options."
@@ -1876,7 +1877,7 @@ static bool AdrNextDr( bool adrEnabled, bool updateChannelMask, int8_t* datarate
         }
     }
 
-    *datarateOut = datarate;
+    *datarateOut = ChannelsDatarate;
 
     return adrAckReq;
 }
