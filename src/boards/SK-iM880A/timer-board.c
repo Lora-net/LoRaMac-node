@@ -59,6 +59,8 @@ void TimerIncrementDelayCounter( void );
 
 void TimerHwInit( void )
 {
+    TimerDelayCounter = 0;
+    
     NVIC_InitTypeDef NVIC_InitStructure;
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 
@@ -115,7 +117,6 @@ void TimerHwInit( void )
 
     TIM_ITConfig( TIM3, TIM_IT_Update, ENABLE );
     TIM_Cmd( TIM3, ENABLE );
-    
 }
 
 void TimerHwDeInit( void )
@@ -152,20 +153,15 @@ void TimerHwStop( void )
 void TimerHwDelayMs( uint32_t delay )
 {
     uint32_t delayValue = 0;
+    uint32_t timeout = 0;
 
     delayValue = delay;
-
-    TimerDelayCounter = 0;
-
-    TIM_ITConfig( TIM3, TIM_IT_Update, ENABLE );
-    TIM_Cmd( TIM3, ENABLE );
-
-    while( TimerHwGetDelayValue( ) < delayValue )
+    // Wait delay ms
+    timeout = TimerHwGetDelayValue( );
+    while( ( TimerHwGetDelayValue( ) - timeout ) < delayValue )
     {
+        __NOP( );
     }
-
-    TIM_ITConfig( TIM3, TIM_IT_Update, DISABLE );
-    TIM_Cmd( TIM3, DISABLE );
 }
 
 TimerTime_t TimerHwGetElapsedTime( void )

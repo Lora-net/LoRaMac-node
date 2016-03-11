@@ -1,4 +1,0 @@
-
-<Project Header="Project 'tx-cw'" Path=".\tx-cw.rprj" Project="Yes" OutputFile="" sate="96" ActiveApp="tx-cw" >
-	<ApplicationBuild Header="tx-cw" Extern=".\tx-cw.rapp" Path=".\tx-cw.rapp" OutputFile=".\obj\tx-cw.elf" sate="98" Config="tx-cw-433" />
-</Project>

@@ -223,8 +223,6 @@ void TimerIrqHandler( void )
 
     elapsedTime = TimerGetValue( );
 
-    TimerEvent_t* elapsedTimer = NULL;
-
     if( elapsedTime > TimerListHead->Timestamp )
     {
         TimerListHead->Timestamp = 0;
@@ -233,32 +231,16 @@ void TimerIrqHandler( void )
     {
         TimerListHead->Timestamp -= elapsedTime;
     }
-        
-    // save TimerListHead
-    elapsedTimer = TimerListHead;
 
-    // remove all the expired object from the list
     while( ( TimerListHead != NULL ) && ( TimerListHead->Timestamp == 0 ) )
-    {         
-        if( TimerListHead->Next != NULL )
-        {
-            TimerListHead = TimerListHead->Next;
-        }
-        else
-        {
-            TimerListHead = NULL;
-        }
-    }
-
-    // execute the callbacks of all the expired objects
-    // this is to avoid potential issues between the callback and the object list
-    while( ( elapsedTimer != NULL ) && ( elapsedTimer->Timestamp == 0 ) )
     {
+        TimerEvent_t* elapsedTimer = TimerListHead;
+        TimerListHead = TimerListHead->Next;
+
         if( elapsedTimer->Callback != NULL )
         {
             elapsedTimer->Callback( );
         }
-        elapsedTimer = elapsedTimer->Next;
     }
 
     // start the next TimerListHead if it exists

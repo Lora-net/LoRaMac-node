@@ -340,7 +340,7 @@ uint8_t LoRaMacSendConfirmedFrame( uint8_t fPort, void *fBuffer, uint16_t fBuffe
     mcpsRequest.Req.Confirmed.fBuffer = fBuffer;
     mcpsRequest.Req.Confirmed.fBufferSize = fBufferSize;
     mcpsRequest.Req.Confirmed.fPort = fPort;
-    mcpsRequest.Req.Confirmed.nbRetries = nbRetries;
+    mcpsRequest.Req.Confirmed.NbTrials = nbRetries;
     mcpsRequest.Req.Confirmed.Datarate = mibGet.Param.ChannelsDatarate;
 
     switch( LoRaMacMcpsRequest( &mcpsRequest ) )

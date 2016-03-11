@@ -58,6 +58,19 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 #define LORAWAN_DUTYCYCLE_ON                        true
 
+#define USE_SEMTECH_DEFAULT_CHANNEL_LINEUP          1
+
+#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 ) 
+
+#define LC4                { 867100000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC5                { 867300000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC6                { 867500000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC7                { 867700000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC8                { 867900000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC9                { 868800000, { ( ( DR_7 << 4 ) | DR_7 ) }, 2 }
+
+#endif
+
 #endif
 
 /*!
@@ -238,8 +251,8 @@ static void PrepareTxFrame( uint8_t port )
             altitudeGps = GpsGetLatestGpsAltitude( );                           // in m
         
             AppData[0] = AppLedStateOn;
-            AppData[1] = temperature;
-            AppData[2] = batteryLevel;
+            AppData[1] = temperature;                                           // Signed degrees Celcius in half degree units. So,  +/-63 C
+            AppData[2] = batteryLevel;                                          // Per LoRaWAN spec; 0=Charging; 1...254 = level, 255 = N/A
             AppData[3] = ( latitude >> 16 ) & 0xFF;
             AppData[4] = ( latitude >> 8 ) & 0xFF;
             AppData[5] = latitude & 0xFF;
@@ -315,7 +328,7 @@ static bool SendFrame( void )
             mcpsReq.Req.Confirmed.fPort = AppPort;
             mcpsReq.Req.Confirmed.fBuffer = AppData;
             mcpsReq.Req.Confirmed.fBufferSize = AppDataSize;
-            mcpsReq.Req.Confirmed.nbRetries = 8;
+            mcpsReq.Req.Confirmed.NbTrials = 8;
             mcpsReq.Req.Confirmed.Datarate = DR_0;
         }
     }
@@ -377,7 +390,7 @@ static void OnLed2TimerEvent( void )
 /*!
  * \brief Function executed on Led 4 Timeout event
  */
-void OnLed4TimerEvent( void )
+static void OnLed4TimerEvent( void )
 {
     TimerStop( &Led4Timer );
     // Switch LED 4 OFF
@@ -406,7 +419,7 @@ static void McpsConfirm( McpsConfirm_t *McpsConfirm )
                 // Check Datarate
                 // Check TxPower
                 // Check AckReceived
-                // Check NbRetries
+                // Check NbTrials
                 break;
             }
             case MCPS_PROPRIETARY:
@@ -661,6 +674,16 @@ int main( void )
 
 #if defined( USE_BAND_868 )
                 LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
+
+#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 ) 
+                LoRaMacChannelAdd( 3, ( ChannelParams_t )LC4 );
+                LoRaMacChannelAdd( 4, ( ChannelParams_t )LC5 );
+                LoRaMacChannelAdd( 5, ( ChannelParams_t )LC6 );
+                LoRaMacChannelAdd( 6, ( ChannelParams_t )LC7 );
+                LoRaMacChannelAdd( 7, ( ChannelParams_t )LC8 );
+                LoRaMacChannelAdd( 8, ( ChannelParams_t )LC9 );
+#endif
+
 #endif
                 mibReq.Type = MIB_DEVICE_CLASS;
                 mibReq.Param.Class = CLASS_C;
@@ -734,7 +757,7 @@ int main( void )
                 if( ComplianceTest.Running == true )
                 {
                     // Schedule next packet transmission as soon as possible
-                    TxDutyCycleTime = 1000; // 1 ms
+                    TxDutyCycleTime = 300000; // 300 ms
                 }
                 else
                 {
@@ -746,11 +769,11 @@ int main( void )
             }
             case DEVICE_STATE_CYCLE:
             {
+                DeviceState = DEVICE_STATE_SLEEP;
+
                 // Schedule next packet transmission
                 TimerSetValue( &TxNextPacketTimer, TxDutyCycleTime );
                 TimerStart( &TxNextPacketTimer );
-
-                DeviceState = DEVICE_STATE_SLEEP;
                 break;
             }
             case DEVICE_STATE_SLEEP:

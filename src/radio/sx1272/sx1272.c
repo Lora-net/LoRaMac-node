@@ -178,7 +178,7 @@ static RadioEvents_t *RadioEvents;
 /*!
  * Reception buffer
  */
-static uint8_t RxBuffer[RX_BUFFER_SIZE];
+static uint8_t RxTxBuffer[RX_BUFFER_SIZE];
 
 /*
  * Public global variables
@@ -366,6 +366,10 @@ void SX1272SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
             if( fixLen == 1 )
             {
                 SX1272Write( REG_PAYLOADLENGTH, payloadLen );
+            }
+            else
+            {
+                SX1272Write( REG_PAYLOADLENGTH, 0xFF ); // Set payload length to the maximum 
             }
 
             SX1272Write( REG_PACKETCONFIG1,
@@ -730,6 +734,7 @@ void SX1272Send( uint8_t *buffer, uint8_t size )
             }
             else
             {
+				memcpy1( RxTxBuffer, buffer, size );
                 SX1272.Settings.FskPacketHandler.ChunkSize = 32;
             }
 
@@ -812,8 +817,10 @@ void SX1272SetRx( uint32_t timeout )
             // DIO4=Preamble
             // DIO5=ModeReady
             SX1272Write( REG_DIOMAPPING1, ( SX1272Read( REG_DIOMAPPING1 ) & RF_DIOMAPPING1_DIO0_MASK &
+                                                                            RF_DIOMAPPING1_DIO1_MASK &
                                                                             RF_DIOMAPPING1_DIO2_MASK ) |
                                                                             RF_DIOMAPPING1_DIO0_00 |
+                                                                            RF_DIOMAPPING1_DIO1_00 |
                                                                             RF_DIOMAPPING1_DIO2_11 );
             
             SX1272Write( REG_DIOMAPPING2, ( SX1272Read( REG_DIOMAPPING2 ) & RF_DIOMAPPING2_DIO4_MASK &
@@ -878,7 +885,7 @@ void SX1272SetRx( uint32_t timeout )
         break;
     }
 
-    memset( RxBuffer, 0, ( size_t )RX_BUFFER_SIZE );
+    memset( RxTxBuffer, 0, ( size_t )RX_BUFFER_SIZE );
 
     SX1272.Settings.State = RF_RX_RUNNING;
     if( timeout != 0 )
@@ -923,13 +930,15 @@ void SX1272SetTx( uint32_t timeout )
     case MODEM_FSK:
         {
             // DIO0=PacketSent
-            // DIO1=FifoLevel
+            // DIO1=FifoEmpty
             // DIO2=FifoFull
             // DIO3=FifoEmpty
             // DIO4=LowBat
             // DIO5=ModeReady
             SX1272Write( REG_DIOMAPPING1, ( SX1272Read( REG_DIOMAPPING1 ) & RF_DIOMAPPING1_DIO0_MASK &
-                                                                            RF_DIOMAPPING1_DIO2_MASK ) );
+                                                                            RF_DIOMAPPING1_DIO1_MASK &
+                                                                            RF_DIOMAPPING1_DIO2_MASK ) |
+                                                                            RF_DIOMAPPING1_DIO1_01 );
 
             SX1272Write( REG_DIOMAPPING2, ( SX1272Read( REG_DIOMAPPING2 ) & RF_DIOMAPPING2_DIO4_MASK &
                                                                             RF_DIOMAPPING2_MAP_MASK ) );
@@ -1280,12 +1289,12 @@ void SX1272OnDio0Irq( void )
                     {
                         SX1272.Settings.FskPacketHandler.Size = SX1272Read( REG_PAYLOADLENGTH );
                     }
-                    SX1272ReadFifo( RxBuffer + SX1272.Settings.FskPacketHandler.NbBytes, SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes );
+                    SX1272ReadFifo( RxTxBuffer + SX1272.Settings.FskPacketHandler.NbBytes, SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes );
                     SX1272.Settings.FskPacketHandler.NbBytes += ( SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes );
                 }
                 else
                 {
-                    SX1272ReadFifo( RxBuffer + SX1272.Settings.FskPacketHandler.NbBytes, SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes );
+                    SX1272ReadFifo( RxTxBuffer + SX1272.Settings.FskPacketHandler.NbBytes, SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes );
                     SX1272.Settings.FskPacketHandler.NbBytes += ( SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes );
                 }
 
@@ -1303,7 +1312,7 @@ void SX1272OnDio0Irq( void )
 
                 if( ( RadioEvents != NULL ) && ( RadioEvents->RxDone != NULL ) )
                 {
-                    RadioEvents->RxDone( RxBuffer, SX1272.Settings.FskPacketHandler.Size, SX1272.Settings.FskPacketHandler.RssiValue, 0 );
+                    RadioEvents->RxDone( RxTxBuffer, SX1272.Settings.FskPacketHandler.Size, SX1272.Settings.FskPacketHandler.RssiValue, 0 );
                 } 
                 SX1272.Settings.FskPacketHandler.PreambleDetected = false;
                 SX1272.Settings.FskPacketHandler.SyncWordDetected = false;
@@ -1361,7 +1370,7 @@ void SX1272OnDio0Irq( void )
                     }
 
                     SX1272.Settings.LoRaPacketHandler.Size = SX1272Read( REG_LR_RXNBBYTES );
-                    SX1272ReadFifo( RxBuffer, SX1272.Settings.LoRaPacketHandler.Size );
+                    SX1272ReadFifo( RxTxBuffer, SX1272.Settings.LoRaPacketHandler.Size );
                 
                     if( SX1272.Settings.LoRa.RxContinuous == false )
                     {
@@ -1371,7 +1380,7 @@ void SX1272OnDio0Irq( void )
 
                     if( ( RadioEvents != NULL ) && ( RadioEvents->RxDone != NULL ) )
                     {
-                        RadioEvents->RxDone( RxBuffer, SX1272.Settings.LoRaPacketHandler.Size, SX1272.Settings.LoRaPacketHandler.RssiValue, SX1272.Settings.LoRaPacketHandler.SnrValue );
+                        RadioEvents->RxDone( RxTxBuffer, SX1272.Settings.LoRaPacketHandler.Size, SX1272.Settings.LoRaPacketHandler.RssiValue, SX1272.Settings.LoRaPacketHandler.SnrValue );
                     }
                 }
                 break;
@@ -1427,12 +1436,12 @@ void SX1272OnDio1Irq( void )
 
                 if( ( SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes ) > SX1272.Settings.FskPacketHandler.FifoThresh )
                 {
-                    SX1272ReadFifo( ( RxBuffer + SX1272.Settings.FskPacketHandler.NbBytes ), SX1272.Settings.FskPacketHandler.FifoThresh );
+                    SX1272ReadFifo( ( RxTxBuffer + SX1272.Settings.FskPacketHandler.NbBytes ), SX1272.Settings.FskPacketHandler.FifoThresh );
                     SX1272.Settings.FskPacketHandler.NbBytes += SX1272.Settings.FskPacketHandler.FifoThresh;
                 }
                 else
                 {
-                    SX1272ReadFifo( ( RxBuffer + SX1272.Settings.FskPacketHandler.NbBytes ), SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes );
+                    SX1272ReadFifo( ( RxTxBuffer + SX1272.Settings.FskPacketHandler.NbBytes ), SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes );
                     SX1272.Settings.FskPacketHandler.NbBytes += ( SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes );
                 }
                 break;
@@ -1453,16 +1462,16 @@ void SX1272OnDio1Irq( void )
             switch( SX1272.Settings.Modem )
             {
             case MODEM_FSK:
-                // FifoLevel interrupt
+                // FifoEmpty interrupt
                 if( ( SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes ) > SX1272.Settings.FskPacketHandler.ChunkSize )
                 {
-                    SX1272WriteFifo( ( RxBuffer + SX1272.Settings.FskPacketHandler.NbBytes ), SX1272.Settings.FskPacketHandler.ChunkSize );
+                    SX1272WriteFifo( ( RxTxBuffer + SX1272.Settings.FskPacketHandler.NbBytes ), SX1272.Settings.FskPacketHandler.ChunkSize );
                     SX1272.Settings.FskPacketHandler.NbBytes += SX1272.Settings.FskPacketHandler.ChunkSize;
                 }
                 else 
                 {
                     // Write the last chunk of data
-                    SX1272WriteFifo( RxBuffer + SX1272.Settings.FskPacketHandler.NbBytes, SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes );
+                    SX1272WriteFifo( RxTxBuffer + SX1272.Settings.FskPacketHandler.NbBytes, SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes );
                     SX1272.Settings.FskPacketHandler.NbBytes += SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes;
                 }
                 break;

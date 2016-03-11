@@ -674,10 +674,26 @@ typedef struct sMcpsReqConfirmed
      */
     int8_t Datarate;
     /*!
-     * Number of attempts to transmit the frame, if frame could not be send, or
-     * if the LoRaMAC layer did not receive an acknowledgment
+     * Number of trials to transmit the frame, if the LoRaMAC layer did not
+     * receive an acknowledgment. The MAC performs a datarate adaptation,
+     * according to the LoRaWAN Specification V1.0, chapter 18.4, according
+     * to the following table:
+     *
+     * Transmission nb | Data Rate
+     * ----------------|-----------
+     * 1 (first)       | DR
+     * 2               | DR
+     * 3               | max(DR-1,0)
+     * 4               | max(DR-1,0)
+     * 5               | max(DR-2,0)
+     * 6               | max(DR-2,0)
+     * 7               | max(DR-3,0)
+     * 8               | max(DR-3,0)
+     *
+     * Note, that if NbTrials is set to 1 or 2, the MAC will not decrease
+     * the datarate, in case the LoRaMAC layer did not receive an acknowledgment
      */
-    uint8_t nbRetries;
+    uint8_t NbTrials;
 }McpsReqConfirmed_t;
 
 /*!
@@ -958,6 +974,7 @@ typedef struct sMlmeConfirm
  * \ref MIB_NWK_SKEY                 | YES | YES
  * \ref MIB_APP_SKEY                 | YES | YES
  * \ref MIB_PUBLIC_NETWORK           | YES | YES
+ * \ref MIB_REPEATER_SUPPORT         | YES | YES
  * \ref MIB_CHANNELS                 | YES | NO
  * \ref MIB_RX2_CHANNEL              | YES | YES
  * \ref MIB_CHANNELS_MASK            | YES | YES
@@ -1340,6 +1357,18 @@ typedef enum eLoRaMacStatus
      * Service not started - invalid parameter
      */
     LORAMAC_STATUS_PARAMETER_INVALID,
+    /*!
+     * Service not started - invalid frequency
+     */
+    LORAMAC_STATUS_FREQUENCY_INVALID,
+    /*!
+     * Service not started - invalid datarate
+     */
+    LORAMAC_STATUS_DATARATE_INVALID,
+    /*!
+     * Service not started - invalid frequency and datarate
+     */
+    LORAMAC_STATUS_FREQ_AND_DR_INVALID,
     /*!
      * Service not started - the device is not in a LoRaWAN
      */

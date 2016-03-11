@@ -311,12 +311,6 @@ typedef enum
 #define LC1                { 868100000, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 }
 #define LC2                { 868300000, { ( ( DR_6 << 4 ) | DR_0 ) }, 1 }
 #define LC3                { 868500000, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 }
-#define LC4                { 867100000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC5                { 867300000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC6                { 867500000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC7                { 867700000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC8                { 867900000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC9                { 868800000, { ( ( DR_7 << 4 ) | DR_7 ) }, 2 }
 
 #elif defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
 

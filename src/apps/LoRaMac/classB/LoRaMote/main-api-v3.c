@@ -56,6 +56,19 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 #define LORAWAN_DUTYCYCLE_ON                        true
 
+#define USE_SEMTECH_DEFAULT_CHANNEL_LINEUP          1
+
+#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 ) 
+
+#define LC4                { 867100000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC5                { 867300000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC6                { 867500000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC7                { 867700000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC8                { 867900000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC9                { 868800000, { ( ( DR_7 << 4 ) | DR_7 ) }, 2 }
+
+#endif
+
 #endif
 
 /*!
@@ -523,6 +536,16 @@ int main( void )
 
 #if defined( USE_BAND_868 )
     LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
+
+#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 ) 
+    LoRaMacChannelAdd( 3, ( ChannelParams_t )LC4 );
+    LoRaMacChannelAdd( 4, ( ChannelParams_t )LC5 );
+    LoRaMacChannelAdd( 5, ( ChannelParams_t )LC6 );
+    LoRaMacChannelAdd( 6, ( ChannelParams_t )LC7 );
+    LoRaMacChannelAdd( 7, ( ChannelParams_t )LC8 );
+    LoRaMacChannelAdd( 8, ( ChannelParams_t )LC9 );
+#endif
+
 #endif
 
     while( 1 )
