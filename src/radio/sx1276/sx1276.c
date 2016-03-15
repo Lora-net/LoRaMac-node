@@ -840,6 +840,7 @@ void SX1276Send( uint8_t *buffer, uint8_t size )
             }
             else
             {
+                memcpy1( RxTxBuffer, buffer, size );
                 SX1276.Settings.FskPacketHandler.ChunkSize = 32;
             }
 
