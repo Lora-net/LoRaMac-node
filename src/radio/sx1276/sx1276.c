@@ -504,7 +504,7 @@ void SX1276SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
                 SX1276Write( REG_LR_HOPPERIOD, SX1276.Settings.LoRa.HopPeriod );
             }
 
-            if( ( bandwidth == 9 ) && ( RF_MID_BAND_THRESH ) )
+            if( ( bandwidth == 9 ) && ( SX1276.Settings.Channel > RF_MID_BAND_THRESH ) )
             {
                 // ERRATA 2.1 - Sensitivity Optimization with a 500 kHz Bandwidth 
                 SX1276Write( REG_LR_TEST36, 0x02 );
