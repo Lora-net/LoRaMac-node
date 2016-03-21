@@ -66,6 +66,7 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 #define LC7                { 867700000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 #define LC8                { 867900000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 #define LC9                { 868800000, { ( ( DR_7 << 4 ) | DR_7 ) }, 2 }
+#define LC10               { 868300000, { ( ( DR_6 << 4 ) | DR_6 ) }, 1 }
 
 #endif
 
@@ -494,6 +495,7 @@ int main( void )
     LoRaMacChannelAdd( 6, ( ChannelParams_t )LC7 );
     LoRaMacChannelAdd( 7, ( ChannelParams_t )LC8 );
     LoRaMacChannelAdd( 8, ( ChannelParams_t )LC9 );
+    LoRaMacChannelAdd( 9, ( ChannelParams_t )LC10 );
 #endif
 
 #endif

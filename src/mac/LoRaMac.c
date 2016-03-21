@@ -430,6 +430,8 @@ static bool DutyCycleOn;
  */
 static uint8_t Channel;
 
+static uint8_t LastTxChannel;
+
 /*!
  * LoRaMac internal states
  */
@@ -764,6 +766,13 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
  */
 static LoRaMacStatus_t ScheduleTx( void );
 
+/*
+ * \brief Calculates the back-off time for the band of a channel.
+ *
+ * \param [IN] channel     The last Tx channel index
+ */
+static void CalculateBackOff( uint8_t channel );
+
 /*!
  * \brief LoRaMAC layer prepared frame buffer transmission with channel specification
  *
@@ -789,19 +798,12 @@ static void OnRadioTxDone( void )
         OnRxWindow2TimerEvent( );
     }
 
-    // Update Band Time OFF
-    Bands[Channels[Channel].Band].LastTxDoneTime = curTime;
-    if( DutyCycleOn == true )
-    {
-        Bands[Channels[Channel].Band].TimeOff = TxTimeOnAir * Bands[Channels[Channel].Band].DCycle - TxTimeOnAir;
-    }
-    else
-    {
-        Bands[Channels[Channel].Band].TimeOff = 0;
-    }
-    // Update Aggregated Time OFF
+    // Store last Tx channel
+    LastTxChannel = Channel;
+    // Update last tx done time for the current channel
+    Bands[Channels[LastTxChannel].Band].LastTxDoneTime = curTime;
+    // Update Aggregated last tx done time
     AggregatedLastTxDoneTime = curTime;
-    AggregatedTimeOff = AggregatedTimeOff + ( TxTimeOnAir * AggregatedDCycle - TxTimeOnAir );
 
     if( IsRxWindowsEnabled == true )
     {
@@ -1629,6 +1631,15 @@ static bool SetNextChannel( TimerTime_t* time )
                     { // Check if the channel is enabled
                         continue;
                     }
+#if defined( USE_BAND_868 ) || defined( USE_BAND_433 ) || defined( USE_BAND_780 )
+                    if( IsLoRaMacNetworkJoined == false )
+                    {
+                        if( ( JOIN_CHANNELS & ( 1 << j ) ) == 0 )
+                        {
+                            continue;
+                        }
+                    }
+#endif
                     if( ( ( Channels[i + j].DrRange.Fields.Min <= ChannelsDatarate ) &&
                           ( ChannelsDatarate <= Channels[i + j].DrRange.Fields.Max ) ) == false )
                     { // Check if the current channel selection supports the given datarate
@@ -2358,6 +2369,8 @@ static LoRaMacStatus_t ScheduleTx( )
         AggregatedTimeOff = 0;
     }
 
+    CalculateBackOff( LastTxChannel );
+
     // Select channel
     while( SetNextChannel( &dutyCycleTimeOff ) == false )
     {
@@ -2385,6 +2398,30 @@ static LoRaMacStatus_t ScheduleTx( )
 
         return LORAMAC_STATUS_OK;
     }
+}
+
+static void CalculateBackOff( uint8_t channel )
+{
+    uint16_t dutyCycle = Bands[Channels[channel].Band].DCycle;
+
+    if( IsLoRaMacNetworkJoined == false )
+    {
+#if defined( USE_BAND_868 ) || defined( USE_BAND_433 ) || defined( USE_BAND_780 )
+        dutyCycle = JOIN_DC;
+#endif
+    }
+
+    // Update Band Time OFF
+    if( DutyCycleOn == true )
+    {
+        Bands[Channels[channel].Band].TimeOff = TxTimeOnAir * dutyCycle - TxTimeOnAir;
+    }
+    else
+    {
+        Bands[Channels[channel].Band].TimeOff = 0;
+    }
+    // Update Aggregated Time OFF
+    AggregatedTimeOff = AggregatedTimeOff + ( TxTimeOnAir * AggregatedDCycle - TxTimeOnAir );
 }
 
 LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl, uint8_t fPort, void *fBuffer, uint16_t fBufferSize )

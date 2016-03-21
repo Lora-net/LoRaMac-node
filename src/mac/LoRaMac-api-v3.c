@@ -105,8 +105,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
         {
             case MLME_JOIN:
             {
-                 // Status is OK, node has joined the network
-                LoRaMacEventInfo.Status = mlmeConfirm->Status;
+                // Status is OK, node has joined the network
                 LoRaMacEventFlags.Bits.Tx = 1;
                 LoRaMacEventFlags.Bits.Rx = 1;
                 LoRaMacEventFlags.Bits.JoinAccept = 1;
@@ -126,6 +125,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                 break;
         }
     }
+    LoRaMacEventInfo.Status = mlmeConfirm->Status;
 
     if( LoRaMacFlags.Bits.McpsInd != 1 )
     {
