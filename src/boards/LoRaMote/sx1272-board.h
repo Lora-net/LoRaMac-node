@@ -25,6 +25,7 @@ Maintainer: Miguel Luis and Gregory Cristian
     { MODEM_FSK , REG_LNA                , 0x23 },\
     { MODEM_FSK , REG_RXCONFIG           , 0x1E },\
     { MODEM_FSK , REG_RSSICONFIG         , 0xD2 },\
+    { MODEM_FSK , REG_AFCFEI             , 0x01 },\
     { MODEM_FSK , REG_PREAMBLEDETECT     , 0xAA },\
     { MODEM_FSK , REG_OSC                , 0x07 },\
     { MODEM_FSK , REG_SYNCCONFIG         , 0x12 },\

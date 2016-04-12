@@ -936,6 +936,8 @@ void SX1276SetRx( uint32_t timeout )
             
             SX1276.Settings.FskPacketHandler.FifoThresh = SX1276Read( REG_FIFOTHRESH ) & 0x3F;
             
+            SX1276Write( REG_RXCONFIG, RF_RXCONFIG_AFCAUTO_ON | RF_RXCONFIG_AGCAUTO_ON | RF_RXCONFIG_RXTRIGER_PREAMBLEDETECT );
+
             SX1276.Settings.FskPacketHandler.PreambleDetected = false;
             SX1276.Settings.FskPacketHandler.SyncWordDetected = false;
             SX1276.Settings.FskPacketHandler.NbBytes = 0;
