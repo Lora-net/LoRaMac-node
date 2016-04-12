@@ -104,7 +104,7 @@ static uint8_t AppSKey[] = LORAWAN_APPSKEY;
 /*!
  * Device address
  */
-static uint32_t DevAddr;
+static uint32_t DevAddr = LORAWAN_DEVICE_ADDRESS;
 
 #endif
 
@@ -505,12 +505,14 @@ int main( void )
     IsNetworkJoined = false;
 
 #if( OVER_THE_AIR_ACTIVATION == 0 )
-    // Random seed initialization
-    srand1( BoardGetRandomSeed( ) );
-    // Choose a random device address based on Board unique ID
-    // NwkAddr rand [0, 33554431]
-    DevAddr = randr( 0, 0x01FFFFFF );
+    if( DevAddr == 0 )
+    {
+        // Random seed initialization
+        srand1( BoardGetRandomSeed( ) );
 
+        // Choose a random device address
+        DevAddr = randr( 0, 0x01FFFFFF );
+    }
     LoRaMacInitNwkIds( LORAWAN_NETWORK_ID, DevAddr, NwkSKey, AppSKey );
     IsNetworkJoined = true;
 #else
