@@ -33,6 +33,14 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jä
  */
 #define LORA_MAC_COMMAND_MAX_LENGTH                 15
 
+
+/*!
+ * FRMPayload overhead to be used when setting the Radio.SetMaxPayloadLength
+ * in RxWindowSetup function.
+ * Maximum PHYPayload = MaxPayloadOfDatarate/MaxPayloadOfDatarateRepeater + LORA_MAC_FRMPAYLOAD_OVERHEAD
+ */
+#define LORA_MAC_FRMPAYLOAD_OVERHEAD                13 // MHDR(1) + FHDR(7) + Port(1) + MIC(4)
+
 /*!
  * Device IEEE EUI
  */
@@ -1749,11 +1757,11 @@ static void RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, u
 
         if( RepeaterSupport == true )
         {
-            Radio.SetMaxPayloadLength( modem, MaxPayloadOfDatarateRepeater[datarate] );
+            Radio.SetMaxPayloadLength( modem, MaxPayloadOfDatarateRepeater[datarate] + LORA_MAC_FRMPAYLOAD_OVERHEAD );
         }
         else
         {
-            Radio.SetMaxPayloadLength( modem, MaxPayloadOfDatarate[datarate] );
+            Radio.SetMaxPayloadLength( modem, MaxPayloadOfDatarate[datarate] + LORA_MAC_FRMPAYLOAD_OVERHEAD );
         }
 
         if( rxContinuous == false )
