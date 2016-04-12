@@ -229,7 +229,7 @@ void SX1276Init( RadioEvents_t *events )
 
     RxChainCalibration( );
     
-    SX1276SetOpMode( RF_OPMODE_SLEEP );
+    SX1276Write( REG_OPMODE, RF_OPMODE_SLEEP );
 
     SX1276IoIrqInit( DioIrq );
         

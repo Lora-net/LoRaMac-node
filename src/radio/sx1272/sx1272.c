@@ -220,7 +220,7 @@ void SX1272Init( RadioEvents_t *events )
     
     SX1272Reset( );
 
-    SX1272SetOpMode( RF_OPMODE_SLEEP );
+    SX1272Write( REG_OPMODE, RF_OPMODE_SLEEP );
     
     SX1272IoIrqInit( DioIrq );
     
