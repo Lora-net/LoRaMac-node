@@ -22,18 +22,18 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * Join requests trials duty cycle.
  */
-#define OVER_THE_AIR_ACTIVATION_DUTYCYCLE           10000000  // 10 [s] value in us
+#define OVER_THE_AIR_ACTIVATION_DUTYCYCLE           10000  // 10 [s] value in ms
 
 /*!
- * Defines the application data transmission duty cycle. 5s, value in [us].
+ * Defines the application data transmission duty cycle. 5s, value in [ms].
  */
-#define APP_TX_DUTYCYCLE                            5000000
+#define APP_TX_DUTYCYCLE                            5000
 
 /*!
  * Defines a random delay for application data transmission duty cycle. 1s,
- * value in [us].
+ * value in [ms].
  */
-#define APP_TX_DUTYCYCLE_RND                        1000000
+#define APP_TX_DUTYCYCLE_RND                        1000
 
 /*!
  * LoRaWAN confirmed messages
@@ -41,7 +41,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define LORAWAN_CONFIRMED_MSG_ON                    false
 
 /*!
- * LoRaWAN Adaptative Data Rate
+ * LoRaWAN Adaptive Data Rate
  *
  * \remark Please note that when ADR is enabled the end-device should be static
  */
@@ -195,7 +195,7 @@ struct ComplianceTest_s
 }ComplianceTest;
 
 /*!
- * Prepares the frame buffer to be sent
+ * \brief   Prepares the payload of the frame
  */
 static void PrepareTxFrame( uint8_t port )
 {
@@ -208,7 +208,7 @@ static void PrepareTxFrame( uint8_t port )
             int16_t altitudeBar = 0;
             int16_t temperature = 0;
             int32_t latitude, longitude = 0;
-            uint16_t altitudeGps = 0xFFFF;
+            int16_t altitudeGps = 0xFFFF;
             uint8_t batteryLevel = 0;
 
             pressure = ( uint16_t )( MPL3115ReadPressure( ) / 10 );             // in hPa / 10
@@ -247,8 +247,8 @@ static void PrepareTxFrame( uint8_t port )
             altitudeGps = GpsGetLatestGpsAltitude( );                           // in m
         
             AppData[0] = AppLedStateOn;
-            AppData[1] = temperature;
-            AppData[2] = batteryLevel;
+            AppData[1] = temperature;                                           // Signed degrees Celcius in half degree units. So,  +/-63 C
+            AppData[2] = batteryLevel;                                          // Per LoRaWAN spec; 0=Charging; 1...254 = level, 255 = N/A
             AppData[3] = ( latitude >> 16 ) & 0xFF;
             AppData[4] = ( latitude >> 8 ) & 0xFF;
             AppData[5] = latitude & 0xFF;
@@ -540,13 +540,13 @@ int main( void )
     TimerInit( &TxNextPacketTimer, OnTxNextPacketTimerEvent );
 
     TimerInit( &Led1Timer, OnLed1TimerEvent );
-    TimerSetValue( &Led1Timer, 25000 );
+    TimerSetValue( &Led1Timer, 25 );
 
     TimerInit( &Led2Timer, OnLed2TimerEvent );
-    TimerSetValue( &Led2Timer, 25000 );
+    TimerSetValue( &Led2Timer, 25 );
 
     TimerInit( &Led4Timer, OnLed4TimerEvent );
-    TimerSetValue( &Led4Timer, 25000 );
+    TimerSetValue( &Led4Timer, 25 );
 
     LoRaMacSetAdrOn( LORAWAN_ADR_ON );
     LoRaMacSetPublicNetwork( LORAWAN_PUBLIC_NETWORK );

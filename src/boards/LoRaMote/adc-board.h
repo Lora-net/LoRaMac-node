@@ -19,7 +19,7 @@ Maintainer: Miguel Luis and Gregory Cristian
  * Register the old AdcMcuReadChannel function to the new function 
  * which makes an additional parameter available to select the read out channel
  */
-#define AdcMcuReadChannel( obj ) AdcMcuRead( obj, ADC_Channel_3 )
+#define AdcMcuReadChannel( obj ) AdcMcuRead( obj, ADC_CHANNEL_3 )
 
 /*!
  * ADC resolution

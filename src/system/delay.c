@@ -21,12 +21,5 @@ void Delay( float s )
 
 void DelayMs( uint32_t ms )
 {
-    if( TimerGetLowPowerEnable( ) == true )
-    {
-        RtcDelayMs( ms );
-    }
-    else
-    {
-        TimerHwDelayMs( ms );
-    }
+    HAL_Delay( ms );
 }

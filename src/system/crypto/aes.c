@@ -46,7 +46,7 @@
 #include <stdint.h>
 
 /* define if you have fast 32-bit types on your system */
-#if 1
+#if ( __CORTEX_M != 0 ) // if Cortex is different from M0/M0+
 #  define HAVE_UINT_32T
 #endif
 
@@ -239,7 +239,7 @@ static uint8_t hibit(const uint8_t x)
 static uint8_t gf_inv(const uint8_t x)
 {   uint8_t p1 = x, p2 = BPOLY, n1 = hibit(x), n2 = 0x80, v1 = 1, v2 = 0;
 
-    if(x < 2) 
+    if(x < 2)
         return x;
 
     for( ; ; )
@@ -247,20 +247,20 @@ static uint8_t gf_inv(const uint8_t x)
         if(n1)
             while(n2 >= n1)             /* divide polynomial p2 by p1    */
             {
-                n2 /= n1;               /* shift smaller polynomial left */ 
+                n2 /= n1;               /* shift smaller polynomial left */
                 p2 ^= (p1 * n2) & 0xff; /* and remove from larger one    */
-                v2 ^= (v1 * n2);        /* shift accumulated value and   */ 
+                v2 ^= (v1 * n2);        /* shift accumulated value and   */
                 n2 = hibit(p2);         /* add into result               */
             }
         else
             return v1;
 
-        if(n2)                          /* repeat with values swapped    */ 
+        if(n2)                          /* repeat with values swapped    */
             while(n1 >= n2)
             {
-                n1 /= n2; 
-                p1 ^= p2 * n1; 
-                v1 ^= v2 * n1; 
+                n1 /= n2;
+                p1 ^= p2 * n1;
+                v1 ^= v2 * n1;
                 n1 = hibit(p1);
             }
         else
@@ -270,13 +270,13 @@ static uint8_t gf_inv(const uint8_t x)
 
 /* The forward and inverse affine transformations used in the S-box */
 uint8_t fwd_affine(const uint8_t x)
-{   
+{
 #if defined( HAVE_UINT_32T )
     uint32_t w = x;
     w ^= (w << 1) ^ (w << 2) ^ (w << 3) ^ (w << 4);
     return 0x63 ^ ((w ^ (w >> 8)) & 0xff);
 #else
-    return 0x63 ^ x ^ (x << 1) ^ (x << 2) ^ (x << 3) ^ (x << 4) 
+    return 0x63 ^ x ^ (x << 1) ^ (x << 2) ^ (x << 3) ^ (x << 4)
                     ^ (x >> 7) ^ (x >> 6) ^ (x >> 5) ^ (x >> 4);
 #endif
 }
@@ -288,7 +288,7 @@ uint8_t inv_affine(const uint8_t x)
     w = (w << 1) ^ (w << 3) ^ (w << 6);
     return 0x05 ^ ((w ^ (w >> 8)) & 0xff);
 #else
-    return 0x05 ^ (x << 1) ^ (x << 3) ^ (x << 6) 
+    return 0x05 ^ (x << 1) ^ (x << 3) ^ (x << 6)
                 ^ (x >> 7) ^ (x >> 5) ^ (x >> 2);
 #endif
 }
@@ -520,8 +520,8 @@ return_type aes_set_key( const uint8_t key[], length_type keylen, aes_context ct
     case 24:
     case 32:
         break;
-    default: 
-        ctx->rnd = 0; 
+    default:
+        ctx->rnd = 0;
         return ( uint8_t )-1;
     }
     block_copy_nn(ctx->ksch, key, keylen);
@@ -648,10 +648,10 @@ return_type aes_decrypt( const uint8_t in[N_BLOCK], uint8_t out[N_BLOCK], const 
 
 return_type aes_cbc_decrypt( const uint8_t *in, uint8_t *out,
                          int32_t n_block, uint8_t iv[N_BLOCK], const aes_context ctx[1] )
-{   
+{
     while(n_block--)
     {   uint8_t tmp[N_BLOCK];
-        
+
         //memcpy(tmp, in, N_BLOCK);
         block_copy(tmp, in);
         if(aes_decrypt(in, out, ctx) != EXIT_SUCCESS)

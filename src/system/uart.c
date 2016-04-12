@@ -50,7 +50,7 @@ void UartConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_t w
     if( obj->IsInitialized == false )
     {
         // UartInit function must be called first.
-        while( 1 );
+        assert_param( FAIL );
     }
     if( obj->UartId == UART_USB_CDC )
     {
@@ -168,4 +168,3 @@ uint8_t UartGetBuffer( Uart_t *obj, uint8_t *buffer, uint16_t size, uint16_t *nb
     }
     return 0; // OK
 }
-

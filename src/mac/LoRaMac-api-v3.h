@@ -36,26 +36,34 @@
 #include "LoRaMac-board.h"
 
 /*!
- * Beacon interval in us
+ * Beacon interval in ms
  */
-#define BEACON_INTERVAL                             128000000
+#define BEACON_INTERVAL                             128000
 
 /*!
- * Class A&B receive delay in us
+ * Class A&B receive delay 1 in ms
  */
-#define RECEIVE_DELAY1                              1000000
-#define RECEIVE_DELAY2                              2000000
+#define RECEIVE_DELAY1                              1000
 
 /*!
- * Join accept receive delay in us
+ * Class A&B receive delay 2 in ms
  */
-#define JOIN_ACCEPT_DELAY1                          5000000
-#define JOIN_ACCEPT_DELAY2                          6000000
+#define RECEIVE_DELAY2                              2000
 
 /*!
- * Class A&B maximum receive window delay in us
+ * Join accept receive delay 1 in ms
  */
-#define MAX_RX_WINDOW                               3000000
+#define JOIN_ACCEPT_DELAY1                          5000
+
+/*!
+ * Join accept receive delay 2 in ms
+ */
+#define JOIN_ACCEPT_DELAY2                          6000
+
+/*!
+ * Class A&B maximum receive window delay in ms
+ */
+#define MAX_RX_WINDOW                               3000
 
 /*!
  * Maximum allowed gap for the FCNT field
@@ -75,21 +83,21 @@
 /*!
  * Number of seconds after the start of the second reception window without
  * receiving an acknowledge.
- * AckTimeout = ACK_TIMEOUT + Random( -ACK_TIMEOUT_RND, ACK_TIMEOUT_RND )
+ * AckTimeout = \ref ACK_TIMEOUT + Random( -\ref ACK_TIMEOUT_RND, \ref ACK_TIMEOUT_RND )
  */
-#define ACK_TIMEOUT                                 2000000
+#define ACK_TIMEOUT                                 2000
 
 /*!
  * Random number of seconds after the start of the second reception window without
  * receiving an acknowledge
- * AckTimeout = ACK_TIMEOUT + Random( -ACK_TIMEOUT_RND, ACK_TIMEOUT_RND )
+ * AckTimeout = \ref ACK_TIMEOUT + Random( -\ref ACK_TIMEOUT_RND, \ref ACK_TIMEOUT_RND )
  */
-#define ACK_TIMEOUT_RND                             1000000
+#define ACK_TIMEOUT_RND                             1000
 
 /*!
- * Check the Mac layer state every MAC_STATE_CHECK_TIMEOUT
+ * Check the Mac layer state every MAC_STATE_CHECK_TIMEOUT in ms
  */
-#define MAC_STATE_CHECK_TIMEOUT                     1000000
+#define MAC_STATE_CHECK_TIMEOUT                     1000
 
 /*!
  * Maximum number of times the MAC layer tries to get an acknowledge.
@@ -97,14 +105,18 @@
 #define MAX_ACK_RETRIES                             8
 
 /*!
- * RSSI free threshold
+ * RSSI free threshold [dBm]
  */
-#define RSSI_FREE_TH                                ( int8_t )( -90 ) // [dBm]
+#define RSSI_FREE_TH                                ( int8_t )( -90 )
 
 /*!
- * Frame direction definition
+ * Frame direction definition for up-link communications
  */
 #define UP_LINK                                     0
+
+/*!
+ * Frame direction definition for down-link communications
+ */
 #define DOWN_LINK                                   1
 
 /*!
@@ -393,31 +405,31 @@ void LoRaMacSetChannelsNbRep( uint8_t nbRep );
 
 /*
  * Wrapper function which calls \ref LoRaMacMibSetRequestConfirm to
- * set the maximum receive window duration in [us].
+ * set the maximum receive window duration in [ms].
  */
 void LoRaMacSetMaxRxWindow( uint32_t delay );
 
 /*
  * Wrapper function which calls \ref LoRaMacMibSetRequestConfirm to
- * set the receive delay 1 in [us].
+ * set the receive delay 1 in [ms].
  */
 void LoRaMacSetReceiveDelay1( uint32_t delay );
 
 /*
  * Wrapper function which calls \ref LoRaMacMibSetRequestConfirm to
- * set the receive delay 2 in [us].
+ * set the receive delay 2 in [ms].
  */
 void LoRaMacSetReceiveDelay2( uint32_t delay );
 
 /*
  * Wrapper function which calls \ref LoRaMacMibSetRequestConfirm to
- * set the join accept delay 1 in [us].
+ * set the join accept delay 1 in [ms].
  */
 void LoRaMacSetJoinAcceptDelay1( uint32_t delay );
 
 /*
  * Wrapper function which calls \ref LoRaMacMibSetRequestConfirm to
- * set the join accept delay 2 in [us].
+ * set the join accept delay 2 in [ms].
  */
 void LoRaMacSetJoinAcceptDelay2( uint32_t delay );
 

@@ -21,6 +21,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include <string.h>
 #include <stdint.h>
 #include "stm32l1xx.h"
+#include "stm32l1xx_hal.h"
 #include "utilities.h"
 #include "timer.h"
 #include "delay.h"
@@ -38,12 +39,11 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "gps.h"
 #include "gps-board.h"
 #include "rtc-board.h"
-#include "timer-board.h"
 #include "sx1276-board.h"
 #include "uart-board.h"
 
 #if defined( USE_USB_CDC )
-#include "usb-cdc-board.h"
+#include "uart-usb-board.h"
 #endif
 
 /*!
@@ -119,7 +119,7 @@ Maintainer: Miguel Luis and Gregory Cristian
     
 #define GPS_PPS                                     PB_1
 #define UART_TX                                     PA_9
-#define UART_RX                                     PA_10    
+#define UART_RX                                     PA_10
 
 #define DC_DC_EN                                    PB_8
 #define BAT_LEVEL                                   PB_0
@@ -176,6 +176,12 @@ extern Gpio_t Wkup1;
 extern Gpio_t DcDcEnable;
 extern Gpio_t BatVal;
 
+enum BoardPowerSource
+{
+    USB_POWER = 0,
+    BATTERY_POWER
+};
+
 /*!
  * \brief Initializes the target board peripherals.
  */
@@ -212,5 +218,13 @@ uint32_t BoardGetRandomSeed( void );
  * \param [IN] id Pointer to an array that will contain the Unique ID
  */
 void BoardGetUniqueId( uint8_t *id );
+
+/*!
+ * \brief Get the board power source
+ *
+ * \retval value  power source ( 0: USB_POWER,  1: BATTERY_POWER )
+ */
+uint8_t GetBoardPowerSource( void );
+
 
 #endif // __BOARD_H__

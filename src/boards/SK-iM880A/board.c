@@ -59,6 +59,16 @@ Uart_t Uart1;
 static void BoardUnusedIoInit( void );
 
 /*!
+ * System Clock Configuration
+ */
+static void SystemClockConfig( void );
+
+/*!
+ * System Clock Re-Configuration when waking up from STOP mode
+ */
+static void SystemClockReConfig( void );
+
+/*!
  * Flag to indicate if the MCU is Initialized
  */
 static bool McuInitialized = false;
@@ -87,36 +97,29 @@ void BoardInitMcu( void )
 {
     if( McuInitialized == false )
     {
-        // We use IRQ priority group 4 for the entire project
-        // When setting the IRQ, only the preemption priority is used
-        NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 );
-
-        // Disable Systick
-        SysTick->CTRL  &= ~SysTick_CTRL_TICKINT_Msk;    // Systick IRQ off 
-        SCB->ICSR |= SCB_ICSR_PENDSTCLR_Msk;            // Clear SysTick Exception pending flag
-
-        AdcInit( &Adc, POTI );
-
-        SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
-        SX1272IoInit( );
-
-#if( LOW_POWER_MODE_ENABLE )
-        TimerSetLowPowerEnable( true );
-#else
-        TimerSetLowPowerEnable( false );
+#if defined( USE_BOOTLOADER )
+        // Set the Vector Table base location at 0x3000
+        SCB->VTOR = FLASH_BASE | 0x3000;
 #endif
+        HAL_Init( );
+
+        SystemClockConfig( );
+
+        RtcInit( );
+
         BoardUnusedIoInit( );
 
-        if( TimerGetLowPowerEnable( ) == true )
-        {
-            RtcInit( );
-        }
-        else
-        {
-            TimerHwInit( );
-        }
         McuInitialized = true;
     }
+    else
+    {
+        SystemClockReConfig( );
+    }
+
+    AdcInit( &Adc, POTI );
+
+    SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+    SX1272IoInit( );
 }
 
 void BoardDeInitMcu( void )
@@ -131,8 +134,6 @@ void BoardDeInitMcu( void )
 
     GpioInit( &ioPin, OSC_LSE_IN, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 1 );
     GpioInit( &ioPin, OSC_LSE_OUT, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 1 );
-    
-    McuInitialized = false;
 }
 
 uint32_t BoardGetRandomSeed( void )
@@ -152,20 +153,20 @@ void BoardGetUniqueId( uint8_t *id )
     id[0] = ( ( *( uint32_t* )ID2 ) );
 }
 
-uint8_t BoardMeasurePotiLevel( void ) 
+uint8_t BoardMeasurePotiLevel( void )
 {
     uint8_t potiLevel = 0;
     uint16_t MeasuredLevel = 0;
-     
+
     // read the current potentiometer setting
-    MeasuredLevel = AdcMcuRead( &Adc , ADC_Channel_3 );
+    MeasuredLevel = AdcMcuRead( &Adc , ADC_CHANNEL_3 );
 
     // check the limits
-    if( MeasuredLevel >= POTI_MAX_LEVEL )  
+    if( MeasuredLevel >= POTI_MAX_LEVEL )
     {
         potiLevel = 100;
     }
-    else if( MeasuredLevel <= POTI_MIN_LEVEL ) 
+    else if( MeasuredLevel <= POTI_MIN_LEVEL )
     {
         potiLevel = 0;
     }
@@ -177,14 +178,14 @@ uint8_t BoardMeasurePotiLevel( void )
     return potiLevel;
 }
 
-uint16_t BoardMeasureVdd( void ) 
+uint16_t BoardMeasureVdd( void )
 {
     uint16_t MeasuredLevel = 0;
     uint32_t milliVolt = 0;
 
     // Read the current Voltage
-    MeasuredLevel = AdcMcuRead( &Adc , ADC_Channel_17 );
-   
+    MeasuredLevel = AdcMcuRead( &Adc , ADC_CHANNEL_17 );
+
     // We don't use the VREF from calibValues here.
     // calculate the Voltage in miliVolt
     milliVolt = ( uint32_t )PDDADC_VREF_BANDGAP * ( uint32_t )PDDADC_MAX_VALUE;
@@ -197,14 +198,14 @@ uint8_t BoardGetBatteryLevel( void )
 {
     uint8_t batteryLevel = 0;
     uint16_t measuredLevel = 0;
-     
+
     measuredLevel = BoardMeasureVdd( );
 
-    if( measuredLevel >= 3000 )  
+    if( measuredLevel >= 3000 )
     {
         batteryLevel = 254;
     }
-    else if( measuredLevel <= 2400 ) 
+    else if( measuredLevel <= 2400 )
     {
         batteryLevel = 1;
     }
@@ -217,33 +218,113 @@ uint8_t BoardGetBatteryLevel( void )
 
 static void BoardUnusedIoInit( void )
 {
-#if !defined( USE_USB_CDC ) || !defined( USE_DEBUGGER )
     Gpio_t ioPin;
-#endif
+    if( GetBoardPowerSource( ) == BATTERY_POWER )
+    {
+        GpioInit( &ioPin, USB_DM, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+        GpioInit( &ioPin, USB_DP, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    }
 
-    /* USB */
-#if !defined( USE_USB_CDC )
-    GpioInit( &ioPin, USB_DM, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &ioPin, USB_DP, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-#endif
 #if defined( USE_DEBUGGER )
-    DBGMCU_Config( DBGMCU_SLEEP, ENABLE );
-    DBGMCU_Config( DBGMCU_STOP, ENABLE);
-    DBGMCU_Config( DBGMCU_STANDBY, ENABLE);
+    HAL_DBGMCU_EnableDBGStopMode( );
+    HAL_DBGMCU_EnableDBGSleepMode( );
+    HAL_DBGMCU_EnableDBGStandbyMode( );
 #else
-    DBGMCU_Config( DBGMCU_SLEEP, DISABLE );
-    DBGMCU_Config( DBGMCU_STOP, DISABLE );
-    DBGMCU_Config( DBGMCU_STANDBY, DISABLE );
-    
+    HAL_DBGMCU_DisableDBGSleepMode( );
+    HAL_DBGMCU_DisableDBGStopMode( );
+    HAL_DBGMCU_DisableDBGStandbyMode( );
+
     GpioInit( &ioPin, JTAG_TMS, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &ioPin, JTAG_TCK, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &ioPin, JTAG_TDI, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &ioPin, JTAG_TDO, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &ioPin, JTAG_NRST, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 ); 
-#endif    
+    GpioInit( &ioPin, JTAG_NRST, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+#endif
 }
 
-#ifdef  USE_FULL_ASSERT
+void SystemClockConfig( void )
+{
+    RCC_OscInitTypeDef RCC_OscInitStruct;
+    RCC_ClkInitTypeDef RCC_ClkInitStruct;
+    RCC_PeriphCLKInitTypeDef PeriphClkInit;
+
+    __HAL_RCC_PWR_CLK_ENABLE();
+
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+    RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
+    RCC_OscInitStruct.PLL.PLLDIV = RCC_PLL_DIV3;
+    HAL_RCC_OscConfig( &RCC_OscInitStruct );
+
+    RCC_ClkInitStruct.ClockType = ( RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 );
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+    HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_1 );
+
+    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+    PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
+    HAL_RCCEx_PeriphCLKConfig( &PeriphClkInit );
+
+    HAL_SYSTICK_Config( HAL_RCC_GetHCLKFreq( )/1000 );
+
+    HAL_SYSTICK_CLKSourceConfig( SYSTICK_CLKSOURCE_HCLK );
+
+    /*    HAL_NVIC_GetPriorityGrouping*/
+    HAL_NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_4 );
+
+    /* SysTick_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority( SysTick_IRQn, 0, 0 );
+}
+
+void SystemClockReConfig( void )
+{
+    __HAL_RCC_PWR_CLK_ENABLE( );
+    __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE1 );
+
+    /* Enable HSE */
+    __HAL_RCC_HSE_CONFIG( RCC_HSE_ON );
+
+    /* Wait till HSE is ready */
+    while(__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY) == RESET)
+    {
+    }
+
+    /* Enable PLL */
+    __HAL_RCC_PLL_ENABLE( );
+
+    /* Wait till PLL is ready */
+    while( __HAL_RCC_GET_FLAG( RCC_FLAG_PLLRDY ) == RESET )
+    {
+    }
+
+    /* Select PLL as system clock source */
+    __HAL_RCC_SYSCLK_CONFIG ( RCC_SYSCLKSOURCE_PLLCLK );
+
+    /* Wait till PLL is used as system clock source */
+    while( __HAL_RCC_GET_SYSCLK_SOURCE( ) != RCC_SYSCLKSOURCE_STATUS_PLLCLK )
+    {
+    }
+}
+
+void SysTick_Handler( void )
+{
+    HAL_IncTick( );
+    HAL_SYSTICK_IRQHandler( );
+}
+
+uint8_t GetBoardPowerSource( void )
+{
+    return BATTERY_POWER;
+}
+
+#ifdef USE_FULL_ASSERT
 /*
  * Function Name  : assert_failed
  * Description    : Reports the name of the source file and the source line number
@@ -254,10 +335,10 @@ static void BoardUnusedIoInit( void )
  * Return         : None
  */
 void assert_failed( uint8_t* file, uint32_t line )
-{ 
+{
     /* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-    
+
     /* Infinite loop */
     while( 1 )
     {

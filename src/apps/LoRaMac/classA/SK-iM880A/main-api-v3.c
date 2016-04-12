@@ -22,18 +22,18 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 /*!
  * Join requests trials duty cycle.
  */
-#define OVER_THE_AIR_ACTIVATION_DUTYCYCLE           10000000  // 10 [s] value in us
+#define OVER_THE_AIR_ACTIVATION_DUTYCYCLE           10000  // 10 [s] value in ms
 
 /*!
- * Defines the application data transmission duty cycle. 5s, value in [us].
+ * Defines the application data transmission duty cycle. 5s, value in [ms].
  */
-#define APP_TX_DUTYCYCLE                            5000000
+#define APP_TX_DUTYCYCLE                            5000
 
 /*!
  * Defines a random delay for application data transmission duty cycle. 1s,
- * value in [us].
+ * value in [ms].
  */
-#define APP_TX_DUTYCYCLE_RND                        1000000
+#define APP_TX_DUTYCYCLE_RND                        1000
 
 /*!
  * LoRaWAN confirmed messages
@@ -41,7 +41,7 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 #define LORAWAN_CONFIRMED_MSG_ON                    false
 
 /*!
- * LoRaWAN Adaptative Data Rate
+ * LoRaWAN Adaptive Data Rate
  *
  * \remark Please note that when ADR is enabled the end-device should be static
  */
@@ -185,7 +185,7 @@ struct ComplianceTest_s
 }ComplianceTest;
 
 /*!
- * Prepares the frame buffer to be sent
+ * \brief   Prepares the payload of the frame
  */
 static void PrepareTxFrame( uint8_t port )
 {
@@ -479,10 +479,10 @@ int main( void )
     TimerInit( &TxNextPacketTimer, OnTxNextPacketTimerEvent );
 
     TimerInit( &Led4Timer, OnLed4TimerEvent );
-    TimerSetValue( &Led4Timer, 25000 );
+    TimerSetValue( &Led4Timer, 25 );
 
     TimerInit( &Led2Timer, OnLed2TimerEvent );
-    TimerSetValue( &Led2Timer, 25000 );
+    TimerSetValue( &Led2Timer, 25 );
 
     LoRaMacSetAdrOn( LORAWAN_ADR_ON );
     LoRaMacSetPublicNetwork( LORAWAN_PUBLIC_NETWORK );

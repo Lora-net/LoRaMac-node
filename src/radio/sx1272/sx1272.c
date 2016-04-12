@@ -55,7 +55,7 @@ void SX1272Reset( void );
 
 /*!
  * \brief Sets the SX1272 in transmission mode for the given time
- * \param [IN] timeout Transmission timeout [us] [0: continuous, others timeout]
+ * \param [IN] timeout Transmission timeout [ms] [0: continuous, others timeout]
  */
 void SX1272SetTx( uint32_t timeout );
 
@@ -665,7 +665,7 @@ uint32_t SX1272GetTimeOnAir( RadioModems_t modem, uint8_t pktLen )
                                      ( ( ( SX1272Read( REG_PACKETCONFIG1 ) & ~RF_PACKETCONFIG1_ADDRSFILTERING_MASK ) != 0x00 ) ? 1.0 : 0 ) +
                                      pktLen +
                                      ( ( SX1272.Settings.Fsk.CrcOn == 0x01 ) ? 2.0 : 0 ) ) /
-                                     SX1272.Settings.Fsk.Datarate ) * 1e6 );
+                                     SX1272.Settings.Fsk.Datarate ) * 1e3 );
         }
         break;
     case MODEM_LORA:
@@ -701,7 +701,7 @@ uint32_t SX1272GetTimeOnAir( RadioModems_t modem, uint8_t pktLen )
             // Time on air 
             double tOnAir = tPreamble + tPayload;
             // return us secs
-            airTime = floor( tOnAir * 1e6 + 0.999 );
+            airTime = floor( tOnAir * 1e3 + 0.999 );
         }
         break;
     }
@@ -734,7 +734,7 @@ void SX1272Send( uint8_t *buffer, uint8_t size )
             }
             else
             {
-				memcpy1( RxTxBuffer, buffer, size );
+                memcpy1( RxTxBuffer, buffer, size );
                 SX1272.Settings.FskPacketHandler.ChunkSize = 32;
             }
 
@@ -902,11 +902,11 @@ void SX1272SetRx( uint32_t timeout )
         
         if( rxContinuous == false )
         {
-            TimerSetValue( &RxTimeoutSyncWord, ( 8.0 * ( SX1272.Settings.Fsk.PreambleLen +
-                                                         ( ( SX1272Read( REG_SYNCCONFIG ) &
-                                                            ~RF_SYNCCONFIG_SYNCSIZE_MASK ) +
-                                                         1.0 ) + 10.0 ) /
-                                                        ( double )SX1272.Settings.Fsk.Datarate ) * 1e6 );
+            TimerSetValue( &RxTimeoutSyncWord, ceil( ( 8.0 * ( SX1272.Settings.Fsk.PreambleLen +
+                                                             ( ( SX1272Read( REG_SYNCCONFIG ) &
+                                                                ~RF_SYNCCONFIG_SYNCSIZE_MASK ) +
+                                                                1.0 ) + 10.0 ) /
+                                                             ( double )SX1272.Settings.Fsk.Datarate ) * 1e3 ) + 2 );
             TimerStart( &RxTimeoutSyncWord );
         }
     }
@@ -1082,10 +1082,8 @@ void SX1272SetOpMode( uint8_t opMode )
 
 void SX1272SetModem( RadioModems_t modem )
 {
-    if( SX1272.Spi.Spi == NULL )
-    {
-        while( 1 );
-    }
+    assert_param( ( SX1272.Spi.Spi.Instance != NULL ) );
+
     if( SX1272.Settings.Modem == modem )
     {
         return;
@@ -1098,7 +1096,7 @@ void SX1272SetModem( RadioModems_t modem )
     case MODEM_FSK:
         SX1272SetOpMode( RF_OPMODE_SLEEP );
         SX1272Write( REG_OPMODE, ( SX1272Read( REG_OPMODE ) & RFLR_OPMODE_LONGRANGEMODE_MASK ) | RFLR_OPMODE_LONGRANGEMODE_OFF );
-    
+
         SX1272Write( REG_DIOMAPPING1, 0x00 );
         SX1272Write( REG_DIOMAPPING2, 0x30 ); // DIO5=ModeReady
         break;

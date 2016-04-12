@@ -20,7 +20,7 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 typedef struct
 {
-    ADC_TypeDef *Adc;
+    ADC_HandleTypeDef Adc;
     Gpio_t AdcInput;
 }Adc_t;
 

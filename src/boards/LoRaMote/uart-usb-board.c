@@ -12,37 +12,43 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#include "usb_lib.h"
-#include "usb_desc.h"
-#include "usb_mem.h"
-
 #include "board.h"
 
-#include "usb_istr.h"
-#include "usb_pwr.h"
-
+#include "usbd_core.h"
+#include "usbd_desc.h"
+#include "usbd_cdc.h"
+#include "usbd_cdc_if.h"
 #include "uart-usb-board.h"
 
-/*!
- * FIFO buffers size
- */
-#define FIFO_RX_SIZE                                1024
+/* USB handler declaration */
+/* Handle for USB Full Speed IP */
+//USBD_HandleTypeDef  *hUsbDevice_0;
 
-uint8_t CdcRxBuffer[FIFO_RX_SIZE];
-
-volatile uint32_t UsbPacketTx = 1;
-volatile  uint8_t UsbTxBuffer[VIRTUAL_COM_PORT_DATA_SIZE];
-
-volatile  uint8_t UsbRxBuffer[VIRTUAL_COM_PORT_DATA_SIZE];
+USBD_HandleTypeDef hUsbDeviceFS;
+extern PCD_HandleTypeDef hpcd_USB_FS;
 
 void UartUsbInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx )
 {
     obj->UartId = uartId;
+
+    __HAL_RCC_COMP_CLK_ENABLE( );
+    __HAL_RCC_SYSCFG_CLK_ENABLE( );
+
+    CDC_Set_Uart_Obj( obj );
+
+    /* Init Device Library, Add Supported Class and Start the library */
+    USBD_Init( &hUsbDeviceFS, &FS_Desc, DEVICE_FS );
+
+    USBD_RegisterClass( &hUsbDeviceFS, &USBD_CDC );
+
+    USBD_CDC_RegisterInterface( &hUsbDeviceFS, &USBD_Interface_fops_FS );
+
+    USBD_Start( &hUsbDeviceFS );
 }
 
 void UartUsbConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_t wordLength, StopBits_t stopBits, Parity_t parity, FlowCtrl_t flowCtrl )
 {
-    FifoInit( &obj->FifoRx, CdcRxBuffer, FIFO_RX_SIZE );
+
 }
 
 void UartUsbDeInit( Uart_t *obj )
@@ -50,42 +56,23 @@ void UartUsbDeInit( Uart_t *obj )
 
 }
 
+uint8_t UartUsbIsUsbCableConnected( void )
+{
+    if( hUsbDeviceFS.dev_address == 0 )
+    {
+        // USB is low Power mode meaning USB cable is not connected
+        return 0;
+    }
+    else
+    {
+        // USB is in active mode meaning USB cable is connected
+        return 1;
+    }
+}
+
 uint8_t UartUsbPutBuffer( Uart_t *obj, uint8_t *buffer, uint16_t size )
 {
-    uint16_t idx = 0;
-    uint16_t usbBufferSize = VIRTUAL_COM_PORT_DATA_SIZE - 1;
-    
-    if( UsbPacketTx == 0 )
-    {
-        return 1; // Busy
-    }
-
-    while( size > usbBufferSize )
-    {
-        if( UsbPacketTx == 1 )
-        {
-            UsbPacketTx = 0;
-            
-            UserToPMABufferCopy( buffer + idx, ENDP1_TXADDR, usbBufferSize );
-            size -= usbBufferSize;
-            idx += usbBufferSize;
-
-            SetEPTxCount( ENDP1, usbBufferSize );
-            SetEPTxValid( ENDP1 );
-        }
-    }
-    
-    if( size != 0 )
-    {
-        // Wait for previous transmission finalization
-        while( UsbPacketTx != 1 );
-
-        UsbPacketTx = 0;
-        UserToPMABufferCopy( buffer + idx, ENDP1_TXADDR, size );
-        SetEPTxCount( ENDP1, size );
-        SetEPTxValid( ENDP1 );
-    }
-    return 0; // OK
+    return CDC_Transmit_FS( buffer, size );
 }
 
 uint8_t UartUsbPutChar( Uart_t *obj, uint8_t data )
@@ -95,11 +82,6 @@ uint8_t UartUsbPutChar( Uart_t *obj, uint8_t data )
 
 uint8_t UartUsbGetChar( Uart_t *obj, uint8_t *data )
 {
-    if( UsbMcuIsDeviceConfigured( ) == false )
-    {
-        return 2;
-    }
-    SetEPRxValid( ENDP3 );
     if( IsFifoEmpty( &obj->FifoRx ) == false )
     {
         __disable_irq( );
@@ -110,30 +92,7 @@ uint8_t UartUsbGetChar( Uart_t *obj, uint8_t *data )
     return 1;
 }
 
-void EP1_IN_Callback (void)
+void USB_LP_IRQHandler( void )
 {
-    UsbPacketTx = 1;
-}
-
-void EP3_OUT_Callback(void)
-{
-    uint8_t i;
-    uint32_t size;
-    
-    size = GetEPRxCount( ENDP3 );
-    PMAToUserBufferCopy( ( unsigned char* )UsbRxBuffer, ENDP3_RXADDR, size );
-    
-    for( i = 0; i < size; i++ )
-    {
-        if( IsFifoFull( &UartUsb.FifoRx ) == false )
-        {
-            // Read one byte from the receive data register
-            FifoPush( &UartUsb.FifoRx, UsbRxBuffer[i] );
-        }
-    }
-
-    if( UartUsb.IrqNotify != NULL )
-    {
-        UartUsb.IrqNotify( UART_NOTIFY_RX );
-    }
+    HAL_PCD_IRQHandler( &hpcd_USB_FS );
 }

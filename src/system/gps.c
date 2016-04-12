@@ -42,7 +42,7 @@ static double Longitude = 0;
 static int32_t LatitudeBinary = 0;
 static int32_t LongitudeBinary = 0;
 
-static uint16_t Altitude = 0xFFFF;
+static int16_t Altitude = 0xFFFF;
 
 static uint32_t PpsCnt = 0;
 
@@ -81,7 +81,18 @@ bool GpsGetPpsDetectedState( void )
 
 bool GpsHasFix( void )
 {
-    return ( NmeaGpsData.NmeaFixQuality[0] > 0x30 ) ? true : false;
+    if( strncmp( ( const char* )NmeaGpsData.NmeaDataType, ( const char* )NmeaDataTypeGPGGA, 5 ) == 0 )
+    {
+        return ( NmeaGpsData.NmeaFixQuality[0] > 0x30 ) ? true : false;
+    }
+    else if ( strncmp( ( const char* )NmeaGpsData.NmeaDataType, ( const char* )NmeaDataTypeGPRMC, 5 ) == 0 )
+    {
+        return ( NmeaGpsData.NmeaDataStatus[0] == 0x41 ) ? true : false;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void GpsConvertPositionIntoBinary( void )
@@ -193,7 +204,7 @@ uint8_t GpsGetLatestGpsPositionBinary( int32_t *latiBin, int32_t *longiBin )
     return status;
 }
 
-uint16_t GpsGetLatestGpsAltitude( void )
+int16_t GpsGetLatestGpsAltitude( void )
 {
     __disable_irq( );
     if( GpsHasFix( ) == true )
@@ -295,6 +306,7 @@ uint8_t GpsParseGpsData( int8_t *rxBuffer, int32_t rxBufferSize )
     
     if( rxBuffer[0] != '$' )
     {
+        GpsMcuInvertPpsTrigger( );
         return FAIL;
     }
 
