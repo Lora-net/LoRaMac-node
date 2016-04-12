@@ -34,6 +34,10 @@ Maintainer: Miguel Luis and Gregory Cristian
  * value in [us].
  */
 #define APP_TX_DUTYCYCLE_RND                        1000000
+/*!
+ * Default datarate
+ */
+#define LORAWAN_DEFAULT_DATARATE                    DR_0
 
 /*!
  * LoRaWAN confirmed messages
@@ -311,7 +315,7 @@ static bool SendFrame( void )
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fBuffer = NULL;
         mcpsReq.Req.Unconfirmed.fBufferSize = 0;
-        mcpsReq.Req.Unconfirmed.Datarate = DR_0;
+        mcpsReq.Req.Unconfirmed.Datarate = LORAWAN_DEFAULT_DATARATE;
     }
     else
     {
@@ -321,7 +325,7 @@ static bool SendFrame( void )
             mcpsReq.Req.Unconfirmed.fPort = AppPort;
             mcpsReq.Req.Unconfirmed.fBuffer = AppData;
             mcpsReq.Req.Unconfirmed.fBufferSize = AppDataSize;
-            mcpsReq.Req.Unconfirmed.Datarate = DR_0;
+            mcpsReq.Req.Unconfirmed.Datarate = LORAWAN_DEFAULT_DATARATE;
         }
         else
         {
@@ -330,7 +334,7 @@ static bool SendFrame( void )
             mcpsReq.Req.Confirmed.fBuffer = AppData;
             mcpsReq.Req.Confirmed.fBufferSize = AppDataSize;
             mcpsReq.Req.Confirmed.NbTrials = 8;
-            mcpsReq.Req.Confirmed.Datarate = DR_0;
+            mcpsReq.Req.Confirmed.Datarate = LORAWAN_DEFAULT_DATARATE;
         }
     }
 
