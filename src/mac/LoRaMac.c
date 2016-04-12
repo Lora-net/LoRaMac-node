@@ -674,16 +674,46 @@ static LoRaMacStatus_t AddMacCommand( uint8_t cmd, uint8_t p1, uint8_t p2 );
  */
 static bool ValidatePayloadLength( uint8_t lenN, int8_t datarate, uint8_t fOptsLen );
 
+/*!
+ * \brief Counts the number of bits in a mask.
+ *
+ * \param [IN] mask A mask from which the function counts the active bits.
+ * \param [IN] nbBits The number of bits to check.
+ *
+ * \retval Number of enabled bits in the mask.
+ */
+static uint8_t CountBits( uint16_t mask, uint8_t nbBits );
+
 #if defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
 /*!
  * \brief Counts the number of enabled 125 kHz channels in the channel mask.
  *        This function can only be applied to US915 band.
  *
- * \param channelsMask Pointer to the first element of the channel mask
+ * \param [IN] channelsMask Pointer to the first element of the channel mask
  *
  * \retval Number of enabled channels in the channel mask
  */
 static uint8_t CountNbEnabled125kHzChannels( uint16_t *channelsMask );
+
+#if defined( USE_BAND_915_HYBRID )
+/*!
+ * \brief Validates the correctness of the channel mask for US915, hybrid mode.
+ *
+ * \param [IN] mask Block definition to set.
+ * \param [OUT] channelsMask Pointer to the first element of the channel mask
+ */
+static void ReenableChannels( uint16_t mask, uint16_t* channelMask );
+
+/*!
+ * \brief Validates the correctness of the channel mask for US915, hybrid mode.
+ *
+ * \param [IN] channelsMask Pointer to the first element of the channel mask
+ *
+ * \retval [true: channel mask correct, false: channel mask not correct]
+ */
+static bool ValidateChannelMask( uint16_t* channelMask );
+#endif
+
 #endif
 
 /*!
@@ -1380,12 +1410,7 @@ static void OnMacStateCheckTimerEvent( void )
                 ChannelsMask[5] = 0x0000;
 #elif defined( USE_BAND_915_HYBRID )
                 // Re-enable default channels
-                ChannelsMask[0] = 0x00FF;
-                ChannelsMask[1] = 0x0000;
-                ChannelsMask[2] = 0x0000;
-                ChannelsMask[3] = 0x0000;
-                ChannelsMask[4] = 0x0001;
-                ChannelsMask[5] = 0x0000;
+                ReenableChannels( ChannelsMask[4], ChannelsMask );
 #else
     #error "Please define a frequency band in the compiler options."
 #endif
@@ -1572,16 +1597,7 @@ static bool SetNextChannel( TimerTime_t* time )
         ChannelsMaskRemaining[4] = ChannelsMask[4];
     }
 #else
-    uint8_t chanCnt = 0;
-    for( uint8_t i = 0, k = 0; i < LORA_MAX_NB_CHANNELS; i += 16, k++ )
-    {
-        if( ChannelsMask[k] != 0 )
-        {
-            chanCnt++;
-            break;
-        }
-    }
-    if( chanCnt == 0 )
+    if( CountBits( ChannelsMask[0], 16 ) == 0 )
     {
         // Re-enable default channels, if no channel is enabled
         ChannelsMask[0] = ChannelsMask[0] | ( LC( 1 ) + LC( 2 ) + LC( 3 ) );
@@ -1777,6 +1793,20 @@ static bool ValidatePayloadLength( uint8_t lenN, int8_t datarate, uint8_t fOptsL
     return false;
 }
 
+static uint8_t CountBits( uint16_t mask, uint8_t nbBits )
+{
+    uint8_t nbActiveBits = 0;
+
+    for( uint8_t j = 0; j < nbBits; j++ )
+    {
+        if( ( mask & ( 1 << j ) ) == ( 1 << j ) )
+        {
+            nbActiveBits++;
+        }
+    }
+    return nbActiveBits;
+}
+
 #if defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
 static uint8_t CountNbEnabled125kHzChannels( uint16_t *channelsMask )
 {
@@ -1784,17 +1814,75 @@ static uint8_t CountNbEnabled125kHzChannels( uint16_t *channelsMask )
 
     for( uint8_t i = 0, k = 0; i < LORA_MAX_NB_CHANNELS - 8; i += 16, k++ )
     {
-        for( uint8_t j = 0; j < 16; j++ )
-        {// Verify if the channel is active
-            if( ( channelsMask[k] & ( 1 << j ) ) == ( 1 << j ) )
-            {
-                nb125kHzChannels++;
-            }
-        }
+        nb125kHzChannels += CountBits( channelsMask[k], 16 );
     }
 
     return nb125kHzChannels;
 }
+
+#if defined( USE_BAND_915_HYBRID )
+static void ReenableChannels( uint16_t mask, uint16_t* channelMask )
+{
+    uint16_t blockMask = mask;
+
+    for( uint8_t i = 0, j = 0; i < 4; i++, j += 2 )
+    {
+        channelMask[i] = 0;
+        if( ( blockMask & ( 1 << j ) ) != 0 )
+        {
+            channelMask[i] |= 0x00FF;
+        }
+        if( ( blockMask & ( 1 << ( j + 1 ) ) ) != 0 )
+        {
+            channelMask[i] |= 0xFF00;
+        }
+    }
+    channelMask[4] = blockMask;
+    channelMask[5] = 0x0000;
+}
+
+static bool ValidateChannelMask( uint16_t* channelMask )
+{
+    bool chanMaskState = false;
+    uint16_t block1 = 0;
+    uint16_t block2 = 0;
+    uint8_t index = 0;
+
+    for( uint8_t i = 0; i < 4; i++ )
+    {
+        block1 = channelMask[i] & 0x00FF;
+        block2 = channelMask[i] & 0xFF00;
+
+        if( ( CountBits( block1, 16 ) > 5 ) && ( chanMaskState == false ) )
+        {
+            channelMask[i] &= block1;
+            channelMask[4] = 1 << ( i * 2 );
+            chanMaskState = true;
+            index = i;
+        }
+        else if( ( CountBits( block2, 16 ) > 5 ) && ( chanMaskState == false ) )
+        {
+            channelMask[i] &= block2;
+            channelMask[4] = 1 << ( i * 2 + 1 );
+            chanMaskState = true;
+            index = i;
+        }
+    }
+
+    // Do only change the channel mask, if we have found a valid block.
+    if( chanMaskState == true )
+    {
+        for( uint8_t i = 0; i < 4; i++ )
+        {
+            if( i != index )
+            {
+                channelMask[i] = 0;
+            }
+        }
+    }
+    return chanMaskState;
+}
+#endif
 #endif
 
 static int8_t LimitTxPower( int8_t txPower )
@@ -1905,12 +1993,7 @@ static bool AdrNextDr( bool adrEnabled, bool updateChannelMask, int8_t* datarate
                             ChannelsMask[5] = 0x0000;
 #else // defined( USE_BAND_915_HYBRID )
                             // Re-enable default channels
-                            ChannelsMask[0] = 0x00FF;
-                            ChannelsMask[1] = 0x0000;
-                            ChannelsMask[2] = 0x0000;
-                            ChannelsMask[3] = 0x0000;
-                            ChannelsMask[4] = 0x0001;
-                            ChannelsMask[5] = 0x0000;
+                            ReenableChannels( ChannelsMask[4], ChannelsMask );
 #endif
                         }
                     }
@@ -2135,6 +2218,13 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                         {
                             status &= 0xFE; // Channel mask KO
                         }
+
+#if defined( USE_BAND_915_HYBRID )
+                        if( ValidateChannelMask( channelsMask ) == false )
+                        {
+                            status &= 0xFE; // Channel mask KO
+                        }
+#endif
                     }
 #else
     #error "Please define a frequency band in the compiler options."
@@ -2155,21 +2245,14 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     {
                         ChannelsDatarate = datarate;
                         ChannelsTxPower = txPower;
-#if defined( USE_BAND_915_HYBRID )
-                        ChannelsMask[0] = channelsMask[0] & 0x00FF;
-                        ChannelsMask[1] = channelsMask[1] & 0x0000;
-                        ChannelsMask[2] = channelsMask[2] & 0x0000;
-                        ChannelsMask[3] = channelsMask[3] & 0x0000;
-                        ChannelsMask[4] = channelsMask[4] & 0x0001;
-                        ChannelsMask[5] = channelsMask[5] & 0x0000;
-#else
+
                         ChannelsMask[0] = channelsMask[0];
                         ChannelsMask[1] = channelsMask[1];
                         ChannelsMask[2] = channelsMask[2];
                         ChannelsMask[3] = channelsMask[3];
                         ChannelsMask[4] = channelsMask[4];
                         ChannelsMask[5] = channelsMask[5];
-#endif
+
                         ChannelsNbRep = nbRep;
                     }
                     AddMacCommand( MOTE_MAC_LINK_ADR_ANS, status, 0 );
@@ -3052,19 +3135,32 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
             if( mibSet->Param.ChannelsMask )
             {
 #if defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
-                if( ( CountNbEnabled125kHzChannels( mibSet->Param.ChannelsMask ) < 6 ) &&
-                    ( CountNbEnabled125kHzChannels( mibSet->Param.ChannelsMask ) > 0 ) )
+                bool chanMaskState = true;
+
+#if defined( USE_BAND_915_HYBRID )
+                chanMaskState = ValidateChannelMask( mibSet->Param.ChannelsMask );
+#endif
+                if( chanMaskState == true )
                 {
-                    status = LORAMAC_STATUS_PARAMETER_INVALID;
+                    if( ( CountNbEnabled125kHzChannels( mibSet->Param.ChannelsMask ) < 6 ) &&
+                        ( CountNbEnabled125kHzChannels( mibSet->Param.ChannelsMask ) > 0 ) )
+                    {
+                        status = LORAMAC_STATUS_PARAMETER_INVALID;
+                    }
+                    else
+                    {
+                        memcpy1( ( uint8_t* ) ChannelsMask,
+                                 ( uint8_t* ) mibSet->Param.ChannelsMask, sizeof( ChannelsMask ) );
+                        for ( uint8_t i = 0; i < sizeof( ChannelsMask ) / 2; i++ )
+                        {
+                            // Disable channels which are no longer available
+                            ChannelsMaskRemaining[i] &= ChannelsMask[i];
+                        }
+                    }
                 }
                 else
                 {
-                    memcpy1( ( uint8_t* ) ChannelsMask,
-                             ( uint8_t* ) mibSet->Param.ChannelsMask, sizeof( ChannelsMask ) );
-                    for ( uint8_t i = 0; i < sizeof( ChannelsMask ) / 2; i++ )
-                    {
-                        ChannelsMaskRemaining[i] &= ChannelsMask[i];
-                    }
+                    status = LORAMAC_STATUS_PARAMETER_INVALID;
                 }
 #else
                 memcpy1( ( uint8_t* ) ChannelsMask,
