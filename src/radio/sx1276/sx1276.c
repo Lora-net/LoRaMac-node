@@ -229,7 +229,7 @@ void SX1276Init( RadioEvents_t *events )
 
     RxChainCalibration( );
     
-    SX1276Write( REG_OPMODE, RF_OPMODE_SLEEP );
+    SX1276SetOpMode( RF_OPMODE_SLEEP );
 
     SX1276IoIrqInit( DioIrq );
         
@@ -1215,29 +1215,23 @@ void SX1276Reset( void )
 
 void SX1276SetOpMode( uint8_t opMode )
 {
-    static uint8_t opModePrev = RF_OPMODE_STANDBY;
-
-    if( opMode != opModePrev )
+    if( opMode == RF_OPMODE_SLEEP )
     {
-        opModePrev = opMode;
-        if( opMode == RF_OPMODE_SLEEP )
+        SX1276SetAntSwLowPower( true );
+    }
+    else
+    {
+        SX1276SetAntSwLowPower( false );
+        if( opMode == RF_OPMODE_TRANSMITTER )
         {
-            SX1276SetAntSwLowPower( true );
+            SX1276SetAntSw( 1 );
         }
         else
         {
-            SX1276SetAntSwLowPower( false );
-            if( opMode == RF_OPMODE_TRANSMITTER )
-            {
-                 SX1276SetAntSw( 1 );
-            }
-            else
-            {
-                 SX1276SetAntSw( 0 );
-            }
+            SX1276SetAntSw( 0 );
         }
-        SX1276Write( REG_OPMODE, ( SX1276Read( REG_OPMODE ) & RF_OPMODE_MASK ) | opMode );
     }
+    SX1276Write( REG_OPMODE, ( SX1276Read( REG_OPMODE ) & RF_OPMODE_MASK ) | opMode );
 }
 
 void SX1276SetModem( RadioModems_t modem )
