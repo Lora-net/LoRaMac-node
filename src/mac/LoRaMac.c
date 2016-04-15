@@ -2664,15 +2664,16 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
 LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel )
 {
     int8_t datarate = Datarates[ChannelsDatarate];
+    int8_t txPowerIndex = 0;
     int8_t txPower = 0;
 
-    ChannelsTxPower = LimitTxPower( ChannelsTxPower );
-    txPower = TxPowers[ChannelsTxPower];
+    txPowerIndex = LimitTxPower( ChannelsTxPower );
+    txPower = TxPowers[txPowerIndex];
 
     MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
     McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
     McpsConfirm.Datarate = ChannelsDatarate;
-    McpsConfirm.TxPower = ChannelsTxPower;
+    McpsConfirm.TxPower = txPowerIndex;
 
     Radio.SetChannel( channel.Frequency );
 
