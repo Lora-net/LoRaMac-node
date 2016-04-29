@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file      startup_stm32l151xb.s
   * @author    MCD Application Team
-  * @version   V2.1.2
-  * @date      09-October-2015
+  * @version   V2.1.3
+  * @date      04-March-2016
   * @brief     STM32L151XB Devices vector table for 
   *            Atollic toolchain.
   *            This module performs:
@@ -17,7 +17,7 @@
   *            priority is Privileged, and the Stack is set to Main.
   ******************************************************************************
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
