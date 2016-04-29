@@ -3395,7 +3395,7 @@ LoRaMacStatus_t LoRaMacChannelAdd( uint8_t id, ChannelParams_t params )
             frequencyInvalid = true;
         }
 
-        if( params.DrRange.Fields.Min > LORAMAC_DEFAULT_DATARATE )
+        if( params.DrRange.Fields.Min > ChannelsDefaultDatarate )
         {
             datarateInvalid = true;
         }
