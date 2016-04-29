@@ -126,7 +126,6 @@ typedef struct SX1276_s
     Gpio_t        DIO4;
     Gpio_t        DIO5;
     Spi_t         Spi;
-    uint8_t       RxTx;
     RadioSettings_t Settings;
 }SX1276_t;
 

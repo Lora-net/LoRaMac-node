@@ -126,13 +126,6 @@ void SX1272AntSwDeInit( void )
 
 void SX1272SetAntSw( uint8_t rxTx )
 {
-    if( SX1272.RxTx == rxTx )
-    {
-        return;
-    }
-
-    SX1272.RxTx = rxTx;
-
     if( rxTx != 0 ) // 1: TX, 0: RX
     {
         GpioWrite( &AntRx, 0 );
