@@ -1499,13 +1499,18 @@ static void OnRxWindow1TimerEvent( void )
     }
 
     // For higher datarates, we increase the number of symbols generating a Rx Timeout
-    if( datarate >= DR_3 )
-    { // DR_6, DR_5, DR_4, DR_3
+    if( ( datarate == DR_3 ) || ( datarate == DR_4 ) )
+    { // DR_4, DR_3
         symbTimeout = 8;
     }
-    if( datarate == DR_6 )
+    else if( datarate == DR_5 )
+    {
+        symbTimeout = 10;
+    }
+    else if( datarate == DR_6 )
     {// LoRa 250 kHz
         bandwidth  = 1;
+        symbTimeout = 14;
     }
     RxWindowSetup( Channels[Channel].Frequency, datarate, bandwidth, symbTimeout, false );
 #elif ( defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID ) )
@@ -1515,9 +1520,35 @@ static void OnRxWindow1TimerEvent( void )
         datarate = DR_0;
     }
     // For higher datarates, we increase the number of symbols generating a Rx Timeout
-    if( datarate > DR_0 )
-    { // DR_1, DR_2, DR_3, DR_4, DR_8, DR_9, DR_10, DR_11, DR_12, DR_13
-        symbTimeout = 8;
+    switch( datarate )
+    {
+        case DR_0:       // SF10 - BW125
+            symbTimeout = 5;
+            break;
+
+        case DR_1:       // SF9  - BW125
+        case DR_2:       // SF8  - BW125
+        case DR_8:       // SF12 - BW500
+        case DR_9:       // SF11 - BW500
+        case DR_10:      // SF10 - BW500
+            symbTimeout = 8;
+            break;
+
+        case DR_3:       // SF7  - BW125
+        case DR_11:      // SF9  - BW500
+            symbTimeout = 10;
+            break;
+
+        case DR_4:       // SF8  - BW500
+        case DR_12:      // SF8  - BW500
+            symbTimeout = 14;
+            break;
+
+        case DR_13:      // SF7  - BW500
+            symbTimeout = 16;
+            break;
+        default:
+            break;
     }
     if( datarate >= DR_4 )
     {// LoRa 500 kHz
@@ -1539,19 +1570,50 @@ static void OnRxWindow2TimerEvent( void )
 
 #if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
     // For higher datarates, we increase the number of symbols generating a Rx Timeout
-    if( Rx2Channel.Datarate >= DR_3 )
-    { // DR_6, DR_5, DR_4, DR_3
+    if( ( Rx2Channel.Datarate == DR_3 ) || ( Rx2Channel.Datarate == DR_4 ) )
+    { // DR_4, DR_3
         symbTimeout = 8;
     }
-    if( Rx2Channel.Datarate == DR_6 )
+    else if( Rx2Channel.Datarate == DR_5 )
+    {
+        symbTimeout = 10;
+    }
+    else if( Rx2Channel.Datarate == DR_6 )
     {// LoRa 250 kHz
         bandwidth  = 1;
+        symbTimeout = 14;
     }
 #elif ( defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID ) )
     // For higher datarates, we increase the number of symbols generating a Rx Timeout
-    if( Rx2Channel.Datarate > DR_0 )
-    { // DR_1, DR_2, DR_3, DR_4, DR_8, DR_9, DR_10, DR_11, DR_12, DR_13
-        symbTimeout = 8;
+    switch( Rx2Channel.Datarate )
+    {
+        case DR_0:       // SF10 - BW125
+            symbTimeout = 5;
+            break;
+
+        case DR_1:       // SF9  - BW125
+        case DR_2:       // SF8  - BW125
+        case DR_8:       // SF12 - BW500
+        case DR_9:       // SF11 - BW500
+        case DR_10:      // SF10 - BW500
+            symbTimeout = 8;
+            break;
+
+        case DR_3:       // SF7  - BW125
+        case DR_11:      // SF9  - BW500
+            symbTimeout = 10;
+            break;
+
+        case DR_4:       // SF8  - BW500
+        case DR_12:      // SF8  - BW500
+            symbTimeout = 14;
+            break;
+
+        case DR_13:      // SF7  - BW500
+            symbTimeout = 16;
+            break;
+        default:
+            break;
     }
     if( Rx2Channel.Datarate >= DR_4 )
     {// LoRa 500 kHz
