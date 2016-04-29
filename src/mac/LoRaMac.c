@@ -1674,7 +1674,7 @@ static bool SetNextChannel( TimerTime_t* time )
 #endif
 
     // Update Aggregated duty cycle
-    if( AggregatedTimeOff < TimerGetElapsedTime( AggregatedLastTxDoneTime ) )
+    if( AggregatedTimeOff <= TimerGetElapsedTime( AggregatedLastTxDoneTime ) )
     {
         AggregatedTimeOff = 0;
 
@@ -1683,7 +1683,7 @@ static bool SetNextChannel( TimerTime_t* time )
         {
             if( DutyCycleOn == true )
             {
-                if( Bands[i].TimeOff < TimerGetElapsedTime( Bands[i].LastTxDoneTime ) )
+                if( Bands[i].TimeOff <= TimerGetElapsedTime( Bands[i].LastTxDoneTime ) )
                 {
                     Bands[i].TimeOff = 0;
                 }
