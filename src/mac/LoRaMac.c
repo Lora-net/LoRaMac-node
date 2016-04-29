@@ -452,6 +452,7 @@ enum eLoRaMacState
     MAC_ACK_RETRY     = 0x00000008,
     MAC_TX_DELAYED    = 0x00000010,
     MAC_TX_CONFIG     = 0x00000020,
+    MAC_RX_ABORT      = 0x00000040,
 };
 
 /*!
@@ -880,7 +881,7 @@ static void OnRadioTxDone( void )
 
 static void PrepareRxDoneAbort( void )
 {
-    LoRaMacState &= ~MAC_TX_RUNNING;
+    LoRaMacState |= MAC_RX_ABORT;
 
     if( NodeAckRequested )
     {
@@ -1321,6 +1322,12 @@ static void OnMacStateCheckTimerEvent( void )
 
     if( LoRaMacFlags.Bits.MacDone == 1 )
     {
+        if( ( LoRaMacState & MAC_RX_ABORT ) == MAC_RX_ABORT )
+        {
+            LoRaMacState &= ~MAC_RX_ABORT;
+            LoRaMacState &= ~MAC_TX_RUNNING;
+        }
+
         if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) || ( ( LoRaMacFlags.Bits.McpsReq == 1 ) ) )
         {
             if( ( McpsConfirm.Status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT ) ||
