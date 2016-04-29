@@ -80,7 +80,7 @@ void TimerReset( TimerEvent_t *obj );
 void TimerSetValue( TimerEvent_t *obj, uint32_t value );
 
 /*!
- * \brief Read the current time (with the Month as the MSByte)
+ * \brief Read the current time
  *
  * \retval time returns current time
  */
@@ -93,6 +93,14 @@ TimerTime_t TimerGetCurrentTime( void );
  * \retval time             returns elapsed time
  */
 TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime );
+
+/*!
+ * \brief Return the Time elapsed since a fix moment in Time
+ *
+ * \param [IN] eventInFuture    fix moment in the future
+ * \retval time             returns difference between now and future event
+ */
+TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture );
 
 /*!
  * \brief Manages the entry into ARM cortex deep-sleep mode
