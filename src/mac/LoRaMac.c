@@ -905,6 +905,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
 {
     LoRaMacHeader_t macHdr;
     LoRaMacFrameCtrl_t fCtrl;
+    bool skipIndication = false;
 
     uint8_t pktHeaderLen = 0;
     uint32_t address = 0;
@@ -1136,19 +1137,27 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                         {
                             SrvAckRequested = true;
                             McpsIndication.McpsIndication = MCPS_CONFIRMED;
+
+                            if( ( DownLinkCounter == downLinkCounter ) &&
+                                ( DownLinkCounter != 0 ) )
+                            {
+                                // Duplicated confirmed downlink. Skip indication.
+                                skipIndication = true;
+                            }
                         }
                         else
                         {
                             SrvAckRequested = false;
                             McpsIndication.McpsIndication = MCPS_UNCONFIRMED;
-                        }
-                        if( ( DownLinkCounter == downLinkCounter ) &&
-                            ( DownLinkCounter != 0 ) )
-                        {
-                            McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
-                            McpsIndication.DownLinkCounter = downLinkCounter;
-                            PrepareRxDoneAbort( );
-                            return;
+
+                            if( ( DownLinkCounter == downLinkCounter ) &&
+                                ( DownLinkCounter != 0 ) )
+                            {
+                                McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
+                                McpsIndication.DownLinkCounter = downLinkCounter;
+                                PrepareRxDoneAbort( );
+                                return;
+                            }
                         }
                         DownLinkCounter = downLinkCounter;
                     }
@@ -1210,12 +1219,18 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                                                    downLinkCounter,
                                                    LoRaMacRxPayload );
 
-                            McpsIndication.Buffer = LoRaMacRxPayload;
-                            McpsIndication.BufferSize = frameLen;
-                            McpsIndication.RxData = true;
+                            if( skipIndication == false )
+                            {
+                                McpsIndication.Buffer = LoRaMacRxPayload;
+                                McpsIndication.BufferSize = frameLen;
+                                McpsIndication.RxData = true;
+                            }
                         }
                     }
-                    LoRaMacFlags.Bits.McpsInd = 1;
+                    if( skipIndication == false )
+                    {
+                        LoRaMacFlags.Bits.McpsInd = 1;
+                    }
                 }
                 else
                 {
