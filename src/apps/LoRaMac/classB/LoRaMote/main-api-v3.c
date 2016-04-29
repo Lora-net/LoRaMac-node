@@ -22,7 +22,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * Join requests trials duty cycle.
  */
-#define OVER_THE_AIR_ACTIVATION_DUTYCYCLE           10000  // 10 [s] value in ms
+#define OVER_THE_AIR_ACTIVATION_DUTYCYCLE           10000 // 10 [s] value in ms
 
 /*!
  * Defines the application data transmission duty cycle. 5s, value in [ms].
