@@ -33,7 +33,6 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jä
  */
 #define LORA_MAC_COMMAND_MAX_LENGTH                 15
 
-
 /*!
  * FRMPayload overhead to be used when setting the Radio.SetMaxPayloadLength
  * in RxWindowSetup function.
@@ -3504,7 +3503,7 @@ LoRaMacStatus_t LoRaMacChannelRemove( uint8_t id )
     {
         // Remove the channel from the list of channels
         Channels[id] = ( ChannelParams_t ){ 0, { 0 }, 0 };
-        
+
         // Disable the channel as it doesn't exist anymore
         if( DisableChannelInMask( id, ChannelsMask ) == false )
         {
