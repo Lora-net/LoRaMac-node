@@ -3474,7 +3474,7 @@ LoRaMacStatus_t LoRaMacChannelRemove( uint8_t id )
         }
     }
 
-    if( id < 3 )
+    if( ( id < 3 ) || ( id >= LORA_MAX_NB_CHANNELS ) )
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
