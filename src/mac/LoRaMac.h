@@ -987,8 +987,8 @@ typedef struct sMlmeConfirm
  * \ref MIB_CHANNELS_DATARATE        | YES | YES
  * \ref MIB_CHANNELS_DEFAULT_DATARATE| YES | YES
  * \ref MIB_CHANNELS_TX_POWER        | YES | YES
- * \ref MIB_UPLINK_COUNTER           | YES | NO
- * \ref MIB_DOWNLINK_COUNTER         | YES | NO
+ * \ref MIB_UPLINK_COUNTER           | YES | YES
+ * \ref MIB_DOWNLINK_COUNTER         | YES | YES
  * \ref MIB_MULTICAST_CHANNEL        | YES | NO
  *
  * The following table provides links to the function implementations of the

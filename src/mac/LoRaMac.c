@@ -3337,6 +3337,16 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
             }
             break;
         }
+        case MIB_UPLINK_COUNTER:
+        {
+            UpLinkCounter = mibSet->Param.UpLinkCounter;
+            break;
+        }
+        case MIB_DOWNLINK_COUNTER:
+        {
+            DownLinkCounter = mibSet->Param.DownLinkCounter;
+            break;
+        }
         default:
             status = LORAMAC_STATUS_SERVICE_UNKNOWN;
             break;
