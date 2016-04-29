@@ -1397,7 +1397,7 @@ static void OnMacStateCheckTimerEvent( void )
 
                 if( ( AckTimeoutRetriesCounter % 2 ) == 1 )
                 {
-                    ChannelsDatarate = MAX( ChannelsDatarate - 1, LORAMAC_MIN_DATARATE );
+                    ChannelsDatarate = MAX( ChannelsDatarate - 1, LORAMAC_TX_MIN_DATARATE );
                 }
                 LoRaMacFlags.Bits.MacDone = 0;
                 // Sends the same frame again
@@ -1944,7 +1944,7 @@ static bool AdrNextDr( bool adrEnabled, bool updateChannelMask, int8_t* datarate
 
     if( adrEnabled == true )
     {
-        if( datarate == LORAMAC_MIN_DATARATE )
+        if( datarate == LORAMAC_TX_MIN_DATARATE )
         {
             AdrAckCounter = 0;
             adrAckReq = false;
@@ -1964,11 +1964,11 @@ static bool AdrNextDr( bool adrEnabled, bool updateChannelMask, int8_t* datarate
                 if( ( ( AdrAckCounter - ADR_ACK_DELAY ) % ADR_ACK_LIMIT ) == 0 )
                 {
 #if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
-                    if( datarate > LORAMAC_MIN_DATARATE )
+                    if( datarate > LORAMAC_TX_MIN_DATARATE )
                     {
                         datarate--;
                     }
-                    if( datarate == LORAMAC_MIN_DATARATE )
+                    if( datarate == LORAMAC_TX_MIN_DATARATE )
                     {
                         if( updateChannelMask == true )
                         {
@@ -1978,15 +1978,15 @@ static bool AdrNextDr( bool adrEnabled, bool updateChannelMask, int8_t* datarate
                         }
                     }
 #elif defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
-                    if( ( datarate > LORAMAC_MIN_DATARATE ) && ( datarate == DR_8 ) )
+                    if( ( datarate > LORAMAC_TX_MIN_DATARATE ) && ( datarate == DR_8 ) )
                     {
                         datarate = DR_4;
                     }
-                    else if( datarate > LORAMAC_MIN_DATARATE )
+                    else if( datarate > LORAMAC_TX_MIN_DATARATE )
                     {
                         datarate--;
                     }
-                    if( datarate == LORAMAC_MIN_DATARATE )
+                    if( datarate == LORAMAC_TX_MIN_DATARATE )
                     {
                         if( updateChannelMask == true )
                         {
@@ -2236,7 +2236,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
 #else
     #error "Please define a frequency band in the compiler options."
 #endif
-                    if( ValueInRange( datarate, LORAMAC_MIN_DATARATE, LORAMAC_MAX_DATARATE ) == false )
+                    if( ValueInRange( datarate, LORAMAC_TX_MIN_DATARATE, LORAMAC_TX_MAX_DATARATE ) == false )
                     {
                         status &= 0xFD; // Datarate KO
                     }
@@ -2291,7 +2291,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                         status &= 0xFE; // Channel frequency KO
                     }
 
-                    if( ValueInRange( datarate, LORAMAC_MIN_DATARATE, LORAMAC_MAX_DATARATE ) == false )
+                    if( ValueInRange( datarate, LORAMAC_RX_MIN_DATARATE, LORAMAC_RX_MAX_DATARATE ) == false )
                     {
                         status &= 0xFD; // Datarate KO
                     }
@@ -3222,7 +3222,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         case MIB_CHANNELS_DATARATE:
         {
             if( ValueInRange( mibSet->Param.ChannelsDatarate,
-                              LORAMAC_MIN_DATARATE, LORAMAC_MAX_DATARATE ) )
+                              LORAMAC_TX_MIN_DATARATE, LORAMAC_TX_MAX_DATARATE ) )
             {
                 ChannelsDatarate = mibSet->Param.ChannelsDatarate;
             }
@@ -3289,10 +3289,10 @@ LoRaMacStatus_t LoRaMacChannelAdd( uint8_t id, ChannelParams_t params )
     }
     // Validate the datarate
     if( ( params.DrRange.Fields.Min > params.DrRange.Fields.Max ) ||
-        ( ValueInRange( params.DrRange.Fields.Min, LORAMAC_MIN_DATARATE,
-                        LORAMAC_MAX_DATARATE ) == false ) ||
-        ( ValueInRange( params.DrRange.Fields.Max, LORAMAC_MIN_DATARATE,
-                        LORAMAC_MAX_DATARATE ) == false ) )
+        ( ValueInRange( params.DrRange.Fields.Min, LORAMAC_TX_MIN_DATARATE,
+                        LORAMAC_TX_MAX_DATARATE ) == false ) ||
+        ( ValueInRange( params.DrRange.Fields.Max, LORAMAC_TX_MIN_DATARATE,
+                        LORAMAC_TX_MAX_DATARATE ) == false ) )
     {
         datarateInvalid = true;
     }
@@ -3309,7 +3309,7 @@ LoRaMacStatus_t LoRaMacChannelAdd( uint8_t id, ChannelParams_t params )
         {
             datarateInvalid = true;
         }
-        if( ValueInRange( params.DrRange.Fields.Max, DR_5, LORAMAC_MAX_DATARATE ) == false )
+        if( ValueInRange( params.DrRange.Fields.Max, DR_5, LORAMAC_TX_MAX_DATARATE ) == false )
         {
             datarateInvalid = true;
         }
@@ -3642,7 +3642,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
     {
         if( AdrCtrlOn == false )
         {
-            if( ValueInRange( datarate, LORAMAC_MIN_DATARATE, LORAMAC_MAX_DATARATE ) == true )
+            if( ValueInRange( datarate, LORAMAC_TX_MIN_DATARATE, LORAMAC_TX_MAX_DATARATE ) == true )
             {
                 ChannelsDatarate = datarate;
             }

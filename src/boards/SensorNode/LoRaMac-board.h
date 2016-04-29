@@ -33,12 +33,22 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * Minimal datarate that can be used by the node
  */
-#define LORAMAC_MIN_DATARATE                        DR_0
+#define LORAMAC_TX_MIN_DATARATE                     DR_0
 
 /*!
  * Minimal datarate that can be used by the node
  */
-#define LORAMAC_MAX_DATARATE                        DR_7
+#define LORAMAC_TX_MAX_DATARATE                     DR_7
+
+/*!
+ * Minimal datarate that can be used by the node
+ */
+#define LORAMAC_RX_MIN_DATARATE                     DR_0
+
+/*!
+ * Minimal datarate that can be used by the node
+ */
+#define LORAMAC_RX_MAX_DATARATE                     DR_7
 
 /*!
  * Default datarate used by the node
@@ -134,12 +144,22 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * Minimal datarate that can be used by the node
  */
-#define LORAMAC_MIN_DATARATE                        DR_0
+#define LORAMAC_TX_MIN_DATARATE                     DR_0
 
 /*!
  * Minimal datarate that can be used by the node
  */
-#define LORAMAC_MAX_DATARATE                        DR_7
+#define LORAMAC_TX_MAX_DATARATE                     DR_7
+
+/*!
+ * Minimal datarate that can be used by the node
+ */
+#define LORAMAC_RX_MIN_DATARATE                     DR_0
+
+/*!
+ * Minimal datarate that can be used by the node
+ */
+#define LORAMAC_RX_MAX_DATARATE                     DR_7
 
 /*!
  * Default datarate used by the node
@@ -235,12 +255,22 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * Minimal datarate that can be used by the node
  */
-#define LORAMAC_MIN_DATARATE                        DR_0
+#define LORAMAC_TX_MIN_DATARATE                     DR_0
 
 /*!
  * Minimal datarate that can be used by the node
  */
-#define LORAMAC_MAX_DATARATE                        DR_7
+#define LORAMAC_TX_MAX_DATARATE                     DR_7
+
+/*!
+ * Minimal datarate that can be used by the node
+ */
+#define LORAMAC_RX_MIN_DATARATE                     DR_0
+
+/*!
+ * Minimal datarate that can be used by the node
+ */
+#define LORAMAC_RX_MAX_DATARATE                     DR_7
 
 /*!
  * Default datarate used by the node
@@ -352,12 +382,22 @@ typedef enum
 /*!
  * Minimal datarate that can be used by the node
  */
-#define LORAMAC_MIN_DATARATE                        DR_0
+#define LORAMAC_TX_MIN_DATARATE                     DR_0
 
 /*!
  * Minimal datarate that can be used by the node
  */
-#define LORAMAC_MAX_DATARATE                        DR_4
+#define LORAMAC_TX_MAX_DATARATE                     DR_4
+
+/*!
+ * Minimal datarate that can be used by the node
+ */
+#define LORAMAC_RX_MIN_DATARATE                     DR_8
+
+/*!
+ * Minimal datarate that can be used by the node
+ */
+#define LORAMAC_RX_MAX_DATARATE                     DR_13
 
 /*!
  * Default datarate used by the node
