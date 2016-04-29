@@ -308,7 +308,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x8000000</StartAddress>
-                <Size>0x3000</Size>
+                <Size>0x7000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -361,9 +361,9 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_DEBUGGER USE_NO_TIMER</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_NO_TIMER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\src;..\..\..\src\boards\SensorNode;..\..\..\src\boards\SensorNode\cmsis;..\..\..\src\boards\SensorNode\usb\dfu\inc;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\inc;..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\inc;..\..\..\src\peripherals;..\..\..\src\radio;..\..\..\src\system</IncludePath>
+              <IncludePath>..\..\..\src;..\..\..\src\boards\SensorNode;..\..\..\src\boards\SensorNode\cmsis;..\..\..\src\boards\SensorNode\usb\dfu\inc;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Class\DFU\inc;..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Core\inc;..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\src\peripherals;..\..\..\src\radio;..\..\..\src\system</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -426,11 +426,6 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\src\boards\SensorNode\i2c-board.c</FilePath>
             </File>
-            <File>
-              <FileName>usb-dfu-board.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\SensorNode\usb-dfu-board.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -452,192 +447,144 @@
           <GroupName>boards\SensorNode\usb</GroupName>
           <Files>
             <File>
-              <FileName>dfu_mal.c</FileName>
+              <FileName>usbd_conf.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\SensorNode\usb\dfu\src\dfu_mal.c</FilePath>
+              <FilePath>..\..\..\src\boards\SensorNode\usb\dfu\src\usbd_conf.c</FilePath>
             </File>
             <File>
-              <FileName>flash_if.c</FileName>
+              <FileName>usbd_desc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\SensorNode\usb\dfu\src\flash_if.c</FilePath>
+              <FilePath>..\..\..\src\boards\SensorNode\usb\dfu\src\usbd_desc.c</FilePath>
             </File>
             <File>
-              <FileName>usb_desc.c</FileName>
+              <FileName>usbd_dfu_flash.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\SensorNode\usb\dfu\src\usb_desc.c</FilePath>
-            </File>
-            <File>
-              <FileName>usb_istr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\SensorNode\usb\dfu\src\usb_istr.c</FilePath>
-            </File>
-            <File>
-              <FileName>usb_prop.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\SensorNode\usb\dfu\src\usb_prop.c</FilePath>
-            </File>
-            <File>
-              <FileName>usb_pwr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\SensorNode\usb\dfu\src\usb_pwr.c</FilePath>
+              <FilePath>..\..\..\src\boards\SensorNode\usb\dfu\src\usbd_dfu_flash.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>boards\SensorNode\STM32_USB-FS-Device_Driver</GroupName>
+          <GroupName>boards\SensorNode\STM32_USB_Device_Library\Class</GroupName>
           <Files>
             <File>
-              <FileName>usb_core.c</FileName>
+              <FileName>usbd_dfu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_core.c</FilePath>
-            </File>
-            <File>
-              <FileName>usb_init.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_init.c</FilePath>
-            </File>
-            <File>
-              <FileName>usb_int.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_int.c</FilePath>
-            </File>
-            <File>
-              <FileName>usb_mem.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_mem.c</FilePath>
-            </File>
-            <File>
-              <FileName>usb_regs.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_regs.c</FilePath>
-            </File>
-            <File>
-              <FileName>usb_sil.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_sil.c</FilePath>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Class\DFU\Src\usbd_dfu.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>boards\SensorNode\STM32L1xx_StdPeriph_Driver</GroupName>
+          <GroupName>boards\SensorNode\STM32_USB_Device_Library\Core</GroupName>
           <Files>
             <File>
-              <FileName>misc.c</FileName>
+              <FileName>usbd_core.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\misc.c</FilePath>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Core\Src\usbd_core.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_dbgmcu.c</FileName>
+              <FileName>usbd_ctlreq.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_dbgmcu.c</FilePath>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Core\Src\usbd_ctlreq.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_dma.c</FileName>
+              <FileName>usbd_ioreq.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_dma.c</FilePath>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Core\Src\usbd_ioreq.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>boards\SensorNode\STM32L1xx_HAL_Driver</GroupName>
+          <Files>
+            <File>
+              <FileName>stm32l1xx_hal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_exti.c</FileName>
+              <FileName>stm32l1xx_hal_cortex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_exti.c</FilePath>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_cortex.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_gpio.c</FileName>
+              <FileName>stm32l1xx_hal_dma.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_gpio.c</FilePath>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_dma.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_i2c.c</FileName>
+              <FileName>stm32l1xx_hal_flash.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.c</FilePath>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_flash.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_pwr.c</FileName>
+              <FileName>stm32l1xx_hal_flash_ex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_pwr.c</FilePath>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_flash_ex.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_rcc.c</FileName>
+              <FileName>stm32l1xx_hal_flash_ramfunc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_rcc.c</FilePath>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_flash_ramfunc.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_rtc.c</FileName>
+              <FileName>stm32l1xx_hal_gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_rtc.c</FilePath>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_gpio.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_spi.c</FileName>
+              <FileName>stm32l1xx_hal_i2c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_spi.c</FilePath>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_i2c.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_syscfg.c</FileName>
+              <FileName>stm32l1xx_hal_pcd.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_syscfg.c</FilePath>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_pcd.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_tim.c</FileName>
+              <FileName>stm32l1xx_hal_pcd_ex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_tim.c</FilePath>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_pcd_ex.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_usart.c</FileName>
+              <FileName>stm32l1xx_hal_pwr.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_usart.c</FilePath>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_pwr.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_flash.c</FileName>
+              <FileName>stm32l1xx_hal_pwr_ex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_flash.c</FilePath>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_pwr_ex.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_flash_ramfunc.c</FileName>
+              <FileName>stm32l1xx_hal_rcc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_flash_ramfunc.c</FilePath>
-              <FileOption>
-                <CommonProperty>
-                  <UseCPPCompiler>2</UseCPPCompiler>
-                  <RVCTCodeConst>9</RVCTCodeConst>
-                  <RVCTZI>0</RVCTZI>
-                  <RVCTOtherData>0</RVCTOtherData>
-                  <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>2</IncludeInBuild>
-                  <AlwaysBuild>2</AlwaysBuild>
-                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
-                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
-                  <PublicsOnly>2</PublicsOnly>
-                  <StopOnExitCode>11</StopOnExitCode>
-                  <CustomArgument></CustomArgument>
-                  <IncludeLibraryModules></IncludeLibraryModules>
-                  <ComprImg>1</ComprImg>
-                </CommonProperty>
-                <FileArmAds>
-                  <Cads>
-                    <interw>2</interw>
-                    <Optim>0</Optim>
-                    <oTime>2</oTime>
-                    <SplitLS>2</SplitLS>
-                    <OneElfS>2</OneElfS>
-                    <Strict>2</Strict>
-                    <EnumInt>2</EnumInt>
-                    <PlainCh>2</PlainCh>
-                    <Ropi>2</Ropi>
-                    <Rwpi>2</Rwpi>
-                    <wLevel>0</wLevel>
-                    <uThumb>2</uThumb>
-                    <uSurpInc>2</uSurpInc>
-                    <uC99>2</uC99>
-                    <useXO>2</useXO>
-                    <VariousControls>
-                      <MiscControls></MiscControls>
-                      <Define></Define>
-                      <Undefine></Undefine>
-                      <IncludePath></IncludePath>
-                    </VariousControls>
-                  </Cads>
-                </FileArmAds>
-              </FileOption>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_rcc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l1xx_hal_rcc_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_rcc_ex.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l1xx_hal_rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_rtc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l1xx_hal_rtc_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_rtc_ex.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l1xx_hal_spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_spi.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l1xx_hal_spi_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_spi_ex.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -48,8 +48,8 @@
 /** @defgroup USBD_CDC_Private_TypesDefinitions
   * @{
   */ 
-/* USER CODE BEGIN PRIVATE TYPES  */
-/* USER CODE END PRIVATE TYPES */ 
+/* USER CODE BEGIN PRIVATE_TYPES */
+/* USER CODE END PRIVATE_TYPES */ 
 /**
   * @}
   */ 
@@ -57,7 +57,7 @@
 /** @defgroup USBD_CDC_Private_Defines
   * @{
   */ 
-/* USER CODE BEGIN PRIVATE DEFINES  */
+/* USER CODE BEGIN PRIVATE_DEFINES */
 /* Define size for the receive and transmit buffer over CDC */
 /* It's up to user to redefine and/or remove those define */
 #define APP_RX_DATA_SIZE  64
@@ -65,7 +65,7 @@
 
 #define FIFO_RX_SIZE      512
 
-/* USER CODE END PRIVATE DEFINES */
+/* USER CODE END PRIVATE_DEFINES */
 /**
   * @}
   */ 
@@ -73,7 +73,7 @@
 /** @defgroup USBD_CDC_Private_Macros
   * @{
   */ 
-/* USER CODE BEGIN PRIVATE_MACRO  */
+/* USER CODE BEGIN PRIVATE_MACRO */
 /* USER CODE END PRIVATE_MACRO */
 
 /**
@@ -96,8 +96,8 @@ uint8_t FifoRxBuffer[FIFO_RX_SIZE];
 /* USB handler declaration */
 /* Handle for USB Full Speed IP */
 USBD_HandleTypeDef  *hUsbDevice_0;
-/* USER CODE BEGIN PRIVATE_VARIABLES  */
-/* USER CODE END  PRIVATE VARIABLES */
+/* USER CODE BEGIN PRIVATE_VARIABLES */
+/* USER CODE END PRIVATE_VARIABLES */
 
 /**
   * @}
@@ -107,8 +107,8 @@ USBD_HandleTypeDef  *hUsbDevice_0;
   * @{
   */ 
 extern USBD_HandleTypeDef hUsbDeviceFS;
-/* USER CODE BEGIN EXPORTED_VARIABLES  */
-/* USER CODE END  EXPORTED_VARIABLES */
+/* USER CODE BEGIN EXPORTED_VARIABLES */
+/* USER CODE END EXPORTED_VARIABLES */
 
 /**
   * @}
@@ -123,7 +123,7 @@ static int8_t CDC_Control_FS  (uint8_t cmd, uint8_t* pbuf, uint16_t length);
 static int8_t CDC_Receive_FS  (uint8_t* pbuf, uint32_t *Len);
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_DECLARATION */
-/* USER CODE END  PRIVATE_FUNCTIONS_DECLARATION */
+/* USER CODE END PRIVATE_FUNCTIONS_DECLARATION */
 
 /**
   * @}
@@ -299,7 +299,7 @@ uint8_t CDC_Transmit_FS(uint8_t* buffer, uint16_t size)
 }
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_IMPLEMENTATION */
-/* USER CODE END  PRIVATE_FUNCTIONS_IMPLEMENTATION */
+/* USER CODE END PRIVATE_FUNCTIONS_IMPLEMENTATION */
 
 /**
   * @brief  CDC_Receive_FS

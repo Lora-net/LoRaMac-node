@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    usbd_cdc.c
   * @author  MCD Application Team
-  * @version V2.4.1
-  * @date    19-June-2015
+  * @version V2.4.2
+  * @date    11-December-2015
   * @brief   This file provides the high layer firmware functions to manage the 
   *          following functionalities of the USB CDC Class:
   *           - Initialization and Configuration of high and low layer
@@ -59,7 +59,7 @@
   */ 
 
 /* Includes ------------------------------------------------------------------*/
-#include "USBD_CDC.h"
+#include "usbd_cdc.h"
 #include "usbd_desc.h"
 #include "usbd_ctlreq.h"
 

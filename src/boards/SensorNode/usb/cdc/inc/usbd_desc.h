@@ -1,7 +1,8 @@
 /**
   ******************************************************************************
-  * @file           : usbd_cdc_if.h
-  * @brief          : Header for usbd_cdc_if file.
+  * @file           : usbd_desc.h
+  * @version        : v1.0_Cube
+  * @brief          : Header for usbd_desc file.
   ******************************************************************************
   * COPYRIGHT(c) 2016 STMicroelectronics
   *
@@ -31,95 +32,72 @@
 */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __USBD_CDC_IF_H
-#define __USBD_CDC_IF_H
+#ifndef __USBD_DESC__H__
+#define __USBD_DESC__H__
 
 #ifdef __cplusplus
  extern "C" {
 #endif
 /* Includes ------------------------------------------------------------------*/
-#include "usbd_cdc.h"
-/* USER CODE BEGIN INCLUDE */
-/* USER CODE END INCLUDE */
+#include "usbd_def.h"
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
   * @{
   */
   
-/** @defgroup USBD_CDC_IF
-  * @brief header 
+/** @defgroup USB_DESC
+  * @brief general defines for the usb device library file
   * @{
   */ 
 
-/** @defgroup USBD_CDC_IF_Exported_Defines
-  * @{
-  */ 
-/* USER CODE BEGIN EXPORTED_DEFINES  */
-/* USER CODE END  EXPORTED_DEFINES */
-
-/**
-  * @}
-  */ 
-
-/** @defgroup USBD_CDC_IF_Exported_Types
-  * @{
-  */  
-/* USER CODE BEGIN EXPORTED_TYPES  */
-/* USER CODE END  EXPORTED_TYPES */
-
-/**
-  * @}
-  */ 
-
-/** @defgroup USBD_CDC_IF_Exported_Macros
-  * @{
-  */ 
-/* USER CODE BEGIN EXPORTED_MACRO  */
-/* USER CODE END  EXPORTED_MACRO */
-
-/**
-  * @}
-  */ 
-
-/** @defgroup USBD_AUDIO_IF_Exported_Variables
-  * @{
-  */ 
-extern USBD_CDC_ItfTypeDef  USBD_Interface_fops_FS;
-
-/* USER CODE BEGIN EXPORTED_VARIABLES  */
-/* USER CODE END  EXPORTED_VARIABLES */
-
-/**
-  * @}
-  */ 
-
-/** @defgroup USBD_CDC_IF_Exported_FunctionsPrototype
+/** @defgroup USB_DESC_Exported_Defines
   * @{
   */
-void CDC_Set_Uart_Obj( Uart_t *obj );
-
-uint8_t CDC_Transmit_FS( uint8_t* Buf, uint16_t Len );
-
-/* USER CODE BEGIN EXPORTED_FUNCTIONS  */
-/* USER CODE END  EXPORTED_FUNCTIONS */
-/**
-  * @}
-  */ 
-
-
 
 /**
   * @}
   */ 
 
+/** @defgroup USBD_DESC_Exported_TypesDefinitions
+  * @{
+  */
 /**
   * @}
+  */ 
+
+/** @defgroup USBD_DESC_Exported_Macros
+  * @{
+  */ 
+/**
+  * @}
+  */ 
+
+/** @defgroup USBD_DESC_Exported_Variables
+  * @{
+  */ 
+extern USBD_DescriptorsTypeDef FS_Desc;
+/**
+  * @}
+  */ 
+
+/** @defgroup USBD_DESC_Exported_FunctionsPrototype
+  * @{
   */ 
   
+/**
+  * @}
+  */ 
 #ifdef __cplusplus
 }
 #endif
-  
-#endif /* __USBD_CDC_IF_H */
 
+#endif /* __USBD_DESC_H */
+
+/**
+  * @}
+  */ 
+
+/**
+* @}
+*/ 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
