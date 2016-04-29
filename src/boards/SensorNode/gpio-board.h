@@ -57,6 +57,13 @@ void GpioMcuRemoveInterrupt( Gpio_t *obj );
 void GpioMcuWrite( Gpio_t *obj, uint32_t value );
 
 /*!
+ * \brief Toggle the value to the GPIO output
+ *
+ * \param [IN] obj    Pointer to the GPIO object
+ */
+void GpioMcuToggle( Gpio_t *obj );
+
+/*!
  * \brief Reads the current GPIO input value
  *
  * \param [IN] obj    Pointer to the GPIO object

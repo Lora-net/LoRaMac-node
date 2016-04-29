@@ -41,9 +41,9 @@ typedef enum
 void SpiInit( Spi_t *obj, PinNames mosi, PinNames miso, PinNames sclk, PinNames nss )
 {
     __HAL_RCC_SPI1_FORCE_RESET( );
-    __HAL_RCC_SPI1_RELEASE_RESET();
+    __HAL_RCC_SPI1_RELEASE_RESET( );
 
-    __HAL_RCC_SPI1_CLK_ENABLE();
+    __HAL_RCC_SPI1_CLK_ENABLE( );
 
     obj->Spi.Instance = ( SPI_TypeDef *) SPI1_BASE;
 
@@ -133,6 +133,25 @@ void SpiFrequency( Spi_t *obj, uint32_t hz )
     obj->Spi.Init.BaudRatePrescaler = divisor << 3;
 }
 
+FlagStatus SpiGetFlag( Spi_t *obj, uint16_t flag )
+{
+    FlagStatus bitstatus = RESET;
+
+    // Check the status of the specified SPI flag
+    if( ( obj->Spi.Instance->SR & flag ) != ( uint16_t )RESET )
+    {
+        // SPI_I2S_FLAG is set
+        bitstatus = SET;
+    }
+    else
+    {
+        // SPI_I2S_FLAG is reset
+        bitstatus = RESET;
+    }
+    // Return the SPI_I2S_FLAG status
+    return  bitstatus;
+}
+
 uint16_t SpiInOut( Spi_t *obj, uint16_t outData )
 {
     uint8_t rxData = 0;
@@ -144,10 +163,10 @@ uint16_t SpiInOut( Spi_t *obj, uint16_t outData )
 
     __HAL_SPI_ENABLE( &obj->Spi );
 
-    while( __HAL_SPI_GET_FLAG( &obj->Spi, SPI_FLAG_TXE ) == RESET );
+    while( SpiGetFlag( obj, SPI_FLAG_TXE ) == RESET );
     obj->Spi.Instance->DR = ( uint16_t ) ( outData & 0xFF );
 
-    while( __HAL_SPI_GET_FLAG( &obj->Spi, SPI_FLAG_RXNE ) == RESET );
+    while( SpiGetFlag( obj, SPI_FLAG_RXNE ) == RESET );
     rxData = ( uint16_t ) obj->Spi.Instance->DR;
 
     return( rxData );

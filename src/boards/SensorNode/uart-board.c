@@ -118,7 +118,10 @@ void UartMcuConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_
 
     UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
 
-    HAL_UART_Init( &UartHandle );
+    if( HAL_UART_Init( &UartHandle ) != HAL_OK )
+    {
+        while( 1 );
+    }
 
     HAL_NVIC_SetPriority( USART1_IRQn, 8, 0 );
     HAL_NVIC_EnableIRQ( USART1_IRQn );
@@ -184,7 +187,7 @@ void HAL_UART_TxCpltCallback( UART_HandleTypeDef *UartHandle )
     }
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
+void HAL_UART_RxCpltCallback( UART_HandleTypeDef *UartHandle )
 {
     if( IsFifoFull( &Uart1.FifoRx ) == false )
     {
@@ -200,7 +203,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
     HAL_UART_Receive_IT( UartHandle, &RxData, 1 );
 }
 
-void HAL_UART_ErrorCallback(UART_HandleTypeDef *UartHandle)
+void HAL_UART_ErrorCallback( UART_HandleTypeDef *UartHandle )
 {
     while( 1 )
     {

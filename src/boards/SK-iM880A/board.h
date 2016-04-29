@@ -44,7 +44,7 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 #endif
 
 #ifndef FAIL
-#define FAIL                                        0  
+#define FAIL                                        0
 #endif
 
 /*!
@@ -189,6 +189,5 @@ void BoardGetUniqueId( uint8_t *id );
  * \retval value  power source ( 0: USB_POWER,  1: BATTERY_POWER )
  */
 uint8_t GetBoardPowerSource( void );
-
 
 #endif // __BOARD_H__

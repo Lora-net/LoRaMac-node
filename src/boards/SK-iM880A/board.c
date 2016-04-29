@@ -64,14 +64,35 @@ static void BoardUnusedIoInit( void );
 static void SystemClockConfig( void );
 
 /*!
+ * Timer calibration
+ */
+static void CalibrateTimer( void );
+
+/*!
  * System Clock Re-Configuration when waking up from STOP mode
  */
 static void SystemClockReConfig( void );
 
 /*!
+ * Timer used at first boot to calibrate the Timer
+ */
+static TimerEvent_t TimerCalibrationTimer;
+
+/*!
  * Flag to indicate if the MCU is Initialized
  */
 static bool McuInitialized = false;
+
+/*!
+ * Flag to indicate if the Timer is Calibrated
+ */
+static bool TimerCalibrated = false;
+
+
+static void OnTimerCalibrationTimerEvent( void )
+{
+    TimerCalibrated = true;
+}
 
 void BoardInitPeriph( void )
 {
@@ -108,8 +129,6 @@ void BoardInitMcu( void )
         RtcInit( );
 
         BoardUnusedIoInit( );
-
-        McuInitialized = true;
     }
     else
     {
@@ -120,6 +139,12 @@ void BoardInitMcu( void )
 
     SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX1272IoInit( );
+
+    if( McuInitialized == false )
+    {
+        McuInitialized = true;
+        CalibrateTimer( );
+    }
 }
 
 void BoardDeInitMcu( void )
@@ -248,9 +273,9 @@ void SystemClockConfig( void )
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
     RCC_PeriphCLKInitTypeDef PeriphClkInit;
 
-    __HAL_RCC_PWR_CLK_ENABLE();
+    __HAL_RCC_PWR_CLK_ENABLE( );
 
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+    __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE1 );
 
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.HSEState = RCC_HSE_ON;
@@ -272,7 +297,7 @@ void SystemClockConfig( void )
     PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
     HAL_RCCEx_PeriphCLKConfig( &PeriphClkInit );
 
-    HAL_SYSTICK_Config( HAL_RCC_GetHCLKFreq( )/1000 );
+    HAL_SYSTICK_Config( HAL_RCC_GetHCLKFreq( ) / 1000 );
 
     HAL_SYSTICK_CLKSourceConfig( SYSTICK_CLKSOURCE_HCLK );
 
@@ -281,6 +306,20 @@ void SystemClockConfig( void )
 
     /* SysTick_IRQn interrupt configuration */
     HAL_NVIC_SetPriority( SysTick_IRQn, 0, 0 );
+}
+
+void CalibrateTimer( void )
+{
+    if( TimerCalibrated == false )
+    {
+        TimerInit( &TimerCalibrationTimer, OnTimerCalibrationTimerEvent );
+        TimerSetValue( &TimerCalibrationTimer, 1000 );
+        TimerStart( &TimerCalibrationTimer );
+        while( TimerCalibrated == false )
+        {
+            TimerLowPowerHandler( );
+        }
+    }
 }
 
 void SystemClockReConfig( void )

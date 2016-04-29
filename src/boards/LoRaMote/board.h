@@ -59,7 +59,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #endif
 
 #ifndef FAIL
-#define FAIL                                        0  
+#define FAIL                                        0
 #endif
 
 /*!
@@ -121,15 +121,15 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define I2C_SCL                                     PB_8
 #define I2C_SDA                                     PB_9
 
-#define CON_EXT_1                                   PB_13                                                                        
-#define CON_EXT_3                                   PB_15                                
-#define CON_EXT_7                                   PB_12   
+#define CON_EXT_1                                   PB_13
+#define CON_EXT_3                                   PB_15
+#define CON_EXT_7                                   PB_12
 #define CON_EXT_8                                   PB_14
-#define CON_EXT_9                                   PA_1     
+#define CON_EXT_9                                   PA_1
 #define BAT_LEVEL                                   PA_3
 
 #define BOOT_1                                      PB_2
-    
+
 #define GPS_PPS                                     PA_8
 #define UART_TX                                     PA_9
 #define UART_RX                                     PA_10
@@ -219,7 +219,7 @@ uint8_t BoardGetBatteryLevel( void );
 uint32_t BoardGetRandomSeed( void );
 
 /*!
- * \brief Gets the board 64 bits unique ID 
+ * \brief Gets the board 64 bits unique ID
  *
  * \param [IN] id Pointer to an array that will contain the Unique ID
  */
@@ -231,6 +231,5 @@ void BoardGetUniqueId( uint8_t *id );
  * \retval value  power source ( 0: USB_POWER,  1: BATTERY_POWER )
  */
 uint8_t GetBoardPowerSource( void );
-
 
 #endif // __BOARD_H__

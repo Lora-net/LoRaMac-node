@@ -22,7 +22,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 typedef uint32_t TimerTime_t;
 #endif
 
-
 /*!
  * \brief Structure holding the context date (saved before lunching a timeout)
  */
@@ -76,9 +75,17 @@ TimerTime_t RtcGetTimerValue( void );
 uint32_t RtcGetElapsedAlarmTime( void );
 
 /*!
+ * \brief Compute the timeout time of a future event in time 
+ *
+ * \param[IN] futureEventInTime       value in time
+ * \retval    time between now and the futureEventInTime
+ */
+TimerTime_t RtcComputeFutureEventTime( TimerTime_t futureEventInTime );
+
+/*!
  * \brief Compute the elapsed time since a fix event in time
  *
- * \param[IN] eventInTime       value in time (with Month in MS Byte)
+ * \param[IN] eventInTime       value in time
  * \retval    elasped time since the eventInTime
  */
 TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime );

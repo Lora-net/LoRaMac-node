@@ -73,14 +73,35 @@ static void BoardUnusedIoInit( void );
 static void SystemClockConfig( void );
 
 /*!
+ * Timer calibration
+ */
+static void CalibrateTimer( void );
+
+/*!
  * System Clock Re-Configuration when waking up from STOP mode
  */
 static void SystemClockReConfig( void );
 
 /*!
+ * Timer used at first boot to calibrate the Timer
+ */
+static TimerEvent_t TimerCalibrationTimer;
+
+/*!
  * Flag to indicate if the MCU is Initialized
  */
 static bool McuInitialized = false;
+
+/*!
+ * Flag to indicate if the Timer is Calibrated
+ */
+static bool TimerCalibrated = false;
+
+
+static void OnTimerCalibrationTimerEvent( void )
+{
+    TimerCalibrated = true;
+}
 
 void BoardInitPeriph( void )
 {
@@ -144,6 +165,7 @@ void BoardInitMcu( void )
 
         DelayMs( 1000 ); // 1000 ms for Usb initialization
 #endif
+
         RtcInit( );
 
         BoardUnusedIoInit( );
@@ -152,8 +174,6 @@ void BoardInitMcu( void )
 
         GpioInit( &UsbDetect, USB_ON, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
         GpioInit( &BatVal, BAT_LEVEL, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-
-        McuInitialized = true;
     }
     else
     {
@@ -162,6 +182,12 @@ void BoardInitMcu( void )
 
     SpiInit( &SX1276.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX1276IoInit( );
+
+    if( McuInitialized == false )
+    {
+        McuInitialized = true;
+        CalibrateTimer( );
+    }
 }
 
 void BoardDeInitMcu( void )
@@ -278,7 +304,7 @@ static void BoardUnusedIoInit( void )
 {
     Gpio_t ioPin;
 
-     if( GetBoardPowerSource( ) == BATTERY_POWER )
+    if( GetBoardPowerSource( ) == BATTERY_POWER )
     {
         GpioInit( &ioPin, USB_DM, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
         GpioInit( &ioPin, USB_DP, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
@@ -315,16 +341,16 @@ void SystemClockConfig( void )
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
     RCC_PeriphCLKInitTypeDef PeriphClkInit;
 
-    __HAL_RCC_PWR_CLK_ENABLE();
+    __HAL_RCC_PWR_CLK_ENABLE( );
 
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+    __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE1 );
 
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.HSEState = RCC_HSE_ON;
     RCC_OscInitStruct.LSEState = RCC_LSE_ON;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
+    RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL8;
     RCC_OscInitStruct.PLL.PLLDIV = RCC_PLL_DIV3;
     HAL_RCC_OscConfig( &RCC_OscInitStruct );
 
@@ -339,7 +365,7 @@ void SystemClockConfig( void )
     PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
     HAL_RCCEx_PeriphCLKConfig( &PeriphClkInit );
 
-    HAL_SYSTICK_Config( HAL_RCC_GetHCLKFreq( )/1000 );
+    HAL_SYSTICK_Config( HAL_RCC_GetHCLKFreq( ) / 1000 );
 
     HAL_SYSTICK_CLKSourceConfig( SYSTICK_CLKSOURCE_HCLK );
 
@@ -348,6 +374,20 @@ void SystemClockConfig( void )
 
     /* SysTick_IRQn interrupt configuration */
     HAL_NVIC_SetPriority( SysTick_IRQn, 0, 0 );
+}
+
+void CalibrateTimer( void )
+{
+    if( TimerCalibrated == false )
+    {
+        TimerInit( &TimerCalibrationTimer, OnTimerCalibrationTimerEvent );
+        TimerSetValue( &TimerCalibrationTimer, 1000 );
+        TimerStart( &TimerCalibrationTimer );
+        while( TimerCalibrated == false )
+        {
+            TimerLowPowerHandler( );
+        }
+    }
 }
 
 void SystemClockReConfig( void )

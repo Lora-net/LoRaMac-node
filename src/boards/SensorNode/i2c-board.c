@@ -32,10 +32,10 @@ typedef enum {
 
 void I2cMcuInit( I2c_t *obj, PinNames scl, PinNames sda )
 {
-    __HAL_RCC_I2C1_FORCE_RESET();
-    __HAL_RCC_I2C1_RELEASE_RESET();
+    __HAL_RCC_I2C1_FORCE_RESET( );
+    __HAL_RCC_I2C1_RELEASE_RESET( );
 
-    obj->I2c.Instance  = (I2C_TypeDef *) I2C1_BASE;
+    obj->I2c.Instance  = ( I2C_TypeDef * )I2C1_BASE;
 
     GpioInit( &obj->Scl, scl, PIN_ALTERNATE_FCT, PIN_OPEN_DRAIN, PIN_NO_PULL, GPIO_AF4_I2C1 );
     GpioInit( &obj->Sda, sda, PIN_ALTERNATE_FCT, PIN_OPEN_DRAIN, PIN_NO_PULL, GPIO_AF4_I2C1 );
