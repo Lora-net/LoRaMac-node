@@ -3004,6 +3004,11 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t *mibGet )
             mibGet->Param.JoinAcceptDelay2 = JoinAcceptDelay2;
             break;
         }
+        case MIB_CHANNELS_DEFAULT_DATARATE:
+        {
+            mibGet->Param.ChannelsDefaultDatarate = ChannelsDefaultDatarate;
+            break;
+        }
         case MIB_CHANNELS_DATARATE:
         {
             mibGet->Param.ChannelsDatarate = ChannelsDatarate;
@@ -3217,6 +3222,19 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         case MIB_JOIN_ACCEPT_DELAY_2:
         {
             JoinAcceptDelay2 = mibSet->Param.JoinAcceptDelay2;
+            break;
+        }
+        case MIB_CHANNELS_DEFAULT_DATARATE:
+        {
+            if( ValueInRange( mibSet->Param.ChannelsDefaultDatarate,
+                              LORAMAC_TX_MIN_DATARATE, LORAMAC_TX_MAX_DATARATE ) )
+            {
+                ChannelsDefaultDatarate = mibSet->Param.ChannelsDefaultDatarate;
+            }
+            else
+            {
+                status = LORAMAC_STATUS_PARAMETER_INVALID;
+            }
             break;
         }
         case MIB_CHANNELS_DATARATE:

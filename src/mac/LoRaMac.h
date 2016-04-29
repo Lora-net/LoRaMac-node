@@ -985,6 +985,7 @@ typedef struct sMlmeConfirm
  * \ref MIB_JOIN_ACCEPT_DELAY_1      | YES | YES
  * \ref MIB_JOIN_ACCEPT_DELAY_2      | YES | YES
  * \ref MIB_CHANNELS_DATARATE        | YES | YES
+ * \ref MIB_CHANNELS_DEFAULT_DATARATE| YES | YES
  * \ref MIB_CHANNELS_TX_POWER        | YES | YES
  * \ref MIB_UPLINK_COUNTER           | YES | NO
  * \ref MIB_DOWNLINK_COUNTER         | YES | NO
@@ -1116,6 +1117,16 @@ typedef enum eMib
      * LoRaWAN Specification V1.0, chapter 6
      */
     MIB_JOIN_ACCEPT_DELAY_2,
+    /*!
+     * Default Data rate of a channel
+     *
+     * LoRaWAN Specification V1.0, chapter 7
+     *
+     * EU868 - [DR_0, DR_1, DR_2, DR_3, DR_4, DR_5, DR_6, DR_7]
+     *
+     * US915 - [DR_0, DR_1, DR_2, DR_3, DR_4, DR_8, DR_9, DR_10, DR_11, DR_12, DR_13]
+     */
+    MIB_CHANNELS_DEFAULT_DATARATE,
     /*!
      * Data rate of a channel
      *
@@ -1273,6 +1284,12 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_JOIN_ACCEPT_DELAY_2
      */
     uint32_t JoinAcceptDelay2;
+    /*!
+     * Channels data rate
+     *
+     * Related MIB type: \ref MIB_CHANNELS_DEFAULT_DATARATE
+     */
+    int8_t ChannelsDefaultDatarate;
     /*!
      * Channels data rate
      *
