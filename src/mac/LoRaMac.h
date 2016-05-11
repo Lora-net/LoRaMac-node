@@ -541,6 +541,10 @@ typedef enum eLoRaMacEventInfoStatus
      */
     LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED,
     /*!
+     * The node has lost MAX_FCNT_GAP or more frames.
+     */
+    LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS,
+    /*!
      * An address error occured
      */
     LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL,

@@ -369,7 +369,6 @@ static ChannelParams_t Channels[LORA_MAX_NB_CHANNELS];
  * Contains the channels which remain to be applied.
  */
 static uint16_t ChannelsMaskRemaining[6];
-
 #else
     #error "Please define a frequency band in the compiler options."
 #endif
@@ -1100,6 +1099,15 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                         isMicOk = true;
                         downLinkCounter = downLinkCounterTmp;
                     }
+                }
+
+                // Check for a the maximum allowed counter difference
+                if( sequenceCounterDiff >= MAX_FCNT_GAP )
+                {
+                    McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS;
+                    McpsIndication.DownLinkCounter = downLinkCounter;
+                    PrepareRxDoneAbort( );
+                    return;
                 }
 
                 if( isMicOk == true )
