@@ -279,7 +279,7 @@ TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime )
 
     HAL_RTC_GetTime( &RtcHandle, &timeRtc, RTC_FORMAT_BIN );
     HAL_RTC_GetDate( &RtcHandle, &dateRtc, RTC_FORMAT_BIN );
-    
+
     /* Get the Current time in Milisecond */
     currentTimeMs =  ( ( ( dateRtc.Date * SecondsInDay ) +
                          ( timeRtc.Hours * SecondsInHour ) +
@@ -287,8 +287,8 @@ TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime )
                            timeRtc.Seconds ) );
 
     currentTimeMs = round( currentTimeMs * RTC_ALARM_TICK_DURATION );
-    
-    if( eventInTime == 0 ) //Needed at boot, cannot compute with 0 or elapsed time will be equal to current time 
+
+    if( eventInTime == 0 ) //Needed at boot, cannot compute with 0 or elapsed time will be equal to current time
     {
         return 0;
     }
@@ -301,9 +301,9 @@ TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime )
         }
         else
         {
-            lastMonth = dateRtc.Month - 1; 
+            lastMonth = dateRtc.Month - 1;
         }
-        
+
         // compute from eventInTime to roll over and add currentTimeMs
         if( lastMonth != MONTH_FEBRUARY )
         {
@@ -555,7 +555,7 @@ void BlockLowPowerDuringTask( bool status )
 static uint8_t RtcComputeMonthOverflow( uint8_t timeoutInDays, uint8_t year, uint8_t month )
 {
     uint8_t timeout = 0;
-    
+
     if( month != MONTH_FEBRUARY )
     {
         switch( month )

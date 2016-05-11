@@ -75,7 +75,7 @@ TimerTime_t RtcGetTimerValue( void );
 uint32_t RtcGetElapsedAlarmTime( void );
 
 /*!
- * \brief Compute the timeout time of a future event in time 
+ * \brief Compute the timeout time of a future event in time
  *
  * \param[IN] futureEventInTime       value in time
  * \retval    time between now and the futureEventInTime
