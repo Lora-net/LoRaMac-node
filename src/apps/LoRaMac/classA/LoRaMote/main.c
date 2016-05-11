@@ -394,14 +394,14 @@ static void OnLed2TimerEvent( void )
 /*!
  * \brief   MCPS-Confirm event function
  *
- * \param   [IN] McpsConfirm - Pointer to the confirm structure,
+ * \param   [IN] mcpsConfirm - Pointer to the confirm structure,
  *               containing confirm attributes.
  */
-static void McpsConfirm( McpsConfirm_t *McpsConfirm )
+static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
 {
-    if( McpsConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
+    if( mcpsConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
     {
-        switch( McpsConfirm->McpsRequest )
+        switch( mcpsConfirm->McpsRequest )
         {
             case MCPS_UNCONFIRMED:
             {
@@ -435,17 +435,17 @@ static void McpsConfirm( McpsConfirm_t *McpsConfirm )
 /*!
  * \brief   MCPS-Indication event function
  *
- * \param   [IN] McpsIndication - Pointer to the indication structure,
+ * \param   [IN] mcpsIndication - Pointer to the indication structure,
  *               containing indication attributes.
  */
-static void McpsIndication( McpsIndication_t *McpsIndication )
+static void McpsIndication( McpsIndication_t *mcpsIndication )
 {
-    if( McpsIndication->Status != LORAMAC_EVENT_INFO_STATUS_OK )
+    if( mcpsIndication->Status != LORAMAC_EVENT_INFO_STATUS_OK )
     {
         return;
     }
 
-    switch( McpsIndication->McpsIndication )
+    switch( mcpsIndication->McpsIndication )
     {
         case MCPS_UNCONFIRMED:
         {
@@ -482,15 +482,15 @@ static void McpsIndication( McpsIndication_t *McpsIndication )
         ComplianceTest.DownLinkCounter++;
     }
 
-    if( McpsIndication->RxData == true )
+    if( mcpsIndication->RxData == true )
     {
-        switch( McpsIndication->Port )
+        switch( mcpsIndication->Port )
         {
         case 1: // The application LED can be controlled on port 1 or 2
         case 2:
-            if( McpsIndication->BufferSize == 1 )
+            if( mcpsIndication->BufferSize == 1 )
             {
-                AppLedStateOn = McpsIndication->Buffer[0] & 0x01;
+                AppLedStateOn = mcpsIndication->Buffer[0] & 0x01;
                 GpioWrite( &Led3, ( ( AppLedStateOn & 0x01 ) != 0 ) ? 0 : 1 );
             }
             break;
@@ -498,11 +498,11 @@ static void McpsIndication( McpsIndication_t *McpsIndication )
             if( ComplianceTest.Running == false )
             {
                 // Check compliance test enable command (i)
-                if( ( McpsIndication->BufferSize == 4 ) && 
-                    ( McpsIndication->Buffer[0] == 0x01 ) &&
-                    ( McpsIndication->Buffer[1] == 0x01 ) &&
-                    ( McpsIndication->Buffer[2] == 0x01 ) &&
-                    ( McpsIndication->Buffer[3] == 0x01 ) )
+                if( ( mcpsIndication->BufferSize == 4 ) &&
+                    ( mcpsIndication->Buffer[0] == 0x01 ) &&
+                    ( mcpsIndication->Buffer[1] == 0x01 ) &&
+                    ( mcpsIndication->Buffer[2] == 0x01 ) &&
+                    ( mcpsIndication->Buffer[3] == 0x01 ) )
                 {
                     IsTxConfirmed = false;
                     AppPort = 224;
@@ -526,7 +526,7 @@ static void McpsIndication( McpsIndication_t *McpsIndication )
             }
             else
             {
-                ComplianceTest.State = McpsIndication->Buffer[0];
+                ComplianceTest.State = mcpsIndication->Buffer[0];
                 switch( ComplianceTest.State )
                 {
                 case 0: // Check compliance test disable command (ii)
@@ -556,12 +556,12 @@ static void McpsIndication( McpsIndication_t *McpsIndication )
                     ComplianceTest.State = 1;
                     break;
                 case 4: // (vii)
-                    AppDataSize = McpsIndication->BufferSize;
+                    AppDataSize = mcpsIndication->BufferSize;
 
                     AppData[0] = 4;
                     for( uint8_t i = 1; i < AppDataSize; i++ )
                     {
-                        AppData[i] = McpsIndication->Buffer[i] + 1;
+                        AppData[i] = mcpsIndication->Buffer[i] + 1;
                     }
                     break;
                 case 5: // (viii)
@@ -589,14 +589,14 @@ static void McpsIndication( McpsIndication_t *McpsIndication )
 /*!
  * \brief   MLME-Confirm event function
  *
- * \param   [IN] MlmeConfirm - Pointer to the confirm structure,
+ * \param   [IN] mlmeConfirm - Pointer to the confirm structure,
  *               containing confirm attributes.
  */
-static void MlmeConfirm( MlmeConfirm_t *MlmeConfirm )
+static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
 {
-    if( MlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
+    if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
     {
-        switch( MlmeConfirm->MlmeRequest )
+        switch( mlmeConfirm->MlmeRequest )
         {
             case MLME_JOIN:
             {
@@ -610,8 +610,8 @@ static void MlmeConfirm( MlmeConfirm_t *MlmeConfirm )
                 if( ComplianceTest.Running == true )
                 {
                     ComplianceTest.LinkCheck = true;
-                    ComplianceTest.DemodMargin = MlmeConfirm->DemodMargin;
-                    ComplianceTest.NbGateways = MlmeConfirm->NbGateways;
+                    ComplianceTest.DemodMargin = mlmeConfirm->DemodMargin;
+                    ComplianceTest.NbGateways = mlmeConfirm->NbGateways;
                 }
                 break;
             }
@@ -749,8 +749,8 @@ int main( void )
                 }
                 if( ComplianceTest.Running == true )
                 {
-                    // Schedule next packet transmission as soon as possible
-                    TxDutyCycleTime = 300; // 300 ms
+                    // Schedule next packet transmission
+                    TxDutyCycleTime = 5000; // 5000 ms
                 }
                 else
                 {
