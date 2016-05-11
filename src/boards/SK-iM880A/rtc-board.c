@@ -35,13 +35,12 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * RTC Time base in ms
  */
-#define RTC_ALARM_TICK_DURATION                     0.48828125 // 1 tick every 488us
+#define RTC_ALARM_TICK_DURATION                     0.12207031 // 1 tick every 122us
 
 /*!
  * RTC Time base in ms
  */
-#define RTC_ALARM_TICK_PER_MS                       2.048      // 1/2.048 = tick duration in ms
-
+#define RTC_ALARM_TICK_PER_MS                       8.192      //  1/8.192 = tick duration in ms
 
 /*!
  * Number of seconds in a minute
@@ -141,8 +140,8 @@ void RtcInit( void )
 
         RtcHandle.Instance = RTC;
         RtcHandle.Init.HourFormat = RTC_HOURFORMAT_24;
-        RtcHandle.Init.AsynchPrediv = 3;
-        RtcHandle.Init.SynchPrediv = 3;
+        RtcHandle.Init.AsynchPrediv = 1;
+        RtcHandle.Init.SynchPrediv = 1;
 
         RtcHandle.Init.OutPut = RTC_OUTPUT_DISABLE;
         RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
