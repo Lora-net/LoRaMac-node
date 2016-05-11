@@ -26,7 +26,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * Radio PLL lock and Mode Ready delay which can vary with the temperature
  */
-#define RADIO_SLEEP_TO_RX                           1 // [ms]
+#define RADIO_SLEEP_TO_RX                           2 // [ms]
 
 /*!
  * Radio complete Wake-up Time with margin for temperature compensation
