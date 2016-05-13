@@ -107,11 +107,4 @@ void RtcEnterLowPowerStopMode( void );
  */
 void RtcRecoverMcuStatus( void );
 
-/*!
- * \brief Perfoms a standard blocking delay in the code execution
- *
- * \param [IN] delay Delay value in ms
- */
-void RtcDelayMs ( uint32_t delay );
-
 #endif // __RTC_BOARD_H__
