@@ -480,6 +480,9 @@ typedef union uLoRaMacFrameCtrl
      * Byte-access to the bits
      */
     uint8_t Value;
+    /*!
+     * Structure containing single access to bits
+     */
     struct sCtrlBits
     {
         /*!
@@ -563,6 +566,9 @@ typedef union eLoRaMacFlags_t
      * Byte-access to the bits
      */
     uint8_t Value;
+    /*!
+     * Structure containing single access to bits
+     */
     struct sMacFlagBits
     {
         /*!
@@ -914,7 +920,7 @@ typedef struct sMlmeReqJoin
 }MlmeReqJoin_t;
 
 /*!
- *
+ * LoRaMAC MLME-Request structure
  */
 typedef struct sMlmeReq
 {
