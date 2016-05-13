@@ -324,17 +324,6 @@ const int8_t datarateOffsets[16][4] =
     { DR_12, DR_11, DR_10, DR_9  }, // DR_2
     { DR_13, DR_12, DR_11, DR_10 }, // DR_3
     { DR_13, DR_13, DR_12, DR_11 }, // DR_4
-    { 0xFF , 0xFF , 0xFF , 0xFF  },
-    { 0xFF , 0xFF , 0xFF , 0xFF  },
-    { 0xFF , 0xFF , 0xFF , 0xFF  },
-    { DR_8 , DR_8 , DR_8 , DR_8  },
-    { DR_9 , DR_8 , DR_8 , DR_8  },
-    { DR_10, DR_9 , DR_8 , DR_8  },
-    { DR_11, DR_10, DR_9 , DR_8  },
-    { DR_12, DR_11, DR_10, DR_9  },
-    { DR_13, DR_12, DR_11, DR_10 },
-    { 0xFF , 0xFF , 0xFF , 0xFF  },
-    { 0xFF , 0xFF , 0xFF , 0xFF  },
 };
 
 /*!
