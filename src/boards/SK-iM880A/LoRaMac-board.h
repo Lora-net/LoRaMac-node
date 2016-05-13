@@ -141,9 +141,13 @@ typedef enum
 #define LC3                { 868500000, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 }
 
 /*!
- * LoRaMac duty cycle for the join procedure
+ * LoRaMac duty cycle for the back-off procedure
  */
-#define JOIN_DC            1000
+#define BACKOFF_DC_1_HOUR       100
+#define BACKOFF_DC_10_HOURS     1000
+#define BACKOFF_DC_24_HOURS     10000
+
+#define BACKOFF_RND_OFFSET      600000
 
 /*!
  * LoRaMac channels which are allowed for the join procedure
