@@ -116,7 +116,7 @@ uint8_t MPL3115Init( void )
         {
             return FAIL;
         }
-        
+
         MPL3115Write( PT_DATA_CFG_REG, DREM | PDEFE | TDEFE );      // Enable data ready flags for pressure and temperature )
         MPL3115Write( CTRL_REG1, ALT | OS_32 | SBYB );              // Set sensor to active state with oversampling ratio 128 (512 ms between samples)
         MPL3115Initialized = true;
@@ -243,7 +243,7 @@ float MPL3115ReadPressure( void )
         DelayMs( 10 );
         MPL3115Read( STATUS_REG, &status );
     }
-    
+
     MPL3115ReadBuffer( OUT_P_MSB_REG, tempBuf, 3 );
 
     msb = tempBuf[0];
@@ -304,7 +304,7 @@ float MPL3115ReadTemperature( void )
             }
         }
     }
-    
+
     MPL3115ReadBuffer( OUT_T_MSB_REG, tempBuf, 2 );
 
     msb = tempBuf[0];
