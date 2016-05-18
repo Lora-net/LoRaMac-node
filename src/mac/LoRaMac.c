@@ -3800,7 +3800,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
         {
             if( ( LoRaMacState & MAC_TX_DELAYED ) == MAC_TX_DELAYED )
             {
-                status = LORAMAC_STATUS_BUSY;
+                return LORAMAC_STATUS_BUSY;
             }
 
             MlmeConfirm.MlmeRequest = mlmeRequest->Type;
