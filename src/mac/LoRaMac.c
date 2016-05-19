@@ -2246,7 +2246,7 @@ static uint8_t ParseMacCommandsToRepeat( uint8_t* cmdBufIn, uint8_t length, uint
     uint8_t i = 0;
     uint8_t cmdCount = 0;
 
-    if( ( cmdBufIn == NULL ) || ( cmdBufIn == NULL ) )
+    if( ( cmdBufIn == NULL ) || ( cmdBufOut == NULL ) )
     {
         return 0;
     }
