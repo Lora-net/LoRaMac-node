@@ -36,7 +36,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define LORAMAC_TX_MIN_DATARATE                     DR_0
 
 /*!
- * Minimal datarate that can be used by the node
+ * Maximal datarate that can be used by the node
  */
 #define LORAMAC_TX_MAX_DATARATE                     DR_7
 
@@ -46,7 +46,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define LORAMAC_RX_MIN_DATARATE                     DR_0
 
 /*!
- * Minimal datarate that can be used by the node
+ * Maximal datarate that can be used by the node
  */
 #define LORAMAC_RX_MAX_DATARATE                     DR_7
 
@@ -71,7 +71,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define LORAMAC_MIN_TX_POWER                        TX_POWER_02_DBM
 
 /*!
- * Minimal Tx output power that can be used by the node
+ * Maximal Tx output power that can be used by the node
  */
 #define LORAMAC_MAX_TX_POWER                        TX_POWER_20_DBM
 
