@@ -2914,7 +2914,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
 
                     // Update FCtrl field with new value of OptionsLength
                     LoRaMacBuffer[0x05] = fCtrl->Value;
-                    for( i = 0; i < ( MacCommandsBufferIndex - MacCommandsBufferToRepeatIndex ); i++ )
+                    for( i = 0; i < MacCommandsBufferIndex; i++ )
                     {
                         LoRaMacBuffer[pktHeaderLen++] = MacCommandsBuffer[i];
                     }
