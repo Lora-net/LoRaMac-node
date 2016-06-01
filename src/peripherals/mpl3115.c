@@ -19,10 +19,20 @@ Maintainer: Miguel Luis and Gregory Cristian
  * I2C device address
  */
 static uint8_t I2cDeviceAddr = 0;
+
 /*!
  * Indicates if the MPL3115 is initialized or not
  */
 static bool MPL3115Initialized = false;
+
+/*!
+ * Defines the barometric reading types
+ */
+typedef enum
+{
+    PRESSURE,
+    ALTITUDE,
+}BarometerReadingType_t;
 
 /*!
  * \brief Writes a byte at specified address in the device
@@ -110,6 +120,10 @@ uint8_t MPL3115Init( void )
 
     if( MPL3115Initialized == false )
     {
+        MPL3115Write( CTRL_REG1, RST );
+        I2cResetBus( &I2c );
+        DelayMs( 50 );
+
         // Check MPL3115 ID
         MPL3115Read( MPL3115_ID, &regVal );
         if( regVal != 0xC4 )
@@ -164,13 +178,11 @@ uint8_t MPL3115GetDeviceAddr( void )
     return I2cDeviceAddr;
 }
 
-float MPL3115ReadAltitude( void )
+static float MPL3115ReadBarometer( BarometerReadingType_t type )
 {
     uint8_t counter = 0;
     uint8_t tempBuf[3];
     uint8_t msb = 0, csb = 0, lsb = 0;
-    float decimal = 0;
-    float altitude = 0;
     uint8_t status = 0;
 
     if( MPL3115Initialized == false )
@@ -178,7 +190,15 @@ float MPL3115ReadAltitude( void )
         return 0;
     }
 
-    MPL3115SetModeAltimeter( );
+    if( type == ALTITUDE )
+    {
+        MPL3115SetModeAltimeter( );
+    }
+    else
+    {
+        MPL3115SetModeBarometer( );
+    }
+
     MPL3115ToggleOneShot( );
 
     while( ( status & PDR ) != PDR )
@@ -190,7 +210,14 @@ float MPL3115ReadAltitude( void )
         if( counter > 20 )
         {
             MPL3115Init( );
-            MPL3115SetModeAltimeter( );
+            if( type == ALTITUDE )
+            {
+                MPL3115SetModeAltimeter( );
+            }
+            else
+            {
+                MPL3115SetModeBarometer( );
+            }
             MPL3115ToggleOneShot( );
             counter = 0;
 
@@ -215,50 +242,32 @@ float MPL3115ReadAltitude( void )
     csb = tempBuf[1];
     lsb = tempBuf[2];
 
-    decimal = ( ( float )( lsb >> 4 ) ) / 16.0;
-    altitude = ( float )( ( int16_t )( ( msb << 8 ) | csb ) ) + decimal;
+    if( type == ALTITUDE )
+    {
+        float altitude = 0;
+        float decimal = ( ( float )( lsb >> 4 ) ) / 16.0;
+        altitude = ( float )( ( int16_t )( ( msb << 8 ) | csb ) ) + decimal;
+        return( altitude );
+    }
+    else
+    {
+        float pressure = ( float )( ( msb << 16 | csb << 8 | lsb ) >> 6 );
+        lsb &= 0x30;                                // Bits 5/4 represent the fractional component
+        lsb >>= 4;                                  // Get it right aligned
+        float decimal = ( ( float )lsb ) / 4.0;
+        pressure = pressure + decimal;
+        return( pressure );
+    }
+}
 
-    return( altitude );
+float MPL3115ReadAltitude( void )
+{
+    return MPL3115ReadBarometer( ALTITUDE );
 }
 
 float MPL3115ReadPressure( void )
 {
-    uint8_t tempBuf[3];
-    uint8_t msb = 0, csb = 0, lsb = 0;
-    float decimal = 0;
-    float pressure = 0;
-    uint8_t status = 0;
-
-    if( MPL3115Initialized == false )
-    {
-        return 0;
-    }
-
-    MPL3115SetModeBarometer( );
-    MPL3115ToggleOneShot( );
-
-    MPL3115Read( STATUS_REG, &status );
-    while( ( status & PDR ) != PDR )
-    {
-        DelayMs( 10 );
-        MPL3115Read( STATUS_REG, &status );
-    }
-
-    MPL3115ReadBuffer( OUT_P_MSB_REG, tempBuf, 3 );
-
-    msb = tempBuf[0];
-    csb = tempBuf[1];
-    lsb = tempBuf[2];
-
-    pressure = ( float )( ( msb << 16 | csb << 8 | lsb ) >> 6 );
-    lsb &= 0x30;                                // Bits 5/4 represent the fractional component
-    lsb >>= 4;                                  // Get it right aligned
-
-    decimal = ( ( float )lsb ) / 4.0;
-
-    pressure = pressure + decimal;
-
-    return( pressure );
+    return MPL3115ReadBarometer( PRESSURE );
 }
 
 float MPL3115ReadTemperature( void )
