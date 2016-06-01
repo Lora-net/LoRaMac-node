@@ -1448,6 +1448,9 @@ void SX1272OnDio1Irq( void )
             case MODEM_LORA:
                 // Sync time out
                 TimerStop( &RxTimeoutTimer );
+                // Clear Irq
+                SX1272Write( REG_LR_IRQFLAGS, RFLR_IRQFLAGS_RXTIMEOUT );
+
                 SX1272.Settings.State = RF_IDLE;
                 if( ( RadioEvents != NULL ) && ( RadioEvents->RxTimeout != NULL ) )
                 {
