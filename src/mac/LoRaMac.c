@@ -368,6 +368,22 @@ static ChannelParams_t Channels[LORA_MAX_NB_CHANNELS];
  * Contains the channels which remain to be applied.
  */
 static uint16_t ChannelsMaskRemaining[6];
+
+/*!
+ * Defines the first channel for RX window 2 for US band
+ */
+#define LORAMAC_FIRST_RX2_CHANNEL           ( (uint32_t) 923.3e6 )
+
+/*!
+ * Defines the last channel for RX window 2 for US band
+ */
+#define LORAMAC_LAST_RX2_CHANNEL            ( (uint32_t) 927.5e6 )
+
+/*!
+ * Defines the step width of the channels for RX window 2
+ */
+#define LORAMAC_STEPWIDTH_RX2_CHANNEL       ( (uint32_t) 600e3 )
+
 #else
     #error "Please define a frequency band in the compiler options."
 #endif
@@ -647,6 +663,15 @@ static void SetPublicNetwork( bool enable );
  * \param [IN] timeout window channel timeout
  */
 static void RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, uint16_t timeout, bool rxContinuous );
+
+/*!
+ * \brief Verifies if the RX window 2 frequency is in range
+ *
+ * \param [IN] freq window channel frequency
+ *
+ * \retval status  Function status [1: OK, 0: Frequency not applicable]
+ */
+static bool Rx2FreqInRange( uint32_t freq );
 
 /*!
  * \brief Adds a new MAC command to be sent.
@@ -1919,6 +1944,22 @@ static void RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, u
     }
 }
 
+static bool Rx2FreqInRange( uint32_t freq )
+{
+#if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
+    if( Radio.CheckRfFrequency( freq ) == true )
+#elif ( defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID ) )
+    if( ( Radio.CheckRfFrequency( freq ) == true ) &&
+        ( freq >= LORAMAC_FIRST_RX2_CHANNEL ) &&
+        ( freq <= LORAMAC_LAST_RX2_CHANNEL ) &&
+        ( ( ( freq - ( uint32_t ) LORAMAC_FIRST_RX2_CHANNEL ) % ( uint32_t ) LORAMAC_STEPWIDTH_RX2_CHANNEL ) == 0 ) )
+#endif
+    {
+        return true;
+    }
+    return false;
+}
+
 static bool ValidatePayloadLength( uint8_t lenN, int8_t datarate, uint8_t fOptsLen )
 {
     uint16_t maxN = 0;
@@ -2466,7 +2507,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     freq |= ( uint32_t )payload[macIndex++] << 16;
                     freq *= 100;
 
-                    if( Radio.CheckRfFrequency( freq ) == false )
+                    if( Rx2FreqInRange( freq ) == false )
                     {
                         status &= 0xFE; // Channel frequency KO
                     }
