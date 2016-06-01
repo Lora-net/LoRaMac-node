@@ -1662,7 +1662,7 @@ static void OnRxWindow1TimerEvent( void )
     {// LoRa 500 kHz
         bandwidth  = 2;
     }
-    RxWindowSetup( 923.3e6 + ( Channel % 8 ) * 600e3, datarate, bandwidth, symbTimeout, false );
+    RxWindowSetup( LORAMAC_FIRST_RX2_CHANNEL + ( Channel % 8 ) * LORAMAC_STEPWIDTH_RX2_CHANNEL, datarate, bandwidth, symbTimeout, false );
 #else
     #error "Please define a frequency band in the compiler options."
 #endif
