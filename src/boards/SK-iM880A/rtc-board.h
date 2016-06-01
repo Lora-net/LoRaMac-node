@@ -23,28 +23,6 @@ typedef uint32_t TimerTime_t;
 #endif
 
 /*!
- * \brief Structure holding the context date (saved before lunching a timeout)
- */
-typedef struct
-{
-    uint8_t Date;
-    uint8_t Month;
-    uint8_t Year;
-}DateContext_t;
-
-/*!
- * \brief Structure holding the context Time (saved before lunching a timeout)
- */
-typedef struct
-{
-    uint8_t Hours;
-    uint8_t Minutes;
-    uint8_t Seconds;
-    uint16_t Miliseconds;
-}TimeContext_t;
-
-
-/*!
  * \brief Initializes the RTC timer
  *
  * \remark The timer is based on the RTC
@@ -56,9 +34,17 @@ void RtcInit( void );
  *
  * \remark The timer is based on the RTC Alarm running at 32.768KHz
  *
- * \param[IN] timeout       Duration of the Timer
+ * \param[IN] timeout Duration of the Timer
  */
 void RtcSetTimeout( uint32_t timeout );
+
+/*!
+ * \brief Adjust the value of the timeout to handle wakeup time from Alarm and GPIO irq
+ *
+ * \param[IN] timeout Duration of the Timer without compensation for wakeup time
+ * \retval new value for the Timeout with compensations
+ */
+TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout );
 
 /*!
  * \brief Get the RTC timer value
@@ -72,33 +58,33 @@ TimerTime_t RtcGetTimerValue( void );
  *
  * \retval RTC Elapsed time since the last alarm
  */
-uint32_t RtcGetElapsedAlarmTime( void );
+TimerTime_t RtcGetElapsedAlarmTime( void );
 
 /*!
  * \brief Compute the timeout time of a future event in time
  *
- * \param[IN] futureEventInTime       value in time
- * \retval    time between now and the futureEventInTime
+ * \param[IN] futureEventInTime Value in time
+ * \retval time Time between now and the futureEventInTime
  */
 TimerTime_t RtcComputeFutureEventTime( TimerTime_t futureEventInTime );
 
 /*!
  * \brief Compute the elapsed time since a fix event in time
  *
- * \param[IN] eventInTime       value in time
- * \retval    elasped time since the eventInTime
+ * \param[IN] eventInTime Value in time
+ * \retval elapsed Time since the eventInTime
  */
 TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime );
 
 /*!
- * \brief This function block the MCU from going into Low Power mode
+ * \brief This function blocks the MCU from going into Low Power mode
  *
- * \param [IN] Status enable or disable
+ * \param [IN] status [true: Enable, false: Disable
  */
-void BlockLowPowerDuringTask ( bool Status );
+void BlockLowPowerDuringTask ( bool status );
 
 /*!
- * \brief Sets the MCU in low power STOP mode
+ * \brief Sets the MCU into low power STOP mode
  */
 void RtcEnterLowPowerStopMode( void );
 
