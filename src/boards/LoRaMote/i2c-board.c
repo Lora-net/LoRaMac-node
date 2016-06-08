@@ -32,6 +32,8 @@ typedef enum {
 
 void I2cMcuInit( I2c_t *obj, PinNames scl, PinNames sda )
 {
+    __HAL_RCC_I2C1_CLK_DISABLE( );
+    __HAL_RCC_I2C1_CLK_ENABLE( );
     __HAL_RCC_I2C1_FORCE_RESET( );
     __HAL_RCC_I2C1_RELEASE_RESET( );
 

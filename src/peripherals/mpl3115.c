@@ -121,8 +121,8 @@ uint8_t MPL3115Init( void )
     if( MPL3115Initialized == false )
     {
         MPL3115Write( CTRL_REG1, RST );
-        I2cResetBus( &I2c );
         DelayMs( 50 );
+        I2cResetBus( &I2c );
 
         // Check MPL3115 ID
         MPL3115Read( MPL3115_ID, &regVal );
@@ -209,6 +209,7 @@ static float MPL3115ReadBarometer( BarometerReadingType_t type )
 
         if( counter > 20 )
         {
+            MPL3115Initialized = false;
             MPL3115Init( );
             if( type == ALTITUDE )
             {
@@ -295,6 +296,7 @@ float MPL3115ReadTemperature( void )
 
         if( counter > 20 )
         {
+            MPL3115Initialized = false;
             MPL3115Init( );
             MPL3115ToggleOneShot( );
             counter = 0;
