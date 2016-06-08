@@ -52,16 +52,7 @@ void GpsMcuOnPpsSignal( void )
 
 void GpsMcuInvertPpsTrigger( void )
 {
-    if( PpsTigger == PpsTiggerIsRising )
-    {
-        PpsTigger = PpsTiggerIsFalling;
-        GpioSetInterrupt( &GpsPps, IRQ_FALLING_EDGE, IRQ_VERY_LOW_PRIORITY, &GpsMcuOnPpsSignal );
-    }
-    else
-    {
-        PpsTigger = PpsTiggerIsRising;
-        GpioSetInterrupt( &GpsPps, IRQ_RISING_EDGE, IRQ_VERY_LOW_PRIORITY, &GpsMcuOnPpsSignal );
-    }
+    // There is no need to invert the PPS signal on SensorNode platform.
 }
 
 uint8_t GpsMcuGetPpsTrigger( void )
