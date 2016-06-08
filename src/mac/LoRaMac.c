@@ -2793,23 +2793,23 @@ static int8_t AlternateDatarate( uint16_t nbTrials )
         datarate = DR_1;
     }
 #else
-    if( ( nbTrials % 48 ) != 0 )
+    if( ( nbTrials % 48 ) == 0 )
     {
         datarate = DR_0;
     }
-    else if( ( nbTrials % 32 ) != 0 )
+    else if( ( nbTrials % 32 ) == 0 )
     {
         datarate = DR_1;
     }
-    else if( ( nbTrials % 24 ) != 0 )
+    else if( ( nbTrials % 24 ) == 0 )
     {
         datarate = DR_2;
     }
-    else if( ( nbTrials % 16 ) != 0 )
+    else if( ( nbTrials % 16 ) == 0 )
     {
         datarate = DR_3;
     }
-    else if( ( nbTrials % 8 ) != 0 )
+    else if( ( nbTrials % 8 ) == 0 )
     {
         datarate = DR_4;
     }
