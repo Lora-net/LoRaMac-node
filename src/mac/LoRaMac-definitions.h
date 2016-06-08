@@ -6,7 +6,7 @@
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
     (C)2013 Semtech
 
-Description: LoRa MAC layer board dependent definitions
+Description: LoRa MAC layer global definitions
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 
