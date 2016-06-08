@@ -68,6 +68,16 @@ void GpsInit( void )
     GpsMcuInit( );
 }
 
+void GpsStart( void )
+{
+    GpsMcuStart( );
+}
+
+void GpsStop( void )
+{
+    GpsMCuStop( );
+}
+
 bool GpsGetPpsDetectedState( void )
 {
     bool state = false;

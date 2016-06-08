@@ -528,6 +528,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
 #if defined( USE_BAND_868 )
                     LoRaMacTestSetDutyCycleOn( false );
 #endif
+                    GpsStop( );
                 }
             }
             else
@@ -549,6 +550,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
 #if defined( USE_BAND_868 )
                     LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
 #endif
+                    GpsStart( );
                     break;
                 case 1: // (iii, iv)
                     AppDataSize = 2;

@@ -77,10 +77,19 @@ void GpsMcuInit( void )
     FifoInit( &Uart1.FifoRx, RxBuffer, FIFO_RX_SIZE );
     Uart1.IrqNotify = GpsMcuIrqNotify;
 
-    //GpioWrite( &GpsPowerEn, 1 );  // power down the GPS
-    GpioWrite( &GpsPowerEn, 0 );    // power up the GPS
+    GpsMcuStart( );
     GpioInit( &GpsPps, GPS_PPS, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioSetInterrupt( &GpsPps, IRQ_FALLING_EDGE, IRQ_VERY_LOW_PRIORITY, &GpsMcuOnPpsSignal );
+}
+
+void GpsMcuStart( void )
+{
+    GpioWrite( &GpsPowerEn, 0 );    // power up the GPS
+}
+
+void GpsMCuStop( void )
+{
+    GpioWrite( &GpsPowerEn, 1 );    // power down the GPS
 }
 
 void GpsMcuIrqNotify( UartNotifyId_t id )

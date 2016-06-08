@@ -324,6 +324,7 @@ static void ProcessRxFrame( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info
 #if defined( USE_BAND_868 )
                 LoRaMacTestSetDutyCycleOn( false );
 #endif
+                GpsStop( );
             }
         }
         else
@@ -341,6 +342,7 @@ static void ProcessRxFrame( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info
 #if defined( USE_BAND_868 )
                 LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
 #endif
+                GpsStart( );
                 break;
             case 1: // (iii, iv)
                 AppDataSize = 2;

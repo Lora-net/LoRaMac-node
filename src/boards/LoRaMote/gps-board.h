@@ -47,6 +47,16 @@ uint8_t GpsMcuGetPpsTrigger( void );
 void GpsMcuInit( void );
 
 /*!
+ * \brief Switch ON the GPS
+ */
+void GpsMcuStart( void );
+
+/*!
+ * \brief Switch OFF the GPS
+ */
+void GpsMCuStop( void );
+
+/*!
  * \brief IRQ handler for the UART receiver
  */
 void GpsMcuIrqNotify( UartNotifyId_t id );
