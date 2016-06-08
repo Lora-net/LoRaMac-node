@@ -20,11 +20,11 @@ Maintainer: Miguel Luis and Gregory Cristian
  * reception of data on the UART. Depending of the GPS, the PPS
  * signal may go low or high to indicate the presence of data
  */
-typedef enum PpsTigger_s
+typedef enum PpsTrigger_s
 {
-    PpsTiggerIsRising = 0,
-    PpsTiggerIsFalling,
-}PpsTigger_t;
+    PpsTriggerIsRising = 0,
+    PpsTriggerIsFalling,
+}PpsTrigger_t;
 
 /*!
  * \brief Low level handling of the PPS signal from the GPS receiver

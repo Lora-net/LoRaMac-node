@@ -34,7 +34,7 @@ uint8_t NmeaString[128];
 uint8_t NmeaStringSize = 0;
 
 
-PpsTigger_t PpsTigger;
+PpsTrigger_t PpsTrigger;
 
 
 void GpsMcuOnPpsSignal( void )
@@ -52,27 +52,27 @@ void GpsMcuOnPpsSignal( void )
 
 void GpsMcuInvertPpsTrigger( void )
 {
-    if( PpsTigger == PpsTiggerIsRising )
+    if( PpsTrigger == PpsTriggerIsRising )
     {
-        PpsTigger = PpsTiggerIsFalling;
+        PpsTrigger = PpsTriggerIsFalling;
         GpioSetInterrupt( &GpsPps, IRQ_FALLING_EDGE, IRQ_VERY_LOW_PRIORITY, &GpsMcuOnPpsSignal );
     }
     else
     {
-        PpsTigger = PpsTiggerIsRising;
+        PpsTrigger = PpsTriggerIsRising;
         GpioSetInterrupt( &GpsPps, IRQ_RISING_EDGE, IRQ_VERY_LOW_PRIORITY, &GpsMcuOnPpsSignal );
     }
 }
 
 uint8_t GpsMcuGetPpsTrigger( void )
 {
-    return( PpsTigger );
+    return( PpsTrigger );
 }
 
 void GpsMcuInit( void )
 {
     NmeaStringSize = 0;
-    PpsTigger = PpsTiggerIsFalling;
+    PpsTrigger = PpsTriggerIsFalling;
 
     FifoInit( &Uart1.FifoRx, RxBuffer, FIFO_RX_SIZE );
     Uart1.IrqNotify = GpsMcuIrqNotify;
