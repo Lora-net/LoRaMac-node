@@ -1250,11 +1250,6 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                         }
                     }
 
-                    if( fCtrl.Bits.FOptsLen > 0 )
-                    {
-                        // Decode Options field MAC commands
-                        ProcessMacCommands( payload, 8, appPayloadStartIndex, snr );
-                    }
                     if( ( ( size - 4 ) - appPayloadStartIndex ) > 0 )
                     {
                         port = payload[appPayloadStartIndex++];
@@ -1264,19 +1259,32 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
 
                         if( port == 0 )
                         {
-                            LoRaMacPayloadDecrypt( payload + appPayloadStartIndex,
-                                                   frameLen,
-                                                   nwkSKey,
-                                                   address,
-                                                   DOWN_LINK,
-                                                   downLinkCounter,
-                                                   LoRaMacRxPayload );
+                            if( fCtrl.Bits.FOptsLen == 0 )
+                            {
+                                LoRaMacPayloadDecrypt( payload + appPayloadStartIndex,
+                                                       frameLen,
+                                                       nwkSKey,
+                                                       address,
+                                                       DOWN_LINK,
+                                                       downLinkCounter,
+                                                       LoRaMacRxPayload );
 
-                            // Decode frame payload MAC commands
-                            ProcessMacCommands( LoRaMacRxPayload, 0, frameLen, snr );
+                                // Decode frame payload MAC commands
+                                ProcessMacCommands( LoRaMacRxPayload, 0, frameLen, snr );
+                            }
+                            else
+                            {
+                                skipIndication = true;
+                            }
                         }
                         else
                         {
+                            if( fCtrl.Bits.FOptsLen > 0 )
+                            {
+                                // Decode Options field MAC commands
+                                ProcessMacCommands( payload, 8, appPayloadStartIndex, snr );
+                            }
+
                             LoRaMacPayloadDecrypt( payload + appPayloadStartIndex,
                                                    frameLen,
                                                    appSKey,
