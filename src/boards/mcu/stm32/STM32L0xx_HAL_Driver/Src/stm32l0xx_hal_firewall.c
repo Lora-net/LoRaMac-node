@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_firewall.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-October-2015
+  * @version V1.6.0
+  * @date    15-April-2016
   * @brief   FIREWALL HAL module driver.
   *          This file provides firmware functions to manage the Firewall
   *          Peripheral initialization and enabling.
@@ -34,7 +34,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -133,19 +133,19 @@ HAL_StatusTypeDef HAL_FIREWALL_Config(FIREWALL_InitTypeDef * fw_init)
   
   /* Check Firewall configuration addresses and lengths when segment is protected */
   /* Code segment */
-  if (fw_init->CodeSegmentLength != 0)
+  if (fw_init->CodeSegmentLength != 0U)
   {
     assert_param(IS_FIREWALL_CODE_SEGMENT_ADDRESS(fw_init->CodeSegmentStartAddress));
     assert_param(IS_FIREWALL_CODE_SEGMENT_LENGTH(fw_init->CodeSegmentStartAddress, fw_init->CodeSegmentLength));  
   }
   /* Non volatile data segment */
-  if (fw_init->NonVDataSegmentLength != 0)
+  if (fw_init->NonVDataSegmentLength != 0U)
   {
     assert_param(IS_FIREWALL_NONVOLATILEDATA_SEGMENT_ADDRESS(fw_init->NonVDataSegmentStartAddress));
     assert_param(IS_FIREWALL_NONVOLATILEDATA_SEGMENT_LENGTH(fw_init->NonVDataSegmentStartAddress, fw_init->NonVDataSegmentLength));  
   }
   /* Volatile data segment */
-  if (fw_init->VDataSegmentLength != 0)
+  if (fw_init->VDataSegmentLength != 0U)
   {
     assert_param(IS_FIREWALL_VOLATILEDATA_SEGMENT_ADDRESS(fw_init->VDataSegmentStartAddress));
     assert_param(IS_FIREWALL_VOLATILEDATA_SEGMENT_LENGTH(fw_init->VDataSegmentStartAddress, fw_init->VDataSegmentLength));  

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_uart_ex.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-October-2015
+  * @version V1.6.0
+  * @date    15-April-2016
   * @brief   Header file of UART HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -96,9 +96,9 @@ typedef struct
 /** @defgroup UARTEx_Word_Length  Word length definition
   * @{
   */
-#define UART_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M_1)
-#define UART_WORDLENGTH_8B                  ((uint32_t)0x0000)
-#define UART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M_0)
+#define UART_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M1)
+#define UART_WORDLENGTH_8B                  ((uint32_t)0x0000U)
+#define UART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M0)
 #define IS_UART_WORD_LENGTH(LENGTH) (((LENGTH) == UART_WORDLENGTH_7B) || \
                                      ((LENGTH) == UART_WORDLENGTH_8B) || \
                                      ((LENGTH) == UART_WORDLENGTH_9B))
@@ -109,7 +109,7 @@ typedef struct
 /** @defgroup UARTEx_AutoBaud_Rate_Mode Auto baud rate mode definition
   * @{
   */
-#define UART_ADVFEATURE_AUTOBAUDRATE_ONSTARTBIT    ((uint32_t)0x0000)
+#define UART_ADVFEATURE_AUTOBAUDRATE_ONSTARTBIT    ((uint32_t)0x0000U)
 #define UART_ADVFEATURE_AUTOBAUDRATE_ONFALLINGEDGE ((uint32_t)USART_CR2_ABRMODE_0)
 #define UART_ADVFEATURE_AUTOBAUDRATE_ON0X7FFRAME   ((uint32_t)USART_CR2_ABRMODE_1)
 #define UART_ADVFEATURE_AUTOBAUDRATE_ON0X55FRAME   ((uint32_t)USART_CR2_ABRMODE)
@@ -124,7 +124,7 @@ typedef struct
 /** @defgroup UARTEx_WakeUp_Address_Length WakeUp address length definition
   * @{
   */
-#define UART_ADDRESS_DETECT_4B                ((uint32_t)0x00000000)
+#define UART_ADDRESS_DETECT_4B                ((uint32_t)0x00000000U)
 #define UART_ADDRESS_DETECT_7B                ((uint32_t)USART_CR2_ADDM7)
 #define IS_UART_ADDRESSLENGTH_DETECT(ADDRESS) (((ADDRESS) == UART_ADDRESS_DETECT_4B) || \
                                                ((ADDRESS) == UART_ADDRESS_DETECT_7B))
@@ -136,7 +136,7 @@ typedef struct
 /** @defgroup UARTEx_WakeUp_Methods Wakeup methods definition
   * @{
   */
-#define UART_WAKEUPMETHOD_IDLELINE                ((uint32_t)0x00000000)
+#define UART_WAKEUPMETHOD_IDLELINE                ((uint32_t)0x00000000U)
 #define UART_WAKEUPMETHOD_ADDRESSMARK             ((uint32_t)USART_CR1_WAKE)
 #define IS_UART_WAKEUPMETHOD(WAKEUP) (((WAKEUP) == UART_WAKEUPMETHOD_IDLELINE) || \
                                        ((WAKEUP) == UART_WAKEUPMETHOD_ADDRESSMARK))

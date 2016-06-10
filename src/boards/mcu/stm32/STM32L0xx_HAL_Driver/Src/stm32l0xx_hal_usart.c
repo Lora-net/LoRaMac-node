@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_usart.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-October-2015
+  * @version V1.6.0
+  * @date    15-April-2016
   * @brief   USART HAL module driver.
   *
   *          This file provides firmware functions to manage the following 
@@ -53,7 +53,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -100,9 +100,9 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define DUMMY_DATA                             ((uint16_t) 0xFFFF)
-#define TEACK_REACK_TIMEOUT                    ((uint32_t) 1000)
-#define HAL_USART_TXDMA_TIMEOUTVALUE           ((uint32_t) 22000)
+#define DUMMY_DATA                             ((uint16_t) 0xFFFFU)
+#define TEACK_REACK_TIMEOUT                    ((uint32_t) 1000U)
+#define HAL_USART_TXDMA_TIMEOUTVALUE           ((uint32_t) 22000U)
 
 
 #define USART_CR1_FIELDS        ((uint32_t)(USART_CR1_M | USART_CR1_PCE | \
@@ -150,8 +150,21 @@ static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart);
         (++) Stop Bit
         (++) Parity: If the parity is enabled, then the MSB bit of the data written
              in the data register is transmitted but is changed by the parity bit.
-             Depending on the frame length defined by the M bit (8-bits or 9-bits),
-             the possible USART frame formats are as listed in the following table:
+        (++) USART polarity
+        (++) USART phase
+        (++) USART LastBit
+        (++) Receiver/transmitter modes
+
+    [..]
+    The HAL_USART_Init() function follows the USART  synchronous configuration
+    procedure (details for the procedure are available in reference manual (RM0329)).
+
+@endverbatim
+
+  Depending on the frame length defined by the M bit (8-bits or 9-bits),
+  the possible USART frame formats are as listed in the following table:
+
+   Table 1. USART frame format.
    +-------------------------------------------------------------+
    |  M0 bit |  PCE bit  |            USART frame                |
    |---------------------|---------------------------------------|
@@ -163,16 +176,7 @@ static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart);
    |---------|-----------|---------------------------------------|
    |    1    |    1      |    | SB | 8 bit data | PB | STB |     |
    +-------------------------------------------------------------+
-        (++) USART polarity
-        (++) USART phase
-        (++) USART LastBit
-        (++) Receiver/transmitter modes
 
-    [..]
-    The HAL_USART_Init() function follows the USART  synchronous configuration 
-    procedure (details for the procedure are available in reference manual (RM0329)).
-
-@endverbatim
   * @{
   */
 
@@ -244,9 +248,9 @@ HAL_StatusTypeDef HAL_USART_DeInit(USART_HandleTypeDef *husart)
 
   husart->State = HAL_USART_STATE_BUSY;
   
-  husart->Instance->CR1 = 0x0;
-  husart->Instance->CR2 = 0x0;
-  husart->Instance->CR3 = 0x0;
+  husart->Instance->CR1 = 0x0U;
+  husart->Instance->CR2 = 0x0U;
+  husart->Instance->CR3 = 0x0U;
   
   /* DeInit the low level hardware */
   HAL_USART_MspDeInit(husart);
@@ -267,6 +271,9 @@ HAL_StatusTypeDef HAL_USART_DeInit(USART_HandleTypeDef *husart)
   */
  __weak void HAL_USART_MspInit(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_USART_MspInit could be implenetd in the user file
    */ 
@@ -279,6 +286,9 @@ HAL_StatusTypeDef HAL_USART_DeInit(USART_HandleTypeDef *husart)
   */
  __weak void HAL_USART_MspDeInit(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_USART_MspDeInit could be implenetd in the user file
    */ 
@@ -360,7 +370,7 @@ HAL_StatusTypeDef HAL_USART_Transmit(USART_HandleTypeDef *husart, uint8_t *pTxDa
 
   if(husart->State == HAL_USART_STATE_READY)
   {
-    if((pTxData == NULL) || (Size == 0)) 
+    if((pTxData == NULL) || (Size == 0U)) 
     {
       return  HAL_ERROR;
     }
@@ -375,7 +385,7 @@ HAL_StatusTypeDef HAL_USART_Transmit(USART_HandleTypeDef *husart, uint8_t *pTxDa
     husart->TxXferCount = Size;
     
     /* Check the remaining data to be sent */
-    while(husart->TxXferCount > 0)
+    while(husart->TxXferCount > 0U)
     {
       husart->TxXferCount--;
       if(USART_WaitOnFlagUntilTimeout(husart, USART_FLAG_TXE, RESET, Timeout) != HAL_OK)
@@ -385,12 +395,12 @@ HAL_StatusTypeDef HAL_USART_Transmit(USART_HandleTypeDef *husart, uint8_t *pTxDa
       if((husart->Init.WordLength == USART_WORDLENGTH_9B) && (husart->Init.Parity == USART_PARITY_NONE))
       {
         tmp = (uint16_t*) pTxData;
-        husart->Instance->TDR = (*tmp & (uint16_t)0x01FF);
-        pTxData += 2;
+        husart->Instance->TDR = (*tmp & (uint16_t)0x01FFU);
+        pTxData += 2U;
       } 
       else
       {
-        husart->Instance->TDR = (*pTxData++ & (uint8_t)0xFF);
+        husart->Instance->TDR = (*pTxData++ & (uint8_t)0xFFU);
       }
     }
 
@@ -428,7 +438,7 @@ HAL_StatusTypeDef HAL_USART_Receive(USART_HandleTypeDef *husart, uint8_t *pRxDat
   
   if(husart->State == HAL_USART_STATE_READY)
   {
-    if((pRxData == NULL) || (Size == 0)) 
+    if((pRxData == NULL) || (Size == 0U)) 
     {
       return  HAL_ERROR;
     }
@@ -446,7 +456,7 @@ HAL_StatusTypeDef HAL_USART_Receive(USART_HandleTypeDef *husart, uint8_t *pRxDat
     uhMask = husart->Mask;
     
     /* as long as data have to be received */
-    while(husart->RxXferCount > 0)
+    while(husart->RxXferCount > 0U)
     {
       husart->RxXferCount--;
       
@@ -458,7 +468,7 @@ HAL_StatusTypeDef HAL_USART_Receive(USART_HandleTypeDef *husart, uint8_t *pRxDat
       {            
         return HAL_TIMEOUT;  
       }
-      husart->Instance->TDR = (DUMMY_DATA & (uint16_t)0x0FF);         
+      husart->Instance->TDR = (DUMMY_DATA & (uint16_t)0x0FFU);         
         
       /* Wait for RXNE Flag */
       if(USART_WaitOnFlagUntilTimeout(husart, USART_FLAG_RXNE, RESET, Timeout) != HAL_OK)
@@ -470,7 +480,7 @@ HAL_StatusTypeDef HAL_USART_Receive(USART_HandleTypeDef *husart, uint8_t *pRxDat
       {
         tmp = (uint16_t*) pRxData ;
         *tmp = (uint16_t)(husart->Instance->RDR & uhMask);
-        pRxData +=2;        
+        pRxData +=2U;        
       } 
       else
       {
@@ -507,7 +517,7 @@ HAL_StatusTypeDef HAL_USART_TransmitReceive(USART_HandleTypeDef *husart, uint8_t
   
   if(husart->State == HAL_USART_STATE_READY)
   {
-    if((pTxData == NULL) || (pRxData == NULL) || (Size == 0)) 
+    if((pTxData == NULL) || (pRxData == NULL) || (Size == 0U)) 
     {
       return  HAL_ERROR;
     }
@@ -527,7 +537,7 @@ HAL_StatusTypeDef HAL_USART_TransmitReceive(USART_HandleTypeDef *husart, uint8_t
     uhMask = husart->Mask;
     
     /* Check the remain data to be sent */
-    while(husart->TxXferCount > 0)
+    while(husart->TxXferCount > 0U)
     {
       husart->TxXferCount--;
       husart->RxXferCount--;
@@ -541,7 +551,7 @@ HAL_StatusTypeDef HAL_USART_TransmitReceive(USART_HandleTypeDef *husart, uint8_t
       {
         tmp = (uint16_t*) pTxData;
         husart->Instance->TDR = (*tmp & uhMask);
-        pTxData += 2;
+        pTxData += 2U;
       }
       else
       {
@@ -558,7 +568,7 @@ HAL_StatusTypeDef HAL_USART_TransmitReceive(USART_HandleTypeDef *husart, uint8_t
       {
         tmp = (uint16_t*) pRxData ;
         *tmp = (uint16_t)(husart->Instance->RDR & uhMask);
-        pRxData +=2;        
+        pRxData +=2U;        
       } 
       else
       {
@@ -590,7 +600,7 @@ HAL_StatusTypeDef HAL_USART_Transmit_IT(USART_HandleTypeDef *husart, uint8_t *pT
 {
   if(husart->State == HAL_USART_STATE_READY)
   {
-    if((pTxData == NULL ) || (Size == 0)) 
+    if((pTxData == NULL ) || (Size == 0U)) 
     {
       return HAL_ERROR;
     }
@@ -637,7 +647,7 @@ HAL_StatusTypeDef HAL_USART_Receive_IT(USART_HandleTypeDef *husart, uint8_t *pRx
 {
   if(husart->State == HAL_USART_STATE_READY)
   {
-    if((pRxData == NULL ) || (Size == 0)) 
+    if((pRxData == NULL ) || (Size == 0U)) 
     {
       return HAL_ERROR;
     }
@@ -668,11 +678,11 @@ HAL_StatusTypeDef HAL_USART_Receive_IT(USART_HandleTypeDef *husart, uint8_t *pRx
     /* Send dummy byte in order to generate the clock for the Slave to send the next data */
     if(husart->Init.WordLength == USART_WORDLENGTH_9B)
     {
-      husart->Instance->TDR = (DUMMY_DATA & (uint16_t)0x01FF); 
+      husart->Instance->TDR = (DUMMY_DATA & (uint16_t)0x01FFU); 
     } 
     else
     {
-      husart->Instance->TDR = (DUMMY_DATA & (uint16_t)0x00FF);
+      husart->Instance->TDR = (DUMMY_DATA & (uint16_t)0x00FFU);
     }
     
     return HAL_OK;
@@ -695,7 +705,7 @@ HAL_StatusTypeDef HAL_USART_TransmitReceive_IT(USART_HandleTypeDef *husart, uint
 {
   if(husart->State == HAL_USART_STATE_READY)
   {
-    if((pTxData == NULL) || (pRxData == NULL) || (Size == 0)) 
+    if((pTxData == NULL) || (pRxData == NULL) || (Size == 0U)) 
     {
       return HAL_ERROR;
     }
@@ -751,7 +761,7 @@ HAL_StatusTypeDef HAL_USART_Transmit_DMA(USART_HandleTypeDef *husart, uint8_t *p
   
   if(husart->State == HAL_USART_STATE_READY)
   {
-    if((pTxData == NULL ) || (Size == 0)) 
+    if((pTxData == NULL ) || (Size == 0U)) 
     {
       return HAL_ERROR;
     }
@@ -812,7 +822,7 @@ HAL_StatusTypeDef HAL_USART_Receive_DMA(USART_HandleTypeDef *husart, uint8_t *pR
   
   if(husart->State == HAL_USART_STATE_READY)
   {
-    if((pRxData == NULL ) || (Size == 0)) 
+    if((pRxData == NULL ) || (Size == 0U)) 
     {
       return HAL_ERROR;
     }
@@ -885,7 +895,7 @@ HAL_StatusTypeDef HAL_USART_TransmitReceive_DMA(USART_HandleTypeDef *husart, uin
   
   if(husart->State == HAL_USART_STATE_READY)
   {
-    if((pTxData == NULL) || (pRxData == NULL) || (Size == 0)) 
+    if((pTxData == NULL) || (pRxData == NULL) || (Size == 0U)) 
     {
       return HAL_ERROR;
     }
@@ -1112,6 +1122,9 @@ void HAL_USART_IRQHandler(USART_HandleTypeDef *husart)
   */
  __weak void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_USART_TxCpltCallback could be implemented in the user file
    */
@@ -1124,6 +1137,9 @@ void HAL_USART_IRQHandler(USART_HandleTypeDef *husart)
   */
  __weak void HAL_USART_TxHalfCpltCallback(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_USART_TxCpltCallback could be implemented in the user file
    */
@@ -1136,6 +1152,9 @@ void HAL_USART_IRQHandler(USART_HandleTypeDef *husart)
   */
 __weak void HAL_USART_RxCpltCallback(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_USART_TxCpltCallback could be implemented in the user file
    */
@@ -1148,6 +1167,9 @@ __weak void HAL_USART_RxCpltCallback(USART_HandleTypeDef *husart)
   */
 __weak void HAL_USART_RxHalfCpltCallback(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_USART_TxCpltCallback could be implemented in the user file
    */
@@ -1160,6 +1182,9 @@ __weak void HAL_USART_RxHalfCpltCallback(USART_HandleTypeDef *husart)
   */
 __weak void HAL_USART_TxRxCpltCallback(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_USART_TxCpltCallback could be implemented in the user file
    */
@@ -1172,6 +1197,9 @@ __weak void HAL_USART_TxRxCpltCallback(USART_HandleTypeDef *husart)
   */
  __weak void HAL_USART_ErrorCallback(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_USART_ErrorCallback could be implemented in the user file
    */ 
@@ -1241,7 +1269,7 @@ uint32_t HAL_USART_GetError(USART_HandleTypeDef *husart)
   */
 static HAL_StatusTypeDef USART_WaitOnFlagUntilTimeout(USART_HandleTypeDef *husart, uint32_t Flag, FlagStatus Status, uint32_t Timeout)  
 {
-  uint32_t tickstart = 0x00;
+  uint32_t tickstart = 0x00U;
   tickstart = HAL_GetTick();
 
   /* Wait until flag is set */
@@ -1252,7 +1280,7 @@ static HAL_StatusTypeDef USART_WaitOnFlagUntilTimeout(USART_HandleTypeDef *husar
       /* Check for the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+        if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
         {
           /* Disable TXE, RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts for the interrupt process */
           __HAL_USART_DISABLE_IT(husart, USART_IT_TXE);
@@ -1277,7 +1305,7 @@ static HAL_StatusTypeDef USART_WaitOnFlagUntilTimeout(USART_HandleTypeDef *husar
       /* Check for the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+        if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
         {
           /* Disable TXE, RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts for the interrupt process */
           __HAL_USART_DISABLE_IT(husart, USART_IT_TXE);
@@ -1310,7 +1338,7 @@ static void USART_DMATransmitCplt(DMA_HandleTypeDef *hdma)
   /* DMA Normal mode */
   if ( HAL_IS_BIT_CLR(hdma->Instance->CCR, DMA_CCR_CIRC) )
   {
-    husart->TxXferCount = 0;
+    husart->TxXferCount = 0U;
 
     if(husart->State == HAL_USART_STATE_BUSY_TX)
     {
@@ -1353,9 +1381,9 @@ static void USART_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
 {
   USART_HandleTypeDef* husart = ( USART_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
   /* DMA Normal mode */
-  if((hdma->Instance->CCR & DMA_CCR_CIRC) == 0)
+  if((hdma->Instance->CCR & DMA_CCR_CIRC) == 0U)
   {
-    husart->RxXferCount = 0;
+    husart->RxXferCount = 0U;
 
     if(husart->State == HAL_USART_STATE_BUSY_RX)
     {
@@ -1414,8 +1442,8 @@ static void USART_DMAError(DMA_HandleTypeDef *hdma)
 {
   USART_HandleTypeDef* husart = ( USART_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
 
-  husart->RxXferCount = 0;
-  husart->TxXferCount = 0;
+  husart->RxXferCount = 0U;
+  husart->TxXferCount = 0U;
   husart->ErrorCode |= HAL_USART_ERROR_DMA;
   husart->State= HAL_USART_STATE_READY;
   
@@ -1432,11 +1460,11 @@ static void USART_DMAError(DMA_HandleTypeDef *hdma)
   */
 static HAL_StatusTypeDef USART_Transmit_IT(USART_HandleTypeDef *husart)
 {
-  uint16_t* tmp = 0;
+  uint16_t* tmp = 0U;
  
   if(husart->State == HAL_USART_STATE_BUSY_TX)
   {
-    if(husart->TxXferCount == 0)
+    if(husart->TxXferCount == 0U)
     {
       /* Disable the USART Transmit Complete Interrupt */
       __HAL_USART_DISABLE_IT(husart, USART_IT_TXE);
@@ -1451,12 +1479,12 @@ static HAL_StatusTypeDef USART_Transmit_IT(USART_HandleTypeDef *husart)
       if ((husart->Init.WordLength == USART_WORDLENGTH_9B) && (husart->Init.Parity == USART_PARITY_NONE))
       {
         tmp = (uint16_t*) husart->pTxBuffPtr;
-        husart->Instance->TDR = (*tmp & (uint16_t)0x01FF);   
-        husart->pTxBuffPtr += 2;
+        husart->Instance->TDR = (*tmp & (uint16_t)0x01FFU);   
+        husart->pTxBuffPtr += 2U;
       }
       else
       { 
-        husart->Instance->TDR = (uint8_t)(*husart->pTxBuffPtr++ & (uint8_t)0xFF); 
+        husart->Instance->TDR = (uint8_t)(*husart->pTxBuffPtr++ & (uint8_t)0xFFU); 
       }  
 
       husart->TxXferCount--;
@@ -1510,16 +1538,16 @@ static HAL_StatusTypeDef USART_Receive_IT(USART_HandleTypeDef *husart)
     {
       tmp = (uint16_t*) husart->pRxBuffPtr;
       *tmp = (uint16_t)(husart->Instance->RDR & uhMask);
-      husart->pRxBuffPtr += 2;
+      husart->pRxBuffPtr += 2U;
     } 
     else
     {
       *husart->pRxBuffPtr++ = (uint8_t)(husart->Instance->RDR & (uint8_t)uhMask);       
     }
       /* Send dummy byte in order to generate the clock for the Slave to Send the next data */
-      husart->Instance->TDR = (DUMMY_DATA & (uint16_t)0x00FF);       
+      husart->Instance->TDR = (DUMMY_DATA & (uint16_t)0x00FFU);       
     
-    if(--husart->RxXferCount == 0)
+    if(--husart->RxXferCount == 0U)
     { 
       /* Wait for RXNE Flag */
       if(USART_WaitOnFlagUntilTimeout(husart, USART_FLAG_RXNE, RESET, HAL_USART_TXDMA_TIMEOUTVALUE) != HAL_OK)
@@ -1566,7 +1594,7 @@ static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart)
 
   if(husart->State == HAL_USART_STATE_BUSY_TX_RX)
   {
-    if(husart->TxXferCount != 0x00)
+    if(husart->TxXferCount != 0x00U)
     {
       if(__HAL_USART_GET_FLAG(husart, USART_FLAG_TC) != RESET)
       {
@@ -1574,7 +1602,7 @@ static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart)
         {
           tmp = (uint16_t*) husart->pTxBuffPtr;
           husart->Instance->TDR = (uint16_t)(*tmp & uhMask);
-          husart->pTxBuffPtr += 2;
+          husart->pTxBuffPtr += 2U;
         } 
         else
         {
@@ -1583,14 +1611,14 @@ static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart)
         husart->TxXferCount--;
 
         /* Check the latest data transmitted */
-        if(husart->TxXferCount == 0)
+        if(husart->TxXferCount == 0U)
         {
            __HAL_USART_DISABLE_IT(husart, USART_IT_TXE);
         }
       }
     }
 
-    if(husart->RxXferCount != 0x00)
+    if(husart->RxXferCount != 0x00U)
     {
       if(__HAL_USART_GET_FLAG(husart, USART_FLAG_RXNE) != RESET)
       {
@@ -1598,7 +1626,7 @@ static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart)
         {
           tmp = (uint16_t*) husart->pRxBuffPtr;
           *tmp = (uint16_t)(husart->Instance->RDR & uhMask);
-          husart->pRxBuffPtr += 2;          
+          husart->pRxBuffPtr += 2U;          
         } 
         else
         {
@@ -1609,7 +1637,7 @@ static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart)
     }
 
     /* Check the latest data received */
-    if(husart->RxXferCount == 0)
+    if(husart->RxXferCount == 0U)
     {
       __HAL_USART_DISABLE_IT(husart, USART_IT_RXNE);
 
@@ -1644,11 +1672,11 @@ static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart)
   */
 static HAL_StatusTypeDef USART_SetConfig(USART_HandleTypeDef *husart)
 {
-  uint32_t tmpreg       = 0x0;
-  uint32_t clocksource  = 0x0;
+  uint32_t tmpreg       = 0x0U;
+  uint32_t clocksource  = 0x0U;
   HAL_StatusTypeDef ret = HAL_OK;
-  uint16_t brrtemp      = 0x0000;
-  uint16_t usartdiv     = 0x0000;
+  uint16_t brrtemp      = 0x0000U;
+  uint16_t usartdiv     = 0x0000U;
 
   
   /* Check the parameters */
@@ -1688,22 +1716,23 @@ static HAL_StatusTypeDef USART_SetConfig(USART_HandleTypeDef *husart)
 
   /*-------------------------- USART BRR Configuration -----------------------*/
   /* BRR is filled-up according to OVER8 bit setting which is forced to 1     */
-   switch (clocksource)
+  USART_GETCLOCKSOURCE(husart, clocksource);
+  switch (clocksource)
   {
     case USART_CLOCKSOURCE_PCLK1:
-      usartdiv = (uint16_t)((2*HAL_RCC_GetPCLK1Freq()) / husart->Init.BaudRate);
+      usartdiv = (uint16_t)(((2U*HAL_RCC_GetPCLK1Freq()) + (husart->Init.BaudRate/2U)) / husart->Init.BaudRate);
       break;
     case USART_CLOCKSOURCE_PCLK2:
-      usartdiv = (uint16_t)((2*HAL_RCC_GetPCLK2Freq()) / husart->Init.BaudRate);
+      usartdiv = (uint16_t)(((2U*HAL_RCC_GetPCLK2Freq()) + (husart->Init.BaudRate/2U)) / husart->Init.BaudRate);
       break;
     case USART_CLOCKSOURCE_HSI:
-      usartdiv = (uint16_t)((2*HSI_VALUE) / husart->Init.BaudRate);
+      usartdiv = (uint16_t)(((2U*HSI_VALUE) + (husart->Init.BaudRate/2U)) / husart->Init.BaudRate);
       break;
     case USART_CLOCKSOURCE_SYSCLK:
-      usartdiv = (uint16_t)((2*HAL_RCC_GetSysClockFreq()) / husart->Init.BaudRate);
+      usartdiv = (uint16_t)(((2U*HAL_RCC_GetSysClockFreq()) + (husart->Init.BaudRate/2U)) / husart->Init.BaudRate);
       break;
     case USART_CLOCKSOURCE_LSE:
-      usartdiv = (uint16_t)((2*LSE_VALUE) / husart->Init.BaudRate);
+      usartdiv = (uint16_t)(((2U*LSE_VALUE) + (husart->Init.BaudRate/2U)) / husart->Init.BaudRate);
       break;
     case USART_CLOCKSOURCE_UNDEFINED:
     default:
@@ -1711,8 +1740,8 @@ static HAL_StatusTypeDef USART_SetConfig(USART_HandleTypeDef *husart)
       break;
   }
 
-  brrtemp = usartdiv & 0xFFF0;
-  brrtemp |= (uint16_t)((usartdiv & (uint16_t)0x000F) >> 1U);
+  brrtemp = usartdiv & 0xFFF0U;
+  brrtemp |= (uint16_t)((usartdiv & (uint16_t)0x000FU) >> 1U);
   husart->Instance->BRR = brrtemp;
 
     return ret;

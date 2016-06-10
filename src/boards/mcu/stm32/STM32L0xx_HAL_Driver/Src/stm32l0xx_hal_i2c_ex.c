@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_i2c_ex.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-October-2015
+  * @version V1.6.0
+  * @date    15-April-2016
   * @brief   I2C Extended HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of I2C Extended peripheral:
@@ -36,7 +36,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -153,7 +153,7 @@ HAL_StatusTypeDef HAL_I2CEx_ConfigAnalogFilter(I2C_HandleTypeDef *hi2c, uint32_t
   */
 HAL_StatusTypeDef HAL_I2CEx_ConfigDigitalFilter(I2C_HandleTypeDef *hi2c, uint32_t DigitalFilter)
 {
-  uint32_t tmpreg = 0;
+  uint32_t tmpreg = 0U;
   
   /* Check the parameters */
   assert_param(IS_I2C_ALL_INSTANCE(hi2c->Instance));
@@ -180,7 +180,7 @@ HAL_StatusTypeDef HAL_I2CEx_ConfigDigitalFilter(I2C_HandleTypeDef *hi2c, uint32_
   tmpreg &= ~(I2C_CR1_DNF);
   
   /* Set I2Cx DNF coefficient */
-  tmpreg |= DigitalFilter << 8;
+  tmpreg |= DigitalFilter << 8U;
   
   /* Store the new register value */
   hi2c->Instance->CR1 = tmpreg;
@@ -204,7 +204,7 @@ HAL_StatusTypeDef HAL_I2CEx_ConfigDigitalFilter(I2C_HandleTypeDef *hi2c, uint32_
 HAL_StatusTypeDef HAL_I2CEx_EnableWakeUp (I2C_HandleTypeDef *hi2c)
 {
   /* Check the parameters */
-  assert_param(IS_I2C_ALL_INSTANCE(hi2c->Instance));
+  assert_param(IS_I2C_WAKEUP_FROMSTOP_INSTANCE(hi2c->Instance));
   
   if((hi2c->State == HAL_I2C_STATE_BUSY) || (hi2c->State == HAL_I2C_STATE_MASTER_BUSY_TX) || (hi2c->State == HAL_I2C_STATE_MASTER_BUSY_RX)
      || (hi2c->State == HAL_I2C_STATE_SLAVE_BUSY_TX) || (hi2c->State == HAL_I2C_STATE_SLAVE_BUSY_RX))
@@ -243,7 +243,7 @@ HAL_StatusTypeDef HAL_I2CEx_EnableWakeUp (I2C_HandleTypeDef *hi2c)
 HAL_StatusTypeDef HAL_I2CEx_DisableWakeUp (I2C_HandleTypeDef *hi2c)
 {
   /* Check the parameters */
-  assert_param(IS_I2C_ALL_INSTANCE(hi2c->Instance));
+  assert_param(IS_I2C_WAKEUP_FROMSTOP_INSTANCE(hi2c->Instance));
   
   if((hi2c->State == HAL_I2C_STATE_BUSY) || (hi2c->State == HAL_I2C_STATE_MASTER_BUSY_TX) || (hi2c->State == HAL_I2C_STATE_MASTER_BUSY_RX)
      || (hi2c->State == HAL_I2C_STATE_SLAVE_BUSY_TX) || (hi2c->State == HAL_I2C_STATE_SLAVE_BUSY_RX))

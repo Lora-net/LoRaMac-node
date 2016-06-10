@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_rcc_ex.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-October-2015
+  * @version V1.6.0
+  * @date    15-April-2016
   * @brief   Extended RCC HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -60,7 +60,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -105,9 +105,9 @@
   * @{
   */
 /* Bit position in register */
-#define CRS_CFGR_FELIM_BITNUMBER    16
-#define CRS_CR_TRIM_BITNUMBER       8
-#define CRS_ISR_FECAP_BITNUMBER     16
+#define CRS_CFGR_FELIM_BITNUMBER    16U
+#define CRS_CR_TRIM_BITNUMBER       8U
+#define CRS_ISR_FECAP_BITNUMBER     16U
 
 #if defined(USB)
 extern const uint8_t PLLMulTable[];
@@ -136,59 +136,11 @@ extern const uint8_t PLLMulTable[];
   */
 
 /**
-  * @brief  Resets the RCC clock configuration to the default reset state.
-  * @note   The default reset state of the clock configuration is given below:
-  *           - MSI ON and used as system clock source (MSI range is not modified
-  *           - by this function, it keep the value configured by user application)
-  *           - HSI, HSI_OUT, HSE and PLL OFF
-  *           - AHB, APB1 and APB2 prescaler set to 1.
-  *           - CSS and MCO OFF
-  *           - All interrupts disabled
-  * @note   This function does not modify the configuration of the
-  * @note      -Peripheral clocks
-  * @note      -HSI48, LSI, LSE and RTC clocks                  
-  * @retval None
-  */
-void HAL_RCC_DeInit(void)
-{
-  __IO uint32_t tmpreg;
-  
-  /* Set MSION bit */
-  SET_BIT(RCC->CR, RCC_CR_MSION); 
-  
-#if defined(STM32L073xx) || defined(STM32L083xx) || \
-    defined(STM32L072xx) || defined(STM32L082xx) || \
-    defined(STM32L071xx) || defined(STM32L081xx) || \
-    defined(STM32L031xx) || defined(STM32L041xx)
-  /* Reset HSE, HSI, CSS, PLL */
-  CLEAR_BIT(RCC->CR, RCC_CR_HSION| RCC_CR_HSIKERON| RCC_CR_HSIDIVEN | RCC_CR_HSIOUTEN | \
-                     RCC_CR_HSEON | RCC_CR_CSSHSEON | RCC_CR_PLLON); 
-#elif defined(STM32L011xx) || defined(STM32L021xx) 
-  CLEAR_BIT(RCC->CR, RCC_CR_HSION| RCC_CR_HSIKERON| RCC_CR_HSIDIVEN | RCC_CR_HSIOUTEN | \
-                     RCC_CR_HSEON | RCC_CR_PLLON);    
-#else
-  CLEAR_BIT(RCC->CR, RCC_CR_HSION| RCC_CR_HSIKERON| RCC_CR_HSIDIVEN | \
-                     RCC_CR_HSEON | RCC_CR_CSSHSEON | RCC_CR_PLLON); 
-#endif
-
-  /* Delay after an RCC peripheral clock */ \
-  tmpreg = READ_BIT(RCC->CR, RCC_CR_HSEON);      \
-  UNUSED(tmpreg); 
-
-  /* Reset HSEBYP bit */
-  CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP);
-  
-  /* Reset CFGR register */
-  CLEAR_REG(RCC->CFGR);
-  
-  /* Disable all interrupts */
-  CLEAR_REG(RCC->CIER); 
-}
-
-/**
   * @brief  Initializes the RCC extended peripherals clocks 
   * @note   Initializes the RCC extended peripherals clocks according to the specified parameters in the
   *         RCC_PeriphCLKInitTypeDef.
+  * @note   If HAL_ERROR returned, first switch-OFF HSE clock oscillator with HAL_RCC_OscConfig()
+  *         to possibly update HSE divider.
   * @param  PeriphClkInit: pointer to an RCC_PeriphCLKInitTypeDef structure that
   *         contains the configuration information for the Extended Peripherals clocks(USART1,USART2, LPUART1, 
   *         I2C1, I2C3, RTC, USB/RNG  and LPTIM1 clocks).
@@ -196,8 +148,8 @@ void HAL_RCC_DeInit(void)
   */
 HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
 {
-  uint32_t tickstart = 0;
-  uint32_t tmpreg = 0;
+  uint32_t tickstart = 0U;
+  uint32_t tmpreg = 0U;
 
   /* Check the parameters */
   assert_param(IS_RCC_PERIPHCLOCK(PeriphClkInit->PeriphClockSelection));
@@ -209,6 +161,19 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
 #endif /* defined (STM32L053xx) || defined(STM32L063xx) || defined(STM32L073xx) || defined(STM32L083xx) */
   )
   {
+    /* Reset the Backup domain only if the RTC Clock source selection is modified */ 
+    if( ((RCC->CR  & RCC_CR_RTCPRE) != (PeriphClkInit->RTCClockSelection & RCC_CR_RTCPRE))
+#if defined (STM32L053xx) || defined(STM32L063xx) || defined(STM32L073xx) || defined(STM32L083xx)
+      || ((RCC->CR  & RCC_CR_RTCPRE)  != (PeriphClkInit->LCDClockSelection & RCC_CR_RTCPRE))
+#endif /* defined (STM32L053xx) || defined(STM32L063xx) || defined(STM32L073xx) || defined(STM32L083xx) */
+    )
+    { /* Check HSE State */
+      if (((PeriphClkInit->RTCClockSelection & RCC_CSR_RTCSEL) == RCC_CSR_RTCSEL_HSE) && HAL_IS_BIT_SET(RCC->CR, RCC_CR_HSERDY))
+      {
+         /*To update HSE divider, first switch-OFF HSE clock oscillator*/
+         return HAL_ERROR; 
+      }
+    }
     
     /* Enable Power Clock*/
     __HAL_RCC_PWR_CLK_ENABLE();
@@ -228,9 +193,9 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
     }
 
     /* Reset the Backup domain only if the RTC Clock source selection is modified */ 
-    if(((RCC->CSR & RCC_CSR_RTCSEL) != (PeriphClkInit->RTCClockSelection & RCC_CSR_RTCSEL))
+    if( ((RCC->CSR & RCC_CSR_RTCSEL) != (PeriphClkInit->RTCClockSelection & RCC_CSR_RTCSEL))
 #if defined (STM32L053xx) || defined(STM32L063xx) || defined(STM32L073xx) || defined(STM32L083xx)
-    || (tmpreg != (PeriphClkInit->LCDClockSelection & RCC_CSR_RTCSEL))
+      || ((RCC->CSR & RCC_CSR_RTCSEL) != (PeriphClkInit->LCDClockSelection & RCC_CSR_RTCSEL))
 #endif /* defined (STM32L053xx) || defined(STM32L063xx) || defined(STM32L073xx) || defined(STM32L083xx) */
     )
     {
@@ -241,7 +206,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
       __HAL_RCC_BACKUPRESET_RELEASE();
       /* Restore the Content of CSR register */
       RCC->CSR = tmpreg;
-    
+
       /* Wait for LSERDY if LSE was enabled */
       if (HAL_IS_BIT_SET(tmpreg, RCC_CSR_LSERDY))
       {
@@ -257,7 +222,10 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
           }
         }
       }
-    __HAL_RCC_RTC_CONFIG(PeriphClkInit->RTCClockSelection);
+   
+      /* RTC Clock update*/
+      __HAL_RCC_RTC_CONFIG(PeriphClkInit->RTCClockSelection);
+
     }
   }
   
@@ -425,14 +393,14 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
   *            @arg RCC_PERIPHCLK_I2C1: I2C1 peripheral clock 
   *            @arg RCC_PERIPHCLK_I2C2: I2C2 peripheral clock (*) 
   *            @arg RCC_PERIPHCLK_I2C3: I2C3 peripheral clock (*) 
-  * @note   (*) means that this peripheral is not present on all the STM32F0xx devices
+  * @note   (*) means that this peripheral is not present on all the STM32L0xx devices
   * @retval Frequency in Hz (0: means that no available frequency for the peripheral)
   */
 uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
-{   
-    uint32_t srcclk = 0, frequency = 0;
+{  
+    uint32_t srcclk = 0U, clkprediv = 0U, frequency = 0U;
 #if defined(USB)   
-    uint32_t pllmul = 0, plldiv = 0, pllvco = 0;
+    uint32_t pllmul = 0U, plldiv = 0U, pllvco = 0U;
 #endif /* USB */
 
   /* Check the parameters */
@@ -444,7 +412,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
     {  
       /* Get the current RTC source */
       srcclk = __HAL_RCC_GET_RTC_SOURCE();
-
+     
       /* Check if LSE is ready and if RTC clock selection is LSE */
       if ((srcclk == RCC_RTCCLKSOURCE_LSE) && (HAL_IS_BIT_SET(RCC->CSR, RCC_CSR_LSERDY)))
       {
@@ -455,77 +423,100 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       {
         frequency = LSI_VALUE;
       }
-      /* Check if HSE is ready  and if RTC clock selection is HSI_DIV2*/
-      else if ((srcclk == RCC_RTCCLKSOURCE_HSE_DIV2) && (HAL_IS_BIT_SET(RCC->CR, RCC_CR_HSERDY)))
+      /* Check if HSE is ready and if RTC clock selection is HSE*/
+      else if ((srcclk == RCC_RTCCLKSOURCE_HSE_DIVX) && (HAL_IS_BIT_SET(RCC->CR, RCC_CR_HSERDY)))
       {
-        frequency = HSE_VALUE / 2;
-      }
-      /* Check if HSE is ready  and if RTC clock selection is HSI_DIV4*/
-      else if ((srcclk == RCC_RTCCLKSOURCE_HSE_DIV4) && (HAL_IS_BIT_SET(RCC->CR, RCC_CR_HSERDY)))
-      {
-        frequency = HSE_VALUE / 4;
-      }
-      /* Check if HSE is ready  and if RTC clock selection is HSI_DIV8*/
-      else if ((srcclk == RCC_RTCCLKSOURCE_HSE_DIV8) && (HAL_IS_BIT_SET(RCC->CR, RCC_CR_HSERDY)))
-      {
-        frequency = HSE_VALUE / 8;
-      }
-      /* Check if HSE is ready  and if RTC clock selection is HSI_DIV16*/
-      else if ((srcclk == RCC_RTCCLKSOURCE_HSE_DIV16) && (HAL_IS_BIT_SET(RCC->CR, RCC_CR_HSERDY)))
-      {
-        frequency = HSE_VALUE / 16;
-      }
+        /* Get the current HSE clock divider*/      
+        clkprediv=__HAL_RCC_GET_RTC_HSE_PRESCALER();
+
+        switch (clkprediv)
+        {
+          case RCC_RTC_HSE_DIV_16:  /* HSE DIV16 has been selected */
+          {
+            frequency = HSE_VALUE / 16U;
+            break;
+          }
+          case RCC_RTC_HSE_DIV_8:   /* HSE DIV8 has been selected */
+          {
+            frequency = HSE_VALUE / 8U;
+            break;
+          }
+          case RCC_RTC_HSE_DIV_4:   /* HSE DIV4 has been selected */
+          {
+            frequency = HSE_VALUE / 4U;
+            break;
+          }
+          default:
+          {
+            frequency = HSE_VALUE / 2U;
+            break;
+          }
+        }    
+      } 
       /* Clock not enabled for RTC*/
       else
       {
-        frequency = 0;
-      }
+        frequency = 0U;
+      } 
       break;
-   }    
-#if defined(LCD) 
-   case RCC_PERIPHCLK_LCD:
+   }
+   
+#if defined(LCD)
+   
+  case RCC_PERIPHCLK_LCD:
     {  
-      /* Get the current RTC source */
-      srcclk = __HAL_RCC_GET_RTC_SOURCE();
+      /* Get the current LCD source */
+      srcclk = __HAL_RCC_GET_LCD_SOURCE();
 
-      /* Check if LSE is ready and if RTC clock selection is LSE */
+      /* Check if LSE is ready and if LCD clock selection is LSE */
       if ((srcclk == RCC_RTCCLKSOURCE_LSE) && (HAL_IS_BIT_SET(RCC->CSR, RCC_CSR_LSERDY)))
       {
         frequency = LSE_VALUE;
       }
-      /* Check if LSI is ready and if RTC clock selection is LSI */
+      /* Check if LSI is ready and if LCD clock selection is LSI */
       else if ((srcclk == RCC_RTCCLKSOURCE_LSI) && (HAL_IS_BIT_SET(RCC->CSR, RCC_CSR_LSIRDY)))
       {
         frequency = LSI_VALUE;
       }
-      /* Check if HSE is ready  and if RTC clock selection is HSI_DIV2*/
-      else if ((srcclk == RCC_RTCCLKSOURCE_HSE_DIV2) && (HAL_IS_BIT_SET(RCC->CR, RCC_CR_HSERDY)))
+      /* Check if HSE is ready  and if LCD clock selection is HSE*/
+      else if ((srcclk == RCC_RTCCLKSOURCE_HSE_DIVX) && (HAL_IS_BIT_SET(RCC->CR, RCC_CR_HSERDY)))
       {
-        frequency = HSE_VALUE / 2;
-      }
-      /* Check if HSE is ready  and if RTC clock selection is HSI_DIV4*/
-      else if ((srcclk == RCC_RTCCLKSOURCE_HSE_DIV4) && (HAL_IS_BIT_SET(RCC->CR, RCC_CR_HSERDY)))
-      {
-        frequency = HSE_VALUE / 4;
-      }
-      /* Check if HSE is ready  and if RTC clock selection is HSI_DIV8*/
-      else if ((srcclk == RCC_RTCCLKSOURCE_HSE_DIV8) && (HAL_IS_BIT_SET(RCC->CR, RCC_CR_HSERDY)))
-      {
-        frequency = HSE_VALUE / 8;
-      }
-      /* Check if HSE is ready  and if RTC clock selection is HSI_DIV16*/
-      else if ((srcclk == RCC_RTCCLKSOURCE_HSE_DIV16) && (HAL_IS_BIT_SET(RCC->CR, RCC_CR_HSERDY)))
-      {
-        frequency = HSE_VALUE / 16;
-      }
-      /* Clock not enabled for RTC*/
+        /* Get the current HSE clock divider*/     
+        clkprediv=__HAL_RCC_GET_RTC_HSE_PRESCALER();
+        
+        switch (clkprediv)
+        {
+          case RCC_RTC_HSE_DIV_16:  /* HSE DIV16 has been selected */
+          {
+            frequency = HSE_VALUE / 16U;
+            break;
+          }
+          case RCC_RTC_HSE_DIV_8:   /* HSE DIV8 has been selected */
+          {
+            frequency = HSE_VALUE / 8U;
+            break;
+          }
+          case RCC_RTC_HSE_DIV_4:   /* HSE DIV4 has been selected */
+          {
+            frequency = HSE_VALUE / 4U;
+            break;
+          }
+          default:
+          {
+            frequency = HSE_VALUE / 2U;
+            break;
+          }
+        }       
+      } 
+      /* Clock not enabled for LCD*/
       else
       {
-        frequency = 0;
+        frequency = 0U;
       }
       break;
    }    
 #endif /* LCD */  
+
 
 #if defined(USB)
    case RCC_PERIPHCLK_USB:
@@ -538,15 +529,15 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
             /* Get PLL clock source and multiplication factor ----------------------*/
             pllmul = RCC->CFGR & RCC_CFGR_PLLMUL;
             plldiv = RCC->CFGR & RCC_CFGR_PLLDIV;
-            pllmul = PLLMulTable[(pllmul >> 18)];
-            plldiv = (plldiv >> 22) + 1;   
+            pllmul = PLLMulTable[(pllmul >> 18U)];
+            plldiv = (plldiv >> 22U) + 1U;   
             
             /* Compute PLL clock input */
             if(__HAL_RCC_GET_PLL_OSCSOURCE() == RCC_PLLSOURCE_HSI)
             {
-                if (READ_BIT(RCC->CR, RCC_CR_HSIDIVF) != 0)
+                if (READ_BIT(RCC->CR, RCC_CR_HSIDIVF) != 0U)
                 {
-                    pllvco =  (HSI_VALUE >> 2);
+                    pllvco =  (HSI_VALUE >> 2U);
                 }
                 else 
                 {
@@ -568,7 +559,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
         }
         else /* RCC_USBCLKSOURCE_NONE */
         {
-            frequency = 0;
+            frequency = 0U;
         }
         break;
     }
@@ -602,7 +593,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       /* Clock not enabled for USART1*/
       else
       {
-        frequency = 0;
+        frequency = 0U;
       }
       break;
     }
@@ -635,7 +626,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       /* Clock not enabled for USART2*/
       else
       {
-        frequency = 0;
+        frequency = 0U;
       }
       break;
     }
@@ -667,7 +658,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       /* Clock not enabled for LPUART1*/
       else
       {
-        frequency = 0;
+        frequency = 0U;
       }
       break;
     }    
@@ -694,7 +685,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       /* Clock not enabled for I2C1*/
       else
       {
-        frequency = 0;
+        frequency = 0U;
       }
       break;
     } 
@@ -709,7 +700,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       }
       else
       {
-        frequency = 0;
+        frequency = 0U;
       }
       break;
     } 
@@ -739,7 +730,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       /* Clock not enabled for I2C3*/
       else
       {
-        frequency = 0;
+        frequency = 0U;
       }
       break;
     } 
@@ -926,15 +917,15 @@ void HAL_RCCEx_CRSGetSynchronizationInfo(RCC_CRSSynchroInfoTypeDef *pSynchroInfo
 *          This parameter can be a combination of the following values:
 *            @arg RCC_CRS_TIMEOUT
 *            @arg RCC_CRS_SYNCOK
-*            @arg RCC_CRS_SYNCWARM
+*            @arg RCC_CRS_SYNCWARN
 *            @arg RCC_CRS_SYNCERR
 *            @arg RCC_CRS_SYNCMISS
-*            @arg RCC_CRS_TRIMOV
+*            @arg RCC_CRS_TRIMOVF
 */
 uint32_t HAL_RCCEx_CRSWaitSynchronization(uint32_t Timeout)
 {
   uint32_t crsstatus = RCC_CRS_NONE;
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
   
   /* Get timeout */
   tickstart = HAL_GetTick();
@@ -944,7 +935,7 @@ uint32_t HAL_RCCEx_CRSWaitSynchronization(uint32_t Timeout)
   {
     if(Timeout != HAL_MAX_DELAY)
     {
-      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+      if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         crsstatus = RCC_CRS_TIMEOUT;
       }
@@ -963,7 +954,7 @@ uint32_t HAL_RCCEx_CRSWaitSynchronization(uint32_t Timeout)
     if(__HAL_RCC_CRS_GET_FLAG(RCC_CRS_FLAG_SYNCWARN))
     {
       /* CRS SYNC warning */
-      crsstatus |= RCC_CRS_SYNCWARM;
+      crsstatus |= RCC_CRS_SYNCWARN;
     
       /* Clear CRS SYNCWARN bit */
       __HAL_RCC_CRS_CLEAR_FLAG(RCC_CRS_FLAG_SYNCWARN);
@@ -973,7 +964,7 @@ uint32_t HAL_RCCEx_CRSWaitSynchronization(uint32_t Timeout)
     if(__HAL_RCC_CRS_GET_FLAG(RCC_CRS_FLAG_TRIMOVF))
     {
       /* CRS SYNC Error */
-      crsstatus |= RCC_CRS_TRIMOV;
+      crsstatus |= RCC_CRS_TRIMOVF;
     
       /* Clear CRS Error bit */
       __HAL_RCC_CRS_CLEAR_FLAG(RCC_CRS_FLAG_TRIMOVF);
@@ -1016,9 +1007,8 @@ uint32_t HAL_RCCEx_CRSWaitSynchronization(uint32_t Timeout)
   */
 void HAL_RCCEx_EnableHSI48_VREFINT(void)
 {
-    /* Enable the Buffer for the ADC by setting EN_VREFINT bit  */
-    /* and the SYSCFG_CFGR3_ENREF_HSI48 in the CFGR3 register   */
-    SET_BIT (SYSCFG->CFGR3, (SYSCFG_CFGR3_ENREF_HSI48 | SYSCFG_CFGR3_EN_VREFINT)); 
+  /* Enable the Buffer for the ADC by setting SYSCFG_CFGR3_ENREF_HSI48 bit in SYSCFG_CFGR3 register   */
+  SET_BIT (SYSCFG->CFGR3, SYSCFG_CFGR3_ENREF_HSI48);
 }
 
 /**
@@ -1028,9 +1018,8 @@ void HAL_RCCEx_EnableHSI48_VREFINT(void)
   */
 void HAL_RCCEx_DisableHSI48_VREFINT(void)
 {
-    /* Disable the Vrefint by resetting SYSCFG_CFGR3_ENREF_HSI48 bit */ 
-    /*  and the EN_VREFINT bit in the CFGR3 register */
-    CLEAR_BIT(SYSCFG->CFGR3, (SYSCFG_CFGR3_ENREF_HSI48 | SYSCFG_CFGR3_EN_VREFINT));
+  /* Disable the Vrefint by resetting SYSCFG_CFGR3_ENREF_HSI48 bit in SYSCFG_CFGR3 register */
+  CLEAR_BIT(SYSCFG->CFGR3, SYSCFG_CFGR3_ENREF_HSI48);
 }
 #endif /* !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined(STM32L051xx) && !defined(STM32L061xx) && !defined(STM32L071xx) && !defined(STM32L081xx) */
 

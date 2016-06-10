@@ -3,7 +3,7 @@
   * @file    stm32l0xx_hal_rcc.c
   * @author  MCD Application Team
   * @version V1.4.0
-  * @date    16-October-2015
+  * @date    01-October-2015
   * @brief   RCC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Reset and Clock Control (RCC) peripheral:
@@ -54,7 +54,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -99,22 +99,29 @@
   * @{
   */ 
 #define RCC_HSE_TIMEOUT_VALUE          HSE_STARTUP_TIMEOUT
-#define RCC_HSI_TIMEOUT_VALUE          ((uint32_t)100)  /* 100 ms */
-#define RCC_LSI_TIMEOUT_VALUE          ((uint32_t)100)  /* 100 ms */
-#define RCC_PLL_TIMEOUT_VALUE          ((uint32_t)100)  /* 100 ms */
-#define RCC_HSI48_TIMEOUT_VALUE        ((uint32_t)100)  /* 100 ms */
-#define RCC_MSI_TIMEOUT_VALUE          ((uint32_t)100)  /* 100 ms */    
-#define RCC_CLOCKSWITCH_TIMEOUT_VALUE  ((uint32_t)5000) /* 5 s    */
+#define RCC_HSI_TIMEOUT_VALUE          ((uint32_t)2U)    /* 2 ms (minimum Tick + 1) */
+#define RCC_LSI_TIMEOUT_VALUE          ((uint32_t)2U)    /* 2 ms (minimum Tick + 1) */
+#define RCC_PLL_TIMEOUT_VALUE          ((uint32_t)2U)    /* 2 ms (minimum Tick + 1) */
+#define RCC_HSI48_TIMEOUT_VALUE        ((uint32_t)2U)    /* 2 ms (minimum Tick + 1) */
+#define RCC_MSI_TIMEOUT_VALUE          ((uint32_t)2U)    /* 2 ms (minimum Tick + 1) */   
+#define RCC_CLOCKSWITCH_TIMEOUT_VALUE  ((uint32_t)5000U) /* 5 s    */
 
 #define __MCO1_CLK_ENABLE()   __HAL_RCC_GPIOA_CLK_ENABLE()
 #define MCO1_GPIO_PORT        GPIOA
 #define MCO1_PIN              GPIO_PIN_8
+
+#define __MCO2_CLK_ENABLE()   __HAL_RCC_GPIOA_CLK_ENABLE()
+#define MCO2_GPIO_PORT        GPIOA
 #define MCO2_PIN              GPIO_PIN_9
 
+#if  defined(STM32L031xx) || defined(STM32L041xx) || defined(STM32L073xx) || defined(STM32L083xx) || \
+     defined(STM32L072xx) || defined(STM32L082xx) || defined(STM32L071xx) || defined(STM32L081xx) 
+#define __MCO3_CLK_ENABLE()   __HAL_RCC_GPIOB_CLK_ENABLE()
+#define MCO3_GPIO_PORT        GPIOB
+#define MCO3_PIN              GPIO_PIN_13
+#endif
 
 extern const uint8_t PLLMulTable[];          /* Defined in CMSIS (system_stm32l0xx.c)*/
-static const uint8_t APBAHBPrescTable[16] = {0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4, 6, 7, 8, 9};
-
 
 /**
   * @}
@@ -178,20 +185,23 @@ static const uint8_t APBAHBPrescTable[16] = {0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4,
          (#) For the STM32L0xx devices, the maximum
              frequency of the SYSCLK ,HCLK, APB1 and APB2 is 32 MHz. 
              Depending on the device voltage range, the maximum frequency should
-             be adapted accordingly:
- ----------------------------------------------------------------
- |  Wait states  |                HCLK clock frequency (MHz)      |
- |               |------------------------------------------------|
- |   (Latency)   |            voltage range       | voltage range |
- |               |            1.65 V - 3.6 V      | 2.0 V - 3.6 V |
- |               |----------------|---------------|---------------|
- |               |  VCORE = 1.2 V | VCORE = 1.5 V | VCORE = 1.8 V |
- |-------------- |----------------|---------------|---------------|
- |0WS(1CPU cycle)|0 < HCLK <= 2   |0 < HCLK <= 8  |0 < HCLK <= 16 |
- |---------------|----------------|---------------|---------------|
- |1WS(2CPU cycle)|2 < HCLK <= 4   |8 < HCLK <= 16 |16 < HCLK <= 32|
-  ----------------------------------------------------------------
+             be adapted accordingly. Refer to the Reference Manual for more details.
+
 @endverbatim
+
+             Table 1. HCLK clock frequency.
+             +----------------------------------------------------------------+
+             |  Wait states  |                HCLK clock frequency (MHz)      |
+             |               |------------------------------------------------|
+             |   (Latency)   |            voltage range       | voltage range |
+             |               |            1.65 V - 3.6 V      | 2.0 V - 3.6 V |
+             |               |----------------|---------------|---------------|
+             |               |  VCORE = 1.2 V | VCORE = 1.5 V | VCORE = 1.8 V |
+             |-------------- |----------------|---------------|---------------|
+             |0WS(1CPU cycle)|0 < HCLK <= 2   |0 < HCLK <= 8  |0 < HCLK <= 16 |
+             |---------------|----------------|---------------|---------------|
+             |1WS(2CPU cycle)|2 < HCLK <= 4   |8 < HCLK <= 16 |16 < HCLK <= 32|
+             +----------------------------------------------------------------+
   * @{
   */
 
@@ -200,7 +210,7 @@ static const uint8_t APBAHBPrescTable[16] = {0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4,
   * @note   The default reset state of the clock configuration is given below:
   *           - MSI ON and used as system clock source (MSI range is not modified
   *           - by this function, it keep the value configured by user application)
-  *           - HSI, HSE and PLL OFF
+  *           - HSI, HSI_OUT, HSE and PLL OFF
   *           - AHB, APB1 and APB2 prescaler set to 1.
   *           - CSS and MCO OFF
   *           - All interrupts disabled
@@ -209,9 +219,43 @@ static const uint8_t APBAHBPrescTable[16] = {0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4,
   * @note      -HSI48, LSI, LSE and RTC clocks                  
   * @retval None
   */
-__weak void HAL_RCC_DeInit(void)
+void HAL_RCC_DeInit(void)
 {
-  /* This function is now defined in the file stm32L0xx_rcc_ex.c */
+  __IO uint32_t tmpreg;
+  
+  /* Set MSION bit */
+  SET_BIT(RCC->CR, RCC_CR_MSION); 
+  
+#if defined(STM32L073xx) || defined(STM32L083xx) || \
+    defined(STM32L072xx) || defined(STM32L082xx) || \
+    defined(STM32L071xx) || defined(STM32L081xx) || \
+    defined(STM32L031xx) || defined(STM32L041xx)
+  /* Reset HSE, HSI, CSS, PLL */
+  CLEAR_BIT(RCC->CR, RCC_CR_HSION| RCC_CR_HSIKERON| RCC_CR_HSIDIVEN | RCC_CR_HSIOUTEN | \
+                     RCC_CR_HSEON | RCC_CR_CSSHSEON | RCC_CR_PLLON); 
+#elif defined(STM32L011xx) || defined(STM32L021xx) 
+  CLEAR_BIT(RCC->CR, RCC_CR_HSION| RCC_CR_HSIKERON| RCC_CR_HSIDIVEN | RCC_CR_HSIOUTEN | \
+                     RCC_CR_HSEON | RCC_CR_PLLON);    
+#else
+  CLEAR_BIT(RCC->CR, RCC_CR_HSION| RCC_CR_HSIKERON| RCC_CR_HSIDIVEN | \
+                     RCC_CR_HSEON | RCC_CR_CSSHSEON | RCC_CR_PLLON); 
+#endif
+
+  /* Delay after an RCC peripheral clock */ \
+  tmpreg = READ_BIT(RCC->CR, RCC_CR_HSEON);      \
+  UNUSED(tmpreg); 
+
+  /* Reset HSEBYP bit */
+  CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP);
+  
+  /* Reset CFGR register */
+  CLEAR_REG(RCC->CFGR);
+  
+  /* Disable all interrupts */
+  CLEAR_REG(RCC->CIER); 
+  
+  /* Update the SystemCoreClock global variable */
+  SystemCoreClock = MSI_VALUE; 
 }
 
 /**
@@ -231,7 +275,7 @@ __weak void HAL_RCC_DeInit(void)
 HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
 {
 
-   uint32_t tickstart = 0;   
+   uint32_t tickstart = 0U;   
  
   /* Check the parameters */
   assert_param(RCC_OscInitStruct != NULL);
@@ -373,6 +417,9 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
         /* Adjusts the Multiple Speed oscillator (MSI) calibration value.*/
         __HAL_RCC_MSI_CALIBRATIONVALUE_ADJUST(RCC_OscInitStruct->MSICalibrationValue);
 
+        /* Update the SystemCoreClock global variable */
+        SystemCoreClock =  HAL_RCC_GetSysClockFreq() >> AHBPrescTable[((RCC->CFGR & RCC_CFGR_HPRE) >> 4)];
+         
         /* Configure the source of time base considering new system clocks settings*/
         HAL_InitTick (TICK_INT_PRIORITY);
       }
@@ -692,7 +739,7 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
 HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, uint32_t FLatency)
 {
 
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
  
   /* Check the parameters */
   assert_param(RCC_ClkInitStruct != NULL);
@@ -715,202 +762,107 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
     {
       return HAL_ERROR;
     }
-
-    /*-------------------------- HCLK Configuration --------------------------*/
-    if(((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_HCLK) == RCC_CLOCKTYPE_HCLK)
-    {
-      assert_param(IS_RCC_HCLK(RCC_ClkInitStruct->AHBCLKDivider));
-      MODIFY_REG(RCC->CFGR, RCC_CFGR_HPRE, RCC_ClkInitStruct->AHBCLKDivider);
-    }
-
-    /*------------------------- SYSCLK Configuration ---------------------------*/ 
-    if(((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_SYSCLK) == RCC_CLOCKTYPE_SYSCLK)
-    {    
-      assert_param(IS_RCC_SYSCLKSOURCE(RCC_ClkInitStruct->SYSCLKSource));
-      
-      /* HSE is selected as System Clock Source */
-      if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_HSE)
-      {
-        /* Check the HSE ready flag */  
-        if(__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY) == RESET)
-        {
-          return HAL_ERROR;
-        }
-      }
-      
-          /* MSI is selected as System Clock Source */
-      else if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_MSI)
-      {
-        /* Check the MSI ready flag */  
-        if(__HAL_RCC_GET_FLAG(RCC_FLAG_MSIRDY) == RESET)
-        {
-          return HAL_ERROR;
-        }
-      }
-      /* PLL is selected as System Clock Source */
-      else if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_PLLCLK)
-      {
-        /* Check the PLL ready flag */  
-        if(__HAL_RCC_GET_FLAG(RCC_FLAG_PLLRDY) == RESET)
-        {
-          return HAL_ERROR;
-        }
-      }
-      /* HSI is selected as System Clock Source */
-      else
-      {
-        /* Check the HSI ready flag */  
-        if(__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY) == RESET)
-        {
-          return HAL_ERROR;
-        }
-      }
-      MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_ClkInitStruct->SYSCLKSource);
- 
-      /* Get timeout */
-      tickstart = HAL_GetTick();
-      
-      if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_HSE)
-      {
-        while (__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_SYSCLKSOURCE_STATUS_HSE)
-        {
-          if((HAL_GetTick() - tickstart ) > RCC_CLOCKSWITCH_TIMEOUT_VALUE)
-          {
-            return HAL_TIMEOUT;
-          } 
-        }
-      }
-      else if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_PLLCLK)
-      {
-        while (__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_SYSCLKSOURCE_STATUS_PLLCLK)
-        {
-          if((HAL_GetTick() - tickstart ) > RCC_CLOCKSWITCH_TIMEOUT_VALUE)
-          {
-            return HAL_TIMEOUT;
-          } 
-        }
-      }
-      else if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_MSI)
-      {
-        while (__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_CFGR_SWS_MSI)
-        {
-          if((HAL_GetTick() - tickstart ) > RCC_CLOCKSWITCH_TIMEOUT_VALUE)
-          {
-            return HAL_TIMEOUT;
-          } 
-        }
-      }
-      else
-      {
-        while(__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_SYSCLKSOURCE_STATUS_HSI)
-        {
-          if((HAL_GetTick() - tickstart ) > RCC_CLOCKSWITCH_TIMEOUT_VALUE)
-          {
-            return HAL_TIMEOUT;
-          }
-        }
-      }
-    }    
   }
-  /* Decreasing the CPU frequency */
-  else
+ 
+  /*-------------------------- HCLK Configuration --------------------------*/
+  if(((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_HCLK) == RCC_CLOCKTYPE_HCLK)
   {
-    /*-------------------------- HCLK Configuration --------------------------*/
-    if(((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_HCLK) == RCC_CLOCKTYPE_HCLK)
+    assert_param(IS_RCC_HCLK(RCC_ClkInitStruct->AHBCLKDivider));
+    MODIFY_REG(RCC->CFGR, RCC_CFGR_HPRE, RCC_ClkInitStruct->AHBCLKDivider);
+  }
+
+  /*------------------------- SYSCLK Configuration ---------------------------*/ 
+  if(((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_SYSCLK) == RCC_CLOCKTYPE_SYSCLK)
+  {    
+    assert_param(IS_RCC_SYSCLKSOURCE(RCC_ClkInitStruct->SYSCLKSource));
+      
+    /* HSE is selected as System Clock Source */
+    if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_HSE)
     {
-      assert_param(IS_RCC_HCLK(RCC_ClkInitStruct->AHBCLKDivider));
-      MODIFY_REG(RCC->CFGR, RCC_CFGR_HPRE, RCC_ClkInitStruct->AHBCLKDivider);
+      /* Check the HSE ready flag */  
+      if(__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY) == RESET)
+      {
+        return HAL_ERROR;
+      }
     }
-
-    /*------------------------- SYSCLK Configuration -------------------------*/
-    if(((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_SYSCLK) == RCC_CLOCKTYPE_SYSCLK)
-    {    
-      assert_param(IS_RCC_SYSCLKSOURCE(RCC_ClkInitStruct->SYSCLKSource));
       
-      /* HSE is selected as System Clock Source */
-      if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_HSE)
+    /* MSI is selected as System Clock Source */
+    else if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_MSI)
+    {
+      /* Check the MSI ready flag */  
+      if(__HAL_RCC_GET_FLAG(RCC_FLAG_MSIRDY) == RESET)
       {
-        /* Check the HSE ready flag */  
-        if(__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY) == RESET)
-        {
-          return HAL_ERROR;
-        }
+        return HAL_ERROR;
       }
-
-      /* MSI is selected as System Clock Source */
-      else if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_MSI)
+    }
+    /* PLL is selected as System Clock Source */
+    else if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_PLLCLK)
+    {
+      /* Check the PLL ready flag */  
+      if(__HAL_RCC_GET_FLAG(RCC_FLAG_PLLRDY) == RESET)
       {
-        /* Check the MSI ready flag */  
-        if(__HAL_RCC_GET_FLAG(RCC_FLAG_MSIRDY) == RESET)
-        {
-          return HAL_ERROR;
-        }
+        return HAL_ERROR;
       }
-      /* PLL is selected as System Clock Source */
-      else if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_PLLCLK)
+    }
+    /* HSI is selected as System Clock Source */
+    else
+    {
+      /* Check the HSI ready flag */  
+      if(__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY) == RESET)
       {
-        /* Check the PLL ready flag */  
-        if(__HAL_RCC_GET_FLAG(RCC_FLAG_PLLRDY) == RESET)
-        {
-          return HAL_ERROR;
-        }
+        return HAL_ERROR;
       }
-      /* HSI is selected as System Clock Source */
-      else
-      {
-        /* Check the HSI ready flag */  
-        if(__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY) == RESET)
-        {
-          return HAL_ERROR;
-        }
-      }
-      MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_ClkInitStruct->SYSCLKSource);
+    }
+    MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_ClkInitStruct->SYSCLKSource);
+ 
+    /* Get timeout */
+    tickstart = HAL_GetTick();
       
-      /* Get timeout */
-      tickstart = HAL_GetTick();
-      
-      if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_HSE)
+    if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_HSE)
+    {
+      while (__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_SYSCLKSOURCE_STATUS_HSE)
       {
-        while (__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_SYSCLKSOURCE_STATUS_HSE)
+        if((HAL_GetTick() - tickstart ) > RCC_CLOCKSWITCH_TIMEOUT_VALUE)
         {
-          if((HAL_GetTick() - tickstart ) > RCC_CLOCKSWITCH_TIMEOUT_VALUE)
-          {
-            return HAL_TIMEOUT;
-          } 
-        }
+          return HAL_TIMEOUT;
+        } 
       }
-      else if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_PLLCLK)
+    }
+    else if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_PLLCLK)
+    {
+      while (__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_SYSCLKSOURCE_STATUS_PLLCLK)
       {
-        while (__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_SYSCLKSOURCE_STATUS_PLLCLK)
+        if((HAL_GetTick() - tickstart ) > RCC_CLOCKSWITCH_TIMEOUT_VALUE)
         {
-          if((HAL_GetTick() - tickstart ) > RCC_CLOCKSWITCH_TIMEOUT_VALUE)
-          {
-            return HAL_TIMEOUT;
-          } 
-        }
+          return HAL_TIMEOUT;
+        } 
       }
-      else if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_MSI)
+    }
+    else if(RCC_ClkInitStruct->SYSCLKSource == RCC_SYSCLKSOURCE_MSI)
+    {
+      while (__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_CFGR_SWS_MSI)
       {
-        while (__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_CFGR_SWS_MSI)
+        if((HAL_GetTick() - tickstart ) > RCC_CLOCKSWITCH_TIMEOUT_VALUE)
         {
-          if((HAL_GetTick() - tickstart ) > RCC_CLOCKSWITCH_TIMEOUT_VALUE)
-          {
-            return HAL_TIMEOUT;
-          } 
-        }
+          return HAL_TIMEOUT;
+        } 
       }
-      else
+    }
+    else
+    {
+      while(__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_SYSCLKSOURCE_STATUS_HSI)
       {
-        while(__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_SYSCLKSOURCE_STATUS_HSI)
+        if((HAL_GetTick() - tickstart ) > RCC_CLOCKSWITCH_TIMEOUT_VALUE)
         {
-          if((HAL_GetTick() - tickstart ) > RCC_CLOCKSWITCH_TIMEOUT_VALUE)
-          {
-            return HAL_TIMEOUT;
-          }  
+          return HAL_TIMEOUT;
         }
       }
     }
-    
+  }
+
+  /* Decreasing the CPU frequency */
+  if(FLatency <= (FLASH->ACR & FLASH_ACR_LATENCY))
+  {  
     /* Program the new number of wait states to the LATENCY bits in the FLASH_ACR register */
     __HAL_FLASH_SET_LATENCY(FLatency);
     
@@ -920,7 +872,7 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
     {
       return HAL_ERROR;
     }
- }
+  }
 
   /*-------------------------- PCLK1 Configuration ---------------------------*/ 
   if(((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_PCLK1) == RCC_CLOCKTYPE_PCLK1)
@@ -936,6 +888,9 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
     MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE2, ((RCC_ClkInitStruct->APB2CLKDivider) << 3));
   }
 
+  /* Update the SystemCoreClock global variable */
+  SystemCoreClock =  HAL_RCC_GetSysClockFreq() >> AHBPrescTable[((RCC->CFGR & RCC_CFGR_HPRE) >> 4)];
+     
   /* Configure the source of time base considering new system clocks settings*/
   HAL_InitTick (TICK_INT_PRIORITY);
   
@@ -968,6 +923,7 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
   *           For STM32L0xx family this parameter can have only one value:
   *            @arg RCC_MCO1: Clock source to output on MCO pin(PA8).
   *            @arg RCC_MCO2: Clock source to output on MCO pin(PA9).
+  *            @arg RCC_MCO3: Clock source to output on MCO pin(PB13) on STM32L03x/4x/7x/8x .
   * @param  RCC_MCOSource: specifies the clock source to output.
   *          This parameter can be one of the following values:
   *     @arg RCC_MCO1SOURCE_NOCLOCK: No clock selected
@@ -997,26 +953,41 @@ void HAL_RCC_MCOConfig( uint32_t RCC_MCOx, uint32_t RCC_MCOSource, uint32_t RCC_
   assert_param(IS_RCC_MCO(RCC_MCOx));
   assert_param(IS_RCC_MCODIV(RCC_MCODiv));
   assert_param(IS_RCC_MCO1SOURCE(RCC_MCOSource));
-    
-    /* MCO Clock Enable */
-    __MCO1_CLK_ENABLE();
-    
-    /* Configure the MCO1 pin in alternate function mode */    
+
+  /* Configure the MCO pin in alternate function mode */   
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+     
   if(RCC_MCOx == RCC_MCO1)
   {    
+    /* MCO Clock Enable */
+    __MCO1_CLK_ENABLE();
     GPIO_InitStruct.Pin = MCO1_PIN;
-  }
-    else
-  {    
-    GPIO_InitStruct.Pin = MCO2_PIN;
-  }    
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Alternate = GPIO_AF0_MCO;
-    HAL_GPIO_Init(MCO1_GPIO_PORT, &GPIO_InitStruct);
-    
-    /* Mask MCO1 and MCO1PRE[2:0] bits then Select MCO1 clock source and prescaler */
+    HAL_GPIO_Init(MCO1_GPIO_PORT, &GPIO_InitStruct);  
+  }
+  else if (RCC_MCOx == RCC_MCO2)
+  {    
+    /* MCO Clock Enable */
+    __MCO2_CLK_ENABLE();
+    GPIO_InitStruct.Pin = MCO2_PIN;
+    GPIO_InitStruct.Alternate = GPIO_AF0_MCO;
+    HAL_GPIO_Init(MCO2_GPIO_PORT, &GPIO_InitStruct);  
+  }
+#if  defined(STM32L031xx) || defined(STM32L041xx) || defined(STM32L073xx) || defined(STM32L083xx) || \
+     defined(STM32L072xx) || defined(STM32L082xx) || defined(STM32L071xx) || defined(STM32L081xx) 
+  else
+  {
+    /* MCO Clock Enable */
+    __MCO3_CLK_ENABLE();    
+    GPIO_InitStruct.Pin = MCO3_PIN;
+    GPIO_InitStruct.Alternate = GPIO_AF2_MCO;
+    HAL_GPIO_Init(MCO3_GPIO_PORT, &GPIO_InitStruct);  
+  }
+#endif 
+   
+    /* Mask MCO and MCOPRE[2:0] bits then Select MCO clock source and prescaler */
     MODIFY_REG(RCC->CFGR, (RCC_CFGR_MCOSEL | RCC_CFGR_MCO_PRE), ((RCC_MCOSource | RCC_MCODiv )));
 }
 
@@ -1070,26 +1041,26 @@ void HAL_RCC_EnableCSS(void)
   */
 uint32_t HAL_RCC_GetSysClockFreq(void)
 {
-  uint32_t pllmul = 0, plldiv = 0, pllsource = 0,  msirange = 0;
-  uint32_t sysclockfreq = 0;
+  uint32_t pllmul = 0U, plldiv = 0U, pllsource = 0U,  msirange = 0U;
+  uint32_t sysclockfreq = 0U;
     
   /* Get SYSCLK source -------------------------------------------------------*/
  
   /*MSI frequency range in HZ*/
-  msirange = (RCC->ICSCR & RCC_ICSCR_MSIRANGE) >> 13;
+  msirange = (RCC->ICSCR & RCC_ICSCR_MSIRANGE) >> 13U;
   
   switch (RCC->CFGR & RCC_CFGR_SWS)
   {
     case RCC_CFGR_SWS_MSI: /* MSI used as system clock */ 
     {  
-      sysclockfreq = (32768 * (1 << (msirange + 1)));
+      sysclockfreq = (32768U * (1U << (msirange + 1U)));
       break;
     }
     case RCC_SYSCLKSOURCE_STATUS_HSI:  /* HSI used as system clock */
     {
-      if ((RCC->CR & RCC_CR_HSIDIVF) != 0)
+      if ((RCC->CR & RCC_CR_HSIDIVF) != 0U)
       {
-        sysclockfreq =  (HSI_VALUE >> 2);
+        sysclockfreq =  (HSI_VALUE >> 2U);
       }
       else 
       {
@@ -1107,17 +1078,17 @@ uint32_t HAL_RCC_GetSysClockFreq(void)
       /* Get PLL clock source and multiplication factor ----------------------*/
       pllmul = RCC->CFGR & RCC_CFGR_PLLMUL;
       plldiv = RCC->CFGR & RCC_CFGR_PLLDIV;
-      pllmul = PLLMulTable[(pllmul >> 18)];
-      plldiv = (plldiv >> 22) + 1;
+      pllmul = PLLMulTable[(pllmul >> 18U)];
+      plldiv = (plldiv >> 22U) + 1U;
       
       pllsource = RCC->CFGR & RCC_CFGR_PLLSRC;
 
       if (pllsource == RCC_CFGR_PLLSRC_HSI)
       {
         /* HSI oscillator clock selected as PLL clock source */
-        if ((RCC->CR & RCC_CR_HSIDIVF) != 0)
+        if ((RCC->CR & RCC_CR_HSIDIVF) != 0U)
         {
-          sysclockfreq = (((HSI_VALUE >> 2) * pllmul) / plldiv);
+          sysclockfreq = (((HSI_VALUE >> 2U) * pllmul) / plldiv);
         }
         else 
         {
@@ -1133,7 +1104,7 @@ uint32_t HAL_RCC_GetSysClockFreq(void)
     }
     default: /* MSI used as system clock */
     {
-      sysclockfreq = (32768 * (1 << (msirange + 1)));
+      sysclockfreq = (32768U * (1U << (msirange + 1U)));
       break;
     }
   }
@@ -1151,10 +1122,7 @@ uint32_t HAL_RCC_GetSysClockFreq(void)
   */
 uint32_t HAL_RCC_GetHCLKFreq(void)
 {
-  SystemCoreClock =  HAL_RCC_GetSysClockFreq() >> APBAHBPrescTable[((RCC->CFGR & RCC_CFGR_HPRE) >> 4)];
-  
   return (SystemCoreClock);
-
 }
 
 /**
@@ -1166,7 +1134,7 @@ uint32_t HAL_RCC_GetHCLKFreq(void)
 uint32_t HAL_RCC_GetPCLK1Freq(void)
 {
   
- return ( HAL_RCC_GetHCLKFreq() >> APBAHBPrescTable[((RCC->CFGR & RCC_CFGR_PPRE1) >> 8)]);
+ return ( HAL_RCC_GetHCLKFreq() >> APBPrescTable[((RCC->CFGR & RCC_CFGR_PPRE1) >> 8U)]);
   
 }    
 
@@ -1179,7 +1147,7 @@ uint32_t HAL_RCC_GetPCLK1Freq(void)
 uint32_t HAL_RCC_GetPCLK2Freq(void)
 {
   
-  return ( HAL_RCC_GetHCLKFreq() >> APBAHBPrescTable[((RCC->CFGR & RCC_CFGR_PPRE2) >> 11)]);
+  return ( HAL_RCC_GetHCLKFreq() >> APBPrescTable[((RCC->CFGR & RCC_CFGR_PPRE2) >> 11U)]);
   
 } 
 
@@ -1223,8 +1191,8 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
     RCC_OscInitStruct->MSIState = RCC_MSI_OFF;
   }
   
-  RCC_OscInitStruct->MSICalibrationValue = (uint32_t)((RCC->CR &RCC_ICSCR_MSITRIM) >> 24); 
-  RCC_OscInitStruct->MSIClockRange = (uint32_t)((RCC->ICSCR &RCC_ICSCR_MSIRANGE) >> 13); 
+  RCC_OscInitStruct->MSICalibrationValue = (uint32_t)((RCC->CR &RCC_ICSCR_MSITRIM) >> 24U); 
+  RCC_OscInitStruct->MSIClockRange = (uint32_t)((RCC->ICSCR &RCC_ICSCR_MSIRANGE) >> 13U); 
 
 #if !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined(STM32L051xx) && !defined(STM32L061xx) && !defined(STM32L071xx) && !defined(STM32L081xx)  
   /* Get the HSI48 configuration -----------------------------------------------*/
@@ -1248,7 +1216,7 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
     RCC_OscInitStruct->HSIState = RCC_HSI_OFF;
   }
   
-  RCC_OscInitStruct->HSICalibrationValue = (uint32_t)((RCC->ICSCR &RCC_ICSCR_HSITRIM) >> 8);
+  RCC_OscInitStruct->HSICalibrationValue = (uint32_t)((RCC->ICSCR &RCC_ICSCR_HSITRIM) >> 8U);
   
   /* Get the LSE configuration -----------------------------------------------*/
   if((RCC->CSR &RCC_CSR_LSEBYP) == RCC_CSR_LSEBYP)
@@ -1284,8 +1252,8 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
     RCC_OscInitStruct->PLL.PLLState = RCC_PLL_OFF;
   }
   RCC_OscInitStruct->PLL.PLLSource = (uint32_t)(RCC->CFGR & RCC_CFGR_PLLSRC);
-  RCC_OscInitStruct->PLL.PLLMUL = (uint32_t)(RCC->CFGR & RCC_CFGR_PLLMUL) >> 18;
-  RCC_OscInitStruct->PLL.PLLDIV = (uint32_t)(RCC->CFGR & RCC_CFGR_PLLDIV) >> 22;
+  RCC_OscInitStruct->PLL.PLLMUL = (uint32_t)(RCC->CFGR & RCC_CFGR_PLLMUL) >> 18U;
+  RCC_OscInitStruct->PLL.PLLDIV = (uint32_t)(RCC->CFGR & RCC_CFGR_PLLDIV) >> 22U;
 
 }
 
@@ -1312,7 +1280,7 @@ void HAL_RCC_GetClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, uint32_t *pF
   RCC_ClkInitStruct->APB1CLKDivider = (uint32_t)(RCC->CFGR & RCC_CFGR_PPRE1);   
   
   /* Get the APB2 configuration ----------------------------------------------*/ 
-  RCC_ClkInitStruct->APB2CLKDivider = (uint32_t)((RCC->CFGR & RCC_CFGR_PPRE2) >> 3);
+  RCC_ClkInitStruct->APB2CLKDivider = (uint32_t)((RCC->CFGR & RCC_CFGR_PPRE2) >> 3U);
   
   /* Get the Flash Wait State (Latency) configuration ------------------------*/   
   *pFLatency = (uint32_t)(FLASH->ACR & FLASH_ACR_LATENCY); 

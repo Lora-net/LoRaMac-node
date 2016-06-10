@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_flash.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-October-2015
+  * @version V1.6.0
+  * @date    15-April-2016
   * @brief   FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the internal FLASH memory:
@@ -144,7 +144,7 @@
  ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -313,19 +313,26 @@ void HAL_FLASH_IRQHandler(void)
   uint32_t temp;
 
   /* Check FLASH operation error flags */
-#if defined(STM32L031xx) || defined(STM32L041xx)
-  if (__HAL_FLASH_GET_FLAG(FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR | \
-                           FLASH_FLAG_RDERR  | FLASH_FLAG_FWWERR | FLASH_FLAG_NOTZEROERR) != RESET)
-#else
+
+  /* WARNING : On the first cut of STM32L031xx and STM32L041xx devices,
+   *           (RefID = 0x1000) the FLASH_FLAG_OPTVERR bit was not behaving
+   *           as expected. If the user run an application using the first
+   *           cut of the STM32L031xx device or the first cut of the STM32L041xx
+   *           device, the check on the FLASH_FLAG_OPTVERR bit should be ignored.
+   *
+   *           Note :The revId of the device can be retrieved via the HAL_GetREVID()
+   *           function.
+   *
+   */
+
   if (__HAL_FLASH_GET_FLAG(FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR | FLASH_FLAG_OPTVERR | \
                            FLASH_FLAG_RDERR  | FLASH_FLAG_FWWERR | FLASH_FLAG_NOTZEROERR) != RESET)
-#endif
   {
     if(ProcFlash.ProcedureOnGoing == FLASH_PROC_PAGEERASE)
     {
       /* Return the faulty sector */
       temp = ProcFlash.Page;
-      ProcFlash.Page = 0xFFFFFFFF;
+      ProcFlash.Page = 0xFFFFFFFFU;
     }
     else
     {
@@ -358,7 +365,7 @@ void HAL_FLASH_IRQHandler(void)
         ProcFlash.NbPagesToErase--;
   
         /* Check if there are still sectors to erase */
-        if(ProcFlash.NbPagesToErase != 0)
+        if(ProcFlash.NbPagesToErase != 0U)
         {
           temp = ProcFlash.Page;
           /* Indicate user which sector has been erased */
@@ -377,7 +384,7 @@ void HAL_FLASH_IRQHandler(void)
         {
           /* No more sectors to Erase, user callback can be called */
           /* Reset Sector and stop Erase sectors procedure */
-          ProcFlash.Page = temp = 0xFFFFFFFF;
+          ProcFlash.Page = temp = 0xFFFFFFFFU;
           ProcFlash.ProcedureOnGoing = FLASH_PROC_NONE;
           /* FLASH EOP interrupt user callback */
           HAL_FLASH_EndOfOperationCallback(temp);
@@ -425,6 +432,9 @@ void HAL_FLASH_IRQHandler(void)
   */
 __weak void HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(ReturnValue);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_FLASH_EndOfOperationCallback could be implemented in the user file
    */ 
@@ -439,6 +449,9 @@ __weak void HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue)
   */
 __weak void HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(ReturnValue);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_FLASH_OperationErrorCallback could be implemented in the user file
    */ 
@@ -621,7 +634,7 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
   { 
     if(Timeout != HAL_MAX_DELAY)
     {
-      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+      if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         return HAL_TIMEOUT;
       }
@@ -635,19 +648,22 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP);
   }
   
-#if defined(STM32L031xx) || defined(STM32L041xx)
-  if((__HAL_FLASH_GET_FLAG(FLASH_FLAG_WRPERR) != RESET) || (__HAL_FLASH_GET_FLAG(FLASH_FLAG_PGAERR)  != RESET) || \
-     (__HAL_FLASH_GET_FLAG(FLASH_FLAG_SIZERR) != RESET) || \
-     (__HAL_FLASH_GET_FLAG(FLASH_FLAG_RDERR)  != RESET) || (__HAL_FLASH_GET_FLAG(FLASH_FLAG_FWWERR)  != RESET) || \
-     (__HAL_FLASH_GET_FLAG(FLASH_FLAG_NOTZEROERR) != RESET))
-#else
+
   if((__HAL_FLASH_GET_FLAG(FLASH_FLAG_WRPERR) != RESET) || (__HAL_FLASH_GET_FLAG(FLASH_FLAG_PGAERR)  != RESET) || \
      (__HAL_FLASH_GET_FLAG(FLASH_FLAG_SIZERR) != RESET) || (__HAL_FLASH_GET_FLAG(FLASH_FLAG_OPTVERR) != RESET) || \
      (__HAL_FLASH_GET_FLAG(FLASH_FLAG_RDERR)  != RESET) || (__HAL_FLASH_GET_FLAG(FLASH_FLAG_FWWERR)  != RESET) || \
      (__HAL_FLASH_GET_FLAG(FLASH_FLAG_NOTZEROERR) != RESET))
-#endif
   {
     /* Save the error code */
+
+    /* WARNING : On the first cut of STM32L031xx and STM32L041xx devices,
+     *           (RefID = 0x1000) the FLASH_FLAG_OPTVERR bit was not behaving
+     *           as expected. If the user run an application using the first
+     *           cut of the STM32L031xx device or the first cut of the STM32L041xx
+     *           device, this error should be ignored. The revId of the device
+     *           can be retrieved via the HAL_GetREVID() function.
+     *
+     */
     FLASH_SetErrorCode();
     return HAL_ERROR;
    }
@@ -674,13 +690,18 @@ static void FLASH_SetErrorCode(void)
   { 
     ProcFlash.ErrorCode |= HAL_FLASH_ERROR_SIZE;
   }
-#if defined(STM32L031xx) || defined(STM32L041xx)
-#else
   if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_OPTVERR))
   { 
+   /* WARNING : On the first cut of STM32L031xx and STM32L041xx devices,
+    *           (RefID = 0x1000) the FLASH_FLAG_OPTVERR bit was not behaving
+    *           as expected. If the user run an application using the first
+    *           cut of the STM32L031xx device or the first cut of the STM32L041xx
+    *           device, this error should be ignored. The revId of the device
+    *           can be retrieved via the HAL_GetREVID() function.
+    *
+    */
     ProcFlash.ErrorCode |= HAL_FLASH_ERROR_OPTV;
   }
-#endif
   if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_RDERR))
   { 
     ProcFlash.ErrorCode |= HAL_FLASH_ERROR_RD;
@@ -695,14 +716,10 @@ static void FLASH_SetErrorCode(void)
   }
   
   /* Errors are now stored, clear errors flags */
-#if defined(STM32L031xx) || defined(STM32L041xx)
-  __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR |
-                         FLASH_FLAG_RDERR | FLASH_FLAG_FWWERR | FLASH_FLAG_NOTZEROERR);
-#else
+
   __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR |
                          FLASH_FLAG_OPTVERR | FLASH_FLAG_RDERR | FLASH_FLAG_FWWERR | 
                          FLASH_FLAG_NOTZEROERR);
-#endif
 } 
 
 /**
@@ -728,7 +745,7 @@ void FLASH_ErasePage(uint32_t Page_Address)
   SET_BIT(FLASH->PECR, FLASH_PECR_PROG);
   
   /* Write 00000000h to the first word of the program page to erase */
-  *(__IO uint32_t *)Page_Address = 0x00000000;
+  *(__IO uint32_t *)Page_Address = 0x00000000U;
 }
 
 /**

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_flash_ramfunc.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-October-2015
+  * @version V1.6.0
+  * @date    15-April-2016
   * @brief   FLASH RAMFUNC driver.
   *          This file provides a Flash firmware functions which should be 
   *          executed from internal SRAM
@@ -32,7 +32,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -177,9 +177,9 @@ __RAM_FUNC HAL_FLASHEx_EraseParallelPage(uint32_t Page_Address1, uint32_t Page_A
     SET_BIT(FLASH->PECR, FLASH_PECR_PROG);
   
     /* Write 00000000h to the first word of the first program page to erase */
-    *(__IO uint32_t *)Page_Address1 = 0x00000000;
+    *(__IO uint32_t *)Page_Address1 = 0x00000000U;
     /* Write 00000000h to the first word of the second program page to erase */    
-    *(__IO uint32_t *)Page_Address2 = 0x00000000;    
+    *(__IO uint32_t *)Page_Address2 = 0x00000000U;    
  
     /* Wait for last operation to be completed */
     status = FLASHRAM_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
@@ -245,12 +245,12 @@ __RAM_FUNC HAL_FLASHEx_ProgramParallelHalfPage(uint32_t Address1, uint32_t* pBuf
     {
       /* Write one half page,
          Address1 doesn't need to be increased */ 
-      count = 0;
+      count = 0U;
 
       /* Disable all IRQs */
       __disable_irq();
 
-      while(count < 16)
+      while(count < 16U)
       {
         *(__IO uint32_t*) Address1 = *pBuffer1;
         pBuffer1++;
@@ -259,8 +259,8 @@ __RAM_FUNC HAL_FLASHEx_ProgramParallelHalfPage(uint32_t Address1, uint32_t* pBuf
       
       /* Write the second half page,
          Address2 doesn't need to be increased */ 
-      count = 0;
-      while(count < 16)
+      count = 0U;
+      while(count < 16U)
       {
         *(__IO uint32_t*) Address2 = *pBuffer2;
         pBuffer2++;
@@ -328,14 +328,14 @@ __RAM_FUNC HAL_FLASHEx_HalfPageProgram(uint32_t Address, uint32_t *pBuffer)
     SET_BIT(FLASH->PECR, FLASH_PECR_PROG);
 
 
-    count = 0;
+    count = 0U;
     /* Write one half page,
        Address doesn't need to be increased */ 
 
     /* Disable all IRQs */
     __disable_irq();
 
-    while(count < 16)
+    while(count < 16U)
     {
       *(__IO uint32_t*) Address = *pBuffer;
       pBuffer++;
@@ -404,13 +404,18 @@ static __RAM_FUNC FLASHRAM_SetErrorCode(void)
   { 
     ProcFlash.ErrorCode |= HAL_FLASH_ERROR_SIZE;
   }
-#if defined(STM32L031xx) || defined(STM32L041xx)
-#else
   if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_OPTVERR))
   { 
+    /* WARNING : On the first cut of STM32L031xx and STM32L041xx devices,
+     *           (RefID = 0x1000) the FLASH_FLAG_OPTVERR bit was not behaving
+     *           as expected. If the user run an application using the first
+     *           cut of the STM32L031xx device or the first cut of the STM32L041xx
+     *           device, this error should be ignored. The revId of the device
+     *           can be retrieved via the HAL_GetREVID() function.
+     *
+     */
     ProcFlash.ErrorCode |= HAL_FLASH_ERROR_OPTV;
   }
-#endif
   if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_RDERR))
   { 
     ProcFlash.ErrorCode |= HAL_FLASH_ERROR_RD;
@@ -425,14 +430,10 @@ static __RAM_FUNC FLASHRAM_SetErrorCode(void)
   }
   
   /* Errors are now stored, clear errors flags */
-#if defined(STM32L031xx) || defined(STM32L041xx)
-  __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR |
-                         FLASH_FLAG_RDERR | FLASH_FLAG_FWWERR | FLASH_FLAG_NOTZEROERR);
-#else
+
   __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR |
                          FLASH_FLAG_OPTVERR | FLASH_FLAG_RDERR | FLASH_FLAG_FWWERR | 
                          FLASH_FLAG_NOTZEROERR);
-#endif
   return HAL_OK;
 } 
 
@@ -448,12 +449,12 @@ static __RAM_FUNC FLASHRAM_WaitForLastOperation(uint32_t Timeout)
        Even if the FLASH operation fails, the BUSY flag will be reset and an error
        flag will be set */
        
-    while(__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY) && (Timeout != 0x00)) 
+    while(__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY) && (Timeout != 0x00U)) 
     { 
       Timeout--;
     }
     
-    if(Timeout == 0x00 )
+    if(Timeout == 0x00U )
     {
       return HAL_TIMEOUT;
     }
@@ -461,15 +462,22 @@ static __RAM_FUNC FLASHRAM_WaitForLastOperation(uint32_t Timeout)
     if( (__HAL_FLASH_GET_FLAG(FLASH_FLAG_RDERR)      != RESET) || 
         (__HAL_FLASH_GET_FLAG(FLASH_FLAG_WRPERR)     != RESET) || 
         (__HAL_FLASH_GET_FLAG(FLASH_FLAG_PGAERR)     != RESET) || 
-#if defined(STM32L031xx) || defined(STM32L041xx)
-#else
         (__HAL_FLASH_GET_FLAG(FLASH_FLAG_OPTVERR)    != RESET) || 
-#endif
         (__HAL_FLASH_GET_FLAG(FLASH_FLAG_SIZERR)     != RESET) || 
         (__HAL_FLASH_GET_FLAG(FLASH_FLAG_FWWERR)     != RESET) || 
         (__HAL_FLASH_GET_FLAG(FLASH_FLAG_NOTZEROERR) != RESET) )
     {
       /*Save the error code*/
+
+      /* WARNING : On the first cut of STM32L031xx and STM32L041xx devices,
+       *           (RefID = 0x1000) the FLASH_FLAG_OPTVERR bit was not behaving
+       *           as expected. If the user run an application using the first
+       *           cut of the STM32L031xx device or the first cut of the STM32L041xx
+       *           device, this error should be ignored. The revId of the device
+       *           can be retrieved via the HAL_GetREVID() function.
+       *
+       */
+
       FLASHRAM_SetErrorCode();
       return HAL_ERROR;
     }
