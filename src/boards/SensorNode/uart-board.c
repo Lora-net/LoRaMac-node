@@ -205,10 +205,7 @@ void HAL_UART_RxCpltCallback( UART_HandleTypeDef *UartHandle )
 
 void HAL_UART_ErrorCallback( UART_HandleTypeDef *UartHandle )
 {
-    while( 1 )
-    {
-        assert_param( FAIL );
-    }
+
 }
 
 void USART1_IRQHandler( void )

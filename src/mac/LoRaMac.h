@@ -47,7 +47,7 @@
 #define __LORAMAC_H__
 
 // Includes board dependent definitions such as channels frequencies
-#include "LoRaMac-board.h"
+#include "LoRaMac-definitions.h"
 
 /*!
  * Beacon interval in ms
@@ -162,19 +162,19 @@ typedef enum eDeviceClass
     /*!
      * LoRaWAN device class A
      *
-     * LoRaWAN Specification V1.0, chapter 3ff
+     * LoRaWAN Specification V1.0.1, chapter 3ff
      */
     CLASS_A,
     /*!
      * LoRaWAN device class B
      *
-     * LoRaWAN Specification V1.0, chapter 8ff
+     * LoRaWAN Specification V1.0.1, chapter 8ff
      */
     CLASS_B,
     /*!
      * LoRaWAN device class C
      *
-     * LoRaWAN Specification V1.0, chapter 17ff
+     * LoRaWAN Specification V1.0.1, chapter 17ff
      */
     CLASS_C,
 }DeviceClass_t;
@@ -303,7 +303,7 @@ typedef struct sMulticastParams
 /*!
  * LoRaMAC frame types
  *
- * LoRaWAN Specification V1.0, chapter 4.2.1, table 1
+ * LoRaWAN Specification V1.0.1, chapter 4.2.1, table 1
  */
 typedef enum eLoRaMacFrameType
 {
@@ -344,7 +344,7 @@ typedef enum eLoRaMacFrameType
 /*!
  * LoRaMAC mote MAC commands
  *
- * LoRaWAN Specification V1.0, chapter 5, table 4
+ * LoRaWAN Specification V1.0.1, chapter 5, table 4
  */
 typedef enum eLoRaMacMoteCmd
 {
@@ -381,7 +381,7 @@ typedef enum eLoRaMacMoteCmd
 /*!
  * LoRaMAC server MAC commands
  *
- * LoRaWAN Specification V1.0, chapter 5, table 4
+ * LoRaWAN Specification V1.0.1 chapter 5, table 4
  */
 typedef enum eLoRaMacSrvCmd
 {
@@ -441,7 +441,7 @@ typedef enum eLoRaMacBatteryLevel
 /*!
  * LoRaMAC header field definition (MHDR field)
  *
- * LoRaWAN Specification V1.0, chapter 4.2
+ * LoRaWAN Specification V1.0.1, chapter 4.2
  */
 typedef union uLoRaMacHeader
 {
@@ -472,7 +472,7 @@ typedef union uLoRaMacHeader
 /*!
  * LoRaMAC frame control field definition (FCtrl)
  *
- * LoRaWAN Specification V1.0, chapter 4.3.1
+ * LoRaWAN Specification V1.0.1, chapter 4.3.1
  */
 typedef union uLoRaMacFrameCtrl
 {
@@ -642,7 +642,7 @@ typedef struct sMcpsReqUnconfirmed
      * Frame port field. Must be set if the payload is not empty. Use the
      * application specific frame port values: [1...223]
      *
-     * LoRaWAN Specification V1.0, chapter 4.3.2
+     * LoRaWAN Specification V1.0.1, chapter 4.3.2
      */
     uint8_t fPort;
     /*!
@@ -668,7 +668,7 @@ typedef struct sMcpsReqConfirmed
      * Frame port field. Must be set if the payload is not empty. Use the
      * application specific frame port values: [1...223]
      *
-     * LoRaWAN Specification V1.0, chapter 4.3.2
+     * LoRaWAN Specification V1.0.1, chapter 4.3.2
      */
     uint8_t fPort;
     /*!
@@ -686,7 +686,7 @@ typedef struct sMcpsReqConfirmed
     /*!
      * Number of trials to transmit the frame, if the LoRaMAC layer did not
      * receive an acknowledgment. The MAC performs a datarate adaptation,
-     * according to the LoRaWAN Specification V1.0, chapter 18.4, according
+     * according to the LoRaWAN Specification V1.0.1, chapter 19.4, according
      * to the following table:
      *
      * Transmission nb | Data Rate
@@ -883,13 +883,13 @@ typedef enum eMlme
     /*!
      * Initiates the Over-the-Air activation
      *
-     * LoRaWAN Specification V1.0, chapter 6.2
+     * LoRaWAN Specification V1.0.1, chapter 6.2
      */
     MLME_JOIN,
     /*!
      * LinkCheckReq - Connectivity validation
      *
-     * LoRaWAN Specification V1.0, chapter 5, table 4
+     * LoRaWAN Specification V1.0.1, chapter 5, table 4
      */
     MLME_LINK_CHECK,
 }Mlme_t;
@@ -902,19 +902,19 @@ typedef struct sMlmeReqJoin
     /*!
      * Globally unique end-device identifier
      *
-     * LoRaWAN Specification V1.0, chapter 6.2.1
+     * LoRaWAN Specification V1.0.1, chapter 6.2.1
      */
     uint8_t *DevEui;
     /*!
      * Application identifier
      *
-     * LoRaWAN Specification V1.0, chapter 6.1.2
+     * LoRaWAN Specification V1.0.1, chapter 6.1.2
      */
     uint8_t *AppEui;
     /*!
      * AES-128 application key
      *
-     * LoRaWAN Specification V1.0, chapter 6.2.2
+     * LoRaWAN Specification V1.0.1, chapter 6.2.2
      */
     uint8_t *AppKey;
 }MlmeReqJoin_t;
@@ -1014,19 +1014,19 @@ typedef enum eMib
     /*!
      * LoRaWAN device class
      *
-     * LoRaWAN Specification V1.0
+     * LoRaWAN Specification V1.0.1
      */
     MIB_DEVICE_CLASS,
     /*!
      * LoRaWAN Network joined attribute
      *
-     * LoRaWAN Specification V1.0
+     * LoRaWAN Specification V1.0.1
      */
     MIB_NETWORK_JOINED,
     /*!
      * Adaptive data rate
      *
-     * LoRaWAN Specification V1.0, chapter 4.3.1.1
+     * LoRaWAN Specification V1.0.1, chapter 4.3.1.1
      *
      * [true: ADR enabled, false: ADR disabled]
      */
@@ -1034,31 +1034,31 @@ typedef enum eMib
     /*!
      * Network identifier
      *
-     * LoRaWAN Specification V1.0, chapter 6.2.5
+     * LoRaWAN Specification V1.0.1, chapter 6.1.1
      */
     MIB_NET_ID,
     /*!
      * End-device address
      *
-     * LoRaWAN Specification V1.0, chapter 6.1.2
+     * LoRaWAN Specification V1.0.1, chapter 6.1.1
      */
     MIB_DEV_ADDR,
     /*!
      * Network session key
      *
-     * LoRaWAN Specification V1.0, chapter 6.1.3
+     * LoRaWAN Specification V1.0.1, chapter 6.1.3
      */
     MIB_NWK_SKEY,
     /*!
      * Application session key
      *
-     * LoRaWAN Specification V1.0, chapter 6.1.4
+     * LoRaWAN Specification V1.0.1, chapter 6.1.4
      */
     MIB_APP_SKEY,
     /*!
      * Set the network type to public or private
      *
-     * LoRaWAN Specification V1.0, chapter 7
+     * LoRaWAN Specification V1.0.1, chapter 7
      *
      * [true: public network, false: private network]
      */
@@ -1066,7 +1066,7 @@ typedef enum eMib
     /*!
      * Support the operation with repeaters
      *
-     * LoRaWAN Specification V1.0, chapter 7
+     * LoRaWAN Specification V1.0.1, chapter 7
      *
      * [true: repeater support enabled, false: repeater support disabled]
      */
@@ -1076,61 +1076,61 @@ typedef enum eMib
      * pointer which references the first entry of the channel list. The
      * list is of size LORA_MAX_NB_CHANNELS
      *
-     * LoRaWAN Specification V1.0, chapter 7
+     * LoRaWAN Specification V1.0.1, chapter 7
      */
     MIB_CHANNELS,
     /*!
      * Set receive window 2 channel
      *
-     * LoRaWAN Specification V1.0, chapter 3.3.2
+     * LoRaWAN Specification V1.0.1, chapter 3.3.2
      */
     MIB_RX2_CHANNEL,
     /*!
      * LoRaWAN channels mask
      *
-     * LoRaWAN Specification V1.0, chapter 5.2
+     * LoRaWAN Specification V1.0.1, chapter 7
      */
     MIB_CHANNELS_MASK,
     /*!
      * Set the number of repetitions on a channel
      *
-     * LoRaWAN Specification V1.0, chapter 5.2
+     * LoRaWAN Specification V1.0.1, chapter 5.2
      */
     MIB_CHANNELS_NB_REP,
     /*!
      * Maximum receive window duration in [ms]
      *
-     * LoRaWAN Specification V1.0, chapter 3.3.3
+     * LoRaWAN Specification V1.0.1, chapter 3.3.3
      */
     MIB_MAX_RX_WINDOW_DURATION,
     /*!
      * Receive delay 1 in [ms]
      *
-     * LoRaWAN Specification V1.0, chapter 6
+     * LoRaWAN Specification V1.0.1, chapter 7
      */
     MIB_RECEIVE_DELAY_1,
     /*!
      * Receive delay 2 in [ms]
      *
-     * LoRaWAN Specification V1.0, chapter 6
+     * LoRaWAN Specification V1.0.1, chapter 7
      */
     MIB_RECEIVE_DELAY_2,
     /*!
      * Join accept delay 1 in [ms]
      *
-     * LoRaWAN Specification V1.0, chapter 6
+     * LoRaWAN Specification V1.0.1, chapter 7
      */
     MIB_JOIN_ACCEPT_DELAY_1,
     /*!
      * Join accept delay 2 in [ms]
      *
-     * LoRaWAN Specification V1.0, chapter 6
+     * LoRaWAN Specification V1.0.1, chapter 7
      */
     MIB_JOIN_ACCEPT_DELAY_2,
     /*!
      * Default Data rate of a channel
      *
-     * LoRaWAN Specification V1.0, chapter 7
+     * LoRaWAN Specification V1.0.1, chapter 7
      *
      * EU868 - [DR_0, DR_1, DR_2, DR_3, DR_4, DR_5, DR_6, DR_7]
      *
@@ -1140,7 +1140,7 @@ typedef enum eMib
     /*!
      * Data rate of a channel
      *
-     * LoRaWAN Specification V1.0, chapter 7
+     * LoRaWAN Specification V1.0.1, chapter 7
      *
      * EU868 - [DR_0, DR_1, DR_2, DR_3, DR_4, DR_5, DR_6, DR_7]
      *
@@ -1150,7 +1150,7 @@ typedef enum eMib
     /*!
      * Transmission power of a channel
      *
-     * LoRaWAN Specification V1.0, chapter 7
+     * LoRaWAN Specification V1.0.1, chapter 7
      *
      * EU868 - [TX_POWER_20_DBM, TX_POWER_14_DBM, TX_POWER_11_DBM,
      *          TX_POWER_08_DBM, TX_POWER_05_DBM, TX_POWER_02_DBM]
@@ -1164,13 +1164,13 @@ typedef enum eMib
     /*!
      * LoRaWAN Up-link counter
      *
-     * LoRaWAN Specification V1.0, chapter 4.3.1.5
+     * LoRaWAN Specification V1.0.1, chapter 4.3.1.5
      */
     MIB_UPLINK_COUNTER,
     /*!
      * LoRaWAN Down-link counter
      *
-     * LoRaWAN Specification V1.0, chapter 4.3.1.5
+     * LoRaWAN Specification V1.0.1, chapter 4.3.1.5
      */
     MIB_DOWNLINK_COUNTER,
     /*!

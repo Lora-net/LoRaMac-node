@@ -19,10 +19,20 @@ Maintainer: Miguel Luis and Gregory Cristian
  * I2C device address
  */
 static uint8_t I2cDeviceAddr = 0;
+
 /*!
  * Indicates if the MPL3115 is initialized or not
  */
 static bool MPL3115Initialized = false;
+
+/*!
+ * Defines the barometric reading types
+ */
+typedef enum
+{
+    PRESSURE,
+    ALTITUDE,
+}BarometerReadingType_t;
 
 /*!
  * \brief Writes a byte at specified address in the device
@@ -110,14 +120,19 @@ uint8_t MPL3115Init( void )
 
     if( MPL3115Initialized == false )
     {
+        MPL3115Write( CTRL_REG1, RST );
+        DelayMs( 50 );
+        I2cResetBus( &I2c );
+
+        // Check MPL3115 ID
         MPL3115Read( MPL3115_ID, &regVal );
         if( regVal != 0xC4 )
         {
             return FAIL;
         }
-        MPL3115SetModeStandby( );
+
         MPL3115Write( PT_DATA_CFG_REG, DREM | PDEFE | TDEFE );      // Enable data ready flags for pressure and temperature )
-        MPL3115Write( CTRL_REG1, OS_128 | 0x01 );                   // Set sensor to active state with oversampling ratio 128 (512 ms between samples)
+        MPL3115Write( CTRL_REG1, ALT | OS_32 | SBYB );              // Set sensor to active state with oversampling ratio 128 (512 ms between samples)
         MPL3115Initialized = true;
     }
     return SUCCESS;
@@ -126,7 +141,7 @@ uint8_t MPL3115Init( void )
 uint8_t MPL3115Reset( void )
 {
     // Reset all registers to POR values
-    if( MPL3115Write( CTRL_REG1, 0x04 ) == SUCCESS )
+    if( MPL3115Write( CTRL_REG1, RST ) == SUCCESS )
     {
         return SUCCESS;
     }
@@ -163,16 +178,63 @@ uint8_t MPL3115GetDeviceAddr( void )
     return I2cDeviceAddr;
 }
 
-float MPL3115ReadAltitude( void )
+static float MPL3115ReadBarometer( BarometerReadingType_t type )
 {
+    uint8_t counter = 0;
     uint8_t tempBuf[3];
     uint8_t msb = 0, csb = 0, lsb = 0;
-    float decimal = 0;
-    float altitude = 0;
+    uint8_t status = 0;
 
     if( MPL3115Initialized == false )
     {
         return 0;
+    }
+
+    if( type == ALTITUDE )
+    {
+        MPL3115SetModeAltimeter( );
+    }
+    else
+    {
+        MPL3115SetModeBarometer( );
+    }
+
+    MPL3115ToggleOneShot( );
+
+    while( ( status & PDR ) != PDR )
+    {
+        MPL3115Read( STATUS_REG, &status );
+        DelayMs( 10 );
+        counter++;
+
+        if( counter > 20 )
+        {
+            MPL3115Initialized = false;
+            MPL3115Init( );
+            if( type == ALTITUDE )
+            {
+                MPL3115SetModeAltimeter( );
+            }
+            else
+            {
+                MPL3115SetModeBarometer( );
+            }
+            MPL3115ToggleOneShot( );
+            counter = 0;
+
+            while( ( status & PDR ) != PDR )
+            {
+                MPL3115Read( STATUS_REG, &status );
+                DelayMs( 10 );
+                counter++;
+
+                if( counter > 20 )
+                {
+                    // Error out after max of 512 ms for a read
+                    return 0;
+                }
+            }
+        }
     }
 
     MPL3115ReadBuffer( OUT_P_MSB_REG, tempBuf, 3 );       //Read altitude data
@@ -181,18 +243,42 @@ float MPL3115ReadAltitude( void )
     csb = tempBuf[1];
     lsb = tempBuf[2];
 
-    decimal = ( ( float )( lsb >> 4 ) ) / 16.0;
-    altitude = ( float )( ( int16_t )( ( msb << 8 ) | csb ) ) + decimal;
+    if( type == ALTITUDE )
+    {
+        float altitude = 0;
+        float decimal = ( ( float )( lsb >> 4 ) ) / 16.0;
+        altitude = ( float )( ( int16_t )( ( msb << 8 ) | csb ) ) + decimal;
+        return( altitude );
+    }
+    else
+    {
+        float pressure = ( float )( ( msb << 16 | csb << 8 | lsb ) >> 6 );
+        lsb &= 0x30;                                // Bits 5/4 represent the fractional component
+        lsb >>= 4;                                  // Get it right aligned
+        float decimal = ( ( float )lsb ) / 4.0;
+        pressure = pressure + decimal;
+        return( pressure );
+    }
+}
 
-    return( altitude );
+float MPL3115ReadAltitude( void )
+{
+    return MPL3115ReadBarometer( ALTITUDE );
 }
 
 float MPL3115ReadPressure( void )
 {
-    uint8_t tempBuf[3];
-    uint8_t msb = 0, csb = 0, lsb = 0;
-    float decimal = 0;
-    float pressure = 0;
+    return MPL3115ReadBarometer( PRESSURE );
+}
+
+float MPL3115ReadTemperature( void )
+{
+    uint8_t counter = 0;
+    uint8_t tempBuf[2];
+    uint8_t msb = 0, lsb = 0;
+    bool negSign = false;
+    uint8_t val = 0;
+    float temperature = 0;
     uint8_t status = 0;
 
     if( MPL3115Initialized == false )
@@ -200,42 +286,34 @@ float MPL3115ReadPressure( void )
         return 0;
     }
 
-    MPL3115Read( STATUS_REG, &status );
+    MPL3115ToggleOneShot( );
 
-    //Check PDR bit, if it's not set then toggle OST
-    if( ( status & ( 1 << PDR ) ) == 0 )
+    while( ( status & TDR ) != TDR )
     {
-        MPL3115ToggleOneShot( );                // Toggle the OST bit causing the sensor to immediately take another reading
-    }
+        MPL3115Read( STATUS_REG, &status );
+        DelayMs( 10 );
+        counter++;
 
-    MPL3115ReadBuffer( OUT_P_MSB_REG, tempBuf, 3 );
+        if( counter > 20 )
+        {
+            MPL3115Initialized = false;
+            MPL3115Init( );
+            MPL3115ToggleOneShot( );
+            counter = 0;
 
-    msb = tempBuf[0];
-    csb = tempBuf[1];
-    lsb = tempBuf[2];
+            while( ( status & TDR ) != TDR )
+            {
+                MPL3115Read( STATUS_REG, &status );
+                DelayMs( 10 );
+                counter++;
 
-    pressure = ( float )( ( msb << 16 | csb << 8 | lsb ) >> 6 );
-    lsb &= 0x30;                                // Bits 5/4 represent the fractional component
-    lsb >>= 4;                                  // Get it right aligned
-
-    decimal = ( ( float )lsb ) / 4.0;
-
-    pressure = pressure + decimal;
-
-    return( pressure );
-}
-
-float MPL3115ReadTemperature( void )
-{
-    uint8_t tempBuf[2];
-    uint8_t msb = 0, lsb = 0;
-    bool negSign = false;
-    uint8_t val = 0;
-    float temperature = 0;
-
-    if( MPL3115Initialized == false )
-    {
-        return 0;
+                if( counter > 20 )
+                {
+                    // Error out after max of 512 ms for a read
+                    return 0;
+                }
+            }
+        }
     }
 
     MPL3115ReadBuffer( OUT_T_MSB_REG, tempBuf, 2 );
@@ -260,6 +338,8 @@ float MPL3115ReadTemperature( void )
         temperature = msb + ( float )( ( lsb >> 4 ) / 16.0 );
     }
 
+    MPL3115ToggleOneShot( );
+
     return( temperature );
 }
 
@@ -267,36 +347,43 @@ void MPL3115ToggleOneShot( void )
 {
     uint8_t ctrlReg = 0;
 
+    MPL3115SetModeStandby( );
+
     MPL3115Read( CTRL_REG1, &ctrlReg );           // Read current settings
-    ctrlReg &= ~( 1 << 1 );                       // Clear OST bit
+    ctrlReg &= ~OST;                              // Clear OST bit
     MPL3115Write( CTRL_REG1, ctrlReg );
+
     MPL3115Read( CTRL_REG1, &ctrlReg );           // Read current settings to be safe
-    ctrlReg |= ( 1 << 1 );                        // Set OST bit
+    ctrlReg |= OST;                               // Set OST bit
     MPL3115Write( CTRL_REG1, ctrlReg );
+
+    MPL3115SetModeActive( );
 }
 
 void MPL3115SetModeBarometer( void )
 {
     uint8_t ctrlReg = 0;
 
+    MPL3115SetModeStandby( );
+
     MPL3115Read( CTRL_REG1, &ctrlReg );           // Read current settings
-    ctrlReg &= ~( SBYB );                         // Set SBYB to 0 and go to Standby mode
+    ctrlReg &= ~ALT;                              // Set ALT bit to zero
     MPL3115Write( CTRL_REG1, ctrlReg );
 
-    ctrlReg = OS_128 ;                            // Set ALT bit to zero and enable back Active mode
-    MPL3115Write(CTRL_REG1, ctrlReg );
+    MPL3115SetModeActive( );
 }
 
 void MPL3115SetModeAltimeter( void )
 {
     uint8_t ctrlReg = 0;
 
-    MPL3115Read( CTRL_REG1, &ctrlReg );           // Read current settings
-    ctrlReg &= ~( SBYB );                         // Go to Standby mode
-    MPL3115Write(CTRL_REG1, ctrlReg );
+    MPL3115SetModeStandby( );
 
-    ctrlReg = ALT | OS_128;                       // Set ALT bit to one and enable back Active mode
-    MPL3115Write(CTRL_REG1, ctrlReg );
+    MPL3115Read( CTRL_REG1, &ctrlReg );           // Read current settings
+    ctrlReg |= ALT;                               // Set ALT bit to one
+    MPL3115Write( CTRL_REG1, ctrlReg );
+
+    MPL3115SetModeActive( );
 }
 
 void MPL3115SetModeStandby( void )
@@ -304,7 +391,7 @@ void MPL3115SetModeStandby( void )
     uint8_t ctrlReg = 0;
 
     MPL3115Read( CTRL_REG1, &ctrlReg );
-    ctrlReg &= ~( SBYB );                         // Clear SBYB bit for Standby mode
+    ctrlReg &= ~SBYB;                             // Clear SBYB bit for Standby mode
     MPL3115Write( CTRL_REG1, ctrlReg );
 }
 

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_dac_ex.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-October-2015
+  * @version V1.6.0
+  * @date    15-April-2016
   * @brief   Extended DAC HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of DAC extension peripheral:
@@ -25,7 +25,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -110,11 +110,11 @@ static void DAC_DMAHalfConvCpltCh1(DMA_HandleTypeDef *hdma);
   */
 uint32_t HAL_DACEx_DualGetValue(DAC_HandleTypeDef* hdac)
 {
-  uint32_t tmp = 0;
+  uint32_t tmp = 0U;
   
   tmp |= hdac->Instance->DOR1;
   
-  tmp |= hdac->Instance->DOR2 << 16;
+  tmp |= hdac->Instance->DOR2 << 16U;
   
   /* Returns the DAC channel data output register value */
   return tmp;
@@ -238,7 +238,7 @@ HAL_StatusTypeDef HAL_DACEx_NoiseWaveGenerate(DAC_HandleTypeDef* hdac, uint32_t 
   */
 HAL_StatusTypeDef HAL_DACEx_DualSetValue(DAC_HandleTypeDef* hdac, uint32_t Alignment, uint32_t Data1, uint32_t Data2)
 {  
-  uint32_t data = 0, tmp = 0;
+  uint32_t data = 0U, tmp = 0U;
   
   /* Check the parameters */
   assert_param(IS_DAC_ALIGN(Alignment));
@@ -248,11 +248,11 @@ HAL_StatusTypeDef HAL_DACEx_DualSetValue(DAC_HandleTypeDef* hdac, uint32_t Align
   /* Calculate and set dual DAC data holding register value */
   if (Alignment == DAC_ALIGN_8B_R)
   {
-    data = ((uint32_t)Data2 << 8) | Data1; 
+    data = ((uint32_t)Data2 << 8U) | Data1; 
   }
   else
   {
-    data = ((uint32_t)Data2 << 16) | Data1;
+    data = ((uint32_t)Data2 << 16U) | Data1;
   }
   
   tmp = (uint32_t)hdac->Instance;
@@ -274,6 +274,9 @@ HAL_StatusTypeDef HAL_DACEx_DualSetValue(DAC_HandleTypeDef* hdac, uint32_t Align
   */
 __weak void HAL_DACEx_ConvCpltCallbackCh2(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DACEx_ConvCpltCallbackCh2 could be implemented in the user file
    */
@@ -287,6 +290,9 @@ __weak void HAL_DACEx_ConvCpltCallbackCh2(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DACEx_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DACEx_ConvHalfCpltCallbackCh2 could be implemented in the user file
    */
@@ -300,6 +306,9 @@ __weak void HAL_DACEx_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DACEx_ErrorCallbackCh2(DAC_HandleTypeDef *hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DACEx_ErrorCallbackCh2 could be implemented in the user file
    */
@@ -313,6 +322,9 @@ __weak void HAL_DACEx_ErrorCallbackCh2(DAC_HandleTypeDef *hdac)
   */
 __weak void HAL_DACEx_DMAUnderrunCallbackCh2(DAC_HandleTypeDef *hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_DMAUnderrunCallbackCh2 could be implemented in the user file
    */
@@ -330,7 +342,7 @@ __weak void HAL_DACEx_DMAUnderrunCallbackCh2(DAC_HandleTypeDef *hdac)
   */
 HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel)
 {
-  uint32_t tmp1 = 0, tmp2 = 0;
+  uint32_t tmp1 = 0U, tmp2 = 0U;
   
   /* Check the parameters */
   assert_param(IS_DAC_CHANNEL(Channel));
@@ -396,7 +408,7 @@ HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel)
   */
 HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t* pData, uint32_t Length, uint32_t Alignment)
 {
-  uint32_t tmpreg = 0;
+  uint32_t tmpreg = 0U;
 
   /* Check the parameters */
   assert_param(IS_DAC_CHANNEL(Channel));
@@ -646,7 +658,7 @@ void HAL_DAC_IRQHandler(DAC_HandleTypeDef* hdac)
   */
 HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t Alignment, uint32_t Data)
 {
-  __IO uint32_t tmp = 0;
+  __IO uint32_t tmp = 0U;
 
   /* Check the parameters */
   assert_param(IS_DAC_CHANNEL(Channel));
@@ -682,7 +694,7 @@ HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef* hdac, uint32_t Channel, ui
   */
 HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel)
 {
-  uint32_t tmp1 = 0, tmp2 = 0;
+  uint32_t tmp1 = 0U, tmp2 = 0U;
   
   /* Check the parameters */
   assert_param(IS_DAC_CHANNEL(Channel));
@@ -733,7 +745,7 @@ HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel)
   */
 HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t* pData, uint32_t Length, uint32_t Alignment)
 {
-  uint32_t tmpreg = 0;
+  uint32_t tmpreg = 0U;
 
   /* Check the parameters */
   assert_param(IS_DAC_CHANNEL(Channel));
@@ -898,7 +910,7 @@ void HAL_DAC_IRQHandler(DAC_HandleTypeDef* hdac)
   */
 HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t Alignment, uint32_t Data)
 {
-  __IO uint32_t tmp = 0;
+  __IO uint32_t tmp = 0U;
 
   /* Check the parameters */
   assert_param(IS_DAC_CHANNEL(Channel));

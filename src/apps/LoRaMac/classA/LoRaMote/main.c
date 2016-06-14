@@ -23,11 +23,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "Comissioning.h"
 
 /*!
- * Join requests trials duty cycle.
- */
-#define OVER_THE_AIR_ACTIVATION_DUTYCYCLE           10000 // 10 [s] value in ms
-
-/*!
  * Defines the application data transmission duty cycle. 5s, value in [ms].
  */
 #define APP_TX_DUTYCYCLE                            5000
@@ -522,6 +517,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
 #if defined( USE_BAND_868 )
                     LoRaMacTestSetDutyCycleOn( false );
 #endif
+                    GpsStop( );
                 }
             }
             else
@@ -543,6 +539,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
 #if defined( USE_BAND_868 )
                     LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
 #endif
+                    GpsStart( );
                     break;
                 case 1: // (iii, iv)
                     AppDataSize = 2;
@@ -601,6 +598,8 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             case MLME_JOIN:
             {
                 // Status is OK, node has joined the network
+                DeviceState = DEVICE_STATE_SEND;
+                NextTx = true;
                 break;
             }
             case MLME_LINK_CHECK:
@@ -699,11 +698,7 @@ int main( void )
                 {
                     LoRaMacMlmeRequest( &mlmeReq );
                 }
-
-                // Schedule next packet transmission
-                TxDutyCycleTime = OVER_THE_AIR_ACTIVATION_DUTYCYCLE;
-                DeviceState = DEVICE_STATE_CYCLE;
-
+                DeviceState = DEVICE_STATE_SLEEP;
 #else
                 // Choose a random device address if not already defined in Comissioning.h
                 if( DevAddr == 0 )

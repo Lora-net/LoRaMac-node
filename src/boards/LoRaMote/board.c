@@ -50,6 +50,7 @@ Gpio_t DbgPin1;
 Gpio_t DbgPin2;
 Gpio_t DbgPin3;
 Gpio_t DbgPin4;
+Gpio_t DbgPin5;
 #endif
 
 /*
@@ -77,9 +78,9 @@ static void BoardUnusedIoInit( void );
 static void SystemClockConfig( void );
 
 /*!
- * Timer calibration
+ * Used to measure and calibrate the system wake-up time from STOP mode
  */
-static void CalibrateTimer( void );
+static void CalibrateSystemWakeupTime( void );
 
 /*!
  * System Clock Re-Configuration when waking up from STOP mode
@@ -87,9 +88,9 @@ static void CalibrateTimer( void );
 static void SystemClockReConfig( void );
 
 /*!
- * Timer used at first boot to calibrate the Timer
+ * Timer used at first boot to calibrate the SystemWakeupTime
  */
-static TimerEvent_t TimerCalibrationTimer;
+static TimerEvent_t CalibrateSystemWakeupTimeTimer;
 
 /*!
  * Flag to indicate if the MCU is Initialized
@@ -97,14 +98,16 @@ static TimerEvent_t TimerCalibrationTimer;
 static bool McuInitialized = false;
 
 /*!
- * Flag to indicate if the Timer is Calibrated
+ * Flag to indicate if the SystemWakeupTime is Calibrated
  */
-static bool TimerCalibrated = false;
+static bool SystemWakeupTimeCalibrated = false;
 
-
-static void OnTimerCalibrationTimerEvent( void )
+/*!
+ * Callback indicating the end of the system wake-up time calibration
+ */
+static void OnCalibrateSystemWakeupTimeTimerEvent( void )
 {
-    TimerCalibrated = true;
+    SystemWakeupTimeCalibrated = true;
 }
 
 void BoardInitPeriph( void )
@@ -182,10 +185,21 @@ void BoardInitMcu( void )
     SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX1272IoInit( );
 
+#if defined( USE_DEBUG_PINS )
+        GpioInit( &DbgPin1, CON_EXT_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+        GpioInit( &DbgPin2, CON_EXT_3, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+        GpioInit( &DbgPin3, CON_EXT_7, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+        GpioInit( &DbgPin4, CON_EXT_8, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+        GpioInit( &DbgPin5, CON_EXT_9, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+#endif
+
     if( McuInitialized == false )
     {
         McuInitialized = true;
-        CalibrateTimer( );
+        if( GetBoardPowerSource( ) == BATTERY_POWER )
+        {
+            CalibrateSystemWakeupTime( );
+        }
     }
 }
 
@@ -195,6 +209,14 @@ void BoardDeInitMcu( void )
 
     SpiDeInit( &SX1272.Spi );
     SX1272IoDeInit( );
+
+#if ( defined( USE_DEBUG_PINS ) && !defined( LOW_POWER_MODE_ENABLE ) )
+    GpioInit( &DbgPin1, CON_EXT_1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &DbgPin2, CON_EXT_3, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &DbgPin3, CON_EXT_7, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &DbgPin4, CON_EXT_8, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &DbgPin5, CON_EXT_9, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+#endif
 
     GpioInit( &ioPin, OSC_HSE_IN, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
     GpioInit( &ioPin, OSC_HSE_OUT, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
@@ -247,6 +269,7 @@ static void BoardUnusedIoInit( void )
     GpioInit( &ioPin, CON_EXT_1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &ioPin, CON_EXT_3, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &ioPin, CON_EXT_7, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &ioPin, CON_EXT_8, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &ioPin, CON_EXT_9, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 #endif
 
@@ -258,7 +281,6 @@ static void BoardUnusedIoInit( void )
 
     GpioInit( &ioPin, BOOT_1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 
-    GpioInit( &ioPin, CON_EXT_8, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &ioPin, BAT_LEVEL, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 
     GpioInit( &ioPin, PIN_PB6, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
@@ -322,14 +344,14 @@ void SystemClockConfig( void )
     HAL_NVIC_SetPriority( SysTick_IRQn, 0, 0 );
 }
 
-void CalibrateTimer( void )
+void CalibrateSystemWakeupTime( void )
 {
-    if( TimerCalibrated == false )
+    if( SystemWakeupTimeCalibrated == false )
     {
-        TimerInit( &TimerCalibrationTimer, OnTimerCalibrationTimerEvent );
-        TimerSetValue( &TimerCalibrationTimer, 1000 );
-        TimerStart( &TimerCalibrationTimer );
-        while( TimerCalibrated == false )
+        TimerInit( &CalibrateSystemWakeupTimeTimer, OnCalibrateSystemWakeupTimeTimerEvent );
+        TimerSetValue( &CalibrateSystemWakeupTimeTimer, 1000 );
+        TimerStart( &CalibrateSystemWakeupTimeTimer );
+        while( SystemWakeupTimeCalibrated == false )
         {
             TimerLowPowerHandler( );
         }
@@ -345,7 +367,7 @@ void SystemClockReConfig( void )
     __HAL_RCC_HSE_CONFIG( RCC_HSE_ON );
 
     /* Wait till HSE is ready */
-    while(__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY) == RESET)
+    while( __HAL_RCC_GET_FLAG( RCC_FLAG_HSERDY ) == RESET )
     {
     }
 

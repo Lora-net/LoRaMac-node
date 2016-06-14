@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32l0xx_hal.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-October-2015
+  * @version V1.6.0
+  * @date    15-April-2016
   * @brief   This file contains all the functions prototypes for the HAL 
   *          module driver.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -61,8 +61,8 @@
 /** @defgroup SYSCFG_BootMode Boot Mode
   * @{
   */
-#define SYSCFG_BOOT_MAINFLASH          ((uint32_t)0x00000000)
-#define SYSCFG_BOOT_SYSTEMFLASH        ((uint32_t)SYSCFG_CFGR1_MEM_MODE_0)
+#define SYSCFG_BOOT_MAINFLASH          ((uint32_t)0x00000000U)
+#define SYSCFG_BOOT_SYSTEMFLASH        ((uint32_t)SYSCFG_CFGR1_BOOT_MODE_0)
 #define SYSCFG_BOOT_SRAM               ((uint32_t)SYSCFG_CFGR1_BOOT_MODE)     
 
 /**
@@ -75,7 +75,7 @@
 #define DBGMCU_SLEEP                 DBGMCU_CR_DBG_SLEEP
 #define DBGMCU_STOP                  DBGMCU_CR_DBG_STOP
 #define DBGMCU_STANDBY               DBGMCU_CR_DBG_STANDBY
-#define IS_DBGMCU_PERIPH(__PERIPH__) ((((__PERIPH__) & (~(DBGMCU_CR_DBG))) == 0x00) && ((__PERIPH__) != 0x00))
+#define IS_DBGMCU_PERIPH(__PERIPH__) ((((__PERIPH__) & (~(DBGMCU_CR_DBG))) == 0x00U) && ((__PERIPH__) != 0x00U))
 
 
 /**
@@ -105,7 +105,7 @@
 /** @defgroup SYSCFG_VREFINT_OUT_SELECT SYSCFG VREFINT Out Selection
   * @{
   */ 
-#define SYSCFG_VREFINT_OUT_NONE          ((uint32_t)0x00000000) /* no pad connected */  
+#define SYSCFG_VREFINT_OUT_NONE          ((uint32_t)0x00000000U) /* no pad connected */  
 #define SYSCFG_VREFINT_OUT_PB0           SYSCFG_CFGR3_VREF_OUT_0 /* Selects PBO as output for the Vrefint */
 #define SYSCFG_VREFINT_OUT_PB1           SYSCFG_CFGR3_VREF_OUT_1 /* Selects PB1 as output for the Vrefint */
 #define SYSCFG_VREFINT_OUT_PB0_PB1       SYSCFG_CFGR3_VREF_OUT   /* Selects PBO and PB1 as output for the Vrefint */
@@ -372,8 +372,6 @@ void HAL_DBGMCU_DisableDBGStandbyMode(void);
 void HAL_DBGMCU_DBG_EnableLowPowerConfig(uint32_t Periph);
 void HAL_DBGMCU_DBG_DisableLowPowerConfig(uint32_t Periph);
 uint32_t  HAL_SYSCFG_GetBootMode(void);
-void HAL_SYSCFG_EnableVREFINT(void);
-void HAL_SYSCFG_DisableVREFINT(void);
 void HAL_SYSCFG_Enable_Lock_VREFINT(void);
 void HAL_SYSCFG_Disable_Lock_VREFINT(void);
 void HAL_SYSCFG_VREFINT_OutputSelect(uint32_t SYSCFG_Vrefint_OUTPUT);

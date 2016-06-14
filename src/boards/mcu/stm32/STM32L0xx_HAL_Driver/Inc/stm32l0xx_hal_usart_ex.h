@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_usart_ex.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-October-2015
+  * @version V1.6.0
+  * @date    15-April-2016
   * @brief   Header file of USART HAL Extension module.
   ******************************************************************************
   * @attention
   *                               
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -62,9 +62,9 @@
 /** @defgroup USARTEx_Word_Length Word length definition
   * @{
   */
-#define USART_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M_1)
-#define USART_WORDLENGTH_8B                  ((uint32_t)0x00000000)
-#define USART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M_0)
+#define USART_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M1)
+#define USART_WORDLENGTH_8B                  ((uint32_t)0x00000000U)
+#define USART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M0)
 #define IS_USART_WORD_LENGTH(LENGTH) (((LENGTH) == USART_WORDLENGTH_7B) || \
                                       ((LENGTH) == USART_WORDLENGTH_8B) || \
                                       ((LENGTH) == USART_WORDLENGTH_9B))                                 

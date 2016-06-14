@@ -6,14 +6,14 @@
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
     (C)2015 Semtech
 
-Description: End device comissioning parameters
+Description: End device commissioning parameters
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#ifndef __LORA_COMISSIONING_H__
-#define __LORA_COMISSIONING_H__
+#ifndef __LORA_COMMISSIONING_H__
+#define __LORA_COMMISSIONING_H__
 
 /*!
  * When set to 1 the application uses the Over-the-Air activation procedure
@@ -79,4 +79,4 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 #endif
 
-#endif // __LORA_COMISSIONING_H__
+#endif // __LORA_COMMISSIONING_H__

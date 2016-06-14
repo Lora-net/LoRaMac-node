@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_adc_ex.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-October-2015
+  * @version V1.6.0
+  * @date    15-April-2016
   * @brief  This file contains all the functions prototypes for the ADC firmware 
   *          library.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -65,7 +65,7 @@
 /** @defgroup ADCEx_Channel_Mode ADC Single Ended
   * @{
   */
-#define ADC_SINGLE_ENDED                        (uint32_t)0x00000000   /* dummy value */
+#define ADC_SINGLE_ENDED                        (uint32_t)0x00000000U   /* dummy value */
 /**
   * @}
   */
@@ -73,7 +73,7 @@
 /** @defgroup ADC_External_trigger_Source ADC External Trigger Source
   * @{
   */
-#define ADC_EXTERNALTRIGCONV_T6_TRGO            ((uint32_t)0x00000000)
+#define ADC_EXTERNALTRIGCONV_T6_TRGO            ((uint32_t)0x00000000U)
 #define ADC_EXTERNALTRIGCONV_T21_CC2            (ADC_CFGR1_EXTSEL_0)
 #define ADC_EXTERNALTRIGCONV_T2_TRGO            (ADC_CFGR1_EXTSEL_1)
 #define ADC_EXTERNALTRIGCONV_T2_CC4             (ADC_CFGR1_EXTSEL_1 | ADC_CFGR1_EXTSEL_0)
@@ -108,7 +108,7 @@
 /** @defgroup ADC_SYSCFG_internal_paths_flags_definition ADC SYSCFG internal paths Flags Definition
   * @{
   */
-#define ADC_FLAG_SENSOR         SYSCFG_CFGR3_SENSOR_ADC_RDYF
+#define ADC_FLAG_SENSOR         SYSCFG_CFGR3_VREFINT_RDYF
 #define ADC_FLAG_VREFINT        SYSCFG_VREFINT_ADC_RDYF
 /**
   * @}
@@ -130,11 +130,11 @@
   * @{
   */ 
 /**
-  * @brief Calibration factor lenght verification (7 bits maximum)
+  * @brief Calibration factor length verification (7 bits maximum)
   * @param _Calibration_Factor_: Calibration factor value
   * @retval None
   */
-#define IS_ADC_CALFACT(_Calibration_Factor_) ((_Calibration_Factor_) <= ((uint32_t)0x7F))
+#define IS_ADC_CALFACT(_Calibration_Factor_) ((_Calibration_Factor_) <= ((uint32_t)0x7FU))
 /**
   * @}
   */ 

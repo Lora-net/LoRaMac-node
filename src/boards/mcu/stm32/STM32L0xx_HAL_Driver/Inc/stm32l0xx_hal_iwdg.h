@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_iwdg.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-October-2015
+  * @version V1.6.0
+  * @date    15-April-2016
   * @brief   Header file of IWDG HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -68,11 +68,11 @@
   */
 typedef enum
 {
-  HAL_IWDG_STATE_RESET     = 0x00,  /*!< IWDG not yet initialized or disabled */
-  HAL_IWDG_STATE_READY     = 0x01,  /*!< IWDG initialized and ready for use   */
-  HAL_IWDG_STATE_BUSY      = 0x02,  /*!< IWDG internal process is ongoing     */
-  HAL_IWDG_STATE_TIMEOUT   = 0x03,  /*!< IWDG timeout state                   */
-  HAL_IWDG_STATE_ERROR     = 0x04   /*!< IWDG error state                     */
+  HAL_IWDG_STATE_RESET     = 0x00U,  /*!< IWDG not yet initialized or disabled */
+  HAL_IWDG_STATE_READY     = 0x01U,  /*!< IWDG initialized and ready for use   */
+  HAL_IWDG_STATE_BUSY      = 0x02U,  /*!< IWDG internal process is ongoing     */
+  HAL_IWDG_STATE_TIMEOUT   = 0x03U,  /*!< IWDG timeout state                   */
+  HAL_IWDG_STATE_ERROR     = 0x04U   /*!< IWDG error state                     */
 
 }HAL_IWDG_StateTypeDef;
 /**
@@ -138,10 +138,10 @@ typedef struct
   */
 /* --- KR Register ---*/
 /* KR register bit mask */
-#define IWDG_KEY_RELOAD               ((uint32_t)0xAAAA)  /*!< IWDG Reload Counter Enable   */
-#define IWDG_KEY_ENABLE               ((uint32_t)0xCCCC)  /*!< IWDG Peripheral Enable       */
-#define IWDG_KEY_WRITE_ACCESS_ENABLE  ((uint32_t)0x5555)  /*!< IWDG KR Write Access Enable  */
-#define IWDG_KEY_WRITE_ACCESS_DISABLE ((uint32_t)0x0000)  /*!< IWDG KR Write Access Disable */
+#define IWDG_KEY_RELOAD               ((uint32_t)0xAAAAU)  /*!< IWDG Reload Counter Enable   */
+#define IWDG_KEY_ENABLE               ((uint32_t)0xCCCCU)  /*!< IWDG Peripheral Enable       */
+#define IWDG_KEY_WRITE_ACCESS_ENABLE  ((uint32_t)0x5555U)  /*!< IWDG KR Write Access Enable  */
+#define IWDG_KEY_WRITE_ACCESS_DISABLE ((uint32_t)0x0000U)  /*!< IWDG KR Write Access Disable */
 /**
   * @}
   */
@@ -165,7 +165,7 @@ typedef struct
 /** @defgroup IWDG_Prescaler IWDG Prescaler
   * @{
   */
-#define IWDG_PRESCALER_4     ((uint8_t)0x00)  /*!< IWDG prescaler set to 4   */
+#define IWDG_PRESCALER_4     ((uint8_t)0x00U)  /*!< IWDG prescaler set to 4   */
 #define IWDG_PRESCALER_8     ((uint8_t)(IWDG_PR_PR_0))                  /*!< IWDG prescaler set to 8   */
 #define IWDG_PRESCALER_16    ((uint8_t)(IWDG_PR_PR_1))                  /*!< IWDG prescaler set to 16  */
 #define IWDG_PRESCALER_32    ((uint8_t)(IWDG_PR_PR_1 | IWDG_PR_PR_0))   /*!< IWDG prescaler set to 32  */
@@ -184,16 +184,16 @@ typedef struct
                                           ((__PRESCALER__) == IWDG_PRESCALER_256))
 
 /* Check for reload value */
-#define IS_IWDG_RELOAD(__RELOAD__) ((__RELOAD__) <= 0xFFF)
+#define IS_IWDG_RELOAD(__RELOAD__) ((__RELOAD__) <= 0xFFFU)
 
 /* Check for window value */
-#define IS_IWDG_WINDOW(__VALUE__) ((__VALUE__) <= 0xFFF)
+#define IS_IWDG_WINDOW(__VALUE__) ((__VALUE__) <= 0xFFFU)
 
 
 /** @defgroup IWDG_Disable IWDG  Disable
   * @{
   */
-#define IWDG_WINDOW_DISABLE    0xFFF
+#define IWDG_WINDOW_DISABLE    0xFFFU
 /**
   * @}
   */

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_pwr.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-October-2015
+  * @version V1.6.0
+  * @date    15-April-2016
   * @brief   PWR HAL module driver.
   *
   *          This file provides firmware functions to manage the following
@@ -14,7 +14,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -60,10 +60,10 @@
 /** @defgroup PWR_PVD_Mode_Mask PWR PVD Mode Mask
   * @{
   */ 
-#define PVD_MODE_IT               ((uint32_t)0x00010000)
-#define PVD_MODE_EVT              ((uint32_t)0x00020000)
-#define PVD_RISING_EDGE           ((uint32_t)0x00000001)
-#define PVD_FALLING_EDGE          ((uint32_t)0x00000002)
+#define PVD_MODE_IT               ((uint32_t)0x00010000U)
+#define PVD_MODE_EVT              ((uint32_t)0x00020000U)
+#define PVD_RISING_EDGE           ((uint32_t)0x00000001U)
+#define PVD_FALLING_EDGE          ((uint32_t)0x00000002U)
 /**
   * @}
   */
@@ -477,7 +477,7 @@ void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx)
   */
 void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
 {
-   uint32_t tmpreg = 0;
+   uint32_t tmpreg = 0U;
   /* Check the parameters */
   assert_param(IS_PWR_REGULATOR(Regulator));
   assert_param(IS_PWR_SLEEP_ENTRY(SLEEPEntry));
@@ -521,7 +521,11 @@ void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
   * @note When the voltage regulator operates in low power mode, an additional
   *         startup delay is incurred when waking up from Stop mode. 
   *         By keeping the internal regulator ON during Stop mode, the consumption
-  *         is higher although the startup time is reduced.    
+  *         is higher although the startup time is reduced.
+  * @note Before entering in this function, it is important to ensure that the WUF
+  *       wakeup flag is cleared. To perform this action, it is possible to call the
+  *       following macro : __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU)
+  *
   * @param Regulator: Specifies the regulator state in Stop mode.
   *          This parameter can be one of the following values:
   *            @arg PWR_MAINREGULATOR_ON: Stop mode with regulator ON
@@ -534,7 +538,7 @@ void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
   */
 void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry)
 {
-  uint32_t tmpreg = 0;
+  uint32_t tmpreg = 0U;
 
   /* Check the parameters */
   assert_param(IS_PWR_REGULATOR(Regulator));

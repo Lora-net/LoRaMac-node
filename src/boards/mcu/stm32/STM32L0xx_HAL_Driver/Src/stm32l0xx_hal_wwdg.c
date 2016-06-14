@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_wwdg.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-October-2015
+  * @version V1.6.0
+  * @date    15-April-2016
   * @brief   WWDG HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Window Watchdog (WWDG) peripheral:
@@ -65,7 +65,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -196,9 +196,9 @@ HAL_StatusTypeDef HAL_WWDG_DeInit(WWDG_HandleTypeDef *hwwdg)
   HAL_WWDG_MspDeInit(hwwdg);
 
   /* Reset WWDG Control, configuration and status  register */
-  MODIFY_REG(hwwdg->Instance->CR, (WWDG_CR_T | WWDG_CR_WDGA),0x0000007F);
-  MODIFY_REG(hwwdg->Instance->CFR, (WWDG_CFR_WDGTB | WWDG_CFR_W | WWDG_CFR_EWI),0x0000007F);
-  MODIFY_REG(hwwdg->Instance->SR,WWDG_SR_EWIF,0x0);
+  MODIFY_REG(hwwdg->Instance->CR, (WWDG_CR_T | WWDG_CR_WDGA),0x0000007FU);
+  MODIFY_REG(hwwdg->Instance->CFR, (WWDG_CFR_WDGTB | WWDG_CFR_W | WWDG_CFR_EWI),0x0000007FU);
+  MODIFY_REG(hwwdg->Instance->SR,WWDG_SR_EWIF,0x0U);
 
   /* Change peripheral state and release lock*/
   hwwdg->State = HAL_WWDG_STATE_RESET;
@@ -216,6 +216,9 @@ HAL_StatusTypeDef HAL_WWDG_DeInit(WWDG_HandleTypeDef *hwwdg)
   */
 __weak void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hwwdg);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_WWDG_MspInit could be implemented in the user file
    */
@@ -229,6 +232,9 @@ __weak void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg)
   */
 __weak void HAL_WWDG_MspDeInit(WWDG_HandleTypeDef *hwwdg)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hwwdg);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_WWDG_MspDeInit could be implemented in the user file
    */
@@ -362,6 +368,8 @@ void HAL_WWDG_IRQHandler(WWDG_HandleTypeDef *hwwdg)
   */
 __weak void HAL_WWDG_WakeupCallback(WWDG_HandleTypeDef* hwwdg)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hwwdg);
 }
 
 /**

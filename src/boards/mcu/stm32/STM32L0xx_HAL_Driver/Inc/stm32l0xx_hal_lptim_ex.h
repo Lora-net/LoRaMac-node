@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_lptim_ex.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-October-2015
+  * @version V1.6.0
+  * @date    15-April-2016
   * @brief   Header file of LPTIM Extended HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -64,8 +64,8 @@
 /** @defgroup LPTIMEx_Trigger_Source Trigger source
   * @{
   */
-#define LPTIM_TRIGSOURCE_SOFTWARE               ((uint32_t)0x0000FFFF)
-#define LPTIM_TRIGSOURCE_0                      ((uint32_t)0x00000000)
+#define LPTIM_TRIGSOURCE_SOFTWARE               ((uint32_t)0x0000FFFFU)
+#define LPTIM_TRIGSOURCE_0                      ((uint32_t)0x00000000U)
 #define LPTIM_TRIGSOURCE_1                      ((uint32_t)LPTIM_CFGR_TRIGSEL_0)
 #define LPTIM_TRIGSOURCE_2                      LPTIM_CFGR_TRIGSEL_1
 #define LPTIM_TRIGSOURCE_3                      ((uint32_t)LPTIM_CFGR_TRIGSEL_0 | LPTIM_CFGR_TRIGSEL_1)
@@ -116,17 +116,6 @@
 /**
   * @}
   */
-
-
-/* Define the private group ***********************************/
-/**************************************************************/
-/** @defgroup LPTIMEx_Private LPTIMEx Private
-  * @{
-  */
-/**
-  * @}
-  */
-/**************************************************************/
 
 /**
   * @}

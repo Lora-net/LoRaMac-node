@@ -166,6 +166,7 @@ extern Gpio_t DbgPin1;
 extern Gpio_t DbgPin2;
 extern Gpio_t DbgPin3;
 extern Gpio_t DbgPin4;
+extern Gpio_t DbgPin5;
 #endif
 
 /*!

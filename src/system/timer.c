@@ -68,7 +68,7 @@ static bool TimerExists( TimerEvent_t *obj );
  *
  * \retval value current timer value
  */
-uint32_t TimerGetValue( void );
+TimerTime_t TimerGetValue( void );
 
 void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
 {
@@ -200,17 +200,11 @@ static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime )
 void TimerIrqHandler( void )
 {
     uint32_t elapsedTime = 0;
-    uint32_t compensation = 0;
 
     elapsedTime = TimerGetValue( );
-
-    if( elapsedTime == TimerListHead->Timestamp )
+    
+    if( elapsedTime >= TimerListHead->Timestamp )
     {
-        TimerListHead->Timestamp = 0;
-    }
-    else if( elapsedTime > TimerListHead->Timestamp )
-    {
-        compensation = elapsedTime - TimerListHead->Timestamp;
         TimerListHead->Timestamp = 0;
     }
     else
@@ -228,26 +222,6 @@ void TimerIrqHandler( void )
         if( elapsedTimer->Callback != NULL )
         {
             elapsedTimer->Callback( );
-        }
-    }
-
-    while( TimerListHead != NULL )
-    {
-        if( compensation < TimerListHead->Timestamp )
-        {
-            TimerListHead->Timestamp = TimerListHead->Timestamp - compensation;
-            break;
-        }
-        else
-        {
-            compensation = compensation - TimerListHead->Timestamp;
-            TimerEvent_t* elapsedTimer = TimerListHead;
-            TimerListHead = TimerListHead->Next;
-
-            if( elapsedTimer->Callback != NULL )
-            {
-                elapsedTimer->Callback( );
-            }
         }
     }
 
@@ -377,7 +351,7 @@ void TimerSetValue( TimerEvent_t *obj, uint32_t value )
     obj->ReloadValue = value;
 }
 
-uint32_t TimerGetValue( void )
+TimerTime_t TimerGetValue( void )
 {
     return RtcGetElapsedAlarmTime( );
 }
@@ -400,6 +374,7 @@ TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture )
 static void TimerSetTimeout( TimerEvent_t *obj )
 {
     HasLoopedThroughMain = 0;
+    obj->Timestamp = RtcGetAdjustedTimeoutValue( obj->Timestamp ); 
     RtcSetTimeout( obj->Timestamp );
 }
 
