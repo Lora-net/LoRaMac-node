@@ -123,12 +123,14 @@ not of a bootloader and the radio frequency band to be used.
     1. This version has passed all LoRa-Alliance compliance tests.
     2. Update the MAC layer in order to be LoRaWAN version 1.0.1 compliant
     3. Applied to all application files the certification protocol change for LoRaWAN 1.0.1 compliance tests.
+
        **REMARK**: api-v3 application files aren't updated.
+
     4. Add radio RX_TIMEOUT irq clear into the irq handler.
     5. Removed the end less loop from HAL_UART_ErrorCallback.
     6. Update of the STM32L0 HAL to version 1.6.0
     7. Consolidated the line endings across all project files.
-       UNIX line endings has been choose for almost every file. Except the ST auto generated files which have Windows line endings.
+       Windows line endings has been choose for almost every file.
 
 * LoRaWAN
     1. Updated maximum payload size for US band.
@@ -146,6 +148,7 @@ not of a bootloader and the radio frequency band to be used.
     13. Add a function to verify the RX frequency of window 2 for US band.
     14. Issue(#88): Bug fix in function PrepareFrame where repeated MAC commands were not handled correctly.
     15. Bug fix in OnRadioRxDone. Node now drops frames on port 0 with fOpts > 0.
+    16. Bug fix in OnRadioRxDone. Node now receives frames with fOpts > 0 when no payload is present.
 
 2016-05-13, V4.2.0
 * General
@@ -179,7 +182,7 @@ not of a bootloader and the radio frequency band to be used.
     12. Accept MAC information of duplicated, confirmed downlinks.
     13. Issue(#74): Drop frames with a downlink counter difference greater or equal to MAX_FCNT_GAP.
 
-2015-03-10, V4.1.0
+2016-03-10, V4.1.0
 * General
     1. This version has passed all mandatory LoRa-Alliance compliance tests.
 
