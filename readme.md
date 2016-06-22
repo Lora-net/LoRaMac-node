@@ -118,6 +118,31 @@ not of a bootloader and the radio frequency band to be used.
 
 6. Changelog
 -------------
+2015-06-17, V4.3.0
+* General
+    1. This version has passed all LoRa-Alliance compliance tests.
+    2. Update the MAC layer in order to be LoRaWAN version 1.0.1 compliant
+    3. Add radio RX_TIMEOUT irq clear into the irq handler.
+    4. Removed the end less loop from HAL_UART_ErrorCallback.
+    5. Consolidated the line endings across all project files.
+       UNIX line endings has been choose for almost every file. Except the ST auto generated files which have Windows line endings.
+
+* LoRaWAN
+    1. Updated maximum payload size for US band.
+    2. Update datarate offset table for US band.
+    3. Make MAC commands sticky
+    4. Add retransmission back-off
+    5. Remove the TxPower limitation for US band on LoRaMacMibSetRequestConfirm function. The power will be limited anyway when the SendFrameOnChannel functions is called.
+    6. Issue(#81): Bug fix in function LoRaMacMlmeRequest case MLME_JOIN. Function will return LORAMAC_STATUS_BUSY in case the MAC is in status MAC_TX_DELAYED.
+    7. Add debug pin support to LoRaMote platform.
+    8. Updated and improved MPL3115 device driver.
+    9. Issue(#83): Bug fix in parameter validation
+    10. Issue(#84): Fix issue of CalibrateTimer function.
+    11. RTC driver major update
+    12. Applied pull request #87.
+    13. Add a function to verify the RX frequency of window 2 for US band.
+    14. Issue(#88): Bug fix in function PrepareFrame where repeated MAC commands were not handled correctly.
+
 2015-05-13, V4.2.0
 * General
     1. This version has passed all LoRa-Alliance compliance tests.
