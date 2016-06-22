@@ -3099,19 +3099,28 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     LoRaMacFlags.Value = 0;
 
     LoRaMacDeviceClass = CLASS_A;
-
-    UpLinkCounter = 1;
-    DownLinkCounter = 0;
-    AdrAckCounter = 0;
-    JoinRequestTrials = 0;
-
-    MacCommandsBufferIndex = 0;
-    MacCommandsBufferToRepeatIndex = 0;
-
-    RepeaterSupport = false;
-    IsRxWindowsEnabled = true;
-    IsLoRaMacNetworkJoined = false;
     LoRaMacState = MAC_IDLE;
+
+    JoinRequestTrials = 0;
+    RepeaterSupport = false;
+
+    // Reset duty cycle times
+    AggregatedLastTxDoneTime = 0;
+    AggregatedTimeOff = 0;
+
+    // Duty cycle
+#if defined( USE_BAND_433 )
+    DutyCycleOn = false;
+#elif defined( USE_BAND_780 )
+    DutyCycleOn = false;
+#elif defined( USE_BAND_868 )
+    DutyCycleOn = true;
+#elif defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
+    DutyCycleOn = false;
+#else
+    #error "Please define a frequency band in the compiler options."
+#endif
+
     // Reset to defaults
     LoRaMacParamsDefaults.ChannelsTxPower = LORAMAC_DEFAULT_TX_POWER;
     LoRaMacParamsDefaults.ChannelsDatarate = LORAMAC_DEFAULT_DATARATE;
@@ -3169,26 +3178,9 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     }
 #endif
 
-    ChannelsNbRepCounter = 0;
+    ResetMacParameters( );
 
-    MaxDCycle = 0;
-    AggregatedDCycle = 1;
-    AggregatedLastTxDoneTime = 0;
-    AggregatedTimeOff = 0;
-
-#if defined( USE_BAND_433 )
-    DutyCycleOn = false;
-#elif defined( USE_BAND_780 )
-    DutyCycleOn = false;
-#elif defined( USE_BAND_868 )
-    DutyCycleOn = true;
-#elif defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
-    DutyCycleOn = false;
-#else
-    #error "Please define a frequency band in the compiler options."
-#endif
-
-
+    // Initialize timers
     TimerInit( &MacStateCheckTimer, OnMacStateCheckTimerEvent );
     TimerSetValue( &MacStateCheckTimer, MAC_STATE_CHECK_TIMEOUT );
 
@@ -3207,9 +3199,6 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
 
     // Random seed initialization
     srand1( Radio.Random( ) );
-
-    // Initialize channel index.
-    Channel = LORA_MAX_NB_CHANNELS;
 
     PublicNetwork = true;
     SetPublicNetwork( PublicNetwork );
