@@ -92,13 +92,11 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 #endif
 
-#if( OVER_THE_AIR_ACTIVATION != 0 )
-
 static uint8_t DevEui[] = LORAWAN_DEVICE_EUI;
 static uint8_t AppEui[] = LORAWAN_APPLICATION_EUI;
 static uint8_t AppKey[] = LORAWAN_APPLICATION_KEY;
 
-#else
+#if( OVER_THE_AIR_ACTIVATION == 0 )
 
 static uint8_t NwkSKey[] = LORAWAN_NWKSKEY;
 static uint8_t AppSKey[] = LORAWAN_APPSKEY;
@@ -397,6 +395,7 @@ static void OnLed4TimerEvent( void )
     // Switch LED 4 OFF
     GpioWrite( &Led4, 1 );
 }
+
 /*!
  * \brief   MCPS-Confirm event function
  *
@@ -577,6 +576,20 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         MlmeReq_t mlmeReq;
                         mlmeReq.Type = MLME_LINK_CHECK;
                         LoRaMacMlmeRequest( &mlmeReq );
+                    }
+                    break;
+                case 6: // (ix)
+                    {
+                        MlmeReq_t mlmeReq;
+
+                        mlmeReq.Type = MLME_JOIN;
+
+                        mlmeReq.Req.Join.DevEui = DevEui;
+                        mlmeReq.Req.Join.AppEui = AppEui;
+                        mlmeReq.Req.Join.AppKey = AppKey;
+
+                        LoRaMacMlmeRequest( &mlmeReq );
+                        DeviceState = DEVICE_STATE_SLEEP;
                     }
                     break;
                 default:

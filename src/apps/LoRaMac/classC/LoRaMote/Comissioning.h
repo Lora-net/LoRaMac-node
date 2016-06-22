@@ -26,8 +26,6 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 #define LORAWAN_PUBLIC_NETWORK                      true
 
-#if( OVER_THE_AIR_ACTIVATION != 0 )
-
 /*!
  * IEEE Organizationally Unique Identifier ( OUI ) (big endian)
  */
@@ -50,8 +48,6 @@ Maintainer: Miguel Luis and Gregory Cristian
  * AES encryption/decryption cipher application key
  */
 #define LORAWAN_APPLICATION_KEY                     { 0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6, 0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, 0x3C }
-
-#else
 
 /*!
  * Current network ID
@@ -76,7 +72,5 @@ Maintainer: Miguel Luis and Gregory Cristian
  * AES encryption/decryption cipher application session key
  */
 #define LORAWAN_APPSKEY                             { 0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6, 0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, 0x3C }
-
-#endif
 
 #endif // __LORA_COMMISSIONING_H__
