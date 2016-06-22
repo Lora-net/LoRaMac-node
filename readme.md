@@ -118,7 +118,7 @@ not of a bootloader and the radio frequency band to be used.
 
 6. Changelog
 -------------
-2015-06-17, V4.3.0
+2016-06-22, V4.3.0
 * General
     1. This version has passed all LoRa-Alliance compliance tests.
     2. Update the MAC layer in order to be LoRaWAN version 1.0.1 compliant
@@ -147,7 +147,7 @@ not of a bootloader and the radio frequency band to be used.
     14. Issue(#88): Bug fix in function PrepareFrame where repeated MAC commands were not handled correctly.
     15. Bug fix in OnRadioRxDone. Node now drops frames on port 0 with fOpts > 0.
 
-2015-05-13, V4.2.0
+2016-05-13, V4.2.0
 * General
     1. This version has passed all LoRa-Alliance compliance tests.
     2. Update STM32L1xx_HAL_Driver version to 1.5. Update related drivers and implementations accordingly.
