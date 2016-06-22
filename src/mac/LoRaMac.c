@@ -426,6 +426,9 @@ static bool DutyCycleOn;
  */
 static uint8_t Channel;
 
+/*!
+ * Channel index of the last transmission
+ */
 static uint8_t LastTxChannel;
 
 /*!
