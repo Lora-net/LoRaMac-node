@@ -200,3 +200,37 @@ void LoRaMacJoinComputeSKeys( const uint8_t *key, const uint8_t *appNonce, uint1
     memcpy1( nonce + 7, pDevNonce, 2 );
     aes_encrypt( nonce, appSKey, &AesContext );
 }
+
+void LoRaMacBeaconComputePingOffset( uint64_t beaconTime, uint32_t address, uint16_t pingPeriod, uint16_t *pingOffset )
+{
+    uint8_t zeroKey[16];
+    uint8_t buffer[16];
+    uint8_t cipher[16];
+    uint32_t result = 0;
+    /* Refer to chapter 15.2 of the LoRaWAN specification v1.1. The beacon time
+     * GPS time in seconds modulo 2^32
+     */
+    uint32_t time = ( beaconTime % ( ( ( uint64_t ) 1 ) << 32 ) );
+
+    memset1( zeroKey, 0, 16 );
+    memset1( buffer, 0, 16 );
+    memset1( cipher, 0, 16 );
+    memset1( AesContext.ksch, '\0', 240 );
+
+    buffer[0] = ( time ) & 0xFF;
+    buffer[1] = ( time >> 8 ) & 0xFF;
+    buffer[2] = ( time >> 16 ) & 0xFF;
+    buffer[3] = ( time >> 24 ) & 0xFF;
+
+    buffer[4] = ( address ) & 0xFF;
+    buffer[5] = ( address >> 8 ) & 0xFF;
+    buffer[6] = ( address >> 16 ) & 0xFF;
+    buffer[7] = ( address >> 24 ) & 0xFF;
+
+    aes_set_key( zeroKey, 16, &AesContext );
+    aes_encrypt( buffer, cipher, &AesContext );
+
+    result = ( ( ( uint32_t ) cipher[0] ) + ( ( ( uint32_t ) cipher[1] ) * 256 ) );
+
+    *pingOffset = ( uint16_t )( result % pingPeriod );
+}

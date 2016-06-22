@@ -106,6 +106,16 @@ void LoRaMacJoinDecrypt( const uint8_t *buffer, uint16_t size, const uint8_t *ke
  */
 void LoRaMacJoinComputeSKeys( const uint8_t *key, const uint8_t *appNonce, uint16_t devNonce, uint8_t *nwkSKey, uint8_t *appSKey );
 
+/*!
+ * Computes the LoRaMAC join frame decryption
+ *
+ * \param [IN]  beaconTime      - Time of the recent received beacon
+ * \param [IN]  address         - Frame address
+ * \param [IN]  pingPeriod      - Ping period of the node
+ * \param [OUT] pingOffset      - Pseudo random ping offset
+ */
+void LoRaMacBeaconComputePingOffset( uint64_t beaconTime, uint32_t address, uint16_t pingPeriod, uint16_t *pingOffset );
+
 /*! \} defgroup LORAMAC */
 
 #endif // __LORAMAC_CRYPTO_H__
