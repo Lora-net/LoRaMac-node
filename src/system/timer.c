@@ -12,6 +12,7 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
+#include <math.h>
 #include "board.h"
 #include "rtc-board.h"
 
@@ -395,4 +396,9 @@ void TimerLowPowerHandler( void )
             }
         }
     }
+}
+
+TimerTime_t TimerTempCompensation( TimerTime_t period, float temperature )
+{
+    return RtcTempCompensation( period, temperature );
 }

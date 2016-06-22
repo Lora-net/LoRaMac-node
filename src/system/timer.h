@@ -107,4 +107,15 @@ TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture );
  */
 void TimerLowPowerHandler( void );
 
+/*!
+ * \brief Computes the temperature compensation for a period of time on a
+ *        specific temperature.
+ *
+ * \param [IN] period Time period to compensate
+ * \param [IN] temperature Current temperature
+ *
+ * \retval Compensated time period
+ */
+TimerTime_t TimerTempCompensation( TimerTime_t period, float temperature );
+
 #endif  // __TIMER_H__
