@@ -3887,7 +3887,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             macHdr.Value = 0;
             macHdr.Bits.MType  = FRAME_TYPE_JOIN_REQ;
 
-            IsLoRaMacNetworkJoined = false;
+            ResetMacParameters( );
 
             JoinRequestTrials++;
             LoRaMacParams.ChannelsDatarate = AlternateDatarate( JoinRequestTrials );
