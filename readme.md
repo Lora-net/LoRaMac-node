@@ -13,7 +13,7 @@ LoRaWAN endpoint stack implementation and example projects.
 The aim of this project is to show an example of the endpoint LoRaWAN stack implementation.
 
 This LoRaWAN stack is an EU868 and US915 bands Class A and Class C endpoint implementation
-fully compatible with LoRaWAN 1.0 specification.
+fully compatible with LoRaWAN 1.0.1 specification.
 Each LoRaWAN application example includes the LoRaWAN certification protocol implementation.
 
 SX1272/76 radio drivers are also provided.
