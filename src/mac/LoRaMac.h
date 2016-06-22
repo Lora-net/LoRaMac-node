@@ -54,6 +54,69 @@
  */
 #define BEACON_INTERVAL                             128000
 
+
+/*!
+ * Beacon reserved time in ms
+ */
+#define BEACON_RESERVED                             2120
+
+/*!
+ * Beacon guard time in ms
+ */
+#define BEACON_GUARD                                3000
+
+/*!
+ * Beacon window time in ms
+ */
+#define BEACON_WINDOW                               122880
+
+/*!
+ * Beacon window time in numer of slots
+ */
+#define BEACON_WINDOW_SLOTS                         4096
+
+/*!
+ * Ping slot length time in ms
+ */
+#define PING_SLOT_WINDOW                            30
+
+/*!
+ * Default symbol timeout for beacons and ping slot windows
+ */
+#define BEACON_SYMBOL_TO_DEFAULT                    8
+
+/*!
+ * Maximum symbol timeout for beacons
+ */
+#define BEACON_SYMBOL_TO_EXPANSION_MAX              400
+
+/*!
+ * Maximum symbol timeout for ping slots
+ */
+#define PING_SLOT_SYMBOL_TO_EXPANSION_MAX           40
+
+/*!
+ * Symbol expansion value for beacon windows in case of beacon
+ * loss in symbols
+ */
+#define BEACON_SYMBOL_TO_EXPANSION_FACTOR           2
+
+/*!
+ * Symbol expansion value for ping slot windows in case of beacon
+ * loss in symbols
+ */
+#define PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR        2
+
+/*!
+ * Maximum allowed beacon less time in ms
+ */
+#define MAX_BEACON_LESS_PERIOD                      7200000
+
+/*!
+ * Delay time for the BeaconTimingAns in ms
+ */
+#define BEACON_DELAY_BEACON_TIMING_ANS              30
+
 /*!
  * Class A&B receive delay 1 in ms
  */
@@ -341,6 +404,10 @@ typedef struct sMulticastParams
      */
     uint32_t DownLinkCounter;
     /*!
+     * Ping offset of the muilticast channel for Class B
+     */
+    uint16_t PingOffset;
+    /*!
      * Reference pointer to the next multicast channel parameters in the list
      */
     struct sMulticastParams *Next;
@@ -422,6 +489,22 @@ typedef enum eLoRaMacMoteCmd
      * RXTimingSetupAns
      */
     MOTE_MAC_RX_TIMING_SETUP_ANS     = 0x08,
+    /*!
+     * PingSlotInfoReq
+     */
+    MOTE_MAC_PING_SLOT_INFO_REQ      = 0x10,
+    /*!
+     * PingSlotFreqAns
+     */
+    MOTE_MAC_PING_SLOT_FREQ_ANS      = 0x11,
+    /*!
+     * BeaconTimingReq
+     */
+    MOTE_MAC_BEACON_TIMING_REQ       = 0x12,
+    /*!
+     * BeaconFreqAns
+     */
+    MOTE_MAC_BEACON_FREQ_ANS         = 0x13,
 }LoRaMacMoteCmd_t;
 
 /*!
@@ -459,6 +542,22 @@ typedef enum eLoRaMacSrvCmd
      * RXTimingSetupReq
      */
     SRV_MAC_RX_TIMING_SETUP_REQ      = 0x08,
+    /*!
+     * PingSlotInfoAns
+     */
+    SRV_MAC_PING_SLOT_INFO_ANS       = 0x10,
+    /*!
+     * PingSlotChannelReq
+     */
+    SRV_MAC_PING_SLOT_CHANNEL_REQ    = 0x11,
+    /*!
+     * BeaconTimingAns
+     */
+    SRV_MAC_BEACON_TIMING_ANS        = 0x12,
+    /*!
+     * BeaconFreqReq
+     */
+    SRV_MAC_BEACON_FREQ_REQ          = 0x13,
 }LoRaMacSrvCmd_t;
 
 /*!
@@ -554,6 +653,27 @@ typedef union uLoRaMacFrameCtrl
     }Bits;
 }LoRaMacFrameCtrl_t;
 
+typedef union uPingSlotInfo
+{
+    uint8_t Value;
+    struct sInfoFields
+    {
+        uint8_t Datarate        : 4;
+        uint8_t Periodicity     : 3;
+        uint8_t RFU             : 1;
+    }Fields;
+}PingSlotInfo_t;
+
+typedef struct sBeaconInfo
+{
+    uint32_t Time;
+    struct sGwSpecific
+    {
+        uint8_t InfoDesc;
+        uint8_t Info[6];
+    }GwSpecific;
+}BeaconInfo_t;
+
 /*!
  * Enumeration containing the status of the operation of a MAC service
  */
@@ -584,9 +704,8 @@ typedef enum eLoRaMacEventInfoStatus
      */
     LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL,
     /*!
-     * A frame with an invalid downlink counter was received. The
-     * downlink counter of the frame was equal to the local copy
-     * of the downlink counter of the node.
+     * The downlink counter of the frame was equal to the local copy of the
+     * downlink counter of the node
      */
     LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED,
     /*!
@@ -598,9 +717,25 @@ typedef enum eLoRaMacEventInfoStatus
      */
     LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL,
     /*!
-     * message integrity check failure
+     * Message integrity check failure
      */
     LORAMAC_EVENT_INFO_STATUS_MIC_FAIL,
+    /*!
+     * ToDo
+     */
+    LORAMAC_EVENT_INFO_STATUS_MULTICAST_FAIL,
+    /*!
+     * ToDo
+     */
+    LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED,
+    /*!
+     * ToDo
+     */
+    LORAMAC_EVENT_INFO_STATUS_BEACON_LOST,
+    /*!
+     * ToDo
+     */
+    LORAMAC_EVENT_INFO_STATUS_BEACON_NOT_FOUND,
 }LoRaMacEventInfoStatus_t;
 
 /*!
@@ -629,6 +764,10 @@ typedef union eLoRaMacFlags_t
          * MLME-Req pending
          */
         uint8_t MlmeReq         : 1;
+        /*!
+         * MLME-Ind pending
+         */
+        uint8_t MlmeInd         : 1;
         /*!
          * MAC cycle done
          */
@@ -938,6 +1077,10 @@ typedef enum eMlme
      * LoRaWAN Specification V1.0.1, chapter 5, table 4
      */
     MLME_LINK_CHECK,
+    MLME_PING_SLOT_INFO,
+    MLME_BEACON_TIMING,
+    MLME_SWITCH_CLASS,
+    MLME_BEACON,
 }Mlme_t;
 
 /*!
@@ -966,6 +1109,22 @@ typedef struct sMlmeReqJoin
 }MlmeReqJoin_t;
 
 /*!
+ * LoRaMAC MLME-Request for the ping slot info service
+ */
+typedef struct sMlmeReqPingSlotInfo
+{
+    PingSlotInfo_t PingSlot;
+}MlmeReqPingSlotInfo_t;
+
+/*!
+ * LoRaMAC MLME-Request for the switch class service
+ */
+typedef struct sMlmeReqSwitchClass
+{
+    DeviceClass_t Class;
+}MlmeReqSwitchClass_t;
+
+/*!
  * LoRaMAC MLME-Request structure
  */
 typedef struct sMlmeReq
@@ -984,6 +1143,14 @@ typedef struct sMlmeReq
          * MLME-Request parameters for a join request
          */
         MlmeReqJoin_t Join;
+        /*!
+         * MLME-Request parameters for a ping slot info request
+         */
+        MlmeReqPingSlotInfo_t PingSlotInfo;
+        /*!
+         * MLME-Request parameters for a switch class request
+         */
+        MlmeReqSwitchClass_t SwitchClass;
     }Req;
 }MlmeReq_t;
 
@@ -1013,39 +1180,68 @@ typedef struct sMlmeConfirm
      * Number of gateways which received the last LinkCheckReq
      */
     uint8_t NbGateways;
+
+    TimerTime_t BeaconTimingDelay;
+    uint8_t BeaconTimingChannel;
 }MlmeConfirm_t;
+
+typedef struct sMlmeIndication
+{
+    /*!
+     * Holds the previously performed MLME-Request
+     */
+    Mlme_t MlmeIndication;
+    /*!
+     * Status of the operation
+     */
+    LoRaMacEventInfoStatus_t Status;
+
+    BeaconInfo_t BeaconInfo;
+}MlmeIndication_t;
 
 /*!
  * LoRa Mac Information Base (MIB)
  *
  * The following table lists the MIB parameters and the related attributes:
  *
- * Attribute                         | Get | Set
- * --------------------------------- | :-: | :-:
- * \ref MIB_DEVICE_CLASS             | YES | YES
- * \ref MIB_NETWORK_JOINED           | YES | YES
- * \ref MIB_ADR                      | YES | YES
- * \ref MIB_NET_ID                   | YES | YES
- * \ref MIB_DEV_ADDR                 | YES | YES
- * \ref MIB_NWK_SKEY                 | YES | YES
- * \ref MIB_APP_SKEY                 | YES | YES
- * \ref MIB_PUBLIC_NETWORK           | YES | YES
- * \ref MIB_REPEATER_SUPPORT         | YES | YES
- * \ref MIB_CHANNELS                 | YES | NO
- * \ref MIB_RX2_CHANNEL              | YES | YES
- * \ref MIB_CHANNELS_MASK            | YES | YES
- * \ref MIB_CHANNELS_NB_REP          | YES | YES
- * \ref MIB_MAX_RX_WINDOW_DURATION   | YES | YES
- * \ref MIB_RECEIVE_DELAY_1          | YES | YES
- * \ref MIB_RECEIVE_DELAY_2          | YES | YES
- * \ref MIB_JOIN_ACCEPT_DELAY_1      | YES | YES
- * \ref MIB_JOIN_ACCEPT_DELAY_2      | YES | YES
- * \ref MIB_CHANNELS_DATARATE        | YES | YES
- * \ref MIB_CHANNELS_DEFAULT_DATARATE| YES | YES
- * \ref MIB_CHANNELS_TX_POWER        | YES | YES
- * \ref MIB_UPLINK_COUNTER           | YES | YES
- * \ref MIB_DOWNLINK_COUNTER         | YES | YES
- * \ref MIB_MULTICAST_CHANNEL        | YES | NO
+ * Attribute                                     | Get | Set
+ * ----------------------------------------------| :-: | :-:
+ * \ref MIB_DEVICE_CLASS                         | YES | YES
+ * \ref MIB_NETWORK_JOINED                       | YES | YES
+ * \ref MIB_ADR                                  | YES | YES
+ * \ref MIB_NET_ID                               | YES | YES
+ * \ref MIB_DEV_ADDR                             | YES | YES
+ * \ref MIB_NWK_SKEY                             | YES | YES
+ * \ref MIB_APP_SKEY                             | YES | YES
+ * \ref MIB_PUBLIC_NETWORK                       | YES | YES
+ * \ref MIB_REPEATER_SUPPORT                     | YES | YES
+ * \ref MIB_CHANNELS                             | YES | NO
+ * \ref MIB_RX2_CHANNEL                          | YES | YES
+ * \ref MIB_CHANNELS_MASK                        | YES | YES
+ * \ref MIB_CHANNELS_NB_REP                      | YES | YES
+ * \ref MIB_MAX_RX_WINDOW_DURATION               | YES | YES
+ * \ref MIB_RECEIVE_DELAY_1                      | YES | YES
+ * \ref MIB_RECEIVE_DELAY_2                      | YES | YES
+ * \ref MIB_JOIN_ACCEPT_DELAY_1                  | YES | YES
+ * \ref MIB_JOIN_ACCEPT_DELAY_2                  | YES | YES
+ * \ref MIB_CHANNELS_DATARATE                    | YES | YES
+ * \ref MIB_CHANNELS_DEFAULT_DATARATE            | YES | YES
+ * \ref MIB_CHANNELS_TX_POWER                    | YES | YES
+ * \ref MIB_UPLINK_COUNTER                       | YES | YES
+ * \ref MIB_DOWNLINK_COUNTER                     | YES | YES
+ * \ref MIB_MULTICAST_CHANNEL                    | YES | NO
+ * \ref MIB_BEACON_INTERVAL                      | YES | YES
+ * \ref MIB_BEACON_RESERVED                      | YES | YES
+ * \ref MIB_BEACON_GUARD                         | YES | YES
+ * \ref MIB_BEACON_WINDOW                        | YES | YES
+ * \ref MIB_BEACON_WINDOW_SLOTS                  | YES | YES
+ * \ref MIB_PING_SLOT_WINDOW                     | YES | YES
+ * \ref MIB_BEACON_SYMBOL_TO_DEFAULT             | YES | YES
+ * \ref MIB_BEACON_SYMBOL_TO_EXPANSION_MAX       | YES | YES
+ * \ref MIB_PING_SLOT_SYMBOL_TO_EXPANSION_MAX    | YES | YES
+ * \ref MIB_BEACON_SYMBOL_TO_EXPANSION_FACTOR    | YES | YES
+ * \ref MIB_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR | YES | YES
+ * \ref MIB_MAX_BEACON_LESS_PERIOD               | YES | YES
  *
  * The following table provides links to the function implementations of the
  * related MIB primitives:
@@ -1225,6 +1421,56 @@ typedef enum eMib
      * NULL, the list is empty.
      */
     MIB_MULTICAST_CHANNEL,
+    /*!
+     * Beacon interval in ms
+     */
+    MIB_BEACON_INTERVAL,
+    /*!
+     * Beacon reserved time in ms
+     */
+    MIB_BEACON_RESERVED,
+    /*!
+     * Beacon guard time in ms
+     */
+    MIB_BEACON_GUARD,
+    /*!
+     * Beacon window time in ms
+     */
+    MIB_BEACON_WINDOW,
+    /*!
+     * Beacon window time in number of slots
+     */
+    MIB_BEACON_WINDOW_SLOTS,
+    /*!
+     * Ping slot length time in ms
+     */
+    MIB_PING_SLOT_WINDOW,
+    /*!
+     * Default symbol timeout for beacons and ping slot windows
+     */
+    MIB_BEACON_SYMBOL_TO_DEFAULT,
+    /*!
+     * Maximum symbol timeout for beacons
+     */
+    MIB_BEACON_SYMBOL_TO_EXPANSION_MAX,
+    /*!
+     * Maximum symbol timeout for ping slots
+     */
+    MIB_PING_SLOT_SYMBOL_TO_EXPANSION_MAX,
+    /*!
+     * Symbol expansion value for beacon windows in case of beacon
+     * loss in symbols
+     */
+    MIB_BEACON_SYMBOL_TO_EXPANSION_FACTOR,
+    /*!
+     * Symbol expansion value for ping slot windows in case of beacon
+     * loss in symbols
+     */
+    MIB_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR,
+    /*!
+     * Maximum allowed beacon less time in ms
+     */
+    MIB_MAX_BEACON_LESS_PERIOD
 }Mib_t;
 
 /*!
@@ -1376,6 +1622,80 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_MULTICAST_CHANNEL
      */
     MulticastParams_t* MulticastList;
+    /*!
+     * Beacon interval in ms
+     *
+     * Related MIB type: \ref MIB_BEACON_INTERVAL
+     */
+    uint32_t BeaconInterval;
+    /*!
+     * Beacon reserved time in ms
+     *
+     * Related MIB type: \ref MIB_BEACON_RESERVED
+     */
+    uint32_t BeaconReserved;
+    /*!
+     * Beacon guard time in ms
+     *
+     * Related MIB type: \ref MIB_BEACON_GUARD
+     */
+    uint32_t BeaconGuard;
+    /*!
+     * Beacon window time in ms
+     *
+     * Related MIB type: \ref MIB_BEACON_WINDOW
+     */
+    uint32_t BeaconWindow;
+    /*!
+     * Beacon window time in number of slots
+     *
+     * Related MIB type: \ref MIB_BEACON_WINDOW_SLOTS
+     */
+    uint32_t BeaconWindowSlots;
+    /*!
+     * Ping slot length time in ms
+     *
+     * Related MIB type: \ref MIB_PING_SLOT_WINDOW
+     */
+    uint32_t PingSlotWindow;
+    /*!
+     * Default symbol timeout for beacons and ping slot windows
+     *
+     * Related MIB type: \ref MIB_BEACON_SYMBOL_TO_DEFAULT
+     */
+    uint32_t BeaconSymbolToDefault;
+    /*!
+     * Maximum symbol timeout for beacons
+     *
+     * Related MIB type: \ref MIB_BEACON_SYMBOL_TO_EXPANSION_MAX
+     */
+    uint32_t BeaconSymbolToExpansionMax;
+    /*!
+     * Maximum symbol timeout for ping slots
+     *
+     * Related MIB type: \ref MIB_PING_SLOT_SYMBOL_TO_EXPANSION_MAX
+     */
+    uint32_t PingSlotSymbolToExpansionMax;
+    /*!
+     * Symbol expansion value for beacon windows in case of beacon
+     * loss in symbols
+     *
+     * Related MIB type: \ref MIB_BEACON_SYMBOL_TO_EXPANSION_FACTOR
+     */
+    uint32_t BeaconSymbolToExpansionFactor;
+    /*!
+     * Symbol expansion value for ping slot windows in case of beacon
+     * loss in symbols
+     *
+     * Related MIB type: \ref MIB_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR
+     */
+    uint32_t PingSlotSymbolToExpansionFactor;
+    /*!
+     * Maximum allowed beacon less time in ms
+     *
+     * Related MIB type: \ref MIB_MAX_BEACON_LESS_PERIOD
+     */
+    uint32_t MaxBeaconLessPeriod;
 }MibParam_t;
 
 /*!
@@ -1484,6 +1804,12 @@ typedef struct sLoRaMacPrimitives
      * \param   [OUT] MLME-Confirm parameters
      */
     void ( *MacMlmeConfirm )( MlmeConfirm_t *MlmeConfirm );
+    /*!
+     * \brief   MLME-Indication primitive
+     *
+     * \param   [OUT] MLME-Indication parameters
+     */
+    void ( *MacMlmeIndication )( MlmeIndication_t *MlmeIndication );
 }LoRaMacPrimitives_t;
 
 typedef struct sLoRaMacCallback
@@ -1497,6 +1823,12 @@ typedef struct sLoRaMacCallback
      *          to measure the battery level]
      */
     uint8_t ( *GetBatteryLevel )( void );
+    /*!
+     * \brief   Measures the temperature level
+     *
+     * \retval  Temperature level
+     */
+    float ( *GetTemperatureLevel )( void );
 }LoRaMacCallback_t;
 
 /*!
