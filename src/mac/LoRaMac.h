@@ -149,11 +149,6 @@
  */
 #define LORA_MAC_PUBLIC_SYNCWORD                    0x34
 
- /*!
- * LoRaMac internal state
- */
-//uint32_t LoRaMacState;
-
 /*!
  * LoRaWAN devices classes definition
  */
