@@ -841,7 +841,10 @@ static int8_t AlternateDatarate( uint16_t nbTrials );
  */
 LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel );
 
-
+/*!
+ * \brief Resets MAC specific parameters to default
+ */
+static void ResetMacParameters( void );
 
 static void OnRadioTxDone( void )
 {
@@ -2789,6 +2792,66 @@ static int8_t AlternateDatarate( uint16_t nbTrials )
     }
 #endif
     return datarate;
+}
+
+static void ResetMacParameters( void )
+{
+    IsLoRaMacNetworkJoined = false;
+
+    // Counters
+    UpLinkCounter = 1;
+    DownLinkCounter = 0;
+    AdrAckCounter = 0;
+
+    ChannelsNbRepCounter = 0;
+
+    AckTimeoutRetries = 1;
+    AckTimeoutRetriesCounter = 1;
+    AckTimeoutRetry = false;
+
+    MaxDCycle = 0;
+    AggregatedDCycle = 1;
+
+    MacCommandsBufferIndex = 0;
+    MacCommandsBufferToRepeatIndex = 0;
+
+    IsRxWindowsEnabled = true;
+
+    LoRaMacParams.ChannelsTxPower = LoRaMacParamsDefaults.ChannelsTxPower;
+    LoRaMacParams.ChannelsDatarate = LoRaMacParamsDefaults.ChannelsDatarate;
+
+    LoRaMacParams.MaxRxWindow = LoRaMacParamsDefaults.MaxRxWindow;
+    LoRaMacParams.ReceiveDelay1 = LoRaMacParamsDefaults.ReceiveDelay1;
+    LoRaMacParams.ReceiveDelay2 = LoRaMacParamsDefaults.ReceiveDelay2;
+    LoRaMacParams.JoinAcceptDelay1 = LoRaMacParamsDefaults.JoinAcceptDelay1;
+    LoRaMacParams.JoinAcceptDelay2 = LoRaMacParamsDefaults.JoinAcceptDelay2;
+
+    LoRaMacParams.Rx1DrOffset = LoRaMacParamsDefaults.Rx1DrOffset;
+    LoRaMacParams.ChannelsNbRep = LoRaMacParamsDefaults.ChannelsNbRep;
+
+    LoRaMacParams.Rx2Channel = LoRaMacParamsDefaults.Rx2Channel;
+
+    memcpy1( ( uint8_t* ) LoRaMacParams.ChannelsMask, ( uint8_t* ) LoRaMacParamsDefaults.ChannelsMask, sizeof( LoRaMacParams.ChannelsMask ) );
+
+#if defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
+    memcpy1( ( uint8_t* ) ChannelsMaskRemaining, ( uint8_t* ) LoRaMacParamsDefaults.ChannelsMask, sizeof( LoRaMacParams.ChannelsMask ) );
+#endif
+
+
+    NodeAckRequested = false;
+    SrvAckRequested = false;
+    MacCommandsInNextTx = false;
+
+    // Reset Multicast downlink counters
+    MulticastParams_t *cur = MulticastChannels;
+    while( cur != NULL )
+    {
+        cur->DownLinkCounter = 0;
+        cur = cur->Next;
+    }
+
+    // Initialize channel index.
+    Channel = LORA_MAX_NB_CHANNELS;
 }
 
 LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl, uint8_t fPort, void *fBuffer, uint16_t fBufferSize )
