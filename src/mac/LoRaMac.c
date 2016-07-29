@@ -370,19 +370,19 @@ static ChannelParams_t Channels[LORA_MAX_NB_CHANNELS];
 static uint16_t ChannelsMaskRemaining[6];
 
 /*!
- * Defines the first channel for RX window 2 for US band
+ * Defines the first channel for RX window 1 for US band
  */
-#define LORAMAC_FIRST_RX2_CHANNEL           ( (uint32_t) 923.3e6 )
+#define LORAMAC_FIRST_RX1_CHANNEL           ( (uint32_t) 923.3e6 )
 
 /*!
- * Defines the last channel for RX window 2 for US band
+ * Defines the last channel for RX window 1 for US band
  */
-#define LORAMAC_LAST_RX2_CHANNEL            ( (uint32_t) 927.5e6 )
+#define LORAMAC_LAST_RX1_CHANNEL            ( (uint32_t) 927.5e6 )
 
 /*!
- * Defines the step width of the channels for RX window 2
+ * Defines the step width of the channels for RX window 1
  */
-#define LORAMAC_STEPWIDTH_RX2_CHANNEL       ( (uint32_t) 600e3 )
+#define LORAMAC_STEPWIDTH_RX1_CHANNEL       ( (uint32_t) 600e3 )
 
 #else
     #error "Please define a frequency band in the compiler options."
@@ -1647,7 +1647,7 @@ static void OnRxWindow1TimerEvent( void )
     {// LoRa 500 kHz
         bandwidth  = 2;
     }
-    RxWindowSetup( LORAMAC_FIRST_RX2_CHANNEL + ( Channel % 8 ) * LORAMAC_STEPWIDTH_RX2_CHANNEL, datarate, bandwidth, symbTimeout, false );
+    RxWindowSetup( LORAMAC_FIRST_RX1_CHANNEL + ( Channel % 8 ) * LORAMAC_STEPWIDTH_RX1_CHANNEL, datarate, bandwidth, symbTimeout, false );
 #else
     #error "Please define a frequency band in the compiler options."
 #endif
@@ -1933,11 +1933,11 @@ static bool Rx2FreqInRange( uint32_t freq )
 {
 #if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
     if( Radio.CheckRfFrequency( freq ) == true )
-#elif ( defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID ) )
+#elif defined( USE_BAND_470 ) || defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
     if( ( Radio.CheckRfFrequency( freq ) == true ) &&
-        ( freq >= LORAMAC_FIRST_RX2_CHANNEL ) &&
-        ( freq <= LORAMAC_LAST_RX2_CHANNEL ) &&
-        ( ( ( freq - ( uint32_t ) LORAMAC_FIRST_RX2_CHANNEL ) % ( uint32_t ) LORAMAC_STEPWIDTH_RX2_CHANNEL ) == 0 ) )
+        ( freq >= LORAMAC_FIRST_RX1_CHANNEL ) &&
+        ( freq <= LORAMAC_LAST_RX1_CHANNEL ) &&
+        ( ( ( freq - ( uint32_t ) LORAMAC_FIRST_RX1_CHANNEL ) % ( uint32_t ) LORAMAC_STEPWIDTH_RX1_CHANNEL ) == 0 ) )
 #endif
     {
         return true;
