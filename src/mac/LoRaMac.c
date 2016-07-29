@@ -120,6 +120,11 @@ static uint8_t LoRaMacBuffer[LORAMAC_PHY_MAXPAYLOAD];
 static uint16_t LoRaMacBufferPktLen = 0;
 
 /*!
+ * Length of the payload in LoRaMacBuffer
+ */
+static uint8_t LoRaMacTxPayloadLen = 0;
+
+/*!
  * Buffer containing the upper layer data.
  */
 static uint8_t LoRaMacPayload[LORAMAC_PHY_MAXPAYLOAD];
@@ -1475,9 +1480,27 @@ static void OnMacStateCheckTimerEvent( void )
                 {
                     LoRaMacParams.ChannelsDatarate = MAX( LoRaMacParams.ChannelsDatarate - 1, LORAMAC_TX_MIN_DATARATE );
                 }
-                LoRaMacFlags.Bits.MacDone = 0;
-                // Sends the same frame again
-                ScheduleTx( );
+                if( ValidatePayloadLength( LoRaMacTxPayloadLen, LoRaMacParams.ChannelsDatarate, MacCommandsBufferIndex ) == true )
+                {
+                    LoRaMacFlags.Bits.MacDone = 0;
+                    // Sends the same frame again
+                    ScheduleTx( );
+                }
+                else
+                {
+                    // The DR is not applicable for the payload size
+                    McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_TX_DR_PAYLOAD_SIZE_ERROR;
+
+                    LoRaMacState &= ~MAC_TX_RUNNING;
+                    NodeAckRequested = false;
+                    McpsConfirm.AckReceived = false;
+                    McpsConfirm.NbRetries = AckTimeoutRetriesCounter;
+                    McpsConfirm.Datarate = LoRaMacParams.ChannelsDatarate;
+                    if( IsUpLinkCounterFixed == false )
+                    {
+                        UpLinkCounter++;
+                    }
+                }
             }
             else
             {
@@ -2872,7 +2895,6 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
     uint8_t pktHeaderLen = 0;
     uint32_t mic = 0;
     const void* payload = fBuffer;
-    uint8_t payloadSize = fBufferSize;
     uint8_t framePort = fPort;
 
     LoRaMacBufferPktLen = 0;
@@ -2883,6 +2905,8 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
     {
         fBufferSize = 0;
     }
+
+    LoRaMacTxPayloadLen = fBufferSize;
 
     LoRaMacBuffer[pktHeaderLen++] = macHdr->Value;
 
@@ -2923,7 +2947,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
 
             fCtrl->Bits.AdrAckReq = AdrNextDr( fCtrl->Bits.Adr, true, &LoRaMacParams.ChannelsDatarate );
 
-            if( ValidatePayloadLength( fBufferSize, LoRaMacParams.ChannelsDatarate, MacCommandsBufferIndex ) == false )
+            if( ValidatePayloadLength( LoRaMacTxPayloadLen, LoRaMacParams.ChannelsDatarate, MacCommandsBufferIndex ) == false )
             {
                 return LORAMAC_STATUS_LENGTH_ERROR;
             }
@@ -2951,7 +2975,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
             memcpy1( &MacCommandsBuffer[MacCommandsBufferIndex], MacCommandsBufferToRepeat, MacCommandsBufferToRepeatIndex );
             MacCommandsBufferIndex += MacCommandsBufferToRepeatIndex;
 
-            if( ( payload != NULL ) && ( payloadSize > 0 ) )
+            if( ( payload != NULL ) && ( LoRaMacTxPayloadLen > 0 ) )
             {
                 if( ( MacCommandsBufferIndex <= LORA_MAC_COMMAND_MAX_LENGTH ) && ( MacCommandsInNextTx == true ) )
                 {
@@ -2969,7 +2993,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
             {
                 if( ( MacCommandsBufferIndex > 0 ) && ( MacCommandsInNextTx ) )
                 {
-                    payloadSize = MacCommandsBufferIndex;
+                    LoRaMacTxPayloadLen = MacCommandsBufferIndex;
                     payload = MacCommandsBuffer;
                     framePort = 0;
                 }
@@ -2983,21 +3007,21 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
             }
             MacCommandsBufferIndex = 0;
 
-            if( ( payload != NULL ) && ( payloadSize > 0 ) )
+            if( ( payload != NULL ) && ( LoRaMacTxPayloadLen > 0 ) )
             {
                 LoRaMacBuffer[pktHeaderLen++] = framePort;
 
                 if( framePort == 0 )
                 {
-                    LoRaMacPayloadEncrypt( (uint8_t* ) payload, payloadSize, LoRaMacNwkSKey, LoRaMacDevAddr, UP_LINK, UpLinkCounter, LoRaMacPayload );
+                    LoRaMacPayloadEncrypt( (uint8_t* ) payload, LoRaMacTxPayloadLen, LoRaMacNwkSKey, LoRaMacDevAddr, UP_LINK, UpLinkCounter, LoRaMacPayload );
                 }
                 else
                 {
-                    LoRaMacPayloadEncrypt( (uint8_t* ) payload, payloadSize, LoRaMacAppSKey, LoRaMacDevAddr, UP_LINK, UpLinkCounter, LoRaMacPayload );
+                    LoRaMacPayloadEncrypt( (uint8_t* ) payload, LoRaMacTxPayloadLen, LoRaMacAppSKey, LoRaMacDevAddr, UP_LINK, UpLinkCounter, LoRaMacPayload );
                 }
-                memcpy1( LoRaMacBuffer + pktHeaderLen, LoRaMacPayload, payloadSize );
+                memcpy1( LoRaMacBuffer + pktHeaderLen, LoRaMacPayload, LoRaMacTxPayloadLen );
             }
-            LoRaMacBufferPktLen = pktHeaderLen + payloadSize;
+            LoRaMacBufferPktLen = pktHeaderLen + LoRaMacTxPayloadLen;
 
             LoRaMacComputeMic( LoRaMacBuffer, LoRaMacBufferPktLen, LoRaMacNwkSKey, LoRaMacDevAddr, UP_LINK, UpLinkCounter, &mic );
 
@@ -3010,10 +3034,10 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
 
             break;
         case FRAME_TYPE_PROPRIETARY:
-            if( ( fBuffer != NULL ) && ( fBufferSize > 0 ) )
+            if( ( fBuffer != NULL ) && ( LoRaMacTxPayloadLen > 0 ) )
             {
-                memcpy1( LoRaMacBuffer + pktHeaderLen, ( uint8_t* ) fBuffer, fBufferSize );
-                LoRaMacBufferPktLen = pktHeaderLen + fBufferSize;
+                memcpy1( LoRaMacBuffer + pktHeaderLen, ( uint8_t* ) fBuffer, LoRaMacTxPayloadLen );
+                LoRaMacBufferPktLen = pktHeaderLen + LoRaMacTxPayloadLen;
             }
             break;
         default:
