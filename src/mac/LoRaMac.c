@@ -1448,7 +1448,7 @@ static void OnMacStateCheckTimerEvent( void )
                 {
                     LoRaMacFlags.Bits.MacDone = 0;
                     // Sends the same frame again
-                    ScheduleTx( );
+                    OnTxDelayedTimerEvent( );
                 }
             }
         }
@@ -1578,6 +1578,10 @@ static void OnTxDelayedTimerEvent( void )
 
     if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) && ( MlmeConfirm.MlmeRequest == MLME_JOIN ) )
     {
+        ResetMacParameters( );
+        JoinRequestTrials++;
+        LoRaMacParams.ChannelsDatarate = AlternateDatarate( JoinRequestTrials );
+
         macHdr.Value = 0;
         macHdr.Bits.MType = FRAME_TYPE_JOIN_REQ;
 
