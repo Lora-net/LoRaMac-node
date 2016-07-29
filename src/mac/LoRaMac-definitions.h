@@ -103,6 +103,13 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define DR_7                                        7  // FSK
 
 /*!
+ * Verification of default datarate
+ */
+#if ( LORAMAC_DEFAULT_DATARATE > DR_5 )
+#error "A default DR higher than DR_5 may lead to connectivity loss."
+#endif
+
+/*!
  * Second reception window channel definition.
  */
 // Channel = { Frequency [Hz], Datarate }
@@ -218,6 +225,13 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define DR_7                                        7  // FSK
 
 /*!
+ * Verification of default datarate
+ */
+#if ( LORAMAC_DEFAULT_DATARATE > DR_5 )
+#error "A default DR higher than DR_5 may lead to connectivity loss."
+#endif
+
+/*!
  * Second reception window channel definition.
  */
 // Channel = { Frequency [Hz], Datarate }
@@ -331,6 +345,13 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define DR_5                                        5  // SF7  - BW125
 #define DR_6                                        6  // SF7  - BW250
 #define DR_7                                        7  // FSK
+
+/*!
+ * Verification of default datarate
+ */
+#if ( LORAMAC_DEFAULT_DATARATE > DR_5 )
+#error "A default DR higher than DR_5 may lead to connectivity loss."
+#endif
 
 /*!
  * Second reception window channel definition.
