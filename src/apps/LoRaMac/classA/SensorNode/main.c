@@ -82,7 +82,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * User application data buffer size
  */
-#if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
+#if defined( USE_BAND_433 ) || defined( USE_BAND_470 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
 
 #define LORAWAN_APP_DATA_SIZE                       16
 
@@ -206,7 +206,7 @@ static void PrepareTxFrame( uint8_t port )
     {
     case 2:
         {
-#if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
+#if defined( USE_BAND_433 ) || defined( USE_BAND_470 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
             uint16_t pressure = 0;
             int16_t altitudeBar = 0;
             int16_t temperature = 0;
