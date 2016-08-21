@@ -19,7 +19,7 @@ LIBRARY_START_PATH ?= ../../../../../src
 
 #The location of the gcc setup template
 ################################################
-TEMPLATE_PATH ?= ../../../../../make/template/
+TEMPLATE_PATH ?= ../../../../../make/
 
 #Any places that you put custom header files
 ###############################################

@@ -9,24 +9,21 @@ DEVICE_LOWER = $(shell echo $(DEVICE) | tr A-Z a-z)
 START_CODE ?= startup_stm32l1xx_md.s
 SYSTEM_FILE ?= system_stm32l1xx.c
 
-#LIBRARY_PATHS += $(LIBRARY_START_PATH)Drivers/CMSIS/Device/ST/STM32L1xx/Include
-LIBRARY_PATHS += $(LIBRARY_START_PATH)boards/SK-iM880A/cmsis/
-#LIBRARY_PATHS += $(LIBRARY_START_PATH)Drivers/CMSIS/Include
-LIBRARY_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32/cmsis/
-#LIBRARY_PATHS += $(LIBRARY_START_PATH)Drivers/STM32L1xx_HAL_Driver/Inc/
-LIBRARY_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32/STM32L1xx_HAL_Driver/Inc/
+LIBRARY_PATHS += $(LIBRARY_START_PATH)boards/SK-iM880A/cmsis
+LIBRARY_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32/cmsis
+LIBRARY_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32/STM32L1xx_HAL_Driver/Inc
 LIBRARY_PATHS += ./
 
-
-#SOURCE_PATHS += $(TEMPLATE_PATH)
-#SOURCE_PATHS += $(LIBRARY_START_PATH)Drivers/STM32L1xx_HAL_Driver/Src/
-#SOURCE_PATHS += $(LIBRARY_START_PATH)Drivers/CMSIS/Device/ST/STM32L1xx/Source/Templates
-SOURCE_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/
-#SOURCE_PATHS += $(LIBRARY_START_PATH)Drivers/CMSIS/Device/ST/STM32L1xx/Source/Templates/gcc
-SOURCE_PATHS += $(LIBRARY_START_PATH)boards/SK-iM880A/cmsis/
-SOURCE_PATHS += $(LIBRARY_START_PATH)boards/SK-iM880A/
-SOURCE_PATHS += $(LIBRARY_START_PATH)boards/SK-iM880A/cmsis/arm-gcc/
-SOURCE_PATHS += $(LIBRARY_START_PATH)mac/
+SOURCE_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32/STM32L1xx_HAL_Driver/Src
+SOURCE_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32
+SOURCE_PATHS += $(LIBRARY_START_PATH)boards/SK-iM880A/cmsis
+SOURCE_PATHS += $(LIBRARY_START_PATH)boards/SK-iM880A
+SOURCE_PATHS += $(LIBRARY_START_PATH)boards/SK-iM880A/cmsis/arm-gcc
+SOURCE_PATHS += $(LIBRARY_START_PATH)mac
+SOURCE_PATHS += $(LIBRARY_START_PATH)peripherals
+SOURCE_PATHS += $(LIBRARY_START_PATH)radio
+SOURCE_PATHS += $(LIBRARY_START_PATH)system
+SOURCE_PATHS += $(LIBRARY_START_PATH)system/crypto
 
 #Setup toolchain
 ##############################################################################
