@@ -2,11 +2,21 @@ PROJECT_NAME = $(shell basename "$(realpath ./)")
 
 #List all of the application source files that need to be compiled
 #############################################
-APPLICATION_SRCS = $(notdir $(wildcard ./*.c))
-APPLICATION_SRCS += stm32l1xx_hal_gpio.c
-APPLICATION_SRCS += stm32l1xx_hal_rcc_ex.c
+CUSTOM_DEFINES = -DUSE_BAND_915
+LORA_DIR ?= ../../../../
 
-LORA_DIR ?= ../../../
+#do not modify if using SK-iM880A
+APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/boards/SK-iM880A/*.c)
+APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/*.c)
+APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/boards/mcu/stm32/*.c)
+APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/mac/*.c)
+APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/system/*.c)
+APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/system/crypto/*.c)
+APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/radio/*.c)
+APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/radio/sx1272/*.c)
+
+#change for each new application
+APPLICATION_SRCS += $(LORA_DIR)src/apps/LoRaMac/classA/SK-iM880A/main.c
 
 #The exact STM part number All CAPS
 ############################################
@@ -24,6 +34,7 @@ TEMPLATE_PATH ?= $(LORA_DIR)make/example/
 #Any places that you put custom header files
 ###############################################
 LIBRARY_PATHS += ../../include
+LIBRARY_PATHS += $(LORA_DIR)src/apps/LoRaMac/classA/SK-iM880A/*.h
 
 #Any places that you put custom source files
 ##############################################

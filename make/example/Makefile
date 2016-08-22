@@ -8,9 +8,18 @@ DEVICE_LOWER = $(shell echo $(DEVICE) | tr A-Z a-z)
 START_CODE ?= startup_stm32l1xx_md.s
 SYSTEM_FILE ?= system_stm32l1xx.c
 
+LIBRARY_PATHS += $(LIBRARY_START_PATH)boards/SK-iM880A
 LIBRARY_PATHS += $(LIBRARY_START_PATH)boards/SK-iM880A/cmsis
+LIBRARY_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32
 LIBRARY_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32/cmsis
 LIBRARY_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32/STM32L1xx_HAL_Driver/Inc
+LIBRARY_PATHS += $(LIBRARY_START_PATH)system
+LIBRARY_PATHS += $(LIBRARY_START_PATH)mac
+LIBRARY_PATHS += $(LIBRARY_START_PATH)radio 
+LIBRARY_PATHS += $(LIBRARY_START_PATH)radio/sx1272 
+LIBRARY_PATHS += $(LIBRARY_START_PATH)peripherals 
+LIBRARY_PATHS += $(LIBRARY_START_PATH)system/crypto
+LIBRARY_PATHS += $(LIBRARY_START_PATH)boards/LoRaMote/
 
 SOURCE_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32/STM32L1xx_HAL_Driver/Src
 SOURCE_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32
@@ -20,6 +29,7 @@ SOURCE_PATHS += $(LIBRARY_START_PATH)boards/SK-iM880A/cmsis/arm-gcc
 SOURCE_PATHS += $(LIBRARY_START_PATH)mac
 SOURCE_PATHS += $(LIBRARY_START_PATH)peripherals
 SOURCE_PATHS += $(LIBRARY_START_PATH)radio
+SOURCE_PATHS += $(LIBRARY_START_PATH)radio/sx1272
 SOURCE_PATHS += $(LIBRARY_START_PATH)system
 SOURCE_PATHS += $(LIBRARY_START_PATH)system/crypto
 
@@ -49,7 +59,7 @@ VPATH = $(SOURCE_PATHS)
 OUTPUT_PATH = _build/
 
 CPUFLAGS = -mthumb -mcpu=cortex-m3 -march=armv7-m
-CFLAGS += -std=gnu99 -c $(CPUFLAGS) -nostdlib -Wall -D$(DEVICE_FAMILY) $(LIBRARY_INCLUDES) -s -ffunction-sections -fdata-sections -include $(FILE_INCLUDES) -MD
+CFLAGS += -std=gnu99 -c $(CPUFLAGS) -nostdlib -Wall -D$(DEVICE_FAMILY) $(LIBRARY_INCLUDES) -s -ffunction-sections -fdata-sections -include $(FILE_INCLUDES) -MD $(CUSTOM_DEFINES)
 LDFLAGS += $(CPUFLAGS) -L $(TEMPLATE_PATH) -L$(LINKER_SCRIPT_INCLUDES) -T $(LINKER_SCRIPT) -Wl,--gc-sections -Wl,-Map=$(OUTPUT_PATH)$(OUTPUT_NAME).Map
 OBJDUMP_FLAGS += --disassemble-all --source --disassembler-options=force-thumb -C --section-headers
 

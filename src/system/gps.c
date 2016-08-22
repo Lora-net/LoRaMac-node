@@ -19,6 +19,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include <string.h>
 #include "board.h"
 #include "gps.h"
+#include "gps-board.h"
 
 #define TRIGGER_GPS_CNT                             10
 
