@@ -5,14 +5,12 @@
 DEVICE_FAMILY_LOWER = $(shell echo $(DEVICE_FAMILY) | tr A-Z a-z)
 DEVICE_LOWER = $(shell echo $(DEVICE) | tr A-Z a-z)
 
-#START_CODE ?= startup_$(DEVICE_FAMILY_LOWER).s
 START_CODE ?= startup_stm32l1xx_md.s
 SYSTEM_FILE ?= system_stm32l1xx.c
 
 LIBRARY_PATHS += $(LIBRARY_START_PATH)boards/SK-iM880A/cmsis
 LIBRARY_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32/cmsis
 LIBRARY_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32/STM32L1xx_HAL_Driver/Inc
-LIBRARY_PATHS += ./
 
 SOURCE_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32/STM32L1xx_HAL_Driver/Src
 SOURCE_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32
@@ -39,13 +37,12 @@ GDB = $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)-gdb
 
 print-% : ; @echo $* = $($*)
 
-#edit this for new linker script in LoRaMAC
 LINKER_SCRIPT ?= stm32l1xx_md_flash.ld
-LINKER_SCRIPT_INCLUDES = $(LIBRARY_START_PATH)boards/SK-iM880A/cmsis/arm-gcc
+LINKER_SCRIPT_INCLUDES = $(LORA_DIR)src/boards/SK-iM880A/cmsis/arm-gcc/
 OUTPUT_NAME ?= $(PROJECT_NAME)
 
 LIBRARY_INCLUDES = $(addprefix -I,$(LIBRARY_PATHS))
-FILE_INCLUDES += $(LIBRARY_START_PATH)boards/SK-iM880A/cmsis/stm32l1xx_hal_conf.h
+FILE_INCLUDES += ./stm32l1xx_hal_conf.h
 
 VPATH = $(SOURCE_PATHS)
 

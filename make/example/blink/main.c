@@ -37,18 +37,18 @@ int main(void) {
     delay(2400000);
 
     // Turn off the first led
-    GPIOC->BRR = 0x0100;
+//    GPIOC->BGRR = 0x0100;
 
     delay(2400000);
 
     // Turn off the second LED and the on the first
-    GPIOC->BRR = 0x0200;
+ //   GPIOC->BGRR = 0x0200;
     GPIOC->BSRR = 0x0100;
 
     delay(2400000);
 
     // Turn off first
-    GPIOC->BRR = 0x0100;
+  //  GPIOC->BGRR = 0x0100;
 
     delay(2400000);
   }
