@@ -25,6 +25,7 @@ LIBRARY_PATHS += $(LIBRARY_START_PATH)system/crypto
 LIBRARY_PATHS += $(LIBRARY_START_PATH)boards/LoRaMote/
 
 SOURCE_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32/STM32_USB_Device_Library/Core/Src
+SOURCE_PATHS += $(LIBRARY_START_PATH)boards/LoRaMote/usb/cdc/src/
 SOURCE_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32/STM32L1xx_HAL_Driver/Src
 SOURCE_PATHS += $(LIBRARY_START_PATH)boards/mcu/stm32
 SOURCE_PATHS += $(LIBRARY_START_PATH)boards/LoRaMote/cmsis

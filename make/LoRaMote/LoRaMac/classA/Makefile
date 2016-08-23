@@ -8,6 +8,7 @@ MAIN_DIR ?= $(LORA_DIR)src/apps/LoRaMac/classA/LoRaMote/
 
 #do not modify if using LoRaMote
 APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/boards/LoRaMote/*.c)
+APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/boards/LoRaMote/usb/cdc/src/*.c)
 APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/*.c)
 APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/boards/mcu/stm32/*.c)
 APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/mac/*.c)
@@ -21,6 +22,7 @@ APPLICATION_SRCS += $(LORA_DIR)src/peripherals/sx9500.c
 APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/system/crypto/*.c)
 APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/radio/*.c)
 APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/radio/sx1272/*.c)
+APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/boards/mcu/stm32/STM32_USB_Device_Library/Core/Src/*.c)
 #APPLICATION_SRCS += $(MAIN_DIR)main-api-v3.c
 APPLICATION_SRCS += $(MAIN_DIR)main.c
 
