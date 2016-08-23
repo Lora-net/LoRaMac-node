@@ -4,6 +4,7 @@ PROJECT_NAME = $(shell basename "$(realpath ./)")
 #############################################
 CUSTOM_DEFINES = -DUSE_BAND_915
 LORA_DIR ?= ../../../../
+MAIN_DIR ?= $(LORA_DIR)src/apps/LoRaMac/classA/SK-iM880A/
 
 #do not modify if using SK-iM880A
 APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/boards/SK-iM880A/*.c)
@@ -14,9 +15,7 @@ APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/system/*.c)
 APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/system/crypto/*.c)
 APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/radio/*.c)
 APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/radio/sx1272/*.c)
-
-#change for each new application
-APPLICATION_SRCS += $(LORA_DIR)src/apps/LoRaMac/classA/SK-iM880A/main.c
+APPLICATION_SRCS += $(MAIN_DIR)main.c
 
 #The exact STM part number All CAPS
 ############################################

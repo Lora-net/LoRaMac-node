@@ -1,6 +1,6 @@
 #You shouldn't need to edit this file unless something is wrong
 #This file assumes that the standard peripheral library is installed
-#currently tested on V1.5 with limited test code
+#currently tested on V1.7 with limited test code
 
 DEVICE_FAMILY_LOWER = $(shell echo $(DEVICE_FAMILY) | tr A-Z a-z)
 DEVICE_LOWER = $(shell echo $(DEVICE) | tr A-Z a-z)
@@ -91,7 +91,7 @@ include $(TEMPLATE_PATH)Makefile.posix
 endif
 
 $(HEX): $(OBJS) $(OBJS_AS)
-	$(LD) $(LDFLAGS) $(OBJS_AS) $(OBJS) -o $(ELF)
+	$(LD) $(LDFLAGS) $(OBJS_AS) $(OBJS) -o $(ELF) -lm 
 	$(OBJCOPY) -Oihex $(ELF) $(HEX)
 	$(OBJCOPY) -Obinary $(ELF) $(BIN)
 	$(OBJDUMP) $(OBJDUMP_FLAGS) $(ELF) > $(LST)
@@ -106,7 +106,7 @@ $(OUTPUT_PATH)%.o: %.c
 
 $(OUTPUT_PATH)%.os: %.s
 	$(MAKE_BUILD_FOLDER)
-	$(AS) $< -o $@
+	$(AS) $< -o $@ 
 
 -include $(DEPS)
 
