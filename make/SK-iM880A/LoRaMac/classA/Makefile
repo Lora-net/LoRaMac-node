@@ -34,7 +34,6 @@ TEMPLATE_PATH ?= $(LORA_DIR)make/SK-iM880A/example/
 #Any places that you put custom header files
 ###############################################
 LIBRARY_PATHS += ../../include
-LIBRARY_PATHS += $(LORA_DIR)src/apps/LoRaMac/classA/SK-iM880A/*.h
 
 #Any places that you put custom source files
 ##############################################

@@ -4,7 +4,7 @@ PROJECT_NAME = $(shell basename "$(realpath ./)")
 #############################################
 CUSTOM_DEFINES = -DUSE_BAND_915
 LORA_DIR ?= ../../../../
-MAIN_DIR ?= $(LORA_DIR)src/apps/LoRaMac/classA/LoRaMote/
+MAIN_DIR ?= $(LORA_DIR)src/apps/LoRaMac/classB/LoRaMote/
 
 #do not modify if using LoRaMote
 APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/boards/LoRaMote/*.c)
