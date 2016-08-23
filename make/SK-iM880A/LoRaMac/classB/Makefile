@@ -4,7 +4,7 @@ PROJECT_NAME = $(shell basename "$(realpath ./)")
 #############################################
 CUSTOM_DEFINES = -DUSE_BAND_915
 LORA_DIR ?= ../../../../
-MAIN_DIR ?= $(LORA_DIR)src/apps/LoRaMac/classA/SK-iM880A/
+MAIN_DIR ?= $(LORA_DIR)src/apps/LoRaMac/classB/SK-iM880A/
 
 #do not modify if using SK-iM880A
 APPLICATION_SRCS += $(wildcard $(LORA_DIR)src/boards/SK-iM880A/*.c)
@@ -34,7 +34,6 @@ TEMPLATE_PATH ?= $(LORA_DIR)make/SK-iM880A/example/
 #Any places that you put custom header files
 ###############################################
 LIBRARY_PATHS += ../../include
-LIBRARY_PATHS += $(LORA_DIR)src/apps/LoRaMac/classA/SK-iM880A/*.h
 
 #Any places that you put custom source files
 ##############################################

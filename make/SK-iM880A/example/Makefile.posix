@@ -1,0 +1,82 @@
+TERMINAL ?= gnome-terminal -e
+
+#FLASH_START_ADDRESS = $(shell $(OBJDUMP) -h $(ELF) -j .text | grep .text | awk '{print $$4}')
+FLASH_START_ADDRESS = 0x08000000
+
+ifdef SEGGER_SERIAL
+JLINKEXE_OPTION = -SelectEmuBySn $(SEGGER_SERIAL)
+JLINKGDBSERVER_OPTION = -select USB=$(SEGGER_SERIAL)
+endif
+
+MAKE_BUILD_FOLDER = mkdir -p $(OUTPUT_PATH)
+
+JLINK = -JLinkExe $(JLINK_OPTIONS) $(JLINKEXE_OPTION)
+JLINKGDBSERVER = JLinkGDBServer $(JLINK_OPTIONS) $(JLINKGDBSERVER_OPTION)
+
+clean:
+	rm -rf $(OUTPUT_PATH)
+	rm -f *.jlink
+	rm -f JLink.log
+	rm -f .gdbinit
+
+flash: all flash.jlink
+	$(JLINK) flash.jlink
+	rm flash.jlink
+
+ifndef ID
+flash.jlink:
+	printf "r\nloadbin $(BIN) $(FLASH_START_ADDRESS)\nr\ng\nexit\n" > flash.jlink
+else
+# Write the ID to flash as well
+ID_BYTES = $(subst :, ,$(ID))
+NUM_ID_BYTES = $(words $(ID_BYTES))
+ifneq ($(NUM_ID_BYTES),8)
+$(error "Invalid number of bytes in ID string (expecting 8)")
+endif
+ID_FIRST = $(word 1,$(ID_BYTES))$(word 2,$(ID_BYTES))$(word 3,$(ID_BYTES))$(word 4,$(ID_BYTES))
+ID_SECON = $(word 5,$(ID_BYTES))$(word 6,$(ID_BYTES))$(word 7,$(ID_BYTES))$(word 8,$(ID_BYTES))
+flash.jlink:
+	printf "r\n" > flash.jlink
+	printf "w4 0x08007ff8, 0x$(ID_SECON) 0x$(ID_FIRST)\n" >> flash.jlink
+	printf "loadbin $(BIN) $(FLASH_START_ADDRESS)\n" >> flash.jlink
+	printf "$(USER_FLASH_COMMANDS)\n" >> flash.jlink
+	printf "r\ng\nexit\n" >> flash.jlink
+
+endif
+
+#recover: recover.jlink erase-all.jlink pin-reset.jlink
+#	$(JLINK) recover.jlink
+#	$(JLINK) erase-all.jlink
+#	$(JLINK) pin-reset.jlink
+
+#recover.jlink:
+#	printf "si 0\nt0\nsleep 1\ntck1\nsleep 1\nt1\nsleep 2\nt0\nsleep 2\nt1\nsleep 2\nt0\nsleep 2\nt1\nsleep 2\nt0\nsleep 2\nt1\nsleep 2\nt0\nsleep 2\nt1\nsleep 2\nt0\nsleep 2\nt1\nsleep 2\nt0\nsleep 2\nt1\nsleep 2\ntck0\nsleep 100\nsi 1\nr\nexit\n" > recover.jlink
+
+#pin-reset.jlink:
+#	printf "w4 40000544 1\nr\nexit\n" > pin-reset.jlink
+
+#pin-reset: pin-reset.jlink
+#	$(JLINK) pin-reset.jlink
+
+#reset: reset.jlink
+#	$(JLINK) reset.jlink
+
+#reset.jlink:
+#	printf "r\ng\nexit\n" > reset.jlink
+
+erase-all: erase-all.jlink
+	$(JLINK) erase-all.jlink
+
+erase-all.jlink:
+	printf "erase\nr\nexit\n" > erase-all.jlink
+
+startdebug: debug-gdbinit
+	$(TERMINAL) "$(JLINKGDBSERVER) -port $(GDB_PORT_NUMBER)"
+	sleep 1
+	$(TERMINAL) "$(GDB) $(ELF)"
+
+debug-gdbinit:
+	printf "target remote localhost:$(GDB_PORT_NUMBER)\nload\nmon reset\nbreak main\n" > .gdbinit
+
+#.PHONY: flash startdebug
+.PHONY: flash startdebug
