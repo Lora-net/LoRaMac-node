@@ -10,8 +10,8 @@ LORA_DIR ?= ../../../../
 
 #The exact STM part number All CAPS
 ############################################
-DEVICE = STM32L151
-DEVICE_FAMILY = STM32L151xB
+DEVICE = STM32L151C6
+DEVICE_FAMILY = STM32L151xC
 
 #The install locations of the STM Standard library
 #################################################
