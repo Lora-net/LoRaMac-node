@@ -25,7 +25,7 @@ flash: all flash.jlink
 
 ifndef ID
 flash.jlink:
-	printf "r\nloadbin $(BIN) $(FLASH_START_ADDRESS)\nr\ng\nexit\n" > flash.jlink
+	printf "r\nloadbin $(BIN) $(FLASH_START_ADDRESS)\nr\ng\nmon reset\nexit\n" > flash.jlink
 else
 # Write the ID to flash as well
 ID_BYTES = $(subst :, ,$(ID))
