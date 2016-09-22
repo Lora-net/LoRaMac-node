@@ -116,6 +116,37 @@ development environment. Different targets/configurations have been created in
 the different projects in order to select different options such as the usage or
 not of a bootloader and the radio frequency band to be used.
 
+###Make Usage
+* Based on the stm32l1xx-gcc-setup [repo](https://github.com/lab11/stm32l1xx-gcc-setup)
+
+This is a template to use the STM32L1xx with GCC and Makefiles.
+
+It currently only runs on linux, and flashes programs with the JLink Segger programmer over SWD.
+
+####Makefile Usage
+1. Download and install the [JLink tools](https://www.segger.com/jlink-software.html)
+for your platform. Make sure that the binaries are added to your path.
+
+2. Edit the application Makefile to specify:
+
+    - your specfic STM32L1xx device
+    - the location of the makefile template above (if not cloned recursively)
+    - any source files that you use
+
+3. Use the supported commands to program and debug the chip:
+    - `make`: Compile
+    - `make flash`: Program the chip
+    - `make debug`: Run gdb
+    - `make erase-all`: Full erase of the chip
+    - `make startdebug`
+
+####Usage
+1. Navigate to `LoRaMac-node/make/example/blink` and type `make` to build the 
+    blink app
+
+2. Navigate to `LoRaMac-node/make/SK-iM880A/LoRaMac/classA` to build a classA 
+    device
+
 6. Changelog
 -------------
 2016-06-22, V4.3.0
