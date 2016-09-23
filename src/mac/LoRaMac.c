@@ -3106,7 +3106,7 @@ static void OnPingSlotTimerEvent( void )
 
             if( MulticastSlotState != PINGSLOT_STATE_RX )
             {
-                if( BeaconCtx.Ctrl.BeaconLess == false )
+                if( BeaconCtx.Ctrl.BeaconAcquired == 1 )
                 {
                     PingSlotCtx.SymbolTimeout = GetRxSymbolTimeout( PingSlotCtx.Datarate );
                 }
@@ -3206,7 +3206,7 @@ static void OnMulticastSlotTimerEvent( void )
                 frequency = PINGSLOT_CHANNEL_FREQ( PingSlotCtx.NextMulticastChannel->Address );
             }
 
-            if( BeaconCtx.Ctrl.BeaconLess == false )
+            if( BeaconCtx.Ctrl.BeaconAcquired == 1 )
             {
                 PingSlotCtx.SymbolTimeout = GetRxSymbolTimeout( PingSlotCtx.Datarate );
             }
