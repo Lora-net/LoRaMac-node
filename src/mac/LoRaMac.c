@@ -2571,7 +2571,6 @@ static uint16_t GetRxSymbolTimeout( int8_t datarate )
     {
         case DR_0:       // SF10 - BW125
             return 5;
-            break;
 
         case DR_1:       // SF9  - BW125
         case DR_2:       // SF8  - BW125
@@ -2579,27 +2578,21 @@ static uint16_t GetRxSymbolTimeout( int8_t datarate )
         case DR_9:       // SF11 - BW500
         case DR_10:      // SF10 - BW500
             return 8;
-            break;
 
         case DR_3:       // SF7  - BW125
         case DR_11:     // SF9  - BW500
             return 10;
-            break;
 
         case DR_4:       // SF8  - BW500
         case DR_12:      // SF8  - BW500
             return 14;
-            break;
 
         case DR_13:      // SF7  - BW500
             return 16;
-            break;
+
         default:
             return 0;   // LoRa 125 kHz
-            break;
-         }
-#else
-    #error "Please define a frequency band in the compiler options."
+    }
 #endif
 }
 
