@@ -3331,11 +3331,12 @@ static uint16_t BeaconCrc( uint8_t *buffer, uint16_t length )
         return 0;
     }
 
-    for ( uint16_t i = 0; i < length; ++i )
+    for( uint16_t i = 0; i < length; ++i )
     {
         crc ^= ( uint16_t ) buffer[i] << 8;
-        for (uint16_t j = 0; j < 8; ++j ) {
-            crc = ( crc & 0x8000) ? ( crc << 1 ) ^ polynom : ( crc << 1 );
+        for( uint16_t j = 0; j < 8; ++j )
+        {
+            crc = ( crc & 0x8000 ) ? ( crc << 1 ) ^ polynom : ( crc << 1 );
         }
     }
 
