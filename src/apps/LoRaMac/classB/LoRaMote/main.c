@@ -250,13 +250,13 @@ static void PrepareTxFrame( uint8_t port )
             int32_t latitude, longitude = 0;
             uint16_t altitudeGps = 0xFFFF;
             uint8_t batteryLevel = 0;
-        
+
             temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
-        
+
             batteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
             GpsGetLatestGpsPositionBinary( &latitude, &longitude );
             altitudeGps = GpsGetLatestGpsAltitude( );                           // in m
-        
+
             AppData[0] = AppLedStateOn;
             AppData[1] = temperature;                                           // Signed degrees Celcius in half degree units. So,  +/-63 C
             AppData[2] = batteryLevel;                                          // Per LoRaWAN spec; 0=Charging; 1...254 = level, 255 = N/A
