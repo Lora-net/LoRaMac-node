@@ -293,6 +293,54 @@ static ChannelParams_t Channels[LORA_MAX_NB_CHANNELS];
  */
 #define LORAMAC_STEPWIDTH_RX1_CHANNEL       ( (uint32_t) 200e3 )
 
+/*!
+ * Beacon frame size in bytes
+ *
+ * Remark: This is just a place holder and must be verified with
+ * future specifications.
+ */
+#define BEACON_SIZE                                 17
+
+/*!
+ * Beacon channel frequency
+ *
+ * Remark: This is just a place holder and must be verified with
+ * future specifications.
+ */
+#define BEACON_CHANNEL_FREQ( )                      505300000
+
+/*!
+ * Beacon channel frequency by index
+ *
+ * Remark: This is just a place holder and must be verified with
+ * future specifications.
+ */
+#define BEACON_CHANNEL_FREQ_IDX( x )                505300000
+
+/*!
+ * Beacon channel datarate
+ *
+ * Remark: This is just a place holder and must be verified with
+ * future specifications.
+ */
+#define BEACON_CHANNEL_DR                           DR_0
+
+/*!
+ * Beacon channel bandwidth
+ *
+ * Remark: This is just a place holder and must be verified with
+ * future specifications.
+ */
+#define BEACON_CHANNEL_BW                           0
+
+/*!
+ * Ping slot channel frequency
+ *
+ * Remark: This is just a place holder and must be verified with
+ * future specifications.
+ */
+#define PINGSLOT_CHANNEL_FREQ( x )                  505300000
+
 #elif defined( USE_BAND_780 )
 /*!
  * Data rates table definition
@@ -2217,16 +2265,8 @@ static void OnRxWindow1TimerEvent( void )
         datarate = DR_0;
     }
 
-    // For higher datarates, we increase the number of symbols generating a Rx Timeout
-    if( ( LoRaMacParams.Rx2Channel.Datarate == DR_3 ) || ( LoRaMacParams.Rx2Channel.Datarate == DR_4 ) )
-    { // DR_4, DR_3
-        symbTimeout = 8;
-    }
-    else if( LoRaMacParams.Rx2Channel.Datarate == DR_5 )
-    {
-        symbTimeout = 10;
-    }
-    RxWindowSetup( LORAMAC_FIRST_RX1_CHANNEL + ( Channel % 48 ) * LORAMAC_STEPWIDTH_RX1_CHANNEL, datarate, bandwidth, symbTimeout, false );
+    RxWindowSetup( LORAMAC_FIRST_RX1_CHANNEL + ( Channel % 48 ) * LORAMAC_STEPWIDTH_RX1_CHANNEL, datarate, GetRxBandwidth( datarate ),
+                   GetRxSymbolTimeout( datarate ), false );
 #elif ( defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID ) )
     datarate = datarateOffsets[LoRaMacParams.ChannelsDatarate][LoRaMacParams.Rx1DrOffset];
     if( datarate < 0 )
@@ -2234,10 +2274,8 @@ static void OnRxWindow1TimerEvent( void )
         datarate = DR_0;
     }
 
-    RxWindowSetup( LORAMAC_FIRST_RX2_CHANNEL + ( Channel % 8 ) * LORAMAC_STEPWIDTH_RX2_CHANNEL, datarate, GetRxBandwidth( datarate ),
+    RxWindowSetup( LORAMAC_FIRST_RX1_CHANNEL + ( Channel % 8 ) * LORAMAC_STEPWIDTH_RX1_CHANNEL, datarate, GetRxBandwidth( datarate ),
                    GetRxSymbolTimeout( datarate ), false );
-#else
-    #error "Please define a frequency band in the compiler options."
 #endif
 }
 
@@ -2445,6 +2483,16 @@ static uint16_t GetRxSymbolTimeout( int8_t datarate )
         return 14;
     }
     return 5; // DR_2, DR_1, DR_0
+#elif defined( USE_BAND_470 )
+    if( ( datarate == DR_3 ) || ( datarate == DR_4 ) )
+    { // DR_4, DR_3
+        return 8;
+    }
+    else if( datarate == DR_5 )
+    {
+        return 10;
+    }
+    return 5; // DR_2, DR_1, DR_0
 #elif ( defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID ) )
     switch( datarate )
     {
@@ -2489,6 +2537,8 @@ static uint32_t GetRxBandwidth( int8_t datarate )
     {// LoRa 250 kHz
         return 1;
     }
+    return 0; // LoRa 125 kHz
+#elif defined( USE_BAND_470 )
     return 0; // LoRa 125 kHz
 #elif ( defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID ) )
     if( datarate >= DR_4 )
