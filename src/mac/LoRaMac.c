@@ -1044,7 +1044,9 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
         case FRAME_TYPE_JOIN_ACCEPT:
             if( IsLoRaMacNetworkJoined == true )
             {
-                break;
+                McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+                PrepareRxDoneAbort( );
+                return;
             }
             LoRaMacJoinDecrypt( payload + 1, size - 1, LoRaMacAppKey, LoRaMacRxPayload + 1 );
 
