@@ -3395,24 +3395,24 @@ static void HaltBeaconing( void )
 {
     if( LoRaMacDeviceClass == CLASS_B )
     {
-        if( BeaconState == BEACON_STATE_TIMEOUT )
+        if( ( BeaconState == BEACON_STATE_TIMEOUT ) ||
+            ( BeaconState == BEACON_STATE_SWITCH_CLASS ) )
         {
             // Update the state machine before halt
             OnBeaconTimerEvent( );
         }
 
-        if( BeaconState != BEACON_STATE_SWITCH_CLASS )
-        {
-            // Halt beacon state machine
-            BeaconState = BEACON_STATE_HALT;
-            TimerStop( &BeaconTimer );
+        // Halt beacon state machine
+        BeaconState = BEACON_STATE_HALT;
 
-            // Halt ping slot state machine
-            TimerStop( &PingSlotTimer );
+        // Halt ping slot state machine
+        TimerStop( &BeaconTimer );
 
-            // Halt multicast ping slot state machine
-            TimerStop( &MulticastSlotTimer );
-        }
+        // Halt ping slot state machine
+        TimerStop( &PingSlotTimer );
+
+        // Halt multicast ping slot state machine
+        TimerStop( &MulticastSlotTimer );
     }
 }
 
