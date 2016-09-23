@@ -2769,7 +2769,7 @@ static void OnBeaconTimerEvent( void )
 
             if( BeaconCtx.Ctrl.AcquisitionPending == 1 )
             {
-                BeaconCtx.Ctrl.AcquisitionPending = 0;
+                Radio.Sleep();
                 BeaconState = BEACON_STATE_SWITCH_CLASS;
             }
             else
@@ -2780,17 +2780,30 @@ static void OnBeaconTimerEvent( void )
 
                 if( BeaconCtx.Ctrl.BeaconDelaySet == 1 )
                 {
-                    BeaconCtx.Ctrl.BeaconDelaySet = 0;
-
                     if( BeaconCtx.BeaconTimingDelay > 0 )
                     {
-                        beaconEventTime = BeaconCtx.BeaconTimingDelay;
-                        beaconEventTime = TimerTempCompensation( beaconEventTime, BeaconCtx.Temperature );
+                        if( BeaconCtx.NextBeaconRx > currentTime )
+                        {
+                            BeaconCtx.Ctrl.AcquisitionTimerSet = 1;
+                            beaconEventTime = TimerTempCompensation( BeaconCtx.NextBeaconRx - currentTime, BeaconCtx.Temperature );
+                        }
+                        else
+                        {
+                            BeaconCtx.Ctrl.BeaconDelaySet = 0;
+                            BeaconCtx.Ctrl.AcquisitionPending = 1;
+                            BeaconCtx.Ctrl.AcquisitionTimerSet = 0;
+                            beaconEventTime = BeaconCtx.Cfg.Interval;
+                            RxBeaconSetup( BeaconCtx.SymbolTimeout, 0 );
+                        }
+                        BeaconCtx.NextBeaconRx = 0;
+                        BeaconCtx.BeaconTimingDelay = 0;
                     }
                     else
                     {
-                        BeaconCtx.Ctrl.AcquisitionPending = 1;
-                        beaconEventTime = BeaconCtx.Cfg.Reserved;
+                        BeaconCtx.Ctrl.BeaconDelaySet = 0;
+                        BeaconCtx.Ctrl.AcquisitionPending = 0;
+                        BeaconCtx.Ctrl.AcquisitionTimerSet = 1;
+                        beaconEventTime = BeaconCtx.Cfg.DelayBeaconTimingAns;
                         RxBeaconSetup( BeaconCtx.SymbolTimeout, 0 );
                     }
                 }
@@ -2798,7 +2811,11 @@ static void OnBeaconTimerEvent( void )
                 {
                     BeaconCtx.Ctrl.AcquisitionPending = 1;
                     beaconEventTime = BeaconCtx.Cfg.Interval;
-                    RxBeaconSetup( BeaconCtx.SymbolTimeout, 0 );
+                    if( BeaconCtx.Ctrl.AcquisitionTimerSet == 0 )
+                    {
+                        RxBeaconSetup( BeaconCtx.SymbolTimeout, 0 );
+                    }
+                    BeaconCtx.Ctrl.AcquisitionTimerSet = 0;
                 }
             }
             break;
@@ -4261,35 +4278,36 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 break;
             case SRV_MAC_BEACON_TIMING_ANS:
                 {
+                    TimerTime_t currentTime = TimerGetCurrentTime( );
                     uint16_t beaconTimingDelay = ( uint16_t )payload[macIndex++];
                     beaconTimingDelay |= ( uint16_t )payload[macIndex++] << 8;
 
                     BeaconCtx.BeaconTimingDelay = ( BeaconCtx.Cfg.DelayBeaconTimingAns * beaconTimingDelay );
                     BeaconCtx.BeaconTimingChannel = payload[macIndex++];
-                    BeaconCtx.Ctrl.BeaconDelaySet = 1;
-                    BeaconCtx.Ctrl.BeaconChannelSet = 1;
-
 
                     index = GetMlmeConfirmIndex( MlmeConfirmQueue, MLME_BEACON_TIMING, MlmeConfirmQueueCnt );
                     if( index < LORA_MAC_MLME_CONFIRM_QUEUE_LEN )
                     {
 #ifndef LORAWAN_CLASSB_ORBIWISE
-                    BeaconCtx.BeaconTimingDelay = BeaconCtx.BeaconTimingDelay -
-                                                  ( TimerGetCurrentTime( ) - Bands[Channels[LastTxChannel].Band].LastTxDoneTime );
+                        currentTime -= ( currentTime - Bands[Channels[LastTxChannel].Band].LastTxDoneTime );
 #endif
-                    if( BeaconCtx.BeaconTimingDelay > BeaconCtx.Cfg.Interval )
-                    {
-                        // We missed the beacon already
-                        BeaconCtx.BeaconTimingDelay = 0;
-                        BeaconCtx.Ctrl.BeaconDelaySet = 0;
-                        BeaconCtx.Ctrl.BeaconChannelSet = 0;
-                        MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_BEACON_NOT_FOUND;
-                    }
-
-                    MlmeConfirm.BeaconTimingDelay = BeaconCtx.BeaconTimingDelay;
-                    MlmeConfirm.BeaconTimingChannel = BeaconCtx.BeaconTimingChannel;
+                        if( BeaconCtx.BeaconTimingDelay > BeaconCtx.Cfg.Interval )
+                        {
+                            // We missed the beacon already
+                            BeaconCtx.BeaconTimingDelay = 0;
+                            BeaconCtx.BeaconTimingChannel = 0;
+                            MlmeConfirmQueue[index].Status = LORAMAC_EVENT_INFO_STATUS_BEACON_NOT_FOUND;
+                        }
+                        else
+                        {
+                            BeaconCtx.Ctrl.BeaconDelaySet = 1;
+                            BeaconCtx.Ctrl.BeaconChannelSet = 1;
+                            BeaconCtx.NextBeaconRx = currentTime + BeaconCtx.BeaconTimingDelay;
                             MlmeConfirmQueue[index].Status = LORAMAC_EVENT_INFO_STATUS_OK;
+                        }
 
+                        MlmeConfirm.BeaconTimingDelay = BeaconCtx.BeaconTimingDelay;
+                        MlmeConfirm.BeaconTimingChannel = BeaconCtx.BeaconTimingChannel;
                     }
                 }
                 break;
