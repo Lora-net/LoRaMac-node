@@ -3363,12 +3363,11 @@ static uint16_t BeaconCrc( uint8_t *buffer, uint16_t length )
 
 static bool IsBeaconExpected( void )
 {
-    if( LoRaMacDeviceClass == CLASS_B )
+    if( ( BeaconCtx.Ctrl.AcquisitionPending == 1 ) ||
+        ( BeaconCtx.Ctrl.AcquisitionTimerSet == 1 ) ||
+        ( BeaconState == BEACON_STATE_RX ) )
     {
-        if( ( BeaconState == BEACON_STATE_ACQUISITION ) || ( BeaconState == BEACON_STATE_RX ) )
-        {
-            return true;
-        }
+        return true;
     }
     return false;
 }
