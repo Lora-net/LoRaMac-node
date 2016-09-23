@@ -702,11 +702,6 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                 }
                 break;
             }
-            case MLME_PING_SLOT_INFO:
-            {
-                WakeUpState = DEVICE_STATE_REQ_BEACON_TIMING;
-                break;
-            }
             case MLME_BEACON_TIMING:
             {
                 WakeUpState = DEVICE_STATE_BEACON_ACQUISITION;
@@ -720,9 +715,13 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                 WakeUpState = DEVICE_STATE_REQ_PINGSLOT_ACK;
                 break;
             }
+            case MLME_PING_SLOT_INFO:
+            {
+                mibReq.Type = MIB_DEVICE_CLASS;
+                mibReq.Param.Class = CLASS_B;
+                LoRaMacMibSetRequestConfirm( &mibReq );
 
-                TimerStop( &Led3Timer );
-                GpioWrite( &Led3, 1 );
+                WakeUpState = DEVICE_STATE_SEND;
                 break;
             }
             default:
@@ -736,12 +735,8 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             case MLME_JOIN:
             {
                 // Join failed, restart join procedure
-                WakeUpState = DEVICE_STATE_JOIN;
-                break;
-            }
-            case MLME_PING_SLOT_INFO:
-            {
-                WakeUpState = DEVICE_STATE_REQ_PINGSLOT_ACK;
+                DeviceState = DEVICE_STATE_JOIN;
+                NextTx = true;
                 break;
             }
             case MLME_BEACON_TIMING:
@@ -755,6 +750,11 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             case MLME_BEACON_ACQUISITION:
             {
                 WakeUpState = DEVICE_STATE_REQ_BEACON_TIMING;
+                break;
+            }
+            case MLME_PING_SLOT_INFO:
+            {
+                WakeUpState = DEVICE_STATE_REQ_PINGSLOT_ACK;
                 break;
             }
             default:
@@ -951,18 +951,24 @@ int main( void )
                 DeviceState = DEVICE_STATE_SEND;
                 break;
             }
-            case DEVICE_STATE_SWITCH_CLASS:
+            case DEVICE_STATE_REQ_PINGSLOT_ACK:
             {
                 MlmeReq_t mlmeReq;
 
                 if( NextTx == true )
                 {
-                    mlmeReq.Type = MLME_SWITCH_CLASS;
-                    mlmeReq.Req.SwitchClass.Class = CLASS_B;
-
+                    mlmeReq.Type = MLME_LINK_CHECK;
                     LoRaMacMlmeRequest( &mlmeReq );
 
-                    NextTx = false;
+                    mlmeReq.Type = MLME_PING_SLOT_INFO;
+                    mlmeReq.Req.PingSlotInfo.PingSlot.Fields.Datarate = DR_0;
+                    mlmeReq.Req.PingSlotInfo.PingSlot.Fields.Periodicity = 0;
+                    mlmeReq.Req.PingSlotInfo.PingSlot.Fields.RFU = 0;
+
+                    if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
+                    {
+                        WakeUpState = DEVICE_STATE_SEND;
+                    }
                 }
                 DeviceState = DEVICE_STATE_SEND;
                 break;
