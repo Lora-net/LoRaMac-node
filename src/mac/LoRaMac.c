@@ -2877,29 +2877,34 @@ static void OnBeaconTimerEvent( void )
                     BeaconState = BEACON_STATE_GUARD;
                 }
 
-                PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
-                TimerSetValue( &PingSlotTimer, 1 );
-                TimerStart( &PingSlotTimer );
+                if( PingSlotCtx.Ctrl.Assigned == 1 )
+                {
+                    PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+                    TimerSetValue( &PingSlotTimer, 1 );
+                    TimerStart( &PingSlotTimer );
 
-                MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
-                TimerSetValue( &MulticastSlotTimer, 1 );
-                TimerStart( &MulticastSlotTimer );
+                    MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+                    TimerSetValue( &MulticastSlotTimer, 1 );
+                    TimerStart( &MulticastSlotTimer );
+                }
+            }
+            BeaconCtx.Ctrl.BeaconAcquired = 0;
 
-                // Start the timer only if the MAC does not switch the class.
+            if( BeaconCtx.Ctrl.ResumeBeaconing == 0 )
+            {
+                MlmeIndication.MlmeIndication = MLME_BEACON;
+                MlmeIndication.Status = LORAMAC_EVENT_INFO_STATUS_BEACON_LOST;
+                LoRaMacFlags.Bits.MlmeInd = 1;
+
                 TimerSetValue( &MacStateCheckTimer, 1 );
                 TimerStart( &MacStateCheckTimer );
+                LoRaMacFlags.Bits.MacDone = 1;
             }
-            BeaconCtx.Ctrl.BeaconLess = 1;
-
-            MlmeIndication.MlmeIndication = MLME_BEACON;
-            MlmeIndication.Status = LORAMAC_EVENT_INFO_STATUS_BEACON_LOST;
-            LoRaMacFlags.Bits.MlmeInd = 1;
+            BeaconCtx.Ctrl.ResumeBeaconing = 0;
             break;
         }
         case BEACON_STATE_LOCKED:
         {
-            BeaconCtx.Ctrl.AcquisitionPending = 0;
-
             activateTimer = true;
             // Calculate the point in time of the next beacon
             beaconEventTime = ( ( currentTime - BeaconCtx.LastBeaconRx ) % BeaconCtx.Cfg.Interval );
@@ -2926,22 +2931,31 @@ static void OnBeaconTimerEvent( void )
                     MlmeConfirmQueue[index].Status = LORAMAC_EVENT_INFO_STATUS_OK;
                     MlmeConfirm.TxTimeOnAir = 0;
                 }
+            }
+
+            if( PingSlotCtx.Ctrl.Assigned == 1 )
+            {
+                PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+                TimerSetValue( &PingSlotTimer, 1 );
+                TimerStart( &PingSlotTimer );
+
+                MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+                TimerSetValue( &MulticastSlotTimer, 1 );
+                TimerStart( &MulticastSlotTimer );
+            }
+            BeaconCtx.Ctrl.AcquisitionPending = 0;
+
+            if( BeaconCtx.Ctrl.ResumeBeaconing == 0 )
+            {
+                MlmeIndication.MlmeIndication = MLME_BEACON;
+                MlmeIndication.Status = LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED;
+                LoRaMacFlags.Bits.MlmeInd = 1;
+
+                TimerSetValue( &MacStateCheckTimer, 1 );
+                TimerStart( &MacStateCheckTimer );
                 LoRaMacFlags.Bits.MacDone = 1;
             }
-            MlmeIndication.MlmeIndication = MLME_BEACON;
-            MlmeIndication.Status = LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED;
-            LoRaMacFlags.Bits.MlmeInd = 1;
-
-            PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
-            TimerSetValue( &PingSlotTimer, 1 );
-            TimerStart( &PingSlotTimer );
-
-            MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
-            TimerSetValue( &MulticastSlotTimer, 1 );
-            TimerStart( &MulticastSlotTimer );
-
-            TimerSetValue( &MacStateCheckTimer, 1 );
-            TimerStart( &MacStateCheckTimer );
+            BeaconCtx.Ctrl.ResumeBeaconing = 0;
             break;
         }
         case BEACON_STATE_IDLE:
