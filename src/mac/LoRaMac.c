@@ -2612,8 +2612,6 @@ static uint32_t GetRxBandwidth( int8_t datarate )
         return 2;
     }
     return 0; // LoRa 125 kHz
-#else
-    #error "Please define a frequency band in the compiler options."
 #endif
 }
 
