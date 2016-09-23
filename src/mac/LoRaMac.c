@@ -1607,12 +1607,9 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
     }
     TimerStop( &RxWindowTimer2 );
 
-    if( IsBeaconExpected( ) == true )
+    if( RxBeacon( payload, size ) == true )
     {
-        if( RxBeacon( payload, size ) == true )
-        {
-            return;
-        }
+        return;
     }
     if( IsPingExpected( ) == true )
     {
