@@ -3564,6 +3564,11 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t *mibGet )
             mibGet->Param.ChannelsDatarate = LoRaMacParams.ChannelsDatarate;
             break;
         }
+        case MIB_CHANNELS_DEFAULT_TX_POWER:
+        {
+            mibGet->Param.ChannelsDefaultTxPower = LoRaMacParamsDefaults.ChannelsTxPower;
+            break;
+        }
         case MIB_CHANNELS_TX_POWER:
         {
             mibGet->Param.ChannelsTxPower = LoRaMacParams.ChannelsTxPower;
@@ -3804,6 +3809,19 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
                               LORAMAC_TX_MIN_DATARATE, LORAMAC_TX_MAX_DATARATE ) )
             {
                 LoRaMacParams.ChannelsDatarate = mibSet->Param.ChannelsDatarate;
+            }
+            else
+            {
+                status = LORAMAC_STATUS_PARAMETER_INVALID;
+            }
+            break;
+        }
+        case MIB_CHANNELS_DEFAULT_TX_POWER:
+        {
+            if( ValueInRange( mibSet->Param.ChannelsDefaultTxPower,
+                              LORAMAC_MIN_TX_POWER, LORAMAC_MAX_TX_POWER ) )
+            {
+                LoRaMacParamsDefaults.ChannelsTxPower = mibSet->Param.ChannelsDefaultTxPower;
             }
             else
             {

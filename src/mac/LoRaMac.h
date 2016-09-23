@@ -1048,6 +1048,7 @@ typedef struct sMlmeConfirm
  * \ref MIB_CHANNELS_DATARATE        | YES | YES
  * \ref MIB_CHANNELS_DEFAULT_DATARATE| YES | YES
  * \ref MIB_CHANNELS_TX_POWER        | YES | YES
+ * \ref MIB_CHANNELS_DEFAULT_TX_POWER| YES | YES
  * \ref MIB_UPLINK_COUNTER           | YES | YES
  * \ref MIB_DOWNLINK_COUNTER         | YES | YES
  * \ref MIB_MULTICAST_CHANNEL        | YES | NO
@@ -1213,6 +1214,20 @@ typedef enum eMib
      */
     MIB_CHANNELS_TX_POWER,
     /*!
+     * Transmission power of a channel
+     *
+     * LoRaWAN Specification V1.0.1, chapter 7
+     *
+     * EU868 - [TX_POWER_20_DBM, TX_POWER_14_DBM, TX_POWER_11_DBM,
+     *          TX_POWER_08_DBM, TX_POWER_05_DBM, TX_POWER_02_DBM]
+     *
+     * US915 - [TX_POWER_30_DBM, TX_POWER_28_DBM, TX_POWER_26_DBM,
+     *          TX_POWER_24_DBM, TX_POWER_22_DBM, TX_POWER_20_DBM,
+     *          TX_POWER_18_DBM, TX_POWER_14_DBM, TX_POWER_12_DBM,
+     *          TX_POWER_10_DBM]
+     */
+    MIB_CHANNELS_DEFAULT_TX_POWER,
+    /*!
      * LoRaWAN Up-link counter
      *
      * LoRaWAN Specification V1.0.1, chapter 4.3.1.5
@@ -1357,6 +1372,12 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_CHANNELS_DATARATE
      */
     int8_t ChannelsDatarate;
+    /*!
+     * Channels TX power
+     *
+     * Related MIB type: \ref MIB_CHANNELS_DEFAULT_TX_POWER
+     */
+    int8_t ChannelsDefaultTxPower;
     /*!
      * Channels TX power
      *
