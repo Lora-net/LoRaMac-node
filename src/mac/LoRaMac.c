@@ -4257,5 +4257,9 @@ void LoRaMacTestSetMic( uint16_t txPacketCounter )
 
 void LoRaMacTestSetDutyCycleOn( bool enable )
 {
+#if defined( USE_BAND_868 )
     DutyCycleOn = enable;
+#else
+    DutyCycleOn = false;
+#endif
 }
