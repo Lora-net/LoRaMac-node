@@ -3422,20 +3422,15 @@ static void ResumeBeaconing( void )
     {
         if( BeaconState == BEACON_STATE_HALT )
         {
-            TimerTime_t currentTime = TimerGetCurrentTime( );
+            BeaconCtx.Ctrl.ResumeBeaconing = 1;
 
             // Set default state
             BeaconState = BEACON_STATE_LOCKED;
 
-            if( BeaconCtx.Ctrl.BeaconLess == true )
+            if( BeaconCtx.Ctrl.BeaconAcquired == 0 )
             {
                 // Set the default state for beacon less operation
                 BeaconState = BEACON_STATE_REACQUISITION;
-            }
-            if( currentTime > BeaconCtx.NextBeaconRx )
-            {
-                // We have to update the beacon time, since we missed a beacon
-                BeaconCtx.BeaconTime += ( BeaconCtx.Cfg.Interval / 1000 );
             }
             TimerSetValue( &BeaconTimer, 1 );
             TimerStart( &BeaconTimer );
