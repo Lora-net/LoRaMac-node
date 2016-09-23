@@ -4808,9 +4808,6 @@ TimerTime_t SendFrameOnChannel( ChannelParams_t channel )
         return PingSlotCtx.Cfg.PingSlotWindow;
     }
 
-    HaltBeaconing( );
-
-
     MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
     McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
     McpsConfirm.Datarate = LoRaMacParams.ChannelsDatarate;
@@ -4861,6 +4858,18 @@ TimerTime_t SendFrameOnChannel( ChannelParams_t channel )
     // Store the time on air
     McpsConfirm.TxTimeOnAir = TxTimeOnAir;
     MlmeConfirm.TxTimeOnAir = TxTimeOnAir;
+
+    if( ( LoRaMacDeviceClass == CLASS_B ) || ( BeaconCtx.Ctrl.BeaconMode == 1 ) )
+    {
+        TimerTime_t currentTime = TimerGetCurrentTime( );
+
+        if( ( currentTime >= ( BeaconCtx.NextBeaconRx - BeaconCtx.Cfg.Guard - LoRaMacParams.ReceiveDelay1 - LoRaMacParams.ReceiveDelay2 - TxTimeOnAir ) ) &&
+            ( currentTime < ( BeaconCtx.NextBeaconRx + BeaconCtx.Cfg.Reserved ) ) )
+        {
+            return BeaconCtx.Cfg.Reserved;
+        }
+    }
+    HaltBeaconing( );
 
     // Starts the MAC layer status check timer
     TimerSetValue( &MacStateCheckTimer, MAC_STATE_CHECK_TIMEOUT );
