@@ -616,6 +616,44 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         DeviceState = DEVICE_STATE_SLEEP;
                     }
                     break;
+                case 7: // Switch end device Class
+                    {
+                        MlmeReq_t mlmeReq;
+
+                        mlmeReq.Type = MLME_SWITCH_CLASS;
+
+                        // CLASS_A = 0, CLASS_B = 1, CLASS_C = 2
+                        mlmeReq.Req.SwitchClass.Class = ( DeviceClass_t )mcpsIndication->Buffer[1];
+
+                        LoRaMacMlmeRequest( &mlmeReq );
+
+                        DeviceState = DEVICE_STATE_SEND;
+                    }
+                    break;
+                case 8: // Send PingSlotInfoReq
+                    {
+                        MlmeReq_t mlmeReq;
+
+                        mlmeReq.Type = MLME_PING_SLOT_INFO;
+
+                        mlmeReq.Req.PingSlotInfo.PingSlot.Value = mcpsIndication->Buffer[1];
+
+                        LoRaMacMlmeRequest( &mlmeReq );
+                        WakeUpState = DEVICE_STATE_SEND;
+                        DeviceState = DEVICE_STATE_SEND;
+                    }
+                    break;
+                case 9: // Send BeaconTimingReq
+                    {
+                        MlmeReq_t mlmeReq;
+
+                        mlmeReq.Type = MLME_BEACON_TIMING;
+
+                        LoRaMacMlmeRequest( &mlmeReq );
+                        WakeUpState = DEVICE_STATE_SEND;
+                        DeviceState = DEVICE_STATE_SEND;
+                    }
+                    break;
                 default:
                     break;
                 }
