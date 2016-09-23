@@ -2989,26 +2989,27 @@ static void OnBeaconTimerEvent( void )
         }
         case BEACON_STATE_SWITCH_CLASS:
         {
-            LoRaMacDeviceClass = CLASS_A;
-
-            PingSlotCtx.Ctrl.Assigned = 0;
-
-            if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) && ( MlmeConfirm.MlmeRequest == MLME_SWITCH_CLASS ) )
+            if( LoRaMacFlags.Bits.MlmeReq == 1 )
             {
                 index = GetMlmeConfirmIndex( MlmeConfirmQueue, MLME_BEACON_ACQUISITION, MlmeConfirmQueueCnt );
                 if( index < LORA_MAC_MLME_CONFIRM_QUEUE_LEN )
                 {
                     MlmeConfirmQueue[index].Status = LORAMAC_EVENT_INFO_STATUS_BEACON_NOT_FOUND;
                 }
-                LoRaMacFlags.Bits.MacDone = 1;
             }
             else
             {
                 MlmeIndication.MlmeIndication = MLME_SWITCH_CLASS;
                 MlmeIndication.Status = LORAMAC_EVENT_INFO_STATUS_OK;
+                PingSlotCtx.Ctrl.Assigned = 0;
                 LoRaMacFlags.Bits.MlmeInd = 1;
             }
             BeaconState = BEACON_STATE_ACQUISITION;
+
+            BeaconCtx.Ctrl.BeaconMode = 0;
+            BeaconCtx.Ctrl.AcquisitionPending = 0;
+            BeaconCtx.Ctrl.AcquisitionTimerSet = 0;
+            LoRaMacFlags.Bits.MacDone = 1;
 
             TimerSetValue( &MacStateCheckTimer, beaconEventTime );
             TimerStart( &MacStateCheckTimer );
