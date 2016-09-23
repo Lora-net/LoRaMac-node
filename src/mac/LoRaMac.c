@@ -3280,62 +3280,61 @@ static bool RxBeacon( uint8_t *payload, uint16_t size )
     rfuOffset2 = 1;
 #endif
 
-
-    TimerStop( &BeaconTimer );
-
-    BeaconState = BEACON_STATE_REACQUISITION;
-
-    if( size == BEACON_SIZE )
+    // BeaconState = BEACON_STATE_REACQUISITION;
+    if( ( BeaconState == BEACON_STATE_RX ) || ( BeaconCtx.Ctrl.AcquisitionPending == 1 ) )
     {
-        beaconCrc0 = ( ( uint16_t ) payload[6 + rfuOffset1] ) & 0x00FF;
-        beaconCrc0 |= ( ( uint16_t ) payload[7 + rfuOffset1] << 8 ) & 0xFF00;
-        crc0 = BeaconCrc( payload, 6 + rfuOffset1 );
-
-        // Validate the first crc of the beacon frame
-        if( crc0 == beaconCrc0 )
+        if( size == BEACON_SIZE )
         {
-            BeaconCtx.BeaconTime  = ( ( uint32_t ) payload[2 + rfuOffset1] ) & 0x000000FF;
-            BeaconCtx.BeaconTime |= ( ( uint32_t ) ( payload[3 + rfuOffset1] << 8 ) ) & 0x0000FF00;
-            BeaconCtx.BeaconTime |= ( ( uint32_t ) ( payload[4 + rfuOffset1] << 16 ) ) & 0x00FF0000;
-            BeaconCtx.BeaconTime |= ( ( uint32_t ) ( payload[5 + rfuOffset1] << 24 ) ) & 0xFF000000;
-            beaconReceived = true;
-        }
-        else
-        {
-            // If the crc of the beacon time part is not correct, the node has to
-            // keep the internal timing.
-            BeaconCtx.BeaconTime += ( BeaconCtx.Cfg.Interval / 1000 );
-        }
-        MlmeIndication.BeaconInfo.Time = BeaconCtx.BeaconTime;
+            beaconCrc0 = ( ( uint16_t ) payload[6 + rfuOffset1] ) & 0x00FF;
+            beaconCrc0 |= ( ( uint16_t ) payload[7 + rfuOffset1] << 8 ) & 0xFF00;
+            crc0 = BeaconCrc( payload, 6 + rfuOffset1 );
 
-        beaconCrc1 = ( ( uint16_t ) payload[15 + rfuOffset1 + rfuOffset2] ) & 0x00FF;
-        beaconCrc1 |= ( ( uint16_t ) payload[16 + rfuOffset1 + rfuOffset2] << 8 ) & 0xFF00;
-        crc1 = BeaconCrc( &payload[8 + rfuOffset1], 7 + rfuOffset2 );
+            // Validate the first crc of the beacon frame
+            if( crc0 == beaconCrc0 )
+            {
+                BeaconCtx.BeaconTime  = ( ( uint32_t ) payload[2 + rfuOffset1] ) & 0x000000FF;
+                BeaconCtx.BeaconTime |= ( ( uint32_t ) ( payload[3 + rfuOffset1] << 8 ) ) & 0x0000FF00;
+                BeaconCtx.BeaconTime |= ( ( uint32_t ) ( payload[4 + rfuOffset1] << 16 ) ) & 0x00FF0000;
+                BeaconCtx.BeaconTime |= ( ( uint32_t ) ( payload[5 + rfuOffset1] << 24 ) ) & 0xFF000000;
+                MlmeIndication.BeaconInfo.Time = BeaconCtx.BeaconTime;
+                beaconReceived = true;
+            }
 
-        // Validate the second crc of the beacon frame
-        if( crc1 == beaconCrc1 )
-        {
-            MlmeIndication.BeaconInfo.GwSpecific.InfoDesc = payload[8 + rfuOffset1];
-            memcpy1( MlmeIndication.BeaconInfo.GwSpecific.Info, &payload[9 + rfuOffset1], 7 );
-            beaconReceived = true;
+            beaconCrc1 = ( ( uint16_t ) payload[15 + rfuOffset1 + rfuOffset2] ) & 0x00FF;
+            beaconCrc1 |= ( ( uint16_t ) payload[16 + rfuOffset1 + rfuOffset2] << 8 ) & 0xFF00;
+            crc1 = BeaconCrc( &payload[8 + rfuOffset1], 7 + rfuOffset2 );
+
+            // Validate the second crc of the beacon frame
+            if( crc1 == beaconCrc1 )
+            {
+                MlmeIndication.BeaconInfo.GwSpecific.InfoDesc = payload[8 + rfuOffset1];
+                memcpy1( MlmeIndication.BeaconInfo.GwSpecific.Info, &payload[9 + rfuOffset1], 7 );
+                beaconReceived = true;
+            }
+
+            // Reset beacon variables, if one of the crc is valid
+            if( beaconReceived == true )
+            {
+                BeaconCtx.LastBeaconRx = TimerGetCurrentTime( ) - Radio.TimeOnAir( MODEM_LORA, size );
+                BeaconCtx.Ctrl.BeaconAcquired = 1;
+                BeaconCtx.Ctrl.BeaconMode = 1;
+                BeaconCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
+                BeaconState = BEACON_STATE_LOCKED;
+
+                OnBeaconTimerEvent( );
+            }
         }
 
-        // Reset beacon variables, if one of the crc is valid
-        if( beaconReceived == true )
+        if( BeaconState == BEACON_STATE_RX )
         {
-            BeaconCtx.LastBeaconRx = TimerGetCurrentTime( ) - Radio.TimeOnAir( MODEM_LORA, size );
-            BeaconCtx.Ctrl.BeaconLess = 0;
-            BeaconCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
-            BeaconState = BEACON_STATE_LOCKED;
+            BeaconState = BEACON_STATE_TIMEOUT;
+            OnBeaconTimerEvent( );
         }
+        // Return always true, when we expect a beacon.
+        beaconReceived = true;
     }
 
-    if( BeaconState != BEACON_STATE_ACQUISITION )
-    {
-        OnBeaconTimerEvent( );
-    }
-
-    return true;
+    return beaconReceived;
 }
 
 static uint16_t BeaconCrc( uint8_t *buffer, uint16_t length )
