@@ -1215,33 +1215,34 @@ typedef struct sMlmeIndication
  *
  * The following table lists the MIB parameters and the related attributes:
  *
- * Attribute                         | Get | Set
- * --------------------------------- | :-: | :-:
- * \ref MIB_DEVICE_CLASS             | YES | YES
- * \ref MIB_NETWORK_JOINED           | YES | YES
- * \ref MIB_ADR                      | YES | YES
- * \ref MIB_NET_ID                   | YES | YES
- * \ref MIB_DEV_ADDR                 | YES | YES
- * \ref MIB_NWK_SKEY                 | YES | YES
- * \ref MIB_APP_SKEY                 | YES | YES
- * \ref MIB_PUBLIC_NETWORK           | YES | YES
- * \ref MIB_REPEATER_SUPPORT         | YES | YES
- * \ref MIB_CHANNELS                 | YES | NO
- * \ref MIB_RX2_CHANNEL              | YES | YES
- * \ref MIB_CHANNELS_MASK            | YES | YES
- * \ref MIB_CHANNELS_NB_REP          | YES | YES
- * \ref MIB_MAX_RX_WINDOW_DURATION   | YES | YES
- * \ref MIB_RECEIVE_DELAY_1          | YES | YES
- * \ref MIB_RECEIVE_DELAY_2          | YES | YES
- * \ref MIB_JOIN_ACCEPT_DELAY_1      | YES | YES
- * \ref MIB_JOIN_ACCEPT_DELAY_2      | YES | YES
- * \ref MIB_CHANNELS_DATARATE        | YES | YES
- * \ref MIB_CHANNELS_DEFAULT_DATARATE| YES | YES
- * \ref MIB_CHANNELS_TX_POWER        | YES | YES
- * \ref MIB_CHANNELS_DEFAULT_TX_POWER| YES | YES
- * \ref MIB_UPLINK_COUNTER           | YES | YES
- * \ref MIB_DOWNLINK_COUNTER         | YES | YES
- * \ref MIB_MULTICAST_CHANNEL        | YES | NO
+ * Attribute                                     | Get | Set
+ * ----------------------------------------------| :-: | :-:
+ * \ref MIB_DEVICE_CLASS                         | YES | YES
+ * \ref MIB_NETWORK_JOINED                       | YES | YES
+ * \ref MIB_ADR                                  | YES | YES
+ * \ref MIB_NET_ID                               | YES | YES
+ * \ref MIB_DEV_ADDR                             | YES | YES
+ * \ref MIB_NWK_SKEY                             | YES | YES
+ * \ref MIB_APP_SKEY                             | YES | YES
+ * \ref MIB_PUBLIC_NETWORK                       | YES | YES
+ * \ref MIB_REPEATER_SUPPORT                     | YES | YES
+ * \ref MIB_CHANNELS                             | YES | NO
+ * \ref MIB_RX2_CHANNEL                          | YES | YES
+ * \ref MIB_CHANNELS_MASK                        | YES | YES
+ * \ref MIB_CHANNELS_NB_REP                      | YES | YES
+ * \ref MIB_MAX_RX_WINDOW_DURATION               | YES | YES
+ * \ref MIB_RECEIVE_DELAY_1                      | YES | YES
+ * \ref MIB_RECEIVE_DELAY_2                      | YES | YES
+ * \ref MIB_JOIN_ACCEPT_DELAY_1                  | YES | YES
+ * \ref MIB_JOIN_ACCEPT_DELAY_2                  | YES | YES
+ * \ref MIB_CHANNELS_DATARATE                    | YES | YES
+ * \ref MIB_CHANNELS_DEFAULT_DATARATE            | YES | YES
+ * \ref MIB_CHANNELS_TX_POWER                    | YES | YES
+ * \ref MIB_CHANNELS_DEFAULT_TX_POWER            | YES | YES
+ * \ref MIB_UPLINK_COUNTER                       | YES | YES
+ * \ref MIB_DOWNLINK_COUNTER                     | YES | YES
+ * \ref MIB_MULTICAST_CHANNEL                    | YES | NO
+ * \ref MIB_BEACON_INTERVAL                      | YES | YES
  * \ref MIB_BEACON_RESERVED                      | YES | YES
  * \ref MIB_BEACON_GUARD                         | YES | YES
  * \ref MIB_BEACON_WINDOW                        | YES | YES
