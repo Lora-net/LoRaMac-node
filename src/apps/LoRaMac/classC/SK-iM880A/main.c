@@ -515,6 +515,21 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     {
                         MlmeReq_t mlmeReq;
 
+                        // Disable TestMode and revert back to normal operation
+                        IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
+                        AppPort = LORAWAN_APP_PORT;
+                        AppDataSize = LORAWAN_APP_DATA_SIZE;
+                        ComplianceTest.DownLinkCounter = 0;
+                        ComplianceTest.Running = false;
+
+                        MibRequestConfirm_t mibReq;
+                        mibReq.Type = MIB_ADR;
+                        mibReq.Param.AdrEnable = LORAWAN_ADR_ON;
+                        LoRaMacMibSetRequestConfirm( &mibReq );
+#if defined( USE_BAND_868 )
+                        LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
+#endif
+
                         mlmeReq.Type = MLME_JOIN;
 
                         mlmeReq.Req.Join.DevEui = DevEui;

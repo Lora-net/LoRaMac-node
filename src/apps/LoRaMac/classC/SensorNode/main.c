@@ -82,7 +82,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * User application data buffer size
  */
-#if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
+#if defined( USE_BAND_433 ) || defined( USE_BAND_470 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
 
 #define LORAWAN_APP_DATA_SIZE                       16
 
@@ -206,7 +206,7 @@ static void PrepareTxFrame( uint8_t port )
     {
     case 2:
         {
-#if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
+#if defined( USE_BAND_433 ) || defined( USE_BAND_470 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
             uint16_t pressure = 0;
             int16_t altitudeBar = 0;
             int16_t temperature = 0;
@@ -581,6 +581,22 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                 case 6: // (ix)
                     {
                         MlmeReq_t mlmeReq;
+
+                        // Disable TestMode and revert back to normal operation
+                        IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
+                        AppPort = LORAWAN_APP_PORT;
+                        AppDataSize = LORAWAN_APP_DATA_SIZE;
+                        ComplianceTest.DownLinkCounter = 0;
+                        ComplianceTest.Running = false;
+
+                        MibRequestConfirm_t mibReq;
+                        mibReq.Type = MIB_ADR;
+                        mibReq.Param.AdrEnable = LORAWAN_ADR_ON;
+                        LoRaMacMibSetRequestConfirm( &mibReq );
+#if defined( USE_BAND_868 )
+                        LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
+#endif
+                        GpsStart( );
 
                         mlmeReq.Type = MLME_JOIN;
 
