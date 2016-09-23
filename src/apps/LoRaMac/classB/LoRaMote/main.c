@@ -709,9 +709,9 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             }
             case MLME_BEACON_TIMING:
             {
-                WakeUpState = DEVICE_STATE_SWITCH_CLASS;
+                WakeUpState = DEVICE_STATE_BEACON_ACQUISITION;
                 // Switch to the next state immediately
-                DeviceState = DEVICE_STATE_SWITCH_CLASS;
+                DeviceState = DEVICE_STATE_BEACON_ACQUISITION;
                 NextTx = true;
                 break;
             }
@@ -744,9 +744,9 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             }
             case MLME_BEACON_TIMING:
             {
-                WakeUpState = DEVICE_STATE_SWITCH_CLASS;
+                WakeUpState = DEVICE_STATE_BEACON_ACQUISITION;
                 // Switch to the next state immediately
-                DeviceState = DEVICE_STATE_SWITCH_CLASS;
+                DeviceState = DEVICE_STATE_BEACON_ACQUISITION;
                 NextTx = true;
                 break;
             }
@@ -919,16 +919,13 @@ int main( void )
 #endif
                 break;
             }
-            case DEVICE_STATE_REQ_PINGSLOT_ACK:
+            case DEVICE_STATE_REQ_BEACON_TIMING:
             {
                 MlmeReq_t mlmeReq;
 
                 if( NextTx == true )
                 {
-                    mlmeReq.Type = MLME_PING_SLOT_INFO;
-                    mlmeReq.Req.PingSlotInfo.PingSlot.Fields.Datarate = DR_0;
-                    mlmeReq.Req.PingSlotInfo.PingSlot.Fields.Periodicity = 0;
-                    mlmeReq.Req.PingSlotInfo.PingSlot.Fields.RFU = 0;
+                    mlmeReq.Type = MLME_BEACON_TIMING;
 
                     if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
                     {
