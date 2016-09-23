@@ -709,6 +709,11 @@ typedef enum eLoRaMacEventInfoStatus
      */
     LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED,
     /*!
+     * The MAC could not retransmit a frame due to a datarate decreasement. The
+     * payload size is not applicable for the datarate.
+     */
+    LORAMAC_EVENT_INFO_STATUS_TX_DR_PAYLOAD_SIZE_ERROR,
+    /*!
      * The node has lost MAX_FCNT_GAP or more frames.
      */
     LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS,
@@ -1204,33 +1209,33 @@ typedef struct sMlmeIndication
  *
  * The following table lists the MIB parameters and the related attributes:
  *
- * Attribute                                     | Get | Set
- * ----------------------------------------------| :-: | :-:
- * \ref MIB_DEVICE_CLASS                         | YES | YES
- * \ref MIB_NETWORK_JOINED                       | YES | YES
- * \ref MIB_ADR                                  | YES | YES
- * \ref MIB_NET_ID                               | YES | YES
- * \ref MIB_DEV_ADDR                             | YES | YES
- * \ref MIB_NWK_SKEY                             | YES | YES
- * \ref MIB_APP_SKEY                             | YES | YES
- * \ref MIB_PUBLIC_NETWORK                       | YES | YES
- * \ref MIB_REPEATER_SUPPORT                     | YES | YES
- * \ref MIB_CHANNELS                             | YES | NO
- * \ref MIB_RX2_CHANNEL                          | YES | YES
- * \ref MIB_CHANNELS_MASK                        | YES | YES
- * \ref MIB_CHANNELS_NB_REP                      | YES | YES
- * \ref MIB_MAX_RX_WINDOW_DURATION               | YES | YES
- * \ref MIB_RECEIVE_DELAY_1                      | YES | YES
- * \ref MIB_RECEIVE_DELAY_2                      | YES | YES
- * \ref MIB_JOIN_ACCEPT_DELAY_1                  | YES | YES
- * \ref MIB_JOIN_ACCEPT_DELAY_2                  | YES | YES
- * \ref MIB_CHANNELS_DATARATE                    | YES | YES
- * \ref MIB_CHANNELS_DEFAULT_DATARATE            | YES | YES
- * \ref MIB_CHANNELS_TX_POWER                    | YES | YES
- * \ref MIB_UPLINK_COUNTER                       | YES | YES
- * \ref MIB_DOWNLINK_COUNTER                     | YES | YES
- * \ref MIB_MULTICAST_CHANNEL                    | YES | NO
- * \ref MIB_BEACON_INTERVAL                      | YES | YES
+ * Attribute                         | Get | Set
+ * --------------------------------- | :-: | :-:
+ * \ref MIB_DEVICE_CLASS             | YES | YES
+ * \ref MIB_NETWORK_JOINED           | YES | YES
+ * \ref MIB_ADR                      | YES | YES
+ * \ref MIB_NET_ID                   | YES | YES
+ * \ref MIB_DEV_ADDR                 | YES | YES
+ * \ref MIB_NWK_SKEY                 | YES | YES
+ * \ref MIB_APP_SKEY                 | YES | YES
+ * \ref MIB_PUBLIC_NETWORK           | YES | YES
+ * \ref MIB_REPEATER_SUPPORT         | YES | YES
+ * \ref MIB_CHANNELS                 | YES | NO
+ * \ref MIB_RX2_CHANNEL              | YES | YES
+ * \ref MIB_CHANNELS_MASK            | YES | YES
+ * \ref MIB_CHANNELS_NB_REP          | YES | YES
+ * \ref MIB_MAX_RX_WINDOW_DURATION   | YES | YES
+ * \ref MIB_RECEIVE_DELAY_1          | YES | YES
+ * \ref MIB_RECEIVE_DELAY_2          | YES | YES
+ * \ref MIB_JOIN_ACCEPT_DELAY_1      | YES | YES
+ * \ref MIB_JOIN_ACCEPT_DELAY_2      | YES | YES
+ * \ref MIB_CHANNELS_DATARATE        | YES | YES
+ * \ref MIB_CHANNELS_DEFAULT_DATARATE| YES | YES
+ * \ref MIB_CHANNELS_TX_POWER        | YES | YES
+ * \ref MIB_CHANNELS_DEFAULT_TX_POWER| YES | YES
+ * \ref MIB_UPLINK_COUNTER           | YES | YES
+ * \ref MIB_DOWNLINK_COUNTER         | YES | YES
+ * \ref MIB_MULTICAST_CHANNEL        | YES | NO
  * \ref MIB_BEACON_RESERVED                      | YES | YES
  * \ref MIB_BEACON_GUARD                         | YES | YES
  * \ref MIB_BEACON_WINDOW                        | YES | YES
@@ -1403,6 +1408,20 @@ typedef enum eMib
      *          TX_POWER_10_DBM]
      */
     MIB_CHANNELS_TX_POWER,
+    /*!
+     * Transmission power of a channel
+     *
+     * LoRaWAN Specification V1.0.1, chapter 7
+     *
+     * EU868 - [TX_POWER_20_DBM, TX_POWER_14_DBM, TX_POWER_11_DBM,
+     *          TX_POWER_08_DBM, TX_POWER_05_DBM, TX_POWER_02_DBM]
+     *
+     * US915 - [TX_POWER_30_DBM, TX_POWER_28_DBM, TX_POWER_26_DBM,
+     *          TX_POWER_24_DBM, TX_POWER_22_DBM, TX_POWER_20_DBM,
+     *          TX_POWER_18_DBM, TX_POWER_14_DBM, TX_POWER_12_DBM,
+     *          TX_POWER_10_DBM]
+     */
+    MIB_CHANNELS_DEFAULT_TX_POWER,
     /*!
      * LoRaWAN Up-link counter
      *
@@ -1598,6 +1617,12 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_CHANNELS_DATARATE
      */
     int8_t ChannelsDatarate;
+    /*!
+     * Channels TX power
+     *
+     * Related MIB type: \ref MIB_CHANNELS_DEFAULT_TX_POWER
+     */
+    int8_t ChannelsDefaultTxPower;
     /*!
      * Channels TX power
      *
