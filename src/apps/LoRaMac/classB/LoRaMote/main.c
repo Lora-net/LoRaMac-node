@@ -765,12 +765,18 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
 
 static void MlmeIndication( MlmeIndication_t *MlmeIndication )
 {
+    MibRequestConfirm_t mibReq;
+
     switch( MlmeIndication->MlmeIndication )
     {
         case MLME_SWITCH_CLASS:
         {
-            // Switch to class B again
-            WakeUpState = DEVICE_STATE_REQ_PINGSLOT_ACK;
+            mibReq.Type = MIB_DEVICE_CLASS;
+            mibReq.Param.Class = CLASS_A;
+            LoRaMacMibSetRequestConfirm( &mibReq );
+
+            // Switch to class A again
+            WakeUpState = DEVICE_STATE_REQ_BEACON_TIMING;
 
             TimerStop( &Led3Timer );
             GpioWrite( &Led3, 1 );
