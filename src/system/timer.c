@@ -200,9 +200,9 @@ static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime )
 void TimerIrqHandler( void )
 {
     uint32_t elapsedTime = 0;
-    
+
     // Early out when TimerListHead is null to prevent nullpointer
-    if ( TimerListHead == NULL ) 
+    if ( TimerListHead == NULL )
     {
         return;
     }
