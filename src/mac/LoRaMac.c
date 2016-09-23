@@ -2698,7 +2698,6 @@ static bool Rx2FreqInRange( uint32_t freq )
 static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
 {
     LoRaMacStatus_t status = LORAMAC_STATUS_PARAMETER_INVALID;
-    MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
 
     switch( LoRaMacDeviceClass )
     {
@@ -2706,24 +2705,9 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
         {
             if( deviceClass == CLASS_B )
             {
-                if( PingSlotCtx.Ctrl.Assigned == 1 )
+                if( ( BeaconCtx.Ctrl.BeaconMode == 1 ) && ( PingSlotCtx.Ctrl.Assigned == 1 ) )
                 {
                     LoRaMacDeviceClass = deviceClass;
-
-                    BeaconState = BEACON_STATE_ACQUISITION;
-                    LoRaMacState |= MAC_TX_RUNNING;
-
-                    // Default temperature
-                    BeaconCtx.Temperature = 25.0;
-                    // Measure temperature
-                    if( ( LoRaMacCallbacks != NULL ) && ( LoRaMacCallbacks->GetTemperatureLevel != NULL ) )
-                    {
-                        BeaconCtx.Temperature = LoRaMacCallbacks->GetTemperatureLevel( );
-                    }
-
-                    // Start class B algorithm
-                    OnBeaconTimerEvent( );
-
                     status = LORAMAC_STATUS_OK;
                 }
             }
@@ -2736,8 +2720,6 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
                 NodeAckRequested = false;
                 OnRxWindow2TimerEvent( );
 
-                TimerStart( &MacStateCheckTimer );
-
                 status = LORAMAC_STATUS_OK;
             }
             break;
@@ -2746,12 +2728,8 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
         {
             if( deviceClass == CLASS_A )
             {
-                BeaconState = BEACON_STATE_SWITCH_CLASS;
-                // Start class B algorithm
-                OnBeaconTimerEvent( );
-
+                BeaconState = BEACON_STATE_ACQUISITION;
                 LoRaMacDeviceClass = deviceClass;
-
                 status = LORAMAC_STATUS_OK;
             }
             break;
@@ -2769,11 +2747,6 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
             }
             break;
         }
-    }
-
-    if( status == LORAMAC_STATUS_OK )
-    {
-        MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
     }
 
     return status;
@@ -5009,6 +4982,14 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     BeaconCtx.Cfg.MaxBeaconLessPeriod = MAX_BEACON_LESS_PERIOD;
     BeaconCtx.Cfg.DelayBeaconTimingAns = BEACON_DELAY_BEACON_TIMING_ANS;
 
+    // Default temperature
+    BeaconCtx.Temperature = 25.0;
+    // Measure temperature
+    if( ( LoRaMacCallbacks != NULL ) && ( LoRaMacCallbacks->GetTemperatureLevel != NULL ) )
+    {
+        BeaconCtx.Temperature = LoRaMacCallbacks->GetTemperatureLevel( );
+    }
+
     PingSlotCtx.Cfg.PingSlotWindow = PING_SLOT_WINDOW;
     PingSlotCtx.Cfg.SymbolToExpansionMax = PING_SLOT_SYMBOL_TO_EXPANSION_MAX;
     PingSlotCtx.Cfg.SymbolToExpansionFactor = PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR;
@@ -5305,6 +5286,11 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
 
     switch( mibSet->Type )
     {
+        case MIB_DEVICE_CLASS:
+        {
+            status = SwitchClass( mibSet->Param.Class );
+            break;
+        }
         case MIB_NETWORK_JOINED:
         {
             IsLoRaMacNetworkJoined = mibSet->Param.IsNetworkJoined;
@@ -5891,13 +5877,23 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             status = AddMacCommand( MOTE_MAC_BEACON_TIMING_REQ, 0, 0 );
             break;
         }
-        case MLME_SWITCH_CLASS:
+        case MLME_BEACON_ACQUISITION:
         {
-            LoRaMacFlags.Bits.MlmeReq = 1;
+            if( ( BeaconCtx.Ctrl.AcquisitionPending == 0 ) && ( BeaconCtx.Ctrl.AcquisitionTimerSet == 0 ) )
+            {
+                LoRaMacFlags.Bits.MlmeReq = 1;
                 MlmeConfirmQueue[MlmeConfirmQueueCnt].MlmeRequest = mlmeRequest->Type;
+                BeaconState = BEACON_STATE_ACQUISITION;
 
+                // Start class B algorithm
+                OnBeaconTimerEvent( );
 
-            status = SwitchClass( mlmeRequest->Req.SwitchClass.Class );
+                status = LORAMAC_STATUS_OK;
+            }
+            else
+            {
+                status = LORAMAC_STATUS_BUSY;
+            }
             break;
         }
         default:
