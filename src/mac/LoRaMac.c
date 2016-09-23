@@ -3260,7 +3260,7 @@ static void RxBeaconSetup( uint16_t timeout, uint32_t rxTime )
     McpsIndication.RxDatarate = BEACON_CHANNEL_DR;
 
     Radio.SetRxConfig( MODEM_LORA, BEACON_CHANNEL_BW, Datarates[BEACON_CHANNEL_DR],
-                       1, 0, 6, timeout, true, BEACON_SIZE, false, 0, 0, true, rxContinuous );
+                       1, 0, 6, timeout, true, BEACON_SIZE, false, 0, 0, false, rxContinuous );
 
     Radio.Rx( rxTime );
 }
