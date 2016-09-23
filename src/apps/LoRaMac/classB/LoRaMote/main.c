@@ -715,9 +715,11 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                 NextTx = true;
                 break;
             }
-            case MLME_SWITCH_CLASS:
+            case MLME_BEACON_ACQUISITION:
             {
-                WakeUpState = DEVICE_STATE_SEND;
+                WakeUpState = DEVICE_STATE_REQ_PINGSLOT_ACK;
+                break;
+            }
 
                 TimerStop( &Led3Timer );
                 GpioWrite( &Led3, 1 );
@@ -750,7 +752,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                 NextTx = true;
                 break;
             }
-            case MLME_SWITCH_CLASS:
+            case MLME_BEACON_ACQUISITION:
             {
                 WakeUpState = DEVICE_STATE_REQ_BEACON_TIMING;
                 break;
@@ -935,18 +937,16 @@ int main( void )
                 DeviceState = DEVICE_STATE_SEND;
                 break;
             }
-            case DEVICE_STATE_REQ_BEACON_TIMING:
+            case DEVICE_STATE_BEACON_ACQUISITION:
             {
                 MlmeReq_t mlmeReq;
 
                 if( NextTx == true )
                 {
-                    mlmeReq.Type = MLME_BEACON_TIMING;
+                    mlmeReq.Type = MLME_BEACON_ACQUISITION;
 
-                    if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
-                    {
-                        WakeUpState = DEVICE_STATE_SEND;
-                    }
+                    LoRaMacMlmeRequest( &mlmeReq );
+                    NextTx = false;
                 }
                 DeviceState = DEVICE_STATE_SEND;
                 break;
