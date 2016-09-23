@@ -698,6 +698,31 @@ static MlmeIndication_t MlmeIndication;
 static MlmeConfirm_t MlmeConfirm;
 
 /*!
+ * Structure to hold multiple MLME request confirm data
+ */
+typedef struct sMlmeConfirmQueue
+{
+    /*!
+     * Holds the previously performed MLME-Request
+     */
+    Mlme_t MlmeRequest;
+    /*!
+     * Status of the operation
+     */
+    LoRaMacEventInfoStatus_t Status;
+}sMlmeConfirmQueue_t;
+
+/*!
+ * MlmeConfirm queue data structure
+ */
+static sMlmeConfirmQueue_t MlmeConfirmQueue[LORA_MAC_MLME_CONFIRM_QUEUE_LEN];
+
+/*!
+ * Counts the number of MlmeConfirms to process
+ */
+static uint8_t MlmeConfirmQueueCnt;
+
+/*!
  * Holds the current rx window slot
  */
 static uint8_t RxSlot = 0;
@@ -1417,6 +1442,16 @@ static void CalculateBackOff( uint8_t channel );
  */
 static int8_t AlternateDatarate( uint16_t nbTrials );
 
+/*
+ * \brief Gets the index of the confirm queue of a specific MLME-request
+ *
+ * \param [IN] queue        MLME-Confirm queue pointer
+ * \param [IN] req          MLME-Request to validate
+ * \param [IN] length       Number of items to check
+ * \retval Index of the MLME-Confirm. 0xFF is no entry found.
+ */
+static uint8_t GetMlmeConfirmIndex( sMlmeConfirmQueue_t* queue, Mlme_t req, uint8_t length );
+
 /*!
  * \brief LoRaMAC layer prepared frame buffer transmission with channel specification
  *
@@ -1591,55 +1626,61 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
             micRx |= ( ( uint32_t )LoRaMacRxPayload[size - LORAMAC_MFR_LEN + 2] << 16 );
             micRx |= ( ( uint32_t )LoRaMacRxPayload[size - LORAMAC_MFR_LEN + 3] << 24 );
 
-            if( micRx == mic )
+            index = GetMlmeConfirmIndex( MlmeConfirmQueue, MLME_JOIN, MlmeConfirmQueueCnt );
+            if( index < LORA_MAC_MLME_CONFIRM_QUEUE_LEN )
             {
-                LoRaMacJoinComputeSKeys( LoRaMacAppKey, LoRaMacRxPayload + 1, LoRaMacDevNonce, LoRaMacNwkSKey, LoRaMacAppSKey );
-
-                LoRaMacNetID = ( uint32_t )LoRaMacRxPayload[4];
-                LoRaMacNetID |= ( ( uint32_t )LoRaMacRxPayload[5] << 8 );
-                LoRaMacNetID |= ( ( uint32_t )LoRaMacRxPayload[6] << 16 );
-
-                LoRaMacDevAddr = ( uint32_t )LoRaMacRxPayload[7];
-                LoRaMacDevAddr |= ( ( uint32_t )LoRaMacRxPayload[8] << 8 );
-                LoRaMacDevAddr |= ( ( uint32_t )LoRaMacRxPayload[9] << 16 );
-                LoRaMacDevAddr |= ( ( uint32_t )LoRaMacRxPayload[10] << 24 );
-
-                // DLSettings
-                LoRaMacParams.Rx1DrOffset = ( LoRaMacRxPayload[11] >> 4 ) & 0x07;
-                LoRaMacParams.Rx2Channel.Datarate = LoRaMacRxPayload[11] & 0x0F;
-
-                // RxDelay
-                LoRaMacParams.ReceiveDelay1 = ( LoRaMacRxPayload[12] & 0x0F );
-                if( LoRaMacParams.ReceiveDelay1 == 0 )
+                if( micRx == mic )
                 {
-                    LoRaMacParams.ReceiveDelay1 = 1;
-                }
-                LoRaMacParams.ReceiveDelay1 *= 1e3;
-                LoRaMacParams.ReceiveDelay2 = LoRaMacParams.ReceiveDelay1 + 1e3;
+                    LoRaMacJoinComputeSKeys( LoRaMacAppKey, LoRaMacRxPayload + 1, LoRaMacDevNonce, LoRaMacNwkSKey, LoRaMacAppSKey );
+
+                    LoRaMacNetID = ( uint32_t )LoRaMacRxPayload[4];
+                    LoRaMacNetID |= ( ( uint32_t )LoRaMacRxPayload[5] << 8 );
+                    LoRaMacNetID |= ( ( uint32_t )LoRaMacRxPayload[6] << 16 );
+
+                    LoRaMacDevAddr = ( uint32_t )LoRaMacRxPayload[7];
+                    LoRaMacDevAddr |= ( ( uint32_t )LoRaMacRxPayload[8] << 8 );
+                    LoRaMacDevAddr |= ( ( uint32_t )LoRaMacRxPayload[9] << 16 );
+                    LoRaMacDevAddr |= ( ( uint32_t )LoRaMacRxPayload[10] << 24 );
+
+                    // DLSettings
+                    LoRaMacParams.Rx1DrOffset = ( LoRaMacRxPayload[11] >> 4 ) & 0x07;
+                    LoRaMacParams.Rx2Channel.Datarate = LoRaMacRxPayload[11] & 0x0F;
+
+                    // RxDelay
+                    LoRaMacParams.ReceiveDelay1 = ( LoRaMacRxPayload[12] & 0x0F );
+                    if( LoRaMacParams.ReceiveDelay1 == 0 )
+                    {
+                        LoRaMacParams.ReceiveDelay1 = 1;
+                    }
+                    LoRaMacParams.ReceiveDelay1 *= 1e3;
+                    LoRaMacParams.ReceiveDelay2 = LoRaMacParams.ReceiveDelay1 + 1e3;
 
 #if !( defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID ) )
-                //CFList
-                if( ( size - 1 ) > 16 )
-                {
-                    ChannelParams_t param;
-                    param.DrRange.Value = ( DR_5 << 4 ) | DR_0;
-
-                    LoRaMacState |= MAC_TX_CONFIG;
-                    for( uint8_t i = 3, j = 0; i < ( 5 + 3 ); i++, j += 3 )
+                    //CFList
+                    if( ( size - 1 ) > 16 )
                     {
-                        param.Frequency = ( ( uint32_t )LoRaMacRxPayload[13 + j] | ( ( uint32_t )LoRaMacRxPayload[14 + j] << 8 ) | ( ( uint32_t )LoRaMacRxPayload[15 + j] << 16 ) ) * 100;
-                        LoRaMacChannelAdd( i, param );
+                        ChannelParams_t param;
+                        param.DrRange.Value = ( DR_5 << 4 ) | DR_0;
+
+                        LoRaMacState |= MAC_TX_CONFIG;
+                        for( uint8_t i = 3, j = 0; i < ( 5 + 3 ); i++, j += 3 )
+                        {
+                            param.Frequency = ( ( uint32_t )LoRaMacRxPayload[13 + j] | ( ( uint32_t )LoRaMacRxPayload[14 + j] << 8 ) | ( ( uint32_t )LoRaMacRxPayload[15 + j] << 16 ) ) * 100;
+                            LoRaMacChannelAdd( i, param );
+                        }
+                        LoRaMacState &= ~MAC_TX_CONFIG;
                     }
-                    LoRaMacState &= ~MAC_TX_CONFIG;
-                }
 #endif
-                MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
-                IsLoRaMacNetworkJoined = true;
-                LoRaMacParams.ChannelsDatarate = LoRaMacParamsDefaults.ChannelsDatarate;
-            }
-            else
-            {
-                MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
+
+                    MlmeConfirmQueue[index].Status = LORAMAC_EVENT_INFO_STATUS_OK;
+
+                    IsLoRaMacNetworkJoined = true;
+                    LoRaMacParams.ChannelsDatarate = LoRaMacParamsDefaults.ChannelsDatarate;
+                }
+                else
+                {
+                    MlmeConfirmQueue[index].Status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
+                }
             }
             break;
         case FRAME_TYPE_DATA_CONFIRMED_DOWN:
@@ -2008,6 +2049,8 @@ static void OnRadioRxTimeout( void )
 static void OnMacStateCheckTimerEvent( void )
 {
     bool noTx = false;
+    uint8_t index = 0;
+    uint8_t i, j = 0;
 
     TimerStop( &MacStateCheckTimer );
 
@@ -2031,10 +2074,15 @@ static void OnMacStateCheckTimerEvent( void )
                 McpsConfirm.TxTimeOnAir = 0;
                 noTx = true;
             }
-            if( ( MlmeConfirm.MlmeRequest == MLME_SWITCH_CLASS ) && ( LoRaMacFlags.Bits.MlmeReq == 1 ) )
+
+            index = GetMlmeConfirmIndex( MlmeConfirmQueue, MLME_BEACON_ACQUISITION, MlmeConfirmQueueCnt );
+            if( ( index < LORA_MAC_MLME_CONFIRM_QUEUE_LEN ) && ( LoRaMacFlags.Bits.McpsReq == 0 ) )
             {
-                noTx = true;
-                LoRaMacState &= ~MAC_TX_RUNNING;
+                if( LoRaMacFlags.Bits.MlmeReq == 1 )
+                {
+                    noTx = true;
+                    LoRaMacState &= ~MAC_TX_RUNNING;
+                }
             }
         }
 
@@ -2042,12 +2090,13 @@ static void OnMacStateCheckTimerEvent( void )
         {
             if( LoRaMacFlags.Bits.MlmeReq == 1 )
             {
-                if( MlmeConfirm.MlmeRequest == MLME_JOIN )
+                index = GetMlmeConfirmIndex( MlmeConfirmQueue, MLME_JOIN, MlmeConfirmQueueCnt );
+                if( index < LORA_MAC_MLME_CONFIRM_QUEUE_LEN )
                 {
                     // Retransmit only if the answer is not OK
                     ChannelsNbRepCounter = 0;
 
-                    if( MlmeConfirm.Status == LORAMAC_EVENT_INFO_STATUS_OK )
+                    if( MlmeConfirmQueue[index].Status == LORAMAC_EVENT_INFO_STATUS_OK )
                     {
                         // Stop retransmission
                         ChannelsNbRepCounter = LoRaMacParams.ChannelsNbRep;
@@ -2181,8 +2230,29 @@ static void OnMacStateCheckTimerEvent( void )
 
         if( LoRaMacFlags.Bits.MlmeReq == 1 )
         {
-            LoRaMacPrimitives->MacMlmeConfirm( &MlmeConfirm );
-            LoRaMacFlags.Bits.MlmeReq = 0;
+            j = MlmeConfirmQueueCnt;
+            for( i = 0; i < MlmeConfirmQueueCnt; i++ )
+            {
+                if( MlmeConfirmQueue[i].MlmeRequest == MLME_BEACON_ACQUISITION )
+                {
+                    if( BeaconCtx.Ctrl.AcquisitionPending == 1 )
+                    {
+                        MlmeConfirmQueue[0].MlmeRequest = MLME_BEACON_ACQUISITION;
+                        MlmeConfirmQueue[0].Status = MlmeConfirmQueue[i].Status;
+                        continue;
+                    }
+                }
+                j--;
+                MlmeConfirm.Status = MlmeConfirmQueue[i].Status;
+                MlmeConfirm.MlmeRequest = MlmeConfirmQueue[i].MlmeRequest;
+                LoRaMacPrimitives->MacMlmeConfirm( &MlmeConfirm );
+            }
+            MlmeConfirmQueueCnt = j;
+
+            if( MlmeConfirmQueueCnt == 0 )
+            {
+                LoRaMacFlags.Bits.MlmeReq = 0;
+            }
         }
 
         if( LoRaMacFlags.Bits.MlmeInd == 1 )
@@ -2212,11 +2282,14 @@ static void OnTxDelayedTimerEvent( void )
 {
     LoRaMacHeader_t macHdr;
     LoRaMacFrameCtrl_t fCtrl;
+    uint8_t index = 0;
 
     TimerStop( &TxDelayedTimer );
     LoRaMacState &= ~MAC_TX_DELAYED;
 
-    if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) && ( MlmeConfirm.MlmeRequest == MLME_JOIN ) )
+    index = GetMlmeConfirmIndex( MlmeConfirmQueue, MLME_JOIN, MlmeConfirmQueueCnt );
+
+    if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) && ( index < LORA_MAC_MLME_CONFIRM_QUEUE_LEN ) )
     {
         ResetMacParameters( );
         JoinRequestTrials++;
@@ -2701,6 +2774,7 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
 
 static void OnBeaconTimerEvent( void )
 {
+    uint8_t index = 0;
     bool activateTimer = false;
     TimerTime_t beaconEventTime = 1;
     TimerTime_t currentTime = TimerGetCurrentTime( );
@@ -2843,8 +2917,12 @@ static void OnBeaconTimerEvent( void )
 
             if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) && ( MlmeConfirm.MlmeRequest == MLME_SWITCH_CLASS ) )
             {
-                MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
-                MlmeConfirm.TxTimeOnAir = 0;
+                index = GetMlmeConfirmIndex( MlmeConfirmQueue, MLME_BEACON_ACQUISITION, MlmeConfirmQueueCnt );
+                if( index < LORA_MAC_MLME_CONFIRM_QUEUE_LEN )
+                {
+                    MlmeConfirmQueue[index].Status = LORAMAC_EVENT_INFO_STATUS_OK;
+                    MlmeConfirm.TxTimeOnAir = 0;
+                }
                 LoRaMacFlags.Bits.MacDone = 1;
             }
             MlmeIndication.MlmeIndication = MLME_BEACON;
@@ -2899,7 +2977,11 @@ static void OnBeaconTimerEvent( void )
 
             if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) && ( MlmeConfirm.MlmeRequest == MLME_SWITCH_CLASS ) )
             {
-                MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_BEACON_NOT_FOUND;
+                index = GetMlmeConfirmIndex( MlmeConfirmQueue, MLME_BEACON_ACQUISITION, MlmeConfirmQueueCnt );
+                if( index < LORA_MAC_MLME_CONFIRM_QUEUE_LEN )
+                {
+                    MlmeConfirmQueue[index].Status = LORAMAC_EVENT_INFO_STATUS_BEACON_NOT_FOUND;
+                }
                 LoRaMacFlags.Bits.MacDone = 1;
             }
             else
@@ -3799,15 +3881,21 @@ static uint8_t ParseMacCommandsToRepeat( uint8_t* cmdBufIn, uint8_t length, uint
 
 static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t commandsSize, uint8_t snr )
 {
+    uint8_t index = 0;
+
     while( macIndex < commandsSize )
     {
         // Decode Frame MAC commands
         switch( payload[macIndex++] )
         {
             case SRV_MAC_LINK_CHECK_ANS:
-                MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
-                MlmeConfirm.DemodMargin = payload[macIndex++];
-                MlmeConfirm.NbGateways = payload[macIndex++];
+                index = GetMlmeConfirmIndex( MlmeConfirmQueue, MLME_LINK_CHECK, MlmeConfirmQueueCnt );
+                if( index < LORA_MAC_MLME_CONFIRM_QUEUE_LEN )
+                {
+                    MlmeConfirmQueue[index].Status = LORAMAC_EVENT_INFO_STATUS_OK;
+                    MlmeConfirm.DemodMargin = payload[macIndex++];
+                    MlmeConfirm.NbGateways = payload[macIndex++];
+                }
                 break;
             case SRV_MAC_LINK_ADR_REQ:
                 {
@@ -4142,8 +4230,12 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 break;
             case SRV_MAC_PING_SLOT_INFO_ANS:
                 {
-                    PingSlotCtx.Ctrl.Assigned = 1;
-                    MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
+                    index = GetMlmeConfirmIndex( MlmeConfirmQueue, MLME_PING_SLOT_INFO, MlmeConfirmQueueCnt );
+                    if( index < LORA_MAC_MLME_CONFIRM_QUEUE_LEN )
+                    {
+                        MlmeConfirmQueue[index].Status = LORAMAC_EVENT_INFO_STATUS_OK;
+                        PingSlotCtx.Ctrl.Assigned = 1;
+                    }
                 }
                 break;
             case SRV_MAC_PING_SLOT_CHANNEL_REQ:
@@ -4196,8 +4288,10 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     BeaconCtx.Ctrl.BeaconDelaySet = 1;
                     BeaconCtx.Ctrl.BeaconChannelSet = 1;
 
-                    MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
 
+                    index = GetMlmeConfirmIndex( MlmeConfirmQueue, MLME_BEACON_TIMING, MlmeConfirmQueueCnt );
+                    if( index < LORA_MAC_MLME_CONFIRM_QUEUE_LEN )
+                    {
 #ifndef LORAWAN_CLASSB_ORBIWISE
                     BeaconCtx.BeaconTimingDelay = BeaconCtx.BeaconTimingDelay -
                                                   ( TimerGetCurrentTime( ) - Bands[Channels[LastTxChannel].Band].LastTxDoneTime );
@@ -4213,7 +4307,9 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
 
                     MlmeConfirm.BeaconTimingDelay = BeaconCtx.BeaconTimingDelay;
                     MlmeConfirm.BeaconTimingChannel = BeaconCtx.BeaconTimingChannel;
+                            MlmeConfirmQueue[index].Status = LORAMAC_EVENT_INFO_STATUS_OK;
 
+                    }
                 }
                 break;
             case SRV_MAC_BEACON_FREQ_REQ:
@@ -4447,9 +4543,27 @@ static int8_t AlternateDatarate( uint16_t nbTrials )
     return datarate;
 }
 
+static uint8_t GetMlmeConfirmIndex( sMlmeConfirmQueue_t* queue, Mlme_t req, uint8_t length )
+{
+    for( uint8_t i = 0; i < length; i++ )
+    {
+        if( queue->MlmeRequest == req )
+        {
+            return i;
+        }
+        queue++;
+    }
+
+    // Out of band
+    return LORA_MAC_MLME_CONFIRM_QUEUE_LEN;
+}
+
 static void ResetMacParameters( void )
 {
     IsLoRaMacNetworkJoined = false;
+
+    MlmeConfirmQueueCnt = 0;
+    memset( &MlmeConfirmQueue, 0xFF, sizeof( MlmeConfirmQueue ) );
 
     // Counters
     UpLinkCounter = 1;
@@ -5691,9 +5805,12 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
         return LORAMAC_STATUS_BUSY;
     }
 
-    memset1( ( uint8_t* ) &MlmeConfirm, 0, sizeof( MlmeConfirm ) );
+    if( MlmeConfirmQueueCnt == 0 )
+    {
+        memset1( ( uint8_t* ) &MlmeConfirm, 0, sizeof( MlmeConfirm ) );
+    }
 
-    MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+    MlmeConfirmQueue[MlmeConfirmQueueCnt].Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
 
     switch( mlmeRequest->Type )
     {
@@ -5703,8 +5820,6 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             {
                 return LORAMAC_STATUS_BUSY;
             }
-
-            MlmeConfirm.MlmeRequest = mlmeRequest->Type;
 
             if( ( mlmeRequest->Req.Join.DevEui == NULL ) ||
                 ( mlmeRequest->Req.Join.AppEui == NULL ) ||
@@ -5724,6 +5839,8 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
 
             ResetMacParameters( );
 
+            MlmeConfirmQueue[MlmeConfirmQueueCnt].MlmeRequest = mlmeRequest->Type;
+
             JoinRequestTrials++;
             LoRaMacParams.ChannelsDatarate = AlternateDatarate( JoinRequestTrials );
 
@@ -5734,7 +5851,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
         {
             LoRaMacFlags.Bits.MlmeReq = 1;
             // LoRaMac will send this command piggy-pack
-            MlmeConfirm.MlmeRequest = mlmeRequest->Type;
+            MlmeConfirmQueue[MlmeConfirmQueueCnt].MlmeRequest = mlmeRequest->Type;
 
             status = AddMacCommand( MOTE_MAC_LINK_CHECK_REQ, 0, 0 );
             break;
@@ -5745,7 +5862,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
 
             LoRaMacFlags.Bits.MlmeReq = 1;
             // LoRaMac will send this command piggy-pack
-            MlmeConfirm.MlmeRequest = mlmeRequest->Type;
+            MlmeConfirmQueue[MlmeConfirmQueueCnt].MlmeRequest = mlmeRequest->Type;
 
             PingSlotCtx.PingNb = 128 / ( 1 << mlmeRequest->Req.PingSlotInfo.PingSlot.Fields.Periodicity );
             PingSlotCtx.PingPeriod = BeaconCtx.Cfg.WindowSlots / PingSlotCtx.PingNb;
@@ -5761,7 +5878,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
         {
             LoRaMacFlags.Bits.MlmeReq = 1;
             // LoRaMac will send this command piggy-pack
-            MlmeConfirm.MlmeRequest = mlmeRequest->Type;
+            MlmeConfirmQueue[MlmeConfirmQueueCnt].MlmeRequest = mlmeRequest->Type;
 
             status = AddMacCommand( MOTE_MAC_BEACON_TIMING_REQ, 0, 0 );
             break;
@@ -5769,9 +5886,8 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
         case MLME_SWITCH_CLASS:
         {
             LoRaMacFlags.Bits.MlmeReq = 1;
+                MlmeConfirmQueue[MlmeConfirmQueueCnt].MlmeRequest = mlmeRequest->Type;
 
-            // LoRaMac will send this command piggy-pack
-            MlmeConfirm.MlmeRequest = mlmeRequest->Type;
 
             status = SwitchClass( mlmeRequest->Req.SwitchClass.Class );
             break;
@@ -5783,7 +5899,14 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
     if( status != LORAMAC_STATUS_OK )
     {
         NodeAckRequested = false;
-        LoRaMacFlags.Bits.MlmeReq = 0;
+        if( MlmeConfirmQueueCnt == 0 )
+        {
+            LoRaMacFlags.Bits.MlmeReq = 0;
+        }
+    }
+    else
+    {
+        MlmeConfirmQueueCnt++;
     }
 
     return status;

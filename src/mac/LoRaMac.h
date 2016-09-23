@@ -213,6 +213,11 @@
 #define LORA_MAC_PUBLIC_SYNCWORD                    0x34
 
 /*!
+ * LoRaMac MLME-Confirm queue length
+ */
+#define LORA_MAC_MLME_CONFIRM_QUEUE_LEN             5
+
+/*!
  * LoRaWAN devices classes definition
  */
 typedef enum eDeviceClass
