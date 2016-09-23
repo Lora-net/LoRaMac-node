@@ -896,9 +896,13 @@ typedef struct sBeaconContext
     struct sBeaconCtrl
     {
         /*!
-         * Set if the node has lost the beacon reference
+         * Set if the node receives beacons
          */
-        uint8_t BeaconLess          : 1;
+        uint8_t BeaconMode          : 1;
+        /*!
+         * Set if the node has acquired the beacon
+         */
+        uint8_t BeaconAcquired      : 1;
         /*!
          * Set if the node has a custom frequency for beaconing and ping slots
          */
@@ -915,6 +919,14 @@ typedef struct sBeaconContext
          * Set if beacon acquisition is pending
          */
         uint8_t AcquisitionPending  : 1;
+        /*!
+         * Set if beacon timer is set to acquire a beacon
+         */
+        uint8_t AcquisitionTimerSet  : 1;
+        /*!
+         * Set if the beacon state machine will be resumed
+         */
+        uint8_t ResumeBeaconing      : 1;
     }Ctrl;
 
     struct sBeaconCfg
