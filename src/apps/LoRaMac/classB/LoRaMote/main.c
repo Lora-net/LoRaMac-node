@@ -677,6 +677,8 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
  */
 static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
 {
+    MibRequestConfirm_t mibReq;
+
     if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
     {
         switch( mlmeConfirm->MlmeRequest )
@@ -684,7 +686,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             case MLME_JOIN:
             {
                 // Status is OK, node has joined the network
-                DeviceState = DEVICE_STATE_SEND;
+                DeviceState = DEVICE_STATE_REQ_BEACON_TIMING;
                 NextTx = true;
                 break;
             }
@@ -913,7 +915,7 @@ int main( void )
                 mibReq.Param.IsNetworkJoined = true;
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
-                DeviceState = DEVICE_STATE_REQ_PINGSLOT_ACK;
+                DeviceState = DEVICE_STATE_REQ_BEACON_TIMING;
 #endif
                 break;
             }
