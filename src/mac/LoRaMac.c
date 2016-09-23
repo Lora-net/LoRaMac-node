@@ -746,6 +746,10 @@ typedef enum eBeaconState
      */
     BEACON_STATE_TIMEOUT,
     /*!
+     * Handles the state when the beacon was missed due to an uplink
+     */
+    BEACON_STATE_BEACON_MISSED,
+    /*!
      * Reacquisition state which applies the algorithm to enlarge the reception
      * windows
      */
