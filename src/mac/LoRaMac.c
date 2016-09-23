@@ -1566,6 +1566,8 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
     LoRaMacFrameCtrl_t fCtrl;
     bool skipIndication = false;
 
+    uint8_t index = 0;
+
     uint8_t pktHeaderLen = 0;
     uint32_t address = 0;
     uint8_t appPayloadStartIndex = 0;
