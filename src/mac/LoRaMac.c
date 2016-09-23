@@ -2824,6 +2824,14 @@ static void OnBeaconTimerEvent( void )
         {
             // Store listen time
             BeaconCtx.ListenTime = currentTime - BeaconCtx.NextBeaconRx;
+            // Setup next state
+            BeaconState = BEACON_STATE_BEACON_MISSED;
+            // no break here
+        }
+        case BEACON_STATE_BEACON_MISSED:
+        {
+            // We have to update the beacon time, since we missed a beacon
+            BeaconCtx.BeaconTime += ( BeaconCtx.Cfg.Interval / 1000 );
 
             // Update symbol timeout
             BeaconCtx.SymbolTimeout *= BeaconCtx.Cfg.SymbolToExpansionFactor;
@@ -2836,8 +2844,6 @@ static void OnBeaconTimerEvent( void )
             {
                 PingSlotCtx.SymbolTimeout = PingSlotCtx.Cfg.SymbolToExpansionMax;
             }
-            // We have to update the beacon time, since we missed a beacon
-            BeaconCtx.BeaconTime += ( BeaconCtx.Cfg.Interval / 1000 );
             // Setup next state
             BeaconState = BEACON_STATE_REACQUISITION;
             // no break here
