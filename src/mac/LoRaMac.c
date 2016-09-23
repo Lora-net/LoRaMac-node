@@ -772,7 +772,7 @@ static uint8_t CountNbEnabled125kHzChannels( uint16_t *channelsMask );
  * \param [IN] mask Block definition to set.
  * \param [OUT] channelsMask Pointer to the first element of the channel mask
  */
-static void ReenableChannels( uint16_t mask, uint16_t* channelMask );
+static void ReenableChannels( uint16_t mask, uint16_t* channelsMask );
 
 /*!
  * \brief Validates the correctness of the channel mask for US915, hybrid mode.
@@ -781,7 +781,7 @@ static void ReenableChannels( uint16_t mask, uint16_t* channelMask );
  *
  * \retval [true: channel mask correct, false: channel mask not correct]
  */
-static bool ValidateChannelMask( uint16_t* channelMask );
+static bool ValidateChannelMask( uint16_t* channelsMask );
 #endif
 
 #endif
@@ -2117,27 +2117,27 @@ static uint8_t CountNbEnabled125kHzChannels( uint16_t *channelsMask )
 }
 
 #if defined( USE_BAND_915_HYBRID )
-static void ReenableChannels( uint16_t mask, uint16_t* channelMask )
+static void ReenableChannels( uint16_t mask, uint16_t* channelsMask )
 {
     uint16_t blockMask = mask;
 
     for( uint8_t i = 0, j = 0; i < 4; i++, j += 2 )
     {
-        channelMask[i] = 0;
+        channelsMask[i] = 0;
         if( ( blockMask & ( 1 << j ) ) != 0 )
         {
-            channelMask[i] |= 0x00FF;
+            channelsMask[i] |= 0x00FF;
         }
         if( ( blockMask & ( 1 << ( j + 1 ) ) ) != 0 )
         {
-            channelMask[i] |= 0xFF00;
+            channelsMask[i] |= 0xFF00;
         }
     }
-    channelMask[4] = blockMask;
-    channelMask[5] = 0x0000;
+    channelsMask[4] = blockMask;
+    channelsMask[5] = 0x0000;
 }
 
-static bool ValidateChannelMask( uint16_t* channelMask )
+static bool ValidateChannelMask( uint16_t* channelsMask )
 {
     bool chanMaskState = false;
     uint16_t block1 = 0;
@@ -2146,20 +2146,20 @@ static bool ValidateChannelMask( uint16_t* channelMask )
 
     for( uint8_t i = 0; i < 4; i++ )
     {
-        block1 = channelMask[i] & 0x00FF;
-        block2 = channelMask[i] & 0xFF00;
+        block1 = channelsMask[i] & 0x00FF;
+        block2 = channelsMask[i] & 0xFF00;
 
         if( ( CountBits( block1, 16 ) > 5 ) && ( chanMaskState == false ) )
         {
-            channelMask[i] &= block1;
-            channelMask[4] = 1 << ( i * 2 );
+            channelsMask[i] &= block1;
+            channelsMask[4] = 1 << ( i * 2 );
             chanMaskState = true;
             index = i;
         }
         else if( ( CountBits( block2, 16 ) > 5 ) && ( chanMaskState == false ) )
         {
-            channelMask[i] &= block2;
-            channelMask[4] = 1 << ( i * 2 + 1 );
+            channelsMask[i] &= block2;
+            channelsMask[4] = 1 << ( i * 2 + 1 );
             chanMaskState = true;
             index = i;
         }
@@ -2172,7 +2172,7 @@ static bool ValidateChannelMask( uint16_t* channelMask )
         {
             if( i != index )
             {
-                channelMask[i] = 0;
+                channelsMask[i] = 0;
             }
         }
     }
