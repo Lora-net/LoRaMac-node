@@ -2966,6 +2966,7 @@ static void OnBeaconTimerEvent( void )
                 BeaconCtx.Temperature = LoRaMacCallbacks->GetTemperatureLevel( );
             }
             beaconEventTime = BeaconCtx.NextBeaconRx - RADIO_WAKEUP_TIME;
+            currentTime = TimerGetCurrentTime( );
 
             if( beaconEventTime > currentTime )
             {
