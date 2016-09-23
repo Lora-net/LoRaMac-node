@@ -2923,7 +2923,7 @@ static void OnBeaconTimerEvent( void )
                 BeaconState = BEACON_STATE_GUARD;
             }
 
-            if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) && ( MlmeConfirm.MlmeRequest == MLME_SWITCH_CLASS ) )
+            if( LoRaMacFlags.Bits.MlmeReq == 1 )
             {
                 index = GetMlmeConfirmIndex( MlmeConfirmQueue, MLME_BEACON_ACQUISITION, MlmeConfirmQueueCnt );
                 if( index < LORA_MAC_MLME_CONFIRM_QUEUE_LEN )
