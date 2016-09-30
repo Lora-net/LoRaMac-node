@@ -170,7 +170,7 @@ const FskBandwidth_t FskBandwidths[] =
     { 166700, 0x11 },
     { 200000, 0x09 },
     { 250000, 0x01 },
-    { 300000, 0x00 }, // Invalid Badwidth
+    { 300000, 0x00 }, // Invalid Bandwidth
 };
 
 /*
@@ -799,14 +799,14 @@ uint32_t SX1276GetTimeOnAir( RadioModems_t modem, uint8_t pktLen )
             double tmp = ceil( ( 8 * pktLen - 4 * SX1276.Settings.LoRa.Datarate +
                                  28 + 16 * SX1276.Settings.LoRa.CrcOn -
                                  ( SX1276.Settings.LoRa.FixLen ? 20 : 0 ) ) /
-                                 ( double )( 4 * SX1276.Settings.LoRa.Datarate -
-                                 ( ( SX1276.Settings.LoRa.LowDatarateOptimize > 0 ) ? 2 : 0 ) ) ) *
+                                 ( double )( 4 * ( SX1276.Settings.LoRa.Datarate -
+                                 ( ( SX1276.Settings.LoRa.LowDatarateOptimize > 0 ) ? 2 : 0 ) ) ) ) *
                                  ( SX1276.Settings.LoRa.Coderate + 4 );
             double nPayload = 8 + ( ( tmp > 0 ) ? tmp : 0 );
             double tPayload = nPayload * ts;
             // Time on air
             double tOnAir = tPreamble + tPayload;
-            // return us secs
+            // return ms secs
             airTime = floor( tOnAir * 1e3 + 0.999 );
         }
         break;
