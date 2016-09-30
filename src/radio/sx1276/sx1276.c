@@ -806,7 +806,7 @@ uint32_t SX1276GetTimeOnAir( RadioModems_t modem, uint8_t pktLen )
             double tPayload = nPayload * ts;
             // Time on air
             double tOnAir = tPreamble + tPayload;
-            // return us secs
+            // return ms secs
             airTime = floor( tOnAir * 1e3 + 0.999 );
         }
         break;
