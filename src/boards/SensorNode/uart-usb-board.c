@@ -84,9 +84,9 @@ uint8_t UartUsbGetChar( Uart_t *obj, uint8_t *data )
 {
     if( IsFifoEmpty( &obj->FifoRx ) == false )
     {
-        __disable_irq( );
+        BoardDisableIrq( );
         *data = FifoPop( &obj->FifoRx );
-        __enable_irq( );
+        BoardEnableIrq( );
         return 0;
     }
     return 1;

@@ -190,6 +190,20 @@ enum BoardPowerSource
 };
 
 /*!
+ * \brief Disbale interrupts
+ *
+ * \remark IRQ nesting is managed
+ */
+void BoardDisableIrq( void );
+
+/*!
+ * \brief Enable interrupts
+ *
+ * \remark IRQ nesting is managed
+ */
+void BoardEnableIrq( void );
+
+/*!
  * \brief Initializes the target board peripherals.
  */
 void BoardInitMcu( void );
