@@ -226,12 +226,12 @@ uint32_t SX1276Random( void );
  *                          FSK : N/A ( set to 0 ) 
  *                          LoRa: timeout in symbols
  * \param [IN] fixLen       Fixed length packets [0: variable, 1: fixed]
- * \param [IN] payloadLen   Sets payload length when fixed lenght is used
+ * \param [IN] payloadLen   Sets payload length when fixed length is used
  * \param [IN] crcOn        Enables/Disables the CRC [0: OFF, 1: ON]
  * \param [IN] FreqHopOn    Enables disables the intra-packet frequency hopping
  *                          FSK : N/A ( set to 0 )
  *                          LoRa: [0: OFF, 1: ON]
- * \param [IN] HopPeriod    Number of symbols bewteen each hop
+ * \param [IN] HopPeriod    Number of symbols between each hop
  *                          FSK : N/A ( set to 0 )
  *                          LoRa: Number of symbols
  * \param [IN] iqInverted   Inverts IQ signals (LoRa only)
@@ -277,7 +277,7 @@ void SX1276SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
  * \param [IN] FreqHopOn    Enables disables the intra-packet frequency hopping
  *                          FSK : N/A ( set to 0 )
  *                          LoRa: [0: OFF, 1: ON]
- * \param [IN] HopPeriod    Number of symbols bewteen each hop
+ * \param [IN] HopPeriod    Number of symbols between each hop
  *                          FSK : N/A ( set to 0 )
  *                          LoRa: Number of symbols
  * \param [IN] iqInverted   Inverts IQ signals (LoRa only)
