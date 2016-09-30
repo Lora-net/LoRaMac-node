@@ -144,9 +144,9 @@ uint8_t UartMcuPutChar( Uart_t *obj, uint8_t data )
 {
     if( IsFifoFull( &obj->FifoTx ) == false )
     {
-        __disable_irq( );
+        BoardDisableIrq( );
         FifoPush( &obj->FifoTx, data );
-        __enable_irq( );
+        BoardEnableIrq( );
         // Enable the USART Transmit interrupt
         __HAL_UART_ENABLE_IT( &UartHandle, USART_IT_TXE );
         return 0; // OK
@@ -158,9 +158,9 @@ uint8_t UartMcuGetChar( Uart_t *obj, uint8_t *data )
 {
     if( IsFifoEmpty( &obj->FifoRx ) == false )
     {
-        __disable_irq( );
+        BoardDisableIrq( );
         *data = FifoPop( &obj->FifoRx );
-        __enable_irq( );
+        BoardEnableIrq( );
         return 0;
     }
     return 1;
