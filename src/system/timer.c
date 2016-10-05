@@ -380,7 +380,7 @@ TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture )
 static void TimerSetTimeout( TimerEvent_t *obj )
 {
     HasLoopedThroughMain = 0;
-    obj->Timestamp = RtcGetAdjustedTimeoutValue( obj->Timestamp ); 
+    obj->Timestamp = RtcGetAdjustedTimeoutValue( obj->Timestamp );
     RtcSetTimeout( obj->Timestamp );
 }
 
