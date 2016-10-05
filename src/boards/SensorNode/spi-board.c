@@ -32,6 +32,8 @@ void SpiInit( Spi_t *obj, PinNames mosi, PinNames miso, PinNames sclk, PinNames 
 
     __HAL_RCC_SPI1_CLK_ENABLE( );
 
+    BoardDisableIrq( );
+
     obj->Spi.Instance = ( SPI_TypeDef *) SPI1_BASE;
 
     GpioInit( &obj->Mosi, mosi, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, GPIO_AF5_SPI1 );
@@ -58,6 +60,8 @@ void SpiInit( Spi_t *obj, PinNames mosi, PinNames miso, PinNames sclk, PinNames 
     SpiFrequency( obj, 10000000 );
 
     HAL_SPI_Init( &obj->Spi );
+
+    BoardEnableIrq( );
 }
 
 void SpiDeInit( Spi_t *obj )
@@ -152,11 +156,15 @@ uint16_t SpiInOut( Spi_t *obj, uint16_t outData )
 
     __HAL_SPI_ENABLE( &obj->Spi );
 
+    BoardDisableIrq( );
+
     while( SpiGetFlag( obj, SPI_FLAG_TXE ) == RESET );
     obj->Spi.Instance->DR = ( uint16_t ) ( outData & 0xFF );
 
     while( SpiGetFlag( obj, SPI_FLAG_RXNE ) == RESET );
     rxData = ( uint16_t ) obj->Spi.Instance->DR;
+
+    BoardEnableIrq( );
 
     return( rxData );
 }
