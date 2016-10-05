@@ -104,6 +104,11 @@ typedef struct
 typedef void( GpioIrqHandler )( void );
 
 /*!
+ * GPIO Expander IRQ handler function prototype
+ */
+typedef void( GpioIoeIrqHandler )( void );
+
+/*!
  * \brief Initializes the given GPIO object
  *
  * \param [IN] obj    Pointer to the GPIO object
