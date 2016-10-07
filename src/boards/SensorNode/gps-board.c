@@ -78,9 +78,14 @@ void GpsMcuStart( void )
     GpioWrite( &GpsPowerEn, 0 );    // power up the GPS
 }
 
-void GpsMCuStop( void )
+void GpsMcuStop( void )
 {
     GpioWrite( &GpsPowerEn, 1 );    // power down the GPS
+}
+
+void GpsMcuProcess( void )
+{
+
 }
 
 void GpsMcuIrqNotify( UartNotifyId_t id )

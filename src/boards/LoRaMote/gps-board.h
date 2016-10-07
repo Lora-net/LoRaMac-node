@@ -54,7 +54,12 @@ void GpsMcuStart( void );
 /*!
  * \brief Switch OFF the GPS
  */
-void GpsMCuStop( void );
+void GpsMcuStop( void );
+
+/*!
+ * Updates the GPS status
+ */
+void GpsMcuProcess( void );
 
 /*!
  * \brief IRQ handler for the UART receiver
