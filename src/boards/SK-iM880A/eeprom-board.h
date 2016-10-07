@@ -12,8 +12,8 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#ifndef __EEPROM_H__
-#define __EEPROM_H__
+#ifndef __EEPROM_MCU_H__
+#define __EEPROM_MCU_H__
 
 /*!
  * Writes the given buffer to the EEPROM at the specified address.
@@ -23,7 +23,7 @@ Maintainer: Miguel Luis and Gregory Cristian
  * \param[IN] size Size of the buffer to be written.
  * \retval status [SUCCESS, FAIL]
  */
-uint8_t EepromWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size );
+uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size );
 
 /*!
  * Reads the EEPROM at the specified address to the given buffer.
@@ -33,7 +33,7 @@ uint8_t EepromWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size );
  * \param[IN] size Size of the buffer to be read.
  * \retval status [SUCCESS, FAIL]
  */
-uint8_t EepromReadBuffer( uint16_t addr, uint8_t *buffer, uint16_t size );
+uint8_t EepromMcuReadBuffer( uint16_t addr, uint8_t *buffer, uint16_t size );
 
 /*!
  * Sets the device address.
@@ -42,7 +42,7 @@ uint8_t EepromReadBuffer( uint16_t addr, uint8_t *buffer, uint16_t size );
  *
  * \param[IN] addr External EEPROM address
  */
-void EepromSetDeviceAddr( uint8_t addr );
+void EepromMcuSetDeviceAddr( uint8_t addr );
 
 /*!
  * Gets the current device address.
@@ -51,6 +51,6 @@ void EepromSetDeviceAddr( uint8_t addr );
  *
  * \retval addr External EEPROM address
  */
-uint8_t EepromGetDeviceAddr( void );
+uint8_t EepromMcuGetDeviceAddr( void );
 
-#endif // __EEPROM_H__
+#endif // __EEPROM_MCU_H__
