@@ -83,7 +83,7 @@ int main( void )
                                    LORA_SPREADING_FACTOR, LORA_CODINGRATE,
                                    LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
                                    true, 0, 0, LORA_IQ_INVERSION_ON, 3000 );
-    
+
     /**********************************************/
     /*                  WARNING                   */
     /* The below settings can damage the chipset  */
@@ -108,11 +108,11 @@ int main( void )
 
     TimerInit( &Led3Timer, OnLed3TimerEvent ); 
     TimerSetValue( &Led3Timer, 90 );
-               
+
     // Switch LED 1 ON
     GpioWrite( &Led4, 0 );
     TimerStart( &Led4Timer );
-    
+
     // Sets the radio in Tx mode
     Radio.Send( NULL, 0 );
 
@@ -122,7 +122,7 @@ int main( void )
         if( Led4TimerEvent == true )
         {
             Led4TimerEvent = false;
-            
+
             // Switch LED 4 OFF
             GpioWrite( &Led4, 4 );
             // Switch LED 2 ON
@@ -140,7 +140,7 @@ int main( void )
             GpioWrite( &Led3, 0 );
             TimerStart( &Led3Timer );
         }
-    
+
         if( Led3TimerEvent == true )
         {
             Led3TimerEvent = false;
@@ -150,6 +150,6 @@ int main( void )
             // Switch LED 1 ON
             GpioWrite( &Led4, 0 );
             TimerStart( &Led4Timer );
-        }    
+        }
     }
 }

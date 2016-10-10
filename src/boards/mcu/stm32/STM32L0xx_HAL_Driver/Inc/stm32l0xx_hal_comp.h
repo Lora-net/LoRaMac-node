@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_comp.h
   * @author  MCD Application Team
-  * @version V1.6.0
-  * @date    15-April-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of COMP HAL module.
   ******************************************************************************
   * @attention
@@ -152,9 +152,12 @@ typedef struct
   */
 #define COMP_INPUT_PLUS_IO1            ((uint32_t)0x00000000U)                            /*!< Comparator input plus connected to IO1 (pin PA1 for COMP1, pin PA3 for COMP2) */
 #define COMP_INPUT_PLUS_IO2            (COMP_CSR_COMP2INPSEL_0)                           /*!< Comparator input plus connected to IO2 (pin PB4 for COMP2) (only for COMP instance: COMP2) */
-#define COMP_INPUT_PLUS_IO3            (COMP_CSR_COMP2INPSEL_1)                           /*!< Comparator input plus connected to IO3 (pin PB5 for COMP2) (only for COMP instance: COMP2) */
+#define COMP_INPUT_PLUS_IO3            (COMP_CSR_COMP2INPSEL_1)                           /*!< Comparator input plus connected to IO3 (pin PA5 for COMP2) (only for COMP instance: COMP2) */
 #define COMP_INPUT_PLUS_IO4            (COMP_CSR_COMP2INPSEL_0 | COMP_CSR_COMP2INPSEL_1)  /*!< Comparator input plus connected to IO4 (pin PB6 for COMP2) (only for COMP instance: COMP2) */
 #define COMP_INPUT_PLUS_IO5            (COMP_CSR_COMP2INPSEL_2)                           /*!< Comparator input plus connected to IO5 (pin PB7 for COMP2) (only for COMP instance: COMP2) */
+#if defined (STM32L011xx) || defined (STM32L021xx)
+#define COMP_INPUT_PLUS_IO6            (COMP_CSR_COMP2INPSEL_2 | COMP_CSR_COMP2INPSEL_0)  /*!< Comparator input plus connected to IO6 (pin PA7 for COMP2) (only for COMP instance: COMP2) (Available only on devices STM32L0 category 1) */
+#endif
 /**
   * @}
   */
@@ -521,6 +524,23 @@ typedef struct
 
 #define IS_COMP_WINDOWMODE_INSTANCE(INSTANCE) ((INSTANCE) == COMP1)
 
+#if defined (STM32L011xx) || defined (STM32L021xx)
+#define IS_COMP_INPUT_PLUS(__COMP_INSTANCE__, __INPUT_PLUS__)                  \
+  (((__COMP_INSTANCE__) == COMP1)                                              \
+    ? (                                                                        \
+       (__INPUT_PLUS__) == COMP_INPUT_PLUS_IO1                                 \
+      )                                                                        \
+      :                                                                        \
+      (                                                                        \
+          ((__INPUT_PLUS__) == COMP_INPUT_PLUS_IO1)                            \
+       || ((__INPUT_PLUS__) == COMP_INPUT_PLUS_IO2)                            \
+       || ((__INPUT_PLUS__) == COMP_INPUT_PLUS_IO3)                            \
+       || ((__INPUT_PLUS__) == COMP_INPUT_PLUS_IO4)                            \
+       || ((__INPUT_PLUS__) == COMP_INPUT_PLUS_IO5)                            \
+       || ((__INPUT_PLUS__) == COMP_INPUT_PLUS_IO6)                            \
+      )                                                                        \
+  )
+#else
 #define IS_COMP_INPUT_PLUS(__COMP_INSTANCE__, __INPUT_PLUS__)                  \
   (((__COMP_INSTANCE__) == COMP1)                                              \
     ? (                                                                        \
@@ -535,6 +555,7 @@ typedef struct
        || ((__INPUT_PLUS__) == COMP_INPUT_PLUS_IO5)                            \
       )                                                                        \
   )
+#endif
 
 #define IS_COMP_INPUT_MINUS(__COMP_INSTANCE__, __INPUT_MINUS__)                \
   (((__COMP_INSTANCE__) == COMP1)                                              \

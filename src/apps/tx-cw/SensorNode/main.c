@@ -37,9 +37,10 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define TX_OUTPUT_POWER                             14        // 14 dBm
 
 #else
-    #error "Please define a frequency band in the compiler options."
-#endif
 
+    #error "Please define a frequency band in the compiler options."
+
+#endif
 
 #define LORA_BANDWIDTH                              0         // [0: 125 kHz,
                                                               //  1: 250 kHz,
@@ -124,7 +125,7 @@ int main( void )
     Radio.Write( 0x3D, 0xA1 );
     Radio.Write( 0x36, 0x01 );
     Radio.Write( 0x1e, 0x08 );
-        
+
 #endif
 
     Radio.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
@@ -140,11 +141,11 @@ int main( void )
 
     TimerInit( &Led3Timer, OnLed3TimerEvent ); 
     TimerSetValue( &Led3Timer, 90 );
-               
+
     // Switch LED 1 ON
     GpioWrite( &Led1, 0 );
     TimerStart( &Led1Timer );
-    
+
     // Sets the radio in Tx mode
     Radio.Send( NULL, 0 );
 
@@ -154,7 +155,7 @@ int main( void )
         if( Led1TimerEvent == true )
         {
             Led1TimerEvent = false;
-            
+
             // Switch LED 1 OFF
             GpioWrite( &Led1, 1 );
             // Switch LED 2 ON
@@ -172,7 +173,7 @@ int main( void )
             GpioWrite( &Led3, 0 );
             TimerStart( &Led3Timer );
         }
-    
+
         if( Led3TimerEvent == true )
         {
             Led3TimerEvent = false;
@@ -182,6 +183,6 @@ int main( void )
             // Switch LED 1 ON
             GpioWrite( &Led1, 0 );
             TimerStart( &Led1Timer );
-        }    
+        }
     }
 }

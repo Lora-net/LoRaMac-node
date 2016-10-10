@@ -57,4 +57,9 @@ void GpioIoeWrite( Gpio_t *obj, uint32_t value );
  */
 uint32_t GpioIoeRead( Gpio_t *obj );
 
+/*!
+ * \brief GpioIoeInterruptHandler callback function.
+ */
+void GpioIoeInterruptHandler( void );
+
 #endif // __GPIO_IOE_H__

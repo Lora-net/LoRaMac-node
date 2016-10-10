@@ -1669,6 +1669,12 @@ void SX1276OnDio2Irq( void )
             switch( SX1276.Settings.Modem )
             {
             case MODEM_FSK:
+                // Checks if DIO4 is connected. If it is not PreambleDtected is set to true.
+                if( SX1276.DIO4.port == NULL )
+                {
+                    SX1276.Settings.FskPacketHandler.PreambleDetected = true;
+                }
+
                 if( ( SX1276.Settings.FskPacketHandler.PreambleDetected == true ) && ( SX1276.Settings.FskPacketHandler.SyncWordDetected == false ) )
                 {
                     TimerStop( &RxTimeoutSyncWord );

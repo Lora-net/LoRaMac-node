@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_ll_comp.c
   * @author  MCD Application Team
-  * @version V1.6.0
-  * @date    15-April-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   COMP LL module driver
   ******************************************************************************
   * @attention
@@ -72,6 +72,23 @@
    || ((__POWER_MODE__) == LL_COMP_POWERMODE_ULTRALOWPOWER)                    \
   )
 
+#if defined (STM32L011xx) || defined (STM32L021xx)
+#define IS_LL_COMP_INPUT_PLUS(__COMP_INSTANCE__, __INPUT_PLUS__)               \
+  (((__COMP_INSTANCE__) == COMP1)                                              \
+    ? (                                                                        \
+       (__INPUT_PLUS__) == LL_COMP_INPUT_PLUS_IO1                              \
+      )                                                                        \
+      :                                                                        \
+      (                                                                        \
+          ((__INPUT_PLUS__) == LL_COMP_INPUT_PLUS_IO1)                         \
+       || ((__INPUT_PLUS__) == LL_COMP_INPUT_PLUS_IO2)                         \
+       || ((__INPUT_PLUS__) == LL_COMP_INPUT_PLUS_IO3)                         \
+       || ((__INPUT_PLUS__) == LL_COMP_INPUT_PLUS_IO4)                         \
+       || ((__INPUT_PLUS__) == LL_COMP_INPUT_PLUS_IO5)                         \
+       || ((__INPUT_PLUS__) == LL_COMP_INPUT_PLUS_IO6)                         \
+      )                                                                        \
+  )
+#else
 #define IS_LL_COMP_INPUT_PLUS(__COMP_INSTANCE__, __INPUT_PLUS__)               \
   (((__COMP_INSTANCE__) == COMP1)                                              \
     ? (                                                                        \
@@ -86,6 +103,7 @@
        || ((__INPUT_PLUS__) == LL_COMP_INPUT_PLUS_IO5)                         \
       )                                                                        \
   )
+#endif
 
 /* Note: On this STM32 serie, comparator input minus parameters are           */
 /*       the different depending on COMP instances.                           */

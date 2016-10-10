@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_lcd.h
   * @author  MCD Application Team
-  * @version V1.6.0
-  * @date    15-April-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of LCD Controller HAL module.
   ******************************************************************************
   * @attention
@@ -435,6 +435,19 @@ typedef struct
   * @}
   */
       
+/** @defgroup LCD_BUFEN LCD Voltage output buffer enable
+  * @{
+  */
+
+#define LCD_VOLTBUFOUT_DISABLE            ((uint32_t)0x00000000U)       /*!< Voltage output buffer disabled */
+#define LCD_VOLTBUFOUT_ENABLE             (LCD_CR_BUFEN)                /*!< BUFEN[1] Voltage output buffer enabled    */
+
+#define IS_LCD_VOLTBUFOUT(__VALUE__) (((__VALUE__) == LCD_VOLTBUFOUT_ENABLE) || \
+                                      ((__VALUE__) == LCD_VOLTBUFOUT_DISABLE))
+/**
+  * @}
+  */
+
 /** @defgroup LCD_Flag LCD Flag
   * @{
   */
@@ -514,6 +527,13 @@ typedef struct
   */     
 #define __HAL_LCD_ENABLE(__HANDLE__)              (SET_BIT((__HANDLE__)->Instance->CR, LCD_CR_LCDEN))
 #define __HAL_LCD_DISABLE(__HANDLE__)             (CLEAR_BIT((__HANDLE__)->Instance->CR, LCD_CR_LCDEN))
+
+/** @brief  macros to enables or disables the Voltage output buffer
+  * @param  __HANDLE__: specifies the LCD Handle.
+  * @retval None
+  */
+#define __HAL_LCD_VOLTOUTBUFFER_ENABLE(__HANDLE__)              (SET_BIT((__HANDLE__)->Instance->CR, LCD_CR_BUFEN))
+#define __HAL_LCD_VOLTOUTBUFFER_DISABLE(__HANDLE__)             (CLEAR_BIT((__HANDLE__)->Instance->CR, LCD_CR_BUFEN))
 
 /** @brief  Macros to enable or disable the low resistance divider. Displays with high 
   *         internal resistance may need a longer drive time to achieve 
@@ -783,5 +803,5 @@ HAL_StatusTypeDef     LCD_WaitForSynchro(LCD_HandleTypeDef *hlcd);
 
 #endif /* STM32L053xx || STM32L063xx || STM32L073xx || STM32L083xx */
 
-/******************* (C) COPYRIGHT 2015 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2016 STMicroelectronics *****END OF FILE****/
 
