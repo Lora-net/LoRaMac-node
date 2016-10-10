@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx.h
   * @author  MCD Application Team
-  * @version V2.1.2
-  * @date    09-October-2015
+  * @version V2.2.0
+  * @date    01-July-2016
   * @brief   CMSIS STM32L1xx Device Peripheral Access Layer Header File. 
   *
   *          The file is the unique include file that the application programmer
@@ -18,7 +18,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -118,16 +118,16 @@
 #endif /* USE_HAL_DRIVER */
 
 /**
-  * @brief CMSIS Device version number V2.1.2
+  * @brief CMSIS Device version number
   */
-#define __STM32L1xx_CMSIS_DEVICE_VERSION_MAIN   (0x02) /*!< [31:24] main version */                                  
-#define __STM32L1xx_CMSIS_DEVICE_VERSION_SUB1   (0x01) /*!< [23:16] sub1 version */
-#define __STM32L1xx_CMSIS_DEVICE_VERSION_SUB2   (0x02) /*!< [15:8]  sub2 version */
-#define __STM32L1xx_CMSIS_DEVICE_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
-#define __STM32L1xx_CMSIS_DEVICE_VERSION        ((__CMSIS_DEVICE_VERSION_MAIN     << 24)\
-                                      |(__CMSIS_DEVICE_HAL_VERSION_SUB1 << 16)\
-                                      |(__CMSIS_DEVICE_HAL_VERSION_SUB2 << 8 )\
-                                      |(__CMSIS_DEVICE_HAL_VERSION_RC))
+#define __STM32L1xx_CMSIS_VERSION_MAIN   (0x02) /*!< [31:24] main version */                                  
+#define __STM32L1xx_CMSIS_VERSION_SUB1   (0x02) /*!< [23:16] sub1 version */
+#define __STM32L1xx_CMSIS_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
+#define __STM32L1xx_CMSIS_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
+#define __STM32L1xx_CMSIS_VERSION        ((__STM32L1xx_CMSIS_VERSION_MAIN << 24)\
+                                         |(__STM32L1xx_CMSIS_VERSION_SUB1 << 16)\
+                                         |(__STM32L1xx_CMSIS_VERSION_SUB2 << 8 )\
+                                         |(__STM32L1xx_CMSIS_VERSION_RC))
 
 /**
   * @}

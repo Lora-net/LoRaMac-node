@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_ll_comp.h
   * @author  MCD Application Team
-  * @version V1.6.0
-  * @date    15-April-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of COMP LL module.
   ******************************************************************************
   * @attention
@@ -126,8 +126,8 @@ typedef struct
 /** @defgroup COMP_LL_EC_POWERMODE Comparator modes - Power mode
   * @{
   */
-#define LL_COMP_POWERMODE_ULTRALOWPOWER   ((uint32_t)0x00000000U)     /*!< COMP power mode to low speed (only for COMP instance: COMP2) */
-#define LL_COMP_POWERMODE_MEDIUMSPEED     (COMP_CSR_COMP2SPEED)       /*!< COMP power mode to fast speed (only for COMP instance: COMP2) */
+#define LL_COMP_POWERMODE_ULTRALOWPOWER   ((uint32_t)0x00000000U)     /*!< COMP power mode to low speed (specific to COMP instance: COMP2) */
+#define LL_COMP_POWERMODE_MEDIUMSPEED     (COMP_CSR_COMP2SPEED)       /*!< COMP power mode to fast speed (specific to COMP instance: COMP2) */
 /**
   * @}
   */
@@ -136,10 +136,13 @@ typedef struct
   * @{
   */
 #define LL_COMP_INPUT_PLUS_IO1          ((uint32_t)0x00000000U)                            /*!< Comparator input plus connected to IO1 (pin PA1 for COMP1, pin PA3 for COMP2) */
-#define LL_COMP_INPUT_PLUS_IO2          (COMP_CSR_COMP2INPSEL_0)                           /*!< Comparator input plus connected to IO2 (pin PB4 for COMP2) (only for COMP instance: COMP2) */
-#define LL_COMP_INPUT_PLUS_IO3          (COMP_CSR_COMP2INPSEL_1)                           /*!< Comparator input plus connected to IO3 (pin PB5 for COMP2) (only for COMP instance: COMP2) */
-#define LL_COMP_INPUT_PLUS_IO4          (COMP_CSR_COMP2INPSEL_0 | COMP_CSR_COMP2INPSEL_1)  /*!< Comparator input plus connected to IO4 (pin PB6 for COMP2) (only for COMP instance: COMP2) */
-#define LL_COMP_INPUT_PLUS_IO5          (COMP_CSR_COMP2INPSEL_2)                           /*!< Comparator input plus connected to IO5 (pin PB7 for COMP2) (only for COMP instance: COMP2) */
+#define LL_COMP_INPUT_PLUS_IO2          (COMP_CSR_COMP2INPSEL_0)                           /*!< Comparator input plus connected to IO2 (pin PB4 for COMP2) (specific to COMP instance: COMP2) */
+#define LL_COMP_INPUT_PLUS_IO3          (COMP_CSR_COMP2INPSEL_1)                           /*!< Comparator input plus connected to IO3 (pin PA5 for COMP2) (specific to COMP instance: COMP2) */
+#define LL_COMP_INPUT_PLUS_IO4          (COMP_CSR_COMP2INPSEL_0 | COMP_CSR_COMP2INPSEL_1)  /*!< Comparator input plus connected to IO4 (pin PB6 for COMP2) (specific to COMP instance: COMP2) */
+#define LL_COMP_INPUT_PLUS_IO5          (COMP_CSR_COMP2INPSEL_2)                           /*!< Comparator input plus connected to IO5 (pin PB7 for COMP2) (specific to COMP instance: COMP2) */
+#if defined (STM32L011xx) || defined (STM32L021xx)
+#define LL_COMP_INPUT_PLUS_IO6          (COMP_CSR_COMP2INPSEL_2 | COMP_CSR_COMP2INPSEL_0)  /*!< Comparator input plus connected to IO6 (pin PA7 for COMP2) (specific to COMP instance: COMP2) (Available only on devices STM32L0 category 1) */
+#endif
 /**
   * @}
   */
@@ -147,14 +150,14 @@ typedef struct
 /** @defgroup COMP_LL_EC_INPUT_MINUS Comparator inputs - Input minus (input inverting) selection
   * @{
   */
-#define LL_COMP_INPUT_MINUS_1_4VREFINT  (COMP_CSR_COMP2INNSEL_2                                                  ) /*!< Comparator input minus connected to 1/4 VrefInt (specifity of COMP2 related to path to enable via SYSCFG: refer to comment in function @ref LL_COMP_SetInputMinus() ) (only for COMP instance: COMP2) */
-#define LL_COMP_INPUT_MINUS_1_2VREFINT  (COMP_CSR_COMP2INNSEL_2 |                          COMP_CSR_COMP2INNSEL_0) /*!< Comparator input minus connected to 1/2 VrefInt (specifity of COMP2 related to path to enable via SYSCFG: refer to comment in function @ref LL_COMP_SetInputMinus() ) (only for COMP instance: COMP2) */
-#define LL_COMP_INPUT_MINUS_3_4VREFINT  (COMP_CSR_COMP2INNSEL_2 | COMP_CSR_COMP2INNSEL_1                         ) /*!< Comparator input minus connected to 3/4 VrefInt (specifity of COMP2 related to path to enable via SYSCFG: refer to comment in function @ref LL_COMP_SetInputMinus() ) (only for COMP instance: COMP2) */
+#define LL_COMP_INPUT_MINUS_1_4VREFINT  (COMP_CSR_COMP2INNSEL_2                                                  ) /*!< Comparator input minus connected to 1/4 VrefInt (specifity of COMP2 related to path to enable via SYSCFG: refer to comment in function @ref LL_COMP_SetInputMinus() ) (specific to COMP instance: COMP2) */
+#define LL_COMP_INPUT_MINUS_1_2VREFINT  (COMP_CSR_COMP2INNSEL_2 |                          COMP_CSR_COMP2INNSEL_0) /*!< Comparator input minus connected to 1/2 VrefInt (specifity of COMP2 related to path to enable via SYSCFG: refer to comment in function @ref LL_COMP_SetInputMinus() ) (specific to COMP instance: COMP2) */
+#define LL_COMP_INPUT_MINUS_3_4VREFINT  (COMP_CSR_COMP2INNSEL_2 | COMP_CSR_COMP2INNSEL_1                         ) /*!< Comparator input minus connected to 3/4 VrefInt (specifity of COMP2 related to path to enable via SYSCFG: refer to comment in function @ref LL_COMP_SetInputMinus() ) (specific to COMP instance: COMP2) */
 #define LL_COMP_INPUT_MINUS_VREFINT     ((uint32_t)0x00000000U)                                                    /*!< Comparator input minus connected to VrefInt (specifity of COMP2 related to path to enable via SYSCFG: refer to comment in function @ref LL_COMP_SetInputMinus() ) */
 #define LL_COMP_INPUT_MINUS_DAC1_CH1    (                         COMP_CSR_COMP2INNSEL_1                         ) /*!< Comparator input minus connected to DAC1 channel 1 (DAC_OUT1)  */
 #define LL_COMP_INPUT_MINUS_DAC1_CH2    (                         COMP_CSR_COMP2INNSEL_1 | COMP_CSR_COMP2INNSEL_0) /*!< Comparator input minus connected to DAC1 channel 2 (DAC_OUT2)  */
 #define LL_COMP_INPUT_MINUS_IO1         (                                                  COMP_CSR_COMP2INNSEL_0) /*!< Comparator input minus connected to IO1 (pin PA0 for COMP1, pin PA2 for COMP2) */
-#define LL_COMP_INPUT_MINUS_IO2         (COMP_CSR_COMP2INNSEL_2 | COMP_CSR_COMP2INNSEL_1 | COMP_CSR_COMP2INNSEL_0) /*!< Comparator input minus connected to IO2 (pin PB3 for COMP2) (only for COMP instance: COMP2) */
+#define LL_COMP_INPUT_MINUS_IO2         (COMP_CSR_COMP2INNSEL_2 | COMP_CSR_COMP2INNSEL_1 | COMP_CSR_COMP2INNSEL_0) /*!< Comparator input minus connected to IO2 (pin PB3 for COMP2) (specific to COMP instance: COMP2) */
 /**
   * @}
   */
@@ -182,8 +185,8 @@ typedef struct
 /** @defgroup COMP_LL_EC_OUTPUT_LEVEL Comparator output - Output level
   * @{
   */
-#define LL_COMP_OUTPUT_LEVEL_LOW        (0x00000000U) /*!< Comparator output level low (if the polarity is not inverted, otherwise to be complemented) */
-#define LL_COMP_OUTPUT_LEVEL_HIGH       (0x00000001U) /*!< Comparator output level high (if the polarity is not inverted, otherwise to be complemented) */
+#define LL_COMP_OUTPUT_LEVEL_LOW        ((uint32_t)0x00000000U) /*!< Comparator output level low (if the polarity is not inverted, otherwise to be complemented) */
+#define LL_COMP_OUTPUT_LEVEL_HIGH       ((uint32_t)0x00000001U) /*!< Comparator output level high (if the polarity is not inverted, otherwise to be complemented) */
 /**
   * @}
   */
@@ -257,10 +260,11 @@ typedef struct
   *         set parameters common to several COMP instances.
   *         Refer to functions having argument "COMPxy_COMMON" as parameter.
   * @param  __COMPx__ COMP instance
-  * @retval COMP common instance
+  * @retval COMP common instance or value "0" if there is no COMP common instance.
   */
 #define __LL_COMP_COMMON_INSTANCE(__COMPx__)                                   \
   (COMP12_COMMON)
+
 /**
   * @}
   */
@@ -386,8 +390,10 @@ __STATIC_INLINE uint32_t LL_COMP_GetPowerMode(COMP_TypeDef *COMPx)
   *         @arg @ref LL_COMP_INPUT_PLUS_IO3 (1)
   *         @arg @ref LL_COMP_INPUT_PLUS_IO4 (1)
   *         @arg @ref LL_COMP_INPUT_PLUS_IO5 (1)
+  *         @arg @ref LL_COMP_INPUT_PLUS_IO6 (1)(2)
   *
   *         (1) Available only on COMP instance: COMP2.
+  *         (2) Available only on devices STM32L0 category 1.
   * @retval None
   */
 __STATIC_INLINE void LL_COMP_ConfigInputs(COMP_TypeDef *COMPx, uint32_t InputMinus, uint32_t InputPlus)
@@ -409,8 +415,10 @@ __STATIC_INLINE void LL_COMP_ConfigInputs(COMP_TypeDef *COMPx, uint32_t InputMin
   *         @arg @ref LL_COMP_INPUT_PLUS_IO3 (1)
   *         @arg @ref LL_COMP_INPUT_PLUS_IO4 (1)
   *         @arg @ref LL_COMP_INPUT_PLUS_IO5 (1)
+  *         @arg @ref LL_COMP_INPUT_PLUS_IO6 (1)(2)
   *
   *         (1) Available only on COMP instance: COMP2.
+  *         (2) Available only on devices STM32L0 category 1.
   * @retval None
   */
 __STATIC_INLINE void LL_COMP_SetInputPlus(COMP_TypeDef *COMPx, uint32_t InputPlus)
@@ -430,8 +438,10 @@ __STATIC_INLINE void LL_COMP_SetInputPlus(COMP_TypeDef *COMPx, uint32_t InputPlu
   *         @arg @ref LL_COMP_INPUT_PLUS_IO3 (1)
   *         @arg @ref LL_COMP_INPUT_PLUS_IO4 (1)
   *         @arg @ref LL_COMP_INPUT_PLUS_IO5 (1)
+  *         @arg @ref LL_COMP_INPUT_PLUS_IO6 (1)(2)
   *
   *         (1) Available only on COMP instance: COMP2.
+  *         (2) Available only on devices STM32L0 category 1.
   */
 __STATIC_INLINE uint32_t LL_COMP_GetInputPlus(COMP_TypeDef *COMPx)
 {
@@ -543,8 +553,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetOutputLPTIM(COMP_TypeDef *COMPx)
 
 /**
   * @brief  Set comparator instance output polarity.
-  * @rmtoll COMP1_CSR   COMP1POLARITY   LL_COMP_SetOutputPolarity\n
-  *         COMP2_CSR   COMP2POLARITY   LL_COMP_SetOutputPolarity
+  * @rmtoll COMP     COMP1POLARITY  LL_COMP_SetOutputPolarity
   * @param  COMPx Comparator instance
   * @param  OutputPolarity This parameter can be one of the following values:
   *         @arg @ref LL_COMP_OUTPUTPOL_NONINVERTED
@@ -558,8 +567,7 @@ __STATIC_INLINE void LL_COMP_SetOutputPolarity(COMP_TypeDef *COMPx, uint32_t Out
 
 /**
   * @brief  Get comparator instance output polarity.
-  * @rmtoll COMP1_CSR   COMP1POLARITY   LL_COMP_GetOutputPolarity\n
-  *         COMP2_CSR   COMP2POLARITY   LL_COMP_GetOutputPolarity
+  * @rmtoll COMP     COMP1POLARITY  LL_COMP_GetOutputPolarity
   * @param  COMPx Comparator instance
   * @retval Returned value can be one of the following values:
   *         @arg @ref LL_COMP_OUTPUTPOL_NONINVERTED

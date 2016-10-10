@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_ll_exti.h
   * @author  MCD Application Team
-  * @version V1.6.0
-  * @date    15-April-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Header file of EXTI LL module.
   ******************************************************************************
   * @attention

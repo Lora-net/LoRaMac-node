@@ -59,9 +59,9 @@ void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state);
 *******************************************************************************/
 /* MSP Init */
 
-void HAL_PCD_MspInit(PCD_HandleTypeDef* hpcd)
+void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
 {
-  if(hpcd->Instance==USB)
+  if(pcdHandle->Instance==USB)
   {
   /* USER CODE BEGIN USB_MspInit 0 */
 
@@ -78,9 +78,9 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* hpcd)
   }
 }
 
-void HAL_PCD_MspDeInit(PCD_HandleTypeDef* hpcd)
+void HAL_PCD_MspDeInit(PCD_HandleTypeDef* pcdHandle)
 {
-  if(hpcd->Instance==USB)
+  if(pcdHandle->Instance==USB)
   {
   /* USER CODE BEGIN USB_MspDeInit 0 */
 
@@ -469,7 +469,7 @@ void  USBD_LL_Delay (uint32_t Delay)
   */
 void *USBD_static_malloc(uint32_t size)
 {
-  static uint32_t mem[(sizeof(USBD_CDC_HandleTypeDef)/4)+1];//On 32-bit boundary
+  static uint32_t mem[(sizeof(USBD_CDC_HandleTypeDef)/4)+1];/* On 32-bit boundary */
   return mem;
 }
 
