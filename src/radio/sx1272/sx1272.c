@@ -1008,7 +1008,7 @@ void SX1272StartCad( void )
                                         );
 
             // DIO3=CADDone
-            SX1272Write( REG_DIOMAPPING1, ( SX1272Read( REG_DIOMAPPING1 ) & RFLR_DIOMAPPING1_DIO0_MASK ) | RFLR_DIOMAPPING1_DIO0_00 );
+            SX1272Write( REG_DIOMAPPING1, ( SX1272Read( REG_DIOMAPPING1 ) & RFLR_DIOMAPPING1_DIO3_MASK ) | RFLR_DIOMAPPING1_DIO3_00 );
 
             SX1272.Settings.State = RF_CAD;
             SX1272SetOpMode( RFLR_OPMODE_CAD );
