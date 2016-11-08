@@ -92,10 +92,10 @@
     <File name="boards/LoRaMote/usb/usbd_dfu_flash.c" path="../../../src/boards/LoRaMote/usb/dfu/src/usbd_dfu_flash.c" type="1"/>
     <File name="peripherals/gpio-ioe.c" path="../../../src/peripherals/gpio-ioe.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c" type="1"/>
-    <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_uart.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c" type="1"/>
-    <File name="boards/mcu/stm32" path="" type="2"/>
-    <File name="boards/LoRaMote/i2c-board.c" path="../../../src/boards/LoRaMote/i2c-board.c" type="1"/>
     <File name="boards/mcu/stm32/sysIrqHandlers.c" path="../../../src/boards/mcu/stm32/sysIrqHandlers.c" type="1"/>
+    <File name="boards/mcu/stm32" path="" type="2"/>
+    <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_uart.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c" type="1"/>
+    <File name="boards/LoRaMote/i2c-board.c" path="../../../src/boards/LoRaMote/i2c-board.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_pcd_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pcd_ex.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_spi_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi_ex.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_flash_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c" type="1"/>
@@ -121,12 +121,13 @@
     <File name="boards/LoRaMote/usb/usbd_desc.c" path="../../../src/boards/LoRaMote/usb/dfu/src/usbd_desc.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_pwr_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.c" type="1"/>
     <File name="boards/LoRaMote/STM32_USB_Device_Library/Core" path="" type="2"/>
+    <File name="boards/LoRaMote/cmsis/startup_stm32l151xb.s" path="../../../src/boards/LoRaMote/cmsis/arm-gcc/startup_stm32l151xb.s" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_rcc_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_usart.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_usart.c" type="1"/>
     <File name="boards/LoRaMote/gpio-board.c" path="../../../src/boards/LoRaMote/gpio-board.c" type="1"/>
     <File name="boards/LoRaMote/cmsis" path="" type="2"/>
-    <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_flash.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c" type="1"/>
     <File name="boards/LoRaMote/STM32_USB_Device_Library/Core/usbd_ctlreq.c" path="../../../src/boards/mcu/stm32/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c" type="1"/>
+    <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_flash.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c" type="1"/>
     <File name="boards/mcu" path="" type="2"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_spi.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_cortex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c" type="1"/>
@@ -135,7 +136,6 @@
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_rtc_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rtc_ex.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_adc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.c" type="1"/>
     <File name="peripherals" path="" type="2"/>
-    <File name="boards/LoRaMote/cmsis/startup_stm32l151xb.s" path="../../../src/boards/LoRaMote/cmsis/arm-gcc/startup_stm32l151xb.s" type="1"/>
     <File name="system/i2c.c" path="../../../src/system/i2c.c" type="1"/>
     <File name="main.c" path="../../../src/apps/BootLoader/LoRaMote/main.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver" path="" type="2"/>

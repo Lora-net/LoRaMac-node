@@ -111,6 +111,7 @@
     <File name="system/crypto/cmac.c" path="../../../../src/system/crypto/cmac.c" type="1"/>
     <File name="system/crypto/aes.c" path="../../../../src/system/crypto/aes.c" type="1"/>
     <File name="boards/SK-iM880A/rtc-board.c" path="../../../../src/boards/SK-iM880A/rtc-board.c" type="1"/>
+    <File name="boards/SK-iM880A/cmsis/startup_stm32l151xb.s" path="../../../../src/boards/SK-iM880A/cmsis/arm-gcc/startup_stm32l151xb.s" type="1"/>
     <File name="mac/LoRaMacCrypto.c" path="../../../../src/mac/LoRaMacCrypto.c" type="1"/>
     <File name="boards/SK-iM880A/STM32L1xx_HAL_Driver/stm32l1xx_hal_pwr.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.c" type="1"/>
     <File name="boards/SK-iM880A/sx1272-board.c" path="../../../../src/boards/SK-iM880A/sx1272-board.c" type="1"/>
@@ -118,7 +119,6 @@
     <File name="boards/SK-iM880A/STM32L1xx_HAL_Driver/stm32l1xx_hal_rcc_ex.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c" type="1"/>
     <File name="boards/SK-iM880A/cmsis/system_stm32l1xx.c" path="../../../../src/boards/SK-iM880A/cmsis/system_stm32l1xx.c" type="1"/>
     <File name="mac" path="" type="2"/>
-    <File name="boards/SK-iM880A/cmsis/startup_stm32l151xb.s" path="../../../../src/boards/SK-iM880A/cmsis/arm-gcc/startup_stm32l151xb.s" type="1"/>
     <File name="boards/SK-iM880A/STM32L1xx_HAL_Driver/stm32l1xx_hal_spi_ex.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi_ex.c" type="1"/>
     <File name="boards/SK-iM880A/STM32L1xx_HAL_Driver/stm32l1xx_hal_rcc.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.c" type="1"/>
     <File name="boards/SK-iM880A/adc-board.c" path="../../../../src/boards/SK-iM880A/adc-board.c" type="1"/>
