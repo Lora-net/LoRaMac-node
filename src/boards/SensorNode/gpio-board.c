@@ -21,11 +21,13 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
 {
     GPIO_InitTypeDef GPIO_InitStructure;
 
+    obj->pin = pin;
+
     if( pin == NC )
     {
         return;
     }
-    obj->pin = pin;
+
     obj->pinIndex = ( 0x01 << ( obj->pin & 0x0F ) );
 
     if( ( obj->pin & 0xF0 ) == 0x00 )
