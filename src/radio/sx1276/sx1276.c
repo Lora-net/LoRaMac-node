@@ -426,6 +426,7 @@ void SX1276SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
                            RF_PACKETCONFIG1_PACKETFORMAT_MASK ) |
                            ( ( fixLen == 1 ) ? RF_PACKETCONFIG1_PACKETFORMAT_FIXED : RF_PACKETCONFIG1_PACKETFORMAT_VARIABLE ) |
                            ( crcOn << 4 ) );
+            SX1276Write( REG_PACKETCONFIG2, ( SX1276Read( REG_PACKETCONFIG2 ) | RF_PACKETCONFIG2_DATAMODE_PACKET ) );
         }
         break;
     case MODEM_LORA:
@@ -586,7 +587,7 @@ void SX1276SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
                            RF_PACKETCONFIG1_PACKETFORMAT_MASK ) |
                            ( ( fixLen == 1 ) ? RF_PACKETCONFIG1_PACKETFORMAT_FIXED : RF_PACKETCONFIG1_PACKETFORMAT_VARIABLE ) |
                            ( crcOn << 4 ) );
-
+            SX1276Write( REG_PACKETCONFIG2, ( SX1276Read( REG_PACKETCONFIG2 ) | RF_PACKETCONFIG2_DATAMODE_PACKET ) );
         }
         break;
     case MODEM_LORA:
@@ -1115,6 +1116,26 @@ void SX1276StartCad( void )
     }
 }
 
+void SX1276SetTxContinuousWave( uint32_t freq, int8_t power, uint16_t time )
+{
+    uint32_t timeout = ( uint32_t )( time * 1e3 );
+
+    SX1276SetChannel( freq );
+
+    SX1276SetTxConfig( MODEM_FSK, power, 0, 0, 4800, 0, 5, false, false, 0, 0, 0, timeout );
+
+    SX1276Write( REG_PACKETCONFIG2, ( SX1276Read( REG_PACKETCONFIG2 ) & RF_PACKETCONFIG2_DATAMODE_MASK ) );
+    // Disable radio interrupts
+    SX1276Write( REG_DIOMAPPING1, RF_DIOMAPPING1_DIO0_11 | RF_DIOMAPPING1_DIO1_11 );
+    SX1276Write( REG_DIOMAPPING2, RF_DIOMAPPING2_DIO4_10 | RF_DIOMAPPING2_DIO5_10 );
+
+    TimerSetValue( &TxTimeoutTimer, timeout );
+
+    SX1276.Settings.State = RF_TX_RUNNING;
+    TimerStart( &TxTimeoutTimer );
+    SX1276SetOpMode( RF_OPMODE_TRANSMITTER );
+}
+
 int16_t SX1276ReadRssi( RadioModems_t modem )
 {
     int16_t rssi = 0;
@@ -1391,17 +1412,19 @@ void SX1276OnDio0Irq( void )
                     SX1276.Settings.FskPacketHandler.NbBytes += ( SX1276.Settings.FskPacketHandler.Size - SX1276.Settings.FskPacketHandler.NbBytes );
                 }
 
+                TimerStop( &RxTimeoutTimer );
+
                 if( SX1276.Settings.Fsk.RxContinuous == false )
                 {
                     SX1276.Settings.State = RF_IDLE;
-                    TimerStart( &RxTimeoutSyncWord );
+                    TimerStop( &RxTimeoutSyncWord );
                 }
                 else
                 {
                     // Continuous mode restart Rx chain
                     SX1276Write( REG_RXCONFIG, SX1276Read( REG_RXCONFIG ) | RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK );
+                    TimerStart( &RxTimeoutSyncWord );
                 }
-                TimerStop( &RxTimeoutTimer );
 
                 if( ( RadioEvents != NULL ) && ( RadioEvents->RxDone != NULL ) )
                 {

@@ -170,7 +170,7 @@ RadioState_t SX1272GetStatus( void );
 void SX1272SetModem( RadioModems_t modem );
 
 /*!
- * \brief Sets the channels configuration
+ * \brief Sets the channel configuration
  *
  * \param [IN] freq         Channel RF frequency
  */
@@ -238,7 +238,7 @@ uint32_t SX1272Random( void );
  * \param [IN] rxContinuous Sets the reception in continuous mode
  *                          [false: single mode, true: continuous mode]
  */
-void SX1272SetRxConfig(  RadioModems_t modem, uint32_t bandwidth,
+void SX1272SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
                          uint32_t datarate, uint8_t coderate,
                          uint32_t bandwidthAfc, uint16_t preambleLen,
                          uint16_t symbTimeout, bool fixLen,
@@ -328,6 +328,15 @@ void SX1272SetRx( uint32_t timeout );
  * \brief Start a Channel Activity Detection
  */
 void SX1272StartCad( void );
+
+/*!
+ * \brief Sets the radio in continuous wave transmission mode
+ *
+ * \param [IN]: freq       Channel RF frequency
+ * \param [IN]: power      Sets the output power [dBm]
+ * \param [IN]: time       Transmission mode timeout [s]
+ */
+void SX1272SetTxContinuousWave( uint32_t freq, int8_t power, uint16_t time );
 
 /*!
  * \brief Reads the current RSSI value
