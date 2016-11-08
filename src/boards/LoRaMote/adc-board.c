@@ -25,7 +25,10 @@ void AdcMcuInit( Adc_t *obj, PinNames adcInput )
 
     HAL_ADC_DeInit( &AdcHandle );
 
-    GpioInit( &obj->AdcInput, adcInput, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    if( adcInput != NC )
+    {
+        GpioInit( &obj->AdcInput, adcInput, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    }
 }
 
 void AdcMcuConfig( void )

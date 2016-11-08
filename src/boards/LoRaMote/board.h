@@ -160,7 +160,6 @@ extern Gpio_t DbgPin5;
 /*!
  * MCU objects
  */
-extern Adc_t Adc;
 extern I2c_t I2c;
 extern Uart_t Uart1;
 #if defined( USE_USB_CDC )

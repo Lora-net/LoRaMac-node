@@ -31,8 +31,7 @@ Gpio_t Led4;
 /*
  * MCU objects
  */
-Adc_t AdcPoti;
-Adc_t AdcBatLevel;
+Adc_t Adc;
 I2c_t I2c;
 Uart_t Uart1;
 
@@ -141,8 +140,7 @@ void BoardInitMcu( void )
         SystemClockReConfig( );
     }
 
-    AdcInit( &AdcPoti, POTI );
-    AdcInit( &AdcBatLevel, BAT_LEVEL_PIN );
+    AdcInit( &Adc, POTI );
 
     SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX1272IoInit( );
@@ -161,8 +159,7 @@ void BoardDeInitMcu( void )
 {
     Gpio_t ioPin;
 
-    AdcDeInit( &AdcPoti );
-    AdcDeInit( &AdcBatLevel );
+    AdcDeInit( &Adc );
 
     SpiDeInit( &SX1272.Spi );
     SX1272IoDeInit( );
@@ -203,7 +200,7 @@ uint8_t BoardMeasurePotiLevel( void )
     uint16_t vpoti = 0;
 
     // Read the current potentiometer setting
-    vpoti = AdcMcuRead( &Adc , ADC_CHANNEL_3 );
+    vpoti = AdcMcuReadChannel( &Adc , ADC_CHANNEL_3 );
 
     // check the limits
     if( vpoti >= POTI_MAX_LEVEL )
@@ -217,7 +214,7 @@ uint8_t BoardMeasurePotiLevel( void )
     else
     {
         // if the value is in the area, calculate the percentage value
-        vpoti = ( ( measuredLevel - POTI_MIN_LEVEL ) * 100 ) / POTI_MAX_LEVEL;
+        vpoti = ( ( vpoti - POTI_MIN_LEVEL ) * 100 ) / POTI_MAX_LEVEL;
     }
     return potiLevel;
 }
@@ -257,7 +254,7 @@ uint16_t BoardBatteryMeasureVolage( void )
     uint32_t batteryVoltage = 0;
 
     // Read the current Voltage
-    vref = AdcMcuRead( &Adc , ADC_CHANNEL_17 );
+    vref = AdcMcuReadChannel( &Adc , ADC_CHANNEL_17 );
 
     // We don't use the VREF from calibValues here.
     // calculate the Voltage in miliVolt
