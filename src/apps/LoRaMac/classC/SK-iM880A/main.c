@@ -200,7 +200,8 @@ static void PrepareTxFrame( uint8_t port )
             potiPercentage = BoardMeasurePotiLevel( );
 
             // Read the current voltage level
-            vdd = BoardMeasureVdd( );
+            BoardGetBatteryLevel( ); // Updates the value returned by BoardGetBatteryVoltage( ) function.
+            vdd = BoardGetBatteryVoltage( );
 
             AppData[0] = AppLedStateOn;
             AppData[1] = potiPercentage;
