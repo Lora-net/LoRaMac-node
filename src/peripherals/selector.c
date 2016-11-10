@@ -18,6 +18,14 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 uint8_t SelectorGetValue( void )
 {
+    /*!
+     * Hex coder selector GPIO pins objects
+     */
+    Gpio_t Sel1;
+    Gpio_t Sel2;
+    Gpio_t Sel3;
+    Gpio_t Sel4;
+
     uint8_t i = 0;
     uint8_t j = 0;
     uint8_t k = 255;

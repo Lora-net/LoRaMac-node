@@ -683,12 +683,11 @@
     <File name="system/uart.c" path="../../../../src/system/uart.c" type="1"/>
     <File name="peripherals/mag3110.c" path="../../../../src/peripherals/mag3110.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_i2c.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_i2c.c" type="1"/>
-    <File name="boards/SensorNode/cmsis/startup_stm32l151xb.s" path="../../../../src/boards/SensorNode/cmsis/arm-gcc/startup_stm32l151xb.s" type="1"/>
     <File name="boards/mcu/stm32/utilities.c" path="../../../../src/boards/mcu/stm32/utilities.c" type="1"/>
-    <File name="apps" path="" type="2"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_flash.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c" type="1"/>
-    <File name="peripherals/sx9500.c" path="../../../../src/peripherals/sx9500.c" type="1"/>
+    <File name="apps" path="" type="2"/>
     <File name="apps/main.c" path="../../../../src/apps/LoRaMac/classA/SensorNode/main.c" type="1"/>
+    <File name="peripherals/sx9500.c" path="../../../../src/peripherals/sx9500.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_spi.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi.c" type="1"/>
     <File name="peripherals/sx1509.c" path="../../../../src/peripherals/sx1509.c" type="1"/>
     <File name="system/crypto/cmac.c" path="../../../../src/system/crypto/cmac.c" type="1"/>
@@ -703,13 +702,14 @@
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_rtc_ex.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rtc_ex.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_gpio.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.c" type="1"/>
     <File name="mac" path="" type="2"/>
+    <File name="boards/SensorNode/cmsis/startup_stm32l151xb.s" path="../../../../src/boards/SensorNode/cmsis/arm-gcc/startup_stm32l151xb.s" type="1"/>
     <File name="boards/SensorNode/adc-board.c" path="../../../../src/boards/SensorNode/adc-board.c" type="1"/>
     <File name="boards/SensorNode/rtc-board.c" path="../../../../src/boards/SensorNode/rtc-board.c" type="1"/>
     <File name="boards/mcu" path="" type="2"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_cortex.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c" type="1"/>
     <File name="boards/SensorNode/i2c-board.c" path="../../../../src/boards/SensorNode/i2c-board.c" type="1"/>
-    <File name="system/gpio.c" path="../../../../src/system/gpio.c" type="1"/>
     <File name="system/adc.c" path="../../../../src/system/adc.c" type="1"/>
+    <File name="system/gpio.c" path="../../../../src/system/gpio.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_adc.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.c" type="1"/>
     <File name="peripherals/mma8451.c" path="../../../../src/peripherals/mma8451.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_pwr_ex.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.c" type="1"/>

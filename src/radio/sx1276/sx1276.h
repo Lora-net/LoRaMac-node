@@ -334,6 +334,15 @@ void SX1276SetRx( uint32_t timeout );
 void SX1276StartCad( void );
 
 /*!
+ * \brief Sets the radio in continuous wave transmission mode
+ *
+ * \param [IN]: freq       Channel RF frequency
+ * \param [IN]: power      Sets the output power [dBm]
+ * \param [IN]: time       Transmission mode timeout [s]
+ */
+void SX1276SetTxContinuousWave( uint32_t freq, int8_t power, uint16_t time );
+
+/*!
  * \brief Reads the current RSSI value
  *
  * \retval rssiValue Current RSSI value in [dBm]

@@ -61,6 +61,13 @@ void SX1272IoIrqInit( DioIrqHandler **irqHandlers );
 void SX1272IoDeInit( void );
 
 /*!
+ * \brief Sets the radio output power.
+ *
+ * \param [IN] power Sets the RF output power
+ */
+void SX1272SetRfTxPower( int8_t power );
+
+/*!
  * \brief Gets the board PA selection configuration
  *
  * \param [IN] channel Channel frequency in Hz
@@ -92,9 +99,9 @@ void SX1272AntSwDeInit( void );
  *
  * \remark see errata note
  *
- * \param [IN] rxTx [1: Tx, 0: Rx]
+ * \param [IN] opMode Current radio operating mode
  */
-void SX1272SetAntSw( uint8_t rxTx );
+void SX1272SetAntSw( uint8_t opMode );
 
 /*!
  * \brief Checks if the given RF frequency is supported by the hardware

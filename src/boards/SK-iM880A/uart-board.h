@@ -4,9 +4,9 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
+    (C)2016 Semtech
 
-Description: Bleeper board UART driver implementation
+Description: Board UART driver implementation
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 
@@ -15,6 +15,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __UART_MCU_H__
 #define __UART_MCU_H__
 
+/*!
+ * UART peripheral ID
+ */
 typedef enum
 {
     UART_1,
