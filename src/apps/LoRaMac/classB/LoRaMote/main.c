@@ -204,7 +204,6 @@ struct ComplianceTest_s
     uint8_t NbGateways;
 }ComplianceTest;
 
-
 /*!
  * \brief   Prepares the payload of the frame
  */
@@ -616,7 +615,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         DeviceState = DEVICE_STATE_SLEEP;
                     }
                     break;
-                case 7: // Switch end device Class
+                case 8: // Switch end device Class
                     {
                         MlmeReq_t mlmeReq;
 
@@ -630,7 +629,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         DeviceState = DEVICE_STATE_SEND;
                     }
                     break;
-                case 8: // Send PingSlotInfoReq
+                case 9: // Send PingSlotInfoReq
                     {
                         MlmeReq_t mlmeReq;
 
@@ -643,7 +642,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         DeviceState = DEVICE_STATE_SEND;
                     }
                     break;
-                case 9: // Send BeaconTimingReq
+                case 10: // Send BeaconTimingReq
                     {
                         MlmeReq_t mlmeReq;
 
@@ -802,7 +801,6 @@ static void MlmeIndication( MlmeIndication_t *MlmeIndication )
             break;
     }
 }
-
 
 /**
  * Main application entry point.
