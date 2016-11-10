@@ -3341,7 +3341,7 @@ static uint16_t BeaconCrc( uint8_t *buffer, uint16_t length )
     // The CRC calculation follows CCITT
     const uint16_t polynom = 0x1021;
     // CRC initial value
-    uint16_t crc = 0xFFFF;
+    uint16_t crc = 0x0000;
 
     if( buffer == NULL )
     {
