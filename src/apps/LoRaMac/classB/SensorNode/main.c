@@ -626,6 +626,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         LoRaMacMlmeRequest( &mlmeReq );
                         DeviceState = DEVICE_STATE_SLEEP;
                     }
+                    break;
                 case 8: // Switch end device Class
                     {
                         MlmeReq_t mlmeReq;
