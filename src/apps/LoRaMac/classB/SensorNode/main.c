@@ -608,6 +608,17 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         DeviceState = DEVICE_STATE_SLEEP;
                     }
                     break;
+                case 7: // (x)
+                    {
+                        if( mcpsIndication->BufferSize == 3 )
+                        {
+                            MlmeReq_t mlmeReq;
+                            mlmeReq.Type = MLME_TXCW;
+                            mlmeReq.Req.TxCw.Timeout = ( uint16_t )( ( mcpsIndication->Buffer[1] << 8 ) | mcpsIndication->Buffer[2] );
+                            LoRaMacMlmeRequest( &mlmeReq );
+                        }
+                    }
+                    break;
                 default:
                     break;
                 }

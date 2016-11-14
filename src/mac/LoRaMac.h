@@ -920,6 +920,7 @@ typedef struct sMcpsIndication
  * --------------------- | :-----: | :--------: | :------: | :-----:
  * \ref MLME_JOIN        | YES     | NO         | NO       | YES
  * \ref MLME_LINK_CHECK  | YES     | NO         | NO       | YES
+ * \ref MLME_TXCW        | YES     | NO         | NO       | YES
  *
  * The following table provides links to the function implementations of the
  * related MLME primitives.
@@ -943,6 +944,12 @@ typedef enum eMlme
      * LoRaWAN Specification V1.0.1, chapter 5, table 4
      */
     MLME_LINK_CHECK,
+    /*!
+     * Sets Tx continuous wave mode
+     *
+     * LoRaWAN end-device certification
+     */
+    MLME_TXCW,
 }Mlme_t;
 
 /*!
@@ -971,6 +978,17 @@ typedef struct sMlmeReqJoin
 }MlmeReqJoin_t;
 
 /*!
+ * LoRaMAC MLME-Request for Tx continuous wave mode
+ */
+typedef struct sMlmeReqTxCw
+{
+    /*!
+     * Time in seconds while the radio is kept in continuous wave mode
+     */
+    uint16_t Timeout;
+}MlmeReqTxCw_t;
+
+/*!
  * LoRaMAC MLME-Request structure
  */
 typedef struct sMlmeReq
@@ -989,6 +1007,10 @@ typedef struct sMlmeReq
          * MLME-Request parameters for a join request
          */
         MlmeReqJoin_t Join;
+        /*!
+         * MLME-Request parameters for Tx continuous mode request
+         */
+        MlmeReqTxCw_t TxCw;
     }Req;
 }MlmeReq_t;
 
