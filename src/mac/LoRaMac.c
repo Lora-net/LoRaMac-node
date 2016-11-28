@@ -1105,13 +1105,6 @@ static void OnAckTimeoutTimerEvent( void );
 static bool SetNextChannel( TimerTime_t* time );
 
 /*!
- * \brief Sets the network to public or private. Updates the sync byte.
- *
- * \param [IN] enable if true, it enables a public network
- */
-static void SetPublicNetwork( bool enable );
-
-/*!
  * \brief Returns the symbol timeout for the given datarate
  *
  * \param [IN] datarate Current datarate
@@ -1691,8 +1684,15 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                         for( uint8_t i = 3, j = 0; i < ( 5 + 3 ); i++, j += 3 )
                         {
                             param.Frequency = ( ( uint32_t )LoRaMacRxPayload[13 + j] | ( ( uint32_t )LoRaMacRxPayload[14 + j] << 8 ) | ( ( uint32_t )LoRaMacRxPayload[15 + j] << 16 ) ) * 100;
+                        if( param.Frequency != 0 )
+                        {
                             LoRaMacChannelAdd( i, param );
                         }
+                        else
+                        {
+                            LoRaMacChannelRemove( i );
+                        }
+                    }
                         LoRaMacState &= ~MAC_TX_CONFIG;
                     }
 #endif
@@ -2546,22 +2546,6 @@ static bool SetNextChannel( TimerTime_t* time )
         // Datarate not supported by any channel
         *time = 0;
         return false;
-    }
-}
-
-static void SetPublicNetwork( bool enable )
-{
-    PublicNetwork = enable;
-    Radio.SetModem( MODEM_LORA );
-    if( PublicNetwork == true )
-    {
-        // Change LoRa modem SyncWord
-        Radio.Write( REG_LR_SYNCWORD, LORA_MAC_PUBLIC_SYNCWORD );
-    }
-    else
-    {
-        // Change LoRa modem SyncWord
-        Radio.Write( REG_LR_SYNCWORD, LORA_MAC_PRIVATE_SYNCWORD );
     }
 }
 
@@ -4478,11 +4462,11 @@ static uint16_t RetransmissionDutyCylce( void )
 #if defined( USE_BAND_868 ) || defined( USE_BAND_433 ) || defined( USE_BAND_780 )
     TimerTime_t timeElapsed = TimerGetElapsedTime( 0 );
 
-    if( timeElapsed < 3600000 )
+    if( timeElapsed < 3600e3 )
     {
         dutyCycle = BACKOFF_DC_1_HOUR;
     }
-    else if( timeElapsed < ( 3600000 + 36000000 ) )
+    else if( timeElapsed < ( 3600e3 + 36000e3 ) )
     {
         dutyCycle = BACKOFF_DC_10_HOURS;
     }
@@ -5105,7 +5089,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     srand1( Radio.Random( ) );
 
     PublicNetwork = true;
-    SetPublicNetwork( PublicNetwork );
+    Radio.SetPublicNetwork( PublicNetwork );
     Radio.Sleep( );
 
     return LORAMAC_STATUS_OK;
@@ -5426,7 +5410,8 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         }
         case MIB_PUBLIC_NETWORK:
         {
-            SetPublicNetwork( mibSet->Param.EnablePublicNetwork );
+            PublicNetwork = mibSet->Param.EnablePublicNetwork;
+            Radio.SetPublicNetwork( PublicNetwork );
             break;
         }
         case MIB_REPEATER_SUPPORT:

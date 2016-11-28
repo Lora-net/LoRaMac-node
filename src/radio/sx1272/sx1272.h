@@ -34,6 +34,16 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RADIO_WAKEUP_TIME                           ( RADIO_OSC_STARTUP + RADIO_SLEEP_TO_RX )
 
 /*!
+ * Syncword for Private LoRa networks
+ */
+#define LORA_MAC_PRIVATE_SYNCWORD                   0x12
+
+/*!
+ * Syncword for Public LoRa networks
+ */
+#define LORA_MAC_PUBLIC_SYNCWORD                    0x34
+
+/*!
  * Radio FSK modem parameters
  */
 typedef struct
@@ -386,5 +396,14 @@ void SX1272ReadBuffer( uint8_t addr, uint8_t *buffer, uint8_t size );
  * \param [IN] max        Maximum payload length in bytes
  */
 void SX1272SetMaxPayloadLength( RadioModems_t modem, uint8_t max );
+
+/*!
+ * \brief Sets the network to public or private. Updates the sync byte.
+ *
+ * \remark Applies to LoRa modem only
+ *
+ * \param [IN] enable if true, it enables a public network
+ */
+void SX1272SetPublicNetwork( bool enable );
 
 #endif // __SX1272_H__

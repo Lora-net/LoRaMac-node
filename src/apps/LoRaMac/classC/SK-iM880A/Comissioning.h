@@ -28,6 +28,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 /*!
  * IEEE Organizationally Unique Identifier ( OUI ) (big endian)
+ * \remark This is unique to a company or organization
  */
 #define IEEE_OUI                                    0x00, 0x00, 0x00
 
