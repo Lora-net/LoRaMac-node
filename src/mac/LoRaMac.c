@@ -668,13 +668,6 @@ static void OnAckTimeoutTimerEvent( void );
 static bool SetNextChannel( TimerTime_t* time );
 
 /*!
- * \brief Sets the network to public or private. Updates the sync byte.
- *
- * \param [IN] enable if true, it enables a public network
- */
-static void SetPublicNetwork( bool enable );
-
-/*!
  * \brief Initializes and opens the reception window
  *
  * \param [IN] freq window channel frequency
@@ -2004,22 +1997,6 @@ static bool SetNextChannel( TimerTime_t* time )
     }
 }
 
-static void SetPublicNetwork( bool enable )
-{
-    PublicNetwork = enable;
-    Radio.SetModem( MODEM_LORA );
-    if( PublicNetwork == true )
-    {
-        // Change LoRa modem SyncWord
-        Radio.Write( REG_LR_SYNCWORD, LORA_MAC_PUBLIC_SYNCWORD );
-    }
-    else
-    {
-        // Change LoRa modem SyncWord
-        Radio.Write( REG_LR_SYNCWORD, LORA_MAC_PRIVATE_SYNCWORD );
-    }
-}
-
 static void RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, uint16_t timeout, bool rxContinuous )
 {
     uint8_t downlinkDatarate = Datarates[datarate];
@@ -2931,11 +2908,11 @@ static uint16_t RetransmissionDutyCylce( void )
 #if defined( USE_BAND_868 ) || defined( USE_BAND_433 ) || defined( USE_BAND_780 )
     TimerTime_t timeElapsed = TimerGetElapsedTime( 0 );
 
-    if( timeElapsed < 3600000 )
+    if( timeElapsed < 3600e3 )
     {
         dutyCycle = BACKOFF_DC_1_HOUR;
     }
-    else if( timeElapsed < ( 3600000 + 36000000 ) )
+    else if( timeElapsed < ( 3600e3 + 36000e3 ) )
     {
         dutyCycle = BACKOFF_DC_10_HOURS;
     }
@@ -3484,7 +3461,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     srand1( Radio.Random( ) );
 
     PublicNetwork = true;
-    SetPublicNetwork( PublicNetwork );
+    Radio.SetPublicNetwork( PublicNetwork );
     Radio.Sleep( );
 
     return LORAMAC_STATUS_OK;
@@ -3765,7 +3742,8 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         }
         case MIB_PUBLIC_NETWORK:
         {
-            SetPublicNetwork( mibSet->Param.EnablePublicNetwork );
+            PublicNetwork = mibSet->Param.EnablePublicNetwork;
+            Radio.SetPublicNetwork( PublicNetwork );
             break;
         }
         case MIB_REPEATER_SUPPORT:

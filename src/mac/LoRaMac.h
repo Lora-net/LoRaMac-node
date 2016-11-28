@@ -140,16 +140,6 @@
 #define LORAMAC_MFR_LEN                             4
 
 /*!
- * Syncword for Private LoRa networks
- */
-#define LORA_MAC_PRIVATE_SYNCWORD                   0x12
-
-/*!
- * Syncword for Public LoRa networks
- */
-#define LORA_MAC_PUBLIC_SYNCWORD                    0x34
-
-/*!
  * LoRaWAN devices classes definition
  */
 typedef enum eDeviceClass

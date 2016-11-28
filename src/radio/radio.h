@@ -312,8 +312,15 @@ struct Radio_s
      * \param [IN] modem      Radio modem to be used [0: FSK, 1: LoRa]
      * \param [IN] max        Maximum payload length in bytes
      */
-    void ( *SetMaxPayloadLength )( RadioModems_t modem, uint8_t max );
-
+    void    ( *SetMaxPayloadLength )( RadioModems_t modem, uint8_t max );
+    /*!
+     * \brief Sets the network to public or private. Updates the sync byte.
+     *
+     * \remark Applies to LoRa modem only
+     *
+     * \param [IN] enable if true, it enables a public network
+     */
+    void    ( *SetPublicNetwork )( bool enable );
 };
 
 /*!

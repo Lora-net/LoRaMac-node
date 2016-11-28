@@ -1137,6 +1137,21 @@ void SX1272SetMaxPayloadLength( RadioModems_t modem, uint8_t max )
     }
 }
 
+void SX1272SetPublicNetwork( bool enable )
+{
+    SX1272SetModem( MODEM_LORA );
+    if( enable == true )
+    {
+        // Change LoRa modem SyncWord
+        SX1272Write( REG_LR_SYNCWORD, LORA_MAC_PUBLIC_SYNCWORD );
+    }
+    else
+    {
+        // Change LoRa modem SyncWord
+        SX1272Write( REG_LR_SYNCWORD, LORA_MAC_PRIVATE_SYNCWORD );
+    }
+}
+
 void SX1272OnTimeoutIrq( void )
 {
     switch( SX1272.Settings.State )
