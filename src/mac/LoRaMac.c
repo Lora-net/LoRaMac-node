@@ -1099,7 +1099,14 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                     for( uint8_t i = 3, j = 0; i < ( 5 + 3 ); i++, j += 3 )
                     {
                         param.Frequency = ( ( uint32_t )LoRaMacRxPayload[13 + j] | ( ( uint32_t )LoRaMacRxPayload[14 + j] << 8 ) | ( ( uint32_t )LoRaMacRxPayload[15 + j] << 16 ) ) * 100;
-                        LoRaMacChannelAdd( i, param );
+                        if( param.Frequency != 0 )
+                        {
+                            LoRaMacChannelAdd( i, param );
+                        }
+                        else
+                        {
+                            LoRaMacChannelRemove( i );
+                        }
                     }
                     LoRaMacState &= ~MAC_TX_CONFIG;
                 }
