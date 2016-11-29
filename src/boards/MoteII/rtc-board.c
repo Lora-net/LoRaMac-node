@@ -720,3 +720,38 @@ void RTC_IRQHandler( void )
     BlockLowPowerDuringTask( false );
     TimerIrqHandler( );
 }
+
+TimerTime_t RtcTempCompensation( TimerTime_t period, float temperature )
+{
+    float k = RTC_TEMP_COEFFICIENT;
+    float kDev = RTC_TEMP_DEV_COEFFICIENT;
+    float t = RTC_TEMP_TURNOVER;
+    float tDev = RTC_TEMP_DEV_TURNOVER;
+    float interim = 0.0;
+    float ppm = 0.0;
+
+    if( k < 0.0 )
+    {
+        ppm = ( k - kDev );
+    }
+    else
+    {
+        ppm = ( k + kDev );
+    }
+    interim = ( temperature - ( t - tDev ) );
+    ppm *=  interim * interim;
+
+    // Calculate the drift in time
+    interim = ( ( float ) period * ppm ) / 1e6;
+    // Calculate the resulting time period
+    interim += period;
+    interim = floor( interim );
+
+    if( interim < 0.0 )
+    {
+        interim = ( float )period;
+    }
+
+    // Calculate the resulting period
+    return ( TimerTime_t ) interim;
+}

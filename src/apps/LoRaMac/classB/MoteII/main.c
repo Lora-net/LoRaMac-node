@@ -158,6 +158,11 @@ static TimerEvent_t Led1Timer;
 static TimerEvent_t Led2Timer;
 
 /*!
+ * Timer to handle the state of LED3
+ */
+static TimerEvent_t Led3Timer;
+
+/*!
  * Indicates if a new packet can be sent
  */
 static bool NextTx = true;
@@ -185,9 +190,13 @@ static enum eDevicState
     DEVICE_STATE_INIT,
     DEVICE_STATE_JOIN,
     DEVICE_STATE_SEND,
+    DEVICE_STATE_REQ_PINGSLOT_ACK,
+    DEVICE_STATE_REQ_BEACON_TIMING,
+    DEVICE_STATE_BEACON_ACQUISITION,
+    DEVICE_STATE_SWITCH_CLASS,
     DEVICE_STATE_CYCLE,
     DEVICE_STATE_SLEEP
-}DeviceState;
+}DeviceState, WakeUpState;
 
 /*!
  * LoRaWAN compliance tests support data
@@ -371,7 +380,7 @@ static void OnTxNextPacketTimerEvent( void )
     {
         if( mibReq.Param.IsNetworkJoined == true )
         {
-            DeviceState = DEVICE_STATE_SEND;
+            DeviceState = WakeUpState;
             NextTx = true;
         }
         else
@@ -399,6 +408,17 @@ static void OnLed2TimerEvent( void )
     TimerStop( &Led2Timer );
     // Switch LED 2 OFF
     GpioWrite( &Led2, 1 );
+}
+
+/*!
+ * \brief Function executed on Led 3 Timeout event
+ */
+static void OnLed3TimerEvent( void )
+{
+    // Toggle LED 3
+    GpioWrite( &Led3, GpioRead( &Led3 ) ^ 1 );
+
+    TimerStart( &Led3Timer );
 }
 
 /*!
@@ -449,7 +469,6 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
     LoRaMacUplinkStatus.StatusUpdated = true;
     LoRaMacUplinkStatus.UplinkInProgress = false;
     LoRaMacDownlinkStatus.DownlinkInProgress = false;
-    NextTx = true;
 }
 
 /*!
@@ -656,6 +675,44 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         }
                     }
                     break;
+                case 8: // Switch end device Class
+                    {
+                        MlmeReq_t mlmeReq;
+
+                        mlmeReq.Type = MLME_SWITCH_CLASS;
+
+                        // CLASS_A = 0, CLASS_B = 1, CLASS_C = 2
+                        mlmeReq.Req.SwitchClass.Class = ( DeviceClass_t )mcpsIndication->Buffer[1];
+
+                        LoRaMacMlmeRequest( &mlmeReq );
+
+                        DeviceState = DEVICE_STATE_SEND;
+                    }
+                    break;
+                case 9: // Send PingSlotInfoReq
+                    {
+                        MlmeReq_t mlmeReq;
+
+                        mlmeReq.Type = MLME_PING_SLOT_INFO;
+
+                        mlmeReq.Req.PingSlotInfo.PingSlot.Value = mcpsIndication->Buffer[1];
+
+                        LoRaMacMlmeRequest( &mlmeReq );
+                        WakeUpState = DEVICE_STATE_SEND;
+                        DeviceState = DEVICE_STATE_SEND;
+                    }
+                    break;
+                case 10: // Send BeaconTimingReq
+                    {
+                        MlmeReq_t mlmeReq;
+
+                        mlmeReq.Type = MLME_BEACON_TIMING;
+
+                        LoRaMacMlmeRequest( &mlmeReq );
+                        WakeUpState = DEVICE_STATE_SEND;
+                        DeviceState = DEVICE_STATE_SEND;
+                    }
+                    break;
                 default:
                     break;
                 }
@@ -680,6 +737,8 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
  */
 static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
 {
+    MibRequestConfirm_t mibReq;
+
     if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
     {
         switch( mlmeConfirm->MlmeRequest )
@@ -688,7 +747,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             {
                 // Status is OK, node has joined the network
                 IsNetworkJoinedStatusUpdate = true;
-                DeviceState = DEVICE_STATE_SEND;
+                DeviceState = DEVICE_STATE_REQ_BEACON_TIMING;
                 NextTx = true;
                 break;
             }
@@ -704,11 +763,109 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                 }
                 break;
             }
+            case MLME_BEACON_TIMING:
+            {
+                WakeUpState = DEVICE_STATE_BEACON_ACQUISITION;
+                // Switch to the next state immediately
+                DeviceState = DEVICE_STATE_BEACON_ACQUISITION;
+                LoRaMacUplinkStatus.StatusUpdated = true;
+                NextTx = true;
+                break;
+            }
+            case MLME_BEACON_ACQUISITION:
+            {
+                WakeUpState = DEVICE_STATE_REQ_PINGSLOT_ACK;
+                break;
+            }
+            case MLME_PING_SLOT_INFO:
+            {
+                mibReq.Type = MIB_DEVICE_CLASS;
+                mibReq.Param.Class = CLASS_B;
+                LoRaMacMibSetRequestConfirm( &mibReq );
+
+                WakeUpState = DEVICE_STATE_SEND;
+                break;
+            }
             default:
                 break;
         }
     }
-    NextTx = true;
+    else
+    {
+        switch( mlmeConfirm->MlmeRequest )
+        {
+            case MLME_JOIN:
+            {
+                // Join failed, restart join procedure
+                DeviceState = DEVICE_STATE_JOIN;
+                NextTx = true;
+                LoRaMacUplinkStatus.StatusUpdated = true;
+                break;
+            }
+            case MLME_BEACON_TIMING:
+            {
+                WakeUpState = DEVICE_STATE_BEACON_ACQUISITION;
+                // Switch to the next state immediately
+                DeviceState = DEVICE_STATE_BEACON_ACQUISITION;
+                NextTx = true;
+                LoRaMacUplinkStatus.StatusUpdated = true;
+                break;
+            }
+            case MLME_BEACON_ACQUISITION:
+            {
+                WakeUpState = DEVICE_STATE_REQ_BEACON_TIMING;
+                break;
+            }
+            case MLME_PING_SLOT_INFO:
+            {
+                WakeUpState = DEVICE_STATE_REQ_PINGSLOT_ACK;
+                break;
+            }
+            default:
+                break;
+        }
+    }
+    LoRaMacUplinkStatus.StatusUpdated = true;
+}
+
+static void MlmeIndication( MlmeIndication_t *MlmeIndication )
+{
+    MibRequestConfirm_t mibReq;
+
+    switch( MlmeIndication->MlmeIndication )
+    {
+        case MLME_SWITCH_CLASS:
+        {
+            mibReq.Type = MIB_DEVICE_CLASS;
+            mibReq.Param.Class = CLASS_A;
+            LoRaMacMibSetRequestConfirm( &mibReq );
+
+            // Switch to class A again
+            WakeUpState = DEVICE_STATE_REQ_BEACON_TIMING;
+
+            TimerStop( &Led3Timer );
+            GpioWrite( &Led3, 1 );
+
+            break;
+        }
+        case MLME_BEACON:
+        {
+            if( MlmeIndication->Status == LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED )
+            {
+                TimerStart( &Led3Timer );
+                GpioWrite( &Led3, 0 );
+            }
+            else
+            {
+                TimerStop( &Led3Timer );
+                GpioWrite( &Led3, 1 );
+            }
+            break;
+
+        }
+        default:
+            break;
+    }
     LoRaMacUplinkStatus.StatusUpdated = true;
 }
 
@@ -761,6 +918,7 @@ int main( void )
     ScreenInit( );
 
     DeviceState = DEVICE_STATE_INIT;
+    WakeUpState = DEVICE_STATE_SEND;
 
     while( 1 )
     {
@@ -773,7 +931,9 @@ int main( void )
                 LoRaMacPrimitives.MacMcpsConfirm = McpsConfirm;
                 LoRaMacPrimitives.MacMcpsIndication = McpsIndication;
                 LoRaMacPrimitives.MacMlmeConfirm = MlmeConfirm;
+                LoRaMacPrimitives.MacMlmeIndication = MlmeIndication;
                 LoRaMacCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
+                LoRaMacCallbacks.GetTemperatureLevel = MPL3115ReadTemperature;
                 LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks );
 
                 TimerInit( &TxNextPacketTimer, OnTxNextPacketTimerEvent );
@@ -783,6 +943,9 @@ int main( void )
 
                 TimerInit( &Led2Timer, OnLed2TimerEvent );
                 TimerSetValue( &Led2Timer, 25 );
+
+                TimerInit( &Led3Timer, OnLed3TimerEvent );
+                TimerSetValue( &Led3Timer, 5000 );
 
                 mibReq.Type = MIB_ADR;
                 mibReq.Param.AdrEnable = AppSettings.AdrOn = LORAWAN_ADR_ON;
@@ -867,10 +1030,62 @@ int main( void )
                 mibReq.Param.IsNetworkJoined = true;
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
-                DeviceState = DEVICE_STATE_SEND;
+                DeviceState = DEVICE_STATE_REQ_BEACON_TIMING;
 #endif
                 ScreenSetCurrent( SCREEN_JOIN );
                 IsNetworkJoinedStatusUpdate = true;
+                break;
+            }
+            case DEVICE_STATE_REQ_BEACON_TIMING:
+            {
+                MlmeReq_t mlmeReq;
+
+                if( NextTx == true )
+                {
+                    mlmeReq.Type = MLME_BEACON_TIMING;
+
+                    if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
+                    {
+                        WakeUpState = DEVICE_STATE_SEND;
+                    }
+                }
+                DeviceState = DEVICE_STATE_SEND;
+                break;
+            }
+            case DEVICE_STATE_BEACON_ACQUISITION:
+            {
+                MlmeReq_t mlmeReq;
+
+                if( NextTx == true )
+                {
+                    mlmeReq.Type = MLME_BEACON_ACQUISITION;
+
+                    LoRaMacMlmeRequest( &mlmeReq );
+                    NextTx = false;
+                }
+                DeviceState = DEVICE_STATE_SEND;
+                break;
+            }
+            case DEVICE_STATE_REQ_PINGSLOT_ACK:
+            {
+                MlmeReq_t mlmeReq;
+
+                if( NextTx == true )
+                {
+                    mlmeReq.Type = MLME_LINK_CHECK;
+                    LoRaMacMlmeRequest( &mlmeReq );
+
+                    mlmeReq.Type = MLME_PING_SLOT_INFO;
+                    mlmeReq.Req.PingSlotInfo.PingSlot.Fields.Datarate = DR_0;
+                    mlmeReq.Req.PingSlotInfo.PingSlot.Fields.Periodicity = 0;
+                    mlmeReq.Req.PingSlotInfo.PingSlot.Fields.RFU = 0;
+
+                    if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
+                    {
+                        WakeUpState = DEVICE_STATE_SEND;
+                    }
+                }
+                DeviceState = DEVICE_STATE_SEND;
                 break;
             }
             case DEVICE_STATE_SEND:
