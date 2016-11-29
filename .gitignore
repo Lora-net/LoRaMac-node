@@ -6,7 +6,6 @@ bin/
 *.uvgui_*.bak
 *.uvguix.*
 *.uvguix_*.bak
-*.uvoptx
 *_uvopt.bak
 *_uvoptx.bak
 *_uvproj.bak
