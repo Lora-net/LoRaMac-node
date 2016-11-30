@@ -436,20 +436,20 @@ static uint8_t LastTxChannel;
  */
 enum eLoRaMacState
 {
-    MAC_IDLE          = 0x00000000,
-    MAC_TX_RUNNING    = 0x00000001,
-    MAC_RX            = 0x00000002,
-    MAC_ACK_REQ       = 0x00000004,
-    MAC_ACK_RETRY     = 0x00000008,
-    MAC_TX_DELAYED    = 0x00000010,
-    MAC_TX_CONFIG     = 0x00000020,
-    MAC_RX_ABORT      = 0x00000040,
+    LORA_MAC_IDLE          = 0x00000000,
+    LORA_MAC_TX_RUNNING    = 0x00000001,
+    LORA_MAC_RX            = 0x00000002,
+    LORA_MAC_ACK_REQ       = 0x00000004,
+    LORA_MAC_ACK_RETRY     = 0x00000008,
+    LORA_MAC_TX_DELAYED    = 0x00000010,
+    LORA_MAC_TX_CONFIG     = 0x00000020,
+    LORA_MAC_RX_ABORT      = 0x00000040,
 };
 
 /*!
  * LoRaMac internal state
  */
-uint32_t LoRaMacState = MAC_IDLE;
+uint32_t LoRaMacState = LORA_MAC_IDLE;
 
 /*!
  * LoRaMac timer used to check the LoRaMacState (runs every second)
@@ -905,7 +905,7 @@ static void OnRadioTxDone( void )
 
 static void PrepareRxDoneAbort( void )
 {
-    LoRaMacState |= MAC_RX_ABORT;
+    LoRaMacState |= LORA_MAC_RX_ABORT;
 
     if( NodeAckRequested )
     {
@@ -1034,13 +1034,13 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                     ChannelParams_t param;
                     param.DrRange.Value = ( DR_5 << 4 ) | DR_0;
 
-                    LoRaMacState |= MAC_TX_CONFIG;
+                    LoRaMacState |= LORA_MAC_TX_CONFIG;
                     for( uint8_t i = 3, j = 0; i < ( 5 + 3 ); i++, j += 3 )
                     {
                         param.Frequency = ( ( uint32_t )LoRaMacRxPayload[13 + j] | ( ( uint32_t )LoRaMacRxPayload[14 + j] << 8 ) | ( ( uint32_t )LoRaMacRxPayload[15 + j] << 16 ) ) * 100;
                         LoRaMacChannelAdd( i, param );
                     }
-                    LoRaMacState &= ~MAC_TX_CONFIG;
+                    LoRaMacState &= ~LORA_MAC_TX_CONFIG;
                 }
 #endif
                 MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
@@ -1388,10 +1388,10 @@ static void OnMacStateCheckTimerEvent( void )
 
     if( LoRaMacFlags.Bits.MacDone == 1 )
     {
-        if( ( LoRaMacState & MAC_RX_ABORT ) == MAC_RX_ABORT )
+        if( ( LoRaMacState & LORA_MAC_RX_ABORT ) == LORA_MAC_RX_ABORT )
         {
-            LoRaMacState &= ~MAC_RX_ABORT;
-            LoRaMacState &= ~MAC_TX_RUNNING;
+            LoRaMacState &= ~LORA_MAC_RX_ABORT;
+            LoRaMacState &= ~LORA_MAC_TX_RUNNING;
         }
 
         if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) || ( ( LoRaMacFlags.Bits.McpsReq == 1 ) ) )
@@ -1400,7 +1400,7 @@ static void OnMacStateCheckTimerEvent( void )
                 ( MlmeConfirm.Status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT ) )
             {
                 // Stop transmit cycle due to tx timeout.
-                LoRaMacState &= ~MAC_TX_RUNNING;
+                LoRaMacState &= ~LORA_MAC_TX_RUNNING;
                 McpsConfirm.NbRetries = AckTimeoutRetriesCounter;
                 McpsConfirm.AckReceived = false;
                 McpsConfirm.TxTimeOnAir = 0;
@@ -1437,7 +1437,7 @@ static void OnMacStateCheckTimerEvent( void )
                         UpLinkCounter++;
                     }
 
-                    LoRaMacState &= ~MAC_TX_RUNNING;
+                    LoRaMacState &= ~LORA_MAC_TX_RUNNING;
                 }
                 else
                 {
@@ -1460,11 +1460,11 @@ static void OnMacStateCheckTimerEvent( void )
                 }
                 McpsConfirm.NbRetries = AckTimeoutRetriesCounter;
 
-                LoRaMacState &= ~MAC_TX_RUNNING;
+                LoRaMacState &= ~LORA_MAC_TX_RUNNING;
             }
         }
 
-        if( ( AckTimeoutRetry == true ) && ( ( LoRaMacState & MAC_TX_DELAYED ) == 0 ) )
+        if( ( AckTimeoutRetry == true ) && ( ( LoRaMacState & LORA_MAC_TX_DELAYED ) == 0 ) )
         {
             AckTimeoutRetry = false;
             if( ( AckTimeoutRetriesCounter < AckTimeoutRetries ) && ( AckTimeoutRetriesCounter <= MAX_ACK_RETRIES ) )
@@ -1498,7 +1498,7 @@ static void OnMacStateCheckTimerEvent( void )
 #else
     #error "Please define a frequency band in the compiler options."
 #endif
-                LoRaMacState &= ~MAC_TX_RUNNING;
+                LoRaMacState &= ~LORA_MAC_TX_RUNNING;
 
                 NodeAckRequested = false;
                 McpsConfirm.AckReceived = false;
@@ -1511,11 +1511,11 @@ static void OnMacStateCheckTimerEvent( void )
         }
     }
     // Handle reception for Class B and Class C
-    if( ( LoRaMacState & MAC_RX ) == MAC_RX )
+    if( ( LoRaMacState & LORA_MAC_RX ) == LORA_MAC_RX )
     {
-        LoRaMacState &= ~MAC_RX;
+        LoRaMacState &= ~LORA_MAC_RX;
     }
-    if( LoRaMacState == MAC_IDLE )
+    if( LoRaMacState == LORA_MAC_IDLE )
     {
         if( LoRaMacFlags.Bits.McpsReq == 1 )
         {
@@ -1551,7 +1551,7 @@ static void OnTxDelayedTimerEvent( void )
     LoRaMacFrameCtrl_t fCtrl;
 
     TimerStop( &TxDelayedTimer );
-    LoRaMacState &= ~MAC_TX_DELAYED;
+    LoRaMacState &= ~LORA_MAC_TX_DELAYED;
 
     if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) && ( MlmeConfirm.MlmeRequest == MLME_JOIN ) )
     {
@@ -1732,7 +1732,7 @@ static void OnAckTimeoutTimerEvent( void )
     if( NodeAckRequested == true )
     {
         AckTimeoutRetry = true;
-        LoRaMacState &= ~MAC_ACK_REQ;
+        LoRaMacState &= ~LORA_MAC_ACK_REQ;
     }
     if( LoRaMacDeviceClass == CLASS_C )
     {
@@ -2550,7 +2550,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     chParam.Frequency *= 100;
                     chParam.DrRange.Value = payload[macIndex++];
 
-                    LoRaMacState |= MAC_TX_CONFIG;
+                    LoRaMacState |= LORA_MAC_TX_CONFIG;
                     if( chParam.Frequency == 0 )
                     {
                         if( channelIndex < 3 )
@@ -2595,7 +2595,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                             }
                         }
                     }
-                    LoRaMacState &= ~MAC_TX_CONFIG;
+                    LoRaMacState &= ~LORA_MAC_TX_CONFIG;
 #endif
                     AddMacCommand( MOTE_MAC_NEW_CHANNEL_ANS, status, 0 );
                 }
@@ -2688,7 +2688,7 @@ static LoRaMacStatus_t ScheduleTx( )
     else
     {
         // Send later - prepare timer
-        LoRaMacState |= MAC_TX_DELAYED;
+        LoRaMacState |= LORA_MAC_TX_DELAYED;
         TimerSetValue( &TxDelayedTimer, dutyCycleTimeOff );
         TimerStart( &TxDelayedTimer );
 
@@ -3086,7 +3086,7 @@ LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel )
     // Send now
     Radio.Send( LoRaMacBuffer, LoRaMacBufferPktLen );
 
-    LoRaMacState |= MAC_TX_RUNNING;
+    LoRaMacState |= LORA_MAC_TX_RUNNING;
 
     return LORAMAC_STATUS_OK;
 }
@@ -3111,7 +3111,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     LoRaMacFlags.Value = 0;
 
     LoRaMacDeviceClass = CLASS_A;
-    LoRaMacState = MAC_IDLE;
+    LoRaMacState = LORA_MAC_IDLE;
 
     JoinRequestTrials = 0;
     RepeaterSupport = false;
@@ -3409,7 +3409,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
-    if( ( LoRaMacState & MAC_TX_RUNNING ) == MAC_TX_RUNNING )
+    if( ( LoRaMacState & LORA_MAC_TX_RUNNING ) == LORA_MAC_TX_RUNNING )
     {
         return LORAMAC_STATUS_BUSY;
     }
@@ -3655,9 +3655,9 @@ LoRaMacStatus_t LoRaMacChannelAdd( uint8_t id, ChannelParams_t params )
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
     // Validate if the MAC is in a correct state
-    if( ( LoRaMacState & MAC_TX_RUNNING ) == MAC_TX_RUNNING )
+    if( ( LoRaMacState & LORA_MAC_TX_RUNNING ) == LORA_MAC_TX_RUNNING )
     {
-        if( ( LoRaMacState & MAC_TX_CONFIG ) != MAC_TX_CONFIG )
+        if( ( LoRaMacState & LORA_MAC_TX_CONFIG ) != LORA_MAC_TX_CONFIG )
         {
             return LORAMAC_STATUS_BUSY;
         }
@@ -3751,9 +3751,9 @@ LoRaMacStatus_t LoRaMacChannelAdd( uint8_t id, ChannelParams_t params )
 LoRaMacStatus_t LoRaMacChannelRemove( uint8_t id )
 {
 #if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
-    if( ( LoRaMacState & MAC_TX_RUNNING ) == MAC_TX_RUNNING )
+    if( ( LoRaMacState & LORA_MAC_TX_RUNNING ) == LORA_MAC_TX_RUNNING )
     {
-        if( ( LoRaMacState & MAC_TX_CONFIG ) != MAC_TX_CONFIG )
+        if( ( LoRaMacState & LORA_MAC_TX_CONFIG ) != LORA_MAC_TX_CONFIG )
         {
             return LORAMAC_STATUS_BUSY;
         }
@@ -3786,7 +3786,7 @@ LoRaMacStatus_t LoRaMacMulticastChannelLink( MulticastParams_t *channelParam )
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
-    if( ( LoRaMacState & MAC_TX_RUNNING ) == MAC_TX_RUNNING )
+    if( ( LoRaMacState & LORA_MAC_TX_RUNNING ) == LORA_MAC_TX_RUNNING )
     {
         return LORAMAC_STATUS_BUSY;
     }
@@ -3821,7 +3821,7 @@ LoRaMacStatus_t LoRaMacMulticastChannelUnlink( MulticastParams_t *channelParam )
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
-    if( ( LoRaMacState & MAC_TX_RUNNING ) == MAC_TX_RUNNING )
+    if( ( LoRaMacState & LORA_MAC_TX_RUNNING ) == LORA_MAC_TX_RUNNING )
     {
         return LORAMAC_STATUS_BUSY;
     }
@@ -3863,7 +3863,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
-    if( ( LoRaMacState & MAC_TX_RUNNING ) == MAC_TX_RUNNING )
+    if( ( LoRaMacState & LORA_MAC_TX_RUNNING ) == LORA_MAC_TX_RUNNING )
     {
         return LORAMAC_STATUS_BUSY;
     }
@@ -3876,7 +3876,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
     {
         case MLME_JOIN:
         {
-            if( ( LoRaMacState & MAC_TX_DELAYED ) == MAC_TX_DELAYED )
+            if( ( LoRaMacState & LORA_MAC_TX_DELAYED ) == LORA_MAC_TX_DELAYED )
             {
                 return LORAMAC_STATUS_BUSY;
             }
@@ -3943,8 +3943,8 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
-    if( ( ( LoRaMacState & MAC_TX_RUNNING ) == MAC_TX_RUNNING ) ||
-        ( ( LoRaMacState & MAC_TX_DELAYED ) == MAC_TX_DELAYED ) )
+    if( ( ( LoRaMacState & LORA_MAC_TX_RUNNING ) == LORA_MAC_TX_RUNNING ) ||
+        ( ( LoRaMacState & LORA_MAC_TX_DELAYED ) == LORA_MAC_TX_DELAYED ) )
     {
         return LORAMAC_STATUS_BUSY;
     }
