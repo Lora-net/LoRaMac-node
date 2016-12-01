@@ -201,7 +201,7 @@
     <File name="boards/MoteII/cmsis/startup_stm32l051xx.s" path="../../../../src/boards/MoteII/cmsis/arm-gcc/startup_stm32l051xx.s" type="1"/>
     <File name="apps" path="" type="2"/>
     <File name="boards/MoteII/board.c" path="../../../../src/boards/MoteII/board.c" type="1"/>
-    <File name="apps/main.c" path="../../../../src/apps/LoRaMac/classA/MoteII/main.c" type="1"/>
+    <File name="apps/main.c" path="../../../../src/apps/LoRaMac/classC/MoteII/main.c" type="1"/>
     <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_rtc_ex.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rtc_ex.c" type="1"/>
     <File name="peripherals/sx1509.c" path="../../../../src/peripherals/sx1509.c" type="1"/>
     <File name="boards/MoteII/gps-board.c" path="../../../../src/boards/MoteII/gps-board.c" type="1"/>
@@ -230,7 +230,7 @@
     <File name="system/gpio.c" path="../../../../src/system/gpio.c" type="1"/>
     <File name="peripherals/mma8451.c" path="../../../../src/peripherals/mma8451.c" type="1"/>
     <File name="peripherals" path="" type="2"/>
-    <File name="apps/screen.c" path="../../../../src/apps/LoRaMac/classA/MoteII/screen.c" type="1"/>
+    <File name="apps/screen.c" path="../../../../src/apps/LoRaMac/classC/MoteII/screen.c" type="1"/>
     <File name="system/i2c.c" path="../../../../src/system/i2c.c" type="1"/>
     <File name="system/crypto" path="" type="2"/>
     <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_adc_ex.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_adc_ex.c" type="1"/>
