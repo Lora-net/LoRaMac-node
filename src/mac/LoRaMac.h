@@ -564,23 +564,23 @@ typedef enum eLoRaMacEventInfoStatus
      */
     LORAMAC_EVENT_INFO_STATUS_OK = 0,
     /*!
-     * An error occured during the execution of the service
+     * An error occurred during the execution of the service
      */
     LORAMAC_EVENT_INFO_STATUS_ERROR,
     /*!
-     * A Tx timeouit occured
+     * A Tx timeout occurred
      */
     LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT,
     /*!
-     * An Rx timeout occured on receive window 2
+     * An Rx timeout occurred on receive window 2
      */
     LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT,
     /*!
-     * An Rx error occured on receive window 2
+     * An Rx error occurred on receive window 2
      */
     LORAMAC_EVENT_INFO_STATUS_RX2_ERROR,
     /*!
-     * An error occured in the join procedure
+     * An error occurred in the join procedure
      */
     LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL,
     /*!
@@ -594,7 +594,7 @@ typedef enum eLoRaMacEventInfoStatus
      */
     LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS,
     /*!
-     * An address error occured
+     * An address error occurred
      */
     LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL,
     /*!
