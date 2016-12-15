@@ -636,6 +636,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                             mlmeReq.Req.TxCw.Timeout = ( uint16_t )( ( mcpsIndication->Buffer[1] << 8 ) | mcpsIndication->Buffer[2] );
                             LoRaMacMlmeRequest( &mlmeReq );
                         }
+                        ComplianceTest.State = 1;
                     }
                     break;
                 case 8: // Switch end device Class

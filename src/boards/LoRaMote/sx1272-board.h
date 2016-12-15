@@ -95,7 +95,7 @@ void SX1272AntSwInit( void );
 void SX1272AntSwDeInit( void );
 
 /*!
- * \brief Controls the antena switch if necessary.
+ * \brief Controls the antenna switch if necessary.
  *
  * \remark see errata note
  *
