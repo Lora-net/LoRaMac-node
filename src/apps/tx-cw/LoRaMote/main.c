@@ -89,13 +89,13 @@ int main( void )
     BoardInitMcu( );
     BoardInitPeriph( );
 
-    TimerInit( &Led1Timer, OnLed1TimerEvent ); 
+    TimerInit( &Led1Timer, OnLed1TimerEvent );
     TimerSetValue( &Led1Timer, 90 );
 
-    TimerInit( &Led2Timer, OnLed2TimerEvent ); 
+    TimerInit( &Led2Timer, OnLed2TimerEvent );
     TimerSetValue( &Led2Timer, 90 );
 
-    TimerInit( &Led3Timer, OnLed3TimerEvent ); 
+    TimerInit( &Led3Timer, OnLed3TimerEvent );
     TimerSetValue( &Led3Timer, 90 );
 
     // Switch LED 1 ON
@@ -125,7 +125,7 @@ int main( void )
         if( Led2TimerEvent == true )
         {
             Led2TimerEvent = false;
-            
+
             // Switch LED 2 OFF
             GpioWrite( &Led2, 1 );
             // Switch LED 3 ON
@@ -136,7 +136,7 @@ int main( void )
         if( Led3TimerEvent == true )
         {
             Led3TimerEvent = false;
-            
+
             // Switch LED 3 OFF
             GpioWrite( &Led3, 1 );
             // Switch LED 1 ON

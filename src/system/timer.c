@@ -208,7 +208,7 @@ void TimerIrqHandler( void )
     }
 
     elapsedTime = TimerGetValue( );
-    
+
     if( elapsedTime >= TimerListHead->Timestamp )
     {
         TimerListHead->Timestamp = 0;

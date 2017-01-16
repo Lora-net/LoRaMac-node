@@ -122,7 +122,7 @@ void ButtonsInit( void )
 bool ButtonGetState( ButtonsId_t id )
 {
     bool state = false;
-    
+
     if( ( Buttons[id].IsPressed == true  ) && ( Buttons[id].IsPressedPrev == false ) )
     {
         state = true;
@@ -140,7 +140,7 @@ void OnDebounceTimerEvent( void )
     ButtonsDebounce( BUTTON_LEFT, GpioRead( &Switch1 ) );
     ButtonsDebounce( BUTTON_MIDDLE, GpioRead( &Switch2 ) );
     ButtonsDebounce( BUTTON_RIGHT, GpioRead( &Switch3 ) );
-    
+
     if( ( Buttons[BUTTON_LEFT].IsDebounceRunning == false ) &&
         ( Buttons[BUTTON_MIDDLE].IsDebounceRunning == false ) &&
         ( Buttons[BUTTON_RIGHT].IsDebounceRunning == false ) )
@@ -162,7 +162,7 @@ void OnButton2Irq( void )
 }
 
 void OnButton3Irq( void )
-{     
+{
     Buttons[BUTTON_RIGHT].IsDebounceRunning = true;
     TimerStart( &DebounceTimer );
 }

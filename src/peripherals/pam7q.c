@@ -48,7 +48,7 @@ bool PAM7QGetGpsData( uint8_t *nmeaString, uint8_t *nmeaStringSize, uint16_t nme
             pendingBytes = nmeaMaxStringSize - 1;
         }
 
-        // read pending data from GPS modile
+        // read pending data from GPS module
         status = PAM7QReadBuffer( PAYLOAD, nmeaString, pendingBytes );
 
         // make sure the string is terminated

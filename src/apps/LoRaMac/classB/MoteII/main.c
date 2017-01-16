@@ -64,7 +64,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 #define USE_SEMTECH_DEFAULT_CHANNEL_LINEUP          1
 
-#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 ) 
+#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 )
 
 #define LC4                { 867100000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 #define LC5                { 867300000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
@@ -555,7 +555,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     ComplianceTest.NbGateways = 0;
                     ComplianceTest.Running = true;
                     ComplianceTest.State = 1;
-                    
+
                     MibRequestConfirm_t mibReq;
                     mibReq.Type = MIB_ADR;
                     mibReq.Param.AdrEnable = true;
@@ -804,7 +804,7 @@ int main( void )
 #if defined( USE_BAND_868 )
                 LoRaMacTestSetDutyCycleOn( AppSettings.DutyCycleOn );
 
-#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 ) 
+#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 )
                 LoRaMacChannelAdd( 3, ( ChannelParams_t )LC4 );
                 LoRaMacChannelAdd( 4, ( ChannelParams_t )LC5 );
                 LoRaMacChannelAdd( 5, ( ChannelParams_t )LC6 );

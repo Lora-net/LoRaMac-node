@@ -26,11 +26,11 @@ uint8_t MMA8451Init( void )
     MMA8451SetDeviceAddr( MMA8451_I2C_ADDRESS );
 
     if( MMA8451Initialized == false )
-    {   
+    {
         MMA8451Initialized = true;
-            
+
         MMA8451Read( MMA8451_ID, &regVal );
-        if( regVal != 0x1A )   // Fixed Device ID Number = 0x1A 
+        if( regVal != 0x1A )   // Fixed Device ID Number = 0x1A
         {
             return FAIL;
         }

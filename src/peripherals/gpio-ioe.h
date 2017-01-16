@@ -27,7 +27,7 @@ Maintainer: Miguel Luis and Gregory Cristian
  * \param [IN] value  Default output value at initialization
  */
 void GpioIoeInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, PinTypes type, uint32_t value );
-  
+
 /*!
  * \brief GPIO IRQ Initialization
  *

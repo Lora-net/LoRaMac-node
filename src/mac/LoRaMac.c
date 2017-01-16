@@ -2976,7 +2976,7 @@ static void CalculateBackOff( uint8_t channel )
         joinDutyCycle = JoinDutyCycle( );
         dutyCycle = MAX( dutyCycle, joinDutyCycle );
 
-        // Update Band time-off. 
+        // Update Band time-off.
         Bands[Channels[channel].Band].TimeOff = TxTimeOnAir * dutyCycle - TxTimeOnAir;
     }
     else

@@ -17,12 +17,12 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 /*!
  * MAG3110 I2C address
- */ 
+ */
 #define MAG3110_I2C_ADDRESS                             0x0E
 
 /*!
  * MAG3110 Registers
- */ 
+ */
 #define MAG3110_ID                                      0x07
 
 /*!

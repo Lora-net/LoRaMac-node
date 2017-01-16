@@ -148,12 +148,12 @@ static void RtcStartWakeUpAlarm( uint32_t timeoutValue );
  * \retval rtcCalendar New RTC calendar value
  */
 //
-// REMARK: Removed function static attribute in order to suppress 
+// REMARK: Removed function static attribute in order to suppress
 //         "#177-D function was declared but never referenced" warning.
 // static RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter )
 //
 RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter );
- 
+
 /*!
  * \brief Converts a RtcCalendar_t value into TimerTime_t value
  *
@@ -243,9 +243,9 @@ TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout )
             timeout -= McuWakeUpTime;
         }
     }
-    
+
     if( timeout > McuWakeUpTime )
-    {   // we don't go in Low Power mode for delay below 50ms (needed for LEDs)        
+    {   // we don't go in Low Power mode for delay below 50ms (needed for LEDs)
         if( timeout < 50 ) // 50 ms
         {
             RtcTimerEventAllowsLowPower = false;
@@ -351,7 +351,7 @@ void RtcEnterLowPowerStopMode( void )
 void RtcRecoverMcuStatus( void )
 {
     // PWR_FLAG_WU indicates the Alarm has waken-up the MCU
-    if( __HAL_PWR_GET_FLAG( PWR_FLAG_WU ) != RESET ) 
+    if( __HAL_PWR_GET_FLAG( PWR_FLAG_WU ) != RESET )
     {
         __HAL_PWR_CLEAR_FLAG( PWR_FLAG_WU );
     }
@@ -407,7 +407,7 @@ static void RtcStartWakeUpAlarm( uint32_t timeoutValue )
     // Save the calendar into RtcCalendarContext to be able to calculate the elapsed time
     RtcCalendarContext = now;
 
-    // timeoutValue is in ms 
+    // timeoutValue is in ms
     alarmTimer = RtcComputeTimerTimeToAlarmTick( timeoutValue, now );
 
     alarmStructure.Alarm = RTC_ALARM_A;
@@ -439,12 +439,12 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
     uint16_t minutes = now.CalendarTime.Minutes;
     uint16_t hours = now.CalendarTime.Hours;
     uint16_t days = now.CalendarDate.Date;
-    
+
     timeoutValue = timeCounter;
-    
+
     milliseconds = PREDIV_S - now.CalendarTime.SubSeconds;
     milliseconds += ( timeoutValue & PREDIV_S);
-    
+
     /* convert timeout  to seconds */
     timeoutValue >>= N_PREDIV_S;  /* convert timeout  in seconds */
 
@@ -480,7 +480,7 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
     }
 
     while( seconds >= SecondsInMinute )
-    { 
+    {
         seconds -= SecondsInMinute;
         minutes++;
     }
@@ -508,8 +508,8 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
     else
     {
         if( days > DaysInMonth[now.CalendarDate.Month - 1] )
-        {   
-            days = days % DaysInMonth[now.CalendarDate.Month - 1]; 
+        {
+            days = days % DaysInMonth[now.CalendarDate.Month - 1];
             calendar.CalendarDate.Month++;
         }
     }
@@ -524,7 +524,7 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
 }
 
 //
-// REMARK: Removed function static attribute in order to suppress 
+// REMARK: Removed function static attribute in order to suppress
 //         "#177-D function was declared but never referenced" warning.
 // static RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter )
 //
@@ -581,7 +581,7 @@ RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter )
     }
 
     while( seconds >= SecondsInMinute )
-    { 
+    {
         seconds -= SecondsInMinute;
         minutes++;
     }
@@ -610,7 +610,7 @@ RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter )
     calendar.CalendarTime.Hours = hours;
     calendar.CalendarDate.Date = days;
     calendar.CalendarDate.Month = months;
-    calendar.CalendarDate.Year = years; // on 32-bit, years will never go up 
+    calendar.CalendarDate.Year = years; // on 32-bit, years will never go up
 
     return calendar;
 }
