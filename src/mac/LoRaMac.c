@@ -4593,6 +4593,28 @@ static int8_t AlternateDatarate( uint16_t nbTrials )
     return datarate;
 }
 
+static TimerTime_t FirstTxDelay( void )
+{
+    TimerTime_t delay = 0;
+
+    if( LoRaMacFlags.Bits.MlmeReq == 1 )
+    {
+        if( MlmeConfirm.MlmeRequest == MLME_JOIN )
+        {
+            if( FirstTxDelayApplied == false )
+            {
+                // Make sure to apply the random back-off only to the first TX.
+                // For the join procedure, it adds a random back-off to the transmission.
+                // If a many nodes perform a reset at the same time, it prevents that
+                // the nodes transmit a join request at the same time.
+                delay = randr( 0, BACKOFF_RND_OFFSET );
+                FirstTxDelayApplied = true;
+            }
+        }
+    }
+    return delay;
+}
+
 static uint8_t GetMlmeConfirmIndex( sMlmeConfirmQueue_t* queue, Mlme_t req, uint8_t length )
 {
     for( uint8_t i = 0; i < length; i++ )
@@ -4913,6 +4935,11 @@ TimerTime_t SendFrameOnChannel( ChannelParams_t channel )
     // Starts the MAC layer status check timer
     TimerSetValue( &MacStateCheckTimer, MAC_STATE_CHECK_TIMEOUT );
     TimerStart( &MacStateCheckTimer );
+
+    if( IsLoRaMacNetworkJoined == false )
+    {
+        JoinRequestTrials++;
+    }
 
     LoRaMacState |= LORAMAC_TX_RUNNING;
 
@@ -5943,8 +5970,8 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
 
             MlmeConfirmQueue[MlmeConfirmQueueCnt].MlmeRequest = mlmeRequest->Type;
 
-            JoinRequestTrials++;
-            LoRaMacParams.ChannelsDatarate = AlternateDatarate( JoinRequestTrials );
+            // Add a +1, since we start to count from 0
+            LoRaMacParams.ChannelsDatarate = AlternateDatarate( JoinRequestTrials + 1 );
 
             status = Send( &macHdr, 0, NULL, 0 );
             break;
