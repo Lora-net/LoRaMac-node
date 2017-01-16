@@ -1711,11 +1711,11 @@ static void OnRxWindow1TimerEvent( void )
     }
 
     // For higher datarates, we increase the number of symbols generating a Rx Timeout
-    if( ( LoRaMacParams.Rx2Channel.Datarate == DR_3 ) || ( LoRaMacParams.Rx2Channel.Datarate == DR_4 ) )
+    if( ( datarate == DR_3 ) || ( datarate == DR_4 ) )
     { // DR_4, DR_3
         symbTimeout = 8;
     }
-    else if( LoRaMacParams.Rx2Channel.Datarate == DR_5 )
+    else if( datarate == DR_5 )
     {
         symbTimeout = 10;
     }
