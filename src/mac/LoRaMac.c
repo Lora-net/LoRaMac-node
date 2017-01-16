@@ -4335,3 +4335,8 @@ void LoRaMacTestSetDutyCycleOn( bool enable )
     DutyCycleOn = false;
 #endif
 }
+
+void LoRaMacTestSetChannel( uint8_t channel )
+{
+    Channel = channel;
+}
