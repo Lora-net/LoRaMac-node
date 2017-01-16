@@ -27,7 +27,7 @@ typedef enum ButtonsId_e
 }ButtonsId_t;
 
 /*!
- * \brief Initalizes the buttons handling
+ * \brief Initializes the buttons handling
  */
 void ButtonsInit( void );
 
@@ -37,7 +37,7 @@ void ButtonsInit( void );
  * \param id    Button ID
  *
  * \retval state Current button state
- *               [true: Presed, false: Released]
+ *               [true: Pressed, false: Released]
  */
 bool ButtonGetState( ButtonsId_t id );
 

@@ -35,7 +35,7 @@ void GpsMcuOnPpsSignal( void );
 
 /*
  * MPL3115A2 I2C address
- */ 
+ */
 #define PAM7Q_I2C_ADDRESS                       0x42
 
 #define MESSAGE_SIZE_1                          0xFD

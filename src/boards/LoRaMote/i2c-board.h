@@ -65,7 +65,7 @@ void I2cMcuInit( I2c_t *obj, PinNames scl, PinNames sda );
  * \brief Initializes the I2C object and MCU peripheral
  *
  * \param [IN] obj              I2C object
- * \param [IN] mode             Mode of operation for the I2C Bus 
+ * \param [IN] mode             Mode of operation for the I2C Bus
  * \param [IN] dutyCycle        Signal duty cycle
  * \param [IN] I2cAckEnable     Enable or Disable to ack
  * \param [IN] AckAddrMode      7bit or 10 bit addressing

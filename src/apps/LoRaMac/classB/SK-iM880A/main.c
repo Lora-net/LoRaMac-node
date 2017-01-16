@@ -17,7 +17,7 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 #include "board.h"
 
 #include "LoRaMac.h"
-#include "Comissioning.h"
+#include "Commissioning.h"
 
 /*!
  * Defines the application data transmission duty cycle. 5s, value in [ms].
@@ -60,7 +60,7 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 
 #define USE_SEMTECH_DEFAULT_CHANNEL_LINEUP          1
 
-#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 ) 
+#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 )
 
 #define LC4                { 867100000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 #define LC5                { 867300000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
@@ -163,7 +163,7 @@ static bool NextTx = true;
 /*!
  * Device states
  */
-static enum eDevicState
+static enum eDeviceState
 {
     DEVICE_STATE_INIT,
     DEVICE_STATE_JOIN,
@@ -473,7 +473,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     ComplianceTest.NbGateways = 0;
                     ComplianceTest.Running = true;
                     ComplianceTest.State = 1;
-                    
+
                     MibRequestConfirm_t mibReq;
                     mibReq.Type = MIB_ADR;
                     mibReq.Param.AdrEnable = true;
@@ -555,6 +555,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         mlmeReq.Req.Join.DevEui = DevEui;
                         mlmeReq.Req.Join.AppEui = AppEui;
                         mlmeReq.Req.Join.AppKey = AppKey;
+                        mlmeReq.Req.Join.NbTrials = 3;
 
                         LoRaMacMlmeRequest( &mlmeReq );
                         DeviceState = DEVICE_STATE_SLEEP;
@@ -637,16 +638,23 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
 
     if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
     {
-        switch( mlmeConfirm->MlmeRequest )
+        case MLME_JOIN:
         {
-            case MLME_JOIN:
+            if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
             {
                 // Status is OK, node has joined the network
                 DeviceState = DEVICE_STATE_REQ_BEACON_TIMING;
-                NextTx = true;
-                break;
             }
-            case MLME_LINK_CHECK:
+            else
+            {
+                // Join was not successful. Try to join again
+                DeviceState = DEVICE_STATE_JOIN;
+            }
+            break;
+        }
+        case MLME_LINK_CHECK:
+        {
+            if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
             {
                 // Check DemodMargin
                 // Check NbGateways
@@ -656,7 +664,6 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                     ComplianceTest.DemodMargin = mlmeConfirm->DemodMargin;
                     ComplianceTest.NbGateways = mlmeConfirm->NbGateways;
                 }
-                break;
             }
             case MLME_BEACON_TIMING:
             {
@@ -683,6 +690,8 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             default:
                 break;
         }
+        default:
+            break;
     }
     else
     {
@@ -815,7 +824,7 @@ int main( void )
 #if defined( USE_BAND_868 )
                 LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
 
-#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 ) 
+#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 )
                 LoRaMacChannelAdd( 3, ( ChannelParams_t )LC4 );
                 LoRaMacChannelAdd( 4, ( ChannelParams_t )LC5 );
                 LoRaMacChannelAdd( 5, ( ChannelParams_t )LC6 );
@@ -846,6 +855,7 @@ int main( void )
                 mlmeReq.Req.Join.DevEui = DevEui;
                 mlmeReq.Req.Join.AppEui = AppEui;
                 mlmeReq.Req.Join.AppKey = AppKey;
+                mlmeReq.Req.Join.NbTrials = 3;
 
                 if( NextTx == true )
                 {
@@ -853,7 +863,7 @@ int main( void )
                 }
                 DeviceState = DEVICE_STATE_SLEEP;
 #else
-                // Choose a random device address if not already defined in Comissioning.h
+                // Choose a random device address if not already defined in Commissioning.h
                 if( DevAddr == 0 )
                 {
                     // Random seed initialization

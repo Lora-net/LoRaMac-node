@@ -132,7 +132,7 @@ void DisplaySetFgAndBg( DisplayColor_t fg, DisplayColor_t bg );
  *
  * \param w [true: wrap ON, false: wrap OFF]
  */
-void DisplaysetTextWrap( bool w );
+void DisplaySetTextWrap( bool w );
 
 /*!
  * \brief Gets current display rotation

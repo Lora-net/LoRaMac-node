@@ -253,7 +253,7 @@ void GpioIoeInterruptHandler( void )
 
     SX1509Read( RegInterruptSourceA, &irqLsb );
     SX1509Read( RegInterruptSourceB, &irqMsb );
-    
+
     irq = ( irqMsb << 8 ) | irqLsb;
     if( irq != 0x00 )
     {

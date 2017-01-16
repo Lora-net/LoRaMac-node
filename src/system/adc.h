@@ -32,7 +32,7 @@ typedef struct
 void AdcInit( Adc_t *obj, PinNames adcInput );
 
 /*!
- * \brief DeInitializes the ADC 
+ * \brief DeInitializes the ADC
  *
  * \param [IN] obj  ADC object
  */

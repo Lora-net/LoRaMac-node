@@ -80,7 +80,7 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
         }
         GPIO_InitStructure.Alternate = value;
     }
-    else // mode ouptut
+    else // mode output
     {
         if( config == PIN_OPEN_DRAIN )
         {

@@ -54,9 +54,9 @@ void SX1272IoInit( void );
 void SX1272IoIrqInit( DioIrqHandler **irqHandlers );
 
 /*!
- * \brief De-initializes the radio I/Os pins interface. 
+ * \brief De-initializes the radio I/Os pins interface.
  *
- * \remark Useful when going in MCU lowpower modes
+ * \remark Useful when going in MCU low power modes
  */
 void SX1272IoDeInit( void );
 
@@ -88,9 +88,9 @@ void SX1272SetAntSwLowPower( bool status );
 void SX1272AntSwInit( void );
 
 /*!
- * \brief De-initializes the RF Switch I/Os pins interface 
+ * \brief De-initializes the RF Switch I/Os pins interface
  *
- * \remark Needed to decrease the power consumption in MCU lowpower modes
+ * \remark Needed to decrease the power consumption in MCU low power modes
  */
 void SX1272AntSwDeInit( void );
 

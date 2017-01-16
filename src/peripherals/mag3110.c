@@ -25,15 +25,15 @@ uint8_t MAG3110Init( void )
     MAG3110SetDeviceAddr( MAG3110_I2C_ADDRESS );
 
     if( MAG3110Initialized == false )
-    {   
+    {
         MAG3110Initialized = true;
-        
+
         MAG3110Read( MAG3110_ID, &regVal );
-        if( regVal != 0xC4 )   // Fixed Device ID Number = 0xC4 
+        if( regVal != 0xC4 )   // Fixed Device ID Number = 0xC4
         {
             return FAIL;
         }
-    
+
         MAG3110Reset( );
     }
     return SUCCESS;

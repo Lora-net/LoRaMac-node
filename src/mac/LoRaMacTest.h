@@ -66,6 +66,16 @@ void LoRaMacTestSetMic( uint16_t txPacketCounter );
  */
 void LoRaMacTestSetDutyCycleOn( bool enable );
 
+/*!
+ * \brief   Sets the channel index
+ *
+ * \details This is a test function. It shall be used for testing purposes only.
+ *          Changing this attribute may lead to a non-conformance LoRaMac operation.
+ *
+ * \param   [IN] channel - Channel index
+ */
+void LoRaMacTestSetChannel( uint8_t channel );
+
 /*! \} defgroup LORAMACTEST */
 
 #endif // __LORAMACTEST_H__

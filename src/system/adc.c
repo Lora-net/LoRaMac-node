@@ -16,7 +16,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "adc-board.h"
 
 /*!
- * Flag to indicates if the ADC is initialized 
+ * Flag to indicates if the ADC is initialized
  */
 static bool AdcInitialized = false;
 

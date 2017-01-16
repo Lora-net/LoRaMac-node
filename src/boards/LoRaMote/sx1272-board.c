@@ -39,7 +39,7 @@ const struct Radio_s Radio =
     SX1272GetTimeOnAir,
     SX1272Send,
     SX1272SetSleep,
-    SX1272SetStby, 
+    SX1272SetStby,
     SX1272SetRx,
     SX1272StartCad,
     SX1272SetTxContinuousWave,
@@ -163,7 +163,7 @@ void SX1272SetAntSwLowPower( bool status )
     if( RadioIsActive != status )
     {
         RadioIsActive = status;
-    
+
         if( status == false )
         {
             SX1272AntSwInit( );

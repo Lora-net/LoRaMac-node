@@ -54,7 +54,7 @@ uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
             }
         }
         /*!< If size > EE_PAGE_SIZE */
-        else  
+        else
         {
             while( nbPage-- )
             {
@@ -156,7 +156,7 @@ uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
                 }
                 addr += nbBytesRemaining;
                 buffer += nbBytesRemaining;
-            } 
+            }
 
             while( nbPage-- )
             {
@@ -187,7 +187,7 @@ uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
                 }
             }
         }
-    } 
+    }
     I2cSetAddrSize( &I2c, I2C_ADDR_SIZE_8 );
     return SUCCESS;
 }

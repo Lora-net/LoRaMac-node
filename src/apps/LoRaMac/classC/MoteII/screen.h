@@ -42,7 +42,7 @@ typedef enum
 }Screen_t;
 
 /*!
- * Strucure containing the application status
+ * Structure containing the application status
  */
 typedef struct sAppSettings
 {
@@ -70,7 +70,7 @@ typedef struct sAppSettings
 }AppSettings_t;
 
 /*!
- * Strucure containing the Uplink status
+ * Structure containing the Uplink status
  */
 typedef struct sLoRaMacUplinkStatus
 {
@@ -102,7 +102,7 @@ typedef struct sLoRaMacUplinkStatus
 }LoRaMacUplinkStatus_t;
 
 /*!
- * Strucure containing the Downlink status
+ * Structure containing the Downlink status
  */
 typedef struct sLoRaMacDownlinkStatus
 {

@@ -257,7 +257,7 @@ uint16_t BoardBatteryMeasureVolage( void )
     vref = AdcMcuReadChannel( &Adc , ADC_CHANNEL_17 );
 
     // We don't use the VREF from calibValues here.
-    // calculate the Voltage in miliVolt
+    // calculate the Voltage in millivolt
     batteryVoltage = ( uint32_t )ADC_VREF_BANDGAP * ( uint32_t )ADC_MAX_VALUE;
     batteryVoltage = batteryVoltage / ( uint32_t )vref;
 

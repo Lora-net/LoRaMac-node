@@ -18,7 +18,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "board.h"
 
 #include "LoRaMac.h"
-#include "Comissioning.h"
+#include "Commissioning.h"
 
 #include "buttons.h"
 #include "screen.h"
@@ -64,7 +64,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 #define USE_SEMTECH_DEFAULT_CHANNEL_LINEUP          1
 
-#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 ) 
+#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 )
 
 #define LC4                { 867100000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 #define LC5                { 867300000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
@@ -180,7 +180,7 @@ LoRaMacDownlinkStatus_t LoRaMacDownlinkStatus;
 /*!
  * Device states
  */
-static enum eDevicState
+static enum eDeviceState
 {
     DEVICE_STATE_INIT,
     DEVICE_STATE_JOIN,
@@ -249,7 +249,7 @@ static void PrepareTxFrame( uint8_t port )
             LoRaMacUplinkStatus.GpsHaxFix = GpsHasFix( );
 
             AppData[0] = AppLedStateOn;
-            AppData[1] = LoRaMacUplinkStatus.Temperature;                                           // Signed degrees Celcius in half degree units. So,  +/-63 C
+            AppData[1] = LoRaMacUplinkStatus.Temperature;                                           // Signed degrees celsius in half degree units. So,  +/-63 C
             AppData[2] = LoRaMacUplinkStatus.BatteryLevel;                                          // Per LoRaWAN spec; 0=Charging; 1...254 = level, 255 = N/A
             AppData[3] = ( LoRaMacUplinkStatus.Latitude >> 16 ) & 0xFF;
             AppData[4] = ( LoRaMacUplinkStatus.Latitude >> 8 ) & 0xFF;
@@ -555,7 +555,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     ComplianceTest.NbGateways = 0;
                     ComplianceTest.Running = true;
                     ComplianceTest.State = 1;
-                    
+
                     MibRequestConfirm_t mibReq;
                     mibReq.Type = MIB_ADR;
                     mibReq.Param.AdrEnable = true;
@@ -640,6 +640,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         mlmeReq.Req.Join.DevEui = AppSettings.DevEui;
                         mlmeReq.Req.Join.AppEui = AppSettings.AppEui;
                         mlmeReq.Req.Join.AppKey = AppSettings.AppKey;
+                        mlmeReq.Req.Join.NbTrials = 3;
 
                         LoRaMacMlmeRequest( &mlmeReq );
                         DeviceState = DEVICE_STATE_SLEEP;
@@ -681,19 +682,26 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
  */
 static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
 {
-    if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
+    switch( mlmeConfirm->MlmeRequest )
     {
-        switch( mlmeConfirm->MlmeRequest )
+        case MLME_JOIN:
         {
-            case MLME_JOIN:
+            if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
             {
                 // Status is OK, node has joined the network
                 IsNetworkJoinedStatusUpdate = true;
                 DeviceState = DEVICE_STATE_SEND;
-                NextTx = true;
-                break;
             }
-            case MLME_LINK_CHECK:
+            else
+            {
+                // Join was not successful. Try to join again
+                DeviceState = DEVICE_STATE_JOIN;
+            }
+            break;
+        }
+        case MLME_LINK_CHECK:
+        {
+            if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
             {
                 // Check DemodMargin
                 // Check NbGateways
@@ -703,11 +711,11 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                     ComplianceTest.DemodMargin = mlmeConfirm->DemodMargin;
                     ComplianceTest.NbGateways = mlmeConfirm->NbGateways;
                 }
-                break;
             }
-            default:
-                break;
+            break;
         }
+        default:
+            break;
     }
     NextTx = true;
     LoRaMacUplinkStatus.StatusUpdated = true;
@@ -796,7 +804,7 @@ int main( void )
 #if defined( USE_BAND_868 )
                 LoRaMacTestSetDutyCycleOn( AppSettings.DutyCycleOn );
 
-#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 ) 
+#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 )
                 LoRaMacChannelAdd( 3, ( ChannelParams_t )LC4 );
                 LoRaMacChannelAdd( 4, ( ChannelParams_t )LC5 );
                 LoRaMacChannelAdd( 5, ( ChannelParams_t )LC6 );
@@ -835,6 +843,7 @@ int main( void )
                 mlmeReq.Req.Join.DevEui = AppSettings.DevEui;
                 mlmeReq.Req.Join.AppEui = AppSettings.AppEui;
                 mlmeReq.Req.Join.AppKey = AppSettings.AppKey;
+                mlmeReq.Req.Join.NbTrials = 3;
 
                 if( NextTx == true )
                 {
@@ -842,7 +851,7 @@ int main( void )
                 }
                 DeviceState = DEVICE_STATE_SLEEP;
 #else
-                // Choose a random device address if not already defined in Comissioning.h
+                // Choose a random device address if not already defined in Commissioning.h
                 if( AppSettings.DevAddr == 0 )
                 {
                     // Random seed initialization
