@@ -338,7 +338,7 @@ typedef enum
 {
     DISPLAY_DATA = 0,
     DISPLAY_COMMAND
-}DisplayTransfertType_t;
+}DisplayTransferType_t;
 
 /*!
  * Holds the display context
@@ -385,7 +385,7 @@ static struct Display_s
  * \param size   Buffer size to be sent
  * \param type   Buffer data type [DISPLAY_DATA, DISPLAY_COMMAND]
  */
-static void DisplayWriteBuffer( uint8_t *buffer, uint16_t size, DisplayTransfertType_t type );
+static void DisplayWriteBuffer( uint8_t *buffer, uint16_t size, DisplayTransferType_t type );
 
 /*!
  * \brief Display controller initialization
@@ -403,15 +403,15 @@ void DisplayInit( void )
     Display.TextColor = DISPLAY_WHITE;
     Display.TextBgColor = DISPLAY_BLACK;
     Display.Wrap = true;
-    
+
     Display.VccState = SSD1306_SWITCHCAPVCC;
 
     GpioInit( &Display.Pins.NReset, OLED_RST, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
     GpioInit( &Display.Pins.Nss, OLED_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
     GpioInit( &Display.Pins.Dc, OLED_DC, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
     GpioInit( &Display.Pins.NEnable, OLED_EN, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-        
-    SpiInit( &Display.Pins.Spi, BLE_OLED_MOSI, BLE_OLED_MISO, BLE_OLED_SCK, NC );  
+
+    SpiInit( &Display.Pins.Spi, BLE_OLED_MOSI, BLE_OLED_MISO, BLE_OLED_SCK, NC );
 
     DisplayReset( );
     DisplayControllerInit( );
@@ -427,16 +427,16 @@ void DisplayInit( void )
 void DisplayReset( void )
 {
     GpioWrite( &Display.Pins.NReset, 1 );
-    
+
     // VDD (3.3V) goes high at start, lets just chill for a ms
     DelayMs( 1 );
-    
+
     // bring reset low
     GpioWrite( &Display.Pins.NReset, 0 );
-    
+
     // wait 10ms
     DelayMs( 10 );
-    
+
     // bring out of reset
     GpioWrite( &Display.Pins.NReset, 1 );
 
@@ -445,20 +445,20 @@ void DisplayReset( void )
 
 void DisplaySendCommand( uint8_t cmd )
 {
-    DisplayWriteBuffer( &cmd, 1, DISPLAY_COMMAND ); 
+    DisplayWriteBuffer( &cmd, 1, DISPLAY_COMMAND );
 }
 
 void DisplaySendData( uint8_t *buffer, uint16_t size )
 {
-    DisplayWriteBuffer( buffer, size, DISPLAY_DATA ); 
+    DisplayWriteBuffer( buffer, size, DISPLAY_DATA );
 }
 
-static void DisplayWriteBuffer( uint8_t *buffer, uint16_t size, DisplayTransfertType_t type )
+static void DisplayWriteBuffer( uint8_t *buffer, uint16_t size, DisplayTransferType_t type )
 {
     uint16_t i;
 
     GpioWrite( &Display.Pins.Nss, 1 );
-    
+
     if( type == DISPLAY_COMMAND )
     {
         GpioWrite( &Display.Pins.Dc, 0 );
@@ -467,7 +467,7 @@ static void DisplayWriteBuffer( uint8_t *buffer, uint16_t size, DisplayTransfert
     {
         GpioWrite( &Display.Pins.Dc, 1 );
     }
-        
+
     //NSS = 0;
     GpioWrite( &Display.Pins.Nss, 0 );
 
@@ -494,12 +494,12 @@ static void DisplayControllerInit( void )
     DisplaySendCommand( SSD1306_SETSTARTLINE | 0x0 );            // line #0
     DisplaySendCommand( SSD1306_CHARGEPUMP );                    // 0x8D
     if( Display.VccState == SSD1306_EXTERNALVCC )
-    { 
-        DisplaySendCommand( 0x10 ); 
+    {
+        DisplaySendCommand( 0x10 );
     }
     else
-    { 
-        DisplaySendCommand( 0x14 ); 
+    {
+        DisplaySendCommand( 0x14 );
     }
     DisplaySendCommand( SSD1306_MEMORYMODE );                    // 0x20
     DisplaySendCommand( 0x00 );                                  // 0x0 act like ks0108
@@ -510,22 +510,22 @@ static void DisplayControllerInit( void )
     DisplaySendCommand( 0x12);
     DisplaySendCommand( SSD1306_SETCONTRAST );                   // 0x81
     if( Display.VccState == SSD1306_EXTERNALVCC )
-    { 
-        DisplaySendCommand( 0x9F ); 
+    {
+        DisplaySendCommand( 0x9F );
     }
     else
-    { 
-        DisplaySendCommand( 0xCF ); 
+    {
+        DisplaySendCommand( 0xCF );
     }
 
     DisplaySendCommand( SSD1306_SETPRECHARGE );                  // 0xd9
     if( Display.VccState == SSD1306_EXTERNALVCC )
-    { 
-        DisplaySendCommand( 0x22 ); 
+    {
+        DisplaySendCommand( 0x22 );
     }
     else
-    { 
-        DisplaySendCommand( 0xF1 ); 
+    {
+        DisplaySendCommand( 0xF1 );
     }
     DisplaySendCommand( SSD1306_SETVCOMDETECT );                 // 0xDB
     DisplaySendCommand( 0x40);
@@ -560,7 +560,7 @@ void DisplayInvertColors( bool invert )
     {
         DisplaySendCommand( SSD1306_INVERTDISPLAY );
     }
-    else 
+    else
     {
         DisplaySendCommand( SSD1306_NORMALDISPLAY );
     }
@@ -581,12 +581,12 @@ void DisplaySetCursor( int16_t x, int16_t y )
     Display.CursorY = y;
 }
 
-int16_t DisplayGetCursorX( void ) 
+int16_t DisplayGetCursorX( void )
 {
     return Display.CursorX;
 }
 
-int16_t DisplayGetCursorY( void ) 
+int16_t DisplayGetCursorY( void )
 {
     return Display.CursorY;
 }
@@ -609,7 +609,7 @@ void DisplaySetFgAndBg( DisplayColor_t fg, DisplayColor_t bg )
     Display.TextBgColor = bg;
 }
 
-void DisplaysetTextWrap( bool w )
+void DisplaySetTextWrap( bool w )
 {
     Display.Wrap = w;
 }
@@ -619,7 +619,7 @@ uint8_t DisplayGetRotation( void )
     return Display.Rotation;
 }
 
-void DisplaySetRotation( uint8_t x ) 
+void DisplaySetRotation( uint8_t x )
 {
     Display.Rotation = ( x & 3 );
     switch( Display.Rotation )
@@ -645,7 +645,7 @@ void DisplayDrawPixel( int16_t x, int16_t y, DisplayColor_t color )
     }
 
     // check rotation, move pixel around if necessary
-    switch( DisplayGetRotation( ) ) 
+    switch( DisplayGetRotation( ) )
     {
         case 1:
             SwapInt16( x, y );
@@ -671,12 +671,12 @@ void DisplayDrawPixel( int16_t x, int16_t y, DisplayColor_t color )
             Display.Buffer[x + ( y / 8 ) * SSD1306_LCDWIDTH] &= ~( 1 << ( y & 7 ) );
             break;
         case DISPLAY_INVERSE:
-            Display.Buffer[x + ( y / 8 ) * SSD1306_LCDWIDTH] ^=  ( 1 << ( y & 7 ) ); 
+            Display.Buffer[x + ( y / 8 ) * SSD1306_LCDWIDTH] ^=  ( 1 << ( y & 7 ) );
             break;
     }
 }
 
-void DisplayDrawLine( int16_t x0, int16_t y0, int16_t x1, int16_t y1, DisplayColor_t color ) 
+void DisplayDrawLine( int16_t x0, int16_t y0, int16_t x1, int16_t y1, DisplayColor_t color )
 {
     int16_t steep = abs( y1 - y0 ) > abs( x1 - x0 );
 
@@ -690,7 +690,7 @@ void DisplayDrawLine( int16_t x0, int16_t y0, int16_t x1, int16_t y1, DisplayCol
     {
         SwapInt16( x0, x1 ); // but not here
         SwapInt16( y0, y1 );
-    } 
+    }
 
     int16_t dx, dy;
     dx = x1 - x0;           // 63 - 0
@@ -699,27 +699,27 @@ void DisplayDrawLine( int16_t x0, int16_t y0, int16_t x1, int16_t y1, DisplayCol
     int16_t err = dx / 2;   //63/2
     int16_t ystep;
 
-    if( y0 < y1 ) 
+    if( y0 < y1 )
     {
         ystep = 1;
-    } 
-    else 
+    }
+    else
     {
         ystep = -1;
     }
 
     for( ; x0 <= x1; x0++ ) // 0, 63
     {
-        if( steep != 0 ) 
+        if( steep != 0 )
         {
             DisplayDrawPixel( y0, x0, color ); //0 0 1
-        } 
-        else 
+        }
+        else
         {
             DisplayDrawPixel( x0, y0, color );
         }
         err -= dy;
-        if( err < 0 ) 
+        if( err < 0 )
         {
             y0 += ystep;
             err += dx;
@@ -727,17 +727,17 @@ void DisplayDrawLine( int16_t x0, int16_t y0, int16_t x1, int16_t y1, DisplayCol
     }
 }
 
-void DisplayDrawVerticalLine( int16_t x, int16_t y, int16_t h, DisplayColor_t color ) 
+void DisplayDrawVerticalLine( int16_t x, int16_t y, int16_t h, DisplayColor_t color )
 {
     DisplayDrawLine( x, y, x, y + h - 1, color );
 }
 
-void DisplayDrawHorizontalLine( int16_t x, int16_t y, int16_t w, DisplayColor_t color ) 
+void DisplayDrawHorizontalLine( int16_t x, int16_t y, int16_t w, DisplayColor_t color )
 {
     DisplayDrawLine( x, y, x + w - 1, y, color );
 }
 
-void DisplayDrawRect( int16_t x, int16_t y, int16_t w, int16_t h, DisplayColor_t color ) 
+void DisplayDrawRect( int16_t x, int16_t y, int16_t w, int16_t h, DisplayColor_t color )
 {
     DisplayDrawHorizontalLine( x, y, w, color );
     DisplayDrawHorizontalLine( x, y + h - 1, w, color );
@@ -745,10 +745,10 @@ void DisplayDrawRect( int16_t x, int16_t y, int16_t w, int16_t h, DisplayColor_t
     DisplayDrawVerticalLine( x + w - 1, y, h, color );
 }
 
-void DisplayFillRect( int16_t x, int16_t y, int16_t w, int16_t h, DisplayColor_t color ) 
+void DisplayFillRect( int16_t x, int16_t y, int16_t w, int16_t h, DisplayColor_t color )
 {
     // Update in subclasses if desired!
-    for( int16_t i = x; i < ( x + w ); i++ ) 
+    for( int16_t i = x; i < ( x + w ); i++ )
     {
         DisplayDrawVerticalLine( i, y, h, color );
     }
@@ -760,7 +760,7 @@ void DisplayFillScreen( DisplayColor_t color )
 }
 
 // Draw a triangle
-void DisplayDrawTriangle( int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, DisplayColor_t color ) 
+void DisplayDrawTriangle( int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, DisplayColor_t color )
 {
     DisplayDrawLine( x0, y0, x1, y1, color );
     DisplayDrawLine( x1, y1, x2, y2, color );
@@ -769,7 +769,7 @@ void DisplayDrawTriangle( int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_
 
 
 // Fill a triangle
-void DisplayFillTriangle( int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, DisplayColor_t color ) 
+void DisplayFillTriangle( int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, DisplayColor_t color )
 {
     int16_t a, b, y, last;
 
@@ -778,12 +778,12 @@ void DisplayFillTriangle( int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_
     {
         SwapInt16( y0, y1 ); SwapInt16( x0, x1 );
     }
-    
+
     if( y1 > y2 )
     {
         SwapInt16( y2, y1 ); SwapInt16( x2, x1 );
     }
-    
+
     if( y0 > y1 )
     {
         SwapInt16( y0, y1 ); SwapInt16( x0, x1 );
@@ -842,7 +842,7 @@ void DisplayFillTriangle( int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_
         b   = x0 + sb / dy02;
         sa += dx01;
         sb += dx02;
-        
+
 #if 0       // longhand:
         a = x0 + ( x1 - x0 ) * ( y - y0 ) / ( y1 - y0 );
         b = x0 + ( x2 - x0 ) * ( y - y0 ) / ( y2 - y0 );
@@ -858,14 +858,14 @@ void DisplayFillTriangle( int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_
     // 0-2 and 1-2.  This loop is skipped if y1=y2.
     sa = dx12 * ( y - y1 );
     sb = dx02 * ( y - y0 );
-    
+
     for( ; y <= y2; y++ )
     {
         a   = x1 + sa / dy12;
         b   = x0 + sb / dy02;
         sa += dx12;
         sb += dx02;
-        
+
 #if 0   // longhand:
         a = x1 + ( x2 - x1 ) * ( y - y1 ) / ( y2 - y1 );
         b = x0 + ( x2 - x0 ) * ( y - y0 ) / ( y2 - y0 );
@@ -900,7 +900,7 @@ void DisplayDrawChar( int16_t x, int16_t y, unsigned char c, DisplayColor_t colo
         {
             line = 0x0;
         }
-    
+
         for( int8_t j = 0; j < 8; j++, line >>= 1 )
         {
             if( ( line & 0x1 ) != 0 )
@@ -913,8 +913,8 @@ void DisplayDrawChar( int16_t x, int16_t y, unsigned char c, DisplayColor_t colo
                 {
                     DisplayFillRect( x + ( i * size ), y + ( j * size ), size, size, color );
                 }
-            } 
-            else 
+            }
+            else
             {
                 if( bg != color )
                 {
@@ -922,7 +922,7 @@ void DisplayDrawChar( int16_t x, int16_t y, unsigned char c, DisplayColor_t colo
                     {
                         DisplayDrawPixel( x + i, y + j, bg );
                     }
-                    else          
+                    else
                     {
                         DisplayFillRect( x + ( i * size ), y + ( j * size ), size, size, bg );
                     }
@@ -932,25 +932,25 @@ void DisplayDrawChar( int16_t x, int16_t y, unsigned char c, DisplayColor_t colo
     }
 }
 
-void DisplayPutc( uint8_t c ) 
+void DisplayPutc( uint8_t c )
 {
-    if( c == '\n' ) 
+    if( c == '\n' )
     {
         Display.CursorY += Display.TextSize * 8;
         Display.CursorX  = 0;
-    } 
-    else if( c == '\r' ) 
+    }
+    else if( c == '\r' )
     {
         // skip em
-    } 
-    else 
+    }
+    else
     {
         DisplayDrawChar( Display.CursorX, Display.CursorY, c, Display.TextColor, Display.TextBgColor, Display.TextSize );
         Display.CursorX += Display.TextSize * 6;
-    
+
         if( ( Display.Wrap == true ) &&
             ( ( Display.CursorX + Display.TextSize * 6 ) >= Display.Width ) ) // Heading off edge?
-        { 
+        {
             Display.CursorX  = 0;                    // Reset x to zero
             Display.CursorY += Display.TextSize * 8; // Advance y one line
         }
@@ -997,7 +997,7 @@ void DisplaySetLine( uint8_t line )
 
 void DisplayPrint( const char *string )
 {
-    for( const char *p = string; *p; p++ ) 
+    for( const char *p = string; *p; p++ )
     {
         DisplayPutc( *p );
     }
@@ -1009,13 +1009,13 @@ void DisplayPrintf( const char *format, ... )
     char tmpStr[80];
 
     va_start( ap, format );
-    
+
     vsnprintf( tmpStr, sizeof( tmpStr ), format, ap );
 
-    for( char *p = &tmpStr[0]; *p; p++ ) 
+    for( char *p = &tmpStr[0]; *p; p++ )
     {
         DisplayPutc( *p );
     }
-    
+
     va_end( ap );
 }

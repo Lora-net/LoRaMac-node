@@ -62,7 +62,7 @@ static bool GpsIconUpdateTimerStarted = false;
 
 /*!
  * \brief Current GPS icon state.
-*        [0: Outter box, 1: Inner box, 2: middle pixel]
+*        [0: Outer box, 1: Inner box, 2: middle pixel]
  */
 static uint8_t GpsIconUpdateState = 0;
 
@@ -114,7 +114,7 @@ static void ButtonsProcess( void )
     {
         return;
     }
-    
+
     if( ButtonGetState( BUTTON_LEFT ) == true )
     {
         if( CurrentScreen > SCREEN_1 )
@@ -127,7 +127,7 @@ static void ButtonsProcess( void )
         }
         ScreenUpdate = true;
     }
-    
+
     if( ButtonGetState( BUTTON_MIDDLE ) == true )
     {
         if( IsDisplayOn == true )
@@ -141,7 +141,7 @@ static void ButtonsProcess( void )
             DisplayOn( );
         }
     }
-    
+
     if( ButtonGetState( BUTTON_RIGHT ) == true )
     {
         if( CurrentScreen < SCREEN_LAST )
@@ -176,7 +176,7 @@ void ScreenSetCurrent( Screen_t current )
 }
 
 /*!
- * \brief Draws letf and right arrows on the toolbar
+ * \brief Draws left and right arrows on the toolbar
  *
  * \param y     Y coordinate for the arrows
  */
@@ -200,7 +200,7 @@ void ScreenDrawBattery( uint8_t x, uint8_t y, uint8_t level )
     DisplayDrawVerticalLine( x, y + 2, 4, DISPLAY_WHITE );
     DisplayDrawVerticalLine( x + 1, y + 1, 6, DISPLAY_WHITE );
     DisplayDrawRect( x + 2, y, 16, 8, DISPLAY_WHITE );
-    
+
     if( level == 0 ) // External power source
     {
         // Draw plug
@@ -221,7 +221,7 @@ void ScreenDrawBattery( uint8_t x, uint8_t y, uint8_t level )
         DisplayDrawHorizontalLine( x + 9, y + 3, 4, DISPLAY_WHITE );
 
         DisplayDrawHorizontalLine( x + 9, y + 4, 4, DISPLAY_WHITE );
-        
+
         DisplayDrawHorizontalLine( x + 6, y + 5, 2, DISPLAY_WHITE );
         DisplayDrawHorizontalLine( x + 12, y + 5, 2, DISPLAY_WHITE );
 
@@ -353,7 +353,7 @@ void ScreenDrawRssi( uint8_t x, uint8_t y, int16_t rssi, int8_t snr )
     DisplayDrawVerticalLine( x +  6, y + 4,  6, DISPLAY_WHITE );
     DisplayDrawVerticalLine( x +  9, y + 2,  8, DISPLAY_WHITE );
     DisplayDrawVerticalLine( x + 12, y    , 10, DISPLAY_WHITE );
-    
+
     if( snr > 0 )
     {
         DisplayDrawVerticalLine( x + 2, y, 5, DISPLAY_WHITE );
@@ -410,7 +410,7 @@ void ScreenDrawLinkStatus( uint8_t x, uint8_t y, bool uplink, bool downlink )
     DisplayFillRect( x, y, 6, 9, DISPLAY_BLACK );
     if( uplink == true )
     {
-        DisplayFillTriangle( x + 3, y, x, y + 3, x + 6, y + 3, DISPLAY_WHITE ); 
+        DisplayFillTriangle( x + 3, y, x, y + 3, x + 6, y + 3, DISPLAY_WHITE );
     }
     if( downlink == true )
     {
@@ -459,10 +459,10 @@ void OnGpsIconUpdateTimerEvent( void )
     {
     case 2:
         DisplayDrawPixel( GpsIconUpdateX + 4, GpsIconUpdateY + 4, DISPLAY_WHITE );
-        // Intentional falltrough
+        // Intentional fallthrough
     case 1:
         ScreenDrawGpsInnerBox( GpsIconUpdateX, GpsIconUpdateY );
-        // Intentional falltrough
+        // Intentional fallthrough
     case 0:
         ScreenDrawGpsOuterBox( GpsIconUpdateX, GpsIconUpdateY );
         break;
@@ -487,7 +487,7 @@ void ScreenDrawGps( uint8_t x, uint8_t y, bool hasFix )
     {
         TimerStop( &GpsIconUpdateTimer );
         GpsIconUpdateTimerStarted = false;
-        
+
         ScreenDrawGpsOuterBox( GpsIconUpdateX, GpsIconUpdateY );
         ScreenDrawGpsInnerBox( GpsIconUpdateX, GpsIconUpdateY );
         DisplayDrawPixel( GpsIconUpdateX + 4, GpsIconUpdateY + 4, DISPLAY_WHITE );
@@ -548,7 +548,7 @@ void ScreenDrawToolBar( AppSettings_t *appSettings, LoRaMacUplinkStatus_t *uplin
     ScreenDrawAdr( 58, 2, appSettings->AdrOn );
     ScreenDrawGps( 86, 2, uplink->GpsHaxFix );
     ScreenDrawBattery( 98, 2, uplink->BatteryLevel );
-    
+
     DisplayDrawHorizontalLine( 0, 12, 128, DISPLAY_WHITE );
 }
 
@@ -568,7 +568,7 @@ void ScreenProcess( AppSettings_t *appSettings, LoRaMacUplinkStatus_t *uplink, L
         DelayMs( 3000 );
 
         CurrentScreen++;
-        // Intentional falltrough
+        // Intentional fallthrough
     case SCREEN_JOIN:
         DisplaySetLine( 1 );
         DisplayPrint( " Joining Network " );
@@ -722,7 +722,7 @@ void ScreenProcess( AppSettings_t *appSettings, LoRaMacUplinkStatus_t *uplink, L
             DisplaySetLine( 3 );
             DisplayPrintf( "Port:        %d", downlink->Port );
             DisplaySetLine( 4 );
-            if( ( downlink->BufferSize != 0 ) && ( downlink->BufferSize < 22 ) ) 
+            if( ( downlink->BufferSize != 0 ) && ( downlink->BufferSize < 22 ) )
             {
                 DisplayPrintf( "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c", downlink->Buffer[0], downlink->Buffer[1],
                                                                              downlink->Buffer[2], downlink->Buffer[3],
@@ -838,7 +838,7 @@ void ScreenProcess( AppSettings_t *appSettings, LoRaMacUplinkStatus_t *uplink, L
         break;
     }
 
-    if( ( ScreenUpdate == true ) || 
+    if( ( ScreenUpdate == true ) ||
         ( uplink->StatusUpdated == true ) ||
         ( downlink->StatusUpdated == true ) )
     {
