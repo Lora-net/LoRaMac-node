@@ -2920,7 +2920,7 @@ static uint16_t RetransmissionDutyCylce( void )
     uint16_t dutyCycle = 0;
 
 #if defined( USE_BAND_868 ) || defined( USE_BAND_433 ) || defined( USE_BAND_780 )
-    TimerTime_t timeElapsed = TimerGetElapsedTime( 0 );
+    TimerTime_t timeElapsed = TimerGetCurrentTime( );
 
     if( timeElapsed < 3600e3 )
     {
