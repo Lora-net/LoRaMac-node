@@ -50,7 +50,7 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 /*!
  * Enables the choice between Led1 and Potentiometer.
  * LED1 and Potentiometer are exclusive.
- * \remark When using Potentimeter don't forget  that the connection between
+ * \remark When using Potentiometer don't forget  that the connection between
  *         ADC input pin of iM880A and the Demoboard Poti requires a connection
  *         between X5:11 - X5:18.
  *         Remove the original jumpers for that. 

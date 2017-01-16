@@ -16,7 +16,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define __UTILITIES_H__
 
 /*!
- * \brief Returns the minimum value betwen a and b
+ * \brief Returns the minimum value between a and b
  *
  * \param [IN] a 1st value
  * \param [IN] b 2nd value
@@ -25,7 +25,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define MIN( a, b ) ( ( ( a ) < ( b ) ) ? ( a ) : ( b ) )
 
 /*!
- * \brief Returns the maximum value betwen a and b
+ * \brief Returns the maximum value between a and b
  *
  * \param [IN] a 1st value
  * \param [IN] b 2nd value

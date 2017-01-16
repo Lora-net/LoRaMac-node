@@ -34,12 +34,12 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RADIO_WAKEUP_TIME                           ( RADIO_OSC_STARTUP + RADIO_SLEEP_TO_RX )
 
 /*!
- * Syncword for Private LoRa networks
+ * Sync word for Private LoRa networks
  */
 #define LORA_MAC_PRIVATE_SYNCWORD                   0x12
 
 /*!
- * Syncword for Public LoRa networks
+ * Sync word for Public LoRa networks
  */
 #define LORA_MAC_PUBLIC_SYNCWORD                    0x34
 

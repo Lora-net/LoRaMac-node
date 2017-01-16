@@ -129,7 +129,7 @@ int main( void )
     bool isMaster = true;
     uint8_t i;
 
-    // Target board initialisation
+    // Target board initialization
     BoardInitMcu( );
     BoardInitPeriph( );
 

@@ -37,7 +37,7 @@ void GpsMcuOnPpsSignal( void );
 void GpsMcuInvertPpsTrigger( void );
 
 /*!
- * \brief Low level Initialisation of the UART and IRQ for the GPS
+ * \brief Low level initialization of the UART and IRQ for the GPS
  */
 void GpsMcuInit( void );
 

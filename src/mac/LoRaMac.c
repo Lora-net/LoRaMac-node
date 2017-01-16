@@ -898,7 +898,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
 static LoRaMacStatus_t ScheduleTx( void );
 
 /*
- * \brief Sets the duty cycle for retransmissions
+ * \brief Sets the duty cycle for the join procedure.
  *
  * \retval Duty cycle
  */
@@ -1694,7 +1694,7 @@ static void OnTxDelayedTimerEvent( void )
         fCtrl.Value = 0;
         fCtrl.Bits.Adr = AdrCtrlOn;
 
-        /* In case of a join request retransmission, the stack must prepare
+        /* In case of join request retransmissions, the stack must prepare
          * the frame again, because the network server keeps track of the random
          * LoRaMacDevNonce values to prevent reply attacks. */
         PrepareFrame( &macHdr, &fCtrl, 0, NULL, 0 );
@@ -3173,7 +3173,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
             break;
         case FRAME_TYPE_DATA_CONFIRMED_UP:
             NodeAckRequested = true;
-            //Intentional falltrough
+            //Intentional fallthrough
         case FRAME_TYPE_DATA_UNCONFIRMED_UP:
             if( IsLoRaMacNetworkJoined == false )
             {

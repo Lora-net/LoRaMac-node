@@ -180,7 +180,7 @@ LoRaMacDownlinkStatus_t LoRaMacDownlinkStatus;
 /*!
  * Device states
  */
-static enum eDevicState
+static enum eDeviceState
 {
     DEVICE_STATE_INIT,
     DEVICE_STATE_JOIN,
@@ -249,7 +249,7 @@ static void PrepareTxFrame( uint8_t port )
             LoRaMacUplinkStatus.GpsHaxFix = GpsHasFix( );
 
             AppData[0] = AppLedStateOn;
-            AppData[1] = LoRaMacUplinkStatus.Temperature;                                           // Signed degrees Celcius in half degree units. So,  +/-63 C
+            AppData[1] = LoRaMacUplinkStatus.Temperature;                                           // Signed degrees celsius in half degree units. So,  +/-63 C
             AppData[2] = LoRaMacUplinkStatus.BatteryLevel;                                          // Per LoRaWAN spec; 0=Charging; 1...254 = level, 255 = N/A
             AppData[3] = ( LoRaMacUplinkStatus.Latitude >> 16 ) & 0xFF;
             AppData[4] = ( LoRaMacUplinkStatus.Latitude >> 8 ) & 0xFF;
@@ -694,7 +694,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             }
             else
             {
-                // Join was not succesful. Try to join again
+                // Join was not successful. Try to join again
                 DeviceState = DEVICE_STATE_JOIN;
             }
             break;
@@ -847,7 +847,7 @@ int main( void )
                 }
                 DeviceState = DEVICE_STATE_SLEEP;
 #else
-                // Choose a random device address if not already defined in Comissioning.h
+                // Choose a random device address if not already defined in Commissioning.h
                 if( AppSettings.DevAddr == 0 )
                 {
                     // Random seed initialization

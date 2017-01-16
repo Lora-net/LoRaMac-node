@@ -158,7 +158,7 @@ static bool NextTx = true;
 /*!
  * Device states
  */
-static enum eDevicState
+static enum eDeviceState
 {
     DEVICE_STATE_INIT,
     DEVICE_STATE_JOIN,
@@ -588,7 +588,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             }
             else
             {
-                // Join was not succesful. Try to join again
+                // Join was not successful. Try to join again
                 DeviceState = DEVICE_STATE_JOIN;
             }
             break;
@@ -698,7 +698,7 @@ int main( void )
                 }
                 DeviceState = DEVICE_STATE_SLEEP;
 #else
-                // Choose a random device address if not already defined in Comissioning.h
+                // Choose a random device address if not already defined in Commissioning.h
                 if( DevAddr == 0 )
                 {
                     // Random seed initialization

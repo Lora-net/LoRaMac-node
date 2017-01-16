@@ -47,7 +47,7 @@ Gpio_t Switch2;
 Gpio_t Switch3;
 
 /*!
- * Timer used to perform the deboucing
+ * Timer used to perform the debounce
  */
 static TimerEvent_t DebounceTimer;
 

@@ -45,7 +45,7 @@ void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriori
 /*!
  * \brief GPIO IRQ DeInitialization
  *
- * \param [IN] obj         Pointer to the GPIO object to be Deinitialized
+ * \param [IN] obj         Pointer to the GPIO object to be de-initialized
  */
 void GpioMcuRemoveInterrupt( Gpio_t *obj );
 

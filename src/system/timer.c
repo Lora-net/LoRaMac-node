@@ -201,7 +201,7 @@ void TimerIrqHandler( void )
 {
     uint32_t elapsedTime = 0;
 
-    // Early out when TimerListHead is null to prevent nullpointer
+    // Early out when TimerListHead is null to prevent null pointer
     if ( TimerListHead == NULL )
     {
         return;

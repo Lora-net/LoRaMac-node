@@ -100,14 +100,14 @@ typedef struct RtcCalendar_s
 RtcCalendar_t RtcCalendarContext;
 
 /*!
- * \brief Flag to indicate if the timestamps until the next event is long enough
+ * \brief Flag to indicate if the timestamp until the next event is long enough
  * to set the MCU into low power mode
  */
 static bool RtcTimerEventAllowsLowPower = false;
 
 /*!
- * \brief Flag to disable the LowPower Mode even if the timestamps until the
- * next event is long enough to allow Low Power mode
+ * \brief Flag to disable the low power mode even if the timestamp until the
+ * next event is long enough to allow low power mode
  */
 static bool LowPowerDisableDuringTask = false;
 
@@ -119,7 +119,7 @@ RTC_HandleTypeDef RtcHandle = { 0 };
 /*!
  * \brief Indicates if the RTC is already Initialized or not
  */
-static bool RtcInitalized = false;
+static bool RtcInitialized = false;
 
 /*!
  * \brief Indicates if the RTC Wake Up Time is calibrated or not
@@ -188,7 +188,7 @@ void RtcInit( void )
 {
     RtcCalendar_t rtcInit;
 
-    if( RtcInitalized == false )
+    if( RtcInitialized == false )
     {
         __HAL_RCC_RTC_ENABLE( );
 
@@ -224,7 +224,7 @@ void RtcInit( void )
 
         HAL_NVIC_SetPriority( RTC_IRQn, 1, 0 );
         HAL_NVIC_EnableIRQ( RTC_IRQn );
-        RtcInitalized = true;
+        RtcInitialized = true;
     }
 }
 

@@ -59,7 +59,7 @@ bool PAM7QGetGpsData( uint8_t *nmeaString, uint8_t *nmeaStringSize, uint16_t nme
             // copy length indication to argument
             *nmeaStringSize = pendingBytes;
 
-            // return sucess only if there is data to process
+            // return success only if there is data to process
             if( pendingBytes > 0 )
             {
                 result = true;
