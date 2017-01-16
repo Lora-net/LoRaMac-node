@@ -604,6 +604,11 @@ static bool DutyCycleOn;
 static uint8_t Channel;
 
 /*!
+ * Last channel index
+ */
+static uint8_t LastTxChannel = 0;
+
+/*!
  * LoRaMac internal states
  */
 enum eLoRaMacState
@@ -1534,7 +1539,8 @@ static void OnRadioTxDone( void )
         OnRxWindow2TimerEvent( );
     }
 
-
+    // Store last tx channel
+    LastTxChannel = Channel;
     // Update last tx done time for the current channel
     Bands[Channels[Channel].Band].LastTxDoneTime = curTime;
     // Update Aggregated last tx done time
