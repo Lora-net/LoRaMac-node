@@ -591,6 +591,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         mlmeReq.Req.Join.DevEui = DevEui;
                         mlmeReq.Req.Join.AppEui = AppEui;
                         mlmeReq.Req.Join.AppKey = AppKey;
+                        mlmeReq.Req.Join.NbTrials = 3;
 
                         LoRaMacMlmeRequest( &mlmeReq );
                         DeviceState = DEVICE_STATE_SLEEP;
@@ -631,18 +632,25 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
  */
 static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
 {
-    if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
+    switch( mlmeConfirm->MlmeRequest )
     {
-        switch( mlmeConfirm->MlmeRequest )
+        case MLME_JOIN:
         {
-            case MLME_JOIN:
+            if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
             {
                 // Status is OK, node has joined the network
                 DeviceState = DEVICE_STATE_SEND;
-                NextTx = true;
-                break;
             }
-            case MLME_LINK_CHECK:
+            else
+            {
+                // Join was not succesful. Try to join again
+                DeviceState = DEVICE_STATE_JOIN;
+            }
+            break;
+        }
+        case MLME_LINK_CHECK:
+        {
+            if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
             {
                 // Check DemodMargin
                 // Check NbGateways
@@ -652,11 +660,11 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                     ComplianceTest.DemodMargin = mlmeConfirm->DemodMargin;
                     ComplianceTest.NbGateways = mlmeConfirm->NbGateways;
                 }
-                break;
             }
-            default:
-                break;
+            break;
         }
+        default:
+            break;
     }
     NextTx = true;
 }
@@ -737,6 +745,7 @@ int main( void )
                 mlmeReq.Req.Join.DevEui = DevEui;
                 mlmeReq.Req.Join.AppEui = AppEui;
                 mlmeReq.Req.Join.AppKey = AppKey;
+                mlmeReq.Req.Join.NbTrials = 3;
 
                 if( NextTx == true )
                 {
