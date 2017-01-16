@@ -1722,7 +1722,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                         ChannelParams_t param;
                         param.DrRange.Value = ( DR_5 << 4 ) | DR_0;
 
-                        LoRaMacState |= MAC_TX_CONFIG;
+                        LoRaMacState |= LORAMAC_TX_CONFIG;
                         for( uint8_t i = 3, j = 0; i < ( 5 + 3 ); i++, j += 3 )
                         {
                             param.Frequency = ( ( uint32_t )LoRaMacRxPayload[13 + j] | ( ( uint32_t )LoRaMacRxPayload[14 + j] << 8 ) | ( ( uint32_t )LoRaMacRxPayload[15 + j] << 16 ) ) * 100;
@@ -1735,12 +1735,10 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                                 LoRaMacChannelRemove( i );
                             }
                         }
-                        LoRaMacState &= ~MAC_TX_CONFIG;
+                        LoRaMacState &= ~LORAMAC_TX_CONFIG;
                     }
 #endif
-
                     MlmeConfirmQueue[index].Status = LORAMAC_EVENT_INFO_STATUS_OK;
-
                     IsLoRaMacNetworkJoined = true;
                     LoRaMacParams.ChannelsDatarate = LoRaMacParamsDefaults.ChannelsDatarate;
                 }
@@ -2148,7 +2146,7 @@ static void OnMacStateCheckTimerEvent( void )
                 if( LoRaMacFlags.Bits.MlmeReq == 1 )
                 {
                     noTx = true;
-                    LoRaMacState &= ~MAC_TX_RUNNING;
+                    LoRaMacState &= ~LORAMAC_TX_RUNNING;
                 }
             }
         }
@@ -4916,10 +4914,12 @@ TimerTime_t SendFrameOnChannel( ChannelParams_t channel )
     TimerSetValue( &MacStateCheckTimer, MAC_STATE_CHECK_TIMEOUT );
     TimerStart( &MacStateCheckTimer );
 
-    LoRaMacState |= MAC_TX_RUNNING;
+    LoRaMacState |= LORAMAC_TX_RUNNING;
 
     // Send now
     Radio.Send( LoRaMacBuffer, LoRaMacBufferPktLen );
+
+    LoRaMacState |= LORAMAC_TX_RUNNING;
 
     return 0;
 }
