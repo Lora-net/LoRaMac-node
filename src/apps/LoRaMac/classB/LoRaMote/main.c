@@ -222,7 +222,7 @@ static void PrepareTxFrame( uint8_t port )
             uint8_t batteryLevel = 0;
 
             pressure = ( uint16_t )( MPL3115ReadPressure( ) / 10 );             // in hPa / 10
-            temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
+            temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in ï¿½C * 100
             altitudeBar = ( int16_t )( MPL3115ReadAltitude( ) * 10 );           // in m * 10
             batteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
             GpsGetLatestGpsPositionBinary( &latitude, &longitude );
@@ -250,7 +250,7 @@ static void PrepareTxFrame( uint8_t port )
             uint16_t altitudeGps = 0xFFFF;
             uint8_t batteryLevel = 0;
 
-            temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
+            temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in ï¿½C * 100
 
             batteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
             GpsGetLatestGpsPositionBinary( &latitude, &longitude );
