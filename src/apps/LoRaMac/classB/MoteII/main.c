@@ -741,7 +741,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
 {
     MibRequestConfirm_t mibReq;
 
-    if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
+    switch( mlmeConfirm->MlmeRequest )
     {
         case MLME_JOIN:
         {
@@ -771,69 +771,47 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                     ComplianceTest.NbGateways = mlmeConfirm->NbGateways;
                 }
             }
-            case MLME_BEACON_TIMING:
-            {
-                WakeUpState = DEVICE_STATE_BEACON_ACQUISITION;
-                // Switch to the next state immediately
-                DeviceState = DEVICE_STATE_BEACON_ACQUISITION;
-                LoRaMacUplinkStatus.StatusUpdated = true;
-                NextTx = true;
-                break;
-            }
-            case MLME_BEACON_ACQUISITION:
+            break;
+        }
+        case MLME_BEACON_TIMING:
+        {
+
+            WakeUpState = DEVICE_STATE_BEACON_ACQUISITION;
+            // Switch to the next state immediately
+            DeviceState = DEVICE_STATE_BEACON_ACQUISITION;
+            NextTx = true;
+            break;
+        }
+        case MLME_BEACON_ACQUISITION:
+        {
+            if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
             {
                 WakeUpState = DEVICE_STATE_REQ_PINGSLOT_ACK;
-                break;
             }
-            case MLME_PING_SLOT_INFO:
+            else
+            {
+                WakeUpState = DEVICE_STATE_REQ_BEACON_TIMING;
+            }
+            break;
+        }
+        case MLME_PING_SLOT_INFO:
+        {
+            if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
             {
                 mibReq.Type = MIB_DEVICE_CLASS;
                 mibReq.Param.Class = CLASS_B;
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
                 WakeUpState = DEVICE_STATE_SEND;
-                break;
             }
-            default:
-                break;
+            else
+            {
+                WakeUpState = DEVICE_STATE_REQ_PINGSLOT_ACK;
+            }
+            break;
         }
         default:
             break;
-    }
-    else
-    {
-        switch( mlmeConfirm->MlmeRequest )
-        {
-            case MLME_JOIN:
-            {
-                // Join failed, restart join procedure
-                DeviceState = DEVICE_STATE_JOIN;
-                NextTx = true;
-                LoRaMacUplinkStatus.StatusUpdated = true;
-                break;
-            }
-            case MLME_BEACON_TIMING:
-            {
-                WakeUpState = DEVICE_STATE_BEACON_ACQUISITION;
-                // Switch to the next state immediately
-                DeviceState = DEVICE_STATE_BEACON_ACQUISITION;
-                NextTx = true;
-                LoRaMacUplinkStatus.StatusUpdated = true;
-                break;
-            }
-            case MLME_BEACON_ACQUISITION:
-            {
-                WakeUpState = DEVICE_STATE_REQ_BEACON_TIMING;
-                break;
-            }
-            case MLME_PING_SLOT_INFO:
-            {
-                WakeUpState = DEVICE_STATE_REQ_PINGSLOT_ACK;
-                break;
-            }
-            default:
-                break;
-        }
     }
     LoRaMacUplinkStatus.StatusUpdated = true;
 }
