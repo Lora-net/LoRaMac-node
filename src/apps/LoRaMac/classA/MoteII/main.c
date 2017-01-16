@@ -18,7 +18,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "board.h"
 
 #include "LoRaMac.h"
-#include "Comissioning.h"
+#include "Commissioning.h"
 
 #include "buttons.h"
 #include "screen.h"

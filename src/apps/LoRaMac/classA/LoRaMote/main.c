@@ -20,7 +20,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "board.h"
 
 #include "LoRaMac.h"
-#include "Comissioning.h"
+#include "Commissioning.h"
 
 /*!
  * Defines the application data transmission duty cycle. 5s, value in [ms].
