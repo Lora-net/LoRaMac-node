@@ -3891,7 +3891,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         case MIB_CHANNELS_DEFAULT_TX_POWER:
         {
             if( ValueInRange( mibSet->Param.ChannelsDefaultTxPower,
-                              LORAMAC_MIN_TX_POWER, LORAMAC_MAX_TX_POWER ) )
+                              LORAMAC_MAX_TX_POWER, LORAMAC_MIN_TX_POWER ) )
             {
                 LoRaMacParamsDefaults.ChannelsTxPower = mibSet->Param.ChannelsDefaultTxPower;
             }
