@@ -902,7 +902,7 @@ static LoRaMacStatus_t ScheduleTx( void );
  *
  * \retval Duty cycle
  */
-static uint16_t RetransmissionDutyCylce( void );
+static uint16_t JoinDutyCycle( void );
 
 /*
  * \brief Calculates the back-off time for the band of a channel.
@@ -2942,7 +2942,7 @@ static LoRaMacStatus_t ScheduleTx( )
     }
 }
 
-static uint16_t RetransmissionDutyCylce( void )
+static uint16_t JoinDutyCycle( void )
 {
     uint16_t dutyCycle = 0;
     TimerTime_t timeElapsed = TimerGetCurrentTime( );
@@ -2973,7 +2973,7 @@ static void CalculateBackOff( uint8_t channel )
     if( IsLoRaMacNetworkJoined == false )
     {
         // The node has not joined yet. Apply join duty cycle to all regions.
-        joinDutyCycle = RetransmissionDutyCylce( );
+        joinDutyCycle = JoinDutyCycle( );
         dutyCycle = MAX( dutyCycle, joinDutyCycle );
 
         // Update Band time-off. 
