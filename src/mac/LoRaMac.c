@@ -56,11 +56,6 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jä
 #define BACKOFF_DC_24_HOURS                         10000
 
 /*!
- * Random backoff offset [ms].
- */
-#define BACKOFF_RND_OFFSET                          600000
-
-/*!
  * Device IEEE EUI
  */
 static uint8_t *LoRaMacDevEui;
@@ -751,14 +746,6 @@ static uint8_t MlmeConfirmQueueCnt;
  * Holds the current rx window slot
  */
 static uint8_t RxSlot = 0;
-
-/*!
- * Holds the status if the node has transmitted
- * a join request yet. Should not be initialized during
- * initialization. It must only be set to false when
- * a reset occurred.
- */
-static bool FirstTxDelayApplied = false;
 
 /*!
  * LoRaMac tx/rx operation state
@@ -1485,13 +1472,6 @@ static void CalculateBackOff( uint8_t channel );
 static int8_t AlternateDatarate( uint16_t nbTrials );
 
 /*
- * \brief Applies a delay to the first TX, if it is a join request.
- *
- * \retval Time delay to apply in [ms].
- */
-static TimerTime_t FirstTxDelay( void );
-
-/*
  * \brief Gets the index of the confirm queue of a specific MLME-request
  *
  * \param [IN] queue        MLME-Confirm queue pointer
@@ -1530,6 +1510,7 @@ static void ResetMacParameters( void );
 static void OnRadioTxDone( void )
 {
     TimerTime_t curTime = TimerGetCurrentTime( );
+
     if( LoRaMacDeviceClass != CLASS_C )
     {
         Radio.Sleep( );
@@ -1539,15 +1520,7 @@ static void OnRadioTxDone( void )
         OnRxWindow2TimerEvent( );
     }
 
-    // Store last tx channel
-    LastTxChannel = Channel;
-    // Update last tx done time for the current channel
-    Bands[Channels[Channel].Band].LastTxDoneTime = curTime;
-    // Update Aggregated last tx done time
-    AggregatedLastTxDoneTime = curTime;
-    // Update Backoff
-    CalculateBackOff( Channel );
-
+    // Setup timers
     if( IsRxWindowsEnabled == true )
     {
         TimerSetValue( &RxWindowTimer1, RxWindow1Delay );
@@ -1575,6 +1548,15 @@ static void OnRadioTxDone( void )
         }
         LoRaMacFlags.Bits.MacDone = 1;
     }
+
+    // Store last tx channel
+    LastTxChannel = Channel;
+    // Update last tx done time for the current channel
+    Bands[Channels[Channel].Band].LastTxDoneTime = curTime;
+    // Update Aggregated last tx done time
+    AggregatedLastTxDoneTime = curTime;
+    // Update Backoff
+    CalculateBackOff( Channel );
 
     if( NodeAckRequested == false )
     {
@@ -2162,10 +2144,15 @@ static void OnMacStateCheckTimerEvent( void )
                     {
                         // The UpLinkCounter must be set to 0
                         UpLinkCounter = 0;
+                        LoRaMacParams.ChannelsNbRep = JoinRequestTrials;
                     }
+                    else
+                    {
+                        LoRaMacParams.ChannelsNbRep = MaxJoinRequestTrials;
+                    }
+
                     // Use join counter settings for the next condition
                     // Counter variables will be reset with every new join trial
-                    LoRaMacParams.ChannelsNbRep = MaxJoinRequestTrials;
                     ChannelsNbRepCounter = JoinRequestTrials;
                 }
             }
@@ -2498,14 +2485,23 @@ static bool SetNextChannel( TimerTime_t* time )
         // Update bands Time OFF
         for( uint8_t i = 0; i < LORA_MAX_NB_BANDS; i++ )
         {
-            if( Bands[i].TimeOff <= TimerGetElapsedTime( Bands[i].LastTxDoneTime ) )
+            if( ( IsLoRaMacNetworkJoined == false ) || ( DutyCycleOn == true ) )
             {
-                Bands[i].TimeOff = 0;
+                if( Bands[i].TimeOff <= TimerGetElapsedTime( Bands[i].LastTxDoneTime ) )
+                {
+                    Bands[i].TimeOff = 0;
+                }
+                if( Bands[i].TimeOff != 0 )
+                {
+                    nextTxDelay = MIN( Bands[i].TimeOff - TimerGetElapsedTime( Bands[i].LastTxDoneTime ), nextTxDelay );
+                }
             }
-            if( Bands[i].TimeOff != 0 )
+            else
             {
-                nextTxDelay = MIN( Bands[i].TimeOff - TimerGetElapsedTime( Bands[i].LastTxDoneTime ),
-                                   nextTxDelay );
+                if( DutyCycleOn == false )
+                {
+                    Bands[i].TimeOff = 0;
+                }
             }
         }
 
@@ -4472,8 +4468,6 @@ static LoRaMacStatus_t ScheduleTx( )
 #endif
     }
 
-    dutyCycleTimeOff += FirstTxDelay( );
-
     // Schedule transmission of frame
     if( dutyCycleTimeOff == 0 )
     {
@@ -4562,8 +4556,6 @@ static int8_t AlternateDatarate( uint16_t nbTrials )
     {
         datarate = DR_0;
     }
-#elif defined( USE_BAND_470 )
-    datarate = randr( LORAMAC_TX_MIN_DATARATE, LORAMAC_TX_MAX_DATARATE - 1 );
 #else
     if( ( nbTrials % 48 ) == 0 )
     {
@@ -4591,28 +4583,6 @@ static int8_t AlternateDatarate( uint16_t nbTrials )
     }
 #endif
     return datarate;
-}
-
-static TimerTime_t FirstTxDelay( void )
-{
-    TimerTime_t delay = 0;
-
-    if( LoRaMacFlags.Bits.MlmeReq == 1 )
-    {
-        if( MlmeConfirm.MlmeRequest == MLME_JOIN )
-        {
-            if( FirstTxDelayApplied == false )
-            {
-                // Make sure to apply the random back-off only to the first TX.
-                // For the join procedure, it adds a random back-off to the transmission.
-                // If a many nodes perform a reset at the same time, it prevents that
-                // the nodes transmit a join request at the same time.
-                delay = randr( 0, BACKOFF_RND_OFFSET );
-                FirstTxDelayApplied = true;
-            }
-        }
-    }
-    return delay;
 }
 
 static uint8_t GetMlmeConfirmIndex( sMlmeConfirmQueue_t* queue, Mlme_t req, uint8_t length )
@@ -5950,6 +5920,20 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             {
                 return LORAMAC_STATUS_PARAMETER_INVALID;
             }
+
+#if ( defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID ) )
+            // Enables at least the usage of the 2 datarates.
+            if( mlmeRequest->Req.Join.NbTrials < 2 )
+            {
+                mlmeRequest->Req.Join.NbTrials = 2;
+            }
+#else
+            // Enables at least the usage of all datarates.
+            if( mlmeRequest->Req.Join.NbTrials < 48 )
+            {
+                mlmeRequest->Req.Join.NbTrials = 48;
+            }
+#endif
 
             LoRaMacFlags.Bits.MlmeReq = 1;
             MlmeConfirm.MlmeRequest = mlmeRequest->Type;
