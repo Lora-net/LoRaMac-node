@@ -56,11 +56,6 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jä
 #define BACKOFF_DC_24_HOURS                         10000
 
 /*!
- * Random backoff offset [ms].
- */
-#define BACKOFF_RND_OFFSET                          600000
-
-/*!
  * Device IEEE EUI
  */
 static uint8_t *LoRaMacDevEui;
@@ -616,14 +611,6 @@ static MlmeConfirm_t MlmeConfirm;
 static uint8_t RxSlot = 0;
 
 /*!
- * Holds the status if the node has transmitted
- * a join request yet. Should not be initialized during
- * initialization. It must only be set to false when
- * a reset occurred.
- */
-static bool FirstTxDelayApplied = false;
-
-/*!
  * LoRaMac tx/rx operation state
  */
 LoRaMacFlags_t LoRaMacFlags;
@@ -918,13 +905,6 @@ static void CalculateBackOff( uint8_t channel );
  * \retval Datarate to apply
  */
 static int8_t AlternateDatarate( uint16_t nbTrials );
-
-/*
- * \brief Applies a delay to the first TX, if it is a join request.
- *
- * \retval Time delay to apply in [ms].
- */
-static TimerTime_t FirstTxDelay( void );
 
 /*!
  * \brief LoRaMAC layer prepared frame buffer transmission with channel specification
@@ -2923,8 +2903,6 @@ static LoRaMacStatus_t ScheduleTx( )
 #endif
     }
 
-    dutyCycleTimeOff += FirstTxDelay( );
-
     // Schedule transmission of frame
     if( dutyCycleTimeOff == 0 )
     {
@@ -3040,28 +3018,6 @@ static int8_t AlternateDatarate( uint16_t nbTrials )
     }
 #endif
     return datarate;
-}
-
-static TimerTime_t FirstTxDelay( void )
-{
-    TimerTime_t delay = 0;
-
-    if( LoRaMacFlags.Bits.MlmeReq == 1 )
-    {
-        if( MlmeConfirm.MlmeRequest == MLME_JOIN )
-        {
-            if( FirstTxDelayApplied == false )
-            {
-                // Make sure to apply the random back-off only to the first TX.
-                // For the join procedure, it adds a random back-off to the transmission.
-                // If a many nodes perform a reset at the same time, it prevents that
-                // the nodes transmit a join request at the same time.
-                delay = randr( 0, BACKOFF_RND_OFFSET );
-                FirstTxDelayApplied = true;
-            }
-        }
-    }
-    return delay;
 }
 
 static void ResetMacParameters( void )
