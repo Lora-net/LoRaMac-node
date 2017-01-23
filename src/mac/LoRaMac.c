@@ -1502,10 +1502,15 @@ static void OnMacStateCheckTimerEvent( void )
                     {
                         // The UpLinkCounter must be set to 0
                         UpLinkCounter = 0;
+                        LoRaMacParams.ChannelsNbRep = JoinRequestTrials;
                     }
+                    else
+                    {
+                        LoRaMacParams.ChannelsNbRep = MaxJoinRequestTrials;
+                    }
+
                     // Use join counter settings for the next condition
                     // Counter variables will be reset with every new join trial
-                    LoRaMacParams.ChannelsNbRep = MaxJoinRequestTrials;
                     ChannelsNbRepCounter = JoinRequestTrials;
                 }
             }
