@@ -1935,14 +1935,23 @@ static bool SetNextChannel( TimerTime_t* time )
         // Update bands Time OFF
         for( uint8_t i = 0; i < LORA_MAX_NB_BANDS; i++ )
         {
-            if( Bands[i].TimeOff <= TimerGetElapsedTime( Bands[i].LastTxDoneTime ) )
+            if( ( IsLoRaMacNetworkJoined == false ) || ( DutyCycleOn == true ) )
             {
-                Bands[i].TimeOff = 0;
+                if( Bands[i].TimeOff <= TimerGetElapsedTime( Bands[i].LastTxDoneTime ) )
+                {
+                    Bands[i].TimeOff = 0;
+                }
+                if( Bands[i].TimeOff != 0 )
+                {
+                    nextTxDelay = MIN( Bands[i].TimeOff - TimerGetElapsedTime( Bands[i].LastTxDoneTime ), nextTxDelay );
+                }
             }
-            if( Bands[i].TimeOff != 0 )
+            else
             {
-                nextTxDelay = MIN( Bands[i].TimeOff - TimerGetElapsedTime( Bands[i].LastTxDoneTime ),
-                                   nextTxDelay );
+                if( DutyCycleOn == false )
+                {
+                    Bands[i].TimeOff = 0;
+                }
             }
         }
 
