@@ -935,6 +935,7 @@ static void ResetMacParameters( void );
 static void OnRadioTxDone( void )
 {
     TimerTime_t curTime = TimerGetCurrentTime( );
+
     if( LoRaMacDeviceClass != CLASS_C )
     {
         Radio.Sleep( );
@@ -944,14 +945,7 @@ static void OnRadioTxDone( void )
         OnRxWindow2TimerEvent( );
     }
 
-
-    // Update last tx done time for the current channel
-    Bands[Channels[Channel].Band].LastTxDoneTime = curTime;
-    // Update Aggregated last tx done time
-    AggregatedLastTxDoneTime = curTime;
-    // Update Backoff
-    CalculateBackOff( Channel );
-
+    // Setup timers
     if( IsRxWindowsEnabled == true )
     {
         TimerSetValue( &RxWindowTimer1, RxWindow1Delay );
@@ -979,6 +973,13 @@ static void OnRadioTxDone( void )
         }
         LoRaMacFlags.Bits.MacDone = 1;
     }
+
+    // Update last tx done time for the current channel
+    Bands[Channels[Channel].Band].LastTxDoneTime = curTime;
+    // Update Aggregated last tx done time
+    AggregatedLastTxDoneTime = curTime;
+    // Update Backoff
+    CalculateBackOff( Channel );
 
     if( NodeAckRequested == false )
     {
