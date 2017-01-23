@@ -3004,8 +3004,6 @@ static int8_t AlternateDatarate( uint16_t nbTrials )
     {
         datarate = DR_0;
     }
-#elif defined( USE_BAND_470 )
-    datarate = randr( LORAMAC_TX_MIN_DATARATE, LORAMAC_TX_MAX_DATARATE - 1 );
 #else
     if( ( nbTrials % 48 ) == 0 )
     {
