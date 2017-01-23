@@ -4195,6 +4195,20 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
                 return LORAMAC_STATUS_PARAMETER_INVALID;
             }
 
+#if ( defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID ) )
+            // Enables at least the usage of the 2 datarates.
+            if( mlmeRequest->Req.Join.NbTrials < 2 )
+            {
+                mlmeRequest->Req.Join.NbTrials = 2;
+            }
+#else
+            // Enables at least the usage of all datarates.
+            if( mlmeRequest->Req.Join.NbTrials < 48 )
+            {
+                mlmeRequest->Req.Join.NbTrials = 48;
+            }
+#endif
+
             LoRaMacFlags.Bits.MlmeReq = 1;
             MlmeConfirm.MlmeRequest = mlmeRequest->Type;
 
