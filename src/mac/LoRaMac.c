@@ -239,7 +239,7 @@ const uint8_t MaxPayloadOfDatarateRepeater[] = { 51, 51, 51, 115, 222, 222, 222,
 /*!
  * Tx output powers table definition
  */
-const int8_t TxPowers[]    = { 20, 14, 11,  8,  5,  2 };
+const int8_t TxPowers[]    = { 10, 7, 4, 1, -2, -5 };
 
 /*!
  * LoRaMac bands
@@ -327,7 +327,7 @@ const uint8_t MaxPayloadOfDatarateRepeater[] = { 51, 51, 51, 115, 222, 222, 222,
 /*!
  * Tx output powers table definition
  */
-const int8_t TxPowers[]    = { 20, 14, 11,  8,  5,  2 };
+const int8_t TxPowers[]    = { 10, 7, 4, 1, -2, -5 };
 
 /*!
  * LoRaMac bands
