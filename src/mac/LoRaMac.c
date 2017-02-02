@@ -689,8 +689,10 @@ static bool SetNextChannel( TimerTime_t* time );
  * \param [IN] datarate window channel datarate
  * \param [IN] bandwidth window channel bandwidth
  * \param [IN] timeout window channel timeout
+ *
+ * \retval status Operation status [true: Success, false: Fail]
  */
-static void RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, uint16_t timeout, bool rxContinuous );
+static bool RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, uint16_t timeout, bool rxContinuous );
 
 /*!
  * \brief Verifies if the RX window 2 frequency is in range
@@ -1793,9 +1795,9 @@ static void OnRxWindow2TimerEvent( void )
 {
     uint16_t symbTimeout = 5; // DR_2, DR_1, DR_0
     uint32_t bandwidth = 0; // LoRa 125 kHz
+    bool rxContinuousMode = false;
 
     TimerStop( &RxWindowTimer2 );
-    RxSlot = 1;
 
 #if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
     // For higher datarates, we increase the number of symbols generating a Rx Timeout
@@ -1861,13 +1863,13 @@ static void OnRxWindow2TimerEvent( void )
 #else
     #error "Please define a frequency band in the compiler options."
 #endif
-    if( LoRaMacDeviceClass != CLASS_C )
+    if( LoRaMacDeviceClass == CLASS_C )
     {
-        RxWindowSetup( LoRaMacParams.Rx2Channel.Frequency, LoRaMacParams.Rx2Channel.Datarate, bandwidth, symbTimeout, false );
+        rxContinuousMode = true;
     }
-    else
+    if( RxWindowSetup( LoRaMacParams.Rx2Channel.Frequency, LoRaMacParams.Rx2Channel.Datarate, bandwidth, symbTimeout, rxContinuousMode ) == true )
     {
-        RxWindowSetup( LoRaMacParams.Rx2Channel.Frequency, LoRaMacParams.Rx2Channel.Datarate, bandwidth, symbTimeout, true );
+        RxSlot = 1;
     }
 }
 
@@ -2026,7 +2028,7 @@ static bool SetNextChannel( TimerTime_t* time )
     }
 }
 
-static void RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, uint16_t timeout, bool rxContinuous )
+static bool RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, uint16_t timeout, bool rxContinuous )
 {
     uint8_t downlinkDatarate = Datarates[datarate];
     RadioModems_t modem;
@@ -2071,7 +2073,9 @@ static void RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, u
         {
             Radio.Rx( 0 ); // Continuous mode
         }
+        return true;
     }
+    return false;
 }
 
 static bool Rx2FreqInRange( uint32_t freq )
