@@ -3380,11 +3380,11 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
 
     // Duty cycle
 #if defined( USE_BAND_433 )
-    DutyCycleOn = false;
+    DutyCycleOn = true;
 #elif defined( USE_BAND_470 )
     DutyCycleOn = false;
 #elif defined( USE_BAND_780 )
-    DutyCycleOn = false;
+    DutyCycleOn = true;
 #elif defined( USE_BAND_868 )
     DutyCycleOn = true;
 #elif defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
@@ -4368,7 +4368,7 @@ void LoRaMacTestSetMic( uint16_t txPacketCounter )
 
 void LoRaMacTestSetDutyCycleOn( bool enable )
 {
-#if defined( USE_BAND_868 )
+#if ( defined( USE_BAND_868 ) || defined( USE_BAND_433 ) || defined( USE_BAND_780 ) )
     DutyCycleOn = enable;
 #else
     DutyCycleOn = false;
