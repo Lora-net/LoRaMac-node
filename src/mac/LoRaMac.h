@@ -1059,6 +1059,7 @@ typedef struct sMlmeConfirm
  * \ref MIB_CHANNELS                 | YES | NO
  * \ref MIB_RX2_CHANNEL              | YES | YES
  * \ref MIB_CHANNELS_MASK            | YES | YES
+ * \ref MIB_CHANNELS_DEFAULT_MASK    | YES | YES
  * \ref MIB_CHANNELS_NB_REP          | YES | YES
  * \ref MIB_MAX_RX_WINDOW_DURATION   | YES | YES
  * \ref MIB_RECEIVE_DELAY_1          | YES | YES
@@ -1163,6 +1164,12 @@ typedef enum eMib
      * LoRaWAN Specification V1.0.1, chapter 7
      */
     MIB_CHANNELS_MASK,
+    /*!
+     * LoRaWAN default channels mask
+     *
+     * LoRaWAN Specification V1.0.1, chapter 7
+     */
+    MIB_CHANNELS_DEFAULT_MASK,
     /*!
      * Set the number of repetitions on a channel
      *
@@ -1344,6 +1351,12 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_CHANNELS_MASK
      */
     uint16_t* ChannelsMask;
+    /*!
+     * Default channel mask
+     *
+     * Related MIB type: \ref MIB_CHANNELS_DEFAULT_MASK
+     */
+    uint16_t* ChannelsDefaultMask;
     /*!
      * Number of frame repetitions
      *
