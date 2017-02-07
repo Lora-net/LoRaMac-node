@@ -1036,6 +1036,15 @@ void SX1272SetModem( RadioModems_t modem )
 {
     assert_param( ( SX1272.Spi.Spi.Instance != NULL ) );
 
+    if( ( SX1272Read( REG_OPMODE ) & RFLR_OPMODE_LONGRANGEMODE_ON ) != 0 )
+    {
+        SX1272.Settings.Modem = MODEM_LORA;
+    }
+    else
+    {
+        SX1272.Settings.Modem = MODEM_FSK;
+    }
+
     if( SX1272.Settings.Modem == modem )
     {
         return;
