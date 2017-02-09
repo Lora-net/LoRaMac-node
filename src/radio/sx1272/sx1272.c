@@ -1036,6 +1036,15 @@ void SX1272SetModem( RadioModems_t modem )
 {
     assert_param( ( SX1272.Spi.Spi.Instance != NULL ) );
 
+    if( ( SX1272Read( REG_OPMODE ) & RFLR_OPMODE_LONGRANGEMODE_ON ) != 0 )
+    {
+        SX1272.Settings.Modem = MODEM_LORA;
+    }
+    else
+    {
+        SX1272.Settings.Modem = MODEM_FSK;
+    }
+
     if( SX1272.Settings.Modem == modem )
     {
         return;
@@ -1046,14 +1055,14 @@ void SX1272SetModem( RadioModems_t modem )
     {
     default:
     case MODEM_FSK:
-        SX1272SetOpMode( RF_OPMODE_SLEEP );
+        SX1272SetSleep( );
         SX1272Write( REG_OPMODE, ( SX1272Read( REG_OPMODE ) & RFLR_OPMODE_LONGRANGEMODE_MASK ) | RFLR_OPMODE_LONGRANGEMODE_OFF );
 
         SX1272Write( REG_DIOMAPPING1, 0x00 );
         SX1272Write( REG_DIOMAPPING2, 0x30 ); // DIO5=ModeReady
         break;
     case MODEM_LORA:
-        SX1272SetOpMode( RF_OPMODE_SLEEP );
+        SX1272SetSleep( );
         SX1272Write( REG_OPMODE, ( SX1272Read( REG_OPMODE ) & RFLR_OPMODE_LONGRANGEMODE_MASK ) | RFLR_OPMODE_LONGRANGEMODE_ON );
 
         SX1272Write( REG_DIOMAPPING1, 0x00 );
