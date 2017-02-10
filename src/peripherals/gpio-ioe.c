@@ -20,6 +20,7 @@ void GpioIoeInit( Gpio_t *obj, PinNames pin, PinModes mode,  PinConfigs config, 
 {
     uint8_t regAdd = 0;
     uint8_t regVal = 0;
+    uint8_t tempVal = 0;
 
     SX1509Init( );
 
@@ -52,10 +53,28 @@ void GpioIoeInit( Gpio_t *obj, PinNames pin, PinModes mode,  PinConfigs config, 
 
     if( ( obj->pin % 16 ) > 0x07 )
     {
+        SX1509Read( RegOpenDrainB, &tempVal );
+        if( config == PIN_OPEN_DRAIN )
+        {
+            SX1509Write( RegOpenDrainB, tempVal | obj->pinIndex );
+        }
+        else
+        {
+            SX1509Write( RegOpenDrainB, tempVal & ~obj->pinIndex );
+        }
         regAdd = RegDataB;
     }
     else
     {
+        SX1509Read( RegOpenDrainA, &tempVal );
+        if( config == PIN_OPEN_DRAIN )
+        {
+            SX1509Write( RegOpenDrainA, tempVal | obj->pinIndex );
+        }
+        else
+        {
+            SX1509Write( RegOpenDrainA, tempVal & ~obj->pinIndex );
+        }
         regAdd = RegDataA;
     }
 

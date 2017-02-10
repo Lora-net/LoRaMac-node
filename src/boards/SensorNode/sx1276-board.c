@@ -46,7 +46,8 @@ const struct Radio_s Radio =
     SX1276Write,
     SX1276Read,
     SX1276WriteBuffer,
-    SX1276ReadBuffer
+    SX1276ReadBuffer,
+    SX1276SetMaxPayloadLength
 };
 
 /*!
@@ -132,13 +133,6 @@ void SX1276AntSwDeInit( void )
 
 void SX1276SetAntSw( uint8_t rxTx )
 {
-    if( SX1276.RxTx == rxTx )
-    {
-        return;
-    }
-
-    SX1276.RxTx = rxTx;
-
     if( rxTx != 0 ) // 1: TX, 0: RX
     {
         GpioWrite( &AntSwitchLf, 0 );

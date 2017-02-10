@@ -21,7 +21,17 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * Radio wakeup time from SLEEP mode
  */
-#define RADIO_WAKEUP_TIME                           1000 // [us]
+#define RADIO_OSC_STARTUP                           1 // [ms]
+
+/*!
+ * Radio PLL lock and Mode Ready delay which can vary with the temperature
+ */
+#define RADIO_SLEEP_TO_RX                           2 // [ms]
+
+/*!
+ * Radio complete Wake-up Time with margin for temperature compensation
+ */
+#define RADIO_WAKEUP_TIME                           ( RADIO_OSC_STARTUP + RADIO_SLEEP_TO_RX )
 
 /*!
  * Radio FSK modem parameters
@@ -116,7 +126,6 @@ typedef struct SX1272_s
     Gpio_t        DIO4;
     Gpio_t        DIO5;
     Spi_t         Spi;
-    uint8_t       RxTx;
     RadioSettings_t Settings;
 }SX1272_t;
 
@@ -270,7 +279,7 @@ void SX1272SetRxConfig(  RadioModems_t modem, uint32_t bandwidth,
  * \param [IN] iqInverted   Inverts IQ signals (LoRa only)
  *                          FSK : N/A ( set to 0 )
  *                          LoRa: [0: not inverted, 1: inverted]
- * \param [IN] timeout      Transmission timeout [us]
+ * \param [IN] timeout      Transmission timeout [ms]
  */
 void SX1272SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev, 
                         uint32_t bandwidth, uint32_t datarate,
@@ -311,7 +320,7 @@ void SX1272SetStby( void );
 
 /*!
  * \brief Sets the radio in reception mode for the given time
- * \param [IN] timeout Reception timeout [us] [0: continuous, others timeout]
+ * \param [IN] timeout Reception timeout [ms] [0: continuous, others timeout]
  */
 void SX1272SetRx( uint32_t timeout );
 
@@ -360,5 +369,13 @@ void SX1272WriteBuffer( uint8_t addr, uint8_t *buffer, uint8_t size );
  * \param [IN] size Number of registers to be read
  */
 void SX1272ReadBuffer( uint8_t addr, uint8_t *buffer, uint8_t size );
+
+/*!
+ * \brief Sets the maximum payload length.
+ *
+ * \param [IN] modem      Radio modem to be used [0: FSK, 1: LoRa]
+ * \param [IN] max        Maximum payload length in bytes
+ */
+void SX1272SetMaxPayloadLength( RadioModems_t modem, uint8_t max );
 
 #endif // __SX1272_H__

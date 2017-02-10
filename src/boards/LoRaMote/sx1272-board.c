@@ -46,7 +46,8 @@ const struct Radio_s Radio =
     SX1272Write,
     SX1272Read,
     SX1272WriteBuffer,
-    SX1272ReadBuffer
+    SX1272ReadBuffer,
+    SX1272SetMaxPayloadLength
 };
 
 /*!
@@ -125,13 +126,6 @@ void SX1272AntSwDeInit( void )
 
 void SX1272SetAntSw( uint8_t rxTx )
 {
-    if( SX1272.RxTx == rxTx )
-    {
-        return;
-    }
-
-    SX1272.RxTx = rxTx;
-
     if( rxTx != 0 ) // 1: TX, 0: RX
     {
         GpioWrite( &AntRx, 0 );
@@ -146,6 +140,6 @@ void SX1272SetAntSw( uint8_t rxTx )
 
 bool SX1272CheckRfFrequency( uint32_t frequency )
 {
-    // Implement check. Currently all frequencies are supportted
+    // Implement check. Currently all frequencies are supported
     return true;
 }

@@ -82,7 +82,7 @@ int main( void )
     Radio.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
                                    LORA_SPREADING_FACTOR, LORA_CODINGRATE,
                                    LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
-                                   true, 0, 0, LORA_IQ_INVERSION_ON, 3000000 );
+                                   true, 0, 0, LORA_IQ_INVERSION_ON, 3000 );
     
     /**********************************************/
     /*                  WARNING                   */
@@ -101,13 +101,13 @@ int main( void )
     Radio.Write( 0x01, 0x83 );
 
     TimerInit( &Led4Timer, OnLed4TimerEvent ); 
-    TimerSetValue( &Led4Timer, 90000 );
+    TimerSetValue( &Led4Timer, 90 );
 
     TimerInit( &Led2Timer, OnLed2TimerEvent ); 
-    TimerSetValue( &Led2Timer, 90000 );
+    TimerSetValue( &Led2Timer, 90 );
 
     TimerInit( &Led3Timer, OnLed3TimerEvent ); 
-    TimerSetValue( &Led3Timer, 90000 );
+    TimerSetValue( &Led3Timer, 90 );
                
     // Switch LED 1 ON
     GpioWrite( &Led4, 0 );

@@ -23,15 +23,26 @@ Maintainer: Miguel Luis and Gregory Cristian
 //uint8_t TxBuffer[FIFO_TX_SIZE];
 uint8_t RxBuffer[FIFO_RX_SIZE];
 
-int8_t NmeaString[128];
+/*!
+ * \brief Buffer holding the  raw data received from the gps
+ */
+uint8_t NmeaString[128];
+
+/*!
+ * \brief Maximum number of data byte that we will accept from the GPS
+ */
 uint8_t NmeaStringSize = 0;
+
+
+PpsTrigger_t PpsTrigger;
+
 
 void GpsMcuOnPpsSignal( void )
 {
     bool parseData = false;
 
-    GpsPpsHandler( &parseData);
-    
+    GpsPpsHandler( &parseData );
+
     if( parseData == true )
     {
         UartInit( &Uart1, UART_1, UART_TX, UART_RX );
@@ -39,18 +50,46 @@ void GpsMcuOnPpsSignal( void )
     }
 }
 
+void GpsMcuInvertPpsTrigger( void )
+{
+    if( PpsTrigger == PpsTriggerIsRising )
+    {
+        PpsTrigger = PpsTriggerIsFalling;
+        GpioSetInterrupt( &GpsPps, IRQ_FALLING_EDGE, IRQ_VERY_LOW_PRIORITY, &GpsMcuOnPpsSignal );
+    }
+    else
+    {
+        PpsTrigger = PpsTriggerIsRising;
+        GpioSetInterrupt( &GpsPps, IRQ_RISING_EDGE, IRQ_VERY_LOW_PRIORITY, &GpsMcuOnPpsSignal );
+    }
+}
+
+uint8_t GpsMcuGetPpsTrigger( void )
+{
+    return( PpsTrigger );
+}
+
 void GpsMcuInit( void )
 {
     NmeaStringSize = 0;
+    PpsTrigger = PpsTriggerIsFalling;
 
-    //FifoInit( &Uart1.FifoTx, TxBuffer, FIFO_TX_SIZE );
     FifoInit( &Uart1.FifoRx, RxBuffer, FIFO_RX_SIZE );
     Uart1.IrqNotify = GpsMcuIrqNotify;
 
-    //GpioWrite( &GpsPowerEn, 1 );  // power down the GPS
-    GpioWrite( &GpsPowerEn, 0 );    // power up the GPS
+    GpsMcuStart( );
     GpioInit( &GpsPps, GPS_PPS, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioSetInterrupt( &GpsPps, IRQ_FALLING_EDGE, IRQ_VERY_LOW_PRIORITY, &GpsMcuOnPpsSignal );
+}
+
+void GpsMcuStart( void )
+{
+    GpioWrite( &GpsPowerEn, 0 );    // power up the GPS
+}
+
+void GpsMCuStop( void )
+{
+    GpioWrite( &GpsPowerEn, 1 );    // power down the GPS
 }
 
 void GpsMcuIrqNotify( UartNotifyId_t id )
@@ -70,7 +109,7 @@ void GpsMcuIrqNotify( UartNotifyId_t id )
             if( data == '\n' )
             {
                 NmeaString[NmeaStringSize] = '\0';
-                GpsParseGpsData( NmeaString, NmeaStringSize );
+                GpsParseGpsData( ( int8_t* )NmeaString, NmeaStringSize );
                 UartDeInit( &Uart1 );
                 BlockLowPowerDuringTask ( false );
             }

@@ -21,6 +21,7 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 #include <string.h>
 #include <stdint.h>
 #include "stm32l1xx.h"
+#include "stm32l1xx_hal.h"
 #include "utilities.h"
 #include "timer.h"
 #include "delay.h"
@@ -33,15 +34,7 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 #include "sx1272/sx1272.h"
 #include "adc-board.h"
 #include "rtc-board.h"
-#include "timer-board.h"
 #include "sx1272-board.h"
-
-/*!
- * NULL definition
- */
-#ifndef NULL
-    #define NULL                                    ( ( void * )0 )
-#endif
 
 /*!
  * Generic definition
@@ -51,7 +44,7 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 #endif
 
 #ifndef FAIL
-#define FAIL                                        0  
+#define FAIL                                        0
 #endif
 
 /*!
@@ -65,25 +58,6 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
  */
 #define USE_POTENTIOMETER                           1
 
-/*!
- * Battery level ratio (battery dependent)
- */
-#define BATTERY_STEP_LEVEL                          0.23
-
-
-/*!
- * Unique Devices IDs register set ( STM32L1xxx )
- */
-#define         ID1                                 ( 0x1FF80050 )
-#define         ID2                                 ( 0x1FF80054 )
-#define         ID3                                 ( 0x1FF80064 )
-
-/*!
- * Random seed generated using the MCU Unique ID
- */
-#define RAND_SEED                                   ( ( *( uint32_t* )ID1 ) ^ \
-                                                      ( *( uint32_t* )ID2 ) ^ \
-                                                      ( *( uint32_t* )ID3 ) )
 
 /*!
  * Board MCU pins definitions
@@ -152,6 +126,11 @@ extern Gpio_t Led4;
 extern Adc_t Adc;
 extern I2c_t I2c;
 extern Uart_t Uart1;
+enum BoardPowerSource
+{
+    USB_POWER = 0,
+    BATTERY_POWER
+};
 
 /*!
  * \brief Initializes the target board peripherals.
@@ -170,13 +149,6 @@ void BoardInitPeriph( void );
 void BoardDeInitMcu( void );
 
 /*!
- * \brief Measure the Battery level
- *
- * \retval value  battery level ( 0: very low, 254: fully charged )
- */
-uint8_t BoardMeasureBatterieLevel( void );
-
-/*!
  * \brief Measure the Potentiometer level
  *
  * \retval value  Potentiometer level ( value in percent )
@@ -188,13 +160,34 @@ uint8_t BoardMeasurePotiLevel( void );
  *
  * \retval value  VDD voltage in milivolts
  */
-uint16_t BoardMeasureVdd( void ) ;
+uint16_t BoardMeasureVdd( void );
 
 /*!
- * \brief Gets the board 64 bits unique ID 
+ * \brief Get the current battery level
+ *
+ * \retval value  battery level ( 0: very low, 254: fully charged )
+ */
+uint8_t BoardGetBatteryLevel( void );
+
+/*!
+ * Returns a pseudo random seed generated using the MCU Unique ID
+ *
+ * \retval seed Generated pseudo random seed
+ */
+uint32_t BoardGetRandomSeed( void );
+
+/*!
+ * \brief Gets the board 64 bits unique ID
  *
  * \param [IN] id Pointer to an array that will contain the Unique ID
  */
 void BoardGetUniqueId( uint8_t *id );
+
+/*!
+ * \brief Get the board power source
+ *
+ * \retval value  power source ( 0: USB_POWER,  1: BATTERY_POWER )
+ */
+uint8_t GetBoardPowerSource( void );
 
 #endif // __BOARD_H__

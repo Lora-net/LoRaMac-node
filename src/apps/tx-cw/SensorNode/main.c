@@ -21,9 +21,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RF_FREQUENCY                                434000000 // Hz
 #define TX_OUTPUT_POWER                             20        // 20 dBm
 
-#elif defined( USE_BAND_470 )
+#elif defined( USE_BAND_780 )
 
-#define RF_FREQUENCY                                470000000 // Hz
+#define RF_FREQUENCY                                780000000 // Hz
 #define TX_OUTPUT_POWER                             20        // 20 dBm
 
 #elif defined( USE_BAND_868 )
@@ -106,7 +106,7 @@ int main( void )
     /* if wrongly used. DO NOT CHANGE THE VALUES! */
     /*                                            */
     /**********************************************/
-#if ( defined( USE_BAND_433 ) || defined( USE_BAND_470 ) )
+#if defined( USE_BAND_433 )
 
     Radio.Write( 0x01, 0x88 );
     Radio.Write( 0x44, 0x7B );
@@ -118,7 +118,7 @@ int main( void )
     Radio.Write( 0x4D, 0x87 );
     Radio.Write( 0x52, 0x60 );
 
-#elif ( defined( USE_BAND_868 ) || defined( USE_BAND_915 ) )
+#elif ( defined( USE_BAND_780 ) || defined( USE_BAND_868 ) || defined( USE_BAND_915 ) )
 
     Radio.Write( 0x01, 0x80 );
     Radio.Write( 0x3D, 0xA1 );
@@ -130,16 +130,16 @@ int main( void )
     Radio.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
                                    LORA_SPREADING_FACTOR, LORA_CODINGRATE,
                                    LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
-                                   true, 0, 0, LORA_IQ_INVERSION_ON, 3000000 );
+                                   true, 0, 0, LORA_IQ_INVERSION_ON, 3000 );
 
     TimerInit( &Led1Timer, OnLed1TimerEvent ); 
-    TimerSetValue( &Led1Timer, 90000 );
+    TimerSetValue( &Led1Timer, 90 );
 
     TimerInit( &Led2Timer, OnLed2TimerEvent ); 
-    TimerSetValue( &Led2Timer, 90000 );
+    TimerSetValue( &Led2Timer, 90 );
 
     TimerInit( &Led3Timer, OnLed3TimerEvent ); 
-    TimerSetValue( &Led3Timer, 90000 );
+    TimerSetValue( &Led3Timer, 90 );
                
     // Switch LED 1 ON
     GpioWrite( &Led1, 0 );

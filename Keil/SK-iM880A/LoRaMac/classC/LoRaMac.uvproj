@@ -361,9 +361,9 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_DEBUGGER LOW_POWER_MODE_ENABLE USE_BAND_868</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER USE_BAND_868</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -452,11 +452,6 @@
               <FilePath>..\..\..\..\src\boards\SK-iM880A\sx1272-board.c</FilePath>
             </File>
             <File>
-              <FileName>timer-board.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\SK-iM880A\timer-board.c</FilePath>
-            </File>
-            <File>
               <FileName>uart-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\SK-iM880A\uart-board.c</FilePath>
@@ -479,77 +474,87 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>boards\SK-iM880A\STM32L1xx_StdPeriph_Driver</GroupName>
+          <GroupName>boards\SK-iM880A\STM32L1xx_HAL_Driver</GroupName>
           <Files>
             <File>
-              <FileName>misc.c</FileName>
+              <FileName>stm32l1xx_hal.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\misc.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_adc.c</FileName>
+              <FileName>stm32l1xx_hal_adc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_adc.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_adc.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_dbgmcu.c</FileName>
+              <FileName>stm32l1xx_hal_adc_ex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_dbgmcu.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_adc_ex.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_dma.c</FileName>
+              <FileName>stm32l1xx_hal_cortex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_dma.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_cortex.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_exti.c</FileName>
+              <FileName>stm32l1xx_hal_dma.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_exti.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_dma.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_gpio.c</FileName>
+              <FileName>stm32l1xx_hal_gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_gpio.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_gpio.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_i2c.c</FileName>
+              <FileName>stm32l1xx_hal_i2c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_i2c.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_i2c.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_pwr.c</FileName>
+              <FileName>stm32l1xx_hal_pwr.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_pwr.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_pwr.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_rcc.c</FileName>
+              <FileName>stm32l1xx_hal_pwr_ex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_rcc.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_pwr_ex.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_rtc.c</FileName>
+              <FileName>stm32l1xx_hal_rcc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_rtc.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_rcc.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_spi.c</FileName>
+              <FileName>stm32l1xx_hal_rcc_ex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_spi.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_rcc_ex.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_syscfg.c</FileName>
+              <FileName>stm32l1xx_hal_rtc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_syscfg.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_rtc.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_tim.c</FileName>
+              <FileName>stm32l1xx_hal_rtc_ex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_tim.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_rtc_ex.c</FilePath>
             </File>
             <File>
-              <FileName>stm32l1xx_usart.c</FileName>
+              <FileName>stm32l1xx_hal_spi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\src\stm32l1xx_usart.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_spi.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l1xx_hal_spi_ex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_spi_ex.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32l1xx_hal_uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_uart.c</FilePath>
             </File>
           </Files>
         </Group>

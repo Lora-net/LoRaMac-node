@@ -1,4 +1,0 @@
-
-<Project Header="Project 'LoRaMac-ClassC'" Path=".\LoRaMac.rprj" Project="Yes" OutputFile="" sate="96" ActiveApp="LoRaMac-ClassC" >
-	<ApplicationBuild Header="LoRaMac-ClassC" Extern=".\LoRaMac.rapp" Path=".\LoRaMac.rapp" OutputFile=".\obj\LoRaMac.elf" sate="98" Config="SensorNode-433" />
-</Project>

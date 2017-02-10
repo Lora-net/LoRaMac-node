@@ -19,7 +19,7 @@ Maintainer: Miguel Luis and Gregory Cristian
  * \brief Timer time variable definition
  */
 #ifndef TimerTime_t
-typedef uint64_t TimerTime_t;
+typedef uint32_t TimerTime_t;
 #endif
 
 /*!
@@ -30,25 +30,21 @@ typedef uint64_t TimerTime_t;
 void RtcInit( void );
 
 /*!
- * \brief Stop the RTC Timer
- */
-void RtcStopTimer( void );
-
-/*!
- * \brief Return the minimum timeout the RTC is able to handle
- *
- * \retval minimum value for a timeout
- */
-uint32_t RtcGetMinimumTimeout( void );
-
-/*!
  * \brief Start the RTC timer
  *
  * \remark The timer is based on the RTC Alarm running at 32.768KHz
  *
- * \param[IN] timeout       Duration of the Timer
+ * \param[IN] timeout Duration of the Timer
  */
 void RtcSetTimeout( uint32_t timeout );
+
+/*!
+ * \brief Adjust the value of the timeout to handle wakeup time from Alarm and GPIO irq
+ *
+ * \param[IN] timeout Duration of the Timer without compensation for wakeup time
+ * \retval new value for the Timeout with compensations
+ */
+TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout );
 
 /*!
  * \brief Get the RTC timer value
@@ -62,17 +58,33 @@ TimerTime_t RtcGetTimerValue( void );
  *
  * \retval RTC Elapsed time since the last alarm
  */
-uint32_t RtcGetTimerElapsedTime( void );
+TimerTime_t RtcGetElapsedAlarmTime( void );
 
 /*!
- * \brief This function block the MCU from going into Low Power mode
+ * \brief Compute the timeout time of a future event in time
  *
- * \param [IN] Status enable or disable
+ * \param[IN] futureEventInTime Value in time
+ * \retval time Time between now and the futureEventInTime
  */
-void BlockLowPowerDuringTask ( bool Status );
+TimerTime_t RtcComputeFutureEventTime( TimerTime_t futureEventInTime );
 
 /*!
- * \brief Sets the MCU in low power STOP mode
+ * \brief Compute the elapsed time since a fix event in time
+ *
+ * \param[IN] eventInTime Value in time
+ * \retval elapsed Time since the eventInTime
+ */
+TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime );
+
+/*!
+ * \brief This function blocks the MCU from going into Low Power mode
+ *
+ * \param [IN] status [true: Enable, false: Disable
+ */
+void BlockLowPowerDuringTask ( bool status );
+
+/*!
+ * \brief Sets the MCU into low power STOP mode
  */
 void RtcEnterLowPowerStopMode( void );
 
@@ -80,12 +92,5 @@ void RtcEnterLowPowerStopMode( void );
  * \brief Restore the MCU to its normal operation mode
  */
 void RtcRecoverMcuStatus( void );
-
-/*!
- * \brief Perfoms a standard blocking delay in the code execution
- *
- * \param [IN] delay Delay value in ms
- */
-void RtcDelayMs ( uint32_t delay );
 
 #endif // __RTC_BOARD_H__

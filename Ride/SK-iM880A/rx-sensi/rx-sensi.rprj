@@ -1,4 +1,0 @@
-
-<Project Header="Project 'rx-sensi'" Path=".\rx-sensi.rprj" Project="Yes" OutputFile="" sate="96" ActiveApp="rx-sensi" >
-	<ApplicationBuild Header="rx-sensi" Extern=".\rx-sensi.rapp" Path=".\rx-sensi.rapp" OutputFile=".\obj\rx-sensi.elf" sate="98" Config="rx-sensi-lora" />
-</Project>

@@ -98,7 +98,7 @@ struct Radio_s
      *
      * \param status Radio status.[RF_IDLE, RF_RX_RUNNING, RF_TX_RUNNING]
      */
-    RadioState_t ( *Status )( void );
+    RadioState_t ( *GetStatus )( void );
     /*!
      * \brief Configures the radio with the given modem
      *
@@ -211,7 +211,7 @@ struct Radio_s
      * \param [IN] iqInverted   Inverts IQ signals (LoRa only)
      *                          FSK : N/A ( set to 0 )
      *                          LoRa: [0: not inverted, 1: inverted]
-     * \param [IN] timeout      Transmission timeout [us]
+     * \param [IN] timeout      Transmission timeout [ms]
      */
     void    ( *SetTxConfig )( RadioModems_t modem, int8_t power, uint32_t fdev, 
                               uint32_t bandwidth, uint32_t datarate,
@@ -254,7 +254,7 @@ struct Radio_s
     void    ( *Standby )( void );
     /*!
      * \brief Sets the radio in reception mode for the given time
-     * \param [IN] timeout Reception timeout [us]
+     * \param [IN] timeout Reception timeout [ms]
      *                     [0: continuous, others timeout]
      */
     void    ( *Rx )( uint32_t timeout );
@@ -298,6 +298,14 @@ struct Radio_s
      * \param [IN] size Number of registers to be read
      */
     void    ( *ReadBuffer )( uint8_t addr, uint8_t *buffer, uint8_t size );
+    /*!
+     * \brief Sets the maximum payload length.
+     *
+     * \param [IN] modem      Radio modem to be used [0: FSK, 1: LoRa]
+     * \param [IN] max        Maximum payload length in bytes
+     */
+    void ( *SetMaxPayloadLength )( RadioModems_t modem, uint8_t max );
+
 };
 
 /*!

@@ -45,6 +45,16 @@ extern tNmeaGpsData NmeaGpsData;
 void GpsInit( void );
 
 /*!
+ * \brief Switch ON the GPS
+ */
+void GpsStart( void );
+
+/*!
+ * \brief Switch OFF the GPS
+ */
+void GpsStop( void );
+
+/*!
  * \brief PPS signal handling function
  */
 void GpsPpsHandler( bool *parseData );
@@ -114,7 +124,7 @@ uint8_t GpsParseGpsData( int8_t *rxBuffer, int32_t rxBufferSize );
  *
  * \retval altitude
  */
-uint16_t GpsGetLatestGpsAltitude (void);
+int16_t GpsGetLatestGpsAltitude( void );
 
 /*!
  * \brief Format GPS data into numeric and binary formats

@@ -16,128 +16,125 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 #include "uart-board.h"
 
+UART_HandleTypeDef UartHandle;
+uint8_t RxData = 0;
+
 void UartMcuInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx )
 {
     obj->UartId = uartId;
 
-    RCC_APB2PeriphClockCmd( RCC_APB2Periph_USART1, ENABLE );
+    __HAL_RCC_USART1_FORCE_RESET( );
+    __HAL_RCC_USART1_RELEASE_RESET( );
 
-    USART_DeInit( USART1 );
+    __HAL_RCC_USART1_CLK_ENABLE( );
 
-    GpioInit( &obj->Tx, tx, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
-    GpioInit( &obj->Rx, rx, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
-
-    GPIO_PinAFConfig( obj->Tx.port, ( obj->Tx.pin & 0x0F ), GPIO_AF_USART1 );
-    GPIO_PinAFConfig( obj->Rx.port, ( obj->Rx.pin & 0x0F ), GPIO_AF_USART1 );
+    GpioInit( &obj->Tx, tx, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_UP, GPIO_AF7_USART1 );
+    GpioInit( &obj->Rx, rx, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_UP, GPIO_AF7_USART1 );
 }
 
 void UartMcuConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_t wordLength, StopBits_t stopBits, Parity_t parity, FlowCtrl_t flowCtrl )
 {
-    USART_InitTypeDef USART_InitStructure;
-    NVIC_InitTypeDef NVIC_InitStructure;
-
-    NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init( &NVIC_InitStructure );
+    UartHandle.Instance = USART1;
+    UartHandle.Init.BaudRate = baudrate;
 
     if( mode == TX_ONLY )
     {
         if( obj->FifoTx.Data == NULL )
         {
-            while( 1 );
+            assert_param( FAIL );
         }
-
-        USART_InitStructure.USART_Mode = 0x0008;
+        UartHandle.Init.Mode = UART_MODE_TX;
     }
     else if( mode == RX_ONLY )
     {
         if( obj->FifoRx.Data == NULL )
         {
-            while( 1 );
+            assert_param( FAIL );
         }
-
-        USART_ITConfig( USART1, USART_IT_RXNE, ENABLE );
-        USART_InitStructure.USART_Mode = 0x0004;
+        UartHandle.Init.Mode = UART_MODE_RX;
     }
-    else
+    else if( mode == RX_TX )
     {
         if( ( obj->FifoTx.Data == NULL ) || ( obj->FifoRx.Data == NULL ) )
         {
-            while( 1 );
+            assert_param( FAIL );
         }
-
-        USART_ITConfig( USART1, USART_IT_RXNE, ENABLE );
-        USART_InitStructure.USART_Mode = 0x000C;
+        UartHandle.Init.Mode = UART_MODE_TX_RX;
     }
-
-    USART_InitStructure.USART_BaudRate = baudrate;
+    else
+    {
+       assert_param( FAIL );
+    }
 
     if( wordLength == UART_8_BIT )
     {
-        USART_InitStructure.USART_WordLength = 0x0000;
+        UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
     }
-    else 
+    else if( wordLength == UART_9_BIT )
     {
-        USART_InitStructure.USART_WordLength = 0x1000;
+        UartHandle.Init.WordLength = UART_WORDLENGTH_9B;
     }
 
-    if( stopBits == UART_1_STOP_BIT )
+    switch( stopBits )
     {
-        USART_InitStructure.USART_StopBits = 0x0000;
-    }
-    else if( stopBits == UART_0_5_STOP_BIT )
-    {
-        USART_InitStructure.USART_StopBits = 0x1000;
-    }
-    else if( stopBits == UART_2_STOP_BIT )
-    {
-        USART_InitStructure.USART_StopBits = 0x2000;
-    }
-    else if( stopBits == UART_1_5_STOP_BIT )
-    {
-        USART_InitStructure.USART_StopBits = 0x3000;
+    case UART_2_STOP_BIT:
+        UartHandle.Init.StopBits = UART_STOPBITS_2;
+        break;
+    case UART_1_STOP_BIT:
+    default:
+        UartHandle.Init.StopBits = UART_STOPBITS_1;
+        break;
     }
 
     if( parity == NO_PARITY )
     {
-        USART_InitStructure.USART_Parity = 0x0000;
+        UartHandle.Init.Parity = UART_PARITY_NONE;
     }
     else if( parity == EVEN_PARITY )
     {
-        USART_InitStructure.USART_Parity = 0x0400;
+        UartHandle.Init.Parity = UART_PARITY_EVEN;
     }
     else
     {
-        USART_InitStructure.USART_Parity = 0x0600;
+        UartHandle.Init.Parity = UART_PARITY_ODD;
     }
 
     if( flowCtrl == NO_FLOW_CTRL )
     {
-        USART_InitStructure.USART_HardwareFlowControl = 0x0000;
+        UartHandle.Init.HwFlowCtl = UART_HWCONTROL_NONE;
     }
-    else if( flowCtrl == RTS_FLOW_CTRL ) 
+    else if( flowCtrl == RTS_FLOW_CTRL )
     {
-        USART_InitStructure.USART_HardwareFlowControl = 0x0100;
+        UartHandle.Init.HwFlowCtl = UART_HWCONTROL_RTS;
     }
-    else if( flowCtrl == CTS_FLOW_CTRL ) 
+    else if( flowCtrl == CTS_FLOW_CTRL )
     {
-        USART_InitStructure.USART_HardwareFlowControl = 0x0200;
+        UartHandle.Init.HwFlowCtl = UART_HWCONTROL_CTS;
     }
-    else if( flowCtrl == RTS_CTS_FLOW_CTRL ) 
+    else if( flowCtrl == RTS_CTS_FLOW_CTRL )
     {
-        USART_InitStructure.USART_HardwareFlowControl = 0x0300;
+        UartHandle.Init.HwFlowCtl = UART_HWCONTROL_RTS_CTS;
     }
 
-    USART_Init( USART1, &USART_InitStructure );
+    UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
 
-    USART_Cmd( USART1, ENABLE );
+    if( HAL_UART_Init( &UartHandle ) != HAL_OK )
+    {
+        while( 1 );
+    }
+
+    HAL_NVIC_SetPriority( USART1_IRQn, 8, 0 );
+    HAL_NVIC_EnableIRQ( USART1_IRQn );
+
+    /* Enable the UART Data Register not empty Interrupt */
+    HAL_UART_Receive_IT( &UartHandle, &RxData, 1 );;
 }
 
 void UartMcuDeInit( Uart_t *obj )
 {
-    USART_DeInit( USART1 );
+    __HAL_RCC_USART1_FORCE_RESET( );
+    __HAL_RCC_USART1_RELEASE_RESET( );
+    __HAL_RCC_USART1_CLK_DISABLE( );
 
     GpioInit( &obj->Tx, obj->Tx.pin, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &obj->Rx, obj->Rx.pin, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
@@ -151,7 +148,7 @@ uint8_t UartMcuPutChar( Uart_t *obj, uint8_t data )
         FifoPush( &obj->FifoTx, data );
         __enable_irq( );
         // Enable the USART Transmit interrupt
-        USART_ITConfig( USART1, USART_IT_TXE, ENABLE );
+        __HAL_UART_ENABLE_IT( &UartHandle, USART_IT_TXE );
         return 0; // OK
     }
     return 1; // Busy
@@ -169,45 +166,49 @@ uint8_t UartMcuGetChar( Uart_t *obj, uint8_t *data )
     return 1;
 }
 
-void USART1_IRQHandler( void )
+void HAL_UART_TxCpltCallback( UART_HandleTypeDef *UartHandle )
 {
     uint8_t data;
 
-    if( USART_GetITStatus( USART1, USART_IT_TXE ) != RESET )
-    {    
-        if( IsFifoEmpty( &Uart1.FifoTx ) == false )
-        {
-            data = FifoPop( &Uart1.FifoTx );
-            //  Write one byte to the transmit data register 
-            USART_SendData( USART1, data );
-        }
-        else
-        {
-            // Disable the USART Transmit interrupt
-            USART_ITConfig( USART1, USART_IT_TXE, DISABLE );
-        }
-        if( Uart1.IrqNotify != NULL )
-        {
-            Uart1.IrqNotify( UART_NOTIFY_TX );
-        }
-    }
-
-    if( USART_GetITStatus( USART1, USART_IT_ORE_RX ) != RESET )
+    if( IsFifoEmpty( &Uart1.FifoTx ) == false )
     {
-        USART_ReceiveData( USART1 );
+        data = FifoPop( &Uart1.FifoTx );
+        //  Write one byte to the transmit data register
+        HAL_UART_Transmit_IT( UartHandle, &data, 1 );
+    }
+    else
+    {
+        // Disable the USART Transmit interrupt
+        HAL_NVIC_DisableIRQ( USART1_IRQn );
+    }
+    if( Uart1.IrqNotify != NULL )
+    {
+        Uart1.IrqNotify( UART_NOTIFY_TX );
+    }
+}
+
+void HAL_UART_RxCpltCallback( UART_HandleTypeDef *UartHandle )
+{
+    if( IsFifoFull( &Uart1.FifoRx ) == false )
+    {
+        // Read one byte from the receive data register
+        FifoPush( &Uart1.FifoRx, RxData );
+    }
+    if( Uart1.IrqNotify != NULL )
+    {
+        Uart1.IrqNotify( UART_NOTIFY_RX );
     }
 
-    if( USART_GetITStatus( USART1, USART_IT_RXNE ) != RESET )
-    {    
-        data = USART_ReceiveData( USART1 );
-        if( IsFifoFull( &Uart1.FifoRx ) == false )
-        {
-            // Read one byte from the receive data register
-            FifoPush( &Uart1.FifoRx, data );
-        }
-        if( Uart1.IrqNotify != NULL )
-        {
-            Uart1.IrqNotify( UART_NOTIFY_RX );
-        }
-    }
+    __HAL_UART_FLUSH_DRREGISTER( UartHandle );
+    HAL_UART_Receive_IT( UartHandle, &RxData, 1 );
+}
+
+void HAL_UART_ErrorCallback( UART_HandleTypeDef *UartHandle )
+{
+
+}
+
+void USART1_IRQHandler( void )
+{
+    HAL_UART_IRQHandler( &UartHandle );
 }

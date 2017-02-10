@@ -14,16 +14,19 @@
           <Includepath path="../../../src/boards/SensorNode/cmsis"/>
           <Includepath path="../../../src/boards/mcu/stm32"/>
           <Includepath path="../../../src/boards/mcu/stm32/cmsis"/>
-          <Includepath path="../../../src/boards/mcu/stm32/stm32l1xx_stdperiph_driver/inc"/>
+          <Includepath path="../../../src/boards/mcu/stm32/stm32l1xx_HAL_Driver/inc"/>
           <Includepath path="../../../src/mac"/>
           <Includepath path="../../../src/peripherals"/>
           <Includepath path="../../../src/radio"/>
           <Includepath path="../../../src/system"/>
           <Includepath path="../../../src/system/crypto"/>
           <Includepath path="../../../src/boards/SensorNode/usb/dfu/inc"/>
-          <Includepath path="../../../src/boards/mcu/stm32/stm32_usb-fs-device_driver/inc"/>
+          <Includepath path="../../../src/boards/mcu/stm32/stm32_usb_device_library/class/dfu/inc"/>
+          <Includepath path="../../../src/boards/mcu/stm32/stm32_usb_device_library/core/inc"/>
         </Includepaths>
         <DefinedSymbols>
+          <Define name="USE_HAL_DRIVER"/>
+          <Define name="STM32L151xB"/>
           <Define name="USE_NO_TIMER"/>
         </DefinedSymbols>
       </Compile>
@@ -31,7 +34,7 @@
         <Option name="DiscardUnusedSection" value="0"/>
         <Option name="UserEditLinkder" value=""/>
         <Option name="UseMemoryLayout" value="0"/>
-        <Option name="nostartfiles" value="1"/>
+        <Option name="nostartfiles" value="0"/>
         <Option name="LTO" value="0"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
@@ -74,7 +77,7 @@
       <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="STM32L1xx_128.elf"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="C:\Users\mluis\AppData\Roaming\CooCox\CoIDE\config\flash\CooCox-Flash\CoIDE_STM32L1xx_64K\STM32L1xx_64.elf"/>
     </DebugOption>
     <ExcludeFile/>
   </Target>
@@ -82,56 +85,58 @@
   <LocalComponents/>
   <Files>
     <File name="boards/SensorNode/usb" path="" type="2"/>
-    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_tim.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_tim.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_pwr.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.c" type="1"/>
     <File name="boards" path="" type="2"/>
-    <File name="boards/SensorNode/usb/flash_if.c" path="../../../src/boards/SensorNode/usb/dfu/src/flash_if.c" type="1"/>
     <File name="boards/SensorNode/cmsis" path="" type="2"/>
-    <File name="boards/SensorNode/STM32_USB-FS-Device_Driver/usb_init.c" path="../../../src/boards/mcu/stm32/STM32_USB-FS-Device_Driver/src/usb_init.c" type="1"/>
     <File name="peripherals/gpio-ioe.c" path="../../../src/peripherals/gpio-ioe.c" type="1"/>
-    <File name="boards/SensorNode/usb/dfu_mal.c" path="../../../src/boards/SensorNode/usb/dfu/src/dfu_mal.c" type="1"/>
+    <File name="boards/SensorNode/STM32_USB_Device_Library/Core/usbd_ctlreq.c" path="../../../src/boards/mcu/stm32/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c" type="1"/>
     <File name="boards/mcu/stm32" path="" type="2"/>
     <File name="boards/mcu/stm32/sysIrqHandlers.c" path="../../../src/boards/mcu/stm32/sysIrqHandlers.c" type="1"/>
-    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_usart.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_usart.c" type="1"/>
-    <File name="boards/SensorNode/STM32_USB-FS-Device_Driver/usb_regs.c" path="../../../src/boards/mcu/stm32/STM32_USB-FS-Device_Driver/src/usb_regs.c" type="1"/>
-    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_flash.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_flash.c" type="1"/>
-    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_i2c.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_i2c.c" type="1"/>
-    <File name="boards/SensorNode/STM32_USB-FS-Device_Driver/usb_mem.c" path="../../../src/boards/mcu/stm32/STM32_USB-FS-Device_Driver/src/usb_mem.c" type="1"/>
-    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_spi.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_spi.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_dma.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dma.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_spi_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi_ex.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_pcd.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pcd.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver" path="" type="2"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c" type="1"/>
     <File name="system" path="" type="2"/>
     <File name="boards/SensorNode" path="" type="2"/>
-    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_syscfg.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_syscfg.c" type="1"/>
-    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_adc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_adc.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_rcc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.c" type="1"/>
+    <File name="boards/SensorNode/STM32_USB_Device_Library/Class" path="" type="2"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_i2c.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_i2c.c" type="1"/>
+    <File name="boards/SensorNode/STM32_USB_Device_Library" path="" type="2"/>
     <File name="boards/SensorNode/cmsis/startup_stm32l1xx_md.s" path="../../../src/boards/SensorNode/cmsis/arm-gcc/startup_stm32l1xx_md.s" type="1"/>
-    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_flash_ramfunc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_flash_ramfunc.c" type="1"/>
     <File name="boards/mcu/stm32/utilities.c" path="../../../src/boards/mcu/stm32/utilities.c" type="1"/>
-    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_rcc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_rcc.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_flash.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c" type="1"/>
     <File name="peripherals/sx9500.c" path="../../../src/peripherals/sx9500.c" type="1"/>
-    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_pwr.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_pwr.c" type="1"/>
-    <File name="boards/SensorNode/usb/usb_pwr.c" path="../../../src/boards/SensorNode/usb/dfu/src/usb_pwr.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_spi.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi.c" type="1"/>
     <File name="peripherals/sx1509.c" path="../../../src/peripherals/sx1509.c" type="1"/>
-    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_dbgmcu.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_dbgmcu.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_rtc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rtc.c" type="1"/>
     <File name="boards/SensorNode/gpio-board.c" path="../../../src/boards/SensorNode/gpio-board.c" type="1"/>
-    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_rtc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_rtc.c" type="1"/>
-    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/misc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/misc.c" type="1"/>
-    <File name="boards/SensorNode/usb/usb_prop.c" path="../../../src/boards/SensorNode/usb/dfu/src/usb_prop.c" type="1"/>
+    <File name="boards/SensorNode/STM32_USB_Device_Library/Core/usbd_ioreq.c" path="../../../src/boards/mcu/stm32/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c" type="1"/>
+    <File name="boards/SensorNode/usb/usbd_desc.c" path="../../../src/boards/SensorNode/usb/dfu/src/usbd_desc.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_flash_ramfunc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ramfunc.c" type="1"/>
     <File name="boards/SensorNode/cmsis/system_stm32l1xx.c" path="../../../src/boards/SensorNode/cmsis/system_stm32l1xx.c" type="1"/>
-    <File name="boards/SensorNode/STM32_USB-FS-Device_Driver/usb_sil.c" path="../../../src/boards/mcu/stm32/STM32_USB-FS-Device_Driver/src/usb_sil.c" type="1"/>
-    <File name="boards/SensorNode/STM32_USB-FS-Device_Driver" path="" type="2"/>
+    <File name="boards/SensorNode/usb/usbd_conf.c" path="../../../src/boards/SensorNode/usb/dfu/src/usbd_conf.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_rcc_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c" type="1"/>
     <File name="boards/SensorNode/usb-dfu-board.c" path="../../../src/boards/SensorNode/usb-dfu-board.c" type="1"/>
-    <File name="boards/SensorNode/usb/usb_desc.c" path="../../../src/boards/SensorNode/usb/dfu/src/usb_desc.c" type="1"/>
-    <File name="boards/SensorNode/STM32_USB-FS-Device_Driver/usb_core.c" path="../../../src/boards/mcu/stm32/STM32_USB-FS-Device_Driver/src/usb_core.c" type="1"/>
-    <File name="boards/SensorNode/STM32_USB-FS-Device_Driver/usb_int.c" path="../../../src/boards/mcu/stm32/STM32_USB-FS-Device_Driver/src/usb_int.c" type="1"/>
-    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_gpio.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_gpio.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_rtc_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rtc_ex.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_gpio.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.c" type="1"/>
+    <File name="boards/SensorNode/usb/usbd_dfu_flash.c" path="../../../src/boards/SensorNode/usb/dfu/src/usbd_dfu_flash.c" type="1"/>
+    <File name="boards/SensorNode/STM32_USB_Device_Library/Class/usbd_dfu.c" path="../../../src/boards/mcu/stm32/STM32_USB_Device_Library/Class/DFU/Src/usbd_dfu.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_usart.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_usart.c" type="1"/>
+    <File name="boards/SensorNode/STM32_USB_Device_Library/Core" path="" type="2"/>
     <File name="boards/mcu" path="" type="2"/>
-    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver" path="" type="2"/>
-    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_dma.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_dma.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_pcd_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pcd_ex.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_cortex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c" type="1"/>
     <File name="boards/SensorNode/i2c-board.c" path="../../../src/boards/SensorNode/i2c-board.c" type="1"/>
+    <File name="boards/SensorNode/STM32_USB_Device_Library/Core/usbd_core.c" path="../../../src/boards/mcu/stm32/STM32_USB_Device_Library/Core/Src/usbd_core.c" type="1"/>
     <File name="system/gpio.c" path="../../../src/system/gpio.c" type="1"/>
-    <File name="boards/SensorNode/STM32L1xx_StdPeriph_Driver/stm32l1xx_exti.c" path="../../../src/boards/mcu/stm32/STM32L1xx_StdPeriph_Driver/src/stm32l1xx_exti.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_adc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_pwr_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.c" type="1"/>
     <File name="peripherals" path="" type="2"/>
-    <File name="boards/SensorNode/usb/usb_istr.c" path="../../../src/boards/SensorNode/usb/dfu/src/usb_istr.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_flash_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c" type="1"/>
     <File name="system/i2c.c" path="../../../src/system/i2c.c" type="1"/>
     <File name="main.c" path="../../../src/apps/BootLoader/SensorNode/main.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_uart.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c" type="1"/>
   </Files>
   <Bookmarks/>
 </Project>

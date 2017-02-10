@@ -61,6 +61,16 @@ void UartMcuDeInit( Uart_t *obj );
 uint8_t UartMcuPutChar( Uart_t *obj, uint8_t data );
 
 /*!
+ * \brief Sends a character to the UART
+ *
+ * \param [IN] obj   UART object
+ * \param [IN] data  Characters to be sent
+ * \param [IN] size  number of characters to send
+ * \retval status    [0: OK, 1: Busy]
+ */
+uint8_t UartMcuPutBuffer( Uart_t *obj, uint8_t *data, uint16_t size );
+
+/*!
  * \brief Gets a character from the UART
  *
  * \param [IN] obj   UART object
@@ -68,5 +78,15 @@ uint8_t UartMcuPutChar( Uart_t *obj, uint8_t data );
  * \retval status    [0: OK, 1: Busy]
  */
 uint8_t UartMcuGetChar( Uart_t *obj, uint8_t *data );
+
+/*!
+ * \brief Gets a character from the UART (blocking mode)
+ *
+ * \param [IN] obj   UART object
+ * \param [IN] data  Received character
+ * \param [IN] size  number of characters to be received
+ * \retval status    [0: OK, 1: Busy]
+ */
+uint8_t UartMcuGetBuffer( Uart_t *obj, uint8_t *data, uint16_t size );
 
 #endif // __UART_MCU_H__

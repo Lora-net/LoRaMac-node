@@ -1,4 +1,0 @@
-
-<Project Header="Project 'Ping-Pong'" Path=".\Ping-Pong.rprj" Project="Yes" OutputFile="" sate="96" ActiveApp="ping-pong" >
-	<ApplicationBuild Header="ping-pong" Extern=".\Ping-Pong.rapp" Path=".\Ping-Pong.rapp" OutputFile=".\obj\Ping-Pong.elf" sate="98" Config="ping-pong-433-lora" />
-</Project>

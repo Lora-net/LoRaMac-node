@@ -24,9 +24,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 #define RF_FREQUENCY                                434000000 // Hz
 
-#elif defined( USE_BAND_470 )
+#elif defined( USE_BAND_780 )
 
-#define RF_FREQUENCY                                470000000 // Hz
+#define RF_FREQUENCY                                780000000 // Hz
 
 #elif defined( USE_BAND_868 )
 

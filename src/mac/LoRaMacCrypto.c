@@ -5,15 +5,20 @@
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
     (C)2013 Semtech
+ ___ _____ _   ___ _  _____ ___  ___  ___ ___
+/ __|_   _/_\ / __| |/ / __/ _ \| _ \/ __| __|
+\__ \ | |/ _ \ (__| ' <| _| (_) |   / (__| _|
+|___/ |_/_/ \_\___|_|\_\_| \___/|_|_\\___|___|
+embedded.connectivity.solutions===============
 
 Description: LoRa MAC layer implementation
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 
-Maintainer: Miguel Luis and Gregory Cristian
+Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jäckle ( STACKFORCE )
 */
 #include <stdlib.h>
-#include "board.h"
+#include <stdint.h>
 #include "utilities.h"
 
 #include "aes.h"
@@ -54,7 +59,7 @@ static uint8_t sBlock[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
  * AES computation context variable
  */
 static aes_context AesContext;
-                   
+
 /*!
  * CMAC computation context variable
  */
@@ -71,7 +76,7 @@ static AES_CMAC_CTX AesCmacCtx[1];
  * \param [IN]  sequenceCounter Frame sequence counter
  * \param [OUT] mic Computed MIC field
  */
-void LoRaMacComputeMic( uint8_t *buffer, uint16_t size, uint8_t *key, uint32_t address, uint8_t dir, uint32_t sequenceCounter, uint32_t *mic )
+void LoRaMacComputeMic( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint32_t address, uint8_t dir, uint32_t sequenceCounter, uint32_t *mic )
 {
     MicBlockB0[5] = dir;
     
@@ -97,10 +102,10 @@ void LoRaMacComputeMic( uint8_t *buffer, uint16_t size, uint8_t *key, uint32_t a
     
     AES_CMAC_Final( Mic, AesCmacCtx );
     
-    *mic = ( uint32_t )( Mic[3] << 24 | Mic[2] << 16 | Mic[1] << 8 | Mic[0] );
+    *mic = ( uint32_t )( ( uint32_t )Mic[3] << 24 | ( uint32_t )Mic[2] << 16 | ( uint32_t )Mic[1] << 8 | ( uint32_t )Mic[0] );
 }
 
-void LoRaMacPayloadEncrypt( uint8_t *buffer, uint16_t size, uint8_t *key, uint32_t address, uint8_t dir, uint32_t sequenceCounter, uint8_t *encBuffer )
+void LoRaMacPayloadEncrypt( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint32_t address, uint8_t dir, uint32_t sequenceCounter, uint8_t *encBuffer )
 {
     uint16_t i;
     uint8_t bufferIndex = 0;
@@ -145,12 +150,12 @@ void LoRaMacPayloadEncrypt( uint8_t *buffer, uint16_t size, uint8_t *key, uint32
     }
 }
 
-void LoRaMacPayloadDecrypt( uint8_t *buffer, uint16_t size, uint8_t *key, uint32_t address, uint8_t dir, uint32_t sequenceCounter, uint8_t *decBuffer )
+void LoRaMacPayloadDecrypt( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint32_t address, uint8_t dir, uint32_t sequenceCounter, uint8_t *decBuffer )
 {
     LoRaMacPayloadEncrypt( buffer, size, key, address, dir, sequenceCounter, decBuffer );
 }
 
-void LoRaMacJoinComputeMic( uint8_t *buffer, uint16_t size, const uint8_t *key, uint32_t *mic )
+void LoRaMacJoinComputeMic( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint32_t *mic )
 {
     AES_CMAC_Init( AesCmacCtx );
 
@@ -160,10 +165,10 @@ void LoRaMacJoinComputeMic( uint8_t *buffer, uint16_t size, const uint8_t *key, 
 
     AES_CMAC_Final( Mic, AesCmacCtx );
 
-    *mic = ( uint32_t )( Mic[3] << 24 | Mic[2] << 16 | Mic[1] << 8 | Mic[0] );
+    *mic = ( uint32_t )( ( uint32_t )Mic[3] << 24 | ( uint32_t )Mic[2] << 16 | ( uint32_t )Mic[1] << 8 | ( uint32_t )Mic[0] );
 }
 
-void LoRaMacJoinDecrypt( uint8_t *buffer, uint16_t size, const uint8_t *key, uint8_t *decBuffer )
+void LoRaMacJoinDecrypt( const uint8_t *buffer, uint16_t size, const uint8_t *key, uint8_t *decBuffer )
 {
     memset1( AesContext.ksch, '\0', 240 );
     aes_set_key( key, 16, &AesContext );
@@ -175,7 +180,7 @@ void LoRaMacJoinDecrypt( uint8_t *buffer, uint16_t size, const uint8_t *key, uin
     }
 }
 
-void LoRaMacJoinComputeSKeys( const uint8_t *key, uint8_t *appNonce, uint16_t devNonce, uint8_t *nwkSKey, uint8_t *appSKey )
+void LoRaMacJoinComputeSKeys( const uint8_t *key, const uint8_t *appNonce, uint16_t devNonce, uint8_t *nwkSKey, uint8_t *appSKey )
 {
     uint8_t nonce[16];
     uint8_t *pDevNonce = ( uint8_t * )&devNonce;
@@ -185,13 +190,13 @@ void LoRaMacJoinComputeSKeys( const uint8_t *key, uint8_t *appNonce, uint16_t de
 
     memset1( nonce, 0, sizeof( nonce ) );
     nonce[0] = 0x01;
-    LoRaMacMemCpy( appNonce, nonce + 1, 6 );
-    LoRaMacMemCpy( pDevNonce, nonce + 7, 2 );
+    memcpy1( nonce + 1, appNonce, 6 );
+    memcpy1( nonce + 7, pDevNonce, 2 );
     aes_encrypt( nonce, nwkSKey, &AesContext );
 
     memset1( nonce, 0, sizeof( nonce ) );
     nonce[0] = 0x02;
-    LoRaMacMemCpy( appNonce, nonce + 1, 6 );
-    LoRaMacMemCpy( pDevNonce, nonce + 7, 2 );
+    memcpy1( nonce + 1, appNonce, 6 );
+    memcpy1( nonce + 7, pDevNonce, 2 );
     aes_encrypt( nonce, appSKey, &AesContext );
 }
