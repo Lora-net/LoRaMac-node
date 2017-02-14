@@ -750,7 +750,7 @@ int main( void )
 #if defined( USE_BAND_868 )
     AppSettings.DutyCycleOn = LORAWAN_DUTYCYCLE_ON;
 #endif
-    AppSettings.DeviceClass = CLASS_A;
+    AppSettings.DeviceClass = CLASS_C;
 
     LoRaMacUplinkStatus.Acked = false;
     LoRaMacUplinkStatus.NbTrials = 0;
