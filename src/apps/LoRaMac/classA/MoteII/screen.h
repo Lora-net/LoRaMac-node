@@ -42,7 +42,7 @@ typedef enum
 }Screen_t;
 
 /*!
- * Strucure containing the application status
+ * Structure containing the application status
  */
 typedef struct sAppSettings
 {
