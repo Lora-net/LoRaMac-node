@@ -116,7 +116,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define I2C_SDA                                     PB_7
 
 #define BOOT_1                                      PB_2
-    
+
 #define GPS_PPS                                     PB_1
 #define UART_TX                                     PA_9
 #define UART_RX                                     PA_10

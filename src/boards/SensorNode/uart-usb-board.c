@@ -96,3 +96,15 @@ void USB_LP_IRQHandler( void )
 {
     HAL_PCD_IRQHandler( &hpcd_USB_FS );
 }
+
+#ifdef __GNUC__
+/* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
+   set to 'Yes') calls __io_putchar() */
+int __io_putchar( int c )
+#else /* __GNUC__ */
+int fputc( int c, FILE *stream )
+#endif
+{
+    while( UartUsbPutChar( &UartUsb, c ) != 0 );
+    return c;
+}

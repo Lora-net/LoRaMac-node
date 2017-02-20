@@ -76,24 +76,24 @@ platforms are:
         REMARK  : The MCU and Radio are on an IMST iM880A module
 
     - MoteII
-            MCU     : STM32L051C8 - 64K FLASH, 8K RAM, Timers, SPI, I2C,
-                                    USART,
-                                    USB 2.0 full-speed device/host/OTG controller (Not used),
-                                    DAC, ADC, DMA
-            RADIO   : SX1272
-            ANTENNA : Printed circuit antenna
-            BUTTONS : 3
-            LEDS    : 3
-            SENSORS : Magnetic, 3 axis Accelerometer, Pressure,
-                      Temperature
-            GPS     : Yes, PAM7Q module
-            Display : OLED
-            ST-Link : Yes, MBED like
-            EXTENSION HEADER : Yes, 20 pins
-            REMARK  : The MCU and Radio are on an IMST iM881A module
+        MCU     : STM32L051C8 - 64K FLASH, 8K RAM, Timers, SPI, I2C,
+                                USART,
+                                USB 2.0 full-speed device/host/OTG controller (Not used),
+                                DAC, ADC, DMA
+        RADIO   : SX1272
+        ANTENNA : Printed circuit antenna
+        BUTTONS : 3
+        LEDS    : 3
+        SENSORS : Magnetic, 3 axis Accelerometer, Pressure,
+                  Temperature
+        GPS     : Yes, PAM7Q module
+        Display : OLED
+        ST-Link : Yes, MBED like
+        EXTENSION HEADER : Yes, 20 pins
+        REMARK  : The MCU and Radio are on an IMST iM881A module
 
     - SensorNode
-        MCU     : STM32L151C8 - 64K FLASH, 10K RAM, Timers, SPI, I2C,
+        MCU     : STM32L151CBU6 - 128K FLASH, 16K RAM, Timers, SPI, I2C,
                                 USART,
                                 USB 2.0 full-speed device/host/OTG controller,
                                 DAC, ADC, DMA
