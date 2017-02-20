@@ -1159,6 +1159,12 @@ typedef enum eMib
      */
     MIB_RX2_CHANNEL,
     /*!
+     * Set receive window 2 channel
+     *
+     * LoRaWAN Specification V1.0.1, chapter 3.3.2
+     */
+    MIB_RX2_DEFAULT_CHANNEL,
+    /*!
      * LoRaWAN channels mask
      *
      * LoRaWAN Specification V1.0.1, chapter 7
@@ -1345,6 +1351,12 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_RX2_CHANNEL
      */
     Rx2ChannelParams_t Rx2Channel;
+     /*!
+     * Channel for the receive window 2
+     *
+     * Related MIB type: \ref MIB_RX2_DEFAULT_CHANNEL
+     */
+    Rx2ChannelParams_t Rx2DefaultChannel;
     /*!
      * Channel mask
      *

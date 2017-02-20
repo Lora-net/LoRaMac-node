@@ -3577,6 +3577,11 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t *mibGet )
             mibGet->Param.Rx2Channel = LoRaMacParams.Rx2Channel;
             break;
         }
+        case MIB_RX2_DEFAULT_CHANNEL:
+        {
+            mibGet->Param.Rx2Channel = LoRaMacParamsDefaults.Rx2Channel;
+            break;
+        }
         case MIB_CHANNELS_DEFAULT_MASK:
         {
             mibGet->Param.ChannelsDefaultMask = LoRaMacParamsDefaults.ChannelsMask;
@@ -3760,6 +3765,11 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         case MIB_RX2_CHANNEL:
         {
             LoRaMacParams.Rx2Channel = mibSet->Param.Rx2Channel;
+            break;
+        }
+        case MIB_RX2_DEFAULT_CHANNEL:
+        {
+            LoRaMacParamsDefaults.Rx2Channel = mibSet->Param.Rx2DefaultChannel;
             break;
         }
         case MIB_CHANNELS_DEFAULT_MASK:
