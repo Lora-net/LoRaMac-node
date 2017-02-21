@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<Project version="2G - 2.0.1" name="LoRaMacClassA">
+<Project version="2G - 2.0.6" name="LoRaMacClassA">
   <Target name="LoRaMacClassA-433" isCurrent="0">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="819" chipName="STM32L151C8U6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="826" chipName="STM32L151CBU6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-std=c99; -flto"/>
         <Option name="SupportCPlusplus" value="0"/>
         <Option name="DEBUG" value="2"/>
         <Option name="WARNING" value="1"/>
@@ -31,14 +31,13 @@
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
-        <Option name="DiscardUnusedSection" value="0"/>
-        <Option name="UserEditLinkder" value=""/>
+        <Option name="DiscardUnusedSection" value="1"/>
+        <Option name="UserEditLinker" value="-lc; -lm; -flto"/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
         <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lc;-lm; -lrdimon; "/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
@@ -82,12 +81,12 @@
     <ExcludeFile/>
   </Target>
   <Target name="LoRaMacClassA-433-Bootloader" isCurrent="1">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="819" chipName="STM32L151C8U6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="826" chipName="STM32L151CBU6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-std=c99; -flto"/>
         <Option name="SupportCPlusplus" value="0"/>
         <Option name="DEBUG" value="2"/>
         <Option name="WARNING" value="1"/>
@@ -113,14 +112,13 @@
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
-        <Option name="DiscardUnusedSection" value="0"/>
-        <Option name="UserEditLinkder" value=""/>
+        <Option name="DiscardUnusedSection" value="1"/>
+        <Option name="UserEditLinker" value="-lc; -lm; -flto"/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
         <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lc;-lm; -lrdimon; "/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
@@ -164,12 +162,12 @@
     <ExcludeFile/>
   </Target>
   <Target name="LoRaMacClassA-780" isCurrent="0">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="819" chipName="STM32L151C8U6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="826" chipName="STM32L151CBU6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-std=c99; -flto"/>
         <Option name="SupportCPlusplus" value="0"/>
         <Option name="DEBUG" value="2"/>
         <Option name="WARNING" value="1"/>
@@ -194,14 +192,13 @@
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
-        <Option name="DiscardUnusedSection" value="0"/>
-        <Option name="UserEditLinkder" value=""/>
+        <Option name="DiscardUnusedSection" value="1"/>
+        <Option name="UserEditLinker" value="-lc; -lm; -flto"/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
         <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lc;-lm; -lrdimon; "/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
@@ -245,12 +242,12 @@
     <ExcludeFile/>
   </Target>
   <Target name="LoRaMacClassA-780-Bootloader" isCurrent="0">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="819" chipName="STM32L151C8U6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="826" chipName="STM32L151CBU6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-std=c99; -flto"/>
         <Option name="SupportCPlusplus" value="0"/>
         <Option name="DEBUG" value="2"/>
         <Option name="WARNING" value="1"/>
@@ -276,14 +273,13 @@
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
-        <Option name="DiscardUnusedSection" value="0"/>
-        <Option name="UserEditLinkder" value=""/>
+        <Option name="DiscardUnusedSection" value="1"/>
+        <Option name="UserEditLinker" value="-lc; -lm; -flto"/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
         <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lc;-lm; -lrdimon; "/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
@@ -327,12 +323,12 @@
     <ExcludeFile/>
   </Target>
   <Target name="LoRaMacClassA-868" isCurrent="0">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="819" chipName="STM32L151C8U6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="826" chipName="STM32L151CBU6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-std=c99; -flto"/>
         <Option name="SupportCPlusplus" value="0"/>
         <Option name="DEBUG" value="2"/>
         <Option name="WARNING" value="1"/>
@@ -357,14 +353,13 @@
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
-        <Option name="DiscardUnusedSection" value="0"/>
-        <Option name="UserEditLinkder" value=""/>
+        <Option name="DiscardUnusedSection" value="1"/>
+        <Option name="UserEditLinker" value="-lc; -lm; -flto"/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
         <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lc;-lm; -lrdimon; "/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
@@ -408,12 +403,12 @@
     <ExcludeFile/>
   </Target>
   <Target name="LoRaMacClassA-868-Bootloader" isCurrent="0">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="819" chipName="STM32L151C8U6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="826" chipName="STM32L151CBU6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-std=c99; -flto"/>
         <Option name="SupportCPlusplus" value="0"/>
         <Option name="DEBUG" value="2"/>
         <Option name="WARNING" value="1"/>
@@ -439,14 +434,13 @@
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
-        <Option name="DiscardUnusedSection" value="0"/>
-        <Option name="UserEditLinkder" value=""/>
+        <Option name="DiscardUnusedSection" value="1"/>
+        <Option name="UserEditLinker" value="-lc; -lm; -flto"/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
         <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lc; -lm; -lrdimon;"/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
@@ -490,12 +484,12 @@
     <ExcludeFile/>
   </Target>
   <Target name="LoRaMacClassA-915" isCurrent="0">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="819" chipName="STM32L151C8U6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="826" chipName="STM32L151CBU6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-std=c99; -flto"/>
         <Option name="SupportCPlusplus" value="0"/>
         <Option name="DEBUG" value="2"/>
         <Option name="WARNING" value="1"/>
@@ -520,14 +514,13 @@
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
-        <Option name="DiscardUnusedSection" value="0"/>
-        <Option name="UserEditLinkder" value=""/>
+        <Option name="DiscardUnusedSection" value="1"/>
+        <Option name="UserEditLinker" value="-lc; -lm; -flto"/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
         <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lc;-lm; -lrdimon; "/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
@@ -571,12 +564,12 @@
     <ExcludeFile/>
   </Target>
   <Target name="LoRaMacClassA-915-Bootloader" isCurrent="0">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="819" chipName="STM32L151C8U6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="826" chipName="STM32L151CBU6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-std=c99; -flto"/>
         <Option name="SupportCPlusplus" value="0"/>
         <Option name="DEBUG" value="2"/>
         <Option name="WARNING" value="1"/>
@@ -602,14 +595,13 @@
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
-        <Option name="DiscardUnusedSection" value="0"/>
-        <Option name="UserEditLinkder" value=""/>
+        <Option name="DiscardUnusedSection" value="1"/>
+        <Option name="UserEditLinker" value="-lc; -lm; -flto"/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
         <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lc;-lm; -lrdimon; "/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
@@ -690,10 +682,10 @@
     <File name="peripherals/sx9500.c" path="../../../../src/peripherals/sx9500.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_spi.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi.c" type="1"/>
     <File name="peripherals/sx1509.c" path="../../../../src/peripherals/sx1509.c" type="1"/>
-    <File name="system/crypto/cmac.c" path="../../../../src/system/crypto/cmac.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_rtc.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rtc.c" type="1"/>
-    <File name="system/crypto/aes.c" path="../../../../src/system/crypto/aes.c" type="1"/>
+    <File name="system/crypto/cmac.c" path="../../../../src/system/crypto/cmac.c" type="1"/>
     <File name="boards/SensorNode/gpio-board.c" path="../../../../src/boards/SensorNode/gpio-board.c" type="1"/>
+    <File name="system/crypto/aes.c" path="../../../../src/system/crypto/aes.c" type="1"/>
     <File name="mac/LoRaMacCrypto.c" path="../../../../src/mac/LoRaMacCrypto.c" type="1"/>
     <File name="boards/SensorNode/sx1276-board.c" path="../../../../src/boards/SensorNode/sx1276-board.c" type="1"/>
     <File name="boards/SensorNode/cmsis/system_stm32l1xx.c" path="../../../../src/boards/SensorNode/cmsis/system_stm32l1xx.c" type="1"/>
@@ -708,8 +700,8 @@
     <File name="boards/mcu" path="" type="2"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_cortex.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c" type="1"/>
     <File name="boards/SensorNode/i2c-board.c" path="../../../../src/boards/SensorNode/i2c-board.c" type="1"/>
-    <File name="system/adc.c" path="../../../../src/system/adc.c" type="1"/>
     <File name="system/gpio.c" path="../../../../src/system/gpio.c" type="1"/>
+    <File name="system/adc.c" path="../../../../src/system/adc.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_adc.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.c" type="1"/>
     <File name="peripherals/mma8451.c" path="../../../../src/peripherals/mma8451.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_pwr_ex.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.c" type="1"/>

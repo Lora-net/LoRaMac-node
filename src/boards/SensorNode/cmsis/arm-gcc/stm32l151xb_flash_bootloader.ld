@@ -2,13 +2,13 @@
 MEMORY
 {
   FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 12K
-  RAM (rwx)  : ORIGIN = 0x20000000, LENGTH = 10K
+  RAM (rwx)  : ORIGIN = 0x20000000, LENGTH = 16K
 }
 
 /* Entry Point */
 ENTRY(Reset_Handler)
 
-_estack = 0x20000000 + 10K;
+_estack = 0x20000000 + 16K;
 
 /* Define output sections */
 SECTIONS

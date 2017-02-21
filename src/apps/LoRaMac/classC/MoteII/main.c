@@ -750,7 +750,7 @@ int main( void )
 #if defined( USE_BAND_868 )
     AppSettings.DutyCycleOn = LORAWAN_DUTYCYCLE_ON;
 #endif
-    AppSettings.DeviceClass = CLASS_A;
+    AppSettings.DeviceClass = CLASS_C;
 
     LoRaMacUplinkStatus.Acked = false;
     LoRaMacUplinkStatus.NbTrials = 0;
@@ -812,6 +812,10 @@ int main( void )
                 LoRaMacChannelAdd( 7, ( ChannelParams_t )LC8 );
                 LoRaMacChannelAdd( 8, ( ChannelParams_t )LC9 );
                 LoRaMacChannelAdd( 9, ( ChannelParams_t )LC10 );
+
+                mibReq.Type = MIB_RX2_DEFAULT_CHANNEL;
+                mibReq.Param.Rx2DefaultChannel = ( Rx2ChannelParams_t ){ 869525000, DR_3 };
+                LoRaMacMibSetRequestConfirm( &mibReq );
 
                 mibReq.Type = MIB_RX2_CHANNEL;
                 mibReq.Param.Rx2Channel = ( Rx2ChannelParams_t ){ 869525000, DR_3 };

@@ -60,7 +60,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 #define USE_SEMTECH_DEFAULT_CHANNEL_LINEUP          1
 
-#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 ) 
+#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 )
 
 #define LC4                { 867100000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 #define LC5                { 867300000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
@@ -537,7 +537,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     ComplianceTest.NbGateways = 0;
                     ComplianceTest.Running = true;
                     ComplianceTest.State = 1;
-                    
+
                     MibRequestConfirm_t mibReq;
                     mibReq.Type = MIB_ADR;
                     mibReq.Param.AdrEnable = true;
@@ -870,7 +870,7 @@ int main( void )
 #if defined( USE_BAND_868 )
                 LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
 
-#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 ) 
+#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 )
                 LoRaMacChannelAdd( 3, ( ChannelParams_t )LC4 );
                 LoRaMacChannelAdd( 4, ( ChannelParams_t )LC5 );
                 LoRaMacChannelAdd( 5, ( ChannelParams_t )LC6 );
@@ -878,6 +878,10 @@ int main( void )
                 LoRaMacChannelAdd( 7, ( ChannelParams_t )LC8 );
                 LoRaMacChannelAdd( 8, ( ChannelParams_t )LC9 );
                 LoRaMacChannelAdd( 9, ( ChannelParams_t )LC10 );
+
+                mibReq.Type = MIB_RX2_DEFAULT_CHANNEL;
+                mibReq.Param.Rx2DefaultChannel = ( Rx2ChannelParams_t ){ 869525000, DR_3 };
+                LoRaMacMibSetRequestConfirm( &mibReq );
 
                 mibReq.Type = MIB_RX2_CHANNEL;
                 mibReq.Param.Rx2Channel = ( Rx2ChannelParams_t ){ 869525000, DR_3 };
