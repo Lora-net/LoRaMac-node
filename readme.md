@@ -5,47 +5,45 @@
     (______/|_____)_|_|_| \__)_____)\____)_| |_|
         (C)2013 Semtech
 
-SX1272/76 radio drivers plus Ping-Pong firmware and LoRaWAN node firmware implementation.
+LoRaWAN endpoint stack implementation and example projects.
 =====================================
 
 1. Introduction
 ----------------
-The aim of this project is to show examples of the LoRaWAN specification endpoint firmware
-implementation.
+The aim of this project is to show an example of the endpoint LoRaWAN stack implementation.
 
-**REMARK 1:** *The Semtech/STACKFORCE implementation is a EU868/US915 band Class A and Class C endpoint
-implementation fully compatible with LoRaWAN 1.0 specification.*
+This LoRaWAN stack is an EU868 and US915 bands Class A and Class C endpoint implementation
+fully compatible with LoRaWAN 1.0.1 specification.
+Each LoRaWAN application example includes the LoRaWAN certification protocol implementation.
 
-**REMARK 2:** *Version 4.0 is the first version release maintained by STACKFORCE and Semtech.
-This new version includes big changes on the LoRaMac API. The API documentation
-can be found at : http://stackforce.github.io/LoRaMac-doc/ *
+SX1272/76 radio drivers are also provided.
+In case only point to point links are required a Ping-Pong application is provided as example.
 
-*Please note that a version 3.x API to version 4.x API wrapper is available.
-Thus, applications built using version 3.x API should work without modifications except that 
+*The LoRaWAN stack API documentation can be found at: http://stackforce.github.io/LoRaMac-doc/*
+
+**Note 1:**
+
+*A version 3.x API to version 4.x API wrapper is available.
+Applications built using version 3.x API should work without modifications except that
 one must include LoRaMac-api-v3.h instead of LoRaMac.h file*
 
-**Now on the EUIs are to be entered as big endian byte arrays. The MAC layer will reverse the array when necessary.
-Valid for 3.x and 4.x API**
+**_The 3.x API wrapper will be deprecated starting at version 5.0.0_**
 
-**REMARK 3:** *Each LoRaWAN application examples now include the LoRaWAN certification protocol implmentation.*
+**Note 2:**
 
-**REMARK 4:** *In order to ease the release process the Bleeper-72, Bleeper-76 and SK-iM880A platforms
-will be removed in future releases, unless there are objections.*
+*A port of this project can be found on [MBED Semtech Team page](http://developer.mbed.org/teams/Semtech/)*
 
-**Note:**
+*The example projects are:*
 
-*The IBM 'LoRaWAN in C' implementation supports the Class A profile and partial
-Class B support (beacon synchronization).*
+1. [LoRaWAN-demo-72](http://developer.mbed.org/teams/Semtech/code/LoRaWAN-demo-72/)
+2. [LoRaWAN-demo-76](http://developer.mbed.org/teams/Semtech/code/LoRaWAN-demo-76/)
 
-*A port of the IBM 'LoRaWAN in C' can be found on [MBED Semtech Team page](http://developer.mbed.org/teams/Semtech/)
-project [LoRaWAN-lmic-app](http://developer.mbed.org/teams/Semtech/code/LoRaWAN-lmic-app/)*
 
 2. System schematic and definitions
 ------------------------------------
-The available supported hardware platforms schematics and LoRaMac specification
-can be found in the Doc directory.
+The available supported hardware platforms schematics can be found in the Doc directory.
 
-3. Acknowledgements
+3. Acknowledgments
 -------------------
 The mbed (https://mbed.org/) project was used at the beginning as source of
 inspiration.
@@ -62,36 +60,6 @@ Lander Casado, Philippas Tsigas.
 This program depends on specific hardware platforms. Currently the supported
 platforms are:
 
-    - Bleeper-72
-        MCU     : STM32L151RD - 384K FLASH, 48K RAM, Timers, SPI, I2C,
-                                USART,
-                                USB 2.0 full-speed device/host/OTG controller,
-                                DAC, ADC, DMA
-        RADIO   : SX1272
-        ANTENNA : Connector for external antenna
-        BUTTONS : 1 Reset, 16 position encoder
-        LEDS    : 3
-        SENSORS : Temperature
-        GPS     : Possible through pin header GPS module connection
-        SDCARD  : Yes
-        EXTENSION HEADER : Yes, 12 pins
-        REMARK  : None.
-
-    - Bleeper-76
-        MCU     : STM32L151RD - 384K FLASH, 48K RAM, Timers, SPI, I2C,
-                                USART,
-                                USB 2.0 full-speed device/host/OTG controller,
-                                DAC, ADC, DMA
-        RADIO   : SX1276
-        ANTENNA : Connector for external antennas (LF+HF)
-        BUTTONS : 1 Reset, 16 position encoder
-        LEDS    : 3
-        SENSORS : Temperature
-        GPS     : Possible through pin header GPS module connection
-        SDCARD  : No
-        EXTENSION HEADER : Yes, 12 pins
-        REMARK  : None.
-
     - LoRaMote
         MCU     : STM32L151CB - 128K FLASH, 10K RAM, Timers, SPI, I2C,
                                 USART,
@@ -104,12 +72,45 @@ platforms are:
         SENSORS : Proximity, Magnetic, 3 axis Accelerometer, Pressure,
                   Temperature
         GPS     : Yes, UP501 module
-        SDCARD  : No
         EXTENSION HEADER : Yes, 20 pins
         REMARK  : The MCU and Radio are on an IMST iM880A module
 
+    - MoteII
+        MCU     : STM32L051C8 - 64K FLASH, 8K RAM, Timers, SPI, I2C,
+                                USART,
+                                USB 2.0 full-speed device/host/OTG controller (Not used),
+                                DAC, ADC, DMA
+        RADIO   : SX1272
+        ANTENNA : Printed circuit antenna
+        BUTTONS : 3
+        LEDS    : 3
+        SENSORS : Magnetic, 3 axis Accelerometer, Pressure,
+                  Temperature
+        GPS     : Yes, PAM7Q module
+        Display : OLED
+        ST-Link : Yes, MBED like
+        EXTENSION HEADER : Yes, 20 pins
+        REMARK  : The MCU and Radio are on an IMST iM881A module
+
+    - NAMote72
+        MCU     : STM32L152RC - 256K FLASH, 32K RAM, Timers, SPI, I2C,
+                                USART,
+                                USB 2.0 full-speed device/host/OTG controller (Not used),
+                                DAC, ADC, DMA
+        RADIO   : SX1272
+        ANTENNA : Printed circuit antenna
+        BUTTONS : No
+        LEDS    : 4
+        SENSORS : Magnetic, 3 axis Accelerometer, Pressure,
+                    Temperature
+        GPS     : Yes, SIM39EA module
+        Display : OLED
+        ST-Link : Yes, MBED like
+        EXTENSION HEADER : Yes, Arduino connectors
+        REMARK  : None
+
     - SensorNode
-        MCU     : STM32L151C8 - 64K FLASH, 10K RAM, Timers, SPI, I2C,
+        MCU     : STM32L151CBU6 - 128K FLASH, 16K RAM, Timers, SPI, I2C,
                                 USART,
                                 USB 2.0 full-speed device/host/OTG controller,
                                 DAC, ADC, DMA
@@ -120,7 +121,6 @@ platforms are:
         SENSORS : Proximity, Magnetic, 3 axis Accelerometer, Pressure,
                   Temperature
         GPS     : Yes, SIM39EA module
-        SDCARD  : No
         EXTENSION No
         REMARK  : The MCU and Radio are on an NYMTEK Cherry-LCC module
 
@@ -141,7 +141,7 @@ platforms are:
 
 5. Usage
 ---------
-Projects for CooCox-CoIDE (partial), Ride7 and Keil Integrated Development Environments are available.
+Projects for CooCox-CoIDE and Keil Integrated Development Environments are available.
 
 One project is available per application and for each hardware platform in each
 development environment. Different targets/configurations have been created in
@@ -150,23 +150,115 @@ not of a bootloader and the radio frequency band to be used.
 
 6. Changelog
 -------------
-2015-12-18, V4.0
+2016-06-22, V4.3.0
+* General
+    1. This version has passed all LoRa-Alliance compliance tests.
+    2. Update the MAC layer in order to be LoRaWAN version 1.0.1 compliant
+    3. Applied to all application files the certification protocol change for LoRaWAN 1.0.1 compliance tests.
+
+       **REMARK**: api-v3 application files aren't updated.
+
+    4. Add radio RX_TIMEOUT irq clear into the irq handler.
+    5. Removed the end less loop from HAL_UART_ErrorCallback.
+    6. Update of the STM32L0 HAL to version 1.6.0
+    7. Consolidated the line endings across all project files.
+       Windows line endings has been choose for almost every file.
+
+* LoRaWAN
+    1. Updated maximum payload size for US band.
+    2. Update datarate offset table for US band.
+    3. Make MAC commands sticky
+    4. Add retransmission back-off
+    5. Remove the TxPower limitation for US band on LoRaMacMibSetRequestConfirm function. The power will be limited anyway when the SendFrameOnChannel functions is called.
+    6. Issue(#81): Bug fix in function LoRaMacMlmeRequest case MLME_JOIN. Function will return LORAMAC_STATUS_BUSY in case the MAC is in status MAC_TX_DELAYED.
+    7. Add debug pin support to LoRaMote platform.
+    8. Updated and improved MPL3115 device driver.
+    9. Issue(#83): Bug fix in parameter validation
+    10. Issue(#84): Fix issue of CalibrateTimer function.
+    11. RTC driver major update
+    12. Applied pull request #87.
+    13. Add a function to verify the RX frequency of window 2 for US band.
+    14. Issue(#88): Bug fix in function PrepareFrame where repeated MAC commands were not handled correctly.
+    15. Bug fix in OnRadioRxDone. Node now drops frames on port 0 with fOpts > 0.
+    16. Bug fix in OnRadioRxDone. Node now receives frames with fOpts > 0 when no payload is present.
+
+2016-05-13, V4.2.0
+* General
+    1. This version has passed all LoRa-Alliance compliance tests.
+    2. Update STM32L1xx_HAL_Driver version to 1.5. Update related drivers and implementations accordingly.
+
+       **REMARK**: This change implies that the time base had to be changed from microseconds to milliseconds.
+
+    3. Corrected the frequency check condition for // ERRATA 2.1 - Sensitivity Optimization with a 500 kHz Bandwidth
+    4. Optimize radio drivers regarding FSK PER
+    5. Resolve issue when calling SX127xInit function more than once
+    6. Add a definition for the LoRaWAN device address. Add an IEEE_OUI for the LoRaWAN device EUI.
+    7. Add a definition for the default datarate.
+    8. Issue(#66) correction of functions SX1276SetOpMode and SX1272SetOpMode.
+    9. Issue(#68): Fix for low level RF switch control.
+    10. Increase RTC tick frequency for higher resolution.
+    11. Update the radio wake up time.
+
+* LoRaWAN
+    1. Issue(#56) correction
+    2. Update channel mask handling for US915 hybrid mode to support any block in the channel mask.
+    3. Issue(#63) correct the maximum payload length in RX mode.
+    4. Fix Tx power setting loss for repeated join requests on US band.
+    5. Introduce individual MIN and MAX datarates for RX and TX.
+    6. Add the possibility to set and get the ChannelsDefaultDatarate.
+    7. Optimization of the RX symbol timeout.
+    8. Issue(#59): Add the possibility to set the uplink and downlink counter.
+    9. Replace definition LORAMAC_DEFAULT_DATARATE by ChannelsDefaultDatarate in LoRaMacChannelAdd.
+    10. Issue(#72): Fix of possible array overrun in LoRaMacChannelRemove.
+    11. Introduce a new status MAC_RX_ABORT. Reset MAC_TX_RUNNING only in OnMacStateCheckTimerEvent.
+    12. Accept MAC information of duplicated, confirmed downlinks.
+    13. Issue(#74): Drop frames with a downlink counter difference greater or equal to MAX_FCNT_GAP.
+
+2016-03-10, V4.1.0
+* General
+    1. This version has passed all mandatory LoRa-Alliance compliance tests.
+
+       *One of the optional tests is unsuccessful (FSK downlinks PER on Rx1 and Rx2 windows) and is currently under investigation.*
+    2. Removed support for Raisonance Ride7 IDE (Reduces the amount of work to be done at each new release)
+    3. Removed the Bleeper-72 and Bleeper-76 platforms support as these are now deprecated.
+    4. Application state machine. Relocate setting sleep state and update the duty cycle in compliance test mode.
+    5. Bug fix in TimerIrqHandler. Now, it is possible to insert timers in callback.
+    6. Changed TimerHwDelayMs function to be re-entrant.
+    7. Corrected FSK modem packets bigger than 64 bytes handling (Issue #36)
+
+* LoRaWAN
+    1. Rename attribute nbRetries to NbTrials in structure McpsReqConfirmed_t. (Issue #37)
+    2. Updated implementation of SetNextChannel. Added enabling default channels in case of join request. (Issue #39)
+    3. Add missing documentation about MIB_REPEATER_SUPPORT. (Issue #42).
+    4. Add a new LoRaMacState to allow adding channels during TX procedure. (Issue #43)
+    5. Relocate the activation of LoRaMacFlags.Bits.McpsInd in OnRadioRxDone.
+    6. Add a new function PrepareRxDoneAbort to prepare a break-out of OnRadioRxDone in case of an error
+    7. Activate default channels in case all others are disabled. (Issue #39)
+    8. Bug fix in setting the default channel in case none is enabled.
+    9. SRV_MAC_NEW_CHANNEL_REQ MAC command added a fix to the macIndex variable on US915 band.
+    10. Start the MacStateCheckTimer in OnRxDone and related error cases with a short interval to handle events promptly. (Issue #44)
+    11. Reset status of NodeAckRequested if we received an ACK or in case of timeout.
+    12. Removed additional EU868 channels from the LoRaWAN implementation files. GitHub (Issue #49)
+        The creation of these additional channels has been moved to the application example.
+    13. Improved and corrected AdrNextDr function.
+
+2015-12-18, V4.0.0
 * General
     1. STACKFORCE new API integration
     2. Reverse the EUIs arrays in the MAC layer.
-    3. LoRaWAN certification protocol implmentation
+    3. LoRaWAN certification protocol implementation
     4. All reported issues and Pull requests have been addressed.
-    
+
 2015-10-06, V3.4.1
 * General
     1. Bug fixes
 
 * LoRaWAN
     1. Corrected downlink counter roll over management when several downlinks were missed.
-    2. Corrected the Radio maximum payload length management. Radio was filtering received frames with a length bigger than the transmitted one. 
+    2. Corrected the Radio maximum payload length management. Radio was filtering received frames with a length bigger than the transmitted one.
     3. Applied Pull request #22 solution proposition.
 
-2015-10-30, V3.4
+2015-10-30, V3.4.0
 * General
     1. Changed all applications in order to have preprocessing definitions on top of the files and added relevant comments
     2. Applications LED control is no more done into the timer callback functions but instead on the main while loop.
@@ -205,7 +297,7 @@ not of a bootloader and the radio frequency band to be used.
     15. Added the limitation of the applicative payload length according to the datarate. Does not yet take in account the MAC commands buffer. (Issue #15)
     16. Corrected MacCommandBufferIndex management. (Issue #18)
 
-2015-08-07, v3.3
+2015-08-07, v3.3.0
 * General
     1. Added the support for LoRaWAN Class C devices.
     2. Implemented the radios errata note workarounds. SX1276 errata 2.3 "Receiver Spurious Reception of a LoRa Signal" is not yet implemented.
@@ -229,7 +321,7 @@ not of a bootloader and the radio frequency band to be used.
     14. Corrected the CFList management on JoinAccept. The for loop indexes were wrong. (Pull request #4)
     15. Correction of AES key size (Pull request #3)
 
-2015-04-30, v3.2
+2015-04-30, v3.2.0
 * General
     1. Updated LoRaMac implementation according to LoRaWAN R1.0 specification
     2. General cosmetics corrections
@@ -252,7 +344,7 @@ not of a bootloader and the radio frequency band to be used.
 
         * Added a new parameter to LoRaMacEventFlags structure that indicates on which Rx window the data has been received.
         * Added a new parameter to LoRaMacEventFlags structure that indicates if there is applicative data on the received payload.
-        * Corrected ADR MAC command behaviour
+        * Corrected ADR MAC command behavior
         * DutyCycle enforcement implementation (EU868 PHY only)
 
           **REMARK 1** *The regulatory duty cycle enforcement is enabled by default
@@ -262,7 +354,7 @@ not of a bootloader and the radio frequency band to be used.
 
           *Toff = TimeOnAir / DutyCycle - TxTimeOnAir*
 
-          *Eaxample:*
+          *Example:*
           *A device just transmitted a 0.5 s long frame on one default channel.
           This channel is in a sub-band allowing 1% duty-cycle. Therefore this
           whole sub-band (868 MHz - 868.6 MHz) will be unavailable for 49.5 s.*
@@ -278,7 +370,7 @@ not of a bootloader and the radio frequency band to be used.
     All applications must be updated accordingly.
     4. Added the possibility to chose to use either public or private networks
 
-2015-01-30, v3.1
+2015-01-30, v3.1.0
 * General
     1. Started to add support for CooCox CoIDE Integrated Development Environment.
        Currently only LoRaMote and SensorNode platform projects are available.
@@ -313,7 +405,7 @@ not of a bootloader and the radio frequency band to be used.
     5. Corrected the LoRaMacSetNextChannel function.
     6. Corrected the port 0 MAC command decoding.
     7. Changed all structures declarations to be packed.
-    8. Corrected the Acknowledgement retries management when only 1 trial is needed.
+    8. Corrected the Acknowledgment retries management when only 1 trial is needed.
        Before the device was issuing at least 2 trials.
     9. Corrected server mac new channel req answer.
     10. Added the functions to read the Up and Down Link sequence counters.
@@ -322,7 +414,7 @@ not of a bootloader and the radio frequency band to be used.
     13. Automatically activate the channel once it is created.
     14. Corrected NbRepTimeoutTimer initial value. RxWindow2Delay already contains RxWindow1Delay in it.
 
-2014-07-18, v3.0
+2014-07-18, v3.0.0
 * General
     1. Added to Radio API the possibility to select the modem.
     2. Corrected RSSI reading formulas as well as changed the RSSI and SNR values from double to int8_t type.
@@ -363,7 +455,7 @@ not of a bootloader and the radio frequency band to be used.
 
             Possible by issuing DutyCycleReq MAC command.
         * Duty cycle management enforcement  **NO**
-        * Acknowledgements retries           **YES**
+        * Acknowledgments retries            **YES**
         * Unconfirmed messages retries       **YES**
 
 2014-07-10, v2.3.RC2
@@ -402,7 +494,7 @@ not of a bootloader and the radio frequency band to be used.
                  MSB nibble = SELECTOR               (barometric)
                  LSB bit    = LED
     9. Redefined rand() and srand() standard C functions. These functions are
-       redefined in order to get the same behaviour across different compiler
+       redefined in order to get the same behavior across different compiler
        tool chains implementations.
     10. GPS driver improvements. Made independent of the board platform.
     11. Simplified the RTC management.
@@ -437,7 +529,7 @@ not of a bootloader and the radio frequency band to be used.
 
           Possible by issuing DutyCycleReq MAC command.
         * Duty cycle management enforcement  **NO**
-        * Acknowledgements retries           **WORK IN PROGRESS**
+        * Acknowledgments retries           **WORK IN PROGRESS**
 
           Not fully debugged. Disabled by default.
         * Unconfirmed messages retries       **WORK IN PROGRESS** (LoRaMac specification R2.2.1)
@@ -456,7 +548,7 @@ not of a bootloader and the radio frequency band to be used.
     6. LoRaMac channels definition has been moved to LoRaMac-board.h file
        located in each specific board directory.
 
-2014-04-07, v2.2
+2014-04-07, v2.2.0
 * General
     1. Added IMST SK-iM880A starter kit board support to the project.
         * The application payload for the SK-iM880A platform is as follows:
@@ -474,7 +566,7 @@ not of a bootloader and the radio frequency band to be used.
     4. Made fifo functions coding style coherent with the project.
     5. UART driver is now independent of the used MCU
 
-2014-03-28, v2.1
+2014-03-28, v2.1.0
 * General
     1. The timers and RTC management has been rewritten.
     2. Improved the UART and UP501 GPS drivers.
@@ -495,19 +587,19 @@ not of a bootloader and the radio frequency band to be used.
         * DevStatusAns                 **YES**
         * JoinReq                      **YES**
         * JoinAccept                   **YES**
-    2. Added acknowledgements retries management.
+    2. Added acknowledgments retries management.
       Split the LoRaMacSendOnChannel function in LoRaMacPrepareFrame and
       LoRaMacSendFrameOnChannel. LoRaMacSendOnChannel now calls the 2 newly
       defined functions.
 
-      **WARNING**: By default the acknowledgement retries specific code isn't
+      **WARNING**: By default the acknowledgment retries specific code isn't
       enabled. The current http://iot.semtech.com server version doesn't support
       it.
 
     3. Corrected issues on JoinRequest and JoinAccept MAC commands.
       Added LORAMAC_EVENT_INFO_STATUS_MAC_ERROR event info status.
 
-2014-02-21, v2.0
+2014-02-21, v2.0.0
 
 * General
     1. The LoRaMac applications now sends the LED status plus the sensors values.
@@ -547,7 +639,7 @@ not of a bootloader and the radio frequency band to be used.
 * Timers and RTC.
     1. Still some issues. They will be corrected on next revisions of the firmware.
 
-2014-01-24, v1.1
+2014-01-24, v1.1.0
 
 * LoRaMac
     1. MAC commands implemented
@@ -594,6 +686,6 @@ not of a bootloader and the radio frequency band to be used.
     1. The Radio wakeup time is taken in account for all timings.
     2. When opening the second reception window the microcontroller sometimes doesn't enter in low power mode.
 
-2013-11-28, v1.0
+2013-11-28, v1.0.0
 
 * Initial version of the LoRa MAC node firmware implementation.

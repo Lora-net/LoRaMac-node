@@ -25,7 +25,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define REG_OPMODE                                  0x01
 #define REG_BITRATEMSB                              0x02
 #define REG_BITRATELSB                              0x03
-#define REG_FDEVMSB                                 0x04 
+#define REG_FDEVMSB                                 0x04
 #define REG_FDEVLSB                                 0x05
 #define REG_FRFMSB                                  0x06
 #define REG_FRFMID                                  0x07
@@ -33,7 +33,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 // Tx settings
 #define REG_PACONFIG                                0x09
 #define REG_PARAMP                                  0x0A
-#define REG_OCP                                     0x0B 
+#define REG_OCP                                     0x0B
 // Rx settings
 #define REG_LNA                                     0x0C
 #define REG_RXCONFIG                                0x0D
@@ -41,7 +41,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define REG_RSSICOLLISION                           0x0F
 #define REG_RSSITHRESH                              0x10
 #define REG_RSSIVALUE                               0x11
-#define REG_RXBW                                    0x12 
+#define REG_RXBW                                    0x12
 #define REG_AFCBW                                   0x13
 #define REG_OOKPEAK                                 0x14
 #define REG_OOKFIX                                  0x15
@@ -372,13 +372,19 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RF_PACONFIG_MAX_POWER_MASK                  0x8F
 
 #define RF_PACONFIG_OUTPUTPOWER_MASK                0xF0
- 
+
 /*!
  * RegPaRamp
  */
-#define RF_PARAMP_LOWPNTXPLL_MASK                   0xE0
-#define RF_PARAMP_LOWPNTXPLL_OFF                    0x10  // Default
-#define RF_PARAMP_LOWPNTXPLL_ON                     0x00
+#define RF_PARAMP_MODULATIONSHAPING_MASK            0x9F
+#define RF_PARAMP_MODULATIONSHAPING_00              0x00  // Default
+#define RF_PARAMP_MODULATIONSHAPING_01              0x20
+#define RF_PARAMP_MODULATIONSHAPING_10              0x40
+#define RF_PARAMP_MODULATIONSHAPING_11              0x60
+
+#define RF_PARAMP_LOWPNTXPLL_MASK                   0xEF
+#define RF_PARAMP_LOWPNTXPLL_OFF                    0x10
+#define RF_PARAMP_LOWPNTXPLL_ON                     0x00  // Default
 
 #define RF_PARAMP_MASK                              0xF0
 #define RF_PARAMP_3400_US                           0x00
@@ -403,36 +409,36 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 #define RF_OCP_MASK                                 0xDF
 #define RF_OCP_ON                                   0x20  // Default
-#define RF_OCP_OFF                                  0x00  
+#define RF_OCP_OFF                                  0x00
 
 #define RF_OCP_TRIM_MASK                            0xE0
 #define RF_OCP_TRIM_045_MA                          0x00
-#define RF_OCP_TRIM_050_MA                          0x01   
-#define RF_OCP_TRIM_055_MA                          0x02 
-#define RF_OCP_TRIM_060_MA                          0x03 
-#define RF_OCP_TRIM_065_MA                          0x04 
-#define RF_OCP_TRIM_070_MA                          0x05 
-#define RF_OCP_TRIM_075_MA                          0x06 
-#define RF_OCP_TRIM_080_MA                          0x07  
+#define RF_OCP_TRIM_050_MA                          0x01
+#define RF_OCP_TRIM_055_MA                          0x02
+#define RF_OCP_TRIM_060_MA                          0x03
+#define RF_OCP_TRIM_065_MA                          0x04
+#define RF_OCP_TRIM_070_MA                          0x05
+#define RF_OCP_TRIM_075_MA                          0x06
+#define RF_OCP_TRIM_080_MA                          0x07
 #define RF_OCP_TRIM_085_MA                          0x08
-#define RF_OCP_TRIM_090_MA                          0x09 
-#define RF_OCP_TRIM_095_MA                          0x0A 
+#define RF_OCP_TRIM_090_MA                          0x09
+#define RF_OCP_TRIM_095_MA                          0x0A
 #define RF_OCP_TRIM_100_MA                          0x0B  // Default
-#define RF_OCP_TRIM_105_MA                          0x0C 
-#define RF_OCP_TRIM_110_MA                          0x0D 
-#define RF_OCP_TRIM_115_MA                          0x0E 
-#define RF_OCP_TRIM_120_MA                          0x0F 
+#define RF_OCP_TRIM_105_MA                          0x0C
+#define RF_OCP_TRIM_110_MA                          0x0D
+#define RF_OCP_TRIM_115_MA                          0x0E
+#define RF_OCP_TRIM_120_MA                          0x0F
 #define RF_OCP_TRIM_130_MA                          0x10
-#define RF_OCP_TRIM_140_MA                          0x11   
-#define RF_OCP_TRIM_150_MA                          0x12 
-#define RF_OCP_TRIM_160_MA                          0x13 
-#define RF_OCP_TRIM_170_MA                          0x14 
-#define RF_OCP_TRIM_180_MA                          0x15 
-#define RF_OCP_TRIM_190_MA                          0x16 
-#define RF_OCP_TRIM_200_MA                          0x17  
+#define RF_OCP_TRIM_140_MA                          0x11
+#define RF_OCP_TRIM_150_MA                          0x12
+#define RF_OCP_TRIM_160_MA                          0x13
+#define RF_OCP_TRIM_170_MA                          0x14
+#define RF_OCP_TRIM_180_MA                          0x15
+#define RF_OCP_TRIM_190_MA                          0x16
+#define RF_OCP_TRIM_200_MA                          0x17
 #define RF_OCP_TRIM_210_MA                          0x18
-#define RF_OCP_TRIM_220_MA                          0x19 
-#define RF_OCP_TRIM_230_MA                          0x1A 
+#define RF_OCP_TRIM_220_MA                          0x19
+#define RF_OCP_TRIM_230_MA                          0x1A
 #define RF_OCP_TRIM_240_MA                          0x1B
 
 /*!
@@ -463,7 +469,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 #define RF_RXCONFIG_AFCAUTO_MASK                    0xEF
 #define RF_RXCONFIG_AFCAUTO_ON                      0x10
-#define RF_RXCONFIG_AFCAUTO_OFF                     0x00 // Default 
+#define RF_RXCONFIG_AFCAUTO_OFF                     0x00 // Default
 
 #define RF_RXCONFIG_AGCAUTO_MASK                    0xF7
 #define RF_RXCONFIG_AGCAUTO_ON                      0x08 // Default
@@ -540,19 +546,19 @@ Maintainer: Miguel Luis and Gregory Cristian
  * RegRxBw
  */
 #define RF_RXBW_MANT_MASK                           0xE7
-#define RF_RXBW_MANT_16                             0x00  
-#define RF_RXBW_MANT_20                             0x08  
-#define RF_RXBW_MANT_24                             0x10  // Default 
+#define RF_RXBW_MANT_16                             0x00
+#define RF_RXBW_MANT_20                             0x08
+#define RF_RXBW_MANT_24                             0x10  // Default
 
-#define RF_RXBW_EXP_MASK                            0xF8 
-#define RF_RXBW_EXP_0                               0x00 
-#define RF_RXBW_EXP_1                               0x01 
-#define RF_RXBW_EXP_2                               0x02 
-#define RF_RXBW_EXP_3                               0x03 
-#define RF_RXBW_EXP_4                               0x04 
+#define RF_RXBW_EXP_MASK                            0xF8
+#define RF_RXBW_EXP_0                               0x00
+#define RF_RXBW_EXP_1                               0x01
+#define RF_RXBW_EXP_2                               0x02
+#define RF_RXBW_EXP_3                               0x03
+#define RF_RXBW_EXP_4                               0x04
 #define RF_RXBW_EXP_5                               0x05  // Default
-#define RF_RXBW_EXP_6                               0x06  
-#define RF_RXBW_EXP_7                               0x07 
+#define RF_RXBW_EXP_6                               0x06
+#define RF_RXBW_EXP_7                               0x07
 
 /*!
  * RegAfcBw
@@ -560,17 +566,17 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RF_AFCBW_MANTAFC_MASK                       0xE7
 #define RF_AFCBW_MANTAFC_16                         0x00
 #define RF_AFCBW_MANTAFC_20                         0x08  // Default
-#define RF_AFCBW_MANTAFC_24                         0x10  
+#define RF_AFCBW_MANTAFC_24                         0x10
 
 #define RF_AFCBW_EXPAFC_MASK                        0xF8
-#define RF_AFCBW_EXPAFC_0                           0x00 
-#define RF_AFCBW_EXPAFC_1                           0x01 
-#define RF_AFCBW_EXPAFC_2                           0x02  
+#define RF_AFCBW_EXPAFC_0                           0x00
+#define RF_AFCBW_EXPAFC_1                           0x01
+#define RF_AFCBW_EXPAFC_2                           0x02
 #define RF_AFCBW_EXPAFC_3                           0x03  // Default
-#define RF_AFCBW_EXPAFC_4                           0x04 
-#define RF_AFCBW_EXPAFC_5                           0x05 
-#define RF_AFCBW_EXPAFC_6                           0x06  
-#define RF_AFCBW_EXPAFC_7                           0x07 
+#define RF_AFCBW_EXPAFC_4                           0x04
+#define RF_AFCBW_EXPAFC_5                           0x05
+#define RF_AFCBW_EXPAFC_6                           0x06
+#define RF_AFCBW_EXPAFC_7                           0x07
 
 /*!
  * RegOokPeak
@@ -638,7 +644,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * RegAfcMsb (Read Only)
  */
- 
+
 /*!
  * RegAfcLsb (Read Only)
  */
@@ -731,7 +737,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RF_OSC_CLKOUT_2_MHZ                         0x04
 #define RF_OSC_CLKOUT_1_MHZ                         0x05  // Default
 #define RF_OSC_CLKOUT_RC                            0x06
-#define RF_OSC_CLKOUT_OFF                           0x07  
+#define RF_OSC_CLKOUT_OFF                           0x07
 
 /*!
  * RegPreambleMsb/RegPreambleLsb
@@ -760,7 +766,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RF_SYNCCONFIG_SYNCSIZE_MASK                 0xF8
 #define RF_SYNCCONFIG_SYNCSIZE_1                    0x00
 #define RF_SYNCCONFIG_SYNCSIZE_2                    0x01
-#define RF_SYNCCONFIG_SYNCSIZE_3                    0x02  
+#define RF_SYNCCONFIG_SYNCSIZE_3                    0x02
 #define RF_SYNCCONFIG_SYNCSIZE_4                    0x03  // Default
 #define RF_SYNCCONFIG_SYNCSIZE_5                    0x04
 #define RF_SYNCCONFIG_SYNCSIZE_6                    0x05
@@ -811,8 +817,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * RegPacketConfig2
  */
- 
-#define RF_PACKETCONFIG2_WMBUS_CRC_ENABLE_MASK      0x7F 
+
+#define RF_PACKETCONFIG2_WMBUS_CRC_ENABLE_MASK      0x7F
 #define RF_PACKETCONFIG2_WMBUS_CRC_ENABLE           0x80
 #define RF_PACKETCONFIG2_WMBUS_CRC_DISABLE          0x00  // Default
 
@@ -850,7 +856,7 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 #define RF_FIFOTHRESH_TXSTARTCONDITION_MASK         0x7F
 #define RF_FIFOTHRESH_TXSTARTCONDITION_FIFOTHRESH   0x00  // Default
-#define RF_FIFOTHRESH_TXSTARTCONDITION_FIFONOTEMPTY 0x80  
+#define RF_FIFOTHRESH_TXSTARTCONDITION_FIFONOTEMPTY 0x80
 
 #define RF_FIFOTHRESH_FIFOTHRESHOLD_MASK            0xC0
 #define RF_FIFOTHRESH_FIFOTHRESHOLD_THRESHOLD       0x0F  // Default

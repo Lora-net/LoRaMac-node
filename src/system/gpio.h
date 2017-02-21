@@ -25,11 +25,11 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * Board GPIO pin names
  */
-typedef enum 
+typedef enum
 {
     MCU_PINS,
     IOE_PINS,
-    
+
     // Not connected
     NC = (int)0xFFFFFFFF
 }PinNames;
@@ -71,7 +71,7 @@ typedef enum
 {
     NO_IRQ = 0,
     IRQ_RISING_EDGE,
-    IRQ_FALLING_EDGE,  
+    IRQ_FALLING_EDGE,
     IRQ_RISING_FALLING_EDGE
 }IrqModes;
 
@@ -82,7 +82,7 @@ typedef enum
 {
     IRQ_VERY_LOW_PRIORITY = 0,
     IRQ_LOW_PRIORITY,
-    IRQ_MEDIUM_PRIORITY,  
+    IRQ_MEDIUM_PRIORITY,
     IRQ_HIGH_PRIORITY,
     IRQ_VERY_HIGH_PRIORITY
 }IrqPriorities;
@@ -90,18 +90,24 @@ typedef enum
 /*!
  * Structure for the GPIO
  */
-typedef struct 
+typedef struct
 {
     PinNames  pin;
     uint16_t pinIndex;
     void *port;
     uint16_t portIndex;
+    PinTypes pull;
 }Gpio_t;
 
 /*!
  * GPIO IRQ handler function prototype
  */
 typedef void( GpioIrqHandler )( void );
+
+/*!
+ * GPIO Expander IRQ handler function prototype
+ */
+typedef void( GpioIoeIrqHandler )( void );
 
 /*!
  * \brief Initializes the given GPIO object
@@ -112,7 +118,7 @@ typedef void( GpioIrqHandler )( void );
  *                              PIN_ALTERNATE_FCT, PIN_ANALOGIC]
  * \param [IN] config Pin config [PIN_PUSH_PULL, PIN_OPEN_DRAIN]
  * \param [IN] type   Pin type [PIN_NO_PULL, PIN_PULL_UP, PIN_PULL_DOWN]
- * \param [IN] value  Default output value at initialisation
+ * \param [IN] value  Default output value at initialization
  */
 void GpioInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, PinTypes type, uint32_t value );
 
@@ -143,6 +149,13 @@ void GpioRemoveInterrupt( Gpio_t *obj );
  * \param [IN] value New GPIO output value
  */
 void GpioWrite( Gpio_t *obj, uint32_t value );
+
+/*!
+ * \brief Toggle the value to the GPIO output
+ *
+ * \param [IN] obj   Pointer to the GPIO object
+ */
+void GpioToggle( Gpio_t *obj );
 
 /*!
  * \brief Reads the current GPIO input value

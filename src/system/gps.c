@@ -36,13 +36,14 @@ const int32_t MaxWestPosition = 8388608;        // -2^23
 
 tNmeaGpsData NmeaGpsData;
 
+static double HasFix = false;
 static double Latitude = 0;
 static double Longitude = 0;
 
 static int32_t LatitudeBinary = 0;
 static int32_t LongitudeBinary = 0;
 
-static uint16_t Altitude = 0xFFFF;
+static int16_t Altitude = 0xFFFF;
 
 static uint32_t PpsCnt = 0;
 
@@ -68,20 +69,35 @@ void GpsInit( void )
     GpsMcuInit( );
 }
 
+void GpsStart( void )
+{
+    GpsMcuStart( );
+}
+
+void GpsStop( void )
+{
+    GpsMcuStop( );
+}
+
+void GpsProcess( void )
+{
+    GpsMcuProcess( );
+}
+
 bool GpsGetPpsDetectedState( void )
 {
     bool state = false;
-    
-    __disable_irq( );
+
+    BoardDisableIrq( );
     state = PpsDetected;
     PpsDetected = false;
-    __enable_irq( );
+    BoardEnableIrq( );
     return state;
 }
 
 bool GpsHasFix( void )
 {
-    return ( NmeaGpsData.NmeaFixQuality[0] > 0x30 ) ? true : false;
+    return HasFix;
 }
 
 void GpsConvertPositionIntoBinary( void )
@@ -132,7 +148,7 @@ void GpsConvertPositionFromStringToNumerical( void )
                 ( double )NmeaGpsData.NmeaLatitude[7] * 10.0 + ( double )NmeaGpsData.NmeaLatitude[8];
                 
     Latitude = valueTmp1 + ( ( valueTmp2 + ( valueTmp3 * 0.0001 ) ) / 60.0 );
-    
+
     if( NmeaGpsData.NmeaLatitudePole[0] == 'S' )
     {
         Latitude *= -1;
@@ -148,9 +164,9 @@ void GpsConvertPositionFromStringToNumerical( void )
     valueTmp2 = ( double )NmeaGpsData.NmeaLongitude[3] * 10.0 + ( double )NmeaGpsData.NmeaLongitude[4];
     valueTmp3 = ( double )NmeaGpsData.NmeaLongitude[6] * 1000.0 + ( double )NmeaGpsData.NmeaLongitude[7] * 100;
     valueTmp4 = ( double )NmeaGpsData.NmeaLongitude[8] * 10.0 + ( double )NmeaGpsData.NmeaLongitude[9];
-    
+
     Longitude = valueTmp1 + ( valueTmp2 / 60.0 ) + ( ( ( valueTmp3 + valueTmp4 ) * 0.0001 ) / 60.0 );
-    
+
     if( NmeaGpsData.NmeaLongitudePole[0] == 'W' )
     {
         Longitude *= -1;
@@ -161,14 +177,14 @@ void GpsConvertPositionFromStringToNumerical( void )
 uint8_t GpsGetLatestGpsPositionDouble( double *lati, double *longi )
 {
     uint8_t status = FAIL;
-    if( GpsHasFix( ) == true )
+    if( HasFix == true )
     {
         status = SUCCESS;
     }
     else
     {
         GpsResetPosition( );
-    }  
+    }
     *lati = Latitude;
     *longi = Longitude;
     return status;
@@ -177,26 +193,26 @@ uint8_t GpsGetLatestGpsPositionDouble( double *lati, double *longi )
 uint8_t GpsGetLatestGpsPositionBinary( int32_t *latiBin, int32_t *longiBin )
 {
     uint8_t status = FAIL;
-    
-    __disable_irq( );
-    if( GpsHasFix( ) == true )
+
+    BoardDisableIrq( );
+    if( HasFix == true )
     {
         status = SUCCESS;
     }
     else
     {
         GpsResetPosition( );
-    }  
+    }
     *latiBin = LatitudeBinary;
     *longiBin = LongitudeBinary;
-    __enable_irq( );
+    BoardEnableIrq( );
     return status;
 }
 
-uint16_t GpsGetLatestGpsAltitude( void )
+int16_t GpsGetLatestGpsAltitude( void )
 {
-    __disable_irq( );
-    if( GpsHasFix( ) == true )
+    BoardDisableIrq( );
+    if( HasFix == true )
     {    
         Altitude = atoi( NmeaGpsData.NmeaAltitude );
     }
@@ -204,7 +220,7 @@ uint16_t GpsGetLatestGpsAltitude( void )
     {
         Altitude = 0xFFFF;
     }
-    __enable_irq( );
+    BoardEnableIrq( );
 
     return Altitude;
 }
@@ -295,6 +311,7 @@ uint8_t GpsParseGpsData( int8_t *rxBuffer, int32_t rxBufferSize )
     
     if( rxBuffer[0] != '$' )
     {
+        GpsMcuInvertPpsTrigger( );
         return FAIL;
     }
 
@@ -609,6 +626,14 @@ uint8_t GpsParseGpsData( int8_t *rxBuffer, int32_t rxBufferSize )
 
 void GpsFormatGpsData( void )
 {
+    if( strncmp( ( const char* )NmeaGpsData.NmeaDataType, ( const char* )NmeaDataTypeGPGGA, 5 ) == 0 )
+    {
+        HasFix = ( NmeaGpsData.NmeaFixQuality[0] > 0x30 ) ? true : false;
+    }
+    else if ( strncmp( ( const char* )NmeaGpsData.NmeaDataType, ( const char* )NmeaDataTypeGPRMC, 5 ) == 0 )
+    {
+        HasFix = ( NmeaGpsData.NmeaDataStatus[0] == 0x41 ) ? true : false;
+    }
     GpsConvertPositionFromStringToNumerical( );
     GpsConvertPositionIntoBinary( );
 }

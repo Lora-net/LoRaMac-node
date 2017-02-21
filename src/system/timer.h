@@ -31,22 +31,8 @@ typedef struct TimerEvent_s
  * \brief Timer time variable definition
  */
 #ifndef TimerTime_t
-typedef uint64_t TimerTime_t;
+typedef uint32_t TimerTime_t;
 #endif
-
-/*!
- * \brief Enables/Disables low power timers usage
- *
- * \param [IN] enable [true]RTC timer used, [false]Normal timer used
- */
-void TimerSetLowPowerEnable( bool enable );
-
-/*!
- * \brief Initializes the timer object
- *
- * \retval enable [true]RTC timer used, [false]Normal timer used
- */
-bool TimerGetLowPowerEnable( void );
 
 /*!
  * \brief Initializes the timer object
@@ -99,6 +85,22 @@ void TimerSetValue( TimerEvent_t *obj, uint32_t value );
  * \retval time returns current time
  */
 TimerTime_t TimerGetCurrentTime( void );
+
+/*!
+ * \brief Return the Time elapsed since a fix moment in Time
+ *
+ * \param [IN] savedTime    fix moment in Time
+ * \retval time             returns elapsed time
+ */
+TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime );
+
+/*!
+ * \brief Return the Time elapsed since a fix moment in Time
+ *
+ * \param [IN] eventInFuture    fix moment in the future
+ * \retval time             returns difference between now and future event
+ */
+TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture );
 
 /*!
  * \brief Manages the entry into ARM cortex deep-sleep mode

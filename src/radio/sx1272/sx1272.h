@@ -21,7 +21,27 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * Radio wakeup time from SLEEP mode
  */
-#define RADIO_WAKEUP_TIME                           1000 // [us]
+#define RADIO_OSC_STARTUP                           1 // [ms]
+
+/*!
+ * Radio PLL lock and Mode Ready delay which can vary with the temperature
+ */
+#define RADIO_SLEEP_TO_RX                           2 // [ms]
+
+/*!
+ * Radio complete Wake-up Time with margin for temperature compensation
+ */
+#define RADIO_WAKEUP_TIME                           ( RADIO_OSC_STARTUP + RADIO_SLEEP_TO_RX )
+
+/*!
+ * Sync word for Private LoRa networks
+ */
+#define LORA_MAC_PRIVATE_SYNCWORD                   0x12
+
+/*!
+ * Sync word for Public LoRa networks
+ */
+#define LORA_MAC_PUBLIC_SYNCWORD                    0x34
 
 /*!
  * Radio FSK modem parameters
@@ -116,7 +136,6 @@ typedef struct SX1272_s
     Gpio_t        DIO4;
     Gpio_t        DIO5;
     Spi_t         Spi;
-    uint8_t       RxTx;
     RadioSettings_t Settings;
 }SX1272_t;
 
@@ -161,7 +180,7 @@ RadioState_t SX1272GetStatus( void );
 void SX1272SetModem( RadioModems_t modem );
 
 /*!
- * \brief Sets the channels configuration
+ * \brief Sets the channel configuration
  *
  * \param [IN] freq         Channel RF frequency
  */
@@ -215,12 +234,12 @@ uint32_t SX1272Random( void );
  *                          FSK : N/A ( set to 0 ) 
  *                          LoRa: timeout in symbols
  * \param [IN] fixLen       Fixed length packets [0: variable, 1: fixed]
- * \param [IN] payloadLen   Sets payload length when fixed lenght is used
+ * \param [IN] payloadLen   Sets payload length when fixed length is used
  * \param [IN] crcOn        Enables/Disables the CRC [0: OFF, 1: ON]
  * \param [IN] FreqHopOn    Enables disables the intra-packet frequency hopping
  *                          FSK : N/A ( set to 0 )
  *                          LoRa: [0: OFF, 1: ON]
- * \param [IN] HopPeriod    Number of symbols bewteen each hop
+ * \param [IN] HopPeriod    Number of symbols between each hop
  *                          FSK : N/A ( set to 0 )
  *                          LoRa: Number of symbols
  * \param [IN] iqInverted   Inverts IQ signals (LoRa only)
@@ -229,7 +248,7 @@ uint32_t SX1272Random( void );
  * \param [IN] rxContinuous Sets the reception in continuous mode
  *                          [false: single mode, true: continuous mode]
  */
-void SX1272SetRxConfig(  RadioModems_t modem, uint32_t bandwidth,
+void SX1272SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
                          uint32_t datarate, uint8_t coderate,
                          uint32_t bandwidthAfc, uint16_t preambleLen,
                          uint16_t symbTimeout, bool fixLen,
@@ -264,13 +283,13 @@ void SX1272SetRxConfig(  RadioModems_t modem, uint32_t bandwidth,
  * \param [IN] FreqHopOn    Enables disables the intra-packet frequency hopping
  *                          FSK : N/A ( set to 0 )
  *                          LoRa: [0: OFF, 1: ON]
- * \param [IN] HopPeriod    Number of symbols bewteen each hop
+ * \param [IN] HopPeriod    Number of symbols between each hop
  *                          FSK : N/A ( set to 0 )
  *                          LoRa: Number of symbols
  * \param [IN] iqInverted   Inverts IQ signals (LoRa only)
  *                          FSK : N/A ( set to 0 )
  *                          LoRa: [0: not inverted, 1: inverted]
- * \param [IN] timeout      Transmission timeout [us]
+ * \param [IN] timeout      Transmission timeout [ms]
  */
 void SX1272SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev, 
                         uint32_t bandwidth, uint32_t datarate,
@@ -279,14 +298,14 @@ void SX1272SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
                         uint8_t HopPeriod, bool iqInverted, uint32_t timeout );
 
 /*!
- * \brief Computes the packet time on air in us for the given payload
+ * \brief Computes the packet time on air in ms for the given payload
  *
  * \Remark Can only be called once SetRxConfig or SetTxConfig have been called
  *
  * \param [IN] modem      Radio modem to be used [0: FSK, 1: LoRa]
  * \param [IN] pktLen     Packet payload length
  *
- * \retval airTime        Computed airTime (us) for the given packet payload length
+ * \retval airTime        Computed airTime (ms) for the given packet payload length
  */
 uint32_t SX1272GetTimeOnAir( RadioModems_t modem, uint8_t pktLen );
 
@@ -311,7 +330,7 @@ void SX1272SetStby( void );
 
 /*!
  * \brief Sets the radio in reception mode for the given time
- * \param [IN] timeout Reception timeout [us] [0: continuous, others timeout]
+ * \param [IN] timeout Reception timeout [ms] [0: continuous, others timeout]
  */
 void SX1272SetRx( uint32_t timeout );
 
@@ -319,6 +338,15 @@ void SX1272SetRx( uint32_t timeout );
  * \brief Start a Channel Activity Detection
  */
 void SX1272StartCad( void );
+
+/*!
+ * \brief Sets the radio in continuous wave transmission mode
+ *
+ * \param [IN]: freq       Channel RF frequency
+ * \param [IN]: power      Sets the output power [dBm]
+ * \param [IN]: time       Transmission mode timeout [s]
+ */
+void SX1272SetTxContinuousWave( uint32_t freq, int8_t power, uint16_t time );
 
 /*!
  * \brief Reads the current RSSI value
@@ -368,5 +396,14 @@ void SX1272ReadBuffer( uint8_t addr, uint8_t *buffer, uint8_t size );
  * \param [IN] max        Maximum payload length in bytes
  */
 void SX1272SetMaxPayloadLength( RadioModems_t modem, uint8_t max );
+
+/*!
+ * \brief Sets the network to public or private. Updates the sync byte.
+ *
+ * \remark Applies to LoRa modem only
+ *
+ * \param [IN] enable if true, it enables a public network
+ */
+void SX1272SetPublicNetwork( bool enable );
 
 #endif // __SX1272_H__

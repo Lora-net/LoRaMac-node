@@ -18,6 +18,14 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 uint8_t SelectorGetValue( void )
 {
+    /*!
+     * Hex coder selector GPIO pins objects
+     */
+    Gpio_t Sel1;
+    Gpio_t Sel2;
+    Gpio_t Sel3;
+    Gpio_t Sel4;
+
     uint8_t i = 0;
     uint8_t j = 0;
     uint8_t k = 255;
@@ -27,8 +35,8 @@ uint8_t SelectorGetValue( void )
     GpioInit( &Sel2, SEL_2, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
     GpioInit( &Sel3, SEL_3, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
     GpioInit( &Sel4, SEL_4, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    
-    do 
+
+    do
     {
         j = i;
         k = j;
@@ -38,13 +46,13 @@ uint8_t SelectorGetValue( void )
         i += 2 * !GpioRead( &Sel2 );
         i += 4 * !GpioRead( &Sel3 );
         i += 8 * !GpioRead( &Sel4 );
-    } while( ( i != j ) && ( i != k ) ); // Waits for 3 successive values to be equal 
+    } while( ( i != j ) && ( i != k ) ); // Waits for 3 successive values to be equal
 
     // Sleep
     GpioInit( &Sel1, SEL_1, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
     GpioInit( &Sel2, SEL_2, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
     GpioInit( &Sel3, SEL_3, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
     GpioInit( &Sel4, SEL_4, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
-    
+
     return i;
 }

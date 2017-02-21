@@ -4,9 +4,9 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
+    (C)2016 Semtech
 
-Description: Bleeper board UART driver implementation
+Description: Board UART driver implementation
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 
@@ -15,6 +15,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __UART_MCU_H__
 #define __UART_MCU_H__
 
+/*!
+ * UART peripheral ID
+ */
 typedef enum
 {
     UART_1,
@@ -61,6 +64,16 @@ void UartMcuDeInit( Uart_t *obj );
 uint8_t UartMcuPutChar( Uart_t *obj, uint8_t data );
 
 /*!
+ * \brief Sends a character to the UART
+ *
+ * \param [IN] obj   UART object
+ * \param [IN] data  Characters to be sent
+ * \param [IN] size  number of characters to send
+ * \retval status    [0: OK, 1: Busy]
+ */
+uint8_t UartMcuPutBuffer( Uart_t *obj, uint8_t *data, uint16_t size );
+
+/*!
  * \brief Gets a character from the UART
  *
  * \param [IN] obj   UART object
@@ -68,5 +81,15 @@ uint8_t UartMcuPutChar( Uart_t *obj, uint8_t data );
  * \retval status    [0: OK, 1: Busy]
  */
 uint8_t UartMcuGetChar( Uart_t *obj, uint8_t *data );
+
+/*!
+ * \brief Gets a character from the UART (blocking mode)
+ *
+ * \param [IN] obj   UART object
+ * \param [IN] data  Received character
+ * \param [IN] size  number of characters to be received
+ * \retval status    [0: OK, 1: Busy]
+ */
+uint8_t UartMcuGetBuffer( Uart_t *obj, uint8_t *data, uint16_t size );
 
 #endif // __UART_MCU_H__

@@ -20,7 +20,7 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 typedef struct
 {
-    I2C_TypeDef *I2c;
+    I2C_HandleTypeDef I2c;
     Gpio_t Scl;
     Gpio_t Sda;
 }I2c_t;

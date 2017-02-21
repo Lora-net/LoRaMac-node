@@ -25,6 +25,7 @@ Maintainer: Miguel Luis and Gregory Cristian
     { MODEM_FSK , REG_LNA                , 0x23 },\
     { MODEM_FSK , REG_RXCONFIG           , 0x1E },\
     { MODEM_FSK , REG_RSSICONFIG         , 0xD2 },\
+    { MODEM_FSK , REG_AFCFEI             , 0x01 },\
     { MODEM_FSK , REG_PREAMBLEDETECT     , 0xAA },\
     { MODEM_FSK , REG_OSC                , 0x07 },\
     { MODEM_FSK , REG_SYNCCONFIG         , 0x12 },\
@@ -56,9 +57,16 @@ void SX1276IoIrqInit( DioIrqHandler **irqHandlers );
 /*!
  * \brief De-initializes the radio I/Os pins interface. 
  *
- * \remark Useful when going in MCU lowpower modes
+ * \remark Useful when going in MCU low power modes
  */
 void SX1276IoDeInit( void );
+
+/*!
+ * \brief Sets the radio output power.
+ *
+ * \param [IN] power Sets the RF output power
+ */
+void SX1276SetRfTxPower( int8_t power );
 
 /*!
  * \brief Gets the board PA selection configuration
@@ -83,18 +91,18 @@ void SX1276AntSwInit( void );
 /*!
  * \brief De-initializes the RF Switch I/Os pins interface 
  *
- * \remark Needed to decrease the power consumption in MCU lowpower modes
+ * \remark Needed to decrease the power consumption in MCU low power modes
  */
 void SX1276AntSwDeInit( void );
 
 /*!
- * \brief Controls the antena switch if necessary.
+ * \brief Controls the antenna switch if necessary.
  *
  * \remark see errata note
  *
- * \param [IN] rxTx [1: Tx, 0: Rx]
+ * \param [IN] opMode Current radio operating mode
  */
-void SX1276SetAntSw( uint8_t rxTx );
+void SX1276SetAntSw( uint8_t opMode );
 
 /*!
  * \brief Checks if the given RF frequency is supported by the hardware

@@ -58,7 +58,7 @@ typedef enum
     TX_TIMEOUT,
 }States_t;
 
-#define RX_TIMEOUT_VALUE                            1000000
+#define RX_TIMEOUT_VALUE                            1000
 #define BUFFER_SIZE                                 64 // Define the payload size here
 
 const uint8_t PingMsg[] = "PING";
@@ -110,7 +110,7 @@ int main( void )
     bool isMaster = true;
     uint8_t i;
 
-    // Target board initialisation
+    // Target board initialization
     BoardInitMcu( );
     BoardInitPeriph( );
 
@@ -130,8 +130,8 @@ int main( void )
     Radio.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
                                    LORA_SPREADING_FACTOR, LORA_CODINGRATE,
                                    LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
-                                   true, 0, 0, LORA_IQ_INVERSION_ON, 3000000 );
-    
+                                   true, 0, 0, LORA_IQ_INVERSION_ON, 3000 );
+
     Radio.SetRxConfig( MODEM_LORA, LORA_BANDWIDTH, LORA_SPREADING_FACTOR,
                                    LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGTH,
                                    LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
@@ -142,8 +142,8 @@ int main( void )
     Radio.SetTxConfig( MODEM_FSK, TX_OUTPUT_POWER, FSK_FDEV, 0,
                                   FSK_DATARATE, 0,
                                   FSK_PREAMBLE_LENGTH, FSK_FIX_LENGTH_PAYLOAD_ON,
-                                  true, 0, 0, 0, 3000000 );
-    
+                                  true, 0, 0, 0, 3000 );
+
     Radio.SetRxConfig( MODEM_FSK, FSK_BANDWIDTH, FSK_DATARATE,
                                   0, FSK_AFC_BANDWIDTH, FSK_PREAMBLE_LENGTH,
                                   0, FSK_FIX_LENGTH_PAYLOAD_ON, 0, true,
@@ -152,7 +152,7 @@ int main( void )
 #else
     #error "Please define a frequency band in the compiler options."
 #endif
-    
+
     Radio.Rx( RX_TIMEOUT_VALUE );
 
     while( 1 )
@@ -169,17 +169,17 @@ int main( void )
                         // Indicates on a LED that the received frame is a PONG
                         GpioWrite( &Led4, GpioRead( &Led4 ) ^ 1 );
 
-                        // Send the next PING frame            
+                        // Send the next PING frame
                         Buffer[0] = 'P';
                         Buffer[1] = 'I';
                         Buffer[2] = 'N';
                         Buffer[3] = 'G';
-                        // We fill the buffer with numbers for the payload 
+                        // We fill the buffer with numbers for the payload
                         for( i = 4; i < BufferSize; i++ )
                         {
                             Buffer[i] = i - 4;
                         }
-                        DelayMs( 1 ); 
+                        DelayMs( 1 );
                         Radio.Send( Buffer, BufferSize );
                     }
                     else if( strncmp( ( const char* )Buffer, ( const char* )PingMsg, 4 ) == 0 )
@@ -188,7 +188,7 @@ int main( void )
                         GpioWrite( &Led3, 1 ); // Set LED off
                         Radio.Rx( RX_TIMEOUT_VALUE );
                     }
-					else // valid reception but neither a PING or a PONG message
+                    else // valid reception but neither a PING or a PONG message
                     {    // Set device as master ans start again
                         isMaster = true;
                         Radio.Rx( RX_TIMEOUT_VALUE );
@@ -209,7 +209,7 @@ int main( void )
                         Buffer[1] = 'O';
                         Buffer[2] = 'N';
                         Buffer[3] = 'G';
-                        // We fill the buffer with numbers for the payload 
+                        // We fill the buffer with numbers for the payload
                         for( i = 4; i < BufferSize; i++ )
                         {
                             Buffer[i] = i - 4;
@@ -217,11 +217,11 @@ int main( void )
                         DelayMs( 1 );
                         Radio.Send( Buffer, BufferSize );
                     }
-					else // valid reception but not a PING as expected
+                    else // valid reception but not a PING as expected
                     {    // Set device as master and start again
                         isMaster = true;
                         Radio.Rx( RX_TIMEOUT_VALUE );
-                    }   
+                    }
                 }
             }
             State = LOWPOWER;
@@ -246,7 +246,7 @@ int main( void )
                 {
                     Buffer[i] = i - 4;
                 }
-                DelayMs( 1 ); 
+                DelayMs( 1 );
                 Radio.Send( Buffer, BufferSize );
             }
             else
@@ -264,9 +264,9 @@ int main( void )
             // Set low power
             break;
         }
-    
+
         TimerLowPowerHandler( );
-    
+
     }
 }
 

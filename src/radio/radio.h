@@ -157,12 +157,12 @@ struct Radio_s
      *                          FSK : N/A ( set to 0 ) 
      *                          LoRa: timeout in symbols
      * \param [IN] fixLen       Fixed length packets [0: variable, 1: fixed]
-     * \param [IN] payloadLen   Sets payload length when fixed lenght is used
+     * \param [IN] payloadLen   Sets payload length when fixed length is used
      * \param [IN] crcOn        Enables/Disables the CRC [0: OFF, 1: ON]
      * \param [IN] FreqHopOn    Enables disables the intra-packet frequency hopping
      *                          FSK : N/A ( set to 0 )
      *                          LoRa: [0: OFF, 1: ON]
-     * \param [IN] HopPeriod    Number of symbols bewteen each hop
+     * \param [IN] HopPeriod    Number of symbols between each hop
      *                          FSK : N/A ( set to 0 )
      *                          LoRa: Number of symbols
      * \param [IN] iqInverted   Inverts IQ signals (LoRa only)
@@ -205,13 +205,13 @@ struct Radio_s
      * \param [IN] FreqHopOn    Enables disables the intra-packet frequency hopping
      *                          FSK : N/A ( set to 0 )
      *                          LoRa: [0: OFF, 1: ON]
-     * \param [IN] HopPeriod    Number of symbols bewteen each hop
+     * \param [IN] HopPeriod    Number of symbols between each hop
      *                          FSK : N/A ( set to 0 )
      *                          LoRa: Number of symbols
      * \param [IN] iqInverted   Inverts IQ signals (LoRa only)
      *                          FSK : N/A ( set to 0 )
      *                          LoRa: [0: not inverted, 1: inverted]
-     * \param [IN] timeout      Transmission timeout [us]
+     * \param [IN] timeout      Transmission timeout [ms]
      */
     void    ( *SetTxConfig )( RadioModems_t modem, int8_t power, uint32_t fdev, 
                               uint32_t bandwidth, uint32_t datarate,
@@ -226,14 +226,14 @@ struct Radio_s
      */
     bool    ( *CheckRfFrequency )( uint32_t frequency );
     /*!
-     * \brief Computes the packet time on air in us for the given payload
+     * \brief Computes the packet time on air in ms for the given payload
      *
      * \Remark Can only be called once SetRxConfig or SetTxConfig have been called
      *
      * \param [IN] modem      Radio modem to be used [0: FSK, 1: LoRa]
      * \param [IN] pktLen     Packet payload length
      *
-     * \retval airTime        Computed airTime (us) for the given packet payload length
+     * \retval airTime        Computed airTime (ms) for the given packet payload length
      */
     uint32_t  ( *TimeOnAir )( RadioModems_t modem, uint8_t pktLen );
     /*!
@@ -254,7 +254,7 @@ struct Radio_s
     void    ( *Standby )( void );
     /*!
      * \brief Sets the radio in reception mode for the given time
-     * \param [IN] timeout Reception timeout [us]
+     * \param [IN] timeout Reception timeout [ms]
      *                     [0: continuous, others timeout]
      */
     void    ( *Rx )( uint32_t timeout );
@@ -262,6 +262,14 @@ struct Radio_s
      * \brief Start a Channel Activity Detection
      */
     void    ( *StartCad )( void );
+    /*!
+     * \brief Sets the radio in continuous wave transmission mode
+     *
+     * \param [IN]: freq       Channel RF frequency
+     * \param [IN]: power      Sets the output power [dBm]
+     * \param [IN]: time       Transmission mode timeout [s]
+     */
+    void    ( *SetTxContinuousWave )( uint32_t freq, int8_t power, uint16_t time );
     /*!
      * \brief Reads the current RSSI value
      *
@@ -304,8 +312,15 @@ struct Radio_s
      * \param [IN] modem      Radio modem to be used [0: FSK, 1: LoRa]
      * \param [IN] max        Maximum payload length in bytes
      */
-    void ( *SetMaxPayloadLength )( RadioModems_t modem, uint8_t max );
-
+    void    ( *SetMaxPayloadLength )( RadioModems_t modem, uint8_t max );
+    /*!
+     * \brief Sets the network to public or private. Updates the sync byte.
+     *
+     * \remark Applies to LoRa modem only
+     *
+     * \param [IN] enable if true, it enables a public network
+     */
+    void    ( *SetPublicNetwork )( bool enable );
 };
 
 /*!

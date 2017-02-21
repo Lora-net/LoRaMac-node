@@ -20,7 +20,7 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 struct Spi_s
 {
-    SPI_TypeDef *Spi;
+    SPI_HandleTypeDef Spi;
     Gpio_t Mosi;
     Gpio_t Miso;
     Gpio_t Sclk;

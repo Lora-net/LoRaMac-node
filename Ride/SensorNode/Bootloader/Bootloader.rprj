@@ -1,4 +1,0 @@
-
-<Project Header="Project 'Bootloader'" Path=".\Bootloader.rprj" Project="Yes" OutputFile="" sate="96" ActiveApp="Bootloader" >
-	<ApplicationBuild Header="Bootloader" Extern=".\Bootloader.rapp" Path=".\Bootloader.rapp" OutputFile=".\obj\Bootloader.elf" sate="98" Config="SensorNode" />
-</Project>
