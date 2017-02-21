@@ -92,6 +92,23 @@ platforms are:
         EXTENSION HEADER : Yes, 20 pins
         REMARK  : The MCU and Radio are on an IMST iM881A module
 
+    - NAMote72
+        MCU     : STM32L152RC - 256K FLASH, 32K RAM, Timers, SPI, I2C,
+                                USART,
+                                USB 2.0 full-speed device/host/OTG controller (Not used),
+                                DAC, ADC, DMA
+        RADIO   : SX1272
+        ANTENNA : Printed circuit antenna
+        BUTTONS : No
+        LEDS    : 4
+        SENSORS : Magnetic, 3 axis Accelerometer, Pressure,
+                    Temperature
+        GPS     : Yes, SIM39EA module
+        Display : OLED
+        ST-Link : Yes, MBED like
+        EXTENSION HEADER : Yes, Arduino connectors
+        REMARK  : None
+
     - SensorNode
         MCU     : STM32L151CBU6 - 128K FLASH, 16K RAM, Timers, SPI, I2C,
                                 USART,
