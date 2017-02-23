@@ -809,9 +809,12 @@ static bool ValidateDatarate( int8_t datarate, uint16_t* channelsMask );
 /*!
  * \brief Limits the Tx power according to the number of enabled channels
  *
+ * \param [IN] txPower txPower to limit
+ * \param [IN] maxBandTxPower Maximum band allowed TxPower
+ *
  * \retval Returns the maximum valid tx power
  */
-static int8_t LimitTxPower( int8_t txPower );
+static int8_t LimitTxPower( int8_t txPower, int8_t maxBandTxPower );
 
 /*!
  * \brief Verifies, if a value is in a given range.
@@ -2220,9 +2223,13 @@ static bool ValidateDatarate( int8_t datarate, uint16_t* channelsMask )
     return false;
 }
 
-static int8_t LimitTxPower( int8_t txPower )
+static int8_t LimitTxPower( int8_t txPower, int8_t maxBandTxPower )
 {
     int8_t resultTxPower = txPower;
+
+    // Limit tx power to the band max
+    resultTxPower =  MAX( txPower, maxBandTxPower );
+
 #if defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
     if( ( LoRaMacParams.ChannelsDatarate == DR_4 ) ||
         ( ( LoRaMacParams.ChannelsDatarate >= DR_8 ) && ( LoRaMacParams.ChannelsDatarate <= DR_13 ) ) )
@@ -3231,7 +3238,7 @@ LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel )
     int8_t txPowerIndex = 0;
     int8_t txPower = 0;
 
-    txPowerIndex = LimitTxPower( LoRaMacParams.ChannelsTxPower );
+    txPowerIndex = LimitTxPower( LoRaMacParams.ChannelsTxPower, Bands[channel.Band].TxMaxPower );
     txPower = TxPowers[txPowerIndex];
 
     MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
@@ -3308,7 +3315,7 @@ LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout )
     int8_t txPowerIndex = 0;
     int8_t txPower = 0;
 
-    txPowerIndex = LimitTxPower( LoRaMacParams.ChannelsTxPower );
+    txPowerIndex = LimitTxPower( LoRaMacParams.ChannelsTxPower, Bands[Channels[Channel].Band].TxMaxPower );
     txPower = TxPowers[txPowerIndex];
 
     // Starts the MAC layer status check timer
