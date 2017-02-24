@@ -149,7 +149,7 @@ static uint8_t LoRaMacRxPayload[LORAMAC_PHY_MAXPAYLOAD];
  * LoRaMAC frame counter. Each time a packet is sent the counter is incremented.
  * Only the 16 LSB bits are sent
  */
-static uint32_t UpLinkCounter = 1;
+static uint32_t UpLinkCounter = 0;
 
 /*!
  * LoRaMAC frame counter. Each time a packet is received the counter is incremented.
@@ -1365,9 +1365,12 @@ static bool ValidateDatarate( int8_t datarate, uint16_t* channelsMask );
 /*!
  * \brief Limits the Tx power according to the number of enabled channels
  *
+ * \param [IN] txPower txPower to limit
+ * \param [IN] maxBandTxPower Maximum band allowed TxPower
+ *
  * \retval Returns the maximum valid tx power
  */
-static int8_t LimitTxPower( int8_t txPower );
+static int8_t LimitTxPower( int8_t txPower, int8_t maxBandTxPower );
 
 /*!
  * \brief Verifies, if a value is in a given range.
@@ -3590,9 +3593,13 @@ static bool ValidateDatarate( int8_t datarate, uint16_t* channelsMask )
     return false;
 }
 
-static int8_t LimitTxPower( int8_t txPower )
+static int8_t LimitTxPower( int8_t txPower, int8_t maxBandTxPower )
 {
     int8_t resultTxPower = txPower;
+
+    // Limit tx power to the band max
+    resultTxPower =  MAX( txPower, maxBandTxPower );
+
 #if defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
     if( ( LoRaMacParams.ChannelsDatarate == DR_4 ) ||
         ( ( LoRaMacParams.ChannelsDatarate >= DR_8 ) && ( LoRaMacParams.ChannelsDatarate <= DR_13 ) ) )
@@ -3672,6 +3679,7 @@ static bool AdrNextDr( bool adrEnabled, bool updateChannelMask, int8_t* datarate
             if( AdrAckCounter >= ADR_ACK_LIMIT )
             {
                 adrAckReq = true;
+                LoRaMacParams.ChannelsTxPower = LORAMAC_MAX_TX_POWER;
             }
             else
             {
@@ -3681,64 +3689,57 @@ static bool AdrNextDr( bool adrEnabled, bool updateChannelMask, int8_t* datarate
             {
                 if( ( AdrAckCounter % ADR_ACK_DELAY ) == 0 )
                 {
-                    if( LoRaMacParams.ChannelsTxPower == LORAMAC_MAX_TX_POWER )
-                    {
 #if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
-                        if( datarate > LORAMAC_TX_MIN_DATARATE )
+                    if( datarate > LORAMAC_TX_MIN_DATARATE )
+                    {
+                        datarate--;
+                    }
+                    if( datarate == LORAMAC_TX_MIN_DATARATE )
+                    {
+                        if( updateChannelMask == true )
                         {
-                            datarate--;
+                            // Re-enable default channels LC1, LC2, LC3
+                            LoRaMacParams.ChannelsMask[0] = LoRaMacParams.ChannelsMask[0] | ( LC( 1 ) + LC( 2 ) + LC( 3 ) );
                         }
-                        if( datarate == LORAMAC_TX_MIN_DATARATE )
-                        {
-                            if( updateChannelMask == true )
-                            {
-                                // Re-enable default channels LC1, LC2, LC3
-                                LoRaMacParams.ChannelsMask[0] = LoRaMacParams.ChannelsMask[0] | ( LC( 1 ) + LC( 2 ) + LC( 3 ) );
-                            }
-                        }
+                    }
 #elif defined( USE_BAND_470 )
-                        if( datarate > LORAMAC_TX_MIN_DATARATE )
+                    if( datarate > LORAMAC_TX_MIN_DATARATE )
+                    {
+                        datarate--;
+                    }
+                    if( datarate == LORAMAC_TX_MIN_DATARATE )
+                    {
+                        if( updateChannelMask == true )
                         {
-                            datarate--;
+                            // Re-enable default channels
+                            memcpy1( ( uint8_t* )LoRaMacParams.ChannelsMask, ( uint8_t* )LoRaMacParamsDefaults.ChannelsMask, sizeof( LoRaMacParams.ChannelsMask ) );
                         }
-                        if( datarate == LORAMAC_TX_MIN_DATARATE )
-                        {
-                            if( updateChannelMask == true )
-                            {
-                                // Re-enable default channels
-                                memcpy1( ( uint8_t* )LoRaMacParams.ChannelsMask, ( uint8_t* )LoRaMacParamsDefaults.ChannelsMask, sizeof( LoRaMacParams.ChannelsMask ) );
-                            }
-                        }
+                    }
 #elif defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
-                        if( ( datarate > LORAMAC_TX_MIN_DATARATE ) && ( datarate == DR_8 ) )
+                    if( ( datarate > LORAMAC_TX_MIN_DATARATE ) && ( datarate == DR_8 ) )
+                    {
+                        datarate = DR_4;
+                    }
+                    else if( datarate > LORAMAC_TX_MIN_DATARATE )
+                    {
+                        datarate--;
+                    }
+                    if( datarate == LORAMAC_TX_MIN_DATARATE )
+                    {
+                        if( updateChannelMask == true )
                         {
-                            datarate = DR_4;
-                        }
-                        else if( datarate > LORAMAC_TX_MIN_DATARATE )
-                        {
-                            datarate--;
-                        }
-                        if( datarate == LORAMAC_TX_MIN_DATARATE )
-                        {
-                            if( updateChannelMask == true )
-                            {
 #if defined( USE_BAND_915 )
-                                // Re-enable default channels
-                                memcpy1( ( uint8_t* )LoRaMacParams.ChannelsMask, ( uint8_t* )LoRaMacParamsDefaults.ChannelsMask, sizeof( LoRaMacParams.ChannelsMask ) );
+                            // Re-enable default channels
+                            memcpy1( ( uint8_t* )LoRaMacParams.ChannelsMask, ( uint8_t* )LoRaMacParamsDefaults.ChannelsMask, sizeof( LoRaMacParams.ChannelsMask ) );
 #else // defined( USE_BAND_915_HYBRID )
-                                // Re-enable default channels
-                                ReenableChannels( LoRaMacParamsDefaults.ChannelsMask[4], LoRaMacParams.ChannelsMask );
+                            // Re-enable default channels
+                            ReenableChannels( LoRaMacParamsDefaults.ChannelsMask[4], LoRaMacParams.ChannelsMask );
 #endif
-                            }
                         }
+                    }
 #else
 #error "Please define a frequency band in the compiler options."
 #endif
-                    }
-                    else
-                    {
-                        LoRaMacParams.ChannelsTxPower = LORAMAC_MAX_TX_POWER;
-                    }
                 }
             }
         }
@@ -4581,7 +4582,7 @@ static void ResetMacParameters( void )
     memset( &MlmeConfirmQueue, 0xFF, sizeof( MlmeConfirmQueue ) );
 
     // Counters
-    UpLinkCounter = 1;
+    UpLinkCounter = 0;
     DownLinkCounter = 0;
     AdrAckCounter = 0;
 
@@ -4800,7 +4801,7 @@ TimerTime_t SendFrameOnChannel( ChannelParams_t channel )
     int8_t txPowerIndex = 0;
     int8_t txPower = 0;
 
-    txPowerIndex = LimitTxPower( LoRaMacParams.ChannelsTxPower );
+    txPowerIndex = LimitTxPower( LoRaMacParams.ChannelsTxPower, Bands[channel.Band].TxMaxPower );
     txPower = TxPowers[txPowerIndex];
 
     if( IsBeaconExpected( ) == true )
@@ -4900,7 +4901,7 @@ LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout )
     int8_t txPowerIndex = 0;
     int8_t txPower = 0;
 
-    txPowerIndex = LimitTxPower( LoRaMacParams.ChannelsTxPower );
+    txPowerIndex = LimitTxPower( LoRaMacParams.ChannelsTxPower, Bands[Channels[Channel].Band].TxMaxPower );
     txPower = TxPowers[txPowerIndex];
 
     // Starts the MAC layer status check timer
