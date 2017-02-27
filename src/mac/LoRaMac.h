@@ -1038,6 +1038,10 @@ typedef struct sMlmeConfirm
      * Number of gateways which received the last LinkCheckReq
      */
     uint8_t NbGateways;
+    /*!
+     * Provides the number of retransmissions
+     */
+    uint8_t NbRetries;
 }MlmeConfirm_t;
 
 /*!
