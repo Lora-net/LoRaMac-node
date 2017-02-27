@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<Project version="2G - 2.0.1" name="BootLoader">
+<Project version="2G - 2.0.6" name="BootLoader">
   <Target name="BootLoader" isCurrent="1">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="819" chipName="STM32L151C8U6" boardId="" boardName="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="826" chipName="STM32L151CBU6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-std=c99; -flto"/>
         <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
         <Includepaths>
           <Includepath path="../../../src"/>
           <Includepath path="../../../src/boards/SensorNode"/>
@@ -31,14 +33,14 @@
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
-        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="DiscardUnusedSection" value="1"/>
         <Option name="UserEditLinkder" value=""/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
-        <Option name="LTO" value="0"/>
+        <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lm;"/>
+        <Option name="UserEditLinker" value=" -lm; -flto; ;"/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x00010000" startValue="0x08000000"/>
@@ -46,7 +48,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../src/boards/SensorNode/cmsis/arm-gcc/stm32l1xx_md_flash_bootloader.ld" type="0"/>
+        <LocateLinkFile path="../../../src/boards/SensorNode/cmsis/arm-gcc/stm32l151xb_flash_bootloader.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -95,15 +97,14 @@
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_dma.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_dma.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_spi_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi_ex.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_pcd.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pcd.c" type="1"/>
-    <File name="boards/SensorNode/STM32L1xx_HAL_Driver" path="" type="2"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver" path="" type="2"/>
     <File name="system" path="" type="2"/>
     <File name="boards/SensorNode" path="" type="2"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_rcc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.c" type="1"/>
     <File name="boards/SensorNode/STM32_USB_Device_Library/Class" path="" type="2"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_i2c.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_i2c.c" type="1"/>
     <File name="boards/SensorNode/STM32_USB_Device_Library" path="" type="2"/>
-    <File name="boards/SensorNode/cmsis/startup_stm32l1xx_md.s" path="../../../src/boards/SensorNode/cmsis/arm-gcc/startup_stm32l1xx_md.s" type="1"/>
     <File name="boards/mcu/stm32/utilities.c" path="../../../src/boards/mcu/stm32/utilities.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_flash.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c" type="1"/>
     <File name="peripherals/sx9500.c" path="../../../src/peripherals/sx9500.c" type="1"/>
@@ -116,19 +117,20 @@
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_flash_ramfunc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ramfunc.c" type="1"/>
     <File name="boards/SensorNode/cmsis/system_stm32l1xx.c" path="../../../src/boards/SensorNode/cmsis/system_stm32l1xx.c" type="1"/>
     <File name="boards/SensorNode/usb/usbd_conf.c" path="../../../src/boards/SensorNode/usb/dfu/src/usbd_conf.c" type="1"/>
-    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_rcc_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c" type="1"/>
     <File name="boards/SensorNode/usb-dfu-board.c" path="../../../src/boards/SensorNode/usb-dfu-board.c" type="1"/>
+    <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_rcc_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_rtc_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rtc_ex.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_gpio.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.c" type="1"/>
     <File name="boards/SensorNode/usb/usbd_dfu_flash.c" path="../../../src/boards/SensorNode/usb/dfu/src/usbd_dfu_flash.c" type="1"/>
     <File name="boards/SensorNode/STM32_USB_Device_Library/Class/usbd_dfu.c" path="../../../src/boards/mcu/stm32/STM32_USB_Device_Library/Class/DFU/Src/usbd_dfu.c" type="1"/>
+    <File name="boards/SensorNode/cmsis/startup_stm32l151xb.s" path="../../../src/boards/SensorNode/cmsis/arm-gcc/startup_stm32l151xb.s" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_usart.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_usart.c" type="1"/>
     <File name="boards/SensorNode/STM32_USB_Device_Library/Core" path="" type="2"/>
     <File name="boards/mcu" path="" type="2"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_pcd_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pcd_ex.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_cortex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c" type="1"/>
-    <File name="boards/SensorNode/i2c-board.c" path="../../../src/boards/SensorNode/i2c-board.c" type="1"/>
     <File name="boards/SensorNode/STM32_USB_Device_Library/Core/usbd_core.c" path="../../../src/boards/mcu/stm32/STM32_USB_Device_Library/Core/Src/usbd_core.c" type="1"/>
+    <File name="boards/SensorNode/i2c-board.c" path="../../../src/boards/SensorNode/i2c-board.c" type="1"/>
     <File name="system/gpio.c" path="../../../src/system/gpio.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_adc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_pwr_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.c" type="1"/>

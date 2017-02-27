@@ -23,14 +23,6 @@ In case only point to point links are required a Ping-Pong application is provid
 
 **Note 1:**
 
-*A version 3.x API to version 4.x API wrapper is available.
-Applications built using version 3.x API should work without modifications except that
-one must include LoRaMac-api-v3.h instead of LoRaMac.h file*
-
-**_The 3.x API wrapper will be deprecated starting at version 5.0.0_**
-
-**Note 2:**
-
 *A port of this project can be found on [MBED Semtech Team page](http://developer.mbed.org/teams/Semtech/)*
 
 *The example projects are:*
@@ -72,12 +64,45 @@ platforms are:
         SENSORS : Proximity, Magnetic, 3 axis Accelerometer, Pressure,
                   Temperature
         GPS     : Yes, UP501 module
-        SDCARD  : No
         EXTENSION HEADER : Yes, 20 pins
         REMARK  : The MCU and Radio are on an IMST iM880A module
 
+    - MoteII
+        MCU     : STM32L051C8 - 64K FLASH, 8K RAM, Timers, SPI, I2C,
+                                USART,
+                                USB 2.0 full-speed device/host/OTG controller (Not used),
+                                DAC, ADC, DMA
+        RADIO   : SX1272
+        ANTENNA : Printed circuit antenna
+        BUTTONS : 3
+        LEDS    : 3
+        SENSORS : Magnetic, 3 axis Accelerometer, Pressure,
+                  Temperature
+        GPS     : Yes, PAM7Q module
+        Display : OLED
+        ST-Link : Yes, MBED like
+        EXTENSION HEADER : Yes, 20 pins
+        REMARK  : The MCU and Radio are on an IMST iM881A module
+
+    - NAMote72
+        MCU     : STM32L152RC - 256K FLASH, 32K RAM, Timers, SPI, I2C,
+                                USART,
+                                USB 2.0 full-speed device/host/OTG controller (Not used),
+                                DAC, ADC, DMA
+        RADIO   : SX1272
+        ANTENNA : Printed circuit antenna
+        BUTTONS : No
+        LEDS    : 4
+        SENSORS : Magnetic, 3 axis Accelerometer, Pressure,
+                  Temperature
+        GPS     : Yes, SIM39EA module
+        Display : OLED
+        ST-Link : Yes, MBED like
+        EXTENSION HEADER : Yes, Arduino connectors
+        REMARK  : None
+
     - SensorNode
-        MCU     : STM32L151C8 - 64K FLASH, 10K RAM, Timers, SPI, I2C,
+        MCU     : STM32L151CBU6 - 128K FLASH, 16K RAM, Timers, SPI, I2C,
                                 USART,
                                 USB 2.0 full-speed device/host/OTG controller,
                                 DAC, ADC, DMA
@@ -88,7 +113,6 @@ platforms are:
         SENSORS : Proximity, Magnetic, 3 axis Accelerometer, Pressure,
                   Temperature
         GPS     : Yes, SIM39EA module
-        SDCARD  : No
         EXTENSION No
         REMARK  : The MCU and Radio are on an NYMTEK Cherry-LCC module
 
@@ -118,6 +142,27 @@ not of a bootloader and the radio frequency band to be used.
 
 6. Changelog
 -------------
+2017-02-27, V4.3.1
+* General
+    1. This version has passed EU868 and US915 LoRa-Alliance compliance tests.
+    2. Update the MAC layer in order to be LoRaWAN version 1.0.1 compliant (Mainly US915 bug fixes)
+    3. Removed api-v3 support from the project.
+    4. GitHub reported issues corrections.
+    5. Updated SensorNode projects according to the new MCU reference STM32L151CBU6. Bigger memories.
+    6. Addition of MoteII platform based on the IMST module iM881A (STM32L051C8)
+    7. Addition of NAMote72 platform
+    8. Correct compliance test protocol command 0x06 behaviour
+    9. Added TxCw (Tx continuous wave) LoRaWAN compliance protocol command.
+    10. Added TxContinuousWave support to the radio drivers.
+    11. Updated ST HAL drivers.
+        - STM32L1xx_HAL-Driver : V1.2.0
+        - STM32L0xx_HAL_Driver : V1.7.0
+
+* LoRaWAN
+    1. US band corrections in order to pass the LoRaWAN certification.
+    2. GitHub reported issues corrections.
+    3. Add region CN470 support.
+
 2016-06-22, V4.3.0
 * General
     1. This version has passed all LoRa-Alliance compliance tests.

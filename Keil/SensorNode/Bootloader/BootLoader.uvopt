@@ -13,6 +13,7 @@
     <tExt>*.txt; *.h; *.inc</tExt>
     <pExt>*.plm</pExt>
     <CppX>*.cpp</CppX>
+    <nMigrate>0</nMigrate>
   </Extensions>
 
   <DaveTm>
@@ -31,6 +32,7 @@
         <BeepAtEnd>1</BeepAtEnd>
         <RunSim>0</RunSim>
         <RunTarget>1</RunTarget>
+        <RunAbUc>0</RunAbUc>
       </OPTTT>
       <OPTHX>
         <HexSelection>1</HexSelection>
@@ -76,6 +78,28 @@
         <IsCurrentTarget>1</IsCurrentTarget>
       </OPTFL>
       <CpuCode>255</CpuCode>
+      <Books>
+        <Book>
+          <Number>0</Number>
+          <Title>Data Sheet</Title>
+          <Path>DATASHTS\ST\STM32L1xx\CD00277537.pdf</Path>
+        </Book>
+        <Book>
+          <Number>1</Number>
+          <Title>Reference Manual</Title>
+          <Path>DATASHTS\ST\STM32L1xx\CD00240193.pdf</Path>
+        </Book>
+        <Book>
+          <Number>2</Number>
+          <Title>Technical Reference Manual</Title>
+          <Path>datashts\arm\cortex_m3\r1p1\DDI0337E_CORTEX_M3_R1P1_TRM.PDF</Path>
+        </Book>
+        <Book>
+          <Number>3</Number>
+          <Title>Generic User Guide</Title>
+          <Path>datashts\arm\cortex_m3\r2p1\DUI0552A_CORTEX_M3_DGUG.PDF</Path>
+        </Book>
+      </Books>
       <DebugOpt>
         <uSim>0</uSim>
         <uTrg>1</uTrg>
@@ -98,6 +122,7 @@
         <tRSysVw>1</tRSysVw>
         <sRunDeb>0</sRunDeb>
         <sLrtime>0</sLrtime>
+        <bEvRecOn>1</bEvRecOn>
         <nTsel>11</nTsel>
         <sDll></sDll>
         <sDllPa></sDllPa>
@@ -114,6 +139,11 @@
       <TargetDriverDllRegistry>
         <SetRegEntry>
           <Number>0</Number>
+          <Key>ULP2CM3</Key>
+          <Name>-UP1423015 -O2254 -S0 -C0 -P00 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO18 -TC10000000 -TP18 -TDX0 -TDD0 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO7 -FD20000000 -FC1000 -FN1 -FF0STM32L1xx_128.FLM -FS08000000 -FL020000 -FP0($$Device:STM32L151CB$Flash\STM32L1xx_128.FLM)</Name>
+        </SetRegEntry>
+        <SetRegEntry>
+          <Number>0</Number>
           <Key>DLGTARM</Key>
           <Name>(1010=-1,-1,-1,-1,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1009=-1,-1,-1,-1,0)(1012=-1,-1,-1,-1,0)</Name>
         </SetRegEntry>
@@ -125,12 +155,12 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>(105=-1,-1,-1,-1,0)</Name>
+          <Name></Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
           <Key>ST-LINKIII-KEIL_SWO</Key>
-          <Name>-U-O2255 -O10447 -S3 -C0 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8004 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO7 -FD20000000 -FC800 -FN1 -FF0STM32L1xx_128.FLM -FS08000000 -FL020000 -FP0($$Device:STM32L151CB$Flash\STM32L1xx_128.FLM)</Name>
+          <Name>-U-O2255 -O10447 -S3 -C0 -A0 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8004 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO7 -FD20000000 -FC800 -FN1 -FF0STM32L1xx_128 -FS08000000 -FL020000</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -187,6 +217,12 @@
       </DebugFlag>
       <LintExecutable></LintExecutable>
       <LintConfigFile></LintConfigFile>
+      <bLintAuto>0</bLintAuto>
+      <Lin2Executable></Lin2Executable>
+      <Lin2ConfigFile></Lin2ConfigFile>
+      <bLin2Auto>0</bLin2Auto>
+      <bAutoGenD>0</bAutoGenD>
+      <bAuto2GenD>0</bAuto2GenD>
     </TargetOption>
   </Target>
 
@@ -201,7 +237,6 @@
       <FileNumber>1</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\apps\bootloader\SensorNode\main.c</PathWithFileName>
@@ -222,7 +257,6 @@
       <FileNumber>2</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\SensorNode\gpio-board.c</PathWithFileName>
@@ -235,7 +269,6 @@
       <FileNumber>3</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\SensorNode\i2c-board.c</PathWithFileName>
@@ -256,11 +289,10 @@
       <FileNumber>4</FileNumber>
       <FileType>2</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\src\boards\SensorNode\cmsis\arm-std\startup_stm32l1xx_md.s</PathWithFileName>
-      <FilenameWithoutPath>startup_stm32l1xx_md.s</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\src\boards\SensorNode\cmsis\arm-std\startup_stm32l151xb.s</PathWithFileName>
+      <FilenameWithoutPath>startup_stm32l151xb.s</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -269,7 +301,6 @@
       <FileNumber>5</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\SensorNode\cmsis\system_stm32l1xx.c</PathWithFileName>
@@ -281,7 +312,7 @@
 
   <Group>
     <GroupName>boards\SensorNode\usb</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -290,7 +321,6 @@
       <FileNumber>6</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\SensorNode\usb\dfu\src\usbd_conf.c</PathWithFileName>
@@ -303,7 +333,6 @@
       <FileNumber>7</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\SensorNode\usb\dfu\src\usbd_desc.c</PathWithFileName>
@@ -316,7 +345,6 @@
       <FileNumber>8</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\SensorNode\usb\dfu\src\usbd_dfu_flash.c</PathWithFileName>
@@ -328,7 +356,7 @@
 
   <Group>
     <GroupName>boards\SensorNode\STM32_USB_Device_Library\Class</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -337,7 +365,6 @@
       <FileNumber>9</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Class\DFU\Src\usbd_dfu.c</PathWithFileName>
@@ -349,7 +376,7 @@
 
   <Group>
     <GroupName>boards\SensorNode\STM32_USB_Device_Library\Core</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -358,7 +385,6 @@
       <FileNumber>10</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Core\Src\usbd_core.c</PathWithFileName>
@@ -371,7 +397,6 @@
       <FileNumber>11</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Core\Src\usbd_ctlreq.c</PathWithFileName>
@@ -384,7 +409,6 @@
       <FileNumber>12</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Core\Src\usbd_ioreq.c</PathWithFileName>
@@ -405,7 +429,6 @@
       <FileNumber>13</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal.c</PathWithFileName>
@@ -418,7 +441,6 @@
       <FileNumber>14</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_cortex.c</PathWithFileName>
@@ -431,7 +453,6 @@
       <FileNumber>15</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_dma.c</PathWithFileName>
@@ -444,7 +465,6 @@
       <FileNumber>16</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_flash.c</PathWithFileName>
@@ -457,7 +477,6 @@
       <FileNumber>17</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_flash_ex.c</PathWithFileName>
@@ -470,7 +489,6 @@
       <FileNumber>18</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_flash_ramfunc.c</PathWithFileName>
@@ -483,7 +501,6 @@
       <FileNumber>19</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_gpio.c</PathWithFileName>
@@ -496,7 +513,6 @@
       <FileNumber>20</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_i2c.c</PathWithFileName>
@@ -509,7 +525,6 @@
       <FileNumber>21</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_pcd.c</PathWithFileName>
@@ -522,7 +537,6 @@
       <FileNumber>22</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_pcd_ex.c</PathWithFileName>
@@ -535,7 +549,6 @@
       <FileNumber>23</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_pwr.c</PathWithFileName>
@@ -548,7 +561,6 @@
       <FileNumber>24</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_pwr_ex.c</PathWithFileName>
@@ -561,7 +573,6 @@
       <FileNumber>25</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_rcc.c</PathWithFileName>
@@ -574,7 +585,6 @@
       <FileNumber>26</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_rcc_ex.c</PathWithFileName>
@@ -587,7 +597,6 @@
       <FileNumber>27</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_rtc.c</PathWithFileName>
@@ -600,7 +609,6 @@
       <FileNumber>28</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_rtc_ex.c</PathWithFileName>
@@ -613,7 +621,6 @@
       <FileNumber>29</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_spi.c</PathWithFileName>
@@ -626,7 +633,6 @@
       <FileNumber>30</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_spi_ex.c</PathWithFileName>
@@ -647,7 +653,6 @@
       <FileNumber>31</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\sysIrqHandlers.c</PathWithFileName>
@@ -668,7 +673,6 @@
       <FileNumber>32</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\peripherals\gpio-ioe.c</PathWithFileName>
@@ -681,7 +685,6 @@
       <FileNumber>33</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\peripherals\sx1509.c</PathWithFileName>
@@ -694,7 +697,6 @@
       <FileNumber>34</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\peripherals\sx9500.c</PathWithFileName>
@@ -715,7 +717,6 @@
       <FileNumber>35</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\system\gpio.c</PathWithFileName>
@@ -728,7 +729,6 @@
       <FileNumber>36</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\system\i2c.c</PathWithFileName>

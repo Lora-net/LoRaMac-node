@@ -37,12 +37,7 @@ void GpsMcuOnPpsSignal( void );
 void GpsMcuInvertPpsTrigger( void );
 
 /*!
- * \brief Return the Edge which give correct GPS data
- */
-uint8_t GpsMcuGetPpsTrigger( void );
-
-/*!
- * \brief Low level Initialisation of the UART and IRQ for the GPS
+ * \brief Low level Initialization of the UART and IRQ for the GPS
  */
 void GpsMcuInit( void );
 
@@ -54,7 +49,12 @@ void GpsMcuStart( void );
 /*!
  * \brief Switch OFF the GPS
  */
-void GpsMCuStop( void );
+void GpsMcuStop( void );
+
+/*!
+ * Updates the GPS status
+ */
+void GpsMcuProcess( void );
 
 /*!
  * \brief IRQ handler for the UART receiver

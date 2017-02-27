@@ -16,7 +16,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define __UTILITIES_H__
 
 /*!
- * \brief Returns the minimum value betwen a and b
+ * \brief Returns the minimum value between a and b
  *
  * \param [IN] a 1st value
  * \param [IN] b 2nd value
@@ -25,7 +25,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define MIN( a, b ) ( ( ( a ) < ( b ) ) ? ( a ) : ( b ) )
 
 /*!
- * \brief Returns the maximum value betwen a and b
+ * \brief Returns the maximum value between a and b
  *
  * \param [IN] a 1st value
  * \param [IN] b 2nd value
@@ -42,9 +42,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define POW2( n ) ( 1 << n )
 
 /*!
- * \brief Initializes the pseudo ramdom generator initial value
+ * \brief Initializes the pseudo random generator initial value
  *
- * \param [IN] seed Pseudo ramdom generator initial value
+ * \param [IN] seed Pseudo random generator initial value
  */
 void srand1( uint32_t seed );
 
@@ -59,7 +59,7 @@ int32_t randr( int32_t min, int32_t max );
 
 /*!
  * \brief Copies size elements of src array to dst array
- * 
+ *
  * \remark STM32 Standard memcpy function only works on pointers that are aligned
  *
  * \param [OUT] dst  Destination array
@@ -78,8 +78,8 @@ void memcpy1( uint8_t *dst, const uint8_t *src, uint16_t size );
 void memcpyr( uint8_t *dst, const uint8_t *src, uint16_t size );
 
 /*!
- * \brief Set size elements of dst array with value 
- * 
+ * \brief Set size elements of dst array with value
+ *
  * \remark STM32 Standard memset function only works on pointers that are aligned
  *
  * \param [OUT] dst   Destination array
@@ -90,7 +90,7 @@ void memset1( uint8_t *dst, uint8_t value, uint16_t size );
 
 /*!
  * \brief Converts a nibble to an hexadecimal character
- * 
+ *
  * \param [IN] a   Nibble to be converted
  * \retval hexChar Converted hexadecimal character
  */

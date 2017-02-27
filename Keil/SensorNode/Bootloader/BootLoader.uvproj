@@ -10,9 +10,10 @@
       <TargetName>BootLoader</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
-          <Device>STM32L151C8</Device>
+          <Device>STM32L151CB</Device>
           <Vendor>STMicroelectronics</Vendor>
           <Cpu>IRAM(0x20000000-0x20003FFF) IROM(0x8000000-0x801FFFF) CLOCK(8000000) CPUTYPE("Cortex-M3")</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -82,6 +83,8 @@
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
+            <nStopA1X>0</nStopA1X>
+            <nStopA2X>0</nStopA2X>
           </AfterMake>
           <SelectedForBatchBuild>0</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
@@ -225,6 +228,7 @@
             <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
+            <nSecure>0</nSecure>
             <RoSelD>3</RoSelD>
             <RwSelD>3</RwSelD>
             <CodeSel>0</CodeSel>
@@ -308,7 +312,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x8000000</StartAddress>
-                <Size>0x7000</Size>
+                <Size>0x4000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -359,6 +363,13 @@
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
             <useXO>0</useXO>
+            <v6Lang>1</v6Lang>
+            <v6LangP>1</v6LangP>
+            <vShortEn>1</vShortEn>
+            <vShortWch>1</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
+            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER STM32L151xB USE_NO_TIMER</Define>
@@ -376,6 +387,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
+            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -432,9 +444,9 @@
           <GroupName>boards\SensorNode\cmsis</GroupName>
           <Files>
             <File>
-              <FileName>startup_stm32l1xx_md.s</FileName>
+              <FileName>startup_stm32l151xb.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\..\src\boards\SensorNode\cmsis\arm-std\startup_stm32l1xx_md.s</FilePath>
+              <FilePath>..\..\..\src\boards\SensorNode\cmsis\arm-std\startup_stm32l151xb.s</FilePath>
             </File>
             <File>
               <FileName>system_stm32l1xx.c</FileName>

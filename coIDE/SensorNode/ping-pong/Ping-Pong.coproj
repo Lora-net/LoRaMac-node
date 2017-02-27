@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<Project version="2G - 2.0.1" name="Ping-Pong">
+<Project version="2G - 2.0.6" name="Ping-Pong">
   <Target name="Ping-Pong-868" isCurrent="0">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="819" chipName="STM32L151C8U6" boardId="" boardName="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="826" chipName="STM32L151CBU6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
-        <Option name="OptimizationLevel" value="0"/>
+        <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-std=c99; -flto"/>
         <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
         <Includepaths>
           <Includepath path="../../../src"/>
           <Includepath path="../../../src/boards/SensorNode"/>
@@ -30,22 +32,21 @@
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
-        <Option name="DiscardUnusedSection" value="0"/>
-        <Option name="UserEditLinkder" value=""/>
+        <Option name="DiscardUnusedSection" value="1"/>
+        <Option name="UserEditLinker" value="-lc; -lm; -flto"/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
-        <Option name="LTO" value="0"/>
+        <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lm;"/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
-          <Memory name="IROM1" type="ReadOnly" size="0x00010000" startValue="0x08000000"/>
-          <Memory name="IRAM1" type="ReadWrite" size="0x00002800" startValue="0x20000000"/>
+          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00004000" startValue="0x20000000"/>
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../src/boards/SensorNode/cmsis/arm-gcc/stm32l1xx_md_flash.ld" type="0"/>
+        <LocateLinkFile path="../../../src/boards/SensorNode/cmsis/arm-gcc/stm32l151xb_flash.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -81,13 +82,15 @@
     <ExcludeFile/>
   </Target>
   <Target name="Ping-Pong-868-Bootloader" isCurrent="1">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="819" chipName="STM32L151C8U6" boardId="" boardName="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="826" chipName="STM32L151CBU6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
-        <Option name="OptimizationLevel" value="0"/>
+        <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-std=c99; -flto"/>
         <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
         <Includepaths>
           <Includepath path="../../../src"/>
           <Includepath path="../../../src/boards/SensorNode"/>
@@ -111,22 +114,21 @@
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
-        <Option name="DiscardUnusedSection" value="0"/>
-        <Option name="UserEditLinkder" value=""/>
+        <Option name="DiscardUnusedSection" value="1"/>
+        <Option name="UserEditLinker" value="-lc; -lm; -flto"/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
-        <Option name="LTO" value="0"/>
+        <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lm;"/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
-          <Memory name="IROM1" type="ReadOnly" size="0x00010000" startValue="0x08000000"/>
-          <Memory name="IRAM1" type="ReadWrite" size="0x00002800" startValue="0x20000000"/>
+          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00004000" startValue="0x20000000"/>
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../src/boards/SensorNode/cmsis/arm-gcc/stm32l1xx_md_flash_offset.ld" type="0"/>
+        <LocateLinkFile path="../../../src/boards/SensorNode/cmsis/arm-gcc/stm32l151xb_flash_offset.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -162,13 +164,15 @@
     <ExcludeFile/>
   </Target>
   <Target name="Ping-Pong-915" isCurrent="0">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="819" chipName="STM32L151C8U6" boardId="" boardName="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="826" chipName="STM32L151CBU6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
-        <Option name="OptimizationLevel" value="0"/>
+        <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-std=c99; -flto"/>
         <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
         <Includepaths>
           <Includepath path="../../../src"/>
           <Includepath path="../../../src/boards/SensorNode"/>
@@ -191,22 +195,21 @@
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
-        <Option name="DiscardUnusedSection" value="0"/>
-        <Option name="UserEditLinkder" value=""/>
+        <Option name="DiscardUnusedSection" value="1"/>
+        <Option name="UserEditLinker" value="-lc; -lm; -flto"/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
-        <Option name="LTO" value="0"/>
+        <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lm;"/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
-          <Memory name="IROM1" type="ReadOnly" size="0x00010000" startValue="0x08000000"/>
-          <Memory name="IRAM1" type="ReadWrite" size="0x00002800" startValue="0x20000000"/>
+          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00004000" startValue="0x20000000"/>
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../src/boards/SensorNode/cmsis/arm-gcc/stm32l1xx_md_flash.ld" type="0"/>
+        <LocateLinkFile path="../../../src/boards/SensorNode/cmsis/arm-gcc/stm32l151xb_flash.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -242,13 +245,15 @@
     <ExcludeFile/>
   </Target>
   <Target name="Ping-Pong-915-Bootloader" isCurrent="0">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="819" chipName="STM32L151C8U6" boardId="" boardName="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="826" chipName="STM32L151CBU6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
-        <Option name="OptimizationLevel" value="0"/>
+        <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-std=c99; -flto"/>
         <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
         <Includepaths>
           <Includepath path="../../../src"/>
           <Includepath path="../../../src/boards/SensorNode"/>
@@ -272,22 +277,21 @@
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
-        <Option name="DiscardUnusedSection" value="0"/>
-        <Option name="UserEditLinkder" value=""/>
+        <Option name="DiscardUnusedSection" value="1"/>
+        <Option name="UserEditLinker" value="-lc; -lm; -flto"/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
-        <Option name="LTO" value="0"/>
+        <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lm;"/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
-          <Memory name="IROM1" type="ReadOnly" size="0x00010000" startValue="0x08000000"/>
-          <Memory name="IRAM1" type="ReadWrite" size="0x00002800" startValue="0x20000000"/>
+          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00004000" startValue="0x20000000"/>
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../src/boards/SensorNode/cmsis/arm-gcc/stm32l1xx_md_flash_offset.ld" type="0"/>
+        <LocateLinkFile path="../../../src/boards/SensorNode/cmsis/arm-gcc/stm32l151xb_flash_offset.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -352,7 +356,6 @@
     <File name="system/uart.c" path="../../../src/system/uart.c" type="1"/>
     <File name="peripherals/mag3110.c" path="../../../src/peripherals/mag3110.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_i2c.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_i2c.c" type="1"/>
-    <File name="boards/SensorNode/cmsis/startup_stm32l1xx_md.s" path="../../../src/boards/SensorNode/cmsis/arm-gcc/startup_stm32l1xx_md.s" type="1"/>
     <File name="boards/mcu/stm32/utilities.c" path="../../../src/boards/mcu/stm32/utilities.c" type="1"/>
     <File name="peripherals/sx9500.c" path="../../../src/peripherals/sx9500.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_spi.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi.c" type="1"/>
@@ -365,6 +368,7 @@
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_rcc_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_rtc_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rtc_ex.c" type="1"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal_gpio.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.c" type="1"/>
+    <File name="boards/SensorNode/cmsis/startup_stm32l151xb.s" path="../../../src/boards/SensorNode/cmsis/arm-gcc/startup_stm32l151xb.s" type="1"/>
     <File name="boards/SensorNode/adc-board.c" path="../../../src/boards/SensorNode/adc-board.c" type="1"/>
     <File name="boards/SensorNode/rtc-board.c" path="../../../src/boards/SensorNode/rtc-board.c" type="1"/>
     <File name="boards/mcu" path="" type="2"/>

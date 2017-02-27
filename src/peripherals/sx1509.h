@@ -132,6 +132,14 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RegHighInputA                               0x6A
 
 /*!
+ * \brief Mask to select correct data from the registers
+ */
+#define REG_SENSE_PIN_MASK_1                        0xFC
+#define REG_SENSE_PIN_MASK_2                        0xF3
+#define REG_SENSE_PIN_MASK_3                        0xCF
+#define REG_SENSE_PIN_MASK_4                        0x3F
+
+/*!
  * \brief Initializes the device
  */
 void SX1509Init( void );

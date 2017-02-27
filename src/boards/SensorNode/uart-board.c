@@ -4,9 +4,9 @@
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  _____) ) ____| | | || |_| ____( (___| | | |
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
+    (C)2016 Semtech
 
-Description: Bleeper board UART driver implementation
+Description: Board UART driver implementation
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 
@@ -18,6 +18,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 UART_HandleTypeDef UartHandle;
 uint8_t RxData = 0;
+uint8_t TxData = 0;
 
 void UartMcuInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx )
 {
@@ -25,7 +26,6 @@ void UartMcuInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx )
 
     __HAL_RCC_USART1_FORCE_RESET( );
     __HAL_RCC_USART1_RELEASE_RESET( );
-
     __HAL_RCC_USART1_CLK_ENABLE( );
 
     GpioInit( &obj->Tx, tx, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_UP, GPIO_AF7_USART1 );
@@ -120,14 +120,14 @@ void UartMcuConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_
 
     if( HAL_UART_Init( &UartHandle ) != HAL_OK )
     {
-        while( 1 );
+        assert_param( FAIL );
     }
 
     HAL_NVIC_SetPriority( USART1_IRQn, 8, 0 );
     HAL_NVIC_EnableIRQ( USART1_IRQn );
 
     /* Enable the UART Data Register not empty Interrupt */
-    HAL_UART_Receive_IT( &UartHandle, &RxData, 1 );;
+    HAL_UART_Receive_IT( &UartHandle, &RxData, 1 );
 }
 
 void UartMcuDeInit( Uart_t *obj )
@@ -142,70 +142,71 @@ void UartMcuDeInit( Uart_t *obj )
 
 uint8_t UartMcuPutChar( Uart_t *obj, uint8_t data )
 {
+    BoardDisableIrq( );
+    TxData = data;
+
     if( IsFifoFull( &obj->FifoTx ) == false )
     {
-        __disable_irq( );
-        FifoPush( &obj->FifoTx, data );
-        __enable_irq( );
-        // Enable the USART Transmit interrupt
-        __HAL_UART_ENABLE_IT( &UartHandle, USART_IT_TXE );
+        FifoPush( &obj->FifoTx, TxData );
+
+        // Trig UART Tx interrupt to start sending the FIFO contents.
+        __HAL_UART_ENABLE_IT( &UartHandle, UART_IT_TC );
+
+        BoardEnableIrq( );
         return 0; // OK
     }
+    BoardEnableIrq( );
     return 1; // Busy
 }
 
 uint8_t UartMcuGetChar( Uart_t *obj, uint8_t *data )
 {
+    BoardDisableIrq( );
+
     if( IsFifoEmpty( &obj->FifoRx ) == false )
     {
-        __disable_irq( );
         *data = FifoPop( &obj->FifoRx );
-        __enable_irq( );
+        BoardEnableIrq( );
         return 0;
     }
+    BoardEnableIrq( );
     return 1;
 }
 
-void HAL_UART_TxCpltCallback( UART_HandleTypeDef *UartHandle )
+void HAL_UART_TxCpltCallback( UART_HandleTypeDef *handle )
 {
-    uint8_t data;
-
     if( IsFifoEmpty( &Uart1.FifoTx ) == false )
     {
-        data = FifoPop( &Uart1.FifoTx );
+        TxData = FifoPop( &Uart1.FifoTx );
         //  Write one byte to the transmit data register
-        HAL_UART_Transmit_IT( UartHandle, &data, 1 );
+        HAL_UART_Transmit_IT( &UartHandle, &TxData, 1 );
     }
-    else
-    {
-        // Disable the USART Transmit interrupt
-        HAL_NVIC_DisableIRQ( USART1_IRQn );
-    }
+
     if( Uart1.IrqNotify != NULL )
     {
         Uart1.IrqNotify( UART_NOTIFY_TX );
     }
 }
 
-void HAL_UART_RxCpltCallback( UART_HandleTypeDef *UartHandle )
+void HAL_UART_RxCpltCallback( UART_HandleTypeDef *handle )
 {
     if( IsFifoFull( &Uart1.FifoRx ) == false )
     {
         // Read one byte from the receive data register
         FifoPush( &Uart1.FifoRx, RxData );
     }
+
     if( Uart1.IrqNotify != NULL )
     {
         Uart1.IrqNotify( UART_NOTIFY_RX );
     }
 
-    __HAL_UART_FLUSH_DRREGISTER( UartHandle );
-    HAL_UART_Receive_IT( UartHandle, &RxData, 1 );
+    HAL_UART_Receive_IT( &UartHandle, &RxData, 1 );
 }
 
-void HAL_UART_ErrorCallback( UART_HandleTypeDef *UartHandle )
+void HAL_UART_ErrorCallback( UART_HandleTypeDef *handle )
 {
-
+    HAL_UART_Receive_IT( &UartHandle, &RxData, 1 );
 }
 
 void USART1_IRQHandler( void )

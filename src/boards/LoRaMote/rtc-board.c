@@ -75,7 +75,7 @@ static uint16_t Century = 0;
 /*!
  * Flag used to indicates a Calendar Roll Over is about to happen
  */
-static bool CallendarRollOverReady = false;
+static bool CalendarRollOverReady = false;
 
 /*!
  * Flag used to indicates a the MCU has waken-up from an external IRQ
@@ -117,7 +117,7 @@ RTC_HandleTypeDef RtcHandle = { 0 };
 /*!
  * \brief Indicates if the RTC is already Initialized or not
  */
-static bool RtcInitalized = false;
+static bool RtcInitialized = false;
 
 /*!
  * \brief Indicates if the RTC Wake Up Time is calibrated or not
@@ -151,12 +151,12 @@ static void RtcStartWakeUpAlarm( uint32_t timeoutValue );
  * \retval rtcCalendar New RTC calendar value
  */
 //
-// REMARK: Removed function static attribute in order to suppress 
+// REMARK: Removed function static attribute in order to suppress
 //         "#177-D function was declared but never referenced" warning.
 // static RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter )
 //
 RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter );
- 
+
 /*!
  * \brief Converts a RtcCalendar_t value into TimerTime_t value
  *
@@ -194,7 +194,7 @@ void RtcInit( void )
 {
     RtcCalendar_t rtcInit;
 
-    if( RtcInitalized == false )
+    if( RtcInitialized == false )
     {
         __HAL_RCC_RTC_ENABLE( );
 
@@ -227,7 +227,7 @@ void RtcInit( void )
 
         HAL_NVIC_SetPriority( RTC_Alarm_IRQn, 4, 0 );
         HAL_NVIC_EnableIRQ( RTC_Alarm_IRQn );
-        RtcInitalized = true;
+        RtcInitialized = true;
     }
 }
 
@@ -246,9 +246,9 @@ TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout )
             timeout -= McuWakeUpTime;
         }
     }
-    
+
     if( timeout > McuWakeUpTime )
-    {   // we don't go in Low Power mode for delay below 50ms (needed for LEDs)        
+    {   // we don't go in Low Power mode for delay below 50ms (needed for LEDs)
         if( timeout < 50 ) // 50 ms
         {
             RtcTimerEventAllowsLowPower = false;
@@ -346,7 +346,7 @@ void RtcEnterLowPowerStopMode( void )
 void RtcRecoverMcuStatus( void )
 {
     // PWR_FLAG_WU indicates the Alarm has waken-up the MCU
-    if( __HAL_PWR_GET_FLAG( PWR_FLAG_WU ) != RESET ) 
+    if( __HAL_PWR_GET_FLAG( PWR_FLAG_WU ) != RESET )
     {
         __HAL_PWR_CLEAR_FLAG( PWR_FLAG_WU );
     }
@@ -398,14 +398,14 @@ static void RtcStartWakeUpAlarm( uint32_t timeoutValue )
     // Save the calendar into RtcCalendarContext to be able to calculate the elapsed time
     RtcCalendarContext = now;
 
-    // timeoutValue is in ms 
+    // timeoutValue is in ms
     alarmTimer = RtcComputeTimerTimeToAlarmTick( timeoutValue, now );
 
     alarmStructure.Alarm = RTC_ALARM_A;
     alarmStructure.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
     alarmStructure.AlarmMask = RTC_ALARMMASK_NONE;
     alarmStructure.AlarmTime.TimeFormat = RTC_HOURFORMAT12_AM;
-    
+
     alarmStructure.AlarmTime.Seconds = alarmTimer.CalendarTime.Seconds;
     alarmStructure.AlarmTime.Minutes = alarmTimer.CalendarTime.Minutes;
     alarmStructure.AlarmTime.Hours = alarmTimer.CalendarTime.Hours;
@@ -428,7 +428,7 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
     double timeoutValueTemp = 0.0;
     double timeoutValue = 0.0;
     double error = 0.0;
-    
+
     timeCounter = MIN( timeCounter, ( TimerTime_t )( RTC_ALARM_MAX_NUMBER_OF_DAYS * SecondsInDay * RTC_ALARM_TICK_DURATION ) );
 
     if( timeCounter < 1 )
@@ -477,11 +477,11 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
     }
 
     // Calculate seconds
-    seconds = seconds + timeoutValue;
+    seconds += timeoutValue;
 
     // Correct for modulo
     while( seconds >= 60 )
-    { 
+    {
         seconds -= 60;
         minutes++;
     }
@@ -508,7 +508,7 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
     else
     {
         if( days > DaysInMonth[now.CalendarDate.Month - 1] )
-        {   
+        {
             days = days % DaysInMonth[now.CalendarDate.Month - 1];
         }
     }
@@ -522,7 +522,7 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
 }
 
 //
-// REMARK: Removed function static attribute in order to suppress 
+// REMARK: Removed function static attribute in order to suppress
 //         "#177-D function was declared but never referenced" warning.
 // static RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter )
 //
@@ -553,7 +553,7 @@ RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter )
             timeCounterTemp -= SecondsInYear;
         }
         years++;
-        if( years == 100 ) 
+        if( years == 100 )
         {
             century = century + 100;
             years = 0;
@@ -686,12 +686,12 @@ static void RtcCheckCalendarRollOver( uint8_t year )
 {
     if( year == 99 )
     {
-        CallendarRollOverReady = true;
+        CalendarRollOverReady = true;
     }
 
-    if( ( CallendarRollOverReady == true ) && ( ( year + Century ) == Century ) )
+    if( ( CalendarRollOverReady == true ) && ( ( year + Century ) == Century ) )
     {   // Indicate a roll-over of the calendar
-        CallendarRollOverReady = false;
+        CalendarRollOverReady = false;
         Century = Century + 100;
     }
 }

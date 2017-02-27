@@ -13,6 +13,7 @@
     <tExt>*.txt; *.h; *.inc</tExt>
     <pExt>*.plm</pExt>
     <CppX>*.cpp</CppX>
+    <nMigrate>0</nMigrate>
   </Extensions>
 
   <DaveTm>
@@ -31,6 +32,7 @@
         <BeepAtEnd>1</BeepAtEnd>
         <RunSim>1</RunSim>
         <RunTarget>0</RunTarget>
+        <RunAbUc>0</RunAbUc>
       </OPTTT>
       <OPTHX>
         <HexSelection>1</HexSelection>
@@ -44,164 +46,6 @@
         <PageLength>66</PageLength>
         <TabStop>8</TabStop>
         <ListingPath>.\lst\Ping-Pong-lora\</ListingPath>
-      </OPTLEX>
-      <ListingPage>
-        <CreateCListing>1</CreateCListing>
-        <CreateAListing>1</CreateAListing>
-        <CreateLListing>1</CreateLListing>
-        <CreateIListing>0</CreateIListing>
-        <AsmCond>1</AsmCond>
-        <AsmSymb>1</AsmSymb>
-        <AsmXref>0</AsmXref>
-        <CCond>1</CCond>
-        <CCode>0</CCode>
-        <CListInc>0</CListInc>
-        <CSymb>0</CSymb>
-        <LinkerCodeListing>0</LinkerCodeListing>
-      </ListingPage>
-      <OPTXL>
-        <LMap>1</LMap>
-        <LComments>1</LComments>
-        <LGenerateSymbols>1</LGenerateSymbols>
-        <LLibSym>1</LLibSym>
-        <LLines>1</LLines>
-        <LLocSym>1</LLocSym>
-        <LPubSym>1</LPubSym>
-        <LXref>0</LXref>
-        <LExpSel>0</LExpSel>
-      </OPTXL>
-      <OPTFL>
-        <tvExp>1</tvExp>
-        <tvExpOptDlg>0</tvExpOptDlg>
-        <IsCurrentTarget>1</IsCurrentTarget>
-      </OPTFL>
-      <CpuCode>255</CpuCode>
-      <DebugOpt>
-        <uSim>0</uSim>
-        <uTrg>1</uTrg>
-        <sLdApp>1</sLdApp>
-        <sGomain>1</sGomain>
-        <sRbreak>1</sRbreak>
-        <sRwatch>1</sRwatch>
-        <sRmem>1</sRmem>
-        <sRfunc>1</sRfunc>
-        <sRbox>1</sRbox>
-        <tLdApp>1</tLdApp>
-        <tGomain>1</tGomain>
-        <tRbreak>1</tRbreak>
-        <tRwatch>1</tRwatch>
-        <tRmem>1</tRmem>
-        <tRfunc>0</tRfunc>
-        <tRbox>0</tRbox>
-        <tRtrace>1</tRtrace>
-        <sRSysVw>1</sRSysVw>
-        <tRSysVw>1</tRSysVw>
-        <sRunDeb>0</sRunDeb>
-        <sLrtime>0</sLrtime>
-        <nTsel>11</nTsel>
-        <sDll></sDll>
-        <sDllPa></sDllPa>
-        <sDlgDll></sDlgDll>
-        <sDlgPa></sDlgPa>
-        <sIfile></sIfile>
-        <tDll></tDll>
-        <tDllPa></tDllPa>
-        <tDlgDll></tDlgDll>
-        <tDlgPa></tDlgPa>
-        <tIfile></tIfile>
-        <pMon>STLink\ST-LINKIII-KEIL_SWO.dll</pMon>
-      </DebugOpt>
-      <TargetDriverDllRegistry>
-        <SetRegEntry>
-          <Number>0</Number>
-          <Key>DLGTARM</Key>
-          <Name>(1010=-1,-1,-1,-1,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1009=-1,-1,-1,-1,0)(1012=-1,-1,-1,-1,0)</Name>
-        </SetRegEntry>
-        <SetRegEntry>
-          <Number>0</Number>
-          <Key>ARMDBGFLAGS</Key>
-          <Name></Name>
-        </SetRegEntry>
-        <SetRegEntry>
-          <Number>0</Number>
-          <Key>DLGUARM</Key>
-          <Name>(105=-1,-1,-1,-1,0)</Name>
-        </SetRegEntry>
-        <SetRegEntry>
-          <Number>0</Number>
-          <Key>ULP2CM3</Key>
-          <Name>-O207 -S8 -C0 -FO7 -FD20000000 -FC800 -FN1 -FF0STM32L1xx_128 -FS08000000 -FL020000)</Name>
-        </SetRegEntry>
-        <SetRegEntry>
-          <Number>0</Number>
-          <Key>ST-LINKIII-KEIL_SWO</Key>
-          <Name>-U -O10447 -S8 -C0 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8004 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO7 -FD20000000 -FC800 -FN1 -FF0STM32L1xx_128 -FS08000000 -FL020000</Name>
-        </SetRegEntry>
-        <SetRegEntry>
-          <Number>0</Number>
-          <Key>UL2CM3</Key>
-          <Name>-O14 -S0 -C0 -N00("ARM Cortex-M3") -D00(1BA00477) -L00(4) -FO7 -FD20000000 -FC800 -FN1 -FF0STM32F10x_1024 -FS08000000 -FL0100000)</Name>
-        </SetRegEntry>
-      </TargetDriverDllRegistry>
-      <Breakpoint/>
-      <Tracepoint>
-        <THDelay>0</THDelay>
-      </Tracepoint>
-      <DebugFlag>
-        <trace>0</trace>
-        <periodic>1</periodic>
-        <aLwin>1</aLwin>
-        <aCover>0</aCover>
-        <aSer1>0</aSer1>
-        <aSer2>0</aSer2>
-        <aPa>0</aPa>
-        <viewmode>1</viewmode>
-        <vrSel>0</vrSel>
-        <aSym>0</aSym>
-        <aTbox>0</aTbox>
-        <AscS1>0</AscS1>
-        <AscS2>0</AscS2>
-        <AscS3>0</AscS3>
-        <aSer3>0</aSer3>
-        <eProf>0</eProf>
-        <aLa>0</aLa>
-        <aPa1>0</aPa1>
-        <AscS4>0</AscS4>
-        <aSer4>0</aSer4>
-        <StkLoc>0</StkLoc>
-        <TrcWin>0</TrcWin>
-        <newCpu>0</newCpu>
-        <uProt>0</uProt>
-      </DebugFlag>
-      <LintExecutable></LintExecutable>
-      <LintConfigFile></LintConfigFile>
-    </TargetOption>
-  </Target>
-
-  <Target>
-    <TargetName>Ping-Pong-fsk</TargetName>
-    <ToolsetNumber>0x4</ToolsetNumber>
-    <ToolsetName>ARM-ADS</ToolsetName>
-    <TargetOption>
-      <CLKADS>16000000</CLKADS>
-      <OPTTT>
-        <gFlags>1</gFlags>
-        <BeepAtEnd>1</BeepAtEnd>
-        <RunSim>1</RunSim>
-        <RunTarget>0</RunTarget>
-      </OPTTT>
-      <OPTHX>
-        <HexSelection>1</HexSelection>
-        <FlashByte>65535</FlashByte>
-        <HexRangeLowAddress>0</HexRangeLowAddress>
-        <HexRangeHighAddress>0</HexRangeHighAddress>
-        <HexOffset>0</HexOffset>
-      </OPTHX>
-      <OPTLEX>
-        <PageWidth>79</PageWidth>
-        <PageLength>66</PageLength>
-        <TabStop>8</TabStop>
-        <ListingPath>.\lst\Ping-Pong-fsk\</ListingPath>
       </OPTLEX>
       <ListingPage>
         <CreateCListing>1</CreateCListing>
@@ -293,7 +137,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>ST-LINKIII-KEIL_SWO</Key>
-          <Name>-U -O10447 -S8 -C0 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8004 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO7 -FD20000000 -FC800 -FN1 -FF0STM32L1xx_128 -FS08000000 -FL020000</Name>
+          <Name>-U066DFF505150785187015430 -O10447 -S8 -C0 -A0 -N00("ARM CoreSight SW-DP") -D00(0BC11477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8004 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO7 -FD20000000 -FC800 -FN1 -FF0STM32L1xx_128 -FS08000000 -FL020000</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -333,6 +177,173 @@
       </DebugFlag>
       <LintExecutable></LintExecutable>
       <LintConfigFile></LintConfigFile>
+      <bLintAuto>0</bLintAuto>
+      <Lin2Executable></Lin2Executable>
+      <Lin2ConfigFile></Lin2ConfigFile>
+      <bLin2Auto>0</bLin2Auto>
+    </TargetOption>
+  </Target>
+
+  <Target>
+    <TargetName>Ping-Pong-fsk</TargetName>
+    <ToolsetNumber>0x4</ToolsetNumber>
+    <ToolsetName>ARM-ADS</ToolsetName>
+    <TargetOption>
+      <CLKADS>16000000</CLKADS>
+      <OPTTT>
+        <gFlags>1</gFlags>
+        <BeepAtEnd>1</BeepAtEnd>
+        <RunSim>1</RunSim>
+        <RunTarget>0</RunTarget>
+        <RunAbUc>0</RunAbUc>
+      </OPTTT>
+      <OPTHX>
+        <HexSelection>1</HexSelection>
+        <FlashByte>65535</FlashByte>
+        <HexRangeLowAddress>0</HexRangeLowAddress>
+        <HexRangeHighAddress>0</HexRangeHighAddress>
+        <HexOffset>0</HexOffset>
+      </OPTHX>
+      <OPTLEX>
+        <PageWidth>79</PageWidth>
+        <PageLength>66</PageLength>
+        <TabStop>8</TabStop>
+        <ListingPath>.\lst\Ping-Pong-fsk\</ListingPath>
+      </OPTLEX>
+      <ListingPage>
+        <CreateCListing>1</CreateCListing>
+        <CreateAListing>1</CreateAListing>
+        <CreateLListing>1</CreateLListing>
+        <CreateIListing>0</CreateIListing>
+        <AsmCond>1</AsmCond>
+        <AsmSymb>1</AsmSymb>
+        <AsmXref>0</AsmXref>
+        <CCond>1</CCond>
+        <CCode>0</CCode>
+        <CListInc>0</CListInc>
+        <CSymb>0</CSymb>
+        <LinkerCodeListing>0</LinkerCodeListing>
+      </ListingPage>
+      <OPTXL>
+        <LMap>1</LMap>
+        <LComments>1</LComments>
+        <LGenerateSymbols>1</LGenerateSymbols>
+        <LLibSym>1</LLibSym>
+        <LLines>1</LLines>
+        <LLocSym>1</LLocSym>
+        <LPubSym>1</LPubSym>
+        <LXref>0</LXref>
+        <LExpSel>0</LExpSel>
+      </OPTXL>
+      <OPTFL>
+        <tvExp>1</tvExp>
+        <tvExpOptDlg>0</tvExpOptDlg>
+        <IsCurrentTarget>1</IsCurrentTarget>
+      </OPTFL>
+      <CpuCode>255</CpuCode>
+      <DebugOpt>
+        <uSim>0</uSim>
+        <uTrg>1</uTrg>
+        <sLdApp>1</sLdApp>
+        <sGomain>1</sGomain>
+        <sRbreak>1</sRbreak>
+        <sRwatch>1</sRwatch>
+        <sRmem>1</sRmem>
+        <sRfunc>1</sRfunc>
+        <sRbox>1</sRbox>
+        <tLdApp>1</tLdApp>
+        <tGomain>1</tGomain>
+        <tRbreak>1</tRbreak>
+        <tRwatch>1</tRwatch>
+        <tRmem>1</tRmem>
+        <tRfunc>0</tRfunc>
+        <tRbox>0</tRbox>
+        <tRtrace>1</tRtrace>
+        <sRSysVw>1</sRSysVw>
+        <tRSysVw>1</tRSysVw>
+        <sRunDeb>0</sRunDeb>
+        <sLrtime>0</sLrtime>
+        <nTsel>11</nTsel>
+        <sDll></sDll>
+        <sDllPa></sDllPa>
+        <sDlgDll></sDlgDll>
+        <sDlgPa></sDlgPa>
+        <sIfile></sIfile>
+        <tDll></tDll>
+        <tDllPa></tDllPa>
+        <tDlgDll></tDlgDll>
+        <tDlgPa></tDlgPa>
+        <tIfile></tIfile>
+        <pMon>STLink\ST-LINKIII-KEIL_SWO.dll</pMon>
+      </DebugOpt>
+      <TargetDriverDllRegistry>
+        <SetRegEntry>
+          <Number>0</Number>
+          <Key>DLGTARM</Key>
+          <Name>(1010=-1,-1,-1,-1,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1009=-1,-1,-1,-1,0)(1012=-1,-1,-1,-1,0)</Name>
+        </SetRegEntry>
+        <SetRegEntry>
+          <Number>0</Number>
+          <Key>ARMDBGFLAGS</Key>
+          <Name></Name>
+        </SetRegEntry>
+        <SetRegEntry>
+          <Number>0</Number>
+          <Key>DLGUARM</Key>
+          <Name>(105=-1,-1,-1,-1,0)</Name>
+        </SetRegEntry>
+        <SetRegEntry>
+          <Number>0</Number>
+          <Key>ULP2CM3</Key>
+          <Name>-O207 -S8 -C0 -FO7 -FD20000000 -FC800 -FN1 -FF0STM32L1xx_128 -FS08000000 -FL020000)</Name>
+        </SetRegEntry>
+        <SetRegEntry>
+          <Number>0</Number>
+          <Key>ST-LINKIII-KEIL_SWO</Key>
+          <Name>-U-O10447 -O10447 -S8 -C0 -A0 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8004 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO7 -FD20000000 -FC800 -FN1 -FF0STM32L1xx_128 -FS08000000 -FL020000</Name>
+        </SetRegEntry>
+        <SetRegEntry>
+          <Number>0</Number>
+          <Key>UL2CM3</Key>
+          <Name>-O14 -S0 -C0 -N00("ARM Cortex-M3") -D00(1BA00477) -L00(4) -FO7 -FD20000000 -FC800 -FN1 -FF0STM32F10x_1024 -FS08000000 -FL0100000)</Name>
+        </SetRegEntry>
+      </TargetDriverDllRegistry>
+      <Breakpoint/>
+      <Tracepoint>
+        <THDelay>0</THDelay>
+      </Tracepoint>
+      <DebugFlag>
+        <trace>0</trace>
+        <periodic>1</periodic>
+        <aLwin>1</aLwin>
+        <aCover>0</aCover>
+        <aSer1>0</aSer1>
+        <aSer2>0</aSer2>
+        <aPa>0</aPa>
+        <viewmode>1</viewmode>
+        <vrSel>0</vrSel>
+        <aSym>0</aSym>
+        <aTbox>0</aTbox>
+        <AscS1>0</AscS1>
+        <AscS2>0</AscS2>
+        <AscS3>0</AscS3>
+        <aSer3>0</aSer3>
+        <eProf>0</eProf>
+        <aLa>0</aLa>
+        <aPa1>0</aPa1>
+        <AscS4>0</AscS4>
+        <aSer4>0</aSer4>
+        <StkLoc>0</StkLoc>
+        <TrcWin>0</TrcWin>
+        <newCpu>0</newCpu>
+        <uProt>0</uProt>
+      </DebugFlag>
+      <LintExecutable></LintExecutable>
+      <LintConfigFile></LintConfigFile>
+      <bLintAuto>0</bLintAuto>
+      <Lin2Executable></Lin2Executable>
+      <Lin2ConfigFile></Lin2ConfigFile>
+      <bLin2Auto>0</bLin2Auto>
     </TargetOption>
   </Target>
 
@@ -347,7 +358,6 @@
       <FileNumber>1</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\apps\ping-pong\SK-iM880A\main.c</PathWithFileName>
@@ -368,7 +378,6 @@
       <FileNumber>2</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\SK-iM880A\adc-board.c</PathWithFileName>
@@ -381,7 +390,6 @@
       <FileNumber>3</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\SK-iM880A\board.c</PathWithFileName>
@@ -394,7 +402,6 @@
       <FileNumber>4</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\SK-iM880A\gpio-board.c</PathWithFileName>
@@ -407,7 +414,6 @@
       <FileNumber>5</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\SK-iM880A\i2c-board.c</PathWithFileName>
@@ -420,7 +426,6 @@
       <FileNumber>6</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\SK-iM880A\rtc-board.c</PathWithFileName>
@@ -433,7 +438,6 @@
       <FileNumber>7</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\SK-iM880A\spi-board.c</PathWithFileName>
@@ -446,7 +450,6 @@
       <FileNumber>8</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\SK-iM880A\sx1272-board.c</PathWithFileName>
@@ -459,7 +462,6 @@
       <FileNumber>9</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\SK-iM880A\uart-board.c</PathWithFileName>
@@ -480,11 +482,10 @@
       <FileNumber>10</FileNumber>
       <FileType>2</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\src\boards\SK-iM880A\cmsis\arm-std\startup_stm32l1xx_md.s</PathWithFileName>
-      <FilenameWithoutPath>startup_stm32l1xx_md.s</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\src\boards\SK-iM880A\cmsis\arm-std\startup_stm32l151xb.s</PathWithFileName>
+      <FilenameWithoutPath>startup_stm32l151xb.s</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -493,7 +494,6 @@
       <FileNumber>11</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\SK-iM880A\cmsis\system_stm32l1xx.c</PathWithFileName>
@@ -514,7 +514,6 @@
       <FileNumber>12</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal.c</PathWithFileName>
@@ -527,7 +526,6 @@
       <FileNumber>13</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_adc.c</PathWithFileName>
@@ -540,7 +538,6 @@
       <FileNumber>14</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_adc_ex.c</PathWithFileName>
@@ -553,7 +550,6 @@
       <FileNumber>15</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_cortex.c</PathWithFileName>
@@ -566,7 +562,6 @@
       <FileNumber>16</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_dma.c</PathWithFileName>
@@ -579,7 +574,6 @@
       <FileNumber>17</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_gpio.c</PathWithFileName>
@@ -592,7 +586,6 @@
       <FileNumber>18</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_i2c.c</PathWithFileName>
@@ -605,7 +598,6 @@
       <FileNumber>19</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_pwr.c</PathWithFileName>
@@ -618,7 +610,6 @@
       <FileNumber>20</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_pwr_ex.c</PathWithFileName>
@@ -631,7 +622,6 @@
       <FileNumber>21</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_rcc.c</PathWithFileName>
@@ -644,7 +634,6 @@
       <FileNumber>22</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_rcc_ex.c</PathWithFileName>
@@ -657,7 +646,6 @@
       <FileNumber>23</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_rtc.c</PathWithFileName>
@@ -670,7 +658,6 @@
       <FileNumber>24</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_rtc_ex.c</PathWithFileName>
@@ -683,7 +670,6 @@
       <FileNumber>25</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_spi.c</PathWithFileName>
@@ -696,7 +682,6 @@
       <FileNumber>26</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_spi_ex.c</PathWithFileName>
@@ -709,7 +694,6 @@
       <FileNumber>27</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Src\stm32l1xx_hal_uart.c</PathWithFileName>
@@ -730,7 +714,6 @@
       <FileNumber>28</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\sysIrqHandlers.c</PathWithFileName>
@@ -743,7 +726,6 @@
       <FileNumber>29</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\boards\mcu\stm32\utilities.c</PathWithFileName>
@@ -764,7 +746,6 @@
       <FileNumber>30</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\radio\sx1272\sx1272.c</PathWithFileName>
@@ -785,7 +766,6 @@
       <FileNumber>31</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\system\adc.c</PathWithFileName>
@@ -798,7 +778,6 @@
       <FileNumber>32</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\system\delay.c</PathWithFileName>
@@ -811,7 +790,6 @@
       <FileNumber>33</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\system\fifo.c</PathWithFileName>
@@ -824,7 +802,6 @@
       <FileNumber>34</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\system\gpio.c</PathWithFileName>
@@ -837,7 +814,6 @@
       <FileNumber>35</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\system\i2c.c</PathWithFileName>
@@ -850,7 +826,6 @@
       <FileNumber>36</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\system\timer.c</PathWithFileName>
@@ -863,7 +838,6 @@
       <FileNumber>37</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
-      <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\src\system\uart.c</PathWithFileName>

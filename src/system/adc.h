@@ -20,7 +20,6 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 typedef struct
 {
-    ADC_HandleTypeDef Adc;
     Gpio_t AdcInput;
 }Adc_t;
 
@@ -33,7 +32,7 @@ typedef struct
 void AdcInit( Adc_t *obj, PinNames adcInput );
 
 /*!
- * \brief DeInitializes the ADC 
+ * \brief DeInitializes the ADC
  *
  * \param [IN] obj  ADC object
  */
@@ -43,8 +42,9 @@ void AdcDeInit( Adc_t *obj );
  * \brief Read the analogue voltage value
  *
  * \param [IN] obj  ADC object
+ * \param [IN] channel ADC channel
  * \retval value    Analogue pin value
  */
-uint16_t AdcReadChannel( Adc_t *obj );
+uint16_t AdcReadChannel( Adc_t *obj, uint32_t channel );
 
 #endif  // __ADC_H__

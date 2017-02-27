@@ -50,7 +50,7 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 /*!
  * Enables the choice between Led1 and Potentiometer.
  * LED1 and Potentiometer are exclusive.
- * \remark When using Potentimeter don't forget  that the connection between
+ * \remark When using Potentiometer don't forget  that the connection between
  *         ADC input pin of iM880A and the Demoboard Poti requires a connection
  *         between X5:11 - X5:18.
  *         Remove the original jumpers for that. 
@@ -123,14 +123,31 @@ extern Gpio_t Led4;
 /*!
  * MCU objects
  */
-extern Adc_t Adc;
 extern I2c_t I2c;
 extern Uart_t Uart1;
-enum BoardPowerSource
+
+/*!
+ * Possible power sources
+ */
+enum BoardPowerSources
 {
     USB_POWER = 0,
-    BATTERY_POWER
+    BATTERY_POWER,
 };
+
+/*!
+ * \brief Disable interrupts
+ *
+ * \remark IRQ nesting is managed
+ */
+void BoardDisableIrq( void );
+
+/*!
+ * \brief Enable interrupts
+ *
+ * \remark IRQ nesting is managed
+ */
+void BoardEnableIrq( void );
 
 /*!
  * \brief Initializes the target board peripherals.
@@ -156,16 +173,20 @@ void BoardDeInitMcu( void );
 uint8_t BoardMeasurePotiLevel( void );
 
 /*!
- * \brief Measure the VDD voltage
+ * \brief Measure the Battery voltage
  *
- * \retval value  VDD voltage in milivolts
+ * \retval value  battery voltage in volts
  */
-uint16_t BoardMeasureVdd( void );
+uint32_t BoardGetBatteryVoltage( void );
 
 /*!
  * \brief Get the current battery level
  *
- * \retval value  battery level ( 0: very low, 254: fully charged )
+ * \retval value  battery level [  0: USB,
+ *                                 1: Min level,
+ *                                 x: level
+ *                               254: fully charged,
+ *                               255: Error]
  */
 uint8_t BoardGetBatteryLevel( void );
 
@@ -186,7 +207,7 @@ void BoardGetUniqueId( uint8_t *id );
 /*!
  * \brief Get the board power source
  *
- * \retval value  power source ( 0: USB_POWER,  1: BATTERY_POWER )
+ * \retval value  power source [0: USB_POWER, 1: BATTERY_POWER]
  */
 uint8_t GetBoardPowerSource( void );
 

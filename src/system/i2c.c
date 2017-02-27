@@ -16,7 +16,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "i2c-board.h"
 
 /*!
- * Flag to indicates if the I2C is initialized 
+ * Flag to indicates if the I2C is initialized
  */
 static bool I2cInitialized = false;
 

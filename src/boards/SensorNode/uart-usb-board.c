@@ -84,9 +84,9 @@ uint8_t UartUsbGetChar( Uart_t *obj, uint8_t *data )
 {
     if( IsFifoEmpty( &obj->FifoRx ) == false )
     {
-        __disable_irq( );
+        BoardDisableIrq( );
         *data = FifoPop( &obj->FifoRx );
-        __enable_irq( );
+        BoardEnableIrq( );
         return 0;
     }
     return 1;
@@ -95,4 +95,16 @@ uint8_t UartUsbGetChar( Uart_t *obj, uint8_t *data )
 void USB_LP_IRQHandler( void )
 {
     HAL_PCD_IRQHandler( &hpcd_USB_FS );
+}
+
+#ifdef __GNUC__
+/* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
+   set to 'Yes') calls __io_putchar() */
+int __io_putchar( int c )
+#else /* __GNUC__ */
+int fputc( int c, FILE *stream )
+#endif
+{
+    while( UartUsbPutChar( &UartUsb, c ) != 0 );
+    return c;
 }

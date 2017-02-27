@@ -17,19 +17,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "stm32l1xx_hal_spi.h"
 
 /*!
- * \brief  Find First Set
- *         This function identifies the least significant index or position of the
- *         bits set to one in the word
- *
- * \param [in]  value  Value to find least significant index
- * \retval bitIndex    Index of least significat bit at one
- */
-__STATIC_INLINE uint8_t __ffs( uint32_t value )
-{
-    return( uint32_t )( 32 - __CLZ( value & ( -value ) ) );
-}
-
-/*!
  * MCU SPI peripherals enumeration
  */
 typedef enum
@@ -40,37 +27,62 @@ typedef enum
 
 void SpiInit( Spi_t *obj, PinNames mosi, PinNames miso, PinNames sclk, PinNames nss )
 {
-    __HAL_RCC_SPI1_FORCE_RESET( );
-    __HAL_RCC_SPI1_RELEASE_RESET( );
+    BoardDisableIrq( );
 
-    __HAL_RCC_SPI1_CLK_ENABLE( );
-
-    obj->Spi.Instance = ( SPI_TypeDef *) SPI1_BASE;
-
-    GpioInit( &obj->Mosi, mosi, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, GPIO_AF5_SPI1 );
-    GpioInit( &obj->Miso, miso, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, GPIO_AF5_SPI1 );
-    GpioInit( &obj->Sclk, sclk, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, GPIO_AF5_SPI1 );
-
-    if( nss != NC )
+    // Choose SPI interface according to the given pins
+    if( mosi == PA_7 )
     {
+        __HAL_RCC_SPI1_FORCE_RESET( );
+        __HAL_RCC_SPI1_RELEASE_RESET( );
+
+        __HAL_RCC_SPI1_CLK_ENABLE( );
+
+        obj->Spi.Instance = ( SPI_TypeDef* )SPI1_BASE;
+
+        GpioInit( &obj->Mosi, mosi, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, GPIO_AF5_SPI1 );
+        GpioInit( &obj->Miso, miso, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, GPIO_AF5_SPI1 );
+        GpioInit( &obj->Sclk, sclk, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, GPIO_AF5_SPI1 );
         GpioInit( &obj->Nss, nss, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_UP, GPIO_AF5_SPI1 );
-    }
-    else
-    {
-        obj->Spi.Init.NSS = SPI_NSS_SOFT;
-    }
 
-    if( nss == NC )
-    {
-        SpiFormat( obj, SPI_DATASIZE_8BIT, SPI_POLARITY_LOW, SPI_PHASE_1EDGE, 0 );
+        if( nss == NC )
+        {
+            obj->Spi.Init.NSS = SPI_NSS_SOFT;
+            SpiFormat( obj, SPI_DATASIZE_8BIT, SPI_POLARITY_LOW, SPI_PHASE_1EDGE, 0 );
+        }
+        else
+        {
+            SpiFormat( obj, SPI_DATASIZE_8BIT, SPI_POLARITY_LOW, SPI_PHASE_1EDGE, 1 );
+        }
     }
-    else
+    else if( mosi == PB_15 )
     {
-        SpiFormat( obj, SPI_DATASIZE_8BIT, SPI_POLARITY_LOW, SPI_PHASE_1EDGE, 1 );
+        __HAL_RCC_SPI2_FORCE_RESET( );
+        __HAL_RCC_SPI2_RELEASE_RESET( );
+
+        __HAL_RCC_SPI2_CLK_ENABLE( );
+
+        obj->Spi.Instance = ( SPI_TypeDef* )SPI2_BASE;
+
+        GpioInit( &obj->Mosi, mosi, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, GPIO_AF5_SPI2 );
+        GpioInit( &obj->Miso, miso, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, GPIO_AF5_SPI2 );
+        GpioInit( &obj->Sclk, sclk, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, GPIO_AF5_SPI2 );
+        GpioInit( &obj->Nss, nss, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_UP, GPIO_AF5_SPI2 );
+
+        if( nss == NC )
+        {
+            obj->Spi.Init.NSS = SPI_NSS_SOFT;
+            SpiFormat( obj, SPI_DATASIZE_8BIT, SPI_POLARITY_LOW, SPI_PHASE_1EDGE, 0 );
+        }
+        else
+        {
+            SpiFormat( obj, SPI_DATASIZE_8BIT, SPI_POLARITY_LOW, SPI_PHASE_1EDGE, 1 );
+        }
     }
     SpiFrequency( obj, 10000000 );
 
     HAL_SPI_Init( &obj->Spi );
+
+    BoardEnableIrq( );
 }
 
 void SpiDeInit( Spi_t *obj )
@@ -113,43 +125,26 @@ void SpiFormat( Spi_t *obj, int8_t bits, int8_t cpol, int8_t cpha, int8_t slave 
 
 void SpiFrequency( Spi_t *obj, uint32_t hz )
 {
-    uint32_t divisor;
+    uint32_t divisor = 0;
+    uint32_t sysClkTmp = SystemCoreClock;
+    uint32_t baudRate;
 
-    divisor = SystemCoreClock / hz;
-
-    // Find the nearest power-of-2
-    divisor = divisor > 0 ? divisor-1 : 0;
-    divisor |= divisor >> 1;
-    divisor |= divisor >> 2;
-    divisor |= divisor >> 4;
-    divisor |= divisor >> 8;
-    divisor |= divisor >> 16;
-    divisor++;
-
-    divisor = __ffs( divisor ) - 1;
-
-    divisor = ( divisor > 0x07 ) ? 0x07 : divisor;
-
-    obj->Spi.Init.BaudRatePrescaler = divisor << 3;
-}
-
-FlagStatus SpiGetFlag( Spi_t *obj, uint16_t flag )
-{
-    FlagStatus bitstatus = RESET;
-
-    // Check the status of the specified SPI flag
-    if( ( obj->Spi.Instance->SR & flag ) != ( uint16_t )RESET )
+    while( sysClkTmp > hz )
     {
-        // SPI_I2S_FLAG is set
-        bitstatus = SET;
+        divisor++;
+        sysClkTmp = ( sysClkTmp >> 1 );
+
+        if( divisor >= 7 )
+        {
+            break;
+        }
     }
-    else
-    {
-        // SPI_I2S_FLAG is reset
-        bitstatus = RESET;
-    }
-    // Return the SPI_I2S_FLAG status
-    return  bitstatus;
+
+    baudRate =( ( ( divisor & 0x4 ) == 0 ) ? 0x0 : SPI_CR1_BR_2 ) |
+              ( ( ( divisor & 0x2 ) == 0 ) ? 0x0 : SPI_CR1_BR_1 ) |
+              ( ( ( divisor & 0x1 ) == 0 ) ? 0x0 : SPI_CR1_BR_0 );
+
+    obj->Spi.Init.BaudRatePrescaler = baudRate;
 }
 
 uint16_t SpiInOut( Spi_t *obj, uint16_t outData )
@@ -163,11 +158,15 @@ uint16_t SpiInOut( Spi_t *obj, uint16_t outData )
 
     __HAL_SPI_ENABLE( &obj->Spi );
 
-    while( SpiGetFlag( obj, SPI_FLAG_TXE ) == RESET );
+    BoardDisableIrq( );
+
+    while( __HAL_SPI_GET_FLAG( &obj->Spi, SPI_FLAG_TXE ) == RESET );
     obj->Spi.Instance->DR = ( uint16_t ) ( outData & 0xFF );
 
-    while( SpiGetFlag( obj, SPI_FLAG_RXNE ) == RESET );
+    while( __HAL_SPI_GET_FLAG( &obj->Spi, SPI_FLAG_RXNE ) == RESET );
     rxData = ( uint16_t ) obj->Spi.Instance->DR;
+
+    BoardEnableIrq( );
 
     return( rxData );
 }

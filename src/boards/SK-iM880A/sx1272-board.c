@@ -39,15 +39,17 @@ const struct Radio_s Radio =
     SX1272GetTimeOnAir,
     SX1272Send,
     SX1272SetSleep,
-    SX1272SetStby, 
+    SX1272SetStby,
     SX1272SetRx,
     SX1272StartCad,
+    SX1272SetTxContinuousWave,
     SX1272ReadRssi,
     SX1272Write,
     SX1272Read,
     SX1272WriteBuffer,
     SX1272ReadBuffer,
-    SX1272SetMaxPayloadLength
+    SX1272SetMaxPayloadLength,
+    SX1272SetPublicNetwork
 };
 
 /*!
@@ -90,6 +92,67 @@ void SX1272IoDeInit( void )
     GpioInit( &SX1272.DIO5, RADIO_DIO_5, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 }
 
+void SX1272SetRfTxPower( int8_t power )
+{
+    uint8_t paConfig = 0;
+    uint8_t paDac = 0;
+
+    paConfig = SX1272Read( REG_PACONFIG );
+    paDac = SX1272Read( REG_PADAC );
+
+    paConfig = ( paConfig & RF_PACONFIG_PASELECT_MASK ) | SX1272GetPaSelect( SX1272.Settings.Channel );
+
+    if( ( paConfig & RF_PACONFIG_PASELECT_PABOOST ) == RF_PACONFIG_PASELECT_PABOOST )
+    {
+        if( power > 17 )
+        {
+            paDac = ( paDac & RF_PADAC_20DBM_MASK ) | RF_PADAC_20DBM_ON;
+        }
+        else
+        {
+            paDac = ( paDac & RF_PADAC_20DBM_MASK ) | RF_PADAC_20DBM_OFF;
+        }
+        if( ( paDac & RF_PADAC_20DBM_ON ) == RF_PADAC_20DBM_ON )
+        {
+            if( power < 5 )
+            {
+                power = 5;
+            }
+            if( power > 20 )
+            {
+                power = 20;
+            }
+            paConfig = ( paConfig & RFLR_PACONFIG_OUTPUTPOWER_MASK ) | ( uint8_t )( ( uint16_t )( power - 5 ) & 0x0F );
+        }
+        else
+        {
+            if( power < 2 )
+            {
+                power = 2;
+            }
+            if( power > 17 )
+            {
+                power = 17;
+            }
+            paConfig = ( paConfig & RFLR_PACONFIG_OUTPUTPOWER_MASK ) | ( uint8_t )( ( uint16_t )( power - 2 ) & 0x0F );
+        }
+    }
+    else
+    {
+        if( power < -1 )
+        {
+            power = -1;
+        }
+        if( power > 14 )
+        {
+            power = 14;
+        }
+        paConfig = ( paConfig & RFLR_PACONFIG_OUTPUTPOWER_MASK ) | ( uint8_t )( ( uint16_t )( power + 1 ) & 0x0F );
+    }
+    SX1272Write( REG_PACONFIG, paConfig );
+    SX1272Write( REG_PADAC, paDac );
+}
+
 uint8_t SX1272GetPaSelect( uint32_t channel )
 {
     return RF_PACONFIG_PASELECT_PABOOST;
@@ -100,7 +163,7 @@ void SX1272SetAntSwLowPower( bool status )
     if( RadioIsActive != status )
     {
         RadioIsActive = status;
-    
+
         if( status == false )
         {
             SX1272AntSwInit( );
@@ -124,17 +187,21 @@ void SX1272AntSwDeInit( void )
     GpioInit( &AntRx, RADIO_ANT_SWITCH_RX, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 }
 
-void SX1272SetAntSw( uint8_t rxTx )
+void SX1272SetAntSw( uint8_t opMode )
 {
-    if( rxTx != 0 ) // 1: TX, 0: RX
+    switch( opMode )
     {
+    case RFLR_OPMODE_TRANSMITTER:
         GpioWrite( &AntRx, 0 );
         GpioWrite( &AntTx, 1 );
-    }
-    else
-    {
+        break;
+    case RFLR_OPMODE_RECEIVER:
+    case RFLR_OPMODE_RECEIVER_SINGLE:
+    case RFLR_OPMODE_CAD:
+    default:
         GpioWrite( &AntRx, 1 );
         GpioWrite( &AntTx, 0 );
+        break;
     }
 }
 
