@@ -599,6 +599,13 @@ static bool DutyCycleOn;
 static uint8_t Channel;
 
 /*!
+ * Stores the time at LoRaMac initialization.
+ *
+ * \remark Used for the BACKOFF_DC computation.
+ */
+static TimerTime_t LoRaMacInitializationTime = 0;
+
+/*!
  * Last channel index
  */
 static uint8_t LastTxChannel = 0;
@@ -2140,52 +2147,59 @@ static void OnMacStateCheckTimerEvent( void )
 
         if( ( NodeAckRequested == false ) && ( noTx == false ) )
         {
-            if( LoRaMacFlags.Bits.MlmeReq == 1 )
+            if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) || ( ( LoRaMacFlags.Bits.McpsReq == 1 ) ) )
             {
                 index = GetMlmeConfirmIndex( MlmeConfirmQueue, MLME_JOIN, MlmeConfirmQueueCnt );
-                if( index < LORA_MAC_MLME_CONFIRM_QUEUE_LEN )
-                {
+                if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) && ( index < LORA_MAC_MLME_CONFIRM_QUEUE_LEN ) )
+                {// Procedure for the join request
+                    MlmeConfirm.NbRetries = JoinRequestTrials;
+
                     if( MlmeConfirmQueue[index].Status == LORAMAC_EVENT_INFO_STATUS_OK )
-                    {
-                        // The UpLinkCounter must be set to 0
+                    {// Node joined successfully
                         UpLinkCounter = 0;
-                        LoRaMacParams.ChannelsNbRep = JoinRequestTrials;
+                        ChannelsNbRepCounter = 0;
+                        LoRaMacState &= ~LORAMAC_TX_RUNNING;
                     }
                     else
                     {
-                        LoRaMacParams.ChannelsNbRep = MaxJoinRequestTrials;
+                        if( ( JoinRequestTrials >= MaxJoinRequestTrials ) )
+                        {
+                            LoRaMacState &= ~LORAMAC_TX_RUNNING;
+                        }
+                        else
+                        {
+                            LoRaMacFlags.Bits.MacDone = 0;
+                            // Sends the same frame again
+                            OnTxDelayedTimerEvent( );
+                        }
                     }
-
-                    // Use join counter settings for the next condition
-                    // Counter variables will be reset with every new join trial
-                    ChannelsNbRepCounter = JoinRequestTrials;
-                }
-            }
-            if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) || ( ( LoRaMacFlags.Bits.McpsReq == 1 ) ) )
-            {
-                if( ( ChannelsNbRepCounter >= LoRaMacParams.ChannelsNbRep ) || ( LoRaMacFlags.Bits.McpsInd == 1 ) )
-                {
-                    ChannelsNbRepCounter = 0;
-
-                    AdrAckCounter++;
-                    if( IsUpLinkCounterFixed == false )
-                    {
-                        UpLinkCounter++;
-                    }
-
-                    LoRaMacState &= ~LORAMAC_TX_RUNNING;
                 }
                 else
-                {
-                    LoRaMacFlags.Bits.MacDone = 0;
-                    // Sends the same frame again
-                    OnTxDelayedTimerEvent( );
+                {// Procedure for all other frames
+                    if( ( ChannelsNbRepCounter >= LoRaMacParams.ChannelsNbRep ) || ( LoRaMacFlags.Bits.McpsInd == 1 ) )
+                    {
+                        ChannelsNbRepCounter = 0;
+
+                        AdrAckCounter++;
+                        if( IsUpLinkCounterFixed == false )
+                        {
+                            UpLinkCounter++;
+                        }
+
+                        LoRaMacState &= ~LORAMAC_TX_RUNNING;
+                    }
+                    else
+                    {
+                        LoRaMacFlags.Bits.MacDone = 0;
+                        // Sends the same frame again
+                        OnTxDelayedTimerEvent( );
+                    }    
                 }
             }
         }
 
         if( LoRaMacFlags.Bits.McpsInd == 1 )
-        {
+        {// Procedure if we received a frame
             if( ( McpsConfirm.AckReceived == true ) || ( AckTimeoutRetriesCounter > AckTimeoutRetries ) )
             {
                 AckTimeoutRetry = false;
@@ -2201,7 +2215,7 @@ static void OnMacStateCheckTimerEvent( void )
         }
 
         if( ( AckTimeoutRetry == true ) && ( ( LoRaMacState & LORAMAC_TX_DELAYED ) == 0 ) )
-        {
+        {// Retransmissions procedure for confirmed uplinks
             AckTimeoutRetry = false;
             if( ( AckTimeoutRetriesCounter < AckTimeoutRetries ) && ( AckTimeoutRetriesCounter <= MAX_ACK_RETRIES ) )
             {
@@ -4464,7 +4478,7 @@ static LoRaMacStatus_t ScheduleTx( )
 static uint16_t JoinDutyCycle( void )
 {
     uint16_t dutyCycle = 0;
-    TimerTime_t timeElapsed = TimerGetCurrentTime( );
+    TimerTime_t timeElapsed = TimerGetElapsedTime( LoRaMacInitializationTime );
 
     if( timeElapsed < 3600e3 )
     {
@@ -4635,6 +4649,9 @@ static void ResetMacParameters( void )
 
     // Initialize channel index.
     Channel = LORA_MAX_NB_CHANNELS;
+
+    // Store the current initialization time
+    LoRaMacInitializationTime = TimerGetCurrentTime( );
 }
 
 LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl, uint8_t fPort, void *fBuffer, uint16_t fBufferSize )

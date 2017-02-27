@@ -1211,9 +1211,12 @@ typedef struct sMlmeConfirm
      * Number of gateways which received the last LinkCheckReq
      */
     uint8_t NbGateways;
-
     TimerTime_t BeaconTimingDelay;
     uint8_t BeaconTimingChannel;
+    /*!
+     * Provides the number of retransmissions
+     */
+    uint8_t NbRetries;
 }MlmeConfirm_t;
 
 typedef struct sMlmeIndication
