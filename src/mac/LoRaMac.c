@@ -497,6 +497,13 @@ static bool DutyCycleOn;
 static uint8_t Channel;
 
 /*!
+ * Stores the time at LoRaMac initialization.
+ *
+ * \remark Used for the BACKOFF_DC computation.
+ */
+static TimerTime_t LoRaMacInitializationTime = 0;
+
+/*!
  * LoRaMac internal states
  */
 enum eLoRaMacState
@@ -2920,7 +2927,7 @@ static LoRaMacStatus_t ScheduleTx( )
 static uint16_t JoinDutyCycle( void )
 {
     uint16_t dutyCycle = 0;
-    TimerTime_t timeElapsed = TimerGetCurrentTime( );
+    TimerTime_t timeElapsed = TimerGetElapsedTime( LoRaMacInitializationTime );
 
     if( timeElapsed < 3600e3 )
     {
@@ -3073,6 +3080,9 @@ static void ResetMacParameters( void )
 
     // Initialize channel index.
     Channel = LORA_MAX_NB_CHANNELS;
+
+    // Store the current initialization time
+    LoRaMacInitializationTime = TimerGetCurrentTime( );
 }
 
 LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl, uint8_t fPort, void *fBuffer, uint16_t fBufferSize )
