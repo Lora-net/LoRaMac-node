@@ -973,7 +973,9 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                 }
 
                 // Check for a the maximum allowed counter difference
-                if( sequenceCounterDiff >= MAX_FCNT_GAP )
+                getPhy.Attribute = PHY_MAX_FCNT_GAP;
+                RegionGetPhyParam( LoRaMacRegion, &getPhy );
+                if( sequenceCounterDiff >= getPhy.Param.Value )
                 {
                     McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS;
                     McpsIndication.DownLinkCounter = downLinkCounter;
