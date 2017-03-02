@@ -374,6 +374,14 @@ typedef enum eLoRaMacMoteCmd
      * RXTimingSetupAns
      */
     MOTE_MAC_RX_TIMING_SETUP_ANS     = 0x08,
+    /*!
+     * TXParamSetupAns
+     */
+    MOTE_MAC_TX_PARAM_SETUP_ANS      = 0x09,
+    /*!
+     * DlChannelAns
+     */
+    MOTE_MAC_DL_CHANNEL_ANS          = 0x0A
 }LoRaMacMoteCmd_t;
 
 /*!
@@ -411,6 +419,14 @@ typedef enum eLoRaMacSrvCmd
      * RXTimingSetupReq
      */
     SRV_MAC_RX_TIMING_SETUP_REQ      = 0x08,
+    /*!
+     * NewChannelReq
+     */
+    SRV_MAC_TX_PARAM_SETUP_REQ       = 0x09,
+    /*!
+     * DlChannelReq
+     */
+    SRV_MAC_DL_CHANNEL_REQ           = 0x0A,
 }LoRaMacSrvCmd_t;
 
 /*!
