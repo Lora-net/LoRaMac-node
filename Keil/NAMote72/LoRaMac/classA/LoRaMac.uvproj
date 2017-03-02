@@ -7,10 +7,10 @@
 
   <Targets>
     <Target>
-      <TargetName>LoRaMac-915</TargetName>
+      <TargetName>LoRaMac-US915</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060300::V5.06 update 3 (build 300)::ARMCC</pCCUsed>
+      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L152RC</Device>
@@ -45,14 +45,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\obj\LoRaMac-915\</OutputDirectory>
-          <OutputName>LoRaMac</OutputName>
+          <OutputDirectory>.\obj\LoRaMac-US915\</OutputDirectory>
+          <OutputName>LoRaMac-US915</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\lst\LoRaMac-915\</ListingPath>
+          <ListingPath>.\lst\LoRaMac-US915\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -372,9 +372,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L152xC USE_BAND_915</Define>
+              <Define>USE_HAL_DRIVER STM32L152xC REGION_US915</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\NAMote72;..\..\..\..\src\boards\NAMote72\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\NAMote72;..\..\..\..\src\boards\NAMote72\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -606,6 +606,71 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>mac\region</GroupName>
+          <Files>
+            <File>
+              <FileName>Region.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\Region.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionAS923.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionAS923.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionAU915.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionAU915.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionCN470.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionCN470.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionCN779.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionCN779.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionCommon.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionCommon.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionEU433.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionEU433.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionEU868.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionEU868.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionIN865.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionIN865.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionKR920.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionKR920.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionUS915.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionUS915.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionUS915-Hybrid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionUS915-Hybrid.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>peripherals</GroupName>
           <Files>
             <File>
@@ -713,10 +778,10 @@
       </Groups>
     </Target>
     <Target>
-      <TargetName>LoRaMac-868</TargetName>
+      <TargetName>LoRaMac-US915-hybrid</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060300::V5.06 update 3 (build 300)::ARMCC</pCCUsed>
+      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L152RC</Device>
@@ -751,14 +816,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\obj\LoRaMac-868\</OutputDirectory>
-          <OutputName>LoRaMac</OutputName>
+          <OutputDirectory>.\obj\LoRaMac-US915-hybrid\</OutputDirectory>
+          <OutputName>LoRaMac-US915-hybrid</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\lst\LoRaMac-868\</ListingPath>
+          <ListingPath>.\lst\LoRaMac-US915-hybrid\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -1078,9 +1143,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L152xC USE_BAND_868</Define>
+              <Define>USE_HAL_DRIVER STM32L152xC REGION_US915_HYBRID</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\NAMote72;..\..\..\..\src\boards\NAMote72\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\NAMote72;..\..\..\..\src\boards\NAMote72\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1308,6 +1373,71 @@
               <FileName>LoRaMacCrypto.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMacCrypto.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>mac\region</GroupName>
+          <Files>
+            <File>
+              <FileName>Region.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\Region.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionAS923.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionAS923.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionAU915.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionAU915.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionCN470.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionCN470.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionCN779.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionCN779.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionCommon.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionCommon.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionEU433.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionEU433.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionEU868.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionEU868.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionIN865.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionIN865.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionKR920.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionKR920.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionUS915.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionUS915.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionUS915-Hybrid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionUS915-Hybrid.c</FilePath>
             </File>
           </Files>
         </Group>

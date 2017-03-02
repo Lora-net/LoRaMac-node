@@ -333,9 +333,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L051xx USE_DEBUGGER USE_BAND_868 USE_FULL_ASSERT</Define>
+              <Define>USE_HAL_DRIVER STM32L051xx USE_DEBUGGER REGION_EU868 USE_FULL_ASSERT</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\peripherals;..\..\..\..\src\peripherals\ble;..\..\..\..\src\peripherals\display;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -598,6 +598,66 @@
               <FileName>LoRaMacCrypto.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMacCrypto.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>mac\region</GroupName>
+          <Files>
+            <File>
+              <FileName>Region.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\Region.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionAS923.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionAS923.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionAU915.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionAU915.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionCN470.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionCN470.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionCN779.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionCN779.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionCommon.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionCommon.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionEU433.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionEU433.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionEU868.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionEU868.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionKR920.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionKR920.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionUS915.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionUS915.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionUS915-Hybrid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionUS915-Hybrid.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1035,9 +1095,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L051xx USE_DEBUGGER USE_BAND_915 USE_FULL_ASSERT</Define>
+              <Define>USE_HAL_DRIVER STM32L051xx USE_DEBUGGER REGION_US915 USE_FULL_ASSERT</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\peripherals;..\..\..\..\src\peripherals\ble;..\..\..\..\src\peripherals\display;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1300,6 +1360,66 @@
               <FileName>LoRaMacCrypto.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMacCrypto.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>mac\region</GroupName>
+          <Files>
+            <File>
+              <FileName>Region.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\Region.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionAS923.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionAS923.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionAU915.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionAU915.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionCN470.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionCN470.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionCN779.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionCN779.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionCommon.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionCommon.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionEU433.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionEU433.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionEU868.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionEU868.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionKR920.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionKR920.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionUS915.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionUS915.c</FilePath>
+            </File>
+            <File>
+              <FileName>RegionUS915-Hybrid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\region\RegionUS915-Hybrid.c</FilePath>
             </File>
           </Files>
         </Group>
