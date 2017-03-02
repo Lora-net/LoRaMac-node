@@ -694,6 +694,8 @@ static void ResetMacParameters( void );
 
 static void OnRadioTxDone( void )
 {
+    GetPhyParams_t getPhy;
+    SetBandTxDoneParams_t txDone;
     TimerTime_t curTime = TimerGetCurrentTime( );
 
     if( LoRaMacDeviceClass != CLASS_C )
@@ -717,8 +719,9 @@ static void OnRadioTxDone( void )
         }
         if( ( LoRaMacDeviceClass == CLASS_C ) || ( NodeAckRequested == true ) )
         {
-            TimerSetValue( &AckTimeoutTimer, RxWindow2Delay + ACK_TIMEOUT +
-                                             randr( -ACK_TIMEOUT_RND, ACK_TIMEOUT_RND ) );
+            getPhy.Attribute = PHY_ACK_TIMEOUT;
+            RegionGetPhyParam( LoRaMacRegion, &getPhy );
+            TimerSetValue( &AckTimeoutTimer, RxWindow2Delay + getPhy.Param.Value );
             TimerStart( &AckTimeoutTimer );
         }
     }
@@ -735,7 +738,9 @@ static void OnRadioTxDone( void )
     }
 
     // Update last tx done time for the current channel
-    Bands[Channels[Channel].Band].LastTxDoneTime = curTime;
+    txDone.Channel = Channel;
+    txDone.LastTxDoneTime = curTime;
+    RegionSetBandTxDone( LoRaMacRegion, &txDone );
     // Update Aggregated last tx done time
     AggregatedLastTxDoneTime = curTime;
     // Update Backoff
