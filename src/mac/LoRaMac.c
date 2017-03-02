@@ -577,16 +577,6 @@ static bool ValidateChannelMask( uint16_t* channelsMask );
 static bool ValidateDatarate( int8_t datarate, uint16_t* channelsMask );
 
 /*!
- * \brief Limits the Tx power according to the number of enabled channels
- *
- * \param [IN] txPower txPower to limit
- * \param [IN] maxBandTxPower Maximum band allowed TxPower
- *
- * \retval Returns the maximum valid tx power
- */
-static int8_t LimitTxPower( int8_t txPower, int8_t maxBandTxPower );
-
-/*!
  * \brief Calculates the next datarate to set, when ADR is on or off
  *
  * \param [IN] adrEnabled Specify whether ADR is on or off
@@ -1815,30 +1805,6 @@ static bool ValidateDatarate( int8_t datarate, uint16_t* channelsMask )
         }
     }
     return false;
-}
-
-static int8_t LimitTxPower( int8_t txPower, int8_t maxBandTxPower )
-{
-    int8_t resultTxPower = txPower;
-
-    // Limit tx power to the band max
-    resultTxPower =  MAX( txPower, maxBandTxPower );
-
-#if defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
-    if( ( LoRaMacParams.ChannelsDatarate == DR_4 ) ||
-        ( ( LoRaMacParams.ChannelsDatarate >= DR_8 ) && ( LoRaMacParams.ChannelsDatarate <= DR_13 ) ) )
-    {// Limit tx power to max 26dBm
-        resultTxPower =  MAX( txPower, TX_POWER_26_DBM );
-    }
-    else
-    {
-        if( CountNbEnabled125kHzChannels( LoRaMacParams.ChannelsMask ) < 50 )
-        {// Limit tx power to max 21dBm
-            resultTxPower = MAX( txPower, TX_POWER_20_DBM );
-        }
-    }
-#endif
-    return resultTxPower;
 }
 
 static bool AdrNextDr( bool adrEnabled, bool updateChannelMask, int8_t* datarateOut )
