@@ -2219,14 +2219,15 @@ static uint8_t ParseMacCommandsToRepeat( uint8_t* cmdBufIn, uint8_t length, uint
         switch( cmdBufIn[i] )
         {
             // STICKY
+            case MOTE_MAC_DL_CHANNEL_ANS:
             case MOTE_MAC_RX_PARAM_SETUP_ANS:
-            {
+            { // 1 byte payload
                 cmdBufOut[cmdCount++] = cmdBufIn[i++];
                 cmdBufOut[cmdCount++] = cmdBufIn[i];
                 break;
             }
             case MOTE_MAC_RX_TIMING_SETUP_ANS:
-            {
+            { // 0 byte payload
                 cmdBufOut[cmdCount++] = cmdBufIn[i];
                 break;
             }
@@ -2242,6 +2243,7 @@ static uint8_t ParseMacCommandsToRepeat( uint8_t* cmdBufIn, uint8_t length, uint
                 i++;
                 break;
             }
+            case MOTE_MAC_TX_PARAM_SETUP_ANS:
             case MOTE_MAC_DUTY_CYCLE_ANS:
             case MOTE_MAC_LINK_CHECK_REQ:
             { // 0 byte payload
