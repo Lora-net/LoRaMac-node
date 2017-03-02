@@ -1550,83 +1550,29 @@ static void OnRxWindow1TimerEvent( void )
 
 static void OnRxWindow2TimerEvent( void )
 {
-    uint16_t symbTimeout = 5; // DR_2, DR_1, DR_0
-    uint32_t bandwidth = 0; // LoRa 125 kHz
-    bool rxContinuousMode = false;
+    RxConfigParams_t rxConfig;
 
     TimerStop( &RxWindowTimer2 );
 
-#if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
-    // For higher datarates, we increase the number of symbols generating a Rx Timeout
-    if( ( LoRaMacParams.Rx2Channel.Datarate == DR_3 ) || ( LoRaMacParams.Rx2Channel.Datarate == DR_4 ) )
-    { // DR_4, DR_3
-        symbTimeout = 8;
-    }
-    else if( LoRaMacParams.Rx2Channel.Datarate == DR_5 )
-    {
-        symbTimeout = 10;
-    }
-    else if( LoRaMacParams.Rx2Channel.Datarate == DR_6 )
-    {// LoRa 250 kHz
-        bandwidth  = 1;
-        symbTimeout = 14;
-    }
-#elif defined( USE_BAND_470 )
-    // For higher datarates, we increase the number of symbols generating a Rx Timeout
-    if( ( LoRaMacParams.Rx2Channel.Datarate == DR_3 ) || ( LoRaMacParams.Rx2Channel.Datarate == DR_4 ) )
-    { // DR_4, DR_3
-        symbTimeout = 8;
-    }
-    else if( LoRaMacParams.Rx2Channel.Datarate == DR_5 )
-    {
-        symbTimeout = 10;
-    }
-#elif ( defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID ) )
-    // For higher datarates, we increase the number of symbols generating a Rx Timeout
-    switch( LoRaMacParams.Rx2Channel.Datarate )
-    {
-        case DR_0:       // SF10 - BW125
-            symbTimeout = 5;
-            break;
+    rxConfig.Channel = Channel;
+    rxConfig.Datarate = LoRaMacParams.Rx2Channel.Datarate;
+    rxConfig.Frequency = LoRaMacParams.Rx2Channel.Frequency;
+    rxConfig.RepeaterSupport = RepeaterSupport;
+    rxConfig.Window = 1;
 
-        case DR_1:       // SF9  - BW125
-        case DR_2:       // SF8  - BW125
-        case DR_8:       // SF12 - BW500
-        case DR_9:       // SF11 - BW500
-        case DR_10:      // SF10 - BW500
-            symbTimeout = 8;
-            break;
-
-        case DR_3:       // SF7  - BW125
-        case DR_11:      // SF9  - BW500
-            symbTimeout = 10;
-            break;
-
-        case DR_4:       // SF8  - BW500
-        case DR_12:      // SF8  - BW500
-            symbTimeout = 14;
-            break;
-
-        case DR_13:      // SF7  - BW500
-            symbTimeout = 16;
-            break;
-        default:
-            break;
-    }
-    if( LoRaMacParams.Rx2Channel.Datarate >= DR_4 )
-    {// LoRa 500 kHz
-        bandwidth  = 2;
-    }
-#else
-    #error "Please define a frequency band in the compiler options."
-#endif
-    if( LoRaMacDeviceClass == CLASS_C )
+    if( LoRaMacDeviceClass != CLASS_C )
     {
-        rxContinuousMode = true;
+        rxConfig.RxContinuous = false;
     }
-    if( RxWindowSetup( LoRaMacParams.Rx2Channel.Frequency, LoRaMacParams.Rx2Channel.Datarate, bandwidth, symbTimeout, rxContinuousMode ) == true )
+    else
     {
-        RxSlot = 1;
+        rxConfig.RxContinuous = true;
+    }
+
+    if( RegionRxConfig( LoRaMacRegion, &rxConfig, ( int8_t* )&McpsIndication.RxDatarate ) == true )
+    {
+        RxWindowSetup( rxConfig.RxContinuous, LoRaMacParams.MaxRxWindow );
+        RxSlot = rxConfig.Window;
     }
 }
 
