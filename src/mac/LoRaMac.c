@@ -660,13 +660,6 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
 static LoRaMacStatus_t ScheduleTx( void );
 
 /*
- * \brief Sets the duty cycle for the join procedure.
- *
- * \retval Duty cycle
- */
-static uint16_t JoinDutyCycle( void );
-
-/*
  * \brief Calculates the back-off time for the band of a channel.
  *
  * \param [IN] channel     The last Tx channel index
@@ -2679,26 +2672,6 @@ static LoRaMacStatus_t ScheduleTx( )
 
         return LORAMAC_STATUS_OK;
     }
-}
-
-static uint16_t JoinDutyCycle( void )
-{
-    uint16_t dutyCycle = 0;
-    TimerTime_t timeElapsed = TimerGetElapsedTime( LoRaMacInitializationTime );
-
-    if( timeElapsed < 3600e3 )
-    {
-        dutyCycle = BACKOFF_DC_1_HOUR;
-    }
-    else if( timeElapsed < ( 3600e3 + 36000e3 ) )
-    {
-        dutyCycle = BACKOFF_DC_10_HOURS;
-    }
-    else
-    {
-        dutyCycle = BACKOFF_DC_24_HOURS;
-    }
-    return dutyCycle;
 }
 
 static void CalculateBackOff( uint8_t channel )
