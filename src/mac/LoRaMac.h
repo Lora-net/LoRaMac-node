@@ -1605,6 +1605,13 @@ typedef struct sLoRaMacCallback
 }LoRaMacCallback_t;
 
 /*!
+ * LoRaMAC Max EIRP (dBm) table
+ */
+static const uint8_t LoRaMacMaxEirpTable[] = { 8, 10, 12, 13, 14, 16, 18, 20, 21, 24, 26, 27, 29, 30, 33, 36 };
+
+
+
+/*!
  * \brief   LoRaMAC layer initialization
  *
  * \details In addition to the initialization of the LoRaMAC layer, this
