@@ -4084,6 +4084,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
 {
     LoRaMacStatus_t status = LORAMAC_STATUS_SERVICE_UNKNOWN;
     LoRaMacHeader_t macHdr;
+    VerifyParams_t verify;
     uint8_t fPort = 0;
     void *fBuffer;
     uint16_t fBufferSize;
@@ -4150,9 +4151,11 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
     {
         if( AdrCtrlOn == false )
         {
-            if( ValueInRange( datarate, LORAMAC_TX_MIN_DATARATE, LORAMAC_TX_MAX_DATARATE ) == true )
+            verify.Datarate = datarate;
+
+            if( RegionVerify( LoRaMacRegion, &verify, PHY_TX_DR ) == true )
             {
-                LoRaMacParams.ChannelsDatarate = datarate;
+                LoRaMacParams.ChannelsDatarate = verify.Datarate;
             }
             else
             {
