@@ -3350,7 +3350,10 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t *mibGet )
         }
         case MIB_CHANNELS:
         {
-            mibGet->Param.ChannelList = Channels;
+            getPhy.Attribute = PHY_CHANNELS;
+            RegionGetPhyParam( LoRaMacRegion, &getPhy );
+
+            mibGet->Param.ChannelList = getPhy.Param.Channels;
             break;
         }
         case MIB_RX2_CHANNEL:
