@@ -180,6 +180,10 @@ typedef struct sChannelParams
      */
     uint32_t Frequency;
     /*!
+     * Alternative frequency for RX window 1
+     */
+    uint32_t Rx1Frequency;
+    /*!
      * Data rate definition
      */
     DrRange_t DrRange;
