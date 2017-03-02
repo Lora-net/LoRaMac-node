@@ -3708,10 +3708,11 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         }
         case MIB_CHANNELS_DATARATE:
         {
-            if( ValueInRange( mibSet->Param.ChannelsDatarate,
-                              LORAMAC_TX_MIN_DATARATE, LORAMAC_TX_MAX_DATARATE ) )
+            verify.Datarate = mibSet->Param.ChannelsDatarate;
+
+            if( RegionVerify( LoRaMacRegion, &verify, PHY_TX_DR ) == true )
             {
-                LoRaMacParams.ChannelsDatarate = mibSet->Param.ChannelsDatarate;
+                LoRaMacParams.ChannelsDatarate = verify.Datarate;
             }
             else
             {
