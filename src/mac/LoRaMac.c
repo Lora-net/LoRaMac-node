@@ -2458,46 +2458,26 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 break;
             case SRV_MAC_RX_PARAM_SETUP_REQ:
                 {
-                    uint8_t status = 0x07;
-                    int8_t datarate = 0;
-                    int8_t drOffset = 0;
-                    uint32_t freq = 0;
+                    RxParamSetupReqParams_t rxParamSetupReq;
+                    status = 0x07;
 
-                    drOffset = ( payload[macIndex] >> 4 ) & 0x07;
-                    datarate = payload[macIndex] & 0x0F;
+                    rxParamSetupReq.DrOffset = ( payload[macIndex] >> 4 ) & 0x07;
+                    rxParamSetupReq.Datarate = payload[macIndex] & 0x0F;
                     macIndex++;
 
-                    freq =  ( uint32_t )payload[macIndex++];
-                    freq |= ( uint32_t )payload[macIndex++] << 8;
-                    freq |= ( uint32_t )payload[macIndex++] << 16;
-                    freq *= 100;
+                    rxParamSetupReq.Frequency =  ( uint32_t )payload[macIndex++];
+                    rxParamSetupReq.Frequency |= ( uint32_t )payload[macIndex++] << 8;
+                    rxParamSetupReq.Frequency |= ( uint32_t )payload[macIndex++] << 16;
+                    rxParamSetupReq.Frequency *= 100;
 
-                    if( Rx2FreqInRange( freq ) == false )
-                    {
-                        status &= 0xFE; // Channel frequency KO
-                    }
-
-                    if( ValueInRange( datarate, LORAMAC_RX_MIN_DATARATE, LORAMAC_RX_MAX_DATARATE ) == false )
-                    {
-                        status &= 0xFD; // Datarate KO
-                    }
-#if ( defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID ) )
-                    if( ( ValueInRange( datarate, DR_5, DR_7 ) == true ) ||
-                        ( datarate > DR_13 ) )
-                    {
-                        status &= 0xFD; // Datarate KO
-                    }
-#endif
-                    if( ValueInRange( drOffset, LORAMAC_MIN_RX1_DR_OFFSET, LORAMAC_MAX_RX1_DR_OFFSET ) == false )
-                    {
-                        status &= 0xFB; // Rx1DrOffset range KO
-                    }
+                    // Perform request on region
+                    status = RegionRxParamSetupReq( LoRaMacRegion, &rxParamSetupReq );
 
                     if( ( status & 0x07 ) == 0x07 )
                     {
-                        LoRaMacParams.Rx2Channel.Datarate = datarate;
-                        LoRaMacParams.Rx2Channel.Frequency = freq;
-                        LoRaMacParams.Rx1DrOffset = drOffset;
+                        LoRaMacParams.Rx2Channel.Datarate = rxParamSetupReq.Datarate;
+                        LoRaMacParams.Rx2Channel.Frequency = rxParamSetupReq.Frequency;
+                        LoRaMacParams.Rx1DrOffset = rxParamSetupReq.DrOffset;
                     }
                     AddMacCommand( MOTE_MAC_RX_PARAM_SETUP_ANS, status, 0 );
                 }
