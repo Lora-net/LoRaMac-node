@@ -587,19 +587,6 @@ static bool ValidateDatarate( int8_t datarate, uint16_t* channelsMask );
 static int8_t LimitTxPower( int8_t txPower, int8_t maxBandTxPower );
 
 /*!
- * \brief Verifies, if a value is in a given range.
- *
- * \param value Value to verify, if it is in range
- *
- * \param min Minimum possible value
- *
- * \param max Maximum possible value
- *
- * \retval Returns the maximum valid tx power
- */
-static bool ValueInRange( int8_t value, int8_t min, int8_t max );
-
-/*!
  * \brief Calculates the next datarate to set, when ADR is on or off
  *
  * \param [IN] adrEnabled Specify whether ADR is on or off
@@ -1852,15 +1839,6 @@ static int8_t LimitTxPower( int8_t txPower, int8_t maxBandTxPower )
     }
 #endif
     return resultTxPower;
-}
-
-static bool ValueInRange( int8_t value, int8_t min, int8_t max )
-{
-    if( ( value >= min ) && ( value <= max ) )
-    {
-        return true;
-    }
-    return false;
 }
 
 static bool AdrNextDr( bool adrEnabled, bool updateChannelMask, int8_t* datarateOut )
