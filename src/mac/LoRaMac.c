@@ -3086,17 +3086,19 @@ LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel )
 
 LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout )
 {
-    int8_t txPowerIndex = 0;
-    int8_t txPower = 0;
+    ContinuousWaveParams_t continuousWave;
 
-    txPowerIndex = LimitTxPower( LoRaMacParams.ChannelsTxPower, Bands[Channels[Channel].Band].TxMaxPower );
-    txPower = TxPowers[txPowerIndex];
+    continuousWave.Channel = Channel;
+    continuousWave.Datarate = LoRaMacParams.ChannelsDatarate;
+    continuousWave.TxPower = LoRaMacParams.ChannelsTxPower;
+    continuousWave.MaxEirp = LoRaMacParams.MaxEirp;
+    continuousWave.Timeout = timeout;
+
+    RegionSetContinuousWave( LoRaMacRegion, &continuousWave );
 
     // Starts the MAC layer status check timer
     TimerSetValue( &MacStateCheckTimer, MAC_STATE_CHECK_TIMEOUT );
     TimerStart( &MacStateCheckTimer );
-
-    Radio.SetTxContinuousWave( Channels[Channel].Frequency, txPower, timeout );
 
     LoRaMacState |= LORAMAC_TX_RUNNING;
 
