@@ -3721,10 +3721,11 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         }
         case MIB_CHANNELS_DEFAULT_TX_POWER:
         {
-            if( ValueInRange( mibSet->Param.ChannelsDefaultTxPower,
-                              LORAMAC_MAX_TX_POWER, LORAMAC_MIN_TX_POWER ) )
+            verify.TxPower = mibSet->Param.ChannelsDefaultTxPower;
+
+            if( RegionVerify( LoRaMacRegion, &verify, PHY_DEF_TX_POWER ) == true )
             {
-                LoRaMacParamsDefaults.ChannelsTxPower = mibSet->Param.ChannelsDefaultTxPower;
+                LoRaMacParamsDefaults.ChannelsTxPower = verify.TxPower;
             }
             else
             {
