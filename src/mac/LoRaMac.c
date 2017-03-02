@@ -3365,7 +3365,10 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t *mibGet )
         }
         case MIB_CHANNELS_DEFAULT_MASK:
         {
-            mibGet->Param.ChannelsDefaultMask = LoRaMacParamsDefaults.ChannelsMask;
+            getPhy.Attribute = PHY_CHANNELS_DEFAULT_MASK;
+            RegionGetPhyParam( LoRaMacRegion, &getPhy );
+
+            mibGet->Param.ChannelsDefaultMask = getPhy.Param.ChannelsMask;
             break;
         }
         case MIB_CHANNELS_MASK:
