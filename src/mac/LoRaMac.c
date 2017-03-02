@@ -2703,30 +2703,18 @@ static uint16_t JoinDutyCycle( void )
 
 static void CalculateBackOff( uint8_t channel )
 {
-    uint16_t dutyCycle = Bands[Channels[channel].Band].DCycle;
-    uint16_t joinDutyCycle = 0;
+    CalcBackOffParams_t calcBackOff;
 
-    // Reset time-off to initial value.
-    Bands[Channels[channel].Band].TimeOff = 0;
+    calcBackOff.Joined = IsLoRaMacNetworkJoined;
+    calcBackOff.DutyCycleEnabled = DutyCycleOn;
+    calcBackOff.Channel = channel;
+    calcBackOff.ElapsedTime = TimerGetElapsedTime( LoRaMacInitializationTime );
+    calcBackOff.TxTimeOnAir = TxTimeOnAir;
 
-    if( IsLoRaMacNetworkJoined == false )
-    {
-        // The node has not joined yet. Apply join duty cycle to all regions.
-        joinDutyCycle = JoinDutyCycle( );
-        dutyCycle = MAX( dutyCycle, joinDutyCycle );
+    // Update regional back-off
+    RegionCalcBackOff( LoRaMacRegion, &calcBackOff );
 
-        // Update Band time-off.
-        Bands[Channels[channel].Band].TimeOff = TxTimeOnAir * dutyCycle - TxTimeOnAir;
-    }
-    else
-    {
-        if( DutyCycleOn == true )
-        {
-            Bands[Channels[channel].Band].TimeOff = TxTimeOnAir * dutyCycle - TxTimeOnAir;
-        }
-    }
-
-    // Update Aggregated Time OFF
+    // Update aggregated time-off
     AggregatedTimeOff = AggregatedTimeOff + ( TxTimeOnAir * AggregatedDCycle - TxTimeOnAir );
 }
 
