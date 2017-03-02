@@ -2634,6 +2634,7 @@ LoRaMacStatus_t Send( LoRaMacHeader_t *macHdr, uint8_t fPort, void *fBuffer, uin
 static LoRaMacStatus_t ScheduleTx( )
 {
     TimerTime_t dutyCycleTimeOff = 0;
+    NextChanParams_t nextChan;
 
     // Check if the device is off
     if( MaxDCycle == 255 )
@@ -2645,16 +2646,19 @@ static LoRaMacStatus_t ScheduleTx( )
         AggregatedTimeOff = 0;
     }
 
+    nextChan.AggrTimeOff = AggregatedTimeOff;
+    nextChan.Datarate = LoRaMacParams.ChannelsDatarate;
+    nextChan.DutyCycleEnabled = DutyCycleOn;
+    nextChan.Joined = IsLoRaMacNetworkJoined;
+    nextChan.LastAggrTx = AggregatedLastTxDoneTime;
+
     // Select channel
-    while( SetNextChannel( &dutyCycleTimeOff ) == false )
+    while( RegionNextChannel( LoRaMacRegion, &nextChan, &Channel, &dutyCycleTimeOff ) == false )
     {
         // Set the default datarate
         LoRaMacParams.ChannelsDatarate = LoRaMacParamsDefaults.ChannelsDatarate;
-
-#if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
-        // Re-enable default channels LC1, LC2, LC3
-        LoRaMacParams.ChannelsMask[0] = LoRaMacParams.ChannelsMask[0] | ( LC( 1 ) + LC( 2 ) + LC( 3 ) );
-#endif
+        // Update datarate in the function parameters
+        nextChan.Datarate = LoRaMacParams.ChannelsDatarate;
     }
 
     // Schedule transmission of frame
