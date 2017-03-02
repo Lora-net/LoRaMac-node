@@ -3983,6 +3983,9 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
 {
     LoRaMacStatus_t status = LORAMAC_STATUS_SERVICE_UNKNOWN;
     LoRaMacHeader_t macHdr;
+    AlternateDrParams_t altDr;
+    VerifyParams_t verify;
+    GetPhyParams_t getPhy;
 
     if( mlmeRequest == NULL )
     {
@@ -4014,19 +4017,16 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
                 return LORAMAC_STATUS_PARAMETER_INVALID;
             }
 
-#if ( defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID ) )
-            // Enables at least the usage of the 2 datarates.
-            if( mlmeRequest->Req.Join.NbTrials < 2 )
+            // Verify the parameter NbTrials for the join procedure
+            verify.NbJoinTrials = mlmeRequest->Req.Join.NbTrials;
+
+            if( RegionVerify( LoRaMacRegion, &verify, PHY_NB_JOIN_TRIALS ) == false )
             {
-                mlmeRequest->Req.Join.NbTrials = 2;
+                // Value not supported, get default
+                getPhy.Attribute = PHY_DEF_NB_JOIN_TRIALS;
+                RegionGetPhyParam( LoRaMacRegion, &getPhy );
+                mlmeRequest->Req.Join.NbTrials = ( uint8_t ) getPhy.Param.Value;
             }
-#else
-            // Enables at least the usage of all datarates.
-            if( mlmeRequest->Req.Join.NbTrials < 48 )
-            {
-                mlmeRequest->Req.Join.NbTrials = 48;
-            }
-#endif
 
             LoRaMacFlags.Bits.MlmeReq = 1;
             MlmeConfirm.MlmeRequest = mlmeRequest->Type;
@@ -4045,8 +4045,9 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
 
             ResetMacParameters( );
 
-            // Add a +1, since we start to count from 0
-            LoRaMacParams.ChannelsDatarate = AlternateDatarate( JoinRequestTrials + 1 );
+            altDr.NbTrials = JoinRequestTrials + 1;
+
+            LoRaMacParams.ChannelsDatarate = RegionAlternateDr( LoRaMacRegion, &altDr );
 
             status = Send( &macHdr, 0, NULL, 0 );
             break;
