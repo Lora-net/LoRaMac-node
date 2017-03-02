@@ -2385,6 +2385,36 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     AddMacCommand( MOTE_MAC_RX_TIMING_SETUP_ANS, 0, 0 );
                 }
                 break;
+            case SRV_MAC_TX_PARAM_SETUP_REQ:
+                {
+                    TxParamSetupReqParams_t txParamSetupReq;
+                    uint8_t eirpDwellTime = payload[macIndex++];
+
+                    txParamSetupReq.UplinkDwellTime = 0;
+                    txParamSetupReq.DownlinkDwellTime = 0;
+
+                    if( ( eirpDwellTime & 0x20 ) == 0x20 )
+                    {
+                        txParamSetupReq.UplinkDwellTime = 1;
+                    }
+                    if( ( eirpDwellTime & 0x10 ) == 0x10 )
+                    {
+                        txParamSetupReq.DownlinkDwellTime = 1;
+                    }
+                    txParamSetupReq.MaxEirp = eirpDwellTime & 0x0F;
+
+                    // Check the status for correctness
+                    if( RegionTxParamSetupReq( LoRaMacRegion, &txParamSetupReq ) != -1 )
+                    {
+                        // Accept command
+                        LoRaMacParams.UplinkDwellTime = txParamSetupReq.UplinkDwellTime;
+                        LoRaMacParams.DownlinkDwellTime = txParamSetupReq.DownlinkDwellTime;
+                        LoRaMacParams.MaxEirp = LoRaMacMaxEirpTable[txParamSetupReq.MaxEirp];
+                        // Add command response
+                        AddMacCommand( MOTE_MAC_TX_PARAM_SETUP_ANS, 0, 0 );
+                    }
+                }
+                break;
             case SRV_MAC_DL_CHANNEL_REQ:
                 {
                     DlChannelReqParams_t dlChannelReq;
