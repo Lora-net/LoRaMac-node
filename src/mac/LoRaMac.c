@@ -463,15 +463,7 @@ static bool SetNextChannel( TimerTime_t* time );
  * \retval status Operation status [true: Success, false: Fail]
  */
 static bool RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, uint16_t timeout, bool rxContinuous );
-
-/*!
- * \brief Verifies if the RX window 2 frequency is in range
- *
- * \param [IN] freq window channel frequency
- *
- * \retval status  Function status [1: OK, 0: Frequency not applicable]
  */
-static bool Rx2FreqInRange( uint32_t freq );
 
 /*!
  * \brief Adds a new MAC command to be sent.
@@ -1579,22 +1571,6 @@ static bool RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, u
         {
             Radio.Rx( 0 ); // Continuous mode
         }
-        return true;
-    }
-    return false;
-}
-
-static bool Rx2FreqInRange( uint32_t freq )
-{
-#if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
-    if( Radio.CheckRfFrequency( freq ) == true )
-#elif defined( USE_BAND_470 ) || defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
-    if( ( Radio.CheckRfFrequency( freq ) == true ) &&
-        ( freq >= LORAMAC_FIRST_RX1_CHANNEL ) &&
-        ( freq <= LORAMAC_LAST_RX1_CHANNEL ) &&
-        ( ( ( freq - ( uint32_t ) LORAMAC_FIRST_RX1_CHANNEL ) % ( uint32_t ) LORAMAC_STEPWIDTH_RX1_CHANNEL ) == 0 ) )
-#endif
-    {
         return true;
     }
     return false;
