@@ -774,6 +774,8 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
 {
     LoRaMacHeader_t macHdr;
     LoRaMacFrameCtrl_t fCtrl;
+    ApplyCFListParams_t applyCFList;
+    GetPhyParams_t getPhy;
     bool skipIndication = false;
 
     uint8_t pktHeaderLen = 0;
@@ -865,29 +867,13 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                 LoRaMacParams.ReceiveDelay1 *= 1e3;
                 LoRaMacParams.ReceiveDelay2 = LoRaMacParams.ReceiveDelay1 + 1e3;
 
-#if !( defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID ) )
-                //CFList
-                if( ( size - 1 ) > 16 )
-                {
-                    ChannelParams_t param;
-                    param.DrRange.Value = ( DR_5 << 4 ) | DR_0;
+                // Apply CF list
+                applyCFList.Payload = &LoRaMacRxPayload[13];
+                // Size of the regular payload is 12. Plus 1 byte MHDR and 4 bytes MIC
+                applyCFList.Size = size - 17;
 
-                    LoRaMacState |= LORAMAC_TX_CONFIG;
-                    for( uint8_t i = 3, j = 0; i < ( 5 + 3 ); i++, j += 3 )
-                    {
-                        param.Frequency = ( ( uint32_t )LoRaMacRxPayload[13 + j] | ( ( uint32_t )LoRaMacRxPayload[14 + j] << 8 ) | ( ( uint32_t )LoRaMacRxPayload[15 + j] << 16 ) ) * 100;
-                        if( param.Frequency != 0 )
-                        {
-                            LoRaMacChannelAdd( i, param );
-                        }
-                        else
-                        {
-                            LoRaMacChannelRemove( i );
-                        }
-                    }
-                    LoRaMacState &= ~LORAMAC_TX_CONFIG;
-                }
-#endif
+                RegionApplyCFList( LoRaMacRegion, &applyCFList );
+
                 MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
                 IsLoRaMacNetworkJoined = true;
                 LoRaMacParams.ChannelsDatarate = LoRaMacParamsDefaults.ChannelsDatarate;
