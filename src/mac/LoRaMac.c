@@ -612,18 +612,6 @@ static bool ValueInRange( int8_t value, int8_t min, int8_t max );
  */
 static bool AdrNextDr( bool adrEnabled, bool updateChannelMask, int8_t* datarateOut );
 
-/*!
- * \brief Disables channel in a specified channel mask
- *
- * \param [IN] id - Id of the channel
- *
- * \param [IN] mask - Pointer to the channel mask to edit
- *
- * \retval [true, if disable was successful, false if not]
- */
-static bool DisableChannelInMask( uint8_t id, uint16_t* mask );
-
-/*!
  * \brief Decodes MAC commands in the fOpts field and in the payload
  */
 static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t commandsSize, uint8_t snr );
@@ -1873,22 +1861,6 @@ static bool ValueInRange( int8_t value, int8_t min, int8_t max )
         return true;
     }
     return false;
-}
-
-static bool DisableChannelInMask( uint8_t id, uint16_t* mask )
-{
-    uint8_t index = 0;
-    index = id / 16;
-
-    if( ( index > 4 ) || ( id >= LORA_MAX_NB_CHANNELS ) )
-    {
-        return false;
-    }
-
-    // Deactivate channel
-    mask[index] &= ~( 1 << ( id % 16 ) );
-
-    return true;
 }
 
 static bool AdrNextDr( bool adrEnabled, bool updateChannelMask, int8_t* datarateOut )
