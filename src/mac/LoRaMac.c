@@ -2810,24 +2810,17 @@ static void ResetMacParameters( void )
 
     LoRaMacParams.ChannelsTxPower = LoRaMacParamsDefaults.ChannelsTxPower;
     LoRaMacParams.ChannelsDatarate = LoRaMacParamsDefaults.ChannelsDatarate;
-
     LoRaMacParams.MaxRxWindow = LoRaMacParamsDefaults.MaxRxWindow;
     LoRaMacParams.ReceiveDelay1 = LoRaMacParamsDefaults.ReceiveDelay1;
     LoRaMacParams.ReceiveDelay2 = LoRaMacParamsDefaults.ReceiveDelay2;
     LoRaMacParams.JoinAcceptDelay1 = LoRaMacParamsDefaults.JoinAcceptDelay1;
     LoRaMacParams.JoinAcceptDelay2 = LoRaMacParamsDefaults.JoinAcceptDelay2;
-
     LoRaMacParams.Rx1DrOffset = LoRaMacParamsDefaults.Rx1DrOffset;
     LoRaMacParams.ChannelsNbRep = LoRaMacParamsDefaults.ChannelsNbRep;
-
     LoRaMacParams.Rx2Channel = LoRaMacParamsDefaults.Rx2Channel;
-
-    memcpy1( ( uint8_t* ) LoRaMacParams.ChannelsMask, ( uint8_t* ) LoRaMacParamsDefaults.ChannelsMask, sizeof( LoRaMacParams.ChannelsMask ) );
-
-#if defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
-    memcpy1( ( uint8_t* ) ChannelsMaskRemaining, ( uint8_t* ) LoRaMacParamsDefaults.ChannelsMask, sizeof( LoRaMacParams.ChannelsMask ) );
-#endif
-
+    LoRaMacParams.UplinkDwellTime = LoRaMacParamsDefaults.UplinkDwellTime;
+    LoRaMacParams.DownlinkDwellTime = LoRaMacParamsDefaults.DownlinkDwellTime;
+    LoRaMacParams.MaxEirp = LoRaMacParamsDefaults.MaxEirp;
 
     NodeAckRequested = false;
     SrvAckRequested = false;
@@ -2842,7 +2835,8 @@ static void ResetMacParameters( void )
     }
 
     // Initialize channel index.
-    Channel = LORA_MAX_NB_CHANNELS;
+    // ToDo Check the initialization value
+    Channel = 0;
 
     // Store the current initialization time
     LoRaMacInitializationTime = TimerGetCurrentTime( );
