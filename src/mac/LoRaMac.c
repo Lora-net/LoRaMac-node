@@ -1227,8 +1227,10 @@ static void OnRadioRxTimeout( void )
 
 static void OnMacStateCheckTimerEvent( void )
 {
-    TimerStop( &MacStateCheckTimer );
+    GetPhyParams_t getPhy;
     bool txTimeout = false;
+
+    TimerStop( &MacStateCheckTimer );
 
     if( LoRaMacFlags.Bits.MacDone == 1 )
     {
@@ -1299,7 +1301,7 @@ static void OnMacStateCheckTimerEvent( void )
                         LoRaMacFlags.Bits.MacDone = 0;
                         // Sends the same frame again
                         OnTxDelayedTimerEvent( );
-                    }    
+                    }
                 }
             }
         }
@@ -1329,7 +1331,9 @@ static void OnMacStateCheckTimerEvent( void )
 
                 if( ( AckTimeoutRetriesCounter % 2 ) == 1 )
                 {
-                    LoRaMacParams.ChannelsDatarate = MAX( LoRaMacParams.ChannelsDatarate - 1, LORAMAC_TX_MIN_DATARATE );
+                    getPhy.Attribute = PHY_MIN_DR;
+                    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+                    LoRaMacParams.ChannelsDatarate = MAX( LoRaMacParams.ChannelsDatarate - 1, getPhy.Param.Value );
                 }
                 if( ValidatePayloadLength( LoRaMacTxPayloadLen, LoRaMacParams.ChannelsDatarate, MacCommandsBufferIndex ) == true )
                 {
@@ -1355,21 +1359,8 @@ static void OnMacStateCheckTimerEvent( void )
             }
             else
             {
-#if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
-                // Re-enable default channels LC1, LC2, LC3
-                LoRaMacParams.ChannelsMask[0] = LoRaMacParams.ChannelsMask[0] | ( LC( 1 ) + LC( 2 ) + LC( 3 ) );
-#elif defined( USE_BAND_470 )
-                // Re-enable default channels
-                memcpy1( ( uint8_t* )LoRaMacParams.ChannelsMask, ( uint8_t* )LoRaMacParamsDefaults.ChannelsMask, sizeof( LoRaMacParams.ChannelsMask ) );
-#elif defined( USE_BAND_915 )
-                // Re-enable default channels
-                memcpy1( ( uint8_t* )LoRaMacParams.ChannelsMask, ( uint8_t* )LoRaMacParamsDefaults.ChannelsMask, sizeof( LoRaMacParams.ChannelsMask ) );
-#elif defined( USE_BAND_915_HYBRID )
-                // Re-enable default channels
-                ReenableChannels( LoRaMacParamsDefaults.ChannelsMask[4], LoRaMacParams.ChannelsMask );
-#else
-    #error "Please define a frequency band in the compiler options."
-#endif
+                RegionInitDefaults( LoRaMacRegion, INIT_TYPE_RESTORE );
+
                 LoRaMacState &= ~LORAMAC_TX_RUNNING;
 
                 NodeAckRequested = false;
