@@ -3251,7 +3251,10 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
 
 LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo )
 {
+    AdrNextParams_t adrNext;
+    GetPhyParams_t getPhy;
     int8_t datarate = LoRaMacParamsDefaults.ChannelsDatarate;
+    int8_t txPower = LoRaMacParamsDefaults.ChannelsTxPower;
     uint8_t fOptLen = MacCommandsBufferIndex + MacCommandsBufferToRepeatIndex;
 
     if( txInfo == NULL )
@@ -3259,31 +3262,47 @@ LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo )
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
 
-    AdrNextDr( AdrCtrlOn, false, &datarate );
+    // Setup ADR request
+    adrNext.UpdateChanMask = false;
+    adrNext.AdrEnabled = AdrCtrlOn;
+    adrNext.AdrAckCounter = AdrAckCounter;
+    adrNext.Datarate = LoRaMacParams.ChannelsDatarate;
+    adrNext.TxPower = LoRaMacParams.ChannelsTxPower;
 
+    // We call the function for information purposes only. We don't want to
+    // apply the datarate, the tx power and the ADR ack counter.
+    RegionAdrNext( LoRaMacRegion, &adrNext, &datarate, &txPower, &AdrAckCounter );
+
+    // Setup PHY request
+    getPhy.Datarate = LoRaMacParams.ChannelsDatarate;
+    getPhy.Attribute = PHY_MAX_PAYLOAD;
+
+    // Change request in case repeater is supported
     if( RepeaterSupport == true )
     {
-        txInfo->CurrentPayloadSize = MaxPayloadOfDatarateRepeater[datarate];
+        getPhy.Attribute = PHY_MAX_PAYLOAD_REPEATER;
     }
-    else
-    {
-        txInfo->CurrentPayloadSize = MaxPayloadOfDatarate[datarate];
-    }
+    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    txInfo->CurrentPayloadSize = getPhy.Param.Value;
 
+    // Verify if the fOpts fit into the maximum payload
     if( txInfo->CurrentPayloadSize >= fOptLen )
     {
         txInfo->MaxPossiblePayload = txInfo->CurrentPayloadSize - fOptLen;
     }
     else
     {
+        txInfo->MaxPossiblePayload = 0;
         return LORAMAC_STATUS_MAC_CMD_LENGTH_ERROR;
     }
 
+    // Verify if the payload fits into the maximum payload
     if( ValidatePayloadLength( size, datarate, 0 ) == false )
     {
         return LORAMAC_STATUS_LENGTH_ERROR;
     }
 
+    // Verify if the fOpts and the payload fit into the maximum payload
     if( ValidatePayloadLength( size, datarate, fOptLen ) == false )
     {
         return LORAMAC_STATUS_MAC_CMD_LENGTH_ERROR;
