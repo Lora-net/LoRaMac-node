@@ -2850,6 +2850,7 @@ static void ResetMacParameters( void )
 
 LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl, uint8_t fPort, void *fBuffer, uint16_t fBufferSize )
 {
+    AdrNextParams_t adrNext;
     uint16_t i;
     uint8_t pktHeaderLen = 0;
     uint32_t mic = 0;
@@ -2904,7 +2905,15 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
                 return LORAMAC_STATUS_NO_NETWORK_JOINED; // No network has been joined yet
             }
 
-            fCtrl->Bits.AdrAckReq = AdrNextDr( fCtrl->Bits.Adr, true, &LoRaMacParams.ChannelsDatarate );
+            // Adr next request
+            adrNext.UpdateChanMask = true;
+            adrNext.AdrEnabled = fCtrl->Bits.Adr;
+            adrNext.AdrAckCounter = AdrAckCounter;
+            adrNext.Datarate = LoRaMacParams.ChannelsDatarate;
+            adrNext.TxPower = LoRaMacParams.ChannelsTxPower;
+
+            fCtrl->Bits.AdrAckReq = RegionAdrNext( LoRaMacRegion, &adrNext,
+                                                   &LoRaMacParams.ChannelsDatarate, &LoRaMacParams.ChannelsTxPower, &AdrAckCounter );
 
             if( ValidatePayloadLength( LoRaMacTxPayloadLen, LoRaMacParams.ChannelsDatarate, MacCommandsBufferIndex ) == false )
             {
