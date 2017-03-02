@@ -4188,11 +4188,14 @@ void LoRaMacTestSetMic( uint16_t txPacketCounter )
 
 void LoRaMacTestSetDutyCycleOn( bool enable )
 {
-#if ( defined( USE_BAND_868 ) || defined( USE_BAND_433 ) || defined( USE_BAND_780 ) )
-    DutyCycleOn = enable;
-#else
-    DutyCycleOn = false;
-#endif
+    VerifyParams_t verify;
+
+    verify.DutyCycle = enable;
+
+    if( RegionVerify( LoRaMacRegion, &verify, PHY_DUTY_CYCLE ) == true )
+    {
+        DutyCycleOn = enable;
+    }
 }
 
 void LoRaMacTestSetChannel( uint8_t channel )
