@@ -37,7 +37,9 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define LORA_MAC_COMMAND_MAX_LENGTH                 15
 
 /*!
+ * LoRaMac region.
  */
+static LoRaMacRegion_t LoRaMacRegion;
 
 /*!
  * LoRaMac duty cycle for the back-off procedure during the first hour.
