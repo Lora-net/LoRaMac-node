@@ -448,11 +448,8 @@ static void OnAckTimeoutTimerEvent( void );
  * \param [IN] datarate window channel datarate
  * \param [IN] bandwidth window channel bandwidth
  * \param [IN] timeout window channel timeout
- *
- * \retval status Operation status [true: Success, false: Fail]
  */
-static bool RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, uint16_t timeout, bool rxContinuous );
- */
+static void RxWindowSetup( bool rxContinuous, uint32_t maxRxWindow );
 
 /*!
  * \brief Adds a new MAC command to be sent.
@@ -1380,62 +1377,16 @@ static void OnAckTimeoutTimerEvent( void )
     }
 }
 
+static void RxWindowSetup( bool rxContinuous, uint32_t maxRxWindow )
 {
+    if( rxContinuous == false )
     {
+        Radio.Rx( maxRxWindow );
     }
     else
     {
+        Radio.Rx( 0 ); // Continuous mode
     }
-}
-
-static bool RxWindowSetup( uint32_t freq, int8_t datarate, uint32_t bandwidth, uint16_t timeout, bool rxContinuous )
-{
-    uint8_t downlinkDatarate = Datarates[datarate];
-    RadioModems_t modem;
-
-    if( Radio.GetStatus( ) == RF_IDLE )
-    {
-        Radio.SetChannel( freq );
-
-        // Store downlink datarate
-        McpsIndication.RxDatarate = ( uint8_t ) datarate;
-
-#if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
-        if( datarate == DR_7 )
-        {
-            modem = MODEM_FSK;
-            Radio.SetRxConfig( modem, 50e3, downlinkDatarate * 1e3, 0, 83.333e3, 5, 0, false, 0, true, 0, 0, false, rxContinuous );
-        }
-        else
-        {
-            modem = MODEM_LORA;
-            Radio.SetRxConfig( modem, bandwidth, downlinkDatarate, 1, 0, 8, timeout, false, 0, false, 0, 0, true, rxContinuous );
-        }
-#elif defined( USE_BAND_470 ) || defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
-        modem = MODEM_LORA;
-        Radio.SetRxConfig( modem, bandwidth, downlinkDatarate, 1, 0, 8, timeout, false, 0, false, 0, 0, true, rxContinuous );
-#endif
-
-        if( RepeaterSupport == true )
-        {
-            Radio.SetMaxPayloadLength( modem, MaxPayloadOfDatarateRepeater[datarate] + LORA_MAC_FRMPAYLOAD_OVERHEAD );
-        }
-        else
-        {
-            Radio.SetMaxPayloadLength( modem, MaxPayloadOfDatarate[datarate] + LORA_MAC_FRMPAYLOAD_OVERHEAD );
-        }
-
-        if( rxContinuous == false )
-        {
-            Radio.Rx( LoRaMacParams.MaxRxWindow );
-        }
-        else
-        {
-            Radio.Rx( 0 ); // Continuous mode
-        }
-        return true;
-    }
-    return false;
 }
 
 static bool ValidatePayloadLength( uint8_t lenN, int8_t datarate, uint8_t fOptsLen )
