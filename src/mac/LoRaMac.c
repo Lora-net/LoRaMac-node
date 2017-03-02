@@ -2385,6 +2385,22 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     AddMacCommand( MOTE_MAC_RX_TIMING_SETUP_ANS, 0, 0 );
                 }
                 break;
+            case SRV_MAC_DL_CHANNEL_REQ:
+                {
+                    DlChannelReqParams_t dlChannelReq;
+                    status = 0x03;
+
+                    dlChannelReq.ChannelId = payload[macIndex++];
+                    dlChannelReq.Rx1Frequency = ( uint32_t )payload[macIndex++];
+                    dlChannelReq.Rx1Frequency |= ( uint32_t )payload[macIndex++] << 8;
+                    dlChannelReq.Rx1Frequency |= ( uint32_t )payload[macIndex++] << 16;
+                    dlChannelReq.Rx1Frequency *= 100;
+
+                    status = RegionDlChannelReq( LoRaMacRegion, &dlChannelReq );
+
+                    AddMacCommand( MOTE_MAC_DL_CHANNEL_ANS, status, 0 );
+                }
+                break;
             default:
                 // Unknown command. ABORT MAC commands processing
                 return;
