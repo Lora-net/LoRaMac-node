@@ -258,9 +258,17 @@ typedef struct sLoRaMacParams
      */
     Rx2ChannelParams_t Rx2Channel;
     /*!
-     * Mask indicating which channels are enabled
+     * Uplink dwell time configuration. 0: No limit, 1: 400ms
      */
-    uint16_t ChannelsMask[6];
+    uint8_t UplinkDwellTime;
+    /*!
+     * Downlink dwell time configuration. 0: No limit, 1: 400ms
+     */
+    uint8_t DownlinkDwellTime;
+    /*!
+     * Maximum possible EIRP
+     */
+    uint8_t MaxEirp;
 }LoRaMacParams_t;
 
 /*!
