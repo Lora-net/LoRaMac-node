@@ -3603,45 +3603,10 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         }
         case MIB_CHANNELS_MASK:
         {
-            if( mibSet->Param.ChannelsMask )
-            {
-#if defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
-                bool chanMaskState = true;
+            chanMaskSet.ChannelsMaskIn = mibSet->Param.ChannelsMask;
+            chanMaskSet.ChannelsMaskType = CHANNELS_MASK;
 
-#if defined( USE_BAND_915_HYBRID )
-                chanMaskState = ValidateChannelMask( mibSet->Param.ChannelsMask );
-#endif
-                if( chanMaskState == true )
-                {
-                    if( ( CountNbEnabled125kHzChannels( mibSet->Param.ChannelsMask ) < 2 ) &&
-                        ( CountNbEnabled125kHzChannels( mibSet->Param.ChannelsMask ) > 0 ) )
-                    {
-                        status = LORAMAC_STATUS_PARAMETER_INVALID;
-                    }
-                    else
-                    {
-                        memcpy1( ( uint8_t* ) LoRaMacParams.ChannelsMask,
-                                 ( uint8_t* ) mibSet->Param.ChannelsMask, sizeof( LoRaMacParams.ChannelsMask ) );
-                        for ( uint8_t i = 0; i < sizeof( LoRaMacParams.ChannelsMask ) / 2; i++ )
-                        {
-                            // Disable channels which are no longer available
-                            ChannelsMaskRemaining[i] &= LoRaMacParams.ChannelsMask[i];
-                        }
-                    }
-                }
-                else
-                {
-                    status = LORAMAC_STATUS_PARAMETER_INVALID;
-                }
-#elif defined( USE_BAND_470 )
-                memcpy1( ( uint8_t* ) LoRaMacParams.ChannelsMask,
-                         ( uint8_t* ) mibSet->Param.ChannelsMask, sizeof( LoRaMacParams.ChannelsMask ) );
-#else
-                memcpy1( ( uint8_t* ) LoRaMacParams.ChannelsMask,
-                         ( uint8_t* ) mibSet->Param.ChannelsMask, 2 );
-#endif
-            }
-            else
+            if( RegionChanMaskSet( LoRaMacRegion, &chanMaskSet ) == false )
             {
                 status = LORAMAC_STATUS_PARAMETER_INVALID;
             }
