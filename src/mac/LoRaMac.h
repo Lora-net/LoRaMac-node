@@ -52,60 +52,6 @@
 #define BEACON_INTERVAL                             128000
 
 /*!
- * Class A&B receive delay 1 in ms
- */
-#define RECEIVE_DELAY1                              1000
-
-/*!
- * Class A&B receive delay 2 in ms
- */
-#define RECEIVE_DELAY2                              2000
-
-/*!
- * Join accept receive delay 1 in ms
- */
-#define JOIN_ACCEPT_DELAY1                          5000
-
-/*!
- * Join accept receive delay 2 in ms
- */
-#define JOIN_ACCEPT_DELAY2                          6000
-
-/*!
- * Class A&B maximum receive window delay in ms
- */
-#define MAX_RX_WINDOW                               3000
-
-/*!
- * Maximum allowed gap for the FCNT field
- */
-#define MAX_FCNT_GAP                                16384
-
-/*!
- * ADR acknowledgement counter limit
- */
-#define ADR_ACK_LIMIT                               64
-
-/*!
- * Number of ADR acknowledgement requests before returning to default datarate
- */
-#define ADR_ACK_DELAY                               32
-
-/*!
- * Number of seconds after the start of the second reception window without
- * receiving an acknowledge.
- * AckTimeout = \ref ACK_TIMEOUT + Random( -\ref ACK_TIMEOUT_RND, \ref ACK_TIMEOUT_RND )
- */
-#define ACK_TIMEOUT                                 2000
-
-/*!
- * Random number of seconds after the start of the second reception window without
- * receiving an acknowledge
- * AckTimeout = \ref ACK_TIMEOUT + Random( -\ref ACK_TIMEOUT_RND, \ref ACK_TIMEOUT_RND )
- */
-#define ACK_TIMEOUT_RND                             1000
-
-/*!
  * Check the Mac layer state every MAC_STATE_CHECK_TIMEOUT in ms
  */
 #define MAC_STATE_CHECK_TIMEOUT                     1000
