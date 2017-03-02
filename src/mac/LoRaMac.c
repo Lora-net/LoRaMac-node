@@ -1848,18 +1848,20 @@ static bool Rx2FreqInRange( uint32_t freq )
 
 static bool ValidatePayloadLength( uint8_t lenN, int8_t datarate, uint8_t fOptsLen )
 {
+    GetPhyParams_t getPhy;
     uint16_t maxN = 0;
     uint16_t payloadSize = 0;
+
+    getPhy.Datarate = datarate;
+    getPhy.Attribute = PHY_MAX_PAYLOAD;
 
     // Get the maximum payload length
     if( RepeaterSupport == true )
     {
-        maxN = MaxPayloadOfDatarateRepeater[datarate];
+        getPhy.Attribute = PHY_MAX_PAYLOAD_REPEATER;
     }
-    else
-    {
-        maxN = MaxPayloadOfDatarate[datarate];
-    }
+    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    maxN = getPhy.Param.Value;
 
     // Calculate the resulting payload size
     payloadSize = ( lenN + fOptsLen );
