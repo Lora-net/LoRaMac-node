@@ -46,9 +46,6 @@
 #ifndef __LORAMAC_H__
 #define __LORAMAC_H__
 
-// Includes board dependent definitions such as channels frequencies
-#include "LoRaMac-definitions.h"
-
 /*!
  * Beacon interval in ms
  */
