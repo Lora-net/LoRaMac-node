@@ -2514,69 +2514,22 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 }
             case SRV_MAC_NEW_CHANNEL_REQ:
                 {
-                    uint8_t status = 0x03;
-
-#if defined( USE_BAND_470 ) || defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
-                    status &= 0xFC; // Channel frequency and datarate KO
-                    macIndex += 5;
-#else
-                    int8_t channelIndex = 0;
+                    NewChannelReqParams_t newChannelReq;
                     ChannelParams_t chParam;
+                    status = 0x03;
 
-                    channelIndex = payload[macIndex++];
+                    newChannelReq.ChannelId = payload[macIndex++];
+                    newChannelReq.NewChannel = &chParam;
+
                     chParam.Frequency = ( uint32_t )payload[macIndex++];
                     chParam.Frequency |= ( uint32_t )payload[macIndex++] << 8;
                     chParam.Frequency |= ( uint32_t )payload[macIndex++] << 16;
                     chParam.Frequency *= 100;
+                    chParam.Rx1Frequency = 0;
                     chParam.DrRange.Value = payload[macIndex++];
 
-                    LoRaMacState |= LORAMAC_TX_CONFIG;
-                    if( chParam.Frequency == 0 )
-                    {
-                        if( channelIndex < 3 )
-                        {
-                            status &= 0xFC;
-                        }
-                        else
-                        {
-                            if( LoRaMacChannelRemove( channelIndex ) != LORAMAC_STATUS_OK )
-                            {
-                                status &= 0xFC;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        switch( LoRaMacChannelAdd( channelIndex, chParam ) )
-                        {
-                            case LORAMAC_STATUS_OK:
-                            {
-                                break;
-                            }
-                            case LORAMAC_STATUS_FREQUENCY_INVALID:
-                            {
-                                status &= 0xFE;
-                                break;
-                            }
-                            case LORAMAC_STATUS_DATARATE_INVALID:
-                            {
-                                status &= 0xFD;
-                                break;
-                            }
-                            case LORAMAC_STATUS_FREQ_AND_DR_INVALID:
-                            {
-                                status &= 0xFC;
-                                break;
-                            }
-                            default:
-                            {
-                                status &= 0xFC;
-                                break;
-                            }
-                        }
-                    }
-                    LoRaMacState &= ~LORAMAC_TX_CONFIG;
-#endif
+                    status = RegionNewChannelReq( LoRaMacRegion, &newChannelReq );
+
                     AddMacCommand( MOTE_MAC_NEW_CHANNEL_ANS, status, 0 );
                 }
                 break;
