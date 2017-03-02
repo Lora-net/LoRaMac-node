@@ -3687,19 +3687,12 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         }
         case MIB_CHANNELS_DEFAULT_DATARATE:
         {
-#if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
-            if( ValueInRange( mibSet->Param.ChannelsDefaultDatarate,
-                              DR_0, DR_5 ) )
+            verify.Datarate = mibSet->Param.ChannelsDefaultDatarate;
+
+            if( RegionVerify( LoRaMacRegion, &verify, PHY_DEF_TX_DR ) == true )
             {
-                LoRaMacParamsDefaults.ChannelsDatarate = mibSet->Param.ChannelsDefaultDatarate;
+                LoRaMacParamsDefaults.ChannelsDatarate = verify.Datarate;
             }
-#else
-            if( ValueInRange( mibSet->Param.ChannelsDefaultDatarate,
-                              LORAMAC_TX_MIN_DATARATE, LORAMAC_TX_MAX_DATARATE ) )
-            {
-                LoRaMacParamsDefaults.ChannelsDatarate = mibSet->Param.ChannelsDefaultDatarate;
-            }
-#endif
             else
             {
                 status = LORAMAC_STATUS_PARAMETER_INVALID;
