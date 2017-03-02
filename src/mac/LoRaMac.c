@@ -3734,10 +3734,11 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         }
         case MIB_CHANNELS_TX_POWER:
         {
-            if( ValueInRange( mibSet->Param.ChannelsTxPower,
-                              LORAMAC_MAX_TX_POWER, LORAMAC_MIN_TX_POWER ) )
+            verify.TxPower = mibSet->Param.ChannelsTxPower;
+
+            if( RegionVerify( LoRaMacRegion, &verify, PHY_TX_POWER ) == true )
             {
-                LoRaMacParams.ChannelsTxPower = mibSet->Param.ChannelsTxPower;
+                LoRaMacParams.ChannelsTxPower = verify.TxPower;
             }
             else
             {
