@@ -1591,6 +1591,9 @@ typedef struct sLoRaMacPrimitives
     void ( *MacMlmeConfirm )( MlmeConfirm_t *MlmeConfirm );
 }LoRaMacPrimitives_t;
 
+/*!
+ * LoRaMAC callback structure
+ */
 typedef struct sLoRaMacCallback
 {
     /*!
