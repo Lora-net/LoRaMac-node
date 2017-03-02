@@ -673,14 +673,6 @@ static uint16_t JoinDutyCycle( void );
  */
 static void CalculateBackOff( uint8_t channel );
 
-/*
- * \brief Alternates the datarate of the channel for the join request.
- *
- * \param [IN] nbTrials    Number of performed join requests.
- * \retval Datarate to apply
- */
-static int8_t AlternateDatarate( uint16_t nbTrials );
-
 /*!
  * \brief LoRaMAC layer prepared frame buffer transmission with channel specification
  *
@@ -1436,6 +1428,7 @@ static void OnTxDelayedTimerEvent( void )
 {
     LoRaMacHeader_t macHdr;
     LoRaMacFrameCtrl_t fCtrl;
+    AlternateDrParams_t altDr;
 
     TimerStop( &TxDelayedTimer );
     LoRaMacState &= ~LORAMAC_TX_DELAYED;
@@ -1443,8 +1436,9 @@ static void OnTxDelayedTimerEvent( void )
     if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) && ( MlmeConfirm.MlmeRequest == MLME_JOIN ) )
     {
         ResetMacParameters( );
-        // Add a +1, since we start to count from 0
-        LoRaMacParams.ChannelsDatarate = AlternateDatarate( JoinRequestTrials + 1 );
+
+        altDr.NbTrials = JoinRequestTrials + 1;
+        LoRaMacParams.ChannelsDatarate = RegionAlternateDr( LoRaMacRegion, &altDr );
 
         macHdr.Value = 0;
         macHdr.Bits.MType = FRAME_TYPE_JOIN_REQ;
@@ -2734,55 +2728,6 @@ static void CalculateBackOff( uint8_t channel )
 
     // Update Aggregated Time OFF
     AggregatedTimeOff = AggregatedTimeOff + ( TxTimeOnAir * AggregatedDCycle - TxTimeOnAir );
-}
-
-static int8_t AlternateDatarate( uint16_t nbTrials )
-{
-    int8_t datarate = LORAMAC_TX_MIN_DATARATE;
-#if defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
-#if defined( USE_BAND_915 )
-    // Re-enable 500 kHz default channels
-    LoRaMacParams.ChannelsMask[4] = 0x00FF;
-#else // defined( USE_BAND_915_HYBRID )
-    // Re-enable 500 kHz default channels
-    ReenableChannels( LoRaMacParamsDefaults.ChannelsMask[4], LoRaMacParams.ChannelsMask );
-#endif
-
-    if( ( nbTrials & 0x01 ) == 0x01 )
-    {
-        datarate = DR_4;
-    }
-    else
-    {
-        datarate = DR_0;
-    }
-#else
-    if( ( nbTrials % 48 ) == 0 )
-    {
-        datarate = DR_0;
-    }
-    else if( ( nbTrials % 32 ) == 0 )
-    {
-        datarate = DR_1;
-    }
-    else if( ( nbTrials % 24 ) == 0 )
-    {
-        datarate = DR_2;
-    }
-    else if( ( nbTrials % 16 ) == 0 )
-    {
-        datarate = DR_3;
-    }
-    else if( ( nbTrials % 8 ) == 0 )
-    {
-        datarate = DR_4;
-    }
-    else
-    {
-        datarate = DR_5;
-    }
-#endif
-    return datarate;
 }
 
 static void ResetMacParameters( void )
