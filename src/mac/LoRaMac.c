@@ -19,9 +19,12 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 */
 #include "board.h"
 
-#include "LoRaMacCrypto.h"
 #include "LoRaMac.h"
+#include "region/Region.h"
+#include "LoRaMacCrypto.h"
 #include "LoRaMacTest.h"
+
+
 
 /*!
  * Maximum PHY layer payload size
