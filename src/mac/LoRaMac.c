@@ -3103,8 +3103,10 @@ LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout )
     return LORAMAC_STATUS_OK;
 }
 
-LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks )
+LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks, LoRaMacRegion_t region )
 {
+    GetPhyParams_t getPhy;
+
     if( primitives == NULL )
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
@@ -3116,9 +3118,15 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
+    // Verify if the region is supported
+    if( RegionIsActive( region ) == false )
+    {
+        return LORAMAC_STATUS_REGION_NOT_SUPPORTED;
+    }
 
     LoRaMacPrimitives = primitives;
     LoRaMacCallbacks = callbacks;
+    LoRaMacRegion = region;
 
     LoRaMacFlags.Value = 0;
 
@@ -3133,92 +3141,66 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     AggregatedLastTxDoneTime = 0;
     AggregatedTimeOff = 0;
 
-    // Duty cycle
-#if defined( USE_BAND_433 )
-    DutyCycleOn = true;
-#elif defined( USE_BAND_470 )
-    DutyCycleOn = false;
-#elif defined( USE_BAND_780 )
-    DutyCycleOn = true;
-#elif defined( USE_BAND_868 )
-    DutyCycleOn = true;
-#elif defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
-    DutyCycleOn = false;
-#else
-    #error "Please define a frequency band in the compiler options."
-#endif
-
     // Reset to defaults
-    LoRaMacParamsDefaults.ChannelsTxPower = LORAMAC_DEFAULT_TX_POWER;
-    LoRaMacParamsDefaults.ChannelsDatarate = LORAMAC_DEFAULT_DATARATE;
+    getPhy.Attribute = PHY_DUTY_CYCLE;
+    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    DutyCycleOn = ( bool ) getPhy.Param.Value;
 
-    LoRaMacParamsDefaults.MaxRxWindow = MAX_RX_WINDOW;
-    LoRaMacParamsDefaults.ReceiveDelay1 = RECEIVE_DELAY1;
-    LoRaMacParamsDefaults.ReceiveDelay2 = RECEIVE_DELAY2;
-    LoRaMacParamsDefaults.JoinAcceptDelay1 = JOIN_ACCEPT_DELAY1;
-    LoRaMacParamsDefaults.JoinAcceptDelay2 = JOIN_ACCEPT_DELAY2;
+    getPhy.Attribute = PHY_DEF_TX_POWER;
+    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.ChannelsTxPower = getPhy.Param.Value;
+
+    getPhy.Attribute = PHY_DEF_TX_DR;
+    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.ChannelsDatarate = getPhy.Param.Value;
+
+    getPhy.Attribute = PHY_MAX_RX_WINDOW;
+    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.MaxRxWindow = getPhy.Param.Value;
+
+    getPhy.Attribute = PHY_RECEIVE_DELAY1;
+    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.ReceiveDelay1 = getPhy.Param.Value;
+
+    getPhy.Attribute = PHY_RECEIVE_DELAY2;
+    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.ReceiveDelay2 = getPhy.Param.Value;
+
+    getPhy.Attribute = PHY_JOIN_ACCEPT_DELAY1;
+    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.JoinAcceptDelay1 = getPhy.Param.Value;
+
+    getPhy.Attribute = PHY_JOIN_ACCEPT_DELAY2;
+    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.JoinAcceptDelay2 = getPhy.Param.Value;
+
+    getPhy.Attribute = PHY_DEF_DR1_OFFSET;
+    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.Rx1DrOffset = getPhy.Param.Value;
+
+    getPhy.Attribute = PHY_DEF_RX2_FREQUENCY;
+    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.Rx2Channel.Frequency = getPhy.Param.Value;
+
+    getPhy.Attribute = PHY_DEF_RX2_DR;
+    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.Rx2Channel.Datarate = getPhy.Param.Value;
+
+    getPhy.Attribute = PHY_DEF_UPLINK_DWELL_TIME;
+    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.UplinkDwellTime = getPhy.Param.Value;
+
+    getPhy.Attribute = PHY_DEF_DOWNLINK_DWELL_TIME;
+    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.DownlinkDwellTime = getPhy.Param.Value;
+
+    getPhy.Attribute = PHY_DEF_MAX_EIRP;
+    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.MaxEirp = getPhy.Param.Value;
 
     LoRaMacParamsDefaults.ChannelsNbRep = 1;
-    LoRaMacParamsDefaults.Rx1DrOffset = 0;
 
-    LoRaMacParamsDefaults.Rx2Channel = ( Rx2ChannelParams_t )RX_WND_2_CHANNEL;
-
-    // Channel mask
-#if defined( USE_BAND_433 )
-    LoRaMacParamsDefaults.ChannelsMask[0] = LC( 1 ) + LC( 2 ) + LC( 3 );
-#elif defined ( USE_BAND_470 )
-    LoRaMacParamsDefaults.ChannelsMask[0] = 0xFFFF;
-    LoRaMacParamsDefaults.ChannelsMask[1] = 0xFFFF;
-    LoRaMacParamsDefaults.ChannelsMask[2] = 0xFFFF;
-    LoRaMacParamsDefaults.ChannelsMask[3] = 0xFFFF;
-    LoRaMacParamsDefaults.ChannelsMask[4] = 0xFFFF;
-    LoRaMacParamsDefaults.ChannelsMask[5] = 0xFFFF;
-#elif defined( USE_BAND_780 )
-    LoRaMacParamsDefaults.ChannelsMask[0] = LC( 1 ) + LC( 2 ) + LC( 3 );
-#elif defined( USE_BAND_868 )
-    LoRaMacParamsDefaults.ChannelsMask[0] = LC( 1 ) + LC( 2 ) + LC( 3 );
-#elif defined( USE_BAND_915 )
-    LoRaMacParamsDefaults.ChannelsMask[0] = 0xFFFF;
-    LoRaMacParamsDefaults.ChannelsMask[1] = 0xFFFF;
-    LoRaMacParamsDefaults.ChannelsMask[2] = 0xFFFF;
-    LoRaMacParamsDefaults.ChannelsMask[3] = 0xFFFF;
-    LoRaMacParamsDefaults.ChannelsMask[4] = 0x00FF;
-    LoRaMacParamsDefaults.ChannelsMask[5] = 0x0000;
-#elif defined( USE_BAND_915_HYBRID )
-    LoRaMacParamsDefaults.ChannelsMask[0] = 0x00FF;
-    LoRaMacParamsDefaults.ChannelsMask[1] = 0x0000;
-    LoRaMacParamsDefaults.ChannelsMask[2] = 0x0000;
-    LoRaMacParamsDefaults.ChannelsMask[3] = 0x0000;
-    LoRaMacParamsDefaults.ChannelsMask[4] = 0x0001;
-    LoRaMacParamsDefaults.ChannelsMask[5] = 0x0000;
-#else
-    #error "Please define a frequency band in the compiler options."
-#endif
-
-#if defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
-    // 125 kHz channels
-    for( uint8_t i = 0; i < LORA_MAX_NB_CHANNELS - 8; i++ )
-    {
-        Channels[i].Frequency = 902.3e6 + i * 200e3;
-        Channels[i].DrRange.Value = ( DR_3 << 4 ) | DR_0;
-        Channels[i].Band = 0;
-    }
-    // 500 kHz channels
-    for( uint8_t i = LORA_MAX_NB_CHANNELS - 8; i < LORA_MAX_NB_CHANNELS; i++ )
-    {
-        Channels[i].Frequency = 903.0e6 + ( i - ( LORA_MAX_NB_CHANNELS - 8 ) ) * 1.6e6;
-        Channels[i].DrRange.Value = ( DR_4 << 4 ) | DR_4;
-        Channels[i].Band = 0;
-    }
-#elif defined( USE_BAND_470 )
-    // 125 kHz channels
-    for( uint8_t i = 0; i < LORA_MAX_NB_CHANNELS; i++ )
-    {
-        Channels[i].Frequency = 470.3e6 + i * 200e3;
-        Channels[i].DrRange.Value = ( DR_5 << 4 ) | DR_0;
-        Channels[i].Band = 0;
-    }
-#endif
+    RegionInitDefaults( LoRaMacRegion, INIT_TYPE_INIT );
 
     ResetMacParameters( );
 
