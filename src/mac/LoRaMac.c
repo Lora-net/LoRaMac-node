@@ -4368,13 +4368,13 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                         {
                             BeaconCtx.Ctrl.CustomFreq = 1;
                             BeaconCtx.Frequency = frequency;
-                            AddMacCommand( MOTE_MAC_PING_SLOT_FREQ_ANS, 0, 0 );
+                            AddMacCommand( MOTE_MAC_BEACON_FREQ_ANS, 0, 0 );
                         }
                     }
                     else
                     {
                         BeaconCtx.Ctrl.CustomFreq = 0;
-                        AddMacCommand( MOTE_MAC_PING_SLOT_FREQ_ANS, 0, 0 );
+                        AddMacCommand( MOTE_MAC_BEACON_FREQ_ANS, 0, 0 );
                     }
                 }
                 break;
