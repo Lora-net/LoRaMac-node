@@ -900,10 +900,6 @@ typedef struct sPingSlotContext
      */
     int8_t Datarate;
     /*!
-     * Data range of the ping slot windows
-     */
-    DrRange_t DrRange;
-    /*!
      * Current symbol timeout. The node enlarges this variable in case of beacon
      * loss.
      */
@@ -4287,13 +4283,13 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 {
                     uint8_t status = 0x03;
                     uint32_t frequency = 0;
-                    DrRange_t drRange;
+                    uint8_t datarate;
 
                     frequency = ( uint32_t )payload[macIndex++];
                     frequency |= ( uint32_t )payload[macIndex++] << 8;
                     frequency |= ( uint32_t )payload[macIndex++] << 16;
                     frequency *= 100;
-                    drRange.Value = payload[macIndex++];
+                    datarate = payload[macIndex++] & 0x0F;
 
                     if( frequency != 0 )
                     {
@@ -4302,7 +4298,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                             status &= 0xFE; // Channel frequency KO
                         }
 
-                        if( ValidateDrRange( drRange, LORAMAC_RX_MIN_DATARATE, LORAMAC_RX_MAX_DATARATE ) == false )
+                        if( ValueInRange( datarate, LORAMAC_RX_MIN_DATARATE, LORAMAC_RX_MAX_DATARATE ) == false )
                         {
                             status &= 0xFD; // Datarate range KO
                         }
@@ -4311,14 +4307,13 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                         {
                             PingSlotCtx.Ctrl.CustomFreq = 1;
                             PingSlotCtx.Frequency = frequency;
-                            PingSlotCtx.DrRange.Value = drRange.Value;
+                            PingSlotCtx.Datarate = datarate;
                         }
                     }
                     else
                     {
                         PingSlotCtx.Ctrl.CustomFreq = 0;
-                        PingSlotCtx.DrRange.Fields.Max = BEACON_CHANNEL_DR;
-                        PingSlotCtx.DrRange.Fields.Min = BEACON_CHANNEL_DR;
+                        PingSlotCtx.Datarate = BEACON_CHANNEL_DR;
                     }
                     AddMacCommand( MOTE_MAC_PING_SLOT_FREQ_ANS, status, 0 );
                 }
@@ -6043,10 +6038,6 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
 
             PingSlotCtx.PingNb = 128 / ( 1 << mlmeRequest->Req.PingSlotInfo.PingSlot.Fields.Periodicity );
             PingSlotCtx.PingPeriod = BeaconCtx.Cfg.WindowSlots / PingSlotCtx.PingNb;
-
-            PingSlotCtx.DrRange.Fields.Max = mlmeRequest->Req.PingSlotInfo.PingSlot.Fields.Datarate;
-            PingSlotCtx.DrRange.Fields.Min = mlmeRequest->Req.PingSlotInfo.PingSlot.Fields.Datarate;
-            PingSlotCtx.Datarate = mlmeRequest->Req.PingSlotInfo.PingSlot.Fields.Datarate;
 
             status = AddMacCommand( MOTE_MAC_PING_SLOT_INFO_REQ, value, 0 );
             break;

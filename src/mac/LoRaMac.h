@@ -653,9 +653,8 @@ typedef union uPingSlotInfo
     uint8_t Value;
     struct sInfoFields
     {
-        uint8_t Datarate        : 4;
         uint8_t Periodicity     : 3;
-        uint8_t RFU             : 1;
+        uint8_t RFU             : 5;
     }Fields;
 }PingSlotInfo_t;
 

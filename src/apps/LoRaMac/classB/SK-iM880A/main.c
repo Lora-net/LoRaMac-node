@@ -922,7 +922,6 @@ int main( void )
                     LoRaMacMlmeRequest( &mlmeReq );
 
                     mlmeReq.Type = MLME_PING_SLOT_INFO;
-                    mlmeReq.Req.PingSlotInfo.PingSlot.Fields.Datarate = DR_0;
                     mlmeReq.Req.PingSlotInfo.PingSlot.Fields.Periodicity = 0;
                     mlmeReq.Req.PingSlotInfo.PingSlot.Fields.RFU = 0;
 
