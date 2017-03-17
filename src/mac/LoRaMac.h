@@ -47,6 +47,17 @@
 #define __LORAMAC_H__
 
 /*!
+ * System overall timing error in milliseconds. 
+ * [-DEFAULT_SYSTEM_MAX_RX_ERROR : +DEFAULT_SYSTEM_MAX_RX_ERROR]
+ */
+#define DEFAULT_SYSTEM_MAX_RX_ERROR                 10
+
+/*!
+ * Minimum required number of symbols to detect an Rx frame
+ */
+#define DEFAULT_MIN_RX_SYMBOLS                       6
+
+/*!
  * Beacon interval in ms
  */
 #define BEACON_INTERVAL                             128000

@@ -326,6 +326,12 @@ static uint32_t RxWindow1Delay;
 static uint32_t RxWindow2Delay;
 
 /*!
+ * LoRaMac Rx windows configuration
+ */
+RxConfigParams_t RxWindow1Config;
+RxConfigParams_t RxWindow2Config;
+
+/*!
  * Acknowledge timeout timer. Used for packet retransmissions.
  */
 static TimerEvent_t AckTimeoutTimer;
@@ -1326,52 +1332,48 @@ static void OnTxDelayedTimerEvent( void )
 
 static void OnRxWindow1TimerEvent( void )
 {
-    RxConfigParams_t rxConfig;
-
     TimerStop( &RxWindowTimer1 );
     RxSlot = 0;
 
-    rxConfig.Channel = Channel;
-    rxConfig.Datarate = LoRaMacParams.ChannelsDatarate;
-    rxConfig.DrOffset = LoRaMacParams.Rx1DrOffset;
-    rxConfig.RepeaterSupport = RepeaterSupport;
-    rxConfig.RxContinuous = false;
-    rxConfig.Window = RxSlot;
+    RxWindow1Config.Channel = Channel;
+    RxWindow1Config.Datarate = LoRaMacParams.ChannelsDatarate;
+    RxWindow1Config.DrOffset = LoRaMacParams.Rx1DrOffset;
+    RxWindow1Config.RepeaterSupport = RepeaterSupport;
+    RxWindow1Config.RxContinuous = false;
+    RxWindow1Config.Window = RxSlot;
 
     if( LoRaMacDeviceClass == CLASS_C )
     {
         Radio.Standby( );
     }
 
-    RegionRxConfig( LoRaMacRegion, &rxConfig, ( int8_t* )&McpsIndication.RxDatarate );
-    RxWindowSetup( rxConfig.RxContinuous, LoRaMacParams.MaxRxWindow );
+    RegionRxConfig( LoRaMacRegion, &RxWindow1Config, ( int8_t* )&McpsIndication.RxDatarate );
+    RxWindowSetup( RxWindow1Config.RxContinuous, LoRaMacParams.MaxRxWindow );
 }
 
 static void OnRxWindow2TimerEvent( void )
 {
-    RxConfigParams_t rxConfig;
-
     TimerStop( &RxWindowTimer2 );
 
-    rxConfig.Channel = Channel;
-    rxConfig.Datarate = LoRaMacParams.Rx2Channel.Datarate;
-    rxConfig.Frequency = LoRaMacParams.Rx2Channel.Frequency;
-    rxConfig.RepeaterSupport = RepeaterSupport;
-    rxConfig.Window = 1;
+    RxWindow2Config.Channel = Channel;
+    RxWindow2Config.Datarate = LoRaMacParams.Rx2Channel.Datarate;
+    RxWindow2Config.Frequency = LoRaMacParams.Rx2Channel.Frequency;
+    RxWindow2Config.RepeaterSupport = RepeaterSupport;
+    RxWindow2Config.Window = 1;
 
     if( LoRaMacDeviceClass != CLASS_C )
     {
-        rxConfig.RxContinuous = false;
+        RxWindow2Config.RxContinuous = false;
     }
     else
     {
-        rxConfig.RxContinuous = true;
+        RxWindow2Config.RxContinuous = true;
     }
 
-    if( RegionRxConfig( LoRaMacRegion, &rxConfig, ( int8_t* )&McpsIndication.RxDatarate ) == true )
+    if( RegionRxConfig( LoRaMacRegion, &RxWindow2Config, ( int8_t* )&McpsIndication.RxDatarate ) == true )
     {
-        RxWindowSetup( rxConfig.RxContinuous, LoRaMacParams.MaxRxWindow );
-        RxSlot = rxConfig.Window;
+        RxWindowSetup( RxWindow2Config.RxContinuous, LoRaMacParams.MaxRxWindow );
+        RxSlot = RxWindow2Config.Window;
     }
 }
 
@@ -1937,8 +1939,17 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
     switch( macHdr->Bits.MType )
     {
         case FRAME_TYPE_JOIN_REQ:
-            RxWindow1Delay = LoRaMacParams.JoinAcceptDelay1 - RADIO_WAKEUP_TIME;
-            RxWindow2Delay = LoRaMacParams.JoinAcceptDelay2 - RADIO_WAKEUP_TIME;
+            RegionComputeRxWindowParameters( LoRaMacRegion,
+                                             RegionApplyDrOffset( LoRaMacRegion, LoRaMacParams.DownlinkDwellTime, LoRaMacParams.ChannelsDatarate, LoRaMacParams.Rx1DrOffset ),
+                                             DEFAULT_SYSTEM_MAX_RX_ERROR,
+                                             &RxWindow1Config );
+            RegionComputeRxWindowParameters( LoRaMacRegion,
+                                             LoRaMacParams.Rx2Channel.Datarate,
+                                             DEFAULT_SYSTEM_MAX_RX_ERROR,
+                                             &RxWindow2Config );
+
+            RxWindow1Delay = LoRaMacParams.JoinAcceptDelay1 + RxWindow1Config.WindowOffset;
+            RxWindow2Delay = LoRaMacParams.JoinAcceptDelay2 + RxWindow2Config.WindowOffset;
 
             LoRaMacBufferPktLen = pktHeaderLen;
 
@@ -1979,13 +1990,22 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
             fCtrl->Bits.AdrAckReq = RegionAdrNext( LoRaMacRegion, &adrNext,
                                                    &LoRaMacParams.ChannelsDatarate, &LoRaMacParams.ChannelsTxPower, &AdrAckCounter );
 
+            RegionComputeRxWindowParameters( LoRaMacRegion,
+                                             RegionApplyDrOffset( LoRaMacRegion, LoRaMacParams.DownlinkDwellTime, LoRaMacParams.ChannelsDatarate, LoRaMacParams.Rx1DrOffset ),
+                                             DEFAULT_SYSTEM_MAX_RX_ERROR,
+                                             &RxWindow1Config );
+            RegionComputeRxWindowParameters( LoRaMacRegion,
+                                             LoRaMacParams.Rx2Channel.Datarate,
+                                             DEFAULT_SYSTEM_MAX_RX_ERROR,
+                                             &RxWindow2Config );
+
             if( ValidatePayloadLength( LoRaMacTxPayloadLen, LoRaMacParams.ChannelsDatarate, MacCommandsBufferIndex ) == false )
             {
                 return LORAMAC_STATUS_LENGTH_ERROR;
             }
 
-            RxWindow1Delay = LoRaMacParams.ReceiveDelay1 - RADIO_WAKEUP_TIME;
-            RxWindow2Delay = LoRaMacParams.ReceiveDelay2 - RADIO_WAKEUP_TIME;
+            RxWindow1Delay = LoRaMacParams.ReceiveDelay1 + RxWindow1Config.WindowOffset;
+            RxWindow2Delay = LoRaMacParams.ReceiveDelay2 + RxWindow2Config.WindowOffset;
 
             if( SrvAckRequested == true )
             {

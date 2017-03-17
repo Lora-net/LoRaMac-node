@@ -20,9 +20,9 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
+#include <math.h>
 
-#include "radio.h"
-#include "timer.h"
+#include "board.h"
 #include "LoRaMac.h"
 
 #include "utilities.h"
@@ -31,12 +31,8 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include "RegionCommon.h"
 #include "RegionIN865.h"
 
-
-
 // Definitions
 #define CHANNELS_MASK_SIZE              1
-
-
 
 // Global attributes
 /*!
@@ -62,43 +58,19 @@ static uint16_t ChannelsMask[CHANNELS_MASK_SIZE];
  */
 static uint16_t ChannelsDefaultMask[CHANNELS_MASK_SIZE];
 
-
-
 // Static functions
-static uint8_t ApplyDrOffset( int8_t dr, int8_t drOffset )
+static uint32_t GetBandwidth( uint32_t drIndex )
 {
-    // Apply offset formula
-    return MIN( DR_5, MAX( DR_0, dr - EffectiveRx1DrOffsetIN865[dr] ) );
-}
-
-static uint16_t GetSymbTimeout( int8_t dr )
-{
-    uint16_t symbolTimeout = 5;
-
-    if( ( dr == DR_3 ) || ( dr == DR_4 ) )
+    switch( BandwidthsIN865[drIndex] )
     {
-        symbolTimeout = 8;
+        default:
+        case 125000:
+            return 0;
+        case 250000:
+            return 1;
+        case 500000:
+            return 2;
     }
-    else if( dr == DR_5 )
-    {
-        symbolTimeout = 10;
-    }
-    else if( dr == DR_6 )
-    {
-        symbolTimeout = 14;
-    }
-    return symbolTimeout;
-}
-
-static uint32_t GetBandwidth( int8_t dr )
-{
-    uint32_t bandwidth = 0;
-
-    if( dr == DR_6 )
-    {
-        bandwidth = 1;
-    }
-    return bandwidth;
 }
 
 static int8_t LimitTxPower( int8_t txPower, int8_t maxBandTxPower, int8_t datarate, uint16_t* channelsMask )
@@ -166,8 +138,6 @@ static uint8_t CountNbOfEnabledChannels( bool joined, uint8_t datarate, uint16_t
     *delayTx = delayTransmission;
     return nbEnabledChannels;
 }
-
-
 
 void RegionIN865GetPhyParam( GetPhyParams_t* getPhy )
 {
@@ -482,14 +452,33 @@ bool RegionIN865AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
     return adrAckReq;
 }
 
+void RegionIN865ComputeRxWindowParameters( int8_t datarate, uint32_t rxError, RxConfigParams_t *rxConfigParams )
+{
+    double tSymbol = 0.0;
+
+    rxConfigParams->Datarate = datarate;
+    rxConfigParams->Bandwidth = GetBandwidth( datarate );
+
+    if( datarate == DR_7 )
+    { // FSK
+        tSymbol = ( 1.0 / ( double )DataratesIN865[datarate] ) * 8.0; // 1 symbol equals 1 byte
+    }
+    else
+    { // LoRa
+        tSymbol = ( ( double )( 1 << DataratesIN865[datarate] ) / ( double )BandwidthsIN865[datarate] ) * 1e3;
+    }
+
+    rxConfigParams->WindowTimeout = MAX( ( uint32_t )ceil( ( ( 2 * DEFAULT_MIN_RX_SYMBOLS - 8 ) * tSymbol + 2 * rxError ) / tSymbol ), DEFAULT_MIN_RX_SYMBOLS ); // Computed number of symbols
+
+    rxConfigParams->WindowOffset = ( int32_t )ceil( ( 4.0 * tSymbol ) - ( ( rxConfigParams->WindowTimeout * tSymbol ) / 2.0 ) - RADIO_WAKEUP_TIME );
+}
+
 // ToDo get phy datarate afterwards
 bool RegionIN865RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
 {
     RadioModems_t modem;
     int8_t dr = rxConfig->Datarate;
     uint8_t maxPayload = 0;
-    uint16_t symbTimeout = 0;
-    uint32_t bandwidth = 0;
     int8_t phyDr = 0;
     uint32_t frequency = rxConfig->Frequency;
 
@@ -501,7 +490,7 @@ bool RegionIN865RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
     if( rxConfig->Window == 0 )
     {
         // Apply the datarate offset for RX window 1
-        dr = ApplyDrOffset( dr, rxConfig->DrOffset );
+        dr = RegionIN865ApplyDrOffset( rxConfig->DownlinkDwellTime, dr, rxConfig->DrOffset );
         // Apply window 1 frequency
         frequency = Channels[rxConfig->Channel].Frequency;
         // Apply the alternative RX 1 window frequency, if it is available
@@ -510,22 +499,22 @@ bool RegionIN865RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
             frequency = Channels[rxConfig->Channel].Rx1Frequency;
         }
     }
-    symbTimeout = GetSymbTimeout( dr );
-    bandwidth = GetBandwidth( dr );
+
     // Read the physical datarate from the datarates table
     phyDr = DataratesIN865[dr];
 
     Radio.SetChannel( frequency );
 
+    // Radio configuration
     if( dr == DR_7 )
     {
         modem = MODEM_FSK;
-        Radio.SetRxConfig( modem, 50e3, phyDr * 1e3, 0, 83.333e3, 5, 0, false, 0, true, 0, 0, false, rxConfig->RxContinuous );
+        Radio.SetRxConfig( modem, 50e3, phyDr * 1e3, 0, 83.333e3, 5, rxConfig->WindowTimeout, false, 0, true, 0, 0, false, rxConfig->RxContinuous );
     }
     else
     {
         modem = MODEM_LORA;
-        Radio.SetRxConfig( modem, bandwidth, phyDr, 1, 0, 8, symbTimeout, false, 0, false, 0, 0, true, rxConfig->RxContinuous );
+        Radio.SetRxConfig( modem, rxConfig->Bandwidth, phyDr, 1, 0, 8, rxConfig->WindowTimeout, false, 0, false, 0, 0, true, rxConfig->RxContinuous );
     }
 
     if( rxConfig->RepeaterSupport == true )
@@ -993,4 +982,10 @@ void RegionIN865SetContinuousWave( ContinuousWaveParams_t* continuousWave )
     phyTxPower = TxPowersIN865[txPowerLimited];
 
     Radio.SetTxContinuousWave( frequency, phyTxPower, continuousWave->Timeout );
+}
+
+uint8_t RegionIN865ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset )
+{
+    // Apply offset formula
+    return MIN( DR_5, MAX( DR_0, dr - EffectiveRx1DrOffsetIN865[drOffset] ) );
 }

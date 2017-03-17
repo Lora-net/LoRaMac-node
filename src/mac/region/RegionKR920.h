@@ -219,6 +219,11 @@
 static const uint8_t DataratesKR920[]  = { 12, 11, 10,  9,  8,  7 };
 
 /*!
+ * Bandwidths table definition in Hz
+ */
+static const uint32_t BandwidthsKR920[] = { 125e3, 125e3, 125e3, 125e3, 125e3, 125e3 };
+
+/*!
  * Maximum payload with respect to the datarate index. Can operate with and without a repeater.
  */
 static const uint8_t MaxPayloadOfDatarateKR920[] = { 65, 151, 242, 242, 242, 242 };
@@ -294,6 +299,19 @@ bool RegionKR920ChanMaskSet( ChanMaskSetParams_t* chanMaskSet );
  * \retval Returns true, if an ADR request should be performed.
  */
 bool RegionKR920AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowOut, uint32_t* adrAckCounter );
+
+/*!
+ * Computes the Rx window timeout and offset.
+ *
+ * \param [IN] datarate     Rx window datarate index to be used
+ *
+ * \param [IN] rxError      System maximum timing error of the receiver. In milliseconds
+ *                          The receiver will turn on in a [-rxError : +rxError] ms
+ *                          interval around RxOffset
+ *
+ * \param [OUT]rxConfigParams Returns updated WindowTimeout and WindowOffset fields.
+ */
+void RegionKR920ComputeRxWindowParameters( int8_t datarate, uint32_t rxError, RxConfigParams_t *rxConfigParams );
 
 /*!
  * \brief Configuration of the RX windows.
@@ -418,6 +436,19 @@ bool RegionKR920ChannelsRemove( ChannelRemoveParams_t* channelRemove  );
  * \param [IN] continuousWave Pointer to the function parameters.
  */
 void RegionKR920SetContinuousWave( ContinuousWaveParams_t* continuousWave );
+
+/*!
+ * \brief Computes new datarate according to the given offset
+ *
+ * \param [IN] downlinkDwellTime Downlink dwell time configuration. 0: No limit, 1: 400ms
+ *
+ * \param [IN] dr Current datarate
+ *
+ * \param [IN] drOffset Offset to be applied
+ *
+ * \retval newDr Computed datarate.
+ */
+uint8_t RegionKR920ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset );
 
 /*! \} defgroup REGIONKR920 */
 

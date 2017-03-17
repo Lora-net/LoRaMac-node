@@ -20,9 +20,9 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
+#include <math.h>
 
-#include "radio.h"
-#include "timer.h"
+#include "board.h"
 #include "LoRaMac.h"
 
 #include "utilities.h"
@@ -31,12 +31,8 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include "RegionCommon.h"
 #include "RegionKR920.h"
 
-
-
 // Definitions
 #define CHANNELS_MASK_SIZE              1
-
-
 
 // Global attributes
 /*!
@@ -62,38 +58,19 @@ static uint16_t ChannelsMask[CHANNELS_MASK_SIZE];
  */
 static uint16_t ChannelsDefaultMask[CHANNELS_MASK_SIZE];
 
-
-
 // Static functions
-static uint8_t ApplyDrOffset( int8_t dr, int8_t drOffset )
+static uint32_t GetBandwidth( uint32_t drIndex )
 {
-    int8_t datarate = dr - drOffset;
-    if( datarate < 0 )
+    switch( BandwidthsKR920[drIndex] )
     {
-        datarate = DR_0;
+        default:
+        case 125000:
+            return 0;
+        case 250000:
+            return 1;
+        case 500000:
+            return 2;
     }
-    return datarate;
-}
-
-static uint16_t GetSymbTimeout( int8_t dr )
-{
-    uint16_t symbolTimeout = 5;
-
-    if( ( dr == DR_3 ) || ( dr == DR_4 ) )
-    {
-        symbolTimeout = 8;
-    }
-    else if( dr == DR_5 )
-    {
-        symbolTimeout = 10;
-    }
-    return symbolTimeout;
-}
-
-static uint32_t GetBandwidth( int8_t dr )
-{
-    // All channels use BW = 0
-    return 0;
 }
 
 static int8_t LimitTxPower( int8_t txPower, int8_t maxBandTxPower, int8_t datarate, uint16_t* channelsMask )
@@ -170,8 +147,6 @@ static uint8_t CountNbOfEnabledChannels( bool joined, uint8_t datarate, uint16_t
     *delayTx = delayTransmission;
     return nbEnabledChannels;
 }
-
-
 
 void RegionKR920GetPhyParam( GetPhyParams_t* getPhy )
 {
@@ -482,13 +457,32 @@ bool RegionKR920AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
     return adrAckReq;
 }
 
+void RegionKR920ComputeRxWindowParameters( int8_t datarate, uint32_t rxError, RxConfigParams_t *rxConfigParams )
+{
+    double tSymbol = 0.0;
+
+    rxConfigParams->Datarate = datarate;
+    rxConfigParams->Bandwidth = GetBandwidth( datarate );
+
+    if( datarate == DR_7 )
+    { // FSK
+        tSymbol = ( 1.0 / ( double )DataratesKR920[datarate] ) * 8.0; // 1 symbol equals 1 byte
+    }
+    else
+    { // LoRa
+        tSymbol = ( ( double )( 1 << DataratesKR920[datarate] ) / ( double )BandwidthsKR920[datarate] ) * 1e3;
+    }
+
+    rxConfigParams->WindowTimeout = MAX( ( uint32_t )ceil( ( ( 2 * DEFAULT_MIN_RX_SYMBOLS - 8 ) * tSymbol + 2 * rxError ) / tSymbol ), DEFAULT_MIN_RX_SYMBOLS ); // Computed number of symbols
+
+    rxConfigParams->WindowOffset = ( int32_t )ceil( ( 4.0 * tSymbol ) - ( ( rxConfigParams->WindowTimeout * tSymbol ) / 2.0 ) - RADIO_WAKEUP_TIME );
+}
+
 // ToDo get phy datarate afterwards
 bool RegionKR920RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
 {
     int8_t dr = rxConfig->Datarate;
     uint8_t maxPayload = 0;
-    uint16_t symbTimeout = 0;
-    uint32_t bandwidth = 0;
     int8_t phyDr = 0;
     uint32_t frequency = rxConfig->Frequency;
 
@@ -500,7 +494,7 @@ bool RegionKR920RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
     if( rxConfig->Window == 0 )
     {
         // Apply the datarate offset for RX window 1
-        dr = ApplyDrOffset( dr, rxConfig->DrOffset );
+        dr = RegionKR920ApplyDrOffset( rxConfig->DownlinkDwellTime, dr, rxConfig->DrOffset );
         // Apply window 1 frequency
         frequency = Channels[rxConfig->Channel].Frequency;
         // Apply the alternative RX 1 window frequency, if it is available
@@ -509,15 +503,14 @@ bool RegionKR920RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
             frequency = Channels[rxConfig->Channel].Rx1Frequency;
         }
     }
-    symbTimeout = GetSymbTimeout( dr );
-    bandwidth = GetBandwidth( dr );
+
     // Read the physical datarate from the datarates table
     phyDr = DataratesKR920[dr];
 
     Radio.SetChannel( frequency );
 
     // Radio configuration
-    Radio.SetRxConfig( MODEM_LORA, bandwidth, phyDr, 1, 0, 8, symbTimeout, false, 0, false, 0, 0, true, rxConfig->RxContinuous );
+    Radio.SetRxConfig( MODEM_LORA, rxConfig->Bandwidth, phyDr, 1, 0, 8, rxConfig->WindowTimeout, false, 0, false, 0, 0, true, rxConfig->RxContinuous );
     maxPayload = MaxPayloadOfDatarateKR920[dr];
     Radio.SetMaxPayloadLength( MODEM_LORA, maxPayload + LORA_MAC_FRMPAYLOAD_OVERHEAD );
 
@@ -983,4 +976,15 @@ void RegionKR920SetContinuousWave( ContinuousWaveParams_t* continuousWave )
     phyTxPower = TxPowersKR920[txPowerLimited];
 
     Radio.SetTxContinuousWave( frequency, phyTxPower, continuousWave->Timeout );
+}
+
+uint8_t RegionKR920ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset )
+{
+    int8_t datarate = dr - drOffset;
+
+    if( datarate < 0 )
+    {
+        datarate = DR_0;
+    }
+    return datarate;
 }

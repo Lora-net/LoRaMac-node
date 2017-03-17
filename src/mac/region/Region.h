@@ -818,6 +818,10 @@ typedef struct sRxConfigParams
      */
     int8_t Datarate;
     /*!
+     * RX bandwidth.
+     */
+    uint8_t Bandwidth;
+    /*!
      * RX datarate offset.
      */
     int8_t DrOffset;
@@ -825,6 +829,14 @@ typedef struct sRxConfigParams
      * RX frequency.
      */
     uint32_t Frequency;
+    /*!
+     * RX window timeout
+     */
+     uint32_t WindowTimeout;
+    /*!
+     * RX window offset
+     */
+    int32_t WindowOffset;
     /*!
      * Downlink dwell time.
      */
@@ -1174,6 +1186,59 @@ bool RegionAdrNext( LoRaMacRegion_t region, AdrNextParams_t* adrNext, int8_t* dr
  */
 bool RegionRxConfig( LoRaMacRegion_t region, RxConfigParams_t* rxConfig, int8_t* datarate );
 
+/*
+ * Rx window precise timing
+ *
+ * For more details please consult the following document, chapter 3.1.2.
+ * http://www.semtech.com/images/datasheet/SX1272_settings_for_LoRaWAN_v2.0.pdf
+ * or
+ * http://www.semtech.com/images/datasheet/SX1276_settings_for_LoRaWAN_v2.0.pdf
+ *
+ *                 Downlink start: T = Tx + 1s (+/- 20 us)
+ *                            |
+ *             TRxEarly       |        TRxLate
+ *                |           |           |
+ *                |           |           +---+---+---+---+---+---+---+---+
+ *                |           |           |       Latest Rx window        |
+ *                |           |           +---+---+---+---+---+---+---+---+
+ *                |           |           |
+ *                +---+---+---+---+---+---+---+---+
+ *                |       Earliest Rx window      |
+ *                +---+---+---+---+---+---+---+---+
+ *                            |
+ *                            +---+---+---+---+---+---+---+---+
+ *Downlink preamble 8 symbols |   |   |   |   |   |   |   |   |
+ *                            +---+---+---+---+---+---+---+---+
+ *
+ *                     Worst case Rx window timings
+ *
+ * TRxLate  = DEFAULT_MIN_RX_SYMBOLS * tSymbol - RADIO_WAKEUP_TIME
+ * TRxEarly = 8 - DEFAULT_MIN_RX_SYMBOLS * tSymbol - RxWindowTimeout - RADIO_WAKEUP_TIME
+ *
+ * TRxLate - TRxEarly = 2 * DEFAULT_SYSTEM_MAX_RX_ERROR
+ *
+ * RxOffset = ( TRxLate + TRxEarly ) / 2
+ *
+ * RxWindowTimeout = ( 2 * DEFAULT_MIN_RX_SYMBOLS - 8 ) * tSymbol + 2 * DEFAULT_SYSTEM_MAX_RX_ERROR
+ * RxOffset = 4 * tSymbol - RxWindowTimeout / 2 - RADIO_WAKE_UP_TIME
+ *
+ * Minimal value of RxWindowTimeout must be 5 symbols which implies that the system always tolerates at least an error of 1.5 * tSymbol
+ */
+/*!
+ * Computes the Rx window timeout and offset.
+ *
+ * \param [IN] region       LoRaWAN region.
+ *
+ * \param [IN] datarate     Rx window datarate index to be used
+ *
+ * \param [IN] rxError      System maximum timing error of the receiver. In milliseconds
+ *                          The receiver will turn on in a [-rxError : +rxError] ms
+ *                          interval around RxOffset
+ *
+ * \param [OUT]rxConfigParams Returns updated WindowTimeout and WindowOffset fields.
+ */
+void RegionComputeRxWindowParameters( LoRaMacRegion_t region, int8_t datarate, uint32_t rxError, RxConfigParams_t *rxConfigParams );
+
 /*!
  * \brief TX configuration.
  *
@@ -1310,6 +1375,19 @@ bool RegionChannelsRemove( LoRaMacRegion_t region, ChannelRemoveParams_t* channe
  * \param [IN] continuousWave Pointer to the function parameters.
  */
 void RegionSetContinuousWave( LoRaMacRegion_t region, ContinuousWaveParams_t* continuousWave );
+
+/*!
+ * \brief Computes new datarate according to the given offset
+ *
+ * \param [IN] downlinkDwellTime Downlink dwell time configuration. 0: No limit, 1: 400ms
+ *
+ * \param [IN] dr Current datarate
+ *
+ * \param [IN] drOffset Offset to be applied
+ *
+ * \retval newDr Computed datarate.
+ */
+uint8_t RegionApplyDrOffset( LoRaMacRegion_t region, uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset );
 
 /*! \} defgroup REGION */
 
