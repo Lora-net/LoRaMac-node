@@ -1197,6 +1197,27 @@ void SX1272OnTimeoutIrq( void )
         }
         break;
     case RF_TX_RUNNING:
+        // Tx timeout shouldn't happen. 
+        // But it has been observed that when it happens it is a result of a corrupted SPI transfer
+        // it depends on the platform design.
+        // 
+        // The workaround is to put the radio in a known state. Thus, we re-initialize it.
+        //
+        // BEGIN WORKAROUND
+        SX1272Reset( );
+
+        SX1272SetOpMode( RF_OPMODE_SLEEP );
+
+        for( uint8_t i = 0; i < sizeof( RadioRegsInit ) / sizeof( RadioRegisters_t ); i++ )
+        {
+            SX1272SetModem( RadioRegsInit[i].Modem );
+            SX1272Write( RadioRegsInit[i].Addr, RadioRegsInit[i].Value );
+        }
+
+        SX1272SetModem( MODEM_FSK );
+
+        // END WORKAROUND
+
         SX1272.Settings.State = RF_IDLE;
         if( ( RadioEvents != NULL ) && ( RadioEvents->TxTimeout != NULL ) )
         {
