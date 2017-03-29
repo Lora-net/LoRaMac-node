@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Project version="2G - 2.0.1" name="LoRaMacClassB">
+  <Target name="LoRaMacClassB-868" isCurrent="1">
+    <Device manufacturerId="9" manufacturerName="ST" chipId="1308" chipName="STM32L051C8T6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="4"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
+        <Option name="STANDARD" value="100000"/>
+        <Includepaths>
+          <Includepath path="../../../../src"/>
+          <Includepath path="../../../../src/boards/MoteII"/>
+          <Includepath path="../../../../src/boards/MoteII/cmsis"/>
+          <Includepath path="../../../../src/boards/mcu/stm32"/>
+          <Includepath path="../../../../src/boards/mcu/stm32/cmsis"/>
+          <Includepath path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/inc"/>
+          <Includepath path="../../../../src/mac"/>
+          <Includepath path="../../../../src/peripherals"/>
+          <Includepath path="../../../../src/radio"/>
+          <Includepath path="../../../../src/system"/>
+          <Includepath path="../../../../src/system/crypto"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="USE_HAL_DRIVER"/>
+          <Define name="STM32L051xx"/>
+          <Define name="USE_BAND_868"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UserEditLinkder" value=""/>
+        <Option name="UseMemoryLayout" value="0"/>
+        <Option name="nostartfiles" value="0"/>
+        <Option name="LTO" value="1"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <Option name="Library" value="Use nano C Library"/>
+        <Option name="UserEditLinker" value="-lc;-lm; -lrdimon; "/>
+        <Option name="DiscardUnusedSections" value="1"/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00004000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="../../../../src/boards/MoteII/cmsis/arm-gcc/stm32l051xx_flash.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="LoRaMacClassB"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="C:\Users\mluis\AppData\Roaming\CooCox\CoIDE\config\flash\CooCox-Flash\CoIDE_STM32L0xx_64K\STM32L0xx_64.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Target name="LoRaMacClassB-915" isCurrent="0">
+    <Device manufacturerId="9" manufacturerName="ST" chipId="1308" chipName="STM32L051C8T6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="4"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
+        <Includepaths>
+          <Includepath path="../../../../src"/>
+          <Includepath path="../../../../src/boards/MoteII"/>
+          <Includepath path="../../../../src/boards/MoteII/cmsis"/>
+          <Includepath path="../../../../src/boards/mcu/stm32"/>
+          <Includepath path="../../../../src/boards/mcu/stm32/cmsis"/>
+          <Includepath path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/inc"/>
+          <Includepath path="../../../../src/mac"/>
+          <Includepath path="../../../../src/peripherals"/>
+          <Includepath path="../../../../src/radio"/>
+          <Includepath path="../../../../src/system"/>
+          <Includepath path="../../../../src/system/crypto"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="USE_HAL_DRIVER"/>
+          <Define name="STM32L051xx"/>
+          <Define name="USE_BAND_915"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UserEditLinkder" value=""/>
+        <Option name="UseMemoryLayout" value="0"/>
+        <Option name="nostartfiles" value="0"/>
+        <Option name="LTO" value="1"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <Option name="Library" value="Use nano C Library"/>
+        <Option name="UserEditLinker" value="-lc;-lm; -lrdimon; "/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00004000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="../../../../src/boards/MoteII/cmsis/arm-gcc/stm32l051xx_flash.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="LoRaMacClassB"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="C:\Users\mluis\AppData\Roaming\CooCox\CoIDE\config\flash\CooCox-Flash\CoIDE_STM32L0xx_64K\STM32L0xx_64.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Components path="./"/>
+  <LocalComponents/>
+  <Files>
+    <File name="system/menu.c" path="../../../../src/system/menu.c" type="1"/>
+    <File name="peripherals/mpl3115.c" path="../../../../src/peripherals/mpl3115.c" type="1"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_uart_ex.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_uart_ex.c" type="1"/>
+    <File name="boards" path="" type="2"/>
+    <File name="boards/MoteII/sx1272-board.c" path="../../../../src/boards/MoteII/sx1272-board.c" type="1"/>
+    <File name="apps/buttons.c" path="../../../../src/apps/LoRaMac/classB/MoteII/buttons.c" type="1"/>
+    <File name="boards/MoteII/display-board.c" path="../../../../src/boards/MoteII/display-board.c" type="1"/>
+    <File name="peripherals/gpio-ioe.c" path="../../../../src/peripherals/gpio-ioe.c" type="1"/>
+    <File name="boards/MoteII" path="" type="2"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_i2c.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_i2c.c" type="1"/>
+    <File name="boards/mcu/stm32" path="" type="2"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_spi.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_spi.c" type="1"/>
+    <File name="boards/mcu/stm32/sysIrqHandlers.c" path="../../../../src/boards/mcu/stm32/sysIrqHandlers.c" type="1"/>
+    <File name="radio" path="" type="2"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_i2c_ex.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_i2c_ex.c" type="1"/>
+    <File name="boards/MoteII/uart-board.c" path="../../../../src/boards/MoteII/uart-board.c" type="1"/>
+    <File name="boards/MoteII/adc-board.c" path="../../../../src/boards/MoteII/adc-board.c" type="1"/>
+    <File name="system/gps.c" path="../../../../src/system/gps.c" type="1"/>
+    <File name="mac/LoRaMac.c" path="../../../../src/mac/LoRaMac.c" type="1"/>
+    <File name="system/fifo.c" path="../../../../src/system/fifo.c" type="1"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_rcc.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rcc.c" type="1"/>
+    <File name="system" path="" type="2"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_flash.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_flash.c" type="1"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_cortex.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_cortex.c" type="1"/>
+    <File name="system/timer.c" path="../../../../src/system/timer.c" type="1"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_adc.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_adc.c" type="1"/>
+    <File name="system/uart.c" path="../../../../src/system/uart.c" type="1"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal.c" type="1"/>
+    <File name="peripherals/mag3110.c" path="../../../../src/peripherals/mag3110.c" type="1"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver" path="" type="2"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_rcc_ex.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rcc_ex.c" type="1"/>
+    <File name="boards/mcu/stm32/utilities.c" path="../../../../src/boards/mcu/stm32/utilities.c" type="1"/>
+    <File name="peripherals/pam7q.c" path="../../../../src/peripherals/pam7q.c" type="1"/>
+    <File name="boards/MoteII/cmsis/startup_stm32l051xx.s" path="../../../../src/boards/MoteII/cmsis/arm-gcc/startup_stm32l051xx.s" type="1"/>
+    <File name="apps" path="" type="2"/>
+    <File name="boards/MoteII/board.c" path="../../../../src/boards/MoteII/board.c" type="1"/>
+    <File name="apps/main.c" path="../../../../src/apps/LoRaMac/classB/MoteII/main.c" type="1"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_rtc_ex.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rtc_ex.c" type="1"/>
+    <File name="peripherals/sx1509.c" path="../../../../src/peripherals/sx1509.c" type="1"/>
+    <File name="boards/MoteII/gps-board.c" path="../../../../src/boards/MoteII/gps-board.c" type="1"/>
+    <File name="system/crypto/cmac.c" path="../../../../src/system/crypto/cmac.c" type="1"/>
+    <File name="system/crypto/aes.c" path="../../../../src/system/crypto/aes.c" type="1"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_uart.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_uart.c" type="1"/>
+    <File name="boards/MoteII/rtc-board.c" path="../../../../src/boards/MoteII/rtc-board.c" type="1"/>
+    <File name="boards/MoteII/gpio-board.c" path="../../../../src/boards/MoteII/gpio-board.c" type="1"/>
+    <File name="boards/MoteII/i2c-board.c" path="../../../../src/boards/MoteII/i2c-board.c" type="1"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_pwr_ex.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_pwr_ex.c" type="1"/>
+    <File name="mac/LoRaMacCrypto.c" path="../../../../src/mac/LoRaMacCrypto.c" type="1"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_pwr.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_pwr.c" type="1"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_flash_ex.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_flash_ex.c" type="1"/>
+    <File name="boards/MoteII/spi-board.c" path="../../../../src/boards/MoteII/spi-board.c" type="1"/>
+    <File name="system/delay.c" path="../../../../src/system/delay.c" type="1"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_rtc.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rtc.c" type="1"/>
+    <File name="mac" path="" type="2"/>
+    <File name="boards/MoteII/cmsis/system_stm32l0xx.c" path="../../../../src/boards/MoteII/cmsis/system_stm32l0xx.c" type="1"/>
+    <File name="boards/MoteII/cmsis" path="" type="2"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_gpio.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_gpio.c" type="1"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_flash_ramfunc.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_flash_ramfunc.c" type="1"/>
+    <File name="boards/mcu" path="" type="2"/>
+    <File name="system/adc.c" path="../../../../src/system/adc.c" type="1"/>
+    <File name="radio/sx1272.c" path="../../../../src/radio/sx1272/sx1272.c" type="1"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_dma.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_dma.c" type="1"/>
+    <File name="system/gpio.c" path="../../../../src/system/gpio.c" type="1"/>
+    <File name="peripherals/mma8451.c" path="../../../../src/peripherals/mma8451.c" type="1"/>
+    <File name="peripherals" path="" type="2"/>
+    <File name="apps/screen.c" path="../../../../src/apps/LoRaMac/classB/MoteII/screen.c" type="1"/>
+    <File name="system/i2c.c" path="../../../../src/system/i2c.c" type="1"/>
+    <File name="system/crypto" path="" type="2"/>
+    <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_adc_ex.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_adc_ex.c" type="1"/>
+  </Files>
+  <Bookmarks/>
+</Project>

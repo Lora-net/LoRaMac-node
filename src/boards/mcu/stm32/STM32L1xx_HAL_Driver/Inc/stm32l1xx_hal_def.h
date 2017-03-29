@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_def.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    04-March-2016
+  * @version V1.2.0
+  * @date    01-July-2016
   * @brief   This file contains HAL common defines, enumeration, macros and 
   *          structures definitions. 
   ******************************************************************************
@@ -73,7 +73,7 @@ typedef enum
 
 /* Exported macro ------------------------------------------------------------*/
 
-#define HAL_MAX_DELAY      0xFFFFFFFF
+#define HAL_MAX_DELAY      0xFFFFFFFFU
 
 #define HAL_IS_BIT_SET(REG, BIT)         (((REG) & (BIT)) != RESET)
 #define HAL_IS_BIT_CLR(REG, BIT)         (((REG) & (BIT)) == RESET)

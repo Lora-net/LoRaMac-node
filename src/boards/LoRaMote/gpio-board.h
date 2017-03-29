@@ -24,10 +24,10 @@ Maintainer: Miguel Luis and Gregory Cristian
  *                              PIN_ALTERNATE_FCT, PIN_ANALOGIC]
  * \param [IN] config Pin config [PIN_PUSH_PULL, PIN_OPEN_DRAIN]
  * \param [IN] type   Pin type [PIN_NO_PULL, PIN_PULL_UP, PIN_PULL_DOWN]
- * \param [IN] value  Default output value at initialisation
+ * \param [IN] value  Default output value at initialization
  */
 void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, PinTypes type, uint32_t value );
-  
+
 /*!
  * \brief GPIO IRQ Initialization
  *
@@ -44,7 +44,7 @@ void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriori
 /*!
  * \brief GPIO IRQ DeInitialization
  *
- * \param [IN] obj         Pointer to the GPIO object to be Deinitialized
+ * \param [IN] obj         Pointer to the GPIO object to be de-initialized
  */
 void GpioMcuRemoveInterrupt( Gpio_t *obj );
 

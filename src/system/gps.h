@@ -55,6 +55,11 @@ void GpsStart( void );
 void GpsStop( void );
 
 /*!
+ * Updates the GPS status
+ */
+void GpsProcess( void );
+
+/*!
  * \brief PPS signal handling function
  */
 void GpsPpsHandler( bool *parseData );

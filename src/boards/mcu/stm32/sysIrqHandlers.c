@@ -59,7 +59,7 @@ void HardFault_Handler_C( unsigned int *args )
     ( void )stacked_lr ;
     ( void )stacked_pc ;
     ( void )stacked_psr;
-    
+
     while( 1 );
 }
 

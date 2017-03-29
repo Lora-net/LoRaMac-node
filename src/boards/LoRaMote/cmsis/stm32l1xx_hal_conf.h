@@ -63,7 +63,7 @@
 //#define HAL_LCD_MODULE_ENABLED   
 //#define HAL_NOR_MODULE_ENABLED   
 //#define HAL_OPAMP_MODULE_ENABLED   
-#define HAL_PCD_MODULE_ENABLED   
+#define HAL_PCD_MODULE_ENABLED
 #define HAL_RTC_MODULE_ENABLED
 //#define HAL_SD_MODULE_ENABLED   
 //#define HAL_SMARTCARD_MODULE_ENABLED   
@@ -142,8 +142,8 @@
   * @brief Uncomment the line below to expanse the "assert_param" macro in the 
   *        HAL drivers code
   */
-/*#define USE_FULL_ASSERT    1*/ 
- 
+/* #define USE_FULL_ASSERT    1 */
+
 /* Includes ------------------------------------------------------------------*/
 /**
   * @brief Include module's header file 

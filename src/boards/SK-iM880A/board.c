@@ -15,23 +15,6 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 #include "board.h"
 
 /*!
- * Potentiometer max and min levels definition
- */
-#define POTI_MAX_LEVEL 900
-#define POTI_MIN_LEVEL 10
-
-/*!
- * Vref values definition
- */
-#define PDDADC_VREF_BANDGAP                             1224 // mV
-#define PDDADC_MAX_VALUE                                4096
-
-/*!
- * Battery level ratio (battery dependent)
- */
-#define BATTERY_STEP_LEVEL                          0.23
-
-/*!
  * Unique Devices IDs register set ( STM32L1xxx )
  */
 #define         ID1                                 ( 0x1FF80050 )
@@ -51,7 +34,6 @@ Gpio_t Led4;
 Adc_t Adc;
 I2c_t I2c;
 Uart_t Uart1;
-
 
 /*!
  * Initializes the unused GPIO to a know status
@@ -94,6 +76,28 @@ static bool SystemWakeupTimeCalibrated = false;
 static void OnCalibrateSystemWakeupTimeTimerEvent( void )
 {
     SystemWakeupTimeCalibrated = true;
+}
+
+/*!
+ * Nested interrupt counter.
+ *
+ * \remark Interrupt should only be fully disabled once the value is 0
+ */
+static uint8_t IrqNestLevel = 0;
+
+void BoardDisableIrq( void )
+{
+    __disable_irq( );
+    IrqNestLevel++;
+}
+
+void BoardEnableIrq( void )
+{
+    IrqNestLevel--;
+    if( IrqNestLevel == 0 )
+    {
+        __enable_irq( );
+    }
 }
 
 void BoardInitPeriph( void )
@@ -155,6 +159,8 @@ void BoardDeInitMcu( void )
 {
     Gpio_t ioPin;
 
+    AdcDeInit( &Adc );
+
     SpiDeInit( &SX1272.Spi );
     SX1272IoDeInit( );
 
@@ -182,65 +188,115 @@ void BoardGetUniqueId( uint8_t *id )
     id[0] = ( ( *( uint32_t* )ID2 ) );
 }
 
+/*!
+ * Potentiometer max and min levels definition
+ */
+#define POTI_MAX_LEVEL 900
+#define POTI_MIN_LEVEL 10
+
 uint8_t BoardMeasurePotiLevel( void )
 {
     uint8_t potiLevel = 0;
-    uint16_t MeasuredLevel = 0;
+    uint16_t vpoti = 0;
 
-    // read the current potentiometer setting
-    MeasuredLevel = AdcMcuRead( &Adc , ADC_CHANNEL_3 );
+    // Read the current potentiometer setting
+    vpoti = AdcMcuReadChannel( &Adc , ADC_CHANNEL_3 );
 
     // check the limits
-    if( MeasuredLevel >= POTI_MAX_LEVEL )
+    if( vpoti >= POTI_MAX_LEVEL )
     {
         potiLevel = 100;
     }
-    else if( MeasuredLevel <= POTI_MIN_LEVEL )
+    else if( vpoti <= POTI_MIN_LEVEL )
     {
         potiLevel = 0;
     }
     else
     {
         // if the value is in the area, calculate the percentage value
-        potiLevel = ( ( MeasuredLevel - POTI_MIN_LEVEL ) * 100 ) / POTI_MAX_LEVEL;
+        vpoti = ( ( vpoti - POTI_MIN_LEVEL ) * 100 ) / POTI_MAX_LEVEL;
     }
     return potiLevel;
 }
 
-uint16_t BoardMeasureVdd( void )
+/*!
+ * Factory power supply
+ */
+#define FACTORY_POWER_SUPPLY                        3300 // mV
+
+/*!
+ * VREF calibration value
+ */
+#define VREFINT_CAL                                 ( *( uint16_t* )0x1FF80078 )
+
+/*!
+ * ADC maximum value
+ */
+#define ADC_MAX_VALUE                               4095
+
+/*!
+ * VREF bandgap value
+ */
+#define ADC_VREF_BANDGAP                            1224 // mV
+
+/*!
+ * Battery thresholds
+ */
+#define BATTERY_MAX_LEVEL                           3000 // mV
+#define BATTERY_MIN_LEVEL                           2400 // mV
+#define BATTERY_SHUTDOWN_LEVEL                      2300 // mV
+
+static uint16_t BatteryVoltage = BATTERY_MAX_LEVEL;
+
+uint16_t BoardBatteryMeasureVolage( void )
 {
-    uint16_t MeasuredLevel = 0;
-    uint32_t milliVolt = 0;
+    uint16_t vref = 0;
+    uint32_t batteryVoltage = 0;
 
     // Read the current Voltage
-    MeasuredLevel = AdcMcuRead( &Adc , ADC_CHANNEL_17 );
+    vref = AdcMcuReadChannel( &Adc , ADC_CHANNEL_17 );
 
     // We don't use the VREF from calibValues here.
-    // calculate the Voltage in miliVolt
-    milliVolt = ( uint32_t )PDDADC_VREF_BANDGAP * ( uint32_t )PDDADC_MAX_VALUE;
-    milliVolt = milliVolt / ( uint32_t ) MeasuredLevel;
+    // calculate the Voltage in millivolt
+    batteryVoltage = ( uint32_t )ADC_VREF_BANDGAP * ( uint32_t )ADC_MAX_VALUE;
+    batteryVoltage = batteryVoltage / ( uint32_t )vref;
 
-    return ( uint16_t ) milliVolt;
+    return batteryVoltage;
+}
+
+uint32_t BoardGetBatteryVoltage( void )
+{
+    return BatteryVoltage;
 }
 
 uint8_t BoardGetBatteryLevel( void )
 {
     uint8_t batteryLevel = 0;
-    uint16_t measuredLevel = 0;
 
-    measuredLevel = BoardMeasureVdd( );
+    BatteryVoltage = BoardBatteryMeasureVolage( );
 
-    if( measuredLevel >= 3000 )
+    if( GetBoardPowerSource( ) == USB_POWER )
     {
-        batteryLevel = 254;
-    }
-    else if( measuredLevel <= 2400 )
-    {
-        batteryLevel = 1;
+        batteryLevel = 0;
     }
     else
     {
-        batteryLevel = ( measuredLevel - 2400 ) * BATTERY_STEP_LEVEL;
+        if( BatteryVoltage >= BATTERY_MAX_LEVEL )
+        {
+            batteryLevel = 254;
+        }
+        else if( ( BatteryVoltage > BATTERY_MIN_LEVEL ) && ( BatteryVoltage < BATTERY_MAX_LEVEL ) )
+        {
+            batteryLevel = ( ( 253 * ( BatteryVoltage - BATTERY_MIN_LEVEL ) ) / ( BATTERY_MAX_LEVEL - BATTERY_MIN_LEVEL ) ) + 1;
+        }
+        else if( ( BatteryVoltage > BATTERY_SHUTDOWN_LEVEL ) && ( BatteryVoltage <= BATTERY_MIN_LEVEL ) )
+        {
+            batteryLevel = 1;
+        }
+        else //if( BatteryVoltage <= BATTERY_SHUTDOWN_LEVEL )
+        {
+            batteryLevel = 255;
+        }
     }
     return batteryLevel;
 }
@@ -282,34 +338,44 @@ void SystemClockConfig( void )
 
     __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE1 );
 
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.HSEState = RCC_HSE_ON;
     RCC_OscInitStruct.LSEState = RCC_LSE_ON;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
     RCC_OscInitStruct.PLL.PLLDIV = RCC_PLL_DIV3;
-    HAL_RCC_OscConfig( &RCC_OscInitStruct );
+    if( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK )
+    {
+        assert_param( FAIL );
+    }
 
-    RCC_ClkInitStruct.ClockType = ( RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 );
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK |
+                                  RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-    HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_1 );
+    if( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_1 ) != HAL_OK )
+    {
+        assert_param( FAIL );
+    }
 
     PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
     PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
-    HAL_RCCEx_PeriphCLKConfig( &PeriphClkInit );
+    if( HAL_RCCEx_PeriphCLKConfig( &PeriphClkInit ) != HAL_OK )
+    {
+        assert_param( FAIL );
+    }
 
     HAL_SYSTICK_Config( HAL_RCC_GetHCLKFreq( ) / 1000 );
 
     HAL_SYSTICK_CLKSourceConfig( SYSTICK_CLKSOURCE_HCLK );
 
-    /*    HAL_NVIC_GetPriorityGrouping*/
+    // HAL_NVIC_GetPriorityGrouping
     HAL_NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_4 );
 
-    /* SysTick_IRQn interrupt configuration */
+    // SysTick_IRQn interrupt configuration
     HAL_NVIC_SetPriority( SysTick_IRQn, 0, 0 );
 }
 

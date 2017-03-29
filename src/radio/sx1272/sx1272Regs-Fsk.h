@@ -375,7 +375,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * RegPaRamp
  */
-#define RF_PARAMP_LOWPNTXPLL_MASK                   0xE0
+#define RF_PARAMP_LOWPNTXPLL_MASK                   0xEF
 #define RF_PARAMP_LOWPNTXPLL_OFF                    0x10  // Default
 #define RF_PARAMP_LOWPNTXPLL_ON                     0x00
 

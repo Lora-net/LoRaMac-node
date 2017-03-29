@@ -126,7 +126,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define CON_EXT_7                                   PB_12
 #define CON_EXT_8                                   PB_14
 #define CON_EXT_9                                   PA_1
-#define BAT_LEVEL                                   PA_3
+#define BAT_LEVEL_PIN                               PA_3
+#define BAT_LEVEL_CHANNEL                           ADC_CHANNEL_3
 
 #define BOOT_1                                      PB_2
 
@@ -141,22 +142,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * LED GPIO pins objects
  */
-extern Gpio_t IrqMpl3115;
-extern Gpio_t IrqMag3110;
-extern Gpio_t GpsPowerEn;
-extern Gpio_t NcIoe3;
-extern Gpio_t NcIoe4;
-extern Gpio_t NcIoe5;
-extern Gpio_t NcIoe6;
-extern Gpio_t NcIoe7;
-extern Gpio_t NIrqSX9500;
-extern Gpio_t Irq1Mma8451;
-extern Gpio_t Irq2Mma8451;
-extern Gpio_t TxEnSX9500;
 extern Gpio_t Led1;
 extern Gpio_t Led2;
 extern Gpio_t Led3;
-
 
 /*!
  * Debug GPIO pins objects
@@ -172,22 +160,34 @@ extern Gpio_t DbgPin5;
 /*!
  * MCU objects
  */
-extern Adc_t Adc;
 extern I2c_t I2c;
 extern Uart_t Uart1;
 #if defined( USE_USB_CDC )
 extern Uart_t UartUsb;
 #endif
 
-extern Gpio_t GpsPps;
-extern Gpio_t GpsRx;
-extern Gpio_t GpsTx;
-
-enum BoardPowerSource
+/*!
+ * Possible power sources
+ */
+enum BoardPowerSources
 {
     USB_POWER = 0,
-    BATTERY_POWER
+    BATTERY_POWER,
 };
+
+/*!
+ * \brief Disable interrupts
+ *
+ * \remark IRQ nesting is managed
+ */
+void BoardDisableIrq( void );
+
+/*!
+ * \brief Enable interrupts
+ *
+ * \remark IRQ nesting is managed
+ */
+void BoardEnableIrq( void );
 
 /*!
  * \brief Initializes the target board peripherals.
@@ -206,9 +206,20 @@ void BoardInitPeriph( void );
 void BoardDeInitMcu( void );
 
 /*!
+ * \brief Measure the Battery voltage
+ *
+ * \retval value  battery voltage in volts
+ */
+uint32_t BoardGetBatteryVoltage( void );
+
+/*!
  * \brief Get the current battery level
  *
- * \retval value  battery level ( 0: very low, 254: fully charged )
+ * \retval value  battery level [  0: USB,
+ *                                 1: Min level,
+ *                                 x: level
+ *                               254: fully charged,
+ *                               255: Error]
  */
 uint8_t BoardGetBatteryLevel( void );
 
@@ -229,7 +240,7 @@ void BoardGetUniqueId( uint8_t *id );
 /*!
  * \brief Get the board power source
  *
- * \retval value  power source ( 0: USB_POWER,  1: BATTERY_POWER )
+ * \retval value  power source [0: USB_POWER, 1: BATTERY_POWER]
  */
 uint8_t GetBoardPowerSource( void );
 

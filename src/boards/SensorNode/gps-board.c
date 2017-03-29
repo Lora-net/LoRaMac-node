@@ -33,9 +33,10 @@ uint8_t NmeaString[128];
  */
 uint8_t NmeaStringSize = 0;
 
+Gpio_t GpsPowerEn;
+Gpio_t GpsPps;
 
 PpsTrigger_t PpsTrigger;
-
 
 void GpsMcuOnPpsSignal( void )
 {
@@ -55,22 +56,20 @@ void GpsMcuInvertPpsTrigger( void )
     // There is no need to invert the PPS signal on SensorNode platform.
 }
 
-uint8_t GpsMcuGetPpsTrigger( void )
-{
-    return( PpsTrigger );
-}
-
 void GpsMcuInit( void )
 {
     NmeaStringSize = 0;
     PpsTrigger = PpsTriggerIsFalling;
 
+    GpioInit( &GpsPowerEn, GPS_POWER_ON, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+
+    GpioInit( &GpsPps, GPS_PPS, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioSetInterrupt( &GpsPps, IRQ_FALLING_EDGE, IRQ_VERY_LOW_PRIORITY, &GpsMcuOnPpsSignal );
+
     FifoInit( &Uart1.FifoRx, RxBuffer, FIFO_RX_SIZE );
     Uart1.IrqNotify = GpsMcuIrqNotify;
 
     GpsMcuStart( );
-    GpioInit( &GpsPps, GPS_PPS, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioSetInterrupt( &GpsPps, IRQ_FALLING_EDGE, IRQ_VERY_LOW_PRIORITY, &GpsMcuOnPpsSignal );
 }
 
 void GpsMcuStart( void )
@@ -78,9 +77,14 @@ void GpsMcuStart( void )
     GpioWrite( &GpsPowerEn, 0 );    // power up the GPS
 }
 
-void GpsMCuStop( void )
+void GpsMcuStop( void )
 {
     GpioWrite( &GpsPowerEn, 1 );    // power down the GPS
+}
+
+void GpsMcuProcess( void )
+{
+
 }
 
 void GpsMcuIrqNotify( UartNotifyId_t id )

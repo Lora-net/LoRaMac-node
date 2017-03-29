@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_pwr_ex.c
   * @author  MCD Application Team
-  * @version V1.6.0
-  * @date    15-April-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   Extended PWR HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Power Controller (PWR) peripheral:

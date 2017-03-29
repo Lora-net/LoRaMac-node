@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_comp.c
   * @author  MCD Application Team
-  * @version V1.6.0
-  * @date    15-April-2016
+  * @version V1.7.0
+  * @date    31-May-2016
   * @brief   COMP HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the COMP peripheral:
@@ -174,7 +174,7 @@
 /* Literal set to maximum value (refer to device datasheet,                   */
 /* parameter "tSTART").                                                       */
 /* Unit: us                                                                   */
-#define LL_COMP_DELAY_STARTUP_US          ((uint32_t) 25U)  /*!< Delay for COMP startup time */
+#define COMP_DELAY_STARTUP_US             ((uint32_t) 25U)  /*!< Delay for COMP startup time */
 
 /* Delay for COMP voltage scaler stabilization time (voltage from VrefInt,    */
 /* delay based on VrefInt startup time).                                      */
@@ -576,7 +576,7 @@ HAL_StatusTypeDef HAL_COMP_Start(COMP_HandleTypeDef *hcomp)
       /* Wait loop initialization and execution */
       /* Note: Variable divided by 2 to compensate partially                  */
       /*       CPU processing cycles.                                         */
-      wait_loop_index = (LL_COMP_DELAY_STARTUP_US * (SystemCoreClock / (1000000U * 2U)));
+      wait_loop_index = (COMP_DELAY_STARTUP_US * (SystemCoreClock / (1000000U * 2U)));
       while(wait_loop_index != 0U)
       {
         wait_loop_index--;

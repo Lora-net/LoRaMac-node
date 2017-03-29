@@ -14,8 +14,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 */
 #include "board.h"
 
-#include "adc-board.h"
-
 /*!
  * Unique Devices IDs register set ( STM32L1xxx )
  */
@@ -24,37 +22,18 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define         ID3                                 ( 0x1FF80064 )
 
 /*!
- * IO Extander pins objects
+ * LED GPIO pins objects
  */
-Gpio_t IrqMpl3115;
-Gpio_t IrqMag3110;
-Gpio_t GpsPowerEn;
-Gpio_t RadioPushButton;
-Gpio_t BoardPowerDown;
-Gpio_t NcIoe5;
-Gpio_t NcIoe6;
-Gpio_t NcIoe7;
-Gpio_t NIrqSx9500;
-Gpio_t Irq1Mma8451;
-Gpio_t Irq2Mma8451;
-Gpio_t TxEnSx9500;
 Gpio_t Led1;
 Gpio_t Led2;
 Gpio_t Led3;
 Gpio_t Led4;
 
+Gpio_t UsbDetect;
 
 /*
  * MCU objects
  */
-Gpio_t GpsPps;
-Gpio_t GpsRx;
-Gpio_t GpsTx;
-Gpio_t UsbDetect;
-Gpio_t Wkup1;
-Gpio_t DcDcEnable;
-Gpio_t BatVal;
-
 Adc_t Adc;
 I2c_t I2c;
 Uart_t Uart1;
@@ -105,23 +84,46 @@ static void OnCalibrateSystemWakeupTimeTimerEvent( void )
     SystemWakeupTimeCalibrated = true;
 }
 
+/*!
+ * Nested interrupt counter.
+ *
+ * \remark Interrupt should only be fully disabled once the value is 0
+ */
+static uint8_t IrqNestLevel = 0;
+
+void BoardDisableIrq( void )
+{
+    __disable_irq( );
+    IrqNestLevel++;
+}
+
+void BoardEnableIrq( void )
+{
+    IrqNestLevel--;
+    if( IrqNestLevel == 0 )
+    {
+        __enable_irq( );
+    }
+}
+
 void BoardInitPeriph( void )
 {
-    GpioInit( &DcDcEnable, DC_DC_EN, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    Gpio_t ioPin;
 
-    /* Init the GPIO extender pins */
-    GpioInit( &IrqMpl3115, IRQ_MPL3115, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &IrqMag3110, IRQ_MAG3110, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &GpsPowerEn, GPS_POWER_ON, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &RadioPushButton, RADIO_PUSH_BUTTON, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &BoardPowerDown, BOARD_POWER_DOWN, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &NcIoe5, SPARE_IO_EXT_5, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &NcIoe6, SPARE_IO_EXT_6, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &NcIoe7, SPARE_IO_EXT_7, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &NIrqSx9500, N_IRQ_SX9500, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &Irq1Mma8451, IRQ_1_MMA8451, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &Irq2Mma8451, IRQ_2_MMA8451, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &TxEnSx9500, TX_EN_SX9500, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    // Init the GPIO pins
+    GpioInit( &ioPin, DC_DC_EN, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &ioPin, IRQ_MPL3115, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &ioPin, IRQ_MAG3110, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &ioPin, GPS_POWER_ON, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &ioPin, RADIO_PUSH_BUTTON, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &ioPin, BOARD_POWER_DOWN, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &ioPin, SPARE_IO_EXT_5, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &ioPin, SPARE_IO_EXT_6, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &ioPin, SPARE_IO_EXT_7, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &ioPin, N_IRQ_SX9500, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &ioPin, IRQ_1_MMA8451, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &ioPin, IRQ_2_MMA8451, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &ioPin, TX_EN_SX9500, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
     GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &Led3, LED_3, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
@@ -175,12 +177,13 @@ void BoardInitMcu( void )
         I2cInit( &I2c, I2C_SCL, I2C_SDA );
 
         GpioInit( &UsbDetect, USB_ON, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-        GpioInit( &BatVal, BAT_LEVEL, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     }
     else
     {
         SystemClockReConfig( );
     }
+
+    AdcInit( &Adc, BAT_LEVEL_PIN );
 
     SpiInit( &SX1276.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX1276IoInit( );
@@ -198,6 +201,8 @@ void BoardInitMcu( void )
 void BoardDeInitMcu( void )
 {
     Gpio_t ioPin;
+
+    AdcDeInit( &Adc );
 
     SpiDeInit( &SX1276.Spi );
     SX1276IoDeInit( );
@@ -231,7 +236,7 @@ void BoardGetUniqueId( uint8_t *id )
 /*!
  * Factory power supply
  */
-#define FACTORY_POWER_SUPPLY                        3.0L
+#define FACTORY_POWER_SUPPLY                        3300 // mV
 
 /*!
  * VREF calibration value
@@ -241,7 +246,7 @@ void BoardGetUniqueId( uint8_t *id )
 /*!
  * ADC maximum value
  */
-#define ADC_MAX_VALUE                               4096
+#define ADC_MAX_VALUE                               4095
 
 /*!
  * Battery thresholds
@@ -250,56 +255,61 @@ void BoardGetUniqueId( uint8_t *id )
 #define BATTERY_MIN_LEVEL                           3200 // mV
 #define BATTERY_SHUTDOWN_LEVEL                      3100 // mV
 
-uint16_t BoardGetPowerSupply( void )
+static uint16_t BatteryVoltage = BATTERY_MAX_LEVEL;
+
+uint16_t BoardBatteryMeasureVolage( void )
 {
-    float vref = 0;
-    float vdiv = 0;
-    float batteryVoltage = 0;
+    uint16_t vdd = 0;
+    uint16_t vref = VREFINT_CAL;
+    uint16_t vdiv = 0;
+    uint16_t batteryVoltage = 0;
 
-    AdcInit( &Adc, BAT_LEVEL );
+    vdiv = AdcReadChannel( &Adc, BAT_LEVEL_CHANNEL );
+    //vref = AdcReadChannel( &Adc, ADC_CHANNEL_VREFINT );
 
-    vref = AdcMcuRead( &Adc, ADC_CHANNEL_17 );
-    vdiv = AdcMcuRead( &Adc, ADC_CHANNEL_8 );
-
-    batteryVoltage = ( FACTORY_POWER_SUPPLY * VREFINT_CAL * vdiv ) / ( vref * ADC_MAX_VALUE );
+    vdd = ( float )FACTORY_POWER_SUPPLY * ( float )VREFINT_CAL / ( float )vref;
+    batteryVoltage = vdd * ( ( float )vdiv / ( float )ADC_MAX_VALUE );
 
     //                                vDiv
-    // Divider bridge  VBAT <-> 1M -<--|-->- 1M <-> GND => vBat = 2 * vDiv
+    // Divider bridge  VBAT <-> 470k -<--|-->- 470k <-> GND => vBat = 2 * vDiv
     batteryVoltage = 2 * batteryVoltage;
+    return batteryVoltage;
+}
 
-    return ( uint16_t )( batteryVoltage * 1000 );
+uint32_t BoardGetBatteryVoltage( void )
+{
+    return BatteryVoltage;
 }
 
 uint8_t BoardGetBatteryLevel( void )
 {
-    volatile uint8_t batteryLevel = 0;
-    uint16_t batteryVoltage = 0;
+    uint8_t batteryLevel = 0;
 
-    if( GpioRead( &UsbDetect ) == 1 )
+    BatteryVoltage = BoardBatteryMeasureVolage( );
+
+    if( GetBoardPowerSource( ) == USB_POWER )
     {
         batteryLevel = 0;
     }
     else
     {
-        batteryVoltage = BoardGetPowerSupply( );
-
-        if( batteryVoltage >= BATTERY_MAX_LEVEL )
+        if( BatteryVoltage >= BATTERY_MAX_LEVEL )
         {
             batteryLevel = 254;
         }
-        else if( ( batteryVoltage > BATTERY_MIN_LEVEL ) && ( batteryVoltage < BATTERY_MAX_LEVEL ) )
+        else if( ( BatteryVoltage > BATTERY_MIN_LEVEL ) && ( BatteryVoltage < BATTERY_MAX_LEVEL ) )
         {
-            batteryLevel = ( ( 253 * ( batteryVoltage - BATTERY_MIN_LEVEL ) ) / ( BATTERY_MAX_LEVEL - BATTERY_MIN_LEVEL ) ) + 1;
+            batteryLevel = ( ( 253 * ( BatteryVoltage - BATTERY_MIN_LEVEL ) ) / ( BATTERY_MAX_LEVEL - BATTERY_MIN_LEVEL ) ) + 1;
         }
-        else if( batteryVoltage <= BATTERY_SHUTDOWN_LEVEL )
+        else if( ( BatteryVoltage > BATTERY_SHUTDOWN_LEVEL ) && ( BatteryVoltage <= BATTERY_MIN_LEVEL ) )
+        {
+            batteryLevel = 1;
+        }
+        else //if( BatteryVoltage <= BATTERY_SHUTDOWN_LEVEL )
         {
             batteryLevel = 255;
             //GpioInit( &DcDcEnable, DC_DC_EN, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
             //GpioInit( &BoardPowerDown, BOARD_POWER_DOWN, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-        }
-        else // BATTERY_MIN_LEVEL
-        {
-            batteryLevel = 1;
         }
     }
     return batteryLevel;
@@ -350,34 +360,44 @@ void SystemClockConfig( void )
 
     __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE1 );
 
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.HSEState = RCC_HSE_ON;
     RCC_OscInitStruct.LSEState = RCC_LSE_ON;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL8;
     RCC_OscInitStruct.PLL.PLLDIV = RCC_PLL_DIV3;
-    HAL_RCC_OscConfig( &RCC_OscInitStruct );
+    if( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK )
+    {
+        assert_param( FAIL );
+    }
 
-    RCC_ClkInitStruct.ClockType = ( RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 );
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK |
+                                  RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-    HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_1 );
+    if( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_1 ) != HAL_OK )
+    {
+        assert_param( FAIL );
+    }
 
     PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
     PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
-    HAL_RCCEx_PeriphCLKConfig( &PeriphClkInit );
+    if( HAL_RCCEx_PeriphCLKConfig( &PeriphClkInit ) != HAL_OK )
+    {
+        assert_param( FAIL );
+    }
 
     HAL_SYSTICK_Config( HAL_RCC_GetHCLKFreq( ) / 1000 );
 
     HAL_SYSTICK_CLKSourceConfig( SYSTICK_CLKSOURCE_HCLK );
 
-    /*    HAL_NVIC_GetPriorityGrouping*/
+    // HAL_NVIC_GetPriorityGrouping
     HAL_NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_4 );
 
-    /* SysTick_IRQn interrupt configuration */
+    // SysTick_IRQn interrupt configuration
     HAL_NVIC_SetPriority( SysTick_IRQn, 0, 0 );
 }
 

@@ -21,11 +21,13 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
 {
     GPIO_InitTypeDef GPIO_InitStructure;
 
+    obj->pin = pin;
+
     if( pin == NC )
     {
         return;
     }
-    obj->pin = pin;
+
     obj->pinIndex = ( 0x01 << ( obj->pin & 0x0F ) );
 
     if( ( obj->pin & 0xF0 ) == 0x00 )
@@ -55,7 +57,7 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
     }
 
     GPIO_InitStructure.Pin =  obj->pinIndex ;
-    GPIO_InitStructure.Pull = type;
+    GPIO_InitStructure.Pull = obj->pull = type;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
 
     if( mode == PIN_INPUT )
@@ -78,7 +80,7 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
         }
         GPIO_InitStructure.Alternate = value;
     }
-    else // mode ouptut
+    else // mode output
     {
         if( config == PIN_OPEN_DRAIN )
         {
@@ -126,7 +128,7 @@ void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriori
         GPIO_InitStructure.Mode = GPIO_MODE_IT_RISING_FALLING;
     }
 
-    GPIO_InitStructure.Pull = GPIO_NOPULL;
+    GPIO_InitStructure.Pull = obj->pull;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
 
     HAL_GPIO_Init( obj->port, &GPIO_InitStructure );
@@ -185,7 +187,7 @@ void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriori
         break;
     }
 
-    GpioIrq[(obj->pin ) & 0x0F] = irqHandler;
+    GpioIrq[( obj->pin ) & 0x0F] = irqHandler;
 
     HAL_NVIC_SetPriority( IRQnb , priority, 0 );
     HAL_NVIC_EnableIRQ( IRQnb );

@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Project version="2G - 2.0.1" name="Ping-Pong">
   <Target name="Ping-Pong-868" isCurrent="0">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="1"/>
         <Option name="UseFPU" value="0"/>
         <Option name="UserEditCompiler" value="-std=c99"/>
         <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
         <Includepaths>
           <Includepath path="../../../src"/>
           <Includepath path="../../../src/boards/loramote"/>
@@ -34,7 +36,7 @@
         <Option name="UserEditLinkder" value=""/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
-        <Option name="LTO" value="0"/>
+        <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
         <Option name="UserEditLinker" value="-lm;"/>
@@ -45,7 +47,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../src/boards/loramote/cmsis/arm-gcc/stm32l1xx_md_flash.ld" type="0"/>
+        <LocateLinkFile path="../../../src/boards/loramote/cmsis/arm-gcc/stm32l151xb_flash.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -81,13 +83,15 @@
     <ExcludeFile/>
   </Target>
   <Target name="Ping-Pong-868-Bootloader" isCurrent="1">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="0"/>
         <Option name="UseFPU" value="0"/>
         <Option name="UserEditCompiler" value="-std=c99"/>
         <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
         <Includepaths>
           <Includepath path="../../../src"/>
           <Includepath path="../../../src/boards/loramote"/>
@@ -115,7 +119,7 @@
         <Option name="UserEditLinkder" value=""/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
-        <Option name="LTO" value="0"/>
+        <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
         <Option name="UserEditLinker" value="-lm;"/>
@@ -126,7 +130,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../src/boards/loramote/cmsis/arm-gcc/stm32l1xx_md_flash_offset.ld" type="0"/>
+        <LocateLinkFile path="../../../src/boards/loramote/cmsis/arm-gcc/stm32l151xb_flash_offset.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -162,13 +166,15 @@
     <ExcludeFile/>
   </Target>
   <Target name="Ping-Pong-915" isCurrent="0">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="0"/>
         <Option name="UseFPU" value="0"/>
         <Option name="UserEditCompiler" value="-std=c99"/>
         <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
         <Includepaths>
           <Includepath path="../../../src"/>
           <Includepath path="../../../src/boards/loramote"/>
@@ -195,7 +201,7 @@
         <Option name="UserEditLinkder" value=""/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
-        <Option name="LTO" value="0"/>
+        <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
         <Option name="UserEditLinker" value="-lm;"/>
@@ -206,7 +212,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../src/boards/loramote/cmsis/arm-gcc/stm32l1xx_md_flash.ld" type="0"/>
+        <LocateLinkFile path="../../../src/boards/loramote/cmsis/arm-gcc/stm32l151xb_flash.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -242,13 +248,15 @@
     <ExcludeFile/>
   </Target>
   <Target name="Ping-Pong-915-Bootloader" isCurrent="0">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="0"/>
         <Option name="UseFPU" value="0"/>
         <Option name="UserEditCompiler" value="-std=c99"/>
         <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
         <Includepaths>
           <Includepath path="../../../src"/>
           <Includepath path="../../../src/boards/loramote"/>
@@ -276,7 +284,7 @@
         <Option name="UserEditLinkder" value=""/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
-        <Option name="LTO" value="0"/>
+        <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
         <Option name="UserEditLinker" value="-lm;"/>
@@ -287,7 +295,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../src/boards/loramote/cmsis/arm-gcc/stm32l1xx_md_flash_offset.ld" type="0"/>
+        <LocateLinkFile path="../../../src/boards/loramote/cmsis/arm-gcc/stm32l151xb_flash_offset.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -326,16 +334,16 @@
   <LocalComponents/>
   <Files>
     <File name="peripherals/mpl3115.c" path="../../../src/peripherals/mpl3115.c" type="1"/>
-    <File name="boards" path="" type="2"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_pwr.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.c" type="1"/>
+    <File name="boards" path="" type="2"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_i2c.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_i2c.c" type="1"/>
     <File name="boards/LoRaMote/board.c" path="../../../src/boards/LoRaMote/board.c" type="1"/>
     <File name="peripherals/gpio-ioe.c" path="../../../src/peripherals/gpio-ioe.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c" type="1"/>
     <File name="boards/mcu/stm32/sysIrqHandlers.c" path="../../../src/boards/mcu/stm32/sysIrqHandlers.c" type="1"/>
-    <File name="boards/mcu/stm32" path="" type="2"/>
     <File name="boards/LoRaMote/i2c-board.c" path="../../../src/boards/LoRaMote/i2c-board.c" type="1"/>
     <File name="radio" path="" type="2"/>
+    <File name="boards/mcu/stm32" path="" type="2"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_uart.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c" type="1"/>
     <File name="boards/LoRaMote/spi-board.c" path="../../../src/boards/LoRaMote/spi-board.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_spi_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi_ex.c" type="1"/>
@@ -359,6 +367,7 @@
     <File name="boards/LoRaMote/rtc-board.c" path="../../../src/boards/LoRaMote/rtc-board.c" type="1"/>
     <File name="system/delay.c" path="../../../src/system/delay.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_pwr_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.c" type="1"/>
+    <File name="boards/LoRaMote/cmsis/startup_stm32l151xb.s" path="../../../src/boards/LoRaMote/cmsis/arm-gcc/startup_stm32l151xb.s" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_rcc_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c" type="1"/>
     <File name="boards/LoRaMote/gpio-board.c" path="../../../src/boards/LoRaMote/gpio-board.c" type="1"/>
     <File name="boards/LoRaMote/cmsis" path="" type="2"/>
@@ -373,7 +382,6 @@
     <File name="peripherals/mma8451.c" path="../../../src/peripherals/mma8451.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_adc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.c" type="1"/>
     <File name="peripherals" path="" type="2"/>
-    <File name="boards/LoRaMote/cmsis/startup_stm32l1xx_md.s" path="../../../src/boards/LoRaMote/cmsis/arm-gcc/startup_stm32l1xx_md.s" type="1"/>
     <File name="system/i2c.c" path="../../../src/system/i2c.c" type="1"/>
     <File name="boards/LoRaMote/uart-board.c" path="../../../src/boards/LoRaMote/uart-board.c" type="1"/>
     <File name="main.c" path="../../../src/apps/ping-pong/LoRaMote/main.c" type="1"/>

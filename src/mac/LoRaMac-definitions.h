@@ -103,6 +103,13 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define DR_7                                        7  // FSK
 
 /*!
+ * Verification of default datarate
+ */
+#if ( LORAMAC_DEFAULT_DATARATE > DR_5 )
+#error "A default DR higher than DR_5 may lead to connectivity loss."
+#endif
+
+/*!
  * Second reception window channel definition.
  */
 // Channel = { Frequency [Hz], Datarate }
@@ -125,18 +132,103 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define LC3                { 433575000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 
 /*!
- * LoRaMac duty cycle for the back-off procedure
- */
-#define BACKOFF_DC_1_HOUR       100
-#define BACKOFF_DC_10_HOURS     1000
-#define BACKOFF_DC_24_HOURS     10000
-
-#define BACKOFF_RND_OFFSET      600000
-
-/*!
  * LoRaMac channels which are allowed for the join procedure
  */
 #define JOIN_CHANNELS      ( uint16_t )( LC( 1 ) | LC( 2 ) | LC( 3 ) )
+
+#elif defined( USE_BAND_470 )
+
+/*!
+ * LoRaMac maximum number of channels
+ */
+#define LORA_MAX_NB_CHANNELS                        96
+
+/*!
+ * Minimal datarate that can be used by the node
+ */
+#define LORAMAC_TX_MIN_DATARATE                     DR_0
+
+/*!
+ * Maximal datarate that can be used by the node
+ */
+#define LORAMAC_TX_MAX_DATARATE                     DR_5
+
+/*!
+ * Minimal datarate that can be used by the node
+ */
+#define LORAMAC_RX_MIN_DATARATE                     DR_0
+
+/*!
+ * Maximal datarate that can be used by the node
+ */
+#define LORAMAC_RX_MAX_DATARATE                     DR_5
+
+/*!
+ * Default datarate used by the node
+ */
+#define LORAMAC_DEFAULT_DATARATE                    DR_0
+
+/*!
+ * Minimal Rx1 receive datarate offset
+ */
+#define LORAMAC_MIN_RX1_DR_OFFSET                   0
+
+/*!
+ * Maximal Rx1 receive datarate offset
+ */
+#define LORAMAC_MAX_RX1_DR_OFFSET                   3
+
+/*!
+ * Minimal Tx output power that can be used by the node
+ */
+#define LORAMAC_MIN_TX_POWER                        TX_POWER_2_DBM
+
+/*!
+ * Maximal Tx output power that can be used by the node
+ */
+#define LORAMAC_MAX_TX_POWER                        TX_POWER_17_DBM
+
+/*!
+ * Default Tx output power used by the node
+ */
+#define LORAMAC_DEFAULT_TX_POWER                    TX_POWER_14_DBM
+
+/*!
+ * LoRaMac TxPower definition
+ */
+#define TX_POWER_17_DBM                             0
+#define TX_POWER_16_DBM                             1
+#define TX_POWER_14_DBM                             2
+#define TX_POWER_12_DBM                             3
+#define TX_POWER_10_DBM                             4
+#define TX_POWER_7_DBM                              5
+#define TX_POWER_5_DBM                              6
+#define TX_POWER_2_DBM                              7
+
+
+/*!
+ * LoRaMac datarates definition
+ */
+#define DR_0                                        0  // SF12 - BW125 |
+#define DR_1                                        1  // SF11 - BW125 |
+#define DR_2                                        2  // SF10 - BW125 |
+#define DR_3                                        3  // SF9  - BW125 |
+#define DR_4                                        4  // SF8  - BW125 |
+#define DR_5                                        5  // SF7  - BW125 |
+
+/*!
+ * Second reception window channel definition.
+ */
+// Channel = { Frequency [Hz], Datarate }
+#define RX_WND_2_CHANNEL                                  { 505300000, DR_0 }
+
+/*!
+ * LoRaMac maximum number of bands
+ */
+#define LORA_MAX_NB_BANDS                           1
+
+// Band = { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
+#define BAND0              { 1, TX_POWER_17_DBM, 0,  0 } //  100.0 %
 
 #elif defined( USE_BAND_780 )
 
@@ -218,6 +310,13 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define DR_7                                        7  // FSK
 
 /*!
+ * Verification of default datarate
+ */
+#if ( LORAMAC_DEFAULT_DATARATE > DR_5 )
+#error "A default DR higher than DR_5 may lead to connectivity loss."
+#endif
+
+/*!
  * Second reception window channel definition.
  */
 // Channel = { Frequency [Hz], Datarate }
@@ -238,15 +337,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define LC1                { 779500000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 #define LC2                { 779700000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 #define LC3                { 779900000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-
-/*!
- * LoRaMac duty cycle for the back-off procedure
- */
-#define BACKOFF_DC_1_HOUR       100
-#define BACKOFF_DC_10_HOURS     1000
-#define BACKOFF_DC_24_HOURS     10000
-
-#define BACKOFF_RND_OFFSET      600000
 
 /*!
  * LoRaMac channels which are allowed for the join procedure
@@ -333,6 +423,13 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define DR_7                                        7  // FSK
 
 /*!
+ * Verification of default datarate
+ */
+#if ( LORAMAC_DEFAULT_DATARATE > DR_5 )
+#error "A default DR higher than DR_5 may lead to connectivity loss."
+#endif
+
+/*!
  * Second reception window channel definition.
  */
 // Channel = { Frequency [Hz], Datarate }
@@ -369,15 +466,6 @@ typedef enum
 #define LC1                { 868100000, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 }
 #define LC2                { 868300000, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 }
 #define LC3                { 868500000, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 }
-
-/*!
- * LoRaMac duty cycle for the back-off procedure
- */
-#define BACKOFF_DC_1_HOUR       100
-#define BACKOFF_DC_10_HOURS     1000
-#define BACKOFF_DC_24_HOURS     10000
-
-#define BACKOFF_RND_OFFSET      600000
 
 /*!
  * LoRaMac channels which are allowed for the join procedure
@@ -489,8 +577,6 @@ typedef enum
 
 // Band = { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
 #define BAND0              { 1, TX_POWER_20_DBM, 0,  0 } //  100.0 %
-
-#define BACKOFF_RND_OFFSET      600000
 
 /*!
  * LoRaMac default channels

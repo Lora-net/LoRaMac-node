@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Project version="2G - 2.0.1" name="LoRaMacClassA">
   <Target name="LoRaMacClassA-868" isCurrent="0">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="4"/>
@@ -35,7 +35,7 @@
         <Option name="UserEditLinkder" value=""/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
-        <Option name="LTO" value="0"/>
+        <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
         <Option name="UserEditLinker" value="-lc;-lm; -lrdimon; "/>
@@ -46,7 +46,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../../src/boards/loramote/cmsis/arm-gcc/stm32l1xx_md_flash.ld" type="0"/>
+        <LocateLinkFile path="../../../../src/boards/loramote/cmsis/arm-gcc/stm32l151xb_flash.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -82,13 +82,15 @@
     <ExcludeFile/>
   </Target>
   <Target name="LoRaMacClassA-868-Bootloader" isCurrent="1">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
         <Option name="UserEditCompiler" value="-std=c99"/>
         <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
         <Includepaths>
           <Includepath path="../../../../src"/>
           <Includepath path="../../../../src/boards/loramote"/>
@@ -115,7 +117,7 @@
         <Option name="UserEditLinkder" value=""/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
-        <Option name="LTO" value="0"/>
+        <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
         <Option name="UserEditLinker" value="-lc; -lm; -lrdimon;"/>
@@ -126,7 +128,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../../src/boards/loramote/cmsis/arm-gcc/stm32l1xx_md_flash_offset.ld" type="0"/>
+        <LocateLinkFile path="../../../../src/boards/loramote/cmsis/arm-gcc/stm32l151xb_flash_offset.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -162,7 +164,7 @@
     <ExcludeFile/>
   </Target>
   <Target name="LoRaMacClassA-915" isCurrent="0">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="4"/>
@@ -196,7 +198,7 @@
         <Option name="UserEditLinkder" value=""/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
-        <Option name="LTO" value="0"/>
+        <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
         <Option name="UserEditLinker" value="-lc;-lm; -lrdimon; "/>
@@ -207,7 +209,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../../src/boards/loramote/cmsis/arm-gcc/stm32l1xx_md_flash.ld" type="0"/>
+        <LocateLinkFile path="../../../../src/boards/loramote/cmsis/arm-gcc/stm32l151xb_flash.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -243,7 +245,7 @@
     <ExcludeFile/>
   </Target>
   <Target name="LoRaMacClassA-915-Bootloader" isCurrent="0">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="4"/>
@@ -278,7 +280,7 @@
         <Option name="UserEditLinkder" value=""/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
-        <Option name="LTO" value="0"/>
+        <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
         <Option name="UserEditLinker" value="-lc;-lm; -lrdimon; "/>
@@ -289,7 +291,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../../src/boards/loramote/cmsis/arm-gcc/stm32l1xx_md_flash_offset.ld" type="0"/>
+        <LocateLinkFile path="../../../../src/boards/loramote/cmsis/arm-gcc/stm32l151xb_flash_offset.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -328,19 +330,18 @@
   <LocalComponents/>
   <Files>
     <File name="peripherals/mpl3115.c" path="../../../../src/peripherals/mpl3115.c" type="1"/>
-    <File name="boards" path="" type="2"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_pwr.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.c" type="1"/>
+    <File name="boards" path="" type="2"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_i2c.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_i2c.c" type="1"/>
     <File name="peripherals/gpio-ioe.c" path="../../../../src/peripherals/gpio-ioe.c" type="1"/>
     <File name="boards/LoRaMote/board.c" path="../../../../src/boards/LoRaMote/board.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c" type="1"/>
-    <File name="radio" path="" type="2"/>
-    <File name="boards/mcu/stm32" path="" type="2"/>
-    <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_uart.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c" type="1"/>
     <File name="boards/mcu/stm32/sysIrqHandlers.c" path="../../../../src/boards/mcu/stm32/sysIrqHandlers.c" type="1"/>
     <File name="boards/LoRaMote/i2c-board.c" path="../../../../src/boards/LoRaMote/i2c-board.c" type="1"/>
+    <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_uart.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c" type="1"/>
+    <File name="boards/mcu/stm32" path="" type="2"/>
+    <File name="radio" path="" type="2"/>
     <File name="boards/LoRaMote/spi-board.c" path="../../../../src/boards/LoRaMote/spi-board.c" type="1"/>
-    <File name="apps/main.c" path="../../../../src/apps/LoRaMac/classA/LoRaMote/main.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_spi_ex.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi_ex.c" type="1"/>
     <File name="boards/LoRaMote" path="" type="2"/>
     <File name="system/gps.c" path="../../../../src/system/gps.c" type="1"/>
@@ -354,8 +355,9 @@
     <File name="peripherals/mag3110.c" path="../../../../src/peripherals/mag3110.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_gpio.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.c" type="1"/>
     <File name="boards/mcu/stm32/utilities.c" path="../../../../src/boards/mcu/stm32/utilities.c" type="1"/>
-    <File name="apps" path="" type="2"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_rcc.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.c" type="1"/>
+    <File name="apps" path="" type="2"/>
+    <File name="apps/main.c" path="../../../../src/apps/LoRaMac/classA/LoRaMote/main.c" type="1"/>
     <File name="peripherals/sx9500.c" path="../../../../src/peripherals/sx9500.c" type="1"/>
     <File name="boards/LoRaMote/sx1272-board.c" path="../../../../src/boards/LoRaMote/sx1272-board.c" type="1"/>
     <File name="peripherals/sx1509.c" path="../../../../src/peripherals/sx1509.c" type="1"/>
@@ -367,23 +369,23 @@
     <File name="mac/LoRaMacCrypto.c" path="../../../../src/mac/LoRaMacCrypto.c" type="1"/>
     <File name="system/delay.c" path="../../../../src/system/delay.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_pwr_ex.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.c" type="1"/>
-    <File name="mac" path="" type="2"/>
+    <File name="boards/LoRaMote/cmsis/startup_stm32l151xb.s" path="../../../../src/boards/LoRaMote/cmsis/arm-gcc/startup_stm32l151xb.s" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_rcc_ex.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c" type="1"/>
+    <File name="mac" path="" type="2"/>
     <File name="boards/LoRaMote/gpio-board.c" path="../../../../src/boards/LoRaMote/gpio-board.c" type="1"/>
     <File name="boards/LoRaMote/cmsis" path="" type="2"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_flash.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c" type="1"/>
     <File name="boards/mcu" path="" type="2"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_spi.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_cortex.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c" type="1"/>
-    <File name="system/gpio.c" path="../../../../src/system/gpio.c" type="1"/>
-    <File name="radio/sx1272.c" path="../../../../src/radio/sx1272/sx1272.c" type="1"/>
     <File name="system/adc.c" path="../../../../src/system/adc.c" type="1"/>
+    <File name="radio/sx1272.c" path="../../../../src/radio/sx1272/sx1272.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_adc_ex.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.c" type="1"/>
+    <File name="system/gpio.c" path="../../../../src/system/gpio.c" type="1"/>
     <File name="peripherals/mma8451.c" path="../../../../src/peripherals/mma8451.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_rtc_ex.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rtc_ex.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_adc.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.c" type="1"/>
     <File name="peripherals" path="" type="2"/>
-    <File name="boards/LoRaMote/cmsis/startup_stm32l1xx_md.s" path="../../../../src/boards/LoRaMote/cmsis/arm-gcc/startup_stm32l1xx_md.s" type="1"/>
     <File name="system/i2c.c" path="../../../../src/system/i2c.c" type="1"/>
     <File name="boards/LoRaMote/uart-board.c" path="../../../../src/boards/LoRaMote/uart-board.c" type="1"/>
     <File name="system/crypto" path="" type="2"/>

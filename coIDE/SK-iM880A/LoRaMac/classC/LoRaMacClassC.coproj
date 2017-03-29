@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Project version="2G - 2.0.1" name="LoRaMacClassC">
   <Target name="LoRaMacClassC" isCurrent="1">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" coreId="" coreName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
         <Option name="UserEditCompiler" value="-std=c99"/>
         <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
         <Includepaths>
           <Includepath path="../../../../src"/>
           <Includepath path="../../../../src/boards/SK-iM880A"/>
@@ -33,7 +35,7 @@
         <Option name="UserEditLinkder" value=""/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
-        <Option name="LTO" value="0"/>
+        <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
         <Option name="UserEditLinker" value="-lc;-lm; -lrdimon; "/>
@@ -44,7 +46,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../../src/boards/SK-iM880A/cmsis/arm-gcc/stm32l1xx_md_flash.ld" type="0"/>
+        <LocateLinkFile path="../../../../src/boards/SK-iM880A/cmsis/arm-gcc/stm32l151xb_flash.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -109,6 +111,7 @@
     <File name="system/crypto/cmac.c" path="../../../../src/system/crypto/cmac.c" type="1"/>
     <File name="system/crypto/aes.c" path="../../../../src/system/crypto/aes.c" type="1"/>
     <File name="boards/SK-iM880A/rtc-board.c" path="../../../../src/boards/SK-iM880A/rtc-board.c" type="1"/>
+    <File name="boards/SK-iM880A/cmsis/startup_stm32l151xb.s" path="../../../../src/boards/SK-iM880A/cmsis/arm-gcc/startup_stm32l151xb.s" type="1"/>
     <File name="mac/LoRaMacCrypto.c" path="../../../../src/mac/LoRaMacCrypto.c" type="1"/>
     <File name="boards/SK-iM880A/STM32L1xx_HAL_Driver/stm32l1xx_hal_pwr.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.c" type="1"/>
     <File name="boards/SK-iM880A/sx1272-board.c" path="../../../../src/boards/SK-iM880A/sx1272-board.c" type="1"/>
@@ -116,7 +119,6 @@
     <File name="boards/SK-iM880A/STM32L1xx_HAL_Driver/stm32l1xx_hal_rcc_ex.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc_ex.c" type="1"/>
     <File name="boards/SK-iM880A/cmsis/system_stm32l1xx.c" path="../../../../src/boards/SK-iM880A/cmsis/system_stm32l1xx.c" type="1"/>
     <File name="mac" path="" type="2"/>
-    <File name="boards/SK-iM880A/cmsis/startup_stm32l1xx_md.s" path="../../../../src/boards/SK-iM880A/cmsis/arm-gcc/startup_stm32l1xx_md.s" type="1"/>
     <File name="boards/SK-iM880A/STM32L1xx_HAL_Driver/stm32l1xx_hal_spi_ex.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi_ex.c" type="1"/>
     <File name="boards/SK-iM880A/STM32L1xx_HAL_Driver/stm32l1xx_hal_rcc.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.c" type="1"/>
     <File name="boards/SK-iM880A/adc-board.c" path="../../../../src/boards/SK-iM880A/adc-board.c" type="1"/>
@@ -128,8 +130,8 @@
     <File name="radio/sx1272.c" path="../../../../src/radio/sx1272/sx1272.c" type="1"/>
     <File name="system/adc.c" path="../../../../src/system/adc.c" type="1"/>
     <File name="boards/SK-iM880A/STM32L1xx_HAL_Driver/stm32l1xx_hal_pwr_ex.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr_ex.c" type="1"/>
-    <File name="boards/SK-iM880A/cmsis" path="" type="2"/>
     <File name="boards/SK-iM880A/STM32L1xx_HAL_Driver/stm32l1xx_hal_i2c.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_i2c.c" type="1"/>
+    <File name="boards/SK-iM880A/cmsis" path="" type="2"/>
     <File name="system/i2c.c" path="../../../../src/system/i2c.c" type="1"/>
     <File name="system/crypto" path="" type="2"/>
     <File name="boards/SK-iM880A/STM32L1xx_HAL_Driver/stm32l1xx_hal_adc_ex.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.c" type="1"/>

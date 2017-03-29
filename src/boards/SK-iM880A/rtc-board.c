@@ -75,7 +75,7 @@ static uint16_t Century = 0;
 /*!
  * Flag used to indicates a Calendar Roll Over is about to happen
  */
-static bool CallendarRollOverReady = false;
+static bool CalendarRollOverReady = false;
 
 /*!
  * Flag used to indicates a the MCU has waken-up from an external IRQ
@@ -98,13 +98,13 @@ typedef struct RtcCalendar_s
 RtcCalendar_t RtcCalendarContext;
 
 /*!
- * \brief Flag to indicate if the timestamps until the next event is long enough
+ * \brief Flag to indicate if the timestamp until the next event is long enough
  * to set the MCU into low power mode
  */
 static bool RtcTimerEventAllowsLowPower = false;
 
 /*!
- * \brief Flag to disable the LowPower Mode even if the timestamps until the
+ * \brief Flag to disable the LowPower Mode even if the timestamp until the
  * next event is long enough to allow Low Power mode
  */
 static bool LowPowerDisableDuringTask = false;
@@ -117,7 +117,7 @@ RTC_HandleTypeDef RtcHandle = { 0 };
 /*!
  * \brief Indicates if the RTC is already Initialized or not
  */
-static bool RtcInitalized = false;
+static bool RtcInitialized = false;
 
 /*!
  * \brief Indicates if the RTC Wake Up Time is calibrated or not
@@ -194,7 +194,7 @@ void RtcInit( void )
 {
     RtcCalendar_t rtcInit;
 
-    if( RtcInitalized == false )
+    if( RtcInitialized == false )
     {
         __HAL_RCC_RTC_ENABLE( );
 
@@ -227,7 +227,7 @@ void RtcInit( void )
 
         HAL_NVIC_SetPriority( RTC_Alarm_IRQn, 4, 0 );
         HAL_NVIC_EnableIRQ( RTC_Alarm_IRQn );
-        RtcInitalized = true;
+        RtcInitialized = true;
     }
 }
 
@@ -405,7 +405,7 @@ static void RtcStartWakeUpAlarm( uint32_t timeoutValue )
     alarmStructure.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
     alarmStructure.AlarmMask = RTC_ALARMMASK_NONE;
     alarmStructure.AlarmTime.TimeFormat = RTC_HOURFORMAT12_AM;
-    
+
     alarmStructure.AlarmTime.Seconds = alarmTimer.CalendarTime.Seconds;
     alarmStructure.AlarmTime.Minutes = alarmTimer.CalendarTime.Minutes;
     alarmStructure.AlarmTime.Hours = alarmTimer.CalendarTime.Hours;
@@ -428,7 +428,7 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
     double timeoutValueTemp = 0.0;
     double timeoutValue = 0.0;
     double error = 0.0;
-    
+
     timeCounter = MIN( timeCounter, ( TimerTime_t )( RTC_ALARM_MAX_NUMBER_OF_DAYS * SecondsInDay * RTC_ALARM_TICK_DURATION ) );
 
     if( timeCounter < 1 )
@@ -477,7 +477,7 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
     }
 
     // Calculate seconds
-    seconds = seconds + timeoutValue;
+    seconds += timeoutValue;
 
     // Correct for modulo
     while( seconds >= 60 )
@@ -686,12 +686,12 @@ static void RtcCheckCalendarRollOver( uint8_t year )
 {
     if( year == 99 )
     {
-        CallendarRollOverReady = true;
+        CalendarRollOverReady = true;
     }
 
-    if( ( CallendarRollOverReady == true ) && ( ( year + Century ) == Century ) )
+    if( ( CalendarRollOverReady == true ) && ( ( year + Century ) == Century ) )
     {   // Indicate a roll-over of the calendar
-        CallendarRollOverReady = false;
+        CalendarRollOverReady = false;
         Century = Century + 100;
     }
 }
