@@ -422,7 +422,7 @@ const uint32_t Bandwidths[] = { 125e3, 125e3, 125e3, 125e3, 500e3, 0, 0, 0, 500e
 /*!
  * Up/Down link data rates offset definition
  */
-const int8_t datarateOffsets[5][4] =
+const int8_t DatarateOffsets[5][4] =
 {
     { DR_10, DR_9 , DR_8 , DR_8  }, // DR_0
     { DR_11, DR_10, DR_9 , DR_8  }, // DR_1
