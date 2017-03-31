@@ -88,6 +88,7 @@ typedef struct
     bool     IqInverted;
     bool     RxContinuous;
     uint32_t TxTimeout;
+    bool     PublicNetwork;
 }RadioLoRaSettings_t;
 
 /*!
