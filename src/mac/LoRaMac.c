@@ -2852,7 +2852,7 @@ LoRaMacStatus_t Send( LoRaMacHeader_t *macHdr, uint8_t fPort, void *fBuffer, uin
     return status;
 }
 
-static LoRaMacStatus_t ScheduleTx( )
+static LoRaMacStatus_t ScheduleTx( void )
 {
     TimerTime_t dutyCycleTimeOff = 0;
 
@@ -2877,6 +2877,34 @@ static LoRaMacStatus_t ScheduleTx( )
         LoRaMacParams.ChannelsMask[0] = LoRaMacParams.ChannelsMask[0] | ( LC( 1 ) + LC( 2 ) + LC( 3 ) );
 #endif
     }
+
+    // Compute Rx1 windows parameters
+#if ( defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID ) )
+    RxWindowsParams[0] = ComputeRxWindowParameters( DatarateOffsets[LoRaMacParams.ChannelsDatarate][LoRaMacParams.Rx1DrOffset], DEFAULT_SYSTEM_MAX_RX_ERROR );
+#else
+    RxWindowsParams[0] = ComputeRxWindowParameters( MAX( DR_0, LoRaMacParams.ChannelsDatarate - LoRaMacParams.Rx1DrOffset ), DEFAULT_SYSTEM_MAX_RX_ERROR );
+#endif
+    // Compute Rx2 windows parameters
+    RxWindowsParams[1] = ComputeRxWindowParameters( LoRaMacParams.Rx2Channel.Datarate, DEFAULT_SYSTEM_MAX_RX_ERROR );
+
+    if( IsLoRaMacNetworkJoined == false )
+    {
+        RxWindow1Delay = LoRaMacParams.JoinAcceptDelay1 + RxWindowsParams[0].RxOffset;
+        RxWindow2Delay = LoRaMacParams.JoinAcceptDelay2 + RxWindowsParams[1].RxOffset;
+    }
+    else
+    {
+        if( ValidatePayloadLength( LoRaMacTxPayloadLen, LoRaMacParams.ChannelsDatarate, MacCommandsBufferIndex ) == false )
+        {
+            return LORAMAC_STATUS_LENGTH_ERROR;
+        }
+        RxWindow1Delay = LoRaMacParams.ReceiveDelay1 + RxWindowsParams[0].RxOffset;
+        RxWindow2Delay = LoRaMacParams.ReceiveDelay2 + RxWindowsParams[1].RxOffset;
+    }
+
+    // MacCommandsBufferIndex variable is reset here because we now have
+    // managed all uplink & downlink parameters.
+    MacCommandsBufferIndex = 0;
 
     // Schedule transmission of frame
     if( dutyCycleTimeOff == 0 )
@@ -3077,18 +3105,6 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
     switch( macHdr->Bits.MType )
     {
         case FRAME_TYPE_JOIN_REQ:
-            // Compute Rx1 windows parameters
-#if ( defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID ) )
-            RxWindowsParams[0] = ComputeRxWindowParameters( datarateOffsets[LoRaMacParams.ChannelsDatarate][LoRaMacParams.Rx1DrOffset], DEFAULT_SYSTEM_MAX_RX_ERROR );
-#else
-            RxWindowsParams[0] = ComputeRxWindowParameters( MAX( DR_0, LoRaMacParams.ChannelsDatarate - LoRaMacParams.Rx1DrOffset ), DEFAULT_SYSTEM_MAX_RX_ERROR );
-#endif
-            // Compute Rx2 windows parameters
-            RxWindowsParams[1] = ComputeRxWindowParameters( LoRaMacParams.Rx2Channel.Datarate, DEFAULT_SYSTEM_MAX_RX_ERROR );
-
-            RxWindow1Delay = LoRaMacParams.JoinAcceptDelay1 + RxWindowsParams[0].RxOffset;
-            RxWindow2Delay = LoRaMacParams.JoinAcceptDelay2 + RxWindowsParams[1].RxOffset;
-
             LoRaMacBufferPktLen = pktHeaderLen;
 
             memcpyr( LoRaMacBuffer + LoRaMacBufferPktLen, LoRaMacAppEui, 8 );
@@ -3119,23 +3135,6 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
             }
 
             fCtrl->Bits.AdrAckReq = AdrNextDr( fCtrl->Bits.Adr, true, &LoRaMacParams.ChannelsDatarate );
-
-            // Compute Rx1 windows parameters
-#if ( defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID ) )
-            RxWindowsParams[0] = ComputeRxWindowParameters( datarateOffsets[LoRaMacParams.ChannelsDatarate][LoRaMacParams.Rx1DrOffset], DEFAULT_SYSTEM_MAX_RX_ERROR );
-#else
-            RxWindowsParams[0] = ComputeRxWindowParameters( MAX( DR_0, LoRaMacParams.ChannelsDatarate - LoRaMacParams.Rx1DrOffset ), DEFAULT_SYSTEM_MAX_RX_ERROR );
-#endif
-            // Compute Rx2 windows parameters
-            RxWindowsParams[1] = ComputeRxWindowParameters( LoRaMacParams.Rx2Channel.Datarate, DEFAULT_SYSTEM_MAX_RX_ERROR );
-
-            if( ValidatePayloadLength( LoRaMacTxPayloadLen, LoRaMacParams.ChannelsDatarate, MacCommandsBufferIndex ) == false )
-            {
-                return LORAMAC_STATUS_LENGTH_ERROR;
-            }
-
-            RxWindow1Delay = LoRaMacParams.ReceiveDelay1 + RxWindowsParams[0].RxOffset;
-            RxWindow2Delay = LoRaMacParams.ReceiveDelay2 + RxWindowsParams[1].RxOffset;
 
             if( SrvAckRequested == true )
             {
