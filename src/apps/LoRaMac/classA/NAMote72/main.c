@@ -621,6 +621,15 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                             mlmeReq.Req.TxCw.Timeout = ( uint16_t )( ( mcpsIndication->Buffer[1] << 8 ) | mcpsIndication->Buffer[2] );
                             LoRaMacMlmeRequest( &mlmeReq );
                         }
+                        else if( mcpsIndication->BufferSize == 7 )
+                        {
+                            MlmeReq_t mlmeReq;
+                            mlmeReq.Type = MLME_TXCW_1;
+                            mlmeReq.Req.TxCw.Timeout = ( uint16_t )( ( mcpsIndication->Buffer[1] << 8 ) | mcpsIndication->Buffer[2] );
+                            mlmeReq.Req.TxCw.Frequency = ( uint32_t )( ( mcpsIndication->Buffer[3] << 16 ) | ( mcpsIndication->Buffer[4] << 8 ) | mcpsIndication->Buffer[5] ) * 100;
+                            mlmeReq.Req.TxCw.Power = mcpsIndication->Buffer[6];
+                            LoRaMacMlmeRequest( &mlmeReq );
+                        }
                         ComplianceTest.State = 1;
                     }
                     break;

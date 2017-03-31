@@ -959,6 +959,12 @@ typedef enum eMlme
      * LoRaWAN end-device certification
      */
     MLME_TXCW,
+    /*!
+     * Sets Tx continuous wave mode (new LoRa-Alliance CC definition)
+     *
+     * LoRaWAN end-device certification
+     */
+    MLME_TXCW_1,
 }Mlme_t;
 
 /*!
@@ -999,6 +1005,14 @@ typedef struct sMlmeReqTxCw
      * Time in seconds while the radio is kept in continuous wave mode
      */
     uint16_t Timeout;
+    /*!
+     * RF frequency to set (Only used with new way)
+     */
+    uint32_t Frequency;
+    /*!
+     * RF output power to set (Only used with new way)
+     */
+    uint8_t Power;
 }MlmeReqTxCw_t;
 
 /*!

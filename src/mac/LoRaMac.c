@@ -982,6 +982,18 @@ LoRaMacStatus_t SendFrameOnChannel( ChannelParams_t channel );
 LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout );
 
 /*!
+ * \brief Sets the radio in continuous transmission mode
+ *
+ * \remark Uses the radio parameters set on the previous transmission.
+ *
+ * \param [IN] timeout     Time in seconds while the radio is kept in continuous wave mode
+ * \param [IN] frequency   RF frequency to be set.
+ * \param [IN] power       RF ouptput power to be set.
+ * \retval status          Status of the operation.
+ */
+LoRaMacStatus_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint8_t power );
+
+/*!
  * \brief Resets MAC specific parameters to default
  */
 static void ResetMacParameters( void );
@@ -1656,7 +1668,7 @@ static void OnMacStateCheckTimerEvent( void )
                         LoRaMacFlags.Bits.MacDone = 0;
                         // Sends the same frame again
                         OnTxDelayedTimerEvent( );
-                    }    
+                    }
                 }
             }
         }
@@ -3315,6 +3327,19 @@ LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout )
     return LORAMAC_STATUS_OK;
 }
 
+LoRaMacStatus_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint8_t power )
+{
+    Radio.SetTxContinuousWave( frequency, power, timeout );
+
+    // Starts the MAC layer status check timer
+    TimerSetValue( &MacStateCheckTimer, MAC_STATE_CHECK_TIMEOUT );
+    TimerStart( &MacStateCheckTimer );
+
+    LoRaMacState |= LORAMAC_TX_RUNNING;
+
+    return LORAMAC_STATUS_OK;
+}
+
 LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks )
 {
     if( primitives == NULL )
@@ -4280,6 +4305,13 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             MlmeConfirm.MlmeRequest = mlmeRequest->Type;
             LoRaMacFlags.Bits.MlmeReq = 1;
             status = SetTxContinuousWave( mlmeRequest->Req.TxCw.Timeout );
+            break;
+        }
+        case MLME_TXCW_1:
+        {
+            MlmeConfirm.MlmeRequest = mlmeRequest->Type;
+            LoRaMacFlags.Bits.MlmeReq = 1;
+            status = SetTxContinuousWave1( mlmeRequest->Req.TxCw.Timeout, mlmeRequest->Req.TxCw.Frequency, mlmeRequest->Req.TxCw.Power );
             break;
         }
         default:
