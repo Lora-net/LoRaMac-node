@@ -92,13 +92,13 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
         }
     }
 
-    HAL_GPIO_Init( obj->port, &GPIO_InitStructure );
-
     // Sets initial output value
     if( mode == PIN_OUTPUT )
     {
         GpioMcuWrite( obj, value );
     }
+
+    HAL_GPIO_Init( obj->port, &GPIO_InitStructure );
 }
 
 void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriority, GpioIrqHandler *irqHandler )
