@@ -21,6 +21,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
+#include <math.h>
 
 #include "timer.h"
 #include "utilities.h"
@@ -201,4 +202,20 @@ uint8_t RegionCommonParseLinkAdrReq( uint8_t* payload, LinkAdrParams_t* linkAdrP
         retIndex = 5;
     }
     return retIndex;
+}
+
+double RegionCommonComputeSymbolTimeLoRa( uint8_t phyDr, uint32_t bandwidth )
+{
+    return ( ( double )( 1 << phyDr ) / ( double )bandwidth ) * 1e3;
+}
+
+double RegionCommonComputeSymbolTimeFsk( uint8_t phyDr )
+{
+    return ( 8.0 / ( double )phyDr ); // 1 symbol equals 1 byte
+}
+
+void RegionCommonComputeRxWindowParameters( double tSymbol, uint32_t rxError, uint32_t wakeUpTime, uint32_t* windowTimeout, int32_t* windowOffset )
+{
+    *windowTimeout = MAX( ( uint32_t )ceil( ( ( 2 * DEFAULT_MIN_RX_SYMBOLS - 8 ) * tSymbol + 2 * rxError ) / tSymbol ), DEFAULT_MIN_RX_SYMBOLS ); // Computed number of symbols
+    *windowOffset = ( int32_t )ceil( ( 4.0 * tSymbol ) - ( ( *windowTimeout * tSymbol ) / 2.0 ) - wakeUpTime );
 }

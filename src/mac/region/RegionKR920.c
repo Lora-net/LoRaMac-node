@@ -466,16 +466,14 @@ void RegionKR920ComputeRxWindowParameters( int8_t datarate, uint32_t rxError, Rx
 
     if( datarate == DR_7 )
     { // FSK
-        tSymbol = ( 1.0 / ( double )DataratesKR920[datarate] ) * 8.0; // 1 symbol equals 1 byte
+        tSymbol = RegionCommonComputeSymbolTimeFsk( DataratesKR920[datarate] );
     }
     else
     { // LoRa
-        tSymbol = ( ( double )( 1 << DataratesKR920[datarate] ) / ( double )BandwidthsKR920[datarate] ) * 1e3;
+        tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesKR920[datarate], BandwidthsKR920[datarate] );
     }
 
-    rxConfigParams->WindowTimeout = MAX( ( uint32_t )ceil( ( ( 2 * DEFAULT_MIN_RX_SYMBOLS - 8 ) * tSymbol + 2 * rxError ) / tSymbol ), DEFAULT_MIN_RX_SYMBOLS ); // Computed number of symbols
-
-    rxConfigParams->WindowOffset = ( int32_t )ceil( ( 4.0 * tSymbol ) - ( ( rxConfigParams->WindowTimeout * tSymbol ) / 2.0 ) - RADIO_WAKEUP_TIME );
+    RegionCommonComputeRxWindowParameters( tSymbol, rxError, RADIO_WAKEUP_TIME, &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
 }
 
 // ToDo get phy datarate afterwards

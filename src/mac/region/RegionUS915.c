@@ -464,16 +464,14 @@ void RegionUS915ComputeRxWindowParameters( int8_t datarate, uint32_t rxError, Rx
 
     if( datarate == DR_7 )
     { // FSK
-        tSymbol = ( 1.0 / ( double )DataratesUS915[datarate] ) * 8.0; // 1 symbol equals 1 byte
+        tSymbol = RegionCommonComputeSymbolTimeFsk( DataratesUS915[datarate] );
     }
     else
     { // LoRa
-        tSymbol = ( ( double )( 1 << DataratesUS915[datarate] ) / ( double )BandwidthsUS915[datarate] ) * 1e3;
+        tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesUS915[datarate], BandwidthsUS915[datarate] );
     }
 
-    rxConfigParams->WindowTimeout = MAX( ( uint32_t )ceil( ( ( 2 * DEFAULT_MIN_RX_SYMBOLS - 8 ) * tSymbol + 2 * rxError ) / tSymbol ), DEFAULT_MIN_RX_SYMBOLS ); // Computed number of symbols
-
-    rxConfigParams->WindowOffset = ( int32_t )ceil( ( 4.0 * tSymbol ) - ( ( rxConfigParams->WindowTimeout * tSymbol ) / 2.0 ) - RADIO_WAKEUP_TIME );
+    RegionCommonComputeRxWindowParameters( tSymbol, rxError, RADIO_WAKEUP_TIME, &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
 }
 
 bool RegionUS915RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )

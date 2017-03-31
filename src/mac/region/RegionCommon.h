@@ -182,6 +182,44 @@ TimerTime_t RegionCommonUpdateBandTimeOff( bool dutyCycle, Band_t* bands, uint8_
  */
 uint8_t RegionCommonParseLinkAdrReq( uint8_t* payload, LinkAdrParams_t* parseLinkAdr );
 
+/*!
+ * \brief Computes the symbol time for LoRa modulation.
+ *
+ * \param [IN] phyDr Physical datarate to use.
+ *
+ * \param [IN] bandwidth Bandwidth to use.
+ *
+ * \retval Returns the symbol time.
+ */
+double RegionCommonComputeSymbolTimeLoRa( uint8_t phyDr, uint32_t bandwidth );
+
+/*!
+ * \brief Computes the symbol time for FSK modulation.
+ *
+ * \param [IN] phyDr Physical datarate to use.
+ *
+ * \param [IN] bandwidth Bandwidth to use.
+ *
+ * \retval Returns the symbol time.
+ */
+double RegionCommonComputeSymbolTimeFsk( uint8_t phyDr );
+
+/*!
+ * \brief Computes the RX window timeout and the RX window offset.
+ *
+ * \param [IN] tSymbol Symbol timeout.
+ *
+ * \param [IN] rxError System maximum timing error of the receiver. In milliseconds
+ *                     The receiver will turn on in a [-rxError : +rxError] ms interval around RxOffset.
+ *
+ * \param [IN] wakeUpTime Wakeup time of the system.
+ *
+ * \param [OUT] windowTimeout RX window timeout.
+ *
+ * \param [OUT] windowOffset RX window time offset to be applied to the RX delay.
+ */
+void RegionCommonComputeRxWindowParameters( double tSymbol, uint32_t rxError, uint32_t wakeUpTime, uint32_t* windowTimeout, int32_t* windowOffset );
+
 /*! \} defgroup REGIONCOMMON */
 
 #endif // __REGIONCOMMON_H__

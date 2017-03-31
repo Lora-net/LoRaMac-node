@@ -461,16 +461,14 @@ void RegionIN865ComputeRxWindowParameters( int8_t datarate, uint32_t rxError, Rx
 
     if( datarate == DR_7 )
     { // FSK
-        tSymbol = ( 1.0 / ( double )DataratesIN865[datarate] ) * 8.0; // 1 symbol equals 1 byte
+        tSymbol = RegionCommonComputeSymbolTimeFsk( DataratesIN865[datarate] );
     }
     else
     { // LoRa
-        tSymbol = ( ( double )( 1 << DataratesIN865[datarate] ) / ( double )BandwidthsIN865[datarate] ) * 1e3;
+        tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesIN865[datarate], BandwidthsIN865[datarate] );
     }
 
-    rxConfigParams->WindowTimeout = MAX( ( uint32_t )ceil( ( ( 2 * DEFAULT_MIN_RX_SYMBOLS - 8 ) * tSymbol + 2 * rxError ) / tSymbol ), DEFAULT_MIN_RX_SYMBOLS ); // Computed number of symbols
-
-    rxConfigParams->WindowOffset = ( int32_t )ceil( ( 4.0 * tSymbol ) - ( ( rxConfigParams->WindowTimeout * tSymbol ) / 2.0 ) - RADIO_WAKEUP_TIME );
+    RegionCommonComputeRxWindowParameters( tSymbol, rxError, RADIO_WAKEUP_TIME, &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
 }
 
 // ToDo get phy datarate afterwards
