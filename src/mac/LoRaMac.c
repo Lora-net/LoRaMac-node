@@ -2880,12 +2880,12 @@ static LoRaMacStatus_t ScheduleTx( void )
 
     // Compute Rx1 windows parameters
 #if ( defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID ) )
-    RxWindowsParams[0] = ComputeRxWindowParameters( DatarateOffsets[LoRaMacParams.ChannelsDatarate][LoRaMacParams.Rx1DrOffset], DEFAULT_SYSTEM_MAX_RX_ERROR );
+    RxWindowsParams[0] = ComputeRxWindowParameters( DatarateOffsets[LoRaMacParams.ChannelsDatarate][LoRaMacParams.Rx1DrOffset], LoRaMacParams.SystemMaxRxError );
 #else
-    RxWindowsParams[0] = ComputeRxWindowParameters( MAX( DR_0, LoRaMacParams.ChannelsDatarate - LoRaMacParams.Rx1DrOffset ), DEFAULT_SYSTEM_MAX_RX_ERROR );
+    RxWindowsParams[0] = ComputeRxWindowParameters( MAX( DR_0, LoRaMacParams.ChannelsDatarate - LoRaMacParams.Rx1DrOffset ), LoRaMacParams.SystemMaxRxError );
 #endif
     // Compute Rx2 windows parameters
-    RxWindowsParams[1] = ComputeRxWindowParameters( LoRaMacParams.Rx2Channel.Datarate, DEFAULT_SYSTEM_MAX_RX_ERROR );
+    RxWindowsParams[1] = ComputeRxWindowParameters( LoRaMacParams.Rx2Channel.Datarate, LoRaMacParams.SystemMaxRxError );
 
     if( IsLoRaMacNetworkJoined == false )
     {
@@ -3047,6 +3047,8 @@ static void ResetMacParameters( void )
     LoRaMacParams.ChannelsTxPower = LoRaMacParamsDefaults.ChannelsTxPower;
     LoRaMacParams.ChannelsDatarate = LoRaMacParamsDefaults.ChannelsDatarate;
 
+    LoRaMacParams.SystemMaxRxError = LoRaMacParamsDefaults.SystemMaxRxError;
+    LoRaMacParams.MinRxSymbols = LoRaMacParamsDefaults.MinRxSymbols;
     LoRaMacParams.MaxRxWindow = LoRaMacParamsDefaults.MaxRxWindow;
     LoRaMacParams.ReceiveDelay1 = LoRaMacParamsDefaults.ReceiveDelay1;
     LoRaMacParams.ReceiveDelay2 = LoRaMacParamsDefaults.ReceiveDelay2;
@@ -3386,6 +3388,8 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     LoRaMacParamsDefaults.ChannelsTxPower = LORAMAC_DEFAULT_TX_POWER;
     LoRaMacParamsDefaults.ChannelsDatarate = LORAMAC_DEFAULT_DATARATE;
 
+    LoRaMacParamsDefaults.SystemMaxRxError = 10;
+    LoRaMacParamsDefaults.MinRxSymbols = 6;
     LoRaMacParamsDefaults.MaxRxWindow = MAX_RX_WINDOW;
     LoRaMacParamsDefaults.ReceiveDelay1 = RECEIVE_DELAY1;
     LoRaMacParamsDefaults.ReceiveDelay2 = RECEIVE_DELAY2;
@@ -3673,6 +3677,16 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t *mibGet )
         case MIB_MULTICAST_CHANNEL:
         {
             mibGet->Param.MulticastList = MulticastChannels;
+            break;
+        }
+        case MIB_SYSTEM_MAX_RX_ERROR:
+        {
+            mibGet->Param.SystemMaxRxError = LoRaMacParams.SystemMaxRxError;
+            break;
+        }
+        case MIB_MIN_RX_SYMBOLS:
+        {
+            mibGet->Param.MinRxSymbols = LoRaMacParams.MinRxSymbols;
             break;
         }
         default:
@@ -3988,6 +4002,16 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         case MIB_DOWNLINK_COUNTER:
         {
             DownLinkCounter = mibSet->Param.DownLinkCounter;
+            break;
+        }
+        case MIB_SYSTEM_MAX_RX_ERROR:
+        {
+            LoRaMacParams.SystemMaxRxError = LoRaMacParamsDefaults.SystemMaxRxError = mibSet->Param.SystemMaxRxError;
+            break;
+        }
+        case MIB_MIN_RX_SYMBOLS:
+        {
+            LoRaMacParams.MinRxSymbols = LoRaMacParamsDefaults.MinRxSymbols = mibSet->Param.MinRxSymbols;
             break;
         }
         default:
@@ -4475,7 +4499,7 @@ static RxConfigParams_t ComputeRxWindowParameters( int8_t datarate, uint32_t rxE
         tSymbol = ( ( double )( 1 << Datarates[datarate] ) / ( double )Bandwidths[datarate] ) * 1e3;
     }
 
-    rxConfigParams.RxWindowTimeout = MAX( ( uint32_t )ceil( ( ( 2 * DEFAULT_MIN_RX_SYMBOLS - 8 ) * tSymbol + 2 * rxError ) / tSymbol ), DEFAULT_MIN_RX_SYMBOLS ); // Computed number of symbols
+    rxConfigParams.RxWindowTimeout = MAX( ( uint32_t )ceil( ( ( 2 * LoRaMacParams.MinRxSymbols - 8 ) * tSymbol + 2 * rxError ) / tSymbol ), LoRaMacParams.MinRxSymbols ); // Computed number of symbols
 
     rxConfigParams.RxOffset = ( int32_t )ceil( ( 4.0 * tSymbol ) - ( ( rxConfigParams.RxWindowTimeout * tSymbol ) / 2.0 ) - RADIO_WAKEUP_TIME );
 
