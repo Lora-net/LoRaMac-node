@@ -481,7 +481,7 @@ bool RegionEU868AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
     return adrAckReq;
 }
 
-void RegionEU868ComputeRxWindowParameters( int8_t datarate, uint32_t rxError, RxConfigParams_t *rxConfigParams )
+void RegionEU868ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols, uint32_t rxError, RxConfigParams_t *rxConfigParams )
 {
     double tSymbol = 0.0;
 
@@ -497,7 +497,7 @@ void RegionEU868ComputeRxWindowParameters( int8_t datarate, uint32_t rxError, Rx
         tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesEU868[datarate], BandwidthsEU868[datarate] );
     }
 
-    RegionCommonComputeRxWindowParameters( tSymbol, rxError, RADIO_WAKEUP_TIME, &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
+    RegionCommonComputeRxWindowParameters( tSymbol, minRxSymbols, rxError, RADIO_WAKEUP_TIME, &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
 }
 
 // ToDo get phy datarate afterwards

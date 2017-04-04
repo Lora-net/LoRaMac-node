@@ -209,6 +209,8 @@ double RegionCommonComputeSymbolTimeFsk( uint8_t phyDr );
  *
  * \param [IN] tSymbol Symbol timeout.
  *
+ * \param [IN] minRxSymbols Minimum required number of symbols to detect an Rx frame.
+ *
  * \param [IN] rxError System maximum timing error of the receiver. In milliseconds
  *                     The receiver will turn on in a [-rxError : +rxError] ms interval around RxOffset.
  *
@@ -218,7 +220,7 @@ double RegionCommonComputeSymbolTimeFsk( uint8_t phyDr );
  *
  * \param [OUT] windowOffset RX window time offset to be applied to the RX delay.
  */
-void RegionCommonComputeRxWindowParameters( double tSymbol, uint32_t rxError, uint32_t wakeUpTime, uint32_t* windowTimeout, int32_t* windowOffset );
+void RegionCommonComputeRxWindowParameters( double tSymbol, uint8_t minRxSymbols, uint32_t rxError, uint32_t wakeUpTime, uint32_t* windowTimeout, int32_t* windowOffset );
 
 /*! \} defgroup REGIONCOMMON */
 

@@ -1231,13 +1231,15 @@ bool RegionRxConfig( LoRaMacRegion_t region, RxConfigParams_t* rxConfig, int8_t*
  *
  * \param [IN] datarate     Rx window datarate index to be used
  *
+ * \param [IN] minRxSymbols Minimum required number of symbols to detect an Rx frame.
+ *
  * \param [IN] rxError      System maximum timing error of the receiver. In milliseconds
  *                          The receiver will turn on in a [-rxError : +rxError] ms
  *                          interval around RxOffset
  *
  * \param [OUT]rxConfigParams Returns updated WindowTimeout and WindowOffset fields.
  */
-void RegionComputeRxWindowParameters( LoRaMacRegion_t region, int8_t datarate, uint32_t rxError, RxConfigParams_t *rxConfigParams );
+void RegionComputeRxWindowParameters( LoRaMacRegion_t region, int8_t datarate, uint8_t minRxSymbols, uint32_t rxError, RxConfigParams_t *rxConfigParams );
 
 /*!
  * \brief TX configuration.

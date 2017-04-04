@@ -1840,12 +1840,14 @@ static LoRaMacStatus_t ScheduleTx( void )
     // Compute Rx1 windows parameters
     RegionComputeRxWindowParameters( LoRaMacRegion,
                                      RegionApplyDrOffset( LoRaMacRegion, LoRaMacParams.DownlinkDwellTime, LoRaMacParams.ChannelsDatarate, LoRaMacParams.Rx1DrOffset ),
-                                     DEFAULT_SYSTEM_MAX_RX_ERROR,
+                                     LoRaMacParams.MinRxSymbols,
+                                     LoRaMacParams.SystemMaxRxError,
                                      &RxWindow1Config );
     // Compute Rx2 windows parameters
     RegionComputeRxWindowParameters( LoRaMacRegion,
                                      LoRaMacParams.Rx2Channel.Datarate,
-                                     DEFAULT_SYSTEM_MAX_RX_ERROR,
+                                     LoRaMacParams.MinRxSymbols,
+                                     LoRaMacParams.SystemMaxRxError,
                                      &RxWindow2Config );
 
     if( IsLoRaMacNetworkJoined == false )
@@ -1926,6 +1928,8 @@ static void ResetMacParameters( void )
 
     LoRaMacParams.ChannelsTxPower = LoRaMacParamsDefaults.ChannelsTxPower;
     LoRaMacParams.ChannelsDatarate = LoRaMacParamsDefaults.ChannelsDatarate;
+    LoRaMacParams.SystemMaxRxError = LoRaMacParamsDefaults.SystemMaxRxError;
+    LoRaMacParams.MinRxSymbols = LoRaMacParamsDefaults.MinRxSymbols;
     LoRaMacParams.MaxRxWindow = LoRaMacParamsDefaults.MaxRxWindow;
     LoRaMacParams.ReceiveDelay1 = LoRaMacParamsDefaults.ReceiveDelay1;
     LoRaMacParams.ReceiveDelay2 = LoRaMacParamsDefaults.ReceiveDelay2;
@@ -2233,6 +2237,10 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     RegionGetPhyParam( LoRaMacRegion, &getPhy );
     LoRaMacParamsDefaults.ChannelsDatarate = getPhy.Param.Value;
 
+    LoRaMacParamsDefaults.SystemMaxRxError = 10;
+
+    LoRaMacParamsDefaults.MinRxSymbols = 6;
+
     getPhy.Attribute = PHY_MAX_RX_WINDOW;
     RegionGetPhyParam( LoRaMacRegion, &getPhy );
     LoRaMacParamsDefaults.MaxRxWindow = getPhy.Param.Value;
@@ -2531,6 +2539,16 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t *mibGet )
             mibGet->Param.MulticastList = MulticastChannels;
             break;
         }
+        case MIB_SYSTEM_MAX_RX_ERROR:
+        {
+            mibGet->Param.SystemMaxRxError = LoRaMacParams.SystemMaxRxError;
+            break;
+        }
+        case MIB_MIN_RX_SYMBOLS:
+        {
+            mibGet->Param.MinRxSymbols = LoRaMacParams.MinRxSymbols;
+            break;
+        }
         default:
             status = LORAMAC_STATUS_SERVICE_UNKNOWN;
             break;
@@ -2772,6 +2790,16 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         case MIB_DOWNLINK_COUNTER:
         {
             DownLinkCounter = mibSet->Param.DownLinkCounter;
+            break;
+        }
+        case MIB_SYSTEM_MAX_RX_ERROR:
+        {
+            LoRaMacParams.SystemMaxRxError = LoRaMacParamsDefaults.SystemMaxRxError = mibSet->Param.SystemMaxRxError;
+            break;
+        }
+        case MIB_MIN_RX_SYMBOLS:
+        {
+            LoRaMacParams.MinRxSymbols = LoRaMacParamsDefaults.MinRxSymbols = mibSet->Param.MinRxSymbols;
             break;
         }
         default:

@@ -47,17 +47,6 @@
 #define __LORAMAC_H__
 
 /*!
- * System overall timing error in milliseconds. 
- * [-DEFAULT_SYSTEM_MAX_RX_ERROR : +DEFAULT_SYSTEM_MAX_RX_ERROR]
- */
-#define DEFAULT_SYSTEM_MAX_RX_ERROR                 10
-
-/*!
- * Minimum required number of symbols to detect an Rx frame
- */
-#define DEFAULT_MIN_RX_SYMBOLS                       6
-
-/*!
  * Beacon interval in ms
  */
 #define BEACON_INTERVAL                             128000
@@ -236,6 +225,17 @@ typedef struct sLoRaMacParams
      * Channels data rate
      */
     int8_t ChannelsDatarate;
+    /*!
+     * System overall timing error in milliseconds. 
+     * [-SystemMaxRxError : +SystemMaxRxError]
+     * Default: +/-10 ms
+     */
+    uint32_t SystemMaxRxError;
+    /*!
+     * Minimum required number of symbols to detect an Rx frame
+     * Default: 6 symbols
+     */
+    uint8_t MinRxSymbols;
     /*!
      * LoRaMac maximum time a reception window stays open
      */
@@ -1084,6 +1084,8 @@ typedef struct sMlmeConfirm
  * \ref MIB_UPLINK_COUNTER           | YES | YES
  * \ref MIB_DOWNLINK_COUNTER         | YES | YES
  * \ref MIB_MULTICAST_CHANNEL        | YES | NO
+ * \ref MIB_SYSTEM_MAX_RX_ERROR      | YES | YES
+ * \ref MIB_MIN_RX_SYMBOLS           | YES | YES
  *
  * The following table provides links to the function implementations of the
  * related MIB primitives:
@@ -1289,6 +1291,17 @@ typedef enum eMib
      * NULL, the list is empty.
      */
     MIB_MULTICAST_CHANNEL,
+    /*!
+     * System overall timing error in milliseconds. 
+     * [-SystemMaxRxError : +SystemMaxRxError]
+     * Default: +/-10 ms
+     */
+    MIB_SYSTEM_MAX_RX_ERROR,
+    /*!
+     * Minimum required number of symbols to detect an Rx frame
+     * Default: 6 symbols
+     */
+    MIB_MIN_RX_SYMBOLS,
 }Mib_t;
 
 /*!
@@ -1458,6 +1471,18 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_MULTICAST_CHANNEL
      */
     MulticastParams_t* MulticastList;
+    /*!
+     * System overall timing error in milliseconds. 
+     *
+     * Related MIB type: \ref MIB_SYSTEM_MAX_RX_ERROR
+     */
+    uint32_t SystemMaxRxError;
+    /*!
+     * Minimum required number of symbols to detect an Rx frame
+     *
+     * Related MIB type: \ref MIB_MIN_RX_SYMBOLS
+     */
+    uint8_t MinRxSymbols;
 }MibParam_t;
 
 /*!

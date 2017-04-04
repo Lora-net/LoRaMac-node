@@ -214,8 +214,8 @@ double RegionCommonComputeSymbolTimeFsk( uint8_t phyDr )
     return ( 8.0 / ( double )phyDr ); // 1 symbol equals 1 byte
 }
 
-void RegionCommonComputeRxWindowParameters( double tSymbol, uint32_t rxError, uint32_t wakeUpTime, uint32_t* windowTimeout, int32_t* windowOffset )
+void RegionCommonComputeRxWindowParameters( double tSymbol, uint8_t minRxSymbols, uint32_t rxError, uint32_t wakeUpTime, uint32_t* windowTimeout, int32_t* windowOffset )
 {
-    *windowTimeout = MAX( ( uint32_t )ceil( ( ( 2 * DEFAULT_MIN_RX_SYMBOLS - 8 ) * tSymbol + 2 * rxError ) / tSymbol ), DEFAULT_MIN_RX_SYMBOLS ); // Computed number of symbols
+    *windowTimeout = MAX( ( uint32_t )ceil( ( ( 2 * minRxSymbols - 8 ) * tSymbol + 2 * rxError ) / tSymbol ), minRxSymbols ); // Computed number of symbols
     *windowOffset = ( int32_t )ceil( ( 4.0 * tSymbol ) - ( ( *windowTimeout * tSymbol ) / 2.0 ) - wakeUpTime );
 }

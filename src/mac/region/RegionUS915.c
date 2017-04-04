@@ -455,7 +455,7 @@ bool RegionUS915AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
     return adrAckReq;
 }
 
-void RegionUS915ComputeRxWindowParameters( int8_t datarate, uint32_t rxError, RxConfigParams_t *rxConfigParams )
+void RegionUS915ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols, uint32_t rxError, RxConfigParams_t *rxConfigParams )
 {
     double tSymbol = 0.0;
 
@@ -471,7 +471,7 @@ void RegionUS915ComputeRxWindowParameters( int8_t datarate, uint32_t rxError, Rx
         tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesUS915[datarate], BandwidthsUS915[datarate] );
     }
 
-    RegionCommonComputeRxWindowParameters( tSymbol, rxError, RADIO_WAKEUP_TIME, &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
+    RegionCommonComputeRxWindowParameters( tSymbol, minRxSymbols, rxError, RADIO_WAKEUP_TIME, &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
 }
 
 bool RegionUS915RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
