@@ -1368,6 +1368,10 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                                 ( DownLinkCounter != 0 ) )
                             {
                                 // Duplicated confirmed downlink. Skip indication.
+                                // In this case, the MAC layer shall accept the MAC commands
+                                // which are included in the downlink retransmission.
+                                // It should not provide the same frame to the application
+                                // layer again.
                                 skipIndication = true;
                             }
                         }
@@ -1404,6 +1408,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                         MacCommandsBufferIndex = 0;
                     }
 
+                    // Process payload and MAC commands
                     if( ( ( size - 4 ) - appPayloadStartIndex ) > 0 )
                     {
                         port = payload[appPayloadStartIndex++];
@@ -1413,6 +1418,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
 
                         if( port == 0 )
                         {
+                            // Only allow frames which do not have fOpts
                             if( fCtrl.Bits.FOptsLen == 0 )
                             {
                                 LoRaMacPayloadDecrypt( payload + appPayloadStartIndex,
