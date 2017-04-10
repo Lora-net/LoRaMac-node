@@ -1699,11 +1699,10 @@ static void OnMacStateCheckTimerEvent( void )
                 {
                     LoRaMacParams.ChannelsDatarate = MAX( LoRaMacParams.ChannelsDatarate - 1, LORAMAC_TX_MIN_DATARATE );
                 }
-                if( ValidatePayloadLength( LoRaMacTxPayloadLen, LoRaMacParams.ChannelsDatarate, MacCommandsBufferIndex ) == true )
+                // Try to send the frame again
+                if( ScheduleTx( ) == LORAMAC_STATUS_OK )
                 {
                     LoRaMacFlags.Bits.MacDone = 0;
-                    // Sends the same frame again
-                    ScheduleTx( );
                 }
                 else
                 {
@@ -1769,6 +1768,8 @@ static void OnMacStateCheckTimerEvent( void )
             LoRaMacFlags.Bits.MlmeReq = 0;
         }
 
+        // Procedure done. Reset variables.
+        MacCommandsBufferIndex = 0;
         LoRaMacFlags.Bits.MacDone = 0;
     }
     else
@@ -2901,10 +2902,6 @@ static LoRaMacStatus_t ScheduleTx( void )
         RxWindow1Delay = LoRaMacParams.ReceiveDelay1 + RxWindowsParams[0].RxOffset;
         RxWindow2Delay = LoRaMacParams.ReceiveDelay2 + RxWindowsParams[1].RxOffset;
     }
-
-    // MacCommandsBufferIndex variable is reset here because we now have
-    // managed all uplink & downlink parameters.
-    MacCommandsBufferIndex = 0;
 
     // Schedule transmission of frame
     if( dutyCycleTimeOff == 0 )
