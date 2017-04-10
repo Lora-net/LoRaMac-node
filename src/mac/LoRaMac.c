@@ -1493,8 +1493,10 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                                 TimerStop( &AckTimeoutTimer );
                             }
                         }
-                        LoRaMacFlags.Bits.McpsInd = 1;
                     }
+                    // Provide always an indication, skip the callback to the user application,
+                    // in case of a confirmed downlink retransmission.
+                    LoRaMacFlags.Bits.McpsInd = 1;
                     LoRaMacFlags.Bits.McpsIndSkip = skipIndication;
                 }
                 else
@@ -1663,7 +1665,7 @@ static void OnMacStateCheckTimerEvent( void )
                 {// Procedure for all other frames
                     if( ( ChannelsNbRepCounter >= LoRaMacParams.ChannelsNbRep ) || ( LoRaMacFlags.Bits.McpsInd == 1 ) )
                     {
-                        if( ( LoRaMacFlags.Bits.McpsInd == 0 ) && ( LoRaMacFlags.Bits.McpsIndSkip == 0 ) )
+                        if( LoRaMacFlags.Bits.McpsInd == 0)
                         {   // Maximum repititions without downlink. Reset MacCommandsBufferIndex. Increase ADR Ack counter.
                             // Only process the case when the MAC did not receive a downlink.
                             MacCommandsBufferIndex = 0;
@@ -1788,7 +1790,6 @@ static void OnMacStateCheckTimerEvent( void )
         }
 
         // Procedure done. Reset variables.
-        LoRaMacFlags.Bits.McpsIndSkip = 0;
         LoRaMacFlags.Bits.MacDone = 0;
     }
     else
@@ -1804,8 +1805,11 @@ static void OnMacStateCheckTimerEvent( void )
         {// Activate RX2 window for Class C
             OnRxWindow2TimerEvent( );
         }
-
-        LoRaMacPrimitives->MacMcpsIndication( &McpsIndication );
+        if( LoRaMacFlags.Bits.McpsIndSkip == 0 )
+        {
+            LoRaMacPrimitives->MacMcpsIndication( &McpsIndication );
+        }
+        LoRaMacFlags.Bits.McpsIndSkip = 0;
         LoRaMacFlags.Bits.McpsInd = 0;
     }
 }
