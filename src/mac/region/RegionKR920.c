@@ -59,6 +59,16 @@ static uint16_t ChannelsMask[CHANNELS_MASK_SIZE];
 static uint16_t ChannelsDefaultMask[CHANNELS_MASK_SIZE];
 
 // Static functions
+static int8_t GetMaxBandTxPower( uint32_t freq )
+{
+    if( freq >= 922100000 )
+    {// Limit to 14dBm
+        return TX_POWER_1;
+    }
+    // Limit to 10dBm
+    return TX_POWER_2;
+}
+
 static uint32_t GetBandwidth( uint32_t drIndex )
 {
     switch( BandwidthsKR920[drIndex] )
@@ -519,7 +529,8 @@ bool RegionKR920RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
 bool RegionKR920TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime_t* txTimeOnAir )
 {
     int8_t phyDr = DataratesKR920[txConfig->Datarate];
-    int8_t txPowerLimited = LimitTxPower( txConfig->TxPower, Bands[Channels[txConfig->Channel].Band].TxMaxPower, txConfig->Datarate, ChannelsMask );
+    int8_t maxTxPower = MAX( GetMaxBandTxPower( Channels[txConfig->Channel].Frequency ), Bands[Channels[txConfig->Channel].Band].TxMaxPower );
+    int8_t txPowerLimited = LimitTxPower( txConfig->TxPower, maxTxPower, txConfig->Datarate, ChannelsMask );
     uint32_t bandwidth = GetBandwidth( txConfig->Datarate );
     int8_t phyTxPower = 0;
 
