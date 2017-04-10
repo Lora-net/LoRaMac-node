@@ -2451,6 +2451,8 @@ static void OnMacStateCheckTimerEvent( void )
             LoRaMacPrimitives->MacMlmeIndication( &MlmeIndication );
             LoRaMacFlags.Bits.MlmeInd = 0;
         }
+
+        // Procedure done. Reset variables.
         LoRaMacFlags.Bits.MacDone = 0;
 
         ResumeBeaconing( );
