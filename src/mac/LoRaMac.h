@@ -636,6 +636,10 @@ typedef union eLoRaMacFlags_t
          */
         uint8_t McpsInd         : 1;
         /*!
+         * MCPS-Ind pending. Skip indication to the application layer
+         */
+        uint8_t McpsIndSkip     : 1;
+        /*!
          * MLME-Req pending
          */
         uint8_t MlmeReq         : 1;

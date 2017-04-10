@@ -1388,6 +1388,22 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                         DownLinkCounter = downLinkCounter;
                     }
 
+                    // This must be done before parsing the payload and the MAC commands.
+                    // We need to reset the MacCommandsBufferIndex here, since we need
+                    // to take retransmissions and repititions into account. Error cases
+                    // will be handled in function OnMacStateCheckTimerEvent.
+                    if( McpsConfirm.McpsRequest == MCPS_CONFIRMED )
+                    {
+                        if( fCtrl.Bits.Ack == 1 )
+                        {// Reset MacCommandsBufferIndex when we have received an ACK.
+                            MacCommandsBufferIndex = 0;
+                        }
+                    }
+                    else
+                    {// Reset the variable if we have received any valid frame.
+                        MacCommandsBufferIndex = 0;
+                    }
+
                     if( ( ( size - 4 ) - appPayloadStartIndex ) > 0 )
                     {
                         port = payload[appPayloadStartIndex++];
@@ -1473,6 +1489,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                         }
                         LoRaMacFlags.Bits.McpsInd = 1;
                     }
+                    LoRaMacFlags.Bits.McpsIndSkip = skipIndication;
                 }
                 else
                 {
@@ -1600,6 +1617,7 @@ static void OnMacStateCheckTimerEvent( void )
             {
                 // Stop transmit cycle due to tx timeout.
                 LoRaMacState &= ~LORAMAC_TX_RUNNING;
+                MacCommandsBufferIndex = 0;
                 McpsConfirm.NbRetries = AckTimeoutRetriesCounter;
                 McpsConfirm.AckReceived = false;
                 McpsConfirm.TxTimeOnAir = 0;
@@ -1639,6 +1657,12 @@ static void OnMacStateCheckTimerEvent( void )
                 {// Procedure for all other frames
                     if( ( ChannelsNbRepCounter >= LoRaMacParams.ChannelsNbRep ) || ( LoRaMacFlags.Bits.McpsInd == 1 ) )
                     {
+                        if( ( LoRaMacFlags.Bits.McpsInd == 0 ) && ( LoRaMacFlags.Bits.McpsIndSkip == 0 ) )
+                        {   // Maximum repititions without downlink. Reset MacCommandsBufferIndex. Increase ADR Ack counter.
+                            // Only process the case when the MAC did not receive a downlink.
+                            MacCommandsBufferIndex = 0;
+                        }
+
                         ChannelsNbRepCounter = 0;
 
                         AdrAckCounter++;
@@ -1696,6 +1720,7 @@ static void OnMacStateCheckTimerEvent( void )
                     // The DR is not applicable for the payload size
                     McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_TX_DR_PAYLOAD_SIZE_ERROR;
 
+                    MacCommandsBufferIndex = 0;
                     LoRaMacState &= ~LORAMAC_TX_RUNNING;
                     NodeAckRequested = false;
                     McpsConfirm.AckReceived = false;
@@ -1726,6 +1751,7 @@ static void OnMacStateCheckTimerEvent( void )
 #endif
                 LoRaMacState &= ~LORAMAC_TX_RUNNING;
 
+                MacCommandsBufferIndex = 0;
                 NodeAckRequested = false;
                 McpsConfirm.AckReceived = false;
                 McpsConfirm.NbRetries = AckTimeoutRetriesCounter;
@@ -1756,7 +1782,7 @@ static void OnMacStateCheckTimerEvent( void )
         }
 
         // Procedure done. Reset variables.
-        MacCommandsBufferIndex = 0;
+        LoRaMacFlags.Bits.McpsIndSkip = 0;
         LoRaMacFlags.Bits.MacDone = 0;
     }
     else
@@ -3177,7 +3203,6 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
             {
                 MacCommandsInNextTx = true;
             }
-            MacCommandsBufferIndex = 0;
 
             if( ( payload != NULL ) && ( LoRaMacTxPayloadLen > 0 ) )
             {
@@ -4476,7 +4501,7 @@ static RxConfigParams_t ComputeRxWindowParameters( int8_t datarate, uint32_t rxE
             rxConfigParams.Bandwidth = 2;
             break;
     }
-    
+
 #if defined( USE_BAND_433 ) || defined( USE_BAND_780 ) || defined( USE_BAND_868 )
     if( datarate == DR_7 )
     { // FSK
