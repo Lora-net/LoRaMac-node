@@ -1661,11 +1661,11 @@ static void OnMacStateCheckTimerEvent( void )
                         {   // Maximum repititions without downlink. Reset MacCommandsBufferIndex. Increase ADR Ack counter.
                             // Only process the case when the MAC did not receive a downlink.
                             MacCommandsBufferIndex = 0;
+                            AdrAckCounter++;
                         }
 
                         ChannelsNbRepCounter = 0;
 
-                        AdrAckCounter++;
                         if( IsUpLinkCounterFixed == false )
                         {
                             UpLinkCounter++;
