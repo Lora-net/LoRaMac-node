@@ -438,7 +438,7 @@ bool RegionAS923AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
             }
             if( adrNext->AdrAckCounter >= ( AS923_ADR_ACK_LIMIT + AS923_ADR_ACK_DELAY ) )
             {
-                if( ( adrNext->AdrAckCounter % AS923_ADR_ACK_DELAY ) == 0 )
+                if( ( adrNext->AdrAckCounter % AS923_ADR_ACK_DELAY ) == 1 )
                 {
                     if( datarate > AS923_TX_MIN_DATARATE )
                     {

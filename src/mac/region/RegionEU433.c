@@ -427,7 +427,7 @@ bool RegionEU433AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
             }
             if( adrNext->AdrAckCounter >= ( EU433_ADR_ACK_LIMIT + EU433_ADR_ACK_DELAY ) )
             {
-                if( ( adrNext->AdrAckCounter % EU433_ADR_ACK_DELAY ) == 0 )
+                if( ( adrNext->AdrAckCounter % EU433_ADR_ACK_DELAY ) == 1 )
                 {
                     if( datarate > EU433_TX_MIN_DATARATE )
                     {

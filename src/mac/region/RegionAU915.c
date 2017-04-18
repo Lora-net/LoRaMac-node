@@ -424,7 +424,7 @@ bool RegionAU915AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
             }
             if( adrNext->AdrAckCounter >= ( AU915_ADR_ACK_LIMIT + AU915_ADR_ACK_DELAY ) )
             {
-                if( ( adrNext->AdrAckCounter % AU915_ADR_ACK_DELAY ) == 0 )
+                if( ( adrNext->AdrAckCounter % AU915_ADR_ACK_DELAY ) == 1 )
                 {
                     if( ( datarate > AU915_TX_MIN_DATARATE ) && ( datarate == DR_8 ) )
                     {

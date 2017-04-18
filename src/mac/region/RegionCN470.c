@@ -376,7 +376,7 @@ bool RegionCN470AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
             }
             if( adrNext->AdrAckCounter >= ( CN470_ADR_ACK_LIMIT + CN470_ADR_ACK_DELAY ) )
             {
-                if( ( adrNext->AdrAckCounter % CN470_ADR_ACK_DELAY ) == 0 )
+                if( ( adrNext->AdrAckCounter % CN470_ADR_ACK_DELAY ) == 1 )
                 {
                     if( datarate > CN470_TX_MIN_DATARATE )
                     {

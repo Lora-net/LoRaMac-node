@@ -1185,7 +1185,7 @@ static void OnMacStateCheckTimerEvent( void )
                     }
                     else
                     {
-                        if( ( JoinRequestTrials >= MaxJoinRequestTrials ) )
+                        if( JoinRequestTrials >= MaxJoinRequestTrials )
                         {
                             LoRaMacState &= ~LORAMAC_TX_RUNNING;
                         }
@@ -1201,7 +1201,7 @@ static void OnMacStateCheckTimerEvent( void )
                 {// Procedure for all other frames
                     if( ( ChannelsNbRepCounter >= LoRaMacParams.ChannelsNbRep ) || ( LoRaMacFlags.Bits.McpsInd == 1 ) )
                     {
-                        if( LoRaMacFlags.Bits.McpsInd == 0)
+                        if( LoRaMacFlags.Bits.McpsInd == 0 )
                         {   // Maximum repititions without downlink. Reset MacCommandsBufferIndex. Increase ADR Ack counter.
                             // Only process the case when the MAC did not receive a downlink.
                             MacCommandsBufferIndex = 0;
@@ -1953,15 +1953,7 @@ static void ResetMacParameters( void )
 
     LoRaMacParams.ChannelsTxPower = LoRaMacParamsDefaults.ChannelsTxPower;
     LoRaMacParams.ChannelsDatarate = LoRaMacParamsDefaults.ChannelsDatarate;
-    LoRaMacParams.SystemMaxRxError = LoRaMacParamsDefaults.SystemMaxRxError;
-    LoRaMacParams.MinRxSymbols = LoRaMacParamsDefaults.MinRxSymbols;
-    LoRaMacParams.MaxRxWindow = LoRaMacParamsDefaults.MaxRxWindow;
-    LoRaMacParams.ReceiveDelay1 = LoRaMacParamsDefaults.ReceiveDelay1;
-    LoRaMacParams.ReceiveDelay2 = LoRaMacParamsDefaults.ReceiveDelay2;
-    LoRaMacParams.JoinAcceptDelay1 = LoRaMacParamsDefaults.JoinAcceptDelay1;
-    LoRaMacParams.JoinAcceptDelay2 = LoRaMacParamsDefaults.JoinAcceptDelay2;
     LoRaMacParams.Rx1DrOffset = LoRaMacParamsDefaults.Rx1DrOffset;
-    LoRaMacParams.ChannelsNbRep = LoRaMacParamsDefaults.ChannelsNbRep;
     LoRaMacParams.Rx2Channel = LoRaMacParamsDefaults.Rx2Channel;
     LoRaMacParams.UplinkDwellTime = LoRaMacParamsDefaults.UplinkDwellTime;
     LoRaMacParams.DownlinkDwellTime = LoRaMacParamsDefaults.DownlinkDwellTime;
@@ -2313,6 +2305,16 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     LoRaMacParamsDefaults.ChannelsNbRep = 1;
 
     RegionInitDefaults( LoRaMacRegion, INIT_TYPE_INIT );
+
+    // Init parameters which are not set in function ResetMacParameters
+    LoRaMacParams.SystemMaxRxError = LoRaMacParamsDefaults.SystemMaxRxError;
+    LoRaMacParams.MinRxSymbols = LoRaMacParamsDefaults.MinRxSymbols;
+    LoRaMacParams.MaxRxWindow = LoRaMacParamsDefaults.MaxRxWindow;
+    LoRaMacParams.ReceiveDelay1 = LoRaMacParamsDefaults.ReceiveDelay1;
+    LoRaMacParams.ReceiveDelay2 = LoRaMacParamsDefaults.ReceiveDelay2;
+    LoRaMacParams.JoinAcceptDelay1 = LoRaMacParamsDefaults.JoinAcceptDelay1;
+    LoRaMacParams.JoinAcceptDelay2 = LoRaMacParamsDefaults.JoinAcceptDelay2;
+    LoRaMacParams.ChannelsNbRep = LoRaMacParamsDefaults.ChannelsNbRep;
 
     ResetMacParameters( );
 

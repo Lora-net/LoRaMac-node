@@ -514,7 +514,7 @@ bool RegionUS915HybridAdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* 
             }
             if( adrNext->AdrAckCounter >= ( US915_HYBRID_ADR_ACK_LIMIT + US915_HYBRID_ADR_ACK_DELAY ) )
             {
-                if( ( adrNext->AdrAckCounter % US915_HYBRID_ADR_ACK_DELAY ) == 0 )
+                if( ( adrNext->AdrAckCounter % US915_HYBRID_ADR_ACK_DELAY ) == 1 )
                 {
                     if( ( datarate > US915_HYBRID_TX_MIN_DATARATE ) && ( datarate == DR_8 ) )
                     {

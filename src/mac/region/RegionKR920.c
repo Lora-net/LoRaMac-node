@@ -442,7 +442,7 @@ bool RegionKR920AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
             }
             if( adrNext->AdrAckCounter >= ( KR920_ADR_ACK_LIMIT + KR920_ADR_ACK_DELAY ) )
             {
-                if( ( adrNext->AdrAckCounter % KR920_ADR_ACK_DELAY ) == 0 )
+                if( ( adrNext->AdrAckCounter % KR920_ADR_ACK_DELAY ) == 1 )
                 {
                     if( datarate > KR920_TX_MIN_DATARATE )
                     {
