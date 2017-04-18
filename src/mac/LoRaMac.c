@@ -4529,4 +4529,3 @@ static RxConfigParams_t ComputeRxWindowParameters( int8_t datarate, uint32_t rxE
 
     return rxConfigParams;
 }
-
