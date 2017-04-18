@@ -1649,7 +1649,7 @@ static void OnMacStateCheckTimerEvent( void )
                     }
                     else
                     {
-                        if( ( JoinRequestTrials >= MaxJoinRequestTrials ) )
+                        if( JoinRequestTrials >= MaxJoinRequestTrials )
                         {
                             LoRaMacState &= ~LORAMAC_TX_RUNNING;
                         }
@@ -1665,7 +1665,7 @@ static void OnMacStateCheckTimerEvent( void )
                 {// Procedure for all other frames
                     if( ( ChannelsNbRepCounter >= LoRaMacParams.ChannelsNbRep ) || ( LoRaMacFlags.Bits.McpsInd == 1 ) )
                     {
-                        if( LoRaMacFlags.Bits.McpsInd == 0)
+                        if( LoRaMacFlags.Bits.McpsInd == 0 )
                         {   // Maximum repititions without downlink. Reset MacCommandsBufferIndex. Increase ADR Ack counter.
                             // Only process the case when the MAC did not receive a downlink.
                             MacCommandsBufferIndex = 0;
