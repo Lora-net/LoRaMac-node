@@ -90,6 +90,11 @@ static bool VerifyTxFreq( uint32_t freq )
     {
         return false;
     }
+
+    if( ( freq < 915000000 ) || ( freq > 928000000 ) )
+    {
+        return false;
+    }
     return true;
 }
 
