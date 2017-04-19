@@ -400,6 +400,7 @@ void SX1276SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
             SX1276.Settings.Fsk.IqInverted = iqInverted;
             SX1276.Settings.Fsk.RxContinuous = rxContinuous;
             SX1276.Settings.Fsk.PreambleLen = preambleLen;
+            SX1276.Settings.Fsk.RxSingleTimeout = symbTimeout * ( ( 1.0 / ( double )datarate ) * 8.0 ) * 1e3;
 
             datarate = ( uint16_t )( ( double )XTAL_FREQ / ( double )datarate );
             SX1276Write( REG_BITRATEMSB, ( uint8_t )( datarate >> 8 ) );
@@ -999,11 +1000,7 @@ void SX1276SetRx( uint32_t timeout )
 
         if( rxContinuous == false )
         {
-            TimerSetValue( &RxTimeoutSyncWord, ceil( ( 8.0 * ( SX1276.Settings.Fsk.PreambleLen +
-                                                             ( ( SX1276Read( REG_SYNCCONFIG ) &
-                                                                ~RF_SYNCCONFIG_SYNCSIZE_MASK ) +
-                                                                1.0 ) + 10.0 ) /
-                                                             ( double )SX1276.Settings.Fsk.Datarate ) * 1e3 ) + 4 );
+            TimerSetValue( &RxTimeoutSyncWord, SX1276.Settings.Fsk.RxSingleTimeout );
             TimerStart( &RxTimeoutSyncWord );
         }
     }
@@ -1308,6 +1305,7 @@ void SX1276SetMaxPayloadLength( RadioModems_t modem, uint8_t max )
 void SX1276SetPublicNetwork( bool enable )
 {
     SX1276SetModem( MODEM_LORA );
+    SX1276.Settings.LoRa.PublicNetwork = enable;
     if( enable == true )
     {
         // Change LoRa modem SyncWord
@@ -1356,6 +1354,34 @@ void SX1276OnTimeoutIrq( void )
         }
         break;
     case RF_TX_RUNNING:
+        // Tx timeout shouldn't happen.
+        // But it has been observed that when it happens it is a result of a corrupted SPI transfer
+        // it depends on the platform design.
+        // 
+        // The workaround is to put the radio in a known state. Thus, we re-initialize it.
+
+        // BEGIN WORKAROUND
+
+        // Reset the radio
+        SX1276Reset( );
+
+        // Calibrate Rx chain
+        RxChainCalibration( );
+
+        // Initialize radio default values
+        SX1276SetOpMode( RF_OPMODE_SLEEP );
+
+        for( uint8_t i = 0; i < sizeof( RadioRegsInit ) / sizeof( RadioRegisters_t ); i++ )
+        {
+            SX1276SetModem( RadioRegsInit[i].Modem );
+            SX1276Write( RadioRegsInit[i].Addr, RadioRegsInit[i].Value );
+        }
+        SX1276SetModem( MODEM_FSK );
+
+        // Restore previous network type setting.
+        SX1276SetPublicNetwork( SX1276.Settings.LoRa.PublicNetwork );
+        // END WORKAROUND
+
         SX1276.Settings.State = RF_IDLE;
         if( ( RadioEvents != NULL ) && ( RadioEvents->TxTimeout != NULL ) )
         {

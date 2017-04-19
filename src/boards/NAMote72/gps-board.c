@@ -119,7 +119,7 @@ void GpsMcuIrqNotify( UartNotifyId_t id )
     {
         if( UartGetChar( &Uart1, &data ) == 0 )
         {
-            if( ( data == '$' ) || ( NmeaStringSize >= 128 ) )
+            if( ( data == '$' ) || ( NmeaStringSize >= 127 ) )
             {
                 NmeaStringSize = 0;
             }
@@ -128,7 +128,7 @@ void GpsMcuIrqNotify( UartNotifyId_t id )
 
             if( data == '\n' )
             {
-                NmeaString[NmeaStringSize] = '\0';
+                NmeaString[NmeaStringSize++] = '\0';
                 GpsParseGpsData( ( int8_t* )NmeaString, NmeaStringSize );
                 UartDeInit( &Uart1 );
                 BlockLowPowerDuringTask ( false );

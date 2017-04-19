@@ -153,8 +153,8 @@ struct Radio_s
      * \param [IN] preambleLen  Sets the Preamble length
      *                          FSK : Number of bytes 
      *                          LoRa: Length in symbols (the hardware adds 4 more symbols)
-     * \param [IN] symbTimeout  Sets the RxSingle timeout value (LoRa only) 
-     *                          FSK : N/A ( set to 0 ) 
+     * \param [IN] symbTimeout  Sets the RxSingle timeout value
+     *                          FSK : timeout in number of bytes
      *                          LoRa: timeout in symbols
      * \param [IN] fixLen       Fixed length packets [0: variable, 1: fixed]
      * \param [IN] payloadLen   Sets payload length when fixed length is used
