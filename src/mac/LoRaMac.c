@@ -1376,7 +1376,6 @@ static void OnRxWindow1TimerEvent( void )
     RxSlot = 0;
 
     RxWindow1Config.Channel = Channel;
-    RxWindow1Config.Datarate = LoRaMacParams.ChannelsDatarate;
     RxWindow1Config.DrOffset = LoRaMacParams.Rx1DrOffset;
     RxWindow1Config.RepeaterSupport = RepeaterSupport;
     RxWindow1Config.RxContinuous = false;
@@ -1396,7 +1395,6 @@ static void OnRxWindow2TimerEvent( void )
     TimerStop( &RxWindowTimer2 );
 
     RxWindow2Config.Channel = Channel;
-    RxWindow2Config.Datarate = LoRaMacParams.Rx2Channel.Datarate;
     RxWindow2Config.Frequency = LoRaMacParams.Rx2Channel.Frequency;
     RxWindow2Config.RepeaterSupport = RepeaterSupport;
     RxWindow2Config.Window = 1;
