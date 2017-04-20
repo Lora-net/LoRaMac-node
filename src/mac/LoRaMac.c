@@ -1377,6 +1377,7 @@ static void OnRxWindow1TimerEvent( void )
 
     RxWindow1Config.Channel = Channel;
     RxWindow1Config.DrOffset = LoRaMacParams.Rx1DrOffset;
+    RxWindow1Config.DownlinkDwellTime = LoRaMacParams.DownlinkDwellTime;
     RxWindow1Config.RepeaterSupport = RepeaterSupport;
     RxWindow1Config.RxContinuous = false;
     RxWindow1Config.Window = RxSlot;
@@ -1396,6 +1397,7 @@ static void OnRxWindow2TimerEvent( void )
 
     RxWindow2Config.Channel = Channel;
     RxWindow2Config.Frequency = LoRaMacParams.Rx2Channel.Frequency;
+    RxWindow1Config.DownlinkDwellTime = LoRaMacParams.DownlinkDwellTime;
     RxWindow2Config.RepeaterSupport = RepeaterSupport;
     RxWindow2Config.Window = 1;
 
