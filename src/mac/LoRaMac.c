@@ -1450,6 +1450,8 @@ static bool ValidatePayloadLength( uint8_t lenN, int8_t datarate, uint8_t fOptsL
     uint16_t maxN = 0;
     uint16_t payloadSize = 0;
 
+    // Setup PHY request
+    getPhy.UplinkDwellTime = LoRaMacParams.UplinkDwellTime;
     getPhy.Datarate = datarate;
     getPhy.Attribute = PHY_MAX_PAYLOAD;
 
