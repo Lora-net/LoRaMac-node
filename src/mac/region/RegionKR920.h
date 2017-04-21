@@ -118,7 +118,7 @@
 /*!
  * Maximum RX window duration
  */
-#define KR920_MAX_RX_WINDOW                         3000
+#define KR920_MAX_RX_WINDOW                         4000
 
 /*!
  * Receive delay 1
