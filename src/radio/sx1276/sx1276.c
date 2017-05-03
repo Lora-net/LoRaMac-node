@@ -1551,6 +1551,7 @@ void SX1276OnDio0Irq( void )
                     }
 
                     SX1276.Settings.LoRaPacketHandler.Size = SX1276Read( REG_LR_RXNBBYTES );
+                    SX1276Write( REG_LR_FIFOADDRPTR, SX1276Read( REG_LR_FIFORXCURRENTADDR ) );
                     SX1276ReadFifo( RxTxBuffer, SX1276.Settings.LoRaPacketHandler.Size );
 
                     if( SX1276.Settings.LoRa.RxContinuous == false )
