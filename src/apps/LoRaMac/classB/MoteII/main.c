@@ -18,6 +18,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "board.h"
 
 #include "LoRaMac.h"
+#include "Region.h"
 #include "Commissioning.h"
 
 #include "buttons.h"
@@ -51,7 +52,7 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 #define LORAWAN_ADR_ON                              1
 
-#if defined( USE_BAND_868 )
+#if defined( REGION_EU868 )
 
 #include "LoRaMacTest.h"
 
@@ -66,13 +67,13 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 #if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 )
 
-#define LC4                { 867100000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC5                { 867300000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC6                { 867500000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC7                { 867700000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC8                { 867900000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC9                { 868800000, { ( ( DR_7 << 4 ) | DR_7 ) }, 2 }
-#define LC10               { 868300000, { ( ( DR_6 << 4 ) | DR_6 ) }, 1 }
+#define LC4                { 867100000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC5                { 867300000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC6                { 867500000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC7                { 867700000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC8                { 867900000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC9                { 868800000, 0, { ( ( DR_7 << 4 ) | DR_7 ) }, 2 }
+#define LC10               { 868300000, 0, { ( ( DR_6 << 4 ) | DR_6 ) }, 1 }
 
 #endif
 
@@ -86,11 +87,11 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * User application data buffer size
  */
-#if defined( USE_BAND_868 )
+#if defined( REGION_EU868 )
 
 #define LORAWAN_APP_DATA_SIZE                       16
 
-#elif defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
+#elif defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
 
 #define LORAWAN_APP_DATA_SIZE                       11
 
@@ -215,7 +216,7 @@ static void PrepareTxFrame( uint8_t port )
     {
     case 2:
         {
-#if defined( USE_BAND_868 )
+#if defined( REGION_EU868 )
             LoRaMacUplinkStatus.Pressure = ( uint16_t )( MPL3115ReadPressure( ) / 10 );             // in hPa / 10
             LoRaMacUplinkStatus.Temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
             LoRaMacUplinkStatus.AltitudeBar = ( int16_t )( MPL3115ReadAltitude( ) * 10 );           // in m * 10
@@ -240,7 +241,7 @@ static void PrepareTxFrame( uint8_t port )
             AppData[13] = LoRaMacUplinkStatus.Longitude & 0xFF;
             AppData[14] = ( LoRaMacUplinkStatus.AltitudeGps >> 8 ) & 0xFF;
             AppData[15] = LoRaMacUplinkStatus.AltitudeGps & 0xFF;
-#elif defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
+#elif defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
             LoRaMacUplinkStatus.Temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
 
             LoRaMacUplinkStatus.BatteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
@@ -561,7 +562,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     mibReq.Param.AdrEnable = true;
                     LoRaMacMibSetRequestConfirm( &mibReq );
 
-#if defined( USE_BAND_868 )
+#if defined( REGION_EU868 )
                     LoRaMacTestSetDutyCycleOn( false );
 #endif
                     GpsStop( );
@@ -583,7 +584,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     mibReq.Type = MIB_ADR;
                     mibReq.Param.AdrEnable = AppSettings.AdrOn;
                     LoRaMacMibSetRequestConfirm( &mibReq );
-#if defined( USE_BAND_868 )
+#if defined( REGION_EU868 )
                     LoRaMacTestSetDutyCycleOn( AppSettings.DutyCycleOn );
 #endif
                     GpsStart( );
@@ -630,7 +631,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         mibReq.Type = MIB_ADR;
                         mibReq.Param.AdrEnable = AppSettings.AdrOn;
                         LoRaMacMibSetRequestConfirm( &mibReq );
-#if defined( USE_BAND_868 )
+#if defined( REGION_EU868 )
                         LoRaMacTestSetDutyCycleOn( AppSettings.DutyCycleOn );
 #endif
                         GpsStart( );
@@ -756,7 +757,7 @@ int main( void )
 #endif
     AppSettings.Otaa = OVER_THE_AIR_ACTIVATION;
     IsTxConfirmed = AppSettings.IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
-#if defined( USE_BAND_868 )
+#if defined( REGION_EU868 )
     AppSettings.DutyCycleOn = LORAWAN_DUTYCYCLE_ON;
 #endif
     AppSettings.DeviceClass = CLASS_B;
@@ -764,7 +765,7 @@ int main( void )
     LoRaMacUplinkStatus.Acked = false;
     LoRaMacUplinkStatus.NbTrials = 0;
     LoRaMacUplinkStatus.Datarate = LORAWAN_DEFAULT_DATARATE;
-    LoRaMacUplinkStatus.TxPower = LORAMAC_DEFAULT_TX_POWER;
+    LoRaMacUplinkStatus.TxPower = TX_POWER_0;
     LoRaMacUplinkStatus.UplinkCounter = 0;
 
     LoRaMacDownlinkStatus.DownlinkCounter = 0;
@@ -792,7 +793,15 @@ int main( void )
                 LoRaMacPrimitives.MacMcpsIndication = McpsIndication;
                 LoRaMacPrimitives.MacMlmeConfirm = MlmeConfirm;
                 LoRaMacCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
-                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks );
+#if defined( REGION_EU868 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_EU868 );
+#elif defined( REGION_US915 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_US915 );
+#elif defined( REGION_US915_HYBRID )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_US915_HYBRID );
+#else
+    #error "Please define a region in the compiler options."
+#endif
 
                 TimerInit( &TxNextPacketTimer, OnTxNextPacketTimerEvent );
 
@@ -810,7 +819,7 @@ int main( void )
                 mibReq.Param.EnablePublicNetwork = LORAWAN_PUBLIC_NETWORK;
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
-#if defined( USE_BAND_868 )
+#if defined( REGION_EU868 )
                 LoRaMacTestSetDutyCycleOn( AppSettings.DutyCycleOn );
 
 #if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 )
