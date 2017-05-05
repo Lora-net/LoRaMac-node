@@ -500,8 +500,6 @@ bool RegionEU433RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
 
     if( rxConfig->Window == 0 )
     {
-        // Apply the datarate offset for RX window 1
-        dr = RegionEU433ApplyDrOffset( rxConfig->DownlinkDwellTime, dr, rxConfig->DrOffset );
         // Apply window 1 frequency
         frequency = Channels[rxConfig->Channel].Frequency;
         // Apply the alternative RX 1 window frequency, if it is available

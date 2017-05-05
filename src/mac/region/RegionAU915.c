@@ -504,8 +504,6 @@ bool RegionAU915RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
 
     if( rxConfig->Window == 0 )
     {
-        // Apply the datarate offset for RX window 1
-        dr = RegionAU915ApplyDrOffset( rxConfig->DownlinkDwellTime, dr, rxConfig->DrOffset );
         // Apply window 1 frequency
         frequency = AU915_FIRST_RX1_CHANNEL + ( rxConfig->Channel % 8 ) * AU915_STEPWIDTH_RX1_CHANNEL;
     }

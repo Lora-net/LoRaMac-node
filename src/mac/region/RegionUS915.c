@@ -501,8 +501,6 @@ bool RegionUS915RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
 
     if( rxConfig->Window == 0 )
     {
-        // Apply the datarate offset for RX window 1
-        dr = RegionUS915ApplyDrOffset( rxConfig->DownlinkDwellTime, dr, rxConfig->DrOffset );
         // Apply window 1 frequency
         frequency = US915_FIRST_RX1_CHANNEL + ( rxConfig->Channel % 8 ) * US915_STEPWIDTH_RX1_CHANNEL;
     }
