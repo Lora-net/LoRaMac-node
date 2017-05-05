@@ -217,8 +217,10 @@ static const int8_t TxPowersCN470[] = { 17, 16, 14, 12, 10, 7, 5, 2 };
  * \brief The function gets a value of a specific phy attribute.
  *
  * \param [IN] getPhy Pointer to the function parameters.
+ *
+ * \retval Returns a structure containing the PHY parameter.
  */
-void RegionCN470GetPhyParam( GetPhyParams_t* getPhy );
+PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy );
 
 /*!
  * \brief Updates the last TX done parameters of the current channel.

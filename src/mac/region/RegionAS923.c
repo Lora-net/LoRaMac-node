@@ -139,19 +139,21 @@ static uint8_t CountNbOfEnabledChannels( bool joined, uint8_t datarate, uint16_t
     return nbEnabledChannels;
 }
 
-void RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
+PhyParam_t RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
 {
+    PhyParam_t phyParam;
+
     switch( getPhy->Attribute )
     {
         case PHY_MIN_RX_DR:
         {
             if( getPhy->DownlinkDwellTime == 0 )
             {
-                getPhy->Param.Value = AS923_RX_MIN_DATARATE;
+                phyParam.Value = AS923_RX_MIN_DATARATE;
             }
             else
             {
-                getPhy->Param.Value = AS923_DWELL_LIMIT_DATARATE;
+                phyParam.Value = AS923_DWELL_LIMIT_DATARATE;
             }
             break;
         }
@@ -159,33 +161,33 @@ void RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
         {
             if( getPhy->UplinkDwellTime == 0 )
             {
-                getPhy->Param.Value = AS923_TX_MIN_DATARATE;
+                phyParam.Value = AS923_TX_MIN_DATARATE;
             }
             else
             {
-                getPhy->Param.Value = AS923_DWELL_LIMIT_DATARATE;
+                phyParam.Value = AS923_DWELL_LIMIT_DATARATE;
             }
             break;
         }
         case PHY_DEF_TX_DR:
         {
-            getPhy->Param.Value = AS923_DEFAULT_DATARATE;
+            phyParam.Value = AS923_DEFAULT_DATARATE;
             break;
         }
         case PHY_DEF_TX_POWER:
         {
-            getPhy->Param.Value = AS923_DEFAULT_TX_POWER;
+            phyParam.Value = AS923_DEFAULT_TX_POWER;
             break;
         }
         case PHY_MAX_PAYLOAD:
         {
             if( getPhy->UplinkDwellTime == 0 )
             {
-                getPhy->Param.Value = MaxPayloadOfDatarateDwell0AS923[getPhy->Datarate];
+                phyParam.Value = MaxPayloadOfDatarateDwell0AS923[getPhy->Datarate];
             }
             else
             {
-                getPhy->Param.Value = MaxPayloadOfDatarateDwell1UpAS923[getPhy->Datarate];
+                phyParam.Value = MaxPayloadOfDatarateDwell1UpAS923[getPhy->Datarate];
             }
             break;
         }
@@ -193,115 +195,117 @@ void RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
         {
             if( getPhy->UplinkDwellTime == 0 )
             {
-                getPhy->Param.Value = MaxPayloadOfDatarateRepeaterDwell0AS923[getPhy->Datarate];
+                phyParam.Value = MaxPayloadOfDatarateRepeaterDwell0AS923[getPhy->Datarate];
             }
             else
             {
-                getPhy->Param.Value = MaxPayloadOfDatarateDwell1UpAS923[getPhy->Datarate];
+                phyParam.Value = MaxPayloadOfDatarateDwell1UpAS923[getPhy->Datarate];
             }
             break;
         }
         case PHY_DUTY_CYCLE:
         {
-            getPhy->Param.Value = AS923_DUTY_CYCLE_ENABLED;
+            phyParam.Value = AS923_DUTY_CYCLE_ENABLED;
             break;
         }
         case PHY_MAX_RX_WINDOW:
         {
-            getPhy->Param.Value = AS923_MAX_RX_WINDOW;
+            phyParam.Value = AS923_MAX_RX_WINDOW;
             break;
         }
         case PHY_RECEIVE_DELAY1:
         {
-            getPhy->Param.Value = AS923_RECEIVE_DELAY1;
+            phyParam.Value = AS923_RECEIVE_DELAY1;
             break;
         }
         case PHY_RECEIVE_DELAY2:
         {
-            getPhy->Param.Value = AS923_RECEIVE_DELAY2;
+            phyParam.Value = AS923_RECEIVE_DELAY2;
             break;
         }
         case PHY_JOIN_ACCEPT_DELAY1:
         {
-            getPhy->Param.Value = AS923_JOIN_ACCEPT_DELAY1;
+            phyParam.Value = AS923_JOIN_ACCEPT_DELAY1;
             break;
         }
         case PHY_JOIN_ACCEPT_DELAY2:
         {
-            getPhy->Param.Value = AS923_JOIN_ACCEPT_DELAY2;
+            phyParam.Value = AS923_JOIN_ACCEPT_DELAY2;
             break;
         }
         case PHY_MAX_FCNT_GAP:
         {
-            getPhy->Param.Value = AS923_MAX_FCNT_GAP;
+            phyParam.Value = AS923_MAX_FCNT_GAP;
             break;
         }
         case PHY_ACK_TIMEOUT:
         {
-            getPhy->Param.Value = ( AS923_ACKTIMEOUT + randr( -AS923_ACK_TIMEOUT_RND, AS923_ACK_TIMEOUT_RND ) );
+            phyParam.Value = ( AS923_ACKTIMEOUT + randr( -AS923_ACK_TIMEOUT_RND, AS923_ACK_TIMEOUT_RND ) );
             break;
         }
         case PHY_DEF_DR1_OFFSET:
         {
-            getPhy->Param.Value = AS923_DEFAULT_RX1_DR_OFFSET;
+            phyParam.Value = AS923_DEFAULT_RX1_DR_OFFSET;
             break;
         }
         case PHY_DEF_RX2_FREQUENCY:
         {
-            getPhy->Param.Value = AS923_RX_WND_2_FREQ;
+            phyParam.Value = AS923_RX_WND_2_FREQ;
             break;
         }
         case PHY_DEF_RX2_DR:
         {
-            getPhy->Param.Value = AS923_RX_WND_2_DR;
+            phyParam.Value = AS923_RX_WND_2_DR;
             break;
         }
         case PHY_CHANNELS_MASK:
         {
-            getPhy->Param.ChannelsMask = ChannelsMask;
+            phyParam.ChannelsMask = ChannelsMask;
             break;
         }
         case PHY_CHANNELS_DEFAULT_MASK:
         {
-            getPhy->Param.ChannelsMask = ChannelsDefaultMask;
+            phyParam.ChannelsMask = ChannelsDefaultMask;
             break;
         }
         case PHY_MAX_NB_CHANNELS:
         {
-            getPhy->Param.Value = AS923_MAX_NB_CHANNELS;
+            phyParam.Value = AS923_MAX_NB_CHANNELS;
             break;
         }
         case PHY_CHANNELS:
         {
-            getPhy->Param.Channels = Channels;
+            phyParam.Channels = Channels;
             break;
         }
         case PHY_DEF_UPLINK_DWELL_TIME:
         {
-            getPhy->Param.Value = AS923_DEFAULT_UPLINK_DWELL_TIME;
+            phyParam.Value = AS923_DEFAULT_UPLINK_DWELL_TIME;
             break;
         }
         case PHY_DEF_DOWNLINK_DWELL_TIME:
         {
-            getPhy->Param.Value = AS923_DEFAULT_DOWNLINK_DWELL_TIME;
+            phyParam.Value = AS923_DEFAULT_DOWNLINK_DWELL_TIME;
             break;
         }
         case PHY_DEF_MAX_EIRP:
         {
-            getPhy->Param.Value = AS923_DEFAULT_MAX_EIRP;
+            phyParam.Value = AS923_DEFAULT_MAX_EIRP;
             break;
         }
         case PHY_NB_JOIN_TRIALS:
         case PHY_DEF_NB_JOIN_TRIALS:
         {
-            getPhy->Param.Value = 1;
+            phyParam.Value = 1;
             break;
         }
         default:
         {
-            return;
+            break;
         }
     }
+
+    return phyParam;
 }
 
 void RegionAS923SetBandTxDone( SetBandTxDoneParams_t* txDone )
@@ -458,12 +462,13 @@ bool RegionAS923AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
     int8_t minTxDatarate = 0;
     int8_t txPower = adrNext->TxPower;
     GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
 
     // Get the minimum possible datarate
     getPhy.Attribute = PHY_MIN_TX_DR;
     getPhy.UplinkDwellTime = adrNext->UplinkDwellTime;
-    RegionAS923GetPhyParam( &getPhy );
-    minTxDatarate = getPhy.Param.Value;
+    phyParam = RegionAS923GetPhyParam( &getPhy );
+    minTxDatarate = phyParam.Value;
 
     // Report back the adr ack counter
     *adrAckCounter = adrNext->AdrAckCounter;

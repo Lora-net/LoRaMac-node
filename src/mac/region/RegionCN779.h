@@ -236,8 +236,10 @@ static const int8_t TxPowersCN779[] = { 10, 7, 4,  1,  -2,  -5 };
  * \brief The function gets a value of a specific phy attribute.
  *
  * \param [IN] getPhy Pointer to the function parameters.
+ *
+ * \retval Returns a structure containing the PHY parameter.
  */
-void RegionCN779GetPhyParam( GetPhyParams_t* getPhy );
+PhyParam_t RegionCN779GetPhyParam( GetPhyParams_t* getPhy );
 
 /*!
  * \brief Updates the last TX done parameters of the current channel.

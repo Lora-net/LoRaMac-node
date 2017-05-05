@@ -229,8 +229,10 @@ static const int8_t TxPowersUS915[] = { 30, 28, 26, 24, 22, 20, 18, 16, 14, 12, 
  * \brief The function gets a value of a specific phy attribute.
  *
  * \param [IN] getPhy Pointer to the function parameters.
+ *
+ * \retval Returns a structure containing the PHY parameter.
  */
-void RegionUS915GetPhyParam( GetPhyParams_t* getPhy );
+PhyParam_t RegionUS915GetPhyParam( GetPhyParams_t* getPhy );
 
 /*!
  * \brief Updates the last TX done parameters of the current channel.

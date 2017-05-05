@@ -240,8 +240,10 @@ static const int8_t TxPowersKR920[] = { 20, 14, 10,  8,  5,  2, 0 };
  * \brief The function gets a value of a specific phy attribute.
  *
  * \param [IN] getPhy Pointer to the function parameters.
+ *
+ * \retval Returns a structure containing the PHY parameter.
  */
-void RegionKR920GetPhyParam( GetPhyParams_t* getPhy );
+PhyParam_t RegionKR920GetPhyParam( GetPhyParams_t* getPhy );
 
 /*!
  * \brief Updates the last TX done parameters of the current channel.

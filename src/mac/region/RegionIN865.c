@@ -139,133 +139,137 @@ static uint8_t CountNbOfEnabledChannels( bool joined, uint8_t datarate, uint16_t
     return nbEnabledChannels;
 }
 
-void RegionIN865GetPhyParam( GetPhyParams_t* getPhy )
+PhyParam_t RegionIN865GetPhyParam( GetPhyParams_t* getPhy )
 {
+    PhyParam_t phyParam;
+
     switch( getPhy->Attribute )
     {
         case PHY_MIN_RX_DR:
         {
-            getPhy->Param.Value = IN865_RX_MIN_DATARATE;
+            phyParam.Value = IN865_RX_MIN_DATARATE;
             break;
         }
         case PHY_MIN_TX_DR:
         {
-            getPhy->Param.Value = IN865_TX_MIN_DATARATE;
+            phyParam.Value = IN865_TX_MIN_DATARATE;
             break;
         }
         case PHY_DEF_TX_DR:
         {
-            getPhy->Param.Value = IN865_DEFAULT_DATARATE;
+            phyParam.Value = IN865_DEFAULT_DATARATE;
             break;
         }
         case PHY_DEF_TX_POWER:
         {
-            getPhy->Param.Value = IN865_DEFAULT_TX_POWER;
+            phyParam.Value = IN865_DEFAULT_TX_POWER;
             break;
         }
         case PHY_MAX_PAYLOAD:
         {
-            getPhy->Param.Value = MaxPayloadOfDatarateIN865[getPhy->Datarate];
+            phyParam.Value = MaxPayloadOfDatarateIN865[getPhy->Datarate];
             break;
         }
         case PHY_MAX_PAYLOAD_REPEATER:
         {
-            getPhy->Param.Value = MaxPayloadOfDatarateRepeaterIN865[getPhy->Datarate];
+            phyParam.Value = MaxPayloadOfDatarateRepeaterIN865[getPhy->Datarate];
             break;
         }
         case PHY_DUTY_CYCLE:
         {
-            getPhy->Param.Value = IN865_DUTY_CYCLE_ENABLED;
+            phyParam.Value = IN865_DUTY_CYCLE_ENABLED;
             break;
         }
         case PHY_MAX_RX_WINDOW:
         {
-            getPhy->Param.Value = IN865_MAX_RX_WINDOW;
+            phyParam.Value = IN865_MAX_RX_WINDOW;
             break;
         }
         case PHY_RECEIVE_DELAY1:
         {
-            getPhy->Param.Value = IN865_RECEIVE_DELAY1;
+            phyParam.Value = IN865_RECEIVE_DELAY1;
             break;
         }
         case PHY_RECEIVE_DELAY2:
         {
-            getPhy->Param.Value = IN865_RECEIVE_DELAY2;
+            phyParam.Value = IN865_RECEIVE_DELAY2;
             break;
         }
         case PHY_JOIN_ACCEPT_DELAY1:
         {
-            getPhy->Param.Value = IN865_JOIN_ACCEPT_DELAY1;
+            phyParam.Value = IN865_JOIN_ACCEPT_DELAY1;
             break;
         }
         case PHY_JOIN_ACCEPT_DELAY2:
         {
-            getPhy->Param.Value = IN865_JOIN_ACCEPT_DELAY2;
+            phyParam.Value = IN865_JOIN_ACCEPT_DELAY2;
             break;
         }
         case PHY_MAX_FCNT_GAP:
         {
-            getPhy->Param.Value = IN865_MAX_FCNT_GAP;
+            phyParam.Value = IN865_MAX_FCNT_GAP;
             break;
         }
         case PHY_ACK_TIMEOUT:
         {
-            getPhy->Param.Value = ( IN865_ACKTIMEOUT + randr( -IN865_ACK_TIMEOUT_RND, IN865_ACK_TIMEOUT_RND ) );
+            phyParam.Value = ( IN865_ACKTIMEOUT + randr( -IN865_ACK_TIMEOUT_RND, IN865_ACK_TIMEOUT_RND ) );
             break;
         }
         case PHY_DEF_DR1_OFFSET:
         {
-            getPhy->Param.Value = IN865_DEFAULT_RX1_DR_OFFSET;
+            phyParam.Value = IN865_DEFAULT_RX1_DR_OFFSET;
             break;
         }
         case PHY_DEF_RX2_FREQUENCY:
         {
-            getPhy->Param.Value = IN865_RX_WND_2_FREQ;
+            phyParam.Value = IN865_RX_WND_2_FREQ;
             break;
         }
         case PHY_DEF_RX2_DR:
         {
-            getPhy->Param.Value = IN865_RX_WND_2_DR;
+            phyParam.Value = IN865_RX_WND_2_DR;
             break;
         }
         case PHY_CHANNELS_MASK:
         {
-            getPhy->Param.ChannelsMask = ChannelsMask;
+            phyParam.ChannelsMask = ChannelsMask;
             break;
         }
         case PHY_CHANNELS_DEFAULT_MASK:
         {
-            getPhy->Param.ChannelsMask = ChannelsDefaultMask;
+            phyParam.ChannelsMask = ChannelsDefaultMask;
             break;
         }
         case PHY_MAX_NB_CHANNELS:
         {
-            getPhy->Param.Value = IN865_MAX_NB_CHANNELS;
+            phyParam.Value = IN865_MAX_NB_CHANNELS;
             break;
         }
         case PHY_CHANNELS:
         {
-            getPhy->Param.Channels = Channels;
+            phyParam.Channels = Channels;
             break;
         }
         case PHY_DEF_UPLINK_DWELL_TIME:
         case PHY_DEF_DOWNLINK_DWELL_TIME:
         case PHY_DEF_MAX_EIRP:
         {
-            getPhy->Param.Value = 0;
+            phyParam.Value = 0;
             break;
         }
         case PHY_NB_JOIN_TRIALS:
         case PHY_DEF_NB_JOIN_TRIALS:
         {
-            getPhy->Param.Value = 48;
+            phyParam.Value = 48;
             break;
         }
         default:
         {
-            return;
+            break;
         }
     }
+
+    return phyParam;
 }
 
 void RegionIN865SetBandTxDone( SetBandTxDoneParams_t* txDone )

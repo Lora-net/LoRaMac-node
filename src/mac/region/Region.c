@@ -36,7 +36,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include "RegionAS923.h"
 #define AS923_CASE                                 case LORAMAC_REGION_AS923:
 #define AS923_IS_ACTIVE( )                         AS923_CASE { return true; }
-#define AS923_GET_PHY_PARAM( )                     AS923_CASE { RegionAS923GetPhyParam( getPhy ); break; }
+#define AS923_GET_PHY_PARAM( )                     AS923_CASE { return RegionAS923GetPhyParam( getPhy ); }
 #define AS923_SET_BAND_TX_DONE( )                  AS923_CASE { RegionAS923SetBandTxDone( txDone ); break; }
 #define AS923_INIT_DEFAULTS( )                     AS923_CASE { RegionAS923InitDefaults( type ); break; }
 #define AS923_VERIFY( )                            AS923_CASE { return RegionAS923Verify( verify, phyAttribute ); }
@@ -88,7 +88,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include "RegionAU915.h"
 #define AU915_CASE                                 case LORAMAC_REGION_AU915:
 #define AU915_IS_ACTIVE( )                         AU915_CASE { return true; }
-#define AU915_GET_PHY_PARAM( )                     AU915_CASE { RegionAU915GetPhyParam( getPhy ); break; }
+#define AU915_GET_PHY_PARAM( )                     AU915_CASE { return RegionAU915GetPhyParam( getPhy ); }
 #define AU915_SET_BAND_TX_DONE( )                  AU915_CASE { RegionAU915SetBandTxDone( txDone ); break; }
 #define AU915_INIT_DEFAULTS( )                     AU915_CASE { RegionAU915InitDefaults( type ); break; }
 #define AU915_VERIFY( )                            AU915_CASE { return RegionAU915Verify( verify, phyAttribute ); }
@@ -140,7 +140,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include "RegionCN470.h"
 #define CN470_CASE                                 case LORAMAC_REGION_CN470:
 #define CN470_IS_ACTIVE( )                         CN470_CASE { return true; }
-#define CN470_GET_PHY_PARAM( )                     CN470_CASE { RegionCN470GetPhyParam( getPhy ); break; }
+#define CN470_GET_PHY_PARAM( )                     CN470_CASE { return RegionCN470GetPhyParam( getPhy ); }
 #define CN470_SET_BAND_TX_DONE( )                  CN470_CASE { RegionCN470SetBandTxDone( txDone ); break; }
 #define CN470_INIT_DEFAULTS( )                     CN470_CASE { RegionCN470InitDefaults( type ); break; }
 #define CN470_VERIFY( )                            CN470_CASE { return RegionCN470Verify( verify, phyAttribute ); }
@@ -192,7 +192,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include "RegionCN779.h"
 #define CN779_CASE                                 case LORAMAC_REGION_CN779:
 #define CN779_IS_ACTIVE( )                         CN779_CASE { return true; }
-#define CN779_GET_PHY_PARAM( )                     CN779_CASE { RegionCN779GetPhyParam( getPhy ); break; }
+#define CN779_GET_PHY_PARAM( )                     CN779_CASE { return RegionCN779GetPhyParam( getPhy ); }
 #define CN779_SET_BAND_TX_DONE( )                  CN779_CASE { RegionCN779SetBandTxDone( txDone ); break; }
 #define CN779_INIT_DEFAULTS( )                     CN779_CASE { RegionCN779InitDefaults( type ); break; }
 #define CN779_VERIFY( )                            CN779_CASE { return RegionCN779Verify( verify, phyAttribute ); }
@@ -244,7 +244,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include "RegionEU433.h"
 #define EU433_CASE                                 case LORAMAC_REGION_EU433:
 #define EU433_IS_ACTIVE( )                         EU433_CASE { return true; }
-#define EU433_GET_PHY_PARAM( )                     EU433_CASE { RegionEU433GetPhyParam( getPhy ); break; }
+#define EU433_GET_PHY_PARAM( )                     EU433_CASE { return RegionEU433GetPhyParam( getPhy ); }
 #define EU433_SET_BAND_TX_DONE( )                  EU433_CASE { RegionEU433SetBandTxDone( txDone ); break; }
 #define EU433_INIT_DEFAULTS( )                     EU433_CASE { RegionEU433InitDefaults( type ); break; }
 #define EU433_VERIFY( )                            EU433_CASE { return RegionEU433Verify( verify, phyAttribute ); }
@@ -296,7 +296,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include "RegionEU868.h"
 #define EU868_CASE                                 case LORAMAC_REGION_EU868:
 #define EU868_IS_ACTIVE( )                         EU868_CASE { return true; }
-#define EU868_GET_PHY_PARAM( )                     EU868_CASE { RegionEU868GetPhyParam( getPhy ); break; }
+#define EU868_GET_PHY_PARAM( )                     EU868_CASE { return RegionEU868GetPhyParam( getPhy ); }
 #define EU868_SET_BAND_TX_DONE( )                  EU868_CASE { RegionEU868SetBandTxDone( txDone ); break; }
 #define EU868_INIT_DEFAULTS( )                     EU868_CASE { RegionEU868InitDefaults( type ); break; }
 #define EU868_VERIFY( )                            EU868_CASE { return RegionEU868Verify( verify, phyAttribute ); }
@@ -348,7 +348,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include "RegionKR920.h"
 #define KR920_CASE                                 case LORAMAC_REGION_KR920:
 #define KR920_IS_ACTIVE( )                         KR920_CASE { return true; }
-#define KR920_GET_PHY_PARAM( )                     KR920_CASE { RegionKR920GetPhyParam( getPhy ); break; }
+#define KR920_GET_PHY_PARAM( )                     KR920_CASE { return RegionKR920GetPhyParam( getPhy ); }
 #define KR920_SET_BAND_TX_DONE( )                  KR920_CASE { RegionKR920SetBandTxDone( txDone ); break; }
 #define KR920_INIT_DEFAULTS( )                     KR920_CASE { RegionKR920InitDefaults( type ); break; }
 #define KR920_VERIFY( )                            KR920_CASE { return RegionKR920Verify( verify, phyAttribute ); }
@@ -400,7 +400,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include "RegionIN865.h"
 #define IN865_CASE                                 case LORAMAC_REGION_IN865:
 #define IN865_IS_ACTIVE( )                         IN865_CASE { return true; }
-#define IN865_GET_PHY_PARAM( )                     IN865_CASE { RegionIN865GetPhyParam( getPhy ); break; }
+#define IN865_GET_PHY_PARAM( )                     IN865_CASE { return RegionIN865GetPhyParam( getPhy ); }
 #define IN865_SET_BAND_TX_DONE( )                  IN865_CASE { RegionIN865SetBandTxDone( txDone ); break; }
 #define IN865_INIT_DEFAULTS( )                     IN865_CASE { RegionIN865InitDefaults( type ); break; }
 #define IN865_VERIFY( )                            IN865_CASE { return RegionIN865Verify( verify, phyAttribute ); }
@@ -452,7 +452,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include "RegionUS915.h"
 #define US915_CASE                                 case LORAMAC_REGION_US915:
 #define US915_IS_ACTIVE( )                         US915_CASE { return true; }
-#define US915_GET_PHY_PARAM( )                     US915_CASE { RegionUS915GetPhyParam( getPhy ); break; }
+#define US915_GET_PHY_PARAM( )                     US915_CASE { return RegionUS915GetPhyParam( getPhy ); }
 #define US915_SET_BAND_TX_DONE( )                  US915_CASE { RegionUS915SetBandTxDone( txDone ); break; }
 #define US915_INIT_DEFAULTS( )                     US915_CASE { RegionUS915InitDefaults( type ); break; }
 #define US915_VERIFY( )                            US915_CASE { return RegionUS915Verify( verify, phyAttribute ); }
@@ -504,7 +504,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include "RegionUS915-Hybrid.h"
 #define US915_HYBRID_CASE                                 case LORAMAC_REGION_US915_HYBRID:
 #define US915_HYBRID_IS_ACTIVE( )                         US915_HYBRID_CASE { return true; }
-#define US915_HYBRID_GET_PHY_PARAM( )                     US915_HYBRID_CASE { RegionUS915HybridGetPhyParam( getPhy ); break; }
+#define US915_HYBRID_GET_PHY_PARAM( )                     US915_HYBRID_CASE { return RegionUS915HybridGetPhyParam( getPhy ); }
 #define US915_HYBRID_SET_BAND_TX_DONE( )                  US915_HYBRID_CASE { RegionUS915HybridSetBandTxDone( txDone ); break; }
 #define US915_HYBRID_INIT_DEFAULTS( )                     US915_HYBRID_CASE { RegionUS915HybridInitDefaults( type ); break; }
 #define US915_HYBRID_VERIFY( )                            US915_HYBRID_CASE { return RegionUS915HybridVerify( verify, phyAttribute ); }
@@ -573,8 +573,9 @@ bool RegionIsActive( LoRaMacRegion_t region )
     }
 }
 
-void RegionGetPhyParam( LoRaMacRegion_t region, GetPhyParams_t* getPhy )
+PhyParam_t RegionGetPhyParam( LoRaMacRegion_t region, GetPhyParams_t* getPhy )
 {
+    PhyParam_t phyParam = { 0 };
     switch( region )
     {
         AS923_GET_PHY_PARAM( );
@@ -589,7 +590,7 @@ void RegionGetPhyParam( LoRaMacRegion_t region, GetPhyParams_t* getPhy )
         US915_HYBRID_GET_PHY_PARAM( );
         default:
         {
-            return;
+            return phyParam;
         }
     }
 }

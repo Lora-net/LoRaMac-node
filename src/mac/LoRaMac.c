@@ -591,6 +591,7 @@ static void ResetMacParameters( void );
 static void OnRadioTxDone( void )
 {
     GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
     SetBandTxDoneParams_t txDone;
     TimerTime_t curTime = TimerGetCurrentTime( );
 
@@ -616,8 +617,8 @@ static void OnRadioTxDone( void )
         if( ( LoRaMacDeviceClass == CLASS_C ) || ( NodeAckRequested == true ) )
         {
             getPhy.Attribute = PHY_ACK_TIMEOUT;
-            RegionGetPhyParam( LoRaMacRegion, &getPhy );
-            TimerSetValue( &AckTimeoutTimer, RxWindow2Delay + getPhy.Param.Value );
+            phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+            TimerSetValue( &AckTimeoutTimer, RxWindow2Delay + phyParam.Value );
             TimerStart( &AckTimeoutTimer );
         }
     }
@@ -672,6 +673,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
     LoRaMacFrameCtrl_t fCtrl;
     ApplyCFListParams_t applyCFList;
     GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
     bool skipIndication = false;
 
     uint8_t pktHeaderLen = 0;
@@ -853,8 +855,8 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
 
                 // Check for a the maximum allowed counter difference
                 getPhy.Attribute = PHY_MAX_FCNT_GAP;
-                RegionGetPhyParam( LoRaMacRegion, &getPhy );
-                if( sequenceCounterDiff >= getPhy.Param.Value )
+                phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+                if( sequenceCounterDiff >= phyParam.Value )
                 {
                     McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS;
                     McpsIndication.DownLinkCounter = downLinkCounter;
@@ -1142,6 +1144,7 @@ static void OnRadioRxTimeout( void )
 static void OnMacStateCheckTimerEvent( void )
 {
     GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
     bool txTimeout = false;
 
     TimerStop( &MacStateCheckTimer );
@@ -1254,8 +1257,8 @@ static void OnMacStateCheckTimerEvent( void )
                 {
                     getPhy.Attribute = PHY_MIN_TX_DR;
                     getPhy.UplinkDwellTime = LoRaMacParams.UplinkDwellTime;
-                    RegionGetPhyParam( LoRaMacRegion, &getPhy );
-                    LoRaMacParams.ChannelsDatarate = MAX( LoRaMacParams.ChannelsDatarate - 1, getPhy.Param.Value );
+                    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+                    LoRaMacParams.ChannelsDatarate = MAX( LoRaMacParams.ChannelsDatarate - 1, phyParam.Value );
                 }
                 // Try to send the frame again
                 if( ScheduleTx( ) == LORAMAC_STATUS_OK )
@@ -1448,6 +1451,7 @@ static void RxWindowSetup( bool rxContinuous, uint32_t maxRxWindow )
 static bool ValidatePayloadLength( uint8_t lenN, int8_t datarate, uint8_t fOptsLen )
 {
     GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
     uint16_t maxN = 0;
     uint16_t payloadSize = 0;
 
@@ -1461,8 +1465,8 @@ static bool ValidatePayloadLength( uint8_t lenN, int8_t datarate, uint8_t fOptsL
     {
         getPhy.Attribute = PHY_MAX_PAYLOAD_REPEATER;
     }
-    RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    maxN = getPhy.Param.Value;
+    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    maxN = phyParam.Value;
 
     // Calculate the resulting payload size
     payloadSize = ( lenN + fOptsLen );
@@ -2210,6 +2214,7 @@ LoRaMacStatus_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint
 LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks, LoRaMacRegion_t region )
 {
     GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
 
     if( primitives == NULL )
     {
@@ -2247,64 +2252,64 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
 
     // Reset to defaults
     getPhy.Attribute = PHY_DUTY_CYCLE;
-    RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    DutyCycleOn = ( bool ) getPhy.Param.Value;
+    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    DutyCycleOn = ( bool ) phyParam.Value;
 
     getPhy.Attribute = PHY_DEF_TX_POWER;
-    RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    LoRaMacParamsDefaults.ChannelsTxPower = getPhy.Param.Value;
+    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.ChannelsTxPower = phyParam.Value;
 
     getPhy.Attribute = PHY_DEF_TX_DR;
-    RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    LoRaMacParamsDefaults.ChannelsDatarate = getPhy.Param.Value;
+    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.ChannelsDatarate = phyParam.Value;
 
     LoRaMacParamsDefaults.SystemMaxRxError = 10;
 
     LoRaMacParamsDefaults.MinRxSymbols = 6;
 
     getPhy.Attribute = PHY_MAX_RX_WINDOW;
-    RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    LoRaMacParamsDefaults.MaxRxWindow = getPhy.Param.Value;
+    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.MaxRxWindow = phyParam.Value;
 
     getPhy.Attribute = PHY_RECEIVE_DELAY1;
-    RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    LoRaMacParamsDefaults.ReceiveDelay1 = getPhy.Param.Value;
+    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.ReceiveDelay1 = phyParam.Value;
 
     getPhy.Attribute = PHY_RECEIVE_DELAY2;
-    RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    LoRaMacParamsDefaults.ReceiveDelay2 = getPhy.Param.Value;
+    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.ReceiveDelay2 = phyParam.Value;
 
     getPhy.Attribute = PHY_JOIN_ACCEPT_DELAY1;
-    RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    LoRaMacParamsDefaults.JoinAcceptDelay1 = getPhy.Param.Value;
+    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.JoinAcceptDelay1 = phyParam.Value;
 
     getPhy.Attribute = PHY_JOIN_ACCEPT_DELAY2;
-    RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    LoRaMacParamsDefaults.JoinAcceptDelay2 = getPhy.Param.Value;
+    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.JoinAcceptDelay2 = phyParam.Value;
 
     getPhy.Attribute = PHY_DEF_DR1_OFFSET;
-    RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    LoRaMacParamsDefaults.Rx1DrOffset = getPhy.Param.Value;
+    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.Rx1DrOffset = phyParam.Value;
 
     getPhy.Attribute = PHY_DEF_RX2_FREQUENCY;
-    RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    LoRaMacParamsDefaults.Rx2Channel.Frequency = getPhy.Param.Value;
+    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.Rx2Channel.Frequency = phyParam.Value;
 
     getPhy.Attribute = PHY_DEF_RX2_DR;
-    RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    LoRaMacParamsDefaults.Rx2Channel.Datarate = getPhy.Param.Value;
+    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.Rx2Channel.Datarate = phyParam.Value;
 
     getPhy.Attribute = PHY_DEF_UPLINK_DWELL_TIME;
-    RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    LoRaMacParamsDefaults.UplinkDwellTime = getPhy.Param.Value;
+    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.UplinkDwellTime = phyParam.Value;
 
     getPhy.Attribute = PHY_DEF_DOWNLINK_DWELL_TIME;
-    RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    LoRaMacParamsDefaults.DownlinkDwellTime = getPhy.Param.Value;
+    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.DownlinkDwellTime = phyParam.Value;
 
     getPhy.Attribute = PHY_DEF_MAX_EIRP;
-    RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    LoRaMacParamsDefaults.MaxEirp = getPhy.Param.Value;
+    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.MaxEirp = phyParam.Value;
 
     LoRaMacParamsDefaults.ChannelsNbRep = 1;
 
@@ -2356,6 +2361,7 @@ LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo )
 {
     AdrNextParams_t adrNext;
     GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
     int8_t datarate = LoRaMacParamsDefaults.ChannelsDatarate;
     int8_t txPower = LoRaMacParamsDefaults.ChannelsTxPower;
     uint8_t fOptLen = MacCommandsBufferIndex + MacCommandsBufferToRepeatIndex;
@@ -2387,8 +2393,8 @@ LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo )
     {
         getPhy.Attribute = PHY_MAX_PAYLOAD_REPEATER;
     }
-    RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    txInfo->CurrentPayloadSize = getPhy.Param.Value;
+    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    txInfo->CurrentPayloadSize = phyParam.Value;
 
     // Verify if the fOpts fit into the maximum payload
     if( txInfo->CurrentPayloadSize >= fOptLen )
@@ -2417,6 +2423,7 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t *mibGet )
 {
     LoRaMacStatus_t status = LORAMAC_STATUS_OK;
     GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
 
     if( mibGet == NULL )
     {
@@ -2473,9 +2480,9 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t *mibGet )
         case MIB_CHANNELS:
         {
             getPhy.Attribute = PHY_CHANNELS;
-            RegionGetPhyParam( LoRaMacRegion, &getPhy );
+            phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
 
-            mibGet->Param.ChannelList = getPhy.Param.Channels;
+            mibGet->Param.ChannelList = phyParam.Channels;
             break;
         }
         case MIB_RX2_CHANNEL:
@@ -2491,17 +2498,17 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t *mibGet )
         case MIB_CHANNELS_DEFAULT_MASK:
         {
             getPhy.Attribute = PHY_CHANNELS_DEFAULT_MASK;
-            RegionGetPhyParam( LoRaMacRegion, &getPhy );
+            phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
 
-            mibGet->Param.ChannelsDefaultMask = getPhy.Param.ChannelsMask;
+            mibGet->Param.ChannelsDefaultMask = phyParam.ChannelsMask;
             break;
         }
         case MIB_CHANNELS_MASK:
         {
             getPhy.Attribute = PHY_CHANNELS_MASK;
-            RegionGetPhyParam( LoRaMacRegion, &getPhy );
+            phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
 
-            mibGet->Param.ChannelsMask = getPhy.Param.ChannelsMask;
+            mibGet->Param.ChannelsMask = phyParam.ChannelsMask;
             break;
         }
         case MIB_CHANNELS_NB_REP:
@@ -2981,6 +2988,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
     AlternateDrParams_t altDr;
     VerifyParams_t verify;
     GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
 
     if( mlmeRequest == NULL )
     {
@@ -3019,8 +3027,8 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             {
                 // Value not supported, get default
                 getPhy.Attribute = PHY_DEF_NB_JOIN_TRIALS;
-                RegionGetPhyParam( LoRaMacRegion, &getPhy );
-                mlmeRequest->Req.Join.NbTrials = ( uint8_t ) getPhy.Param.Value;
+                phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+                mlmeRequest->Req.Join.NbTrials = ( uint8_t ) phyParam.Value;
             }
 
             LoRaMacFlags.Bits.MlmeReq = 1;
@@ -3086,6 +3094,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
 LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
 {
     GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
     LoRaMacStatus_t status = LORAMAC_STATUS_SERVICE_UNKNOWN;
     LoRaMacHeader_t macHdr;
     VerifyParams_t verify;
@@ -3154,10 +3163,10 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
     // Get the minimum possible datarate
     getPhy.Attribute = PHY_MIN_TX_DR;
     getPhy.UplinkDwellTime = LoRaMacParams.UplinkDwellTime;
-    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
     // Apply the minimum possible datarate.
     // Some regions have limitations for the minimum datarate.
-    datarate = MAX( datarate, getPhy.Param.Value );
+    datarate = MAX( datarate, phyParam.Value );
 
     if( readyToSend == true )
     {

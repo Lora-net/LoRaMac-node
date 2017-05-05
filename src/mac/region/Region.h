@@ -719,10 +719,6 @@ typedef struct sGetPhyParams
      * Downlink dwell time.
      */
     uint8_t DownlinkDwellTime;
-    /*!
-     * Contains the parameter to get.
-     */
-    PhyParam_t Param;
 }GetPhyParams_t;
 
 /*!
@@ -1129,8 +1125,10 @@ bool RegionIsActive( LoRaMacRegion_t region );
  * \param [IN] region LoRaWAN region.
  *
  * \param [IN] getPhy Pointer to the function parameters.
+ *
+ * \retval Returns a structure containing the PHY parameter.
  */
-void RegionGetPhyParam( LoRaMacRegion_t region, GetPhyParams_t* getPhy );
+PhyParam_t RegionGetPhyParam( LoRaMacRegion_t region, GetPhyParams_t* getPhy );
 
 /*!
  * \brief Updates the last TX done parameters of the current channel.
