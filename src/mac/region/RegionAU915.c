@@ -78,7 +78,6 @@ static uint32_t GetBandwidth( uint32_t drIndex )
     }
 }
 
-// ToDo
 static int8_t LimitTxPower( int8_t txPower, int8_t maxBandTxPower, int8_t datarate, uint16_t* channelsMask )
 {
     int8_t txPowerResult = txPower;

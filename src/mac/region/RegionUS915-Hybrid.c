@@ -615,7 +615,6 @@ bool RegionUS915HybridRxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
     return true;
 }
 
-// ToDo get tx power afterwards
 bool RegionUS915HybridTxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime_t* txTimeOnAir )
 {
     int8_t phyDr = DataratesUS915_HYBRID[txConfig->Datarate];

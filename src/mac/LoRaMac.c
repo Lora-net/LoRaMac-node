@@ -1979,7 +1979,6 @@ static void ResetMacParameters( void )
     }
 
     // Initialize channel index.
-    // ToDo Check the initialization value
     Channel = 0;
 }
 
