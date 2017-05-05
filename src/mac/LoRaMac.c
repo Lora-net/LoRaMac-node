@@ -3155,6 +3155,8 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
     getPhy.Attribute = PHY_MIN_TX_DR;
     getPhy.UplinkDwellTime = LoRaMacParams.UplinkDwellTime;
     RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    // Apply the minimum possible datarate.
+    // Some regions have limitations for the minimum datarate.
     datarate = MAX( datarate, getPhy.Param.Value );
 
     if( readyToSend == true )
