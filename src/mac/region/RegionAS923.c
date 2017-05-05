@@ -143,9 +143,28 @@ void RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
 {
     switch( getPhy->Attribute )
     {
-        case PHY_MIN_DR:
+        case PHY_MIN_RX_DR:
         {
-            getPhy->Param.Value = AS923_TX_MIN_DATARATE;
+            if( getPhy->DownlinkDwellTime == 0 )
+            {
+                getPhy->Param.Value = AS923_RX_MIN_DATARATE;
+            }
+            else
+            {
+                getPhy->Param.Value = AS923_DWELL_LIMIT_DATARATE;
+            }
+            break;
+        }
+        case PHY_MIN_TX_DR:
+        {
+            if( getPhy->UplinkDwellTime == 0 )
+            {
+                getPhy->Param.Value = AS923_TX_MIN_DATARATE;
+            }
+            else
+            {
+                getPhy->Param.Value = AS923_DWELL_LIMIT_DATARATE;
+            }
             break;
         }
         case PHY_DEF_TX_DR:
@@ -325,11 +344,29 @@ bool RegionAS923Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
     {
         case PHY_TX_DR:
         {
-            return RegionCommonValueInRange( verify->Datarate, AS923_TX_MIN_DATARATE, AS923_TX_MAX_DATARATE );
+            if( verify->UplinkDwellTime == 0 )
+            {
+                return RegionCommonValueInRange( verify->Datarate, AS923_TX_MIN_DATARATE, AS923_TX_MAX_DATARATE );
+            }
+            else
+            {
+                return RegionCommonValueInRange( verify->Datarate, AS923_DWELL_LIMIT_DATARATE, AS923_TX_MAX_DATARATE );
+            }
         }
         case PHY_DEF_TX_DR:
         {
             return RegionCommonValueInRange( verify->Datarate, DR_0, DR_5 );
+        }
+        case PHY_RX_DR:
+        {
+            if( verify->DownlinkDwellTime == 0 )
+            {
+                return RegionCommonValueInRange( verify->Datarate, AS923_RX_MIN_DATARATE, AS923_RX_MAX_DATARATE );
+            }
+            else
+            {
+                return RegionCommonValueInRange( verify->Datarate, AS923_DWELL_LIMIT_DATARATE, AS923_RX_MAX_DATARATE );
+            }
         }
         case PHY_DEF_TX_POWER:
         case PHY_TX_POWER:
@@ -418,14 +455,22 @@ bool RegionAS923AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
 {
     bool adrAckReq = false;
     int8_t datarate = adrNext->Datarate;
+    int8_t minTxDatarate = 0;
     int8_t txPower = adrNext->TxPower;
+    GetPhyParams_t getPhy;
+
+    // Get the minimum possible datarate
+    getPhy.Attribute = PHY_MIN_TX_DR;
+    getPhy.UplinkDwellTime = adrNext->UplinkDwellTime;
+    RegionAS923GetPhyParam( &getPhy );
+    minTxDatarate = getPhy.Param.Value;
 
     // Report back the adr ack counter
     *adrAckCounter = adrNext->AdrAckCounter;
 
     if( adrNext->AdrEnabled == true )
     {
-        if( datarate == AS923_TX_MIN_DATARATE )
+        if( datarate == minTxDatarate )
         {
             *adrAckCounter = 0;
             adrAckReq = false;
@@ -445,12 +490,12 @@ bool RegionAS923AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
             {
                 if( ( adrNext->AdrAckCounter % AS923_ADR_ACK_DELAY ) == 1 )
                 {
-                    if( datarate > AS923_TX_MIN_DATARATE )
+                    if( datarate > minTxDatarate )
                     {
                         datarate--;
                     }
 
-                    if( datarate == AS923_TX_MIN_DATARATE )
+                    if( datarate == minTxDatarate )
                     {
                         if( adrNext->UpdateChanMask == true )
                         {
@@ -802,8 +847,8 @@ uint8_t RegionAS923DlChannelReq( DlChannelReqParams_t* dlChannelReq )
 
 int8_t RegionAS923AlternateDr( AlternateDrParams_t* alternateDr )
 {
-    // Only DR_2 is supported
-    return DR_2;
+    // Only AS923_DWELL_LIMIT_DATARATE is supported
+    return AS923_DWELL_LIMIT_DATARATE;
 }
 
 void RegionAS923CalcBackOff( CalcBackOffParams_t* calcBackOff )
@@ -1019,7 +1064,7 @@ uint8_t RegionAS923ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t d
     // Update the minDR for a downlink dwell time configuration of 1
     if( downlinkDwellTime == 1 )
     {
-        minDr = DR_2;
+        minDr = AS923_DWELL_LIMIT_DATARATE;
     }
 
     // Apply offset formula

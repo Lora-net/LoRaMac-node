@@ -137,7 +137,12 @@ void RegionUS915GetPhyParam( GetPhyParams_t* getPhy )
 {
     switch( getPhy->Attribute )
     {
-        case PHY_MIN_DR:
+        case PHY_MIN_RX_DR:
+        {
+            getPhy->Param.Value = US915_RX_MIN_DATARATE;
+            break;
+        }
+        case PHY_MIN_TX_DR:
         {
             getPhy->Param.Value = US915_TX_MIN_DATARATE;
             break;
@@ -328,6 +333,10 @@ bool RegionUS915Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
         case PHY_DEF_TX_DR:
         {
             return RegionCommonValueInRange( verify->Datarate, DR_0, DR_5 );
+        }
+        case PHY_RX_DR:
+        {
+            return RegionCommonValueInRange( verify->Datarate, US915_RX_MIN_DATARATE, US915_RX_MAX_DATARATE );
         }
         case PHY_DEF_TX_POWER:
         case PHY_TX_POWER:

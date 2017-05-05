@@ -1252,7 +1252,8 @@ static void OnMacStateCheckTimerEvent( void )
 
                 if( ( AckTimeoutRetriesCounter % 2 ) == 1 )
                 {
-                    getPhy.Attribute = PHY_MIN_DR;
+                    getPhy.Attribute = PHY_MIN_TX_DR;
+                    getPhy.UplinkDwellTime = LoRaMacParams.UplinkDwellTime;
                     RegionGetPhyParam( LoRaMacRegion, &getPhy );
                     LoRaMacParams.ChannelsDatarate = MAX( LoRaMacParams.ChannelsDatarate - 1, getPhy.Param.Value );
                 }
@@ -2038,6 +2039,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
             adrNext.AdrAckCounter = AdrAckCounter;
             adrNext.Datarate = LoRaMacParams.ChannelsDatarate;
             adrNext.TxPower = LoRaMacParams.ChannelsTxPower;
+            adrNext.UplinkDwellTime = LoRaMacParams.UplinkDwellTime;
 
             fCtrl->Bits.AdrAckReq = RegionAdrNext( LoRaMacRegion, &adrNext,
                                                    &LoRaMacParams.ChannelsDatarate, &LoRaMacParams.ChannelsTxPower, &AdrAckCounter );
@@ -2369,6 +2371,7 @@ LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo )
     adrNext.AdrAckCounter = AdrAckCounter;
     adrNext.Datarate = LoRaMacParams.ChannelsDatarate;
     adrNext.TxPower = LoRaMacParams.ChannelsTxPower;
+    adrNext.UplinkDwellTime = LoRaMacParams.UplinkDwellTime;
 
     // We call the function for information purposes only. We don't want to
     // apply the datarate, the tx power and the ADR ack counter.
@@ -2685,12 +2688,32 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         }
         case MIB_RX2_CHANNEL:
         {
-            LoRaMacParams.Rx2Channel = mibSet->Param.Rx2Channel;
+            verify.Datarate = mibSet->Param.Rx2Channel.Datarate;
+            verify.DownlinkDwellTime = LoRaMacParams.DownlinkDwellTime;
+
+            if( RegionVerify( LoRaMacRegion, &verify, PHY_RX_DR ) == true )
+            {
+                LoRaMacParams.Rx2Channel = mibSet->Param.Rx2Channel;
+            }
+            else
+            {
+                status = LORAMAC_STATUS_PARAMETER_INVALID;
+            }
             break;
         }
         case MIB_RX2_DEFAULT_CHANNEL:
         {
-            LoRaMacParamsDefaults.Rx2Channel = mibSet->Param.Rx2DefaultChannel;
+            verify.Datarate = mibSet->Param.Rx2Channel.Datarate;
+            verify.DownlinkDwellTime = LoRaMacParams.DownlinkDwellTime;
+
+            if( RegionVerify( LoRaMacRegion, &verify, PHY_RX_DR ) == true )
+            {
+                LoRaMacParamsDefaults.Rx2Channel = mibSet->Param.Rx2DefaultChannel;
+            }
+            else
+            {
+                status = LORAMAC_STATUS_PARAMETER_INVALID;
+            }
             break;
         }
         case MIB_CHANNELS_DEFAULT_MASK:
@@ -3132,6 +3155,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
         if( AdrCtrlOn == false )
         {
             verify.Datarate = datarate;
+            verify.UplinkDwellTime = LoRaMacParams.UplinkDwellTime;
 
             if( RegionVerify( LoRaMacRegion, &verify, PHY_TX_DR ) == true )
             {

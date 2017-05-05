@@ -71,6 +71,12 @@
 #define AS923_DEFAULT_DATARATE                      DR_0
 
 /*!
+ * The minimum datarate which is used when the
+ * dwell time is limited.
+ */
+#define AS923_DWELL_LIMIT_DATARATE                  DR_2
+
+/*!
  * Minimal Rx1 receive datarate offset
  */
 #define AS923_MIN_RX1_DR_OFFSET                     0

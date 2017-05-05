@@ -527,13 +527,21 @@
 typedef enum ePhyAttribute
 {
     /*!
-     * Minimum datarate.
+     * Minimum RX datarate.
      */
-    PHY_MIN_DR,
+    PHY_MIN_RX_DR,
     /*!
-     * Maximum datarate.
+     * Minimum TX datarate.
      */
-    PHY_MAX_DR,
+    PHY_MIN_TX_DR,
+    /*!
+     * Maximum RX datarate.
+     */
+    PHY_MAX_RX_DR,
+    /*!
+     * Maximum TX datarate.
+     */
+    PHY_MAX_TX_DR,
     /*!
      * TX datarate.
      */
@@ -542,6 +550,10 @@ typedef enum ePhyAttribute
      * Default TX datarate.
      */
     PHY_DEF_TX_DR,
+    /*!
+     * RX datarate.
+     */
+    PHY_RX_DR,
     /*!
      * TX power.
      */
@@ -704,6 +716,10 @@ typedef struct sGetPhyParams
      */
     uint8_t UplinkDwellTime;
     /*!
+     * Downlink dwell time.
+     */
+    uint8_t DownlinkDwellTime;
+    /*!
      * Contains the parameter to get.
      */
     PhyParam_t Param;
@@ -745,6 +761,14 @@ typedef union uVerifyParams
      * The number of join trials.
      */
     uint8_t NbJoinTrials;
+    /*!
+     * The downlink dwell time.
+     */
+    uint8_t DownlinkDwellTime;
+    /*!
+     * The up link dwell time.
+     */
+     uint8_t UplinkDwellTime;
 }VerifyParams_t;
 
 /*!
@@ -802,6 +826,10 @@ typedef struct sAdrNextParams
      * TX power used currently.
      */
     int8_t TxPower;
+    /*!
+     * UplinkDwellTime
+     */
+    uint8_t UplinkDwellTime;
 }AdrNextParams_t;
 
 /*!
