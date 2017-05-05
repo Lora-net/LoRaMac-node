@@ -739,16 +739,12 @@ typedef struct sSetBandTxDoneParams
 /*!
  * Parameter structure for the function RegionVerify.
  */
-typedef struct sVerifyParams
+typedef union uVerifyParams
 {
     /*!
      * TX power to verify.
      */
     int8_t TxPower;
-    /*!
-     * Datarate to verify.
-     */
-    int8_t Datarate;
     /*!
      * Set to true, if the duty cycle is enabled, otherwise false.
      */
@@ -758,13 +754,23 @@ typedef struct sVerifyParams
      */
     uint8_t NbJoinTrials;
     /*!
-     * The downlink dwell time.
+     * Datarate to verify.
      */
-    uint8_t DownlinkDwellTime;
-    /*!
-     * The up link dwell time.
-     */
-    uint8_t UplinkDwellTime;
+    struct sDatarateParams
+    {
+        /*!
+        * Datarate to verify.
+        */
+        int8_t Datarate;
+        /*!
+        * The downlink dwell time.
+        */
+        uint8_t DownlinkDwellTime;
+        /*!
+        * The up link dwell time.
+        */
+        uint8_t UplinkDwellTime;
+    }DatarateParams;
 }VerifyParams_t;
 
 /*!

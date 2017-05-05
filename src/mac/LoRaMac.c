@@ -2695,8 +2695,8 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         }
         case MIB_RX2_CHANNEL:
         {
-            verify.Datarate = mibSet->Param.Rx2Channel.Datarate;
-            verify.DownlinkDwellTime = LoRaMacParams.DownlinkDwellTime;
+            verify.DatarateParams.Datarate = mibSet->Param.Rx2Channel.Datarate;
+            verify.DatarateParams.DownlinkDwellTime = LoRaMacParams.DownlinkDwellTime;
 
             if( RegionVerify( LoRaMacRegion, &verify, PHY_RX_DR ) == true )
             {
@@ -2710,8 +2710,8 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         }
         case MIB_RX2_DEFAULT_CHANNEL:
         {
-            verify.Datarate = mibSet->Param.Rx2Channel.Datarate;
-            verify.DownlinkDwellTime = LoRaMacParams.DownlinkDwellTime;
+            verify.DatarateParams.Datarate = mibSet->Param.Rx2Channel.Datarate;
+            verify.DatarateParams.DownlinkDwellTime = LoRaMacParams.DownlinkDwellTime;
 
             if( RegionVerify( LoRaMacRegion, &verify, PHY_RX_DR ) == true )
             {
@@ -2785,11 +2785,11 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         }
         case MIB_CHANNELS_DEFAULT_DATARATE:
         {
-            verify.Datarate = mibSet->Param.ChannelsDefaultDatarate;
+            verify.DatarateParams.Datarate = mibSet->Param.ChannelsDefaultDatarate;
 
             if( RegionVerify( LoRaMacRegion, &verify, PHY_DEF_TX_DR ) == true )
             {
-                LoRaMacParamsDefaults.ChannelsDatarate = verify.Datarate;
+                LoRaMacParamsDefaults.ChannelsDatarate = verify.DatarateParams.Datarate;
             }
             else
             {
@@ -2799,11 +2799,11 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         }
         case MIB_CHANNELS_DATARATE:
         {
-            verify.Datarate = mibSet->Param.ChannelsDatarate;
+            verify.DatarateParams.Datarate = mibSet->Param.ChannelsDatarate;
 
             if( RegionVerify( LoRaMacRegion, &verify, PHY_TX_DR ) == true )
             {
-                LoRaMacParams.ChannelsDatarate = verify.Datarate;
+                LoRaMacParams.ChannelsDatarate = verify.DatarateParams.Datarate;
             }
             else
             {
@@ -3172,12 +3172,12 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
     {
         if( AdrCtrlOn == false )
         {
-            verify.Datarate = datarate;
-            verify.UplinkDwellTime = LoRaMacParams.UplinkDwellTime;
+            verify.DatarateParams.Datarate = datarate;
+            verify.DatarateParams.UplinkDwellTime = LoRaMacParams.UplinkDwellTime;
 
             if( RegionVerify( LoRaMacRegion, &verify, PHY_TX_DR ) == true )
             {
-                LoRaMacParams.ChannelsDatarate = verify.Datarate;
+                LoRaMacParams.ChannelsDatarate = verify.DatarateParams.Datarate;
             }
             else
             {
