@@ -2395,21 +2395,18 @@ LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo )
     else
     {
         txInfo->MaxPossiblePayload = 0;
-        return LORAMAC_STATUS_MAC_CMD_LENGTH_ERROR;
-    }
-
-    // Verify if the payload fits into the maximum payload
-    if( ValidatePayloadLength( size, datarate, 0 ) == false )
-    {
-        return LORAMAC_STATUS_LENGTH_ERROR;
+        // The fOpts don't fit into the maximum payload. Omit the MAC commands to
+        // ensure that another uplink is possible.
+        fOptLen = 0;
+        MacCommandsBufferIndex = 0;
+        MacCommandsBufferToRepeatIndex = 0;
     }
 
     // Verify if the fOpts and the payload fit into the maximum payload
     if( ValidatePayloadLength( size, datarate, fOptLen ) == false )
     {
-        return LORAMAC_STATUS_MAC_CMD_LENGTH_ERROR;
+        return LORAMAC_STATUS_LENGTH_ERROR;
     }
-
     return LORAMAC_STATUS_OK;
 }
 

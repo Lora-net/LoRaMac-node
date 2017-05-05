@@ -1558,13 +1558,9 @@ typedef enum eLoRaMacStatus
      */
     LORAMAC_STATUS_NO_NETWORK_JOINED,
     /*!
-     * Service not started - payload lenght error
+     * Service not started - payload length error
      */
     LORAMAC_STATUS_LENGTH_ERROR,
-    /*!
-     * Service not started - payload lenght error
-     */
-    LORAMAC_STATUS_MAC_CMD_LENGTH_ERROR,
     /*!
      * Service not started - the device is switched off
      */
