@@ -2397,7 +2397,7 @@ LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo )
     }
     else
     {
-        txInfo->MaxPossiblePayload = 0;
+        txInfo->MaxPossiblePayload = txInfo->CurrentPayloadSize;
         // The fOpts don't fit into the maximum payload. Omit the MAC commands to
         // ensure that another uplink is possible.
         fOptLen = 0;
