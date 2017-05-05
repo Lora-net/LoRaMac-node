@@ -468,6 +468,8 @@ bool RegionAS923AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
     // Report back the adr ack counter
     *adrAckCounter = adrNext->AdrAckCounter;
 
+    datarate = MAX( datarate, minTxDatarate );
+
     if( adrNext->AdrEnabled == true )
     {
         if( datarate == minTxDatarate )

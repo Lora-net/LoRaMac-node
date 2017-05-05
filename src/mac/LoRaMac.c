@@ -3085,6 +3085,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
 
 LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
 {
+    GetPhyParams_t getPhy;
     LoRaMacStatus_t status = LORAMAC_STATUS_SERVICE_UNKNOWN;
     LoRaMacHeader_t macHdr;
     VerifyParams_t verify;
@@ -3149,6 +3150,12 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
         default:
             break;
     }
+
+    // Get the minimum possible datarate
+    getPhy.Attribute = PHY_MIN_TX_DR;
+    getPhy.UplinkDwellTime = LoRaMacParams.UplinkDwellTime;
+    RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    datarate = MAX( datarate, getPhy.Param.Value );
 
     if( readyToSend == true )
     {

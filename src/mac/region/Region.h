@@ -743,7 +743,7 @@ typedef struct sSetBandTxDoneParams
 /*!
  * Parameter structure for the function RegionVerify.
  */
-typedef union uVerifyParams
+typedef struct sVerifyParams
 {
     /*!
      * TX power to verify.
@@ -768,7 +768,7 @@ typedef union uVerifyParams
     /*!
      * The up link dwell time.
      */
-     uint8_t UplinkDwellTime;
+    uint8_t UplinkDwellTime;
 }VerifyParams_t;
 
 /*!
