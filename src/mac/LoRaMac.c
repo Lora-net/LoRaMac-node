@@ -449,10 +449,8 @@ static void OnAckTimeoutTimerEvent( void );
 /*!
  * \brief Initializes and opens the reception window
  *
- * \param [IN] freq window channel frequency
- * \param [IN] datarate window channel datarate
- * \param [IN] bandwidth window channel bandwidth
- * \param [IN] timeout window channel timeout
+ * \param [IN] rxContinuous Set to true, if the RX is in continuous mode
+ * \param [IN] maxRxWindow Maximum RX window timeout
  */
 static void RxWindowSetup( bool rxContinuous, uint32_t maxRxWindow );
 
