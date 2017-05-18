@@ -1374,6 +1374,10 @@ void SX1272OnDio0Irq( void )
                     }
 
                     SX1272.Settings.LoRaPacketHandler.Size = SX1272Read( REG_LR_RXNBBYTES );
+                    // Make sure we read from the correct fifo offset if in continuous receive mode, as incoming data wraps
+                    if (SX1272.Settings.LoRa.RxContinuous == true) {
+                        SX1272Write(REG_LR_FIFOADDRPTR, SX1272Read(REG_LR_FIFORXCURRENTADDR));
+                    }
                     SX1272ReadFifo( RxTxBuffer, SX1272.Settings.LoRaPacketHandler.Size );
 
                     if( SX1272.Settings.LoRa.RxContinuous == false )
