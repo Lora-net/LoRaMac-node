@@ -384,6 +384,9 @@ void SystemClockConfig( void )
 
     // SysTick_IRQn interrupt configuration
     HAL_NVIC_SetPriority( SysTick_IRQn, 0, 0 );
+
+    // Recalculate the SystemCoreClock global variable
+    SystemCoreClockUpdate( );
 }
 
 void CalibrateSystemWakeupTime( void )
@@ -428,6 +431,9 @@ void SystemClockReConfig( void )
     while( __HAL_RCC_GET_SYSCLK_SOURCE( ) != RCC_SYSCLKSOURCE_STATUS_PLLCLK )
     {
     }
+
+    // Recalculate the SystemCoreClock global variable
+    SystemCoreClockUpdate( );
 }
 
 void SysTick_Handler( void )
