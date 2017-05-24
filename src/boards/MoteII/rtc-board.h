@@ -17,10 +17,11 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define __RTC_BOARD_H__
 
 /*!
- * \brief Timer time variable definition
+ * \brief Timer time variable definition (time in RTC subseconds)
  */
 #ifndef TimerTime_t
-typedef uint32_t TimerTime_t;
+typedef uint64_t TimerTime_t;
+#define TIMERTIME_MAX (0xFFFFFFFFFFFFFFFFULL)
 #endif
 
 /*!
@@ -37,7 +38,7 @@ void RtcInit( void );
  *
  * \param[IN] timeout Duration of the Timer
  */
-void RtcSetTimeout( uint32_t timeout );
+void RtcSetTimeout( TimerTime_t timeout );
 
 /*!
  * \brief Adjust the value of the timeout to handle wakeup time from Alarm and GPIO irq
@@ -45,7 +46,7 @@ void RtcSetTimeout( uint32_t timeout );
  * \param[IN] timeout Duration of the Timer without compensation for wakeup time
  * \retval new value for the Timeout with compensations
  */
-TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout );
+TimerTime_t RtcGetAdjustedTimeoutValue( TimerTime_t timeout );
 
 /*!
  * \brief Get the RTC timer value
