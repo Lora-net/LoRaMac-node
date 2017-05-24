@@ -385,6 +385,13 @@ void SystemClockConfig( void )
     // SysTick_IRQn interrupt configuration
     HAL_NVIC_SetPriority( SysTick_IRQn, 0, 0 );
 
+    // Configure the microcontroller's Debug peripheral clock
+#if defined( DEBUG )
+    __HAL_RCC_DBGMCU_CLK_ENABLE( );
+#else
+    __HAL_RCC_DBGMCU_CLK_DISABLE( );
+#endif
+
     // Recalculate the SystemCoreClock global variable
     SystemCoreClockUpdate( );
 }
