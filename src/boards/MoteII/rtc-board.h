@@ -24,6 +24,11 @@ typedef uint64_t TimerTime_t;
 #define TIMERTIME_MAX (0xFFFFFFFFFFFFFFFFULL)
 #endif
 
+#ifndef MsTime_t
+typedef TimerTime_t MsTime_t;
+#define MSTIME_MAX TIMERTIME_MAX
+#endif
+
 /*!
  * \brief Initializes the RTC timer
  *
@@ -38,7 +43,7 @@ void RtcInit( void );
  *
  * \param[IN] timeout Duration of the Timer
  */
-void RtcSetTimeout( TimerTime_t timeout );
+void RtcSetTimeout( MsTime_t timeout );
 
 /*!
  * \brief Adjust the value of the timeout to handle wakeup time from Alarm and GPIO irq
@@ -46,21 +51,21 @@ void RtcSetTimeout( TimerTime_t timeout );
  * \param[IN] timeout Duration of the Timer without compensation for wakeup time
  * \retval new value for the Timeout with compensations
  */
-TimerTime_t RtcGetAdjustedTimeoutValue( TimerTime_t timeout );
+MsTime_t RtcGetAdjustedTimeoutValue( MsTime_t timeout );
 
 /*!
  * \brief Get the RTC timer value
  *
  * \retval RTC Timer value
  */
-TimerTime_t RtcGetTimerValue( void );
+MsTime_t RtcGetTimerValue( void );
 
 /*!
  * \brief Get the RTC timer elapsed time since the last Alarm was set
  *
  * \retval RTC Elapsed time since the last alarm
  */
-TimerTime_t RtcGetElapsedAlarmTime( void );
+MsTime_t RtcGetElapsedAlarmTime( void );
 
 /*!
  * \brief Compute the timeout time of a future event in time
@@ -68,7 +73,7 @@ TimerTime_t RtcGetElapsedAlarmTime( void );
  * \param[IN] futureEventInTime Value in time
  * \retval time Time between now and the futureEventInTime
  */
-TimerTime_t RtcComputeFutureEventTime( TimerTime_t futureEventInTime );
+MsTime_t RtcComputeFutureEventTime( MsTime_t futureEventInTime );
 
 /*!
  * \brief Compute the elapsed time since a fix event in time
@@ -76,7 +81,7 @@ TimerTime_t RtcComputeFutureEventTime( TimerTime_t futureEventInTime );
  * \param[IN] eventInTime Value in time
  * \retval elapsed Time since the eventInTime
  */
-TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime );
+MsTime_t RtcComputeElapsedTime( MsTime_t eventInTime );
 
 /*!
  * \brief This function blocks the MCU from going into Low Power mode

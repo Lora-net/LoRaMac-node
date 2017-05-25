@@ -136,7 +136,7 @@ static bool WakeUpTimeInitialized = false;
 /*!
  * \brief Hold the Wake-up time duration in ms
  */
-volatile uint32_t McuWakeUpTime = 0;
+volatile MsTime_t McuWakeUpTime = 0;
 
 /*!
  * \brief RTC wakeup time computation
@@ -171,9 +171,9 @@ RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter );
  */
 static TimerTime_t RtcConvertCalendarTickToTimerTime( RtcCalendar_t *calendar );
 
-static TimerTime_t RtcConvertMsToTick( TimerTime_t timeoutValue );
+static TimerTime_t RtcConvertMsToTick( MsTime_t timeoutValue );
 
-static TimerTime_t RtcConvertTickToMs( TimerTime_t timeoutValue );
+static MsTime_t RtcConvertTickToMs( TimerTime_t timeoutValue );
 
 /*!
  * \brief Converts a TimerTime_t value into a value for the RTC Alarm
@@ -251,12 +251,12 @@ void RtcInit( void )
     }
 }
 
-void RtcSetTimeout( TimerTime_t timeout )
+void RtcSetTimeout( MsTime_t timeout )
 {
     RtcStartWakeUpAlarm( RtcConvertMsToTick( timeout ) );
 }
 
-TimerTime_t RtcGetAdjustedTimeoutValue( TimerTime_t timeout )
+MsTime_t RtcGetAdjustedTimeoutValue( MsTime_t timeout )
 {
     if( timeout > McuWakeUpTime )
     {   // we have waken up from a GPIO and we have lost "McuWakeUpTime" that we need to compensate on next event
@@ -282,17 +282,16 @@ TimerTime_t RtcGetAdjustedTimeoutValue( TimerTime_t timeout )
     return  timeout;
 }
 
-TimerTime_t RtcGetTimerValue( void )
+MsTime_t RtcGetTimerValue( void )
 {
     TimerTime_t retVal;
 
     retVal = RtcConvertCalendarTickToTimerTime( NULL );
-    RtcConvertTickToMs( retVal );
 
     return( RtcConvertTickToMs( retVal ) );
 }
 
-TimerTime_t RtcGetElapsedAlarmTime( void )
+MsTime_t RtcGetElapsedAlarmTime( void )
 {
     TimerTime_t retVal;
     TimerTime_t currentTime;
@@ -309,17 +308,18 @@ TimerTime_t RtcGetElapsedAlarmTime( void )
     {
         retVal = ( currentTime - contextTime );
     }
+
     return( RtcConvertTickToMs( retVal ) );
 }
 
-TimerTime_t RtcComputeFutureEventTime( TimerTime_t futureEventInTime )
+MsTime_t RtcComputeFutureEventTime( MsTime_t futureEventInTime )
 {
     return( RtcGetTimerValue( ) + futureEventInTime );
 }
 
-TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime )
+MsTime_t RtcComputeElapsedTime( MsTime_t eventInTime )
 {
-    TimerTime_t elapsedTime;
+    MsTime_t elapsedTime;
 
     // Needed at boot, cannot compute with 0 or elapsed time will be equal to current time
     if( eventInTime == 0 )
@@ -327,13 +327,11 @@ TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime )
         return 0;
     }
 
-    elapsedTime = RtcConvertCalendarTickToTimerTime( NULL );
-
-    elapsedTime = RtcConvertTickToMs( elapsedTime );
+    elapsedTime = RtcConvertTickToMs( RtcConvertCalendarTickToTimerTime( NULL ) );
 
     if( elapsedTime < eventInTime )
     { // roll over of the counter
-        return( elapsedTime + ( TIMERTIME_MAX - eventInTime ) );
+        return( elapsedTime + ( MSTIME_MAX - eventInTime ) );
     }
     else
     {
@@ -370,7 +368,7 @@ void RtcEnterLowPowerStopMode( void )
         // SysTick interrupt would wake up the MCU for every tick
         HAL_SuspendTick();
 
-        // Enter Stop Mode
+        // Enter Stop Mode        
 #if defined(DEBUG)
         HAL_PWR_EnterSTOPMode( PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI );
 #else
@@ -781,23 +779,23 @@ static TimerTime_t RtcConvertCalendarTickToTimerTime( RtcCalendar_t *calendar )
     return ( timeCounter );
 }
 
-TimerTime_t RtcConvertMsToTick( TimerTime_t timeoutValue )
+TimerTime_t RtcConvertMsToTick( MsTime_t timeoutValue )
 {
 #if (PREDIV_S + 1 == MSEC_NUMBER)
-    return timeoutValue;
+    return ( TimerTime_t )timeoutValue;
 #else
     double retVal = round( ( double )( timeoutValue * ( PREDIV_S + 1 ) ) / MSEC_NUMBER );
     return( ( TimerTime_t )retVal );
 #endif
 }
 
-TimerTime_t RtcConvertTickToMs( TimerTime_t timeoutValue )
+MsTime_t RtcConvertTickToMs( TimerTime_t timeoutValue )
 {
 #if (PREDIV_S + 1 == MSEC_NUMBER)
-    return timeoutValue;
+    return ( MsTime_t )timeoutValue;
 #else
     double retVal = round( ( double ) ( timeoutValue * MSEC_NUMBER ) / ( PREDIV_S + 1 ) );
-    return( ( TimerTime_t )retVal );
+    return( ( MsTime_t )retVal );
 #endif
 }
 
