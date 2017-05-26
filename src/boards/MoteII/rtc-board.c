@@ -259,7 +259,9 @@ void RtcSetTimeout( MsTime_t timeout )
 MsTime_t RtcGetAdjustedTimeoutValue( MsTime_t timeout )
 {
     if( timeout > McuWakeUpTime )
-    {   // we have waken up from a GPIO and we have lost "McuWakeUpTime" that we need to compensate on next event
+    {
+        // if we have woken up from a GPIO then we have lost "McuWakeUpTime"
+        // that we need to compensate on next event
         if( NonScheduledWakeUp == true )
         {
             NonScheduledWakeUp = false;
@@ -268,7 +270,8 @@ MsTime_t RtcGetAdjustedTimeoutValue( MsTime_t timeout )
     }
 
     if( timeout > McuWakeUpTime )
-    {   // we don't go in Low Power mode for delay below 50ms (needed for LEDs)
+    {
+        // we don't go into Low Power mode for a delay below 50ms (needed for LEDs)
         if( timeout < 50 ) // 50 ms
         {
             RtcTimerEventAllowsLowPower = false;
@@ -279,6 +282,11 @@ MsTime_t RtcGetAdjustedTimeoutValue( MsTime_t timeout )
             timeout -= McuWakeUpTime;
         }
     }
+    else
+    {
+        RtcTimerEventAllowsLowPower = false;
+    }
+
     return  timeout;
 }
 
