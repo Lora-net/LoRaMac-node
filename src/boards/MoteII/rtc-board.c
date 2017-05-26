@@ -30,8 +30,8 @@ Maintainer: Miguel Luis and Gregory Cristian
  * LSI Example:
  * 1 = 37000 / ( 37 * 1000 )
  *
- * PREDIV_A can be 1,2,3,..., or 127  (7-bit)
- * PREDIV_S can be 0,1,2,..., or 8191 (13-bit)
+ * PREDIV_A can be 1,2,3,..., or 127   (7-bit),  defaults to 127
+ * PREDIV_S can be 0,1,2,..., or 32767 (15-bit), defaults to 255
  *
  * The PREDIV_S + 1 value also becomes the number of subseconds in a second,
  * also note that subseconds are being counted from up to down
