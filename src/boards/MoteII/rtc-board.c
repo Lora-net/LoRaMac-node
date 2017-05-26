@@ -536,6 +536,8 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
 
     for ( ;; )
     {
+        uint8_t cont = 0;
+
         if( year % 4 == 0 )
         {
             while( day > DaysInMonthLeapYear[month - 1] )
@@ -548,9 +550,15 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
                     month -= 12;
                     year++;
 
-                    // Year was changed, start from the scratch
-                    continue;
+                    cont = 1;
+                    break;
                 }
+            }
+
+            if( cont )
+            {
+                // Year was changed, start from the scratch
+                continue;
             }
 
             // Calculations done
@@ -568,9 +576,15 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
                     month -= 12;
                     year++;
 
-                    // Year was changed, start from the scratch
-                    continue;
+                    cont = 1;
+                    break;
                 }
+            }
+
+            if( cont )
+            {
+                // Year was changed, start from the scratch
+                continue;
             }
 
             // Calculations done
@@ -669,6 +683,8 @@ RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter )
 
     for ( ;; )
     {
+        uint8_t cont = 0;
+
         if( year % 4 == 0 )
         {
             while( day > DaysInMonthLeapYear[month - 1] )
@@ -681,9 +697,15 @@ RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter )
                     month -= 12;
                     year++;
 
-                    // Year was changed, start from the scratch
-                    continue;
+                    cont = 1;
+                    break;
                 }
+            }
+
+            if( cont )
+            {
+                // Year was changed, start from the scratch
+                continue;
             }
 
             // Calculations done
@@ -701,9 +723,15 @@ RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter )
                     month -= 12;
                     year++;
 
-                    // Year was changed, start from the scratch
-                    continue;
+                    cont = 1;
+                    break;
                 }
+            }
+
+            if( cont )
+            {
+                // Year was changed, start from the scratch
+                continue;
             }
 
             // Calculations done
