@@ -866,7 +866,7 @@ bool RegionUS915HybridNextChannel( NextChanParams_t* nextChanParams, uint8_t* ch
     uint8_t nbEnabledChannels = 0;
     uint8_t delayTx = 0;
     uint8_t enabledChannels[US915_HYBRID_MAX_NB_CHANNELS] = { 0 };
-    TimerTime_t nextTxDelay = ( TimerTime_t )( -1 );
+    TimerTime_t nextTxDelay = 0;
 
     // Count 125kHz channels
     if( RegionCommonCountChannels( ChannelsMaskRemaining, 0, 4 ) == 0 )
