@@ -64,6 +64,21 @@ static uint16_t ChannelsMaskRemaining[CHANNELS_MASK_SIZE];
 static uint16_t ChannelsDefaultMask[CHANNELS_MASK_SIZE];
 
 // Static functions
+static int8_t GetNextLowerTxDr( int8_t dr, int8_t minDr )
+{
+    uint8_t nextLowerDr = 0;
+
+    if( dr == minDr )
+    {
+        nextLowerDr = minDr;
+    }
+    else
+    {
+        nextLowerDr = dr - 1;
+    }
+    return nextLowerDr;
+}
+
 static uint32_t GetBandwidth( uint32_t drIndex )
 {
     switch( BandwidthsAU915[drIndex] )
@@ -141,6 +156,11 @@ PhyParam_t RegionAU915GetPhyParam( GetPhyParams_t* getPhy )
         case PHY_DEF_TX_DR:
         {
             phyParam.Value = AU915_DEFAULT_DATARATE;
+            break;
+        }
+        case PHY_NEXT_LOWER_TX_DR:
+        {
+            phyParam.Value = GetNextLowerTxDr( getPhy->Datarate, AU915_TX_MIN_DATARATE );
             break;
         }
         case PHY_DEF_TX_POWER:
@@ -410,6 +430,8 @@ bool RegionAU915AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
     bool adrAckReq = false;
     int8_t datarate = adrNext->Datarate;
     int8_t txPower = adrNext->TxPower;
+    GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
 
     // Report back the adr ack counter
     *adrAckCounter = adrNext->AdrAckCounter;
@@ -436,14 +458,12 @@ bool RegionAU915AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
             {
                 if( ( adrNext->AdrAckCounter % AU915_ADR_ACK_DELAY ) == 1 )
                 {
-                    if( ( datarate > AU915_TX_MIN_DATARATE ) && ( datarate == DR_8 ) )
-                    {
-                        datarate = DR_4;
-                    }
-                    else if( datarate > AU915_TX_MIN_DATARATE )
-                    {
-                        datarate--;
-                    }
+                    // Decrease the datarate
+                    getPhy.Attribute = PHY_NEXT_LOWER_TX_DR;
+                    getPhy.Datarate = datarate;
+                    getPhy.UplinkDwellTime = adrNext->UplinkDwellTime;
+                    phyParam = RegionAU915GetPhyParam( &getPhy );
+                    datarate = phyParam.Value;
 
                     if( datarate == AU915_TX_MIN_DATARATE )
                     {

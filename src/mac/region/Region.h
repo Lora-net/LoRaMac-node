@@ -653,7 +653,11 @@ typedef enum ePhyAttribute
     /*!
      * Default value for the number of join trials.
      */
-    PHY_DEF_NB_JOIN_TRIALS
+    PHY_DEF_NB_JOIN_TRIALS,
+    /*!
+     * Next lower datarate.
+     */
+    PHY_NEXT_LOWER_TX_DR
 }PhyAttribute_t;
 
 /*!

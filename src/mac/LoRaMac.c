@@ -1253,10 +1253,11 @@ static void OnMacStateCheckTimerEvent( void )
 
                 if( ( AckTimeoutRetriesCounter % 2 ) == 1 )
                 {
-                    getPhy.Attribute = PHY_MIN_TX_DR;
+                    getPhy.Attribute = PHY_NEXT_LOWER_TX_DR;
                     getPhy.UplinkDwellTime = LoRaMacParams.UplinkDwellTime;
+                    getPhy.Datarate = LoRaMacParams.ChannelsDatarate;
                     phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
-                    LoRaMacParams.ChannelsDatarate = MAX( LoRaMacParams.ChannelsDatarate - 1, phyParam.Value );
+                    LoRaMacParams.ChannelsDatarate = phyParam.Value;
                 }
                 // Try to send the frame again
                 if( ScheduleTx( ) == LORAMAC_STATUS_OK )

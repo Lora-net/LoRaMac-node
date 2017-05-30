@@ -59,6 +59,21 @@ static uint16_t ChannelsMask[CHANNELS_MASK_SIZE];
 static uint16_t ChannelsDefaultMask[CHANNELS_MASK_SIZE];
 
 // Static functions
+static int8_t GetNextLowerTxDr( int8_t dr, int8_t minDr )
+{
+    uint8_t nextLowerDr = 0;
+
+    if( dr == minDr )
+    {
+        nextLowerDr = minDr;
+    }
+    else
+    {
+        nextLowerDr = dr - 1;
+    }
+    return nextLowerDr;
+}
+
 static int8_t GetMaxEIRP( uint32_t freq )
 {
     if( freq >= 922100000 )
@@ -177,6 +192,11 @@ PhyParam_t RegionKR920GetPhyParam( GetPhyParams_t* getPhy )
         case PHY_DEF_TX_DR:
         {
             phyParam.Value = KR920_DEFAULT_DATARATE;
+            break;
+        }
+        case PHY_NEXT_LOWER_TX_DR:
+        {
+            phyParam.Value = GetNextLowerTxDr( getPhy->Datarate, KR920_TX_MIN_DATARATE );
             break;
         }
         case PHY_DEF_TX_POWER:
@@ -448,6 +468,8 @@ bool RegionKR920AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
     bool adrAckReq = false;
     int8_t datarate = adrNext->Datarate;
     int8_t txPower = adrNext->TxPower;
+    GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
 
     // Report back the adr ack counter
     *adrAckCounter = adrNext->AdrAckCounter;
@@ -474,10 +496,12 @@ bool RegionKR920AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
             {
                 if( ( adrNext->AdrAckCounter % KR920_ADR_ACK_DELAY ) == 1 )
                 {
-                    if( datarate > KR920_TX_MIN_DATARATE )
-                    {
-                        datarate--;
-                    }
+                    // Decrease the datarate
+                    getPhy.Attribute = PHY_NEXT_LOWER_TX_DR;
+                    getPhy.Datarate = datarate;
+                    getPhy.UplinkDwellTime = adrNext->UplinkDwellTime;
+                    phyParam = RegionKR920GetPhyParam( &getPhy );
+                    datarate = phyParam.Value;
 
                     if( datarate == KR920_TX_MIN_DATARATE )
                     {
