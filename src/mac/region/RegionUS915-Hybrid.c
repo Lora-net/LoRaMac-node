@@ -134,7 +134,7 @@ static int8_t LimitTxPower( int8_t txPower, int8_t maxBandTxPower, int8_t datara
     // Limit tx power to the band max
     txPowerResult =  MAX( txPower, maxBandTxPower );
 
-    if( ( datarate == DR_4 ) || ( ( datarate >= DR_8 ) && ( datarate <= DR_13 ) ) )
+    if( datarate == DR_4 )
     {// Limit tx power to max 26dBm
         txPowerResult = MAX( txPower, TX_POWER_2 );
     }
