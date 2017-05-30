@@ -259,6 +259,11 @@ static bool DutyCycleOn;
 static uint8_t Channel;
 
 /*!
+ * Current channel index
+ */
+static uint8_t LastTxChannel;
+
+/*!
  * Stores the time at LoRaMac initialization.
  *
  * \remark Used for the BACKOFF_DC computation.
@@ -632,14 +637,14 @@ static void OnRadioTxDone( void )
         LoRaMacFlags.Bits.MacDone = 1;
     }
 
+    // Store last Tx channel
+    LastTxChannel = Channel;
     // Update last tx done time for the current channel
     txDone.Channel = Channel;
     txDone.LastTxDoneTime = curTime;
     RegionSetBandTxDone( LoRaMacRegion, &txDone );
     // Update Aggregated last tx done time
     AggregatedLastTxDoneTime = curTime;
-    // Update Backoff
-    CalculateBackOff( Channel );
 
     if( NodeAckRequested == false )
     {
@@ -1861,6 +1866,9 @@ static LoRaMacStatus_t ScheduleTx( void )
         AggregatedTimeOff = 0;
     }
 
+    // Update Backoff
+    CalculateBackOff( LastTxChannel );
+
     nextChan.AggrTimeOff = AggregatedTimeOff;
     nextChan.Datarate = LoRaMacParams.ChannelsDatarate;
     nextChan.DutyCycleEnabled = DutyCycleOn;
@@ -1984,6 +1992,7 @@ static void ResetMacParameters( void )
 
     // Initialize channel index.
     Channel = 0;
+    LastTxChannel = Channel;
 }
 
 LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl, uint8_t fPort, void *fBuffer, uint16_t fBufferSize )
