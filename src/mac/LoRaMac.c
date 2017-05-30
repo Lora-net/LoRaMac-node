@@ -1135,7 +1135,11 @@ static void OnRadioRxTimeout( void )
             McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT;
         }
         MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT;
-        LoRaMacFlags.Bits.MacDone = 1;
+
+        if( LoRaMacDeviceClass != CLASS_C )
+        {
+            LoRaMacFlags.Bits.MacDone = 1;
+        }
     }
 }
 
