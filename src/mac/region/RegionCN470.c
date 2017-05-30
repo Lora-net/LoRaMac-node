@@ -329,12 +329,9 @@ bool RegionCN470Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
     switch( phyAttribute )
     {
         case PHY_TX_DR:
-        {
-            return RegionCommonValueInRange( verify->DatarateParams.Datarate, CN470_TX_MIN_DATARATE, CN470_TX_MAX_DATARATE );
-        }
         case PHY_DEF_TX_DR:
         {
-            return RegionCommonValueInRange( verify->DatarateParams.Datarate, DR_0, DR_5 );
+            return RegionCommonValueInRange( verify->DatarateParams.Datarate, CN470_TX_MIN_DATARATE, CN470_TX_MAX_DATARATE );
         }
         case PHY_RX_DR:
         {
