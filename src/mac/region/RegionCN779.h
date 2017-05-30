@@ -191,7 +191,7 @@
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
  */
-#define CN779_BAND0                                 { 100, CN779_DEFAULT_TX_POWER, 0,  0 } //  1.0 %
+#define CN779_BAND0                                 { 100, CN779_MAX_TX_POWER, 0,  0 } //  1.0 %
 
 /*!
  * LoRaMac default channel 1

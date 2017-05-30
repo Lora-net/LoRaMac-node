@@ -188,7 +188,7 @@
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
  */
-#define IN865_BAND0                                 { 1 , IN865_DEFAULT_TX_POWER, 0,  0 } //  100.0 %
+#define IN865_BAND0                                 { 1 , IN865_MAX_TX_POWER, 0,  0 } //  100.0 %
 
 /*!
  * LoRaMac default channel 1
