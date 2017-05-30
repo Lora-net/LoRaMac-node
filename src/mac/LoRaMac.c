@@ -2263,10 +2263,6 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
     LoRaMacParamsDefaults.ChannelsDatarate = phyParam.Value;
 
-    LoRaMacParamsDefaults.SystemMaxRxError = 10;
-
-    LoRaMacParamsDefaults.MinRxSymbols = 6;
-
     getPhy.Attribute = PHY_MAX_RX_WINDOW;
     phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
     LoRaMacParamsDefaults.MaxRxWindow = phyParam.Value;
@@ -2318,6 +2314,10 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     RegionInitDefaults( LoRaMacRegion, INIT_TYPE_INIT );
 
     // Init parameters which are not set in function ResetMacParameters
+    LoRaMacParamsDefaults.ChannelsNbRep = 1;
+    LoRaMacParamsDefaults.SystemMaxRxError = 10;
+    LoRaMacParamsDefaults.MinRxSymbols = 6;
+
     LoRaMacParams.SystemMaxRxError = LoRaMacParamsDefaults.SystemMaxRxError;
     LoRaMacParams.MinRxSymbols = LoRaMacParamsDefaults.MinRxSymbols;
     LoRaMacParams.MaxRxWindow = LoRaMacParamsDefaults.MaxRxWindow;
