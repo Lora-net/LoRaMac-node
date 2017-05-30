@@ -1591,7 +1591,7 @@ typedef enum eLoRaMacStatus
 }LoRaMacStatus_t;
 
 /*!
- * LoRaMAC region eunumeration
+ * LoRaMAC region enumeration
  */
 typedef enum eLoRaMacRegion_t
 {
