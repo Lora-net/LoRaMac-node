@@ -933,7 +933,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
 
                     // This must be done before parsing the payload and the MAC commands.
                     // We need to reset the MacCommandsBufferIndex here, since we need
-                    // to take retransmissions and repititions into account. Error cases
+                    // to take retransmissions and repetitions into account. Error cases
                     // will be handled in function OnMacStateCheckTimerEvent.
                     if( McpsConfirm.McpsRequest == MCPS_CONFIRMED )
                     {
