@@ -88,7 +88,7 @@
 /*!
  * Minimal Tx output power that can be used by the node
  */
-#define KR920_MIN_TX_POWER                          TX_POWER_6
+#define KR920_MIN_TX_POWER                          TX_POWER_10
 
 /*!
  * Maximal Tx output power that can be used by the node
@@ -241,10 +241,12 @@ static const uint32_t BandwidthsKR920[] = { 125e3, 125e3, 125e3, 125e3, 125e3, 1
 /*!
  * Maximum payload with respect to the datarate index. Can operate with and without a repeater.
  */
-static const uint8_t MaxPayloadOfDatarateKR920[] = { 65, 151, 242, 242, 242, 242 };
+static const uint8_t MaxPayloadOfDatarateKR920[] = { 51, 51, 51, 115, 242, 242 };
 
 /*!
+ * Maximum payload with respect to the datarate index. Can operate with repeater.
  */
+static const uint8_t MaxPayloadOfDatarateRepeaterKR920[] = { 51, 51, 51, 115, 222, 222 };
 
 /*!
  * \brief The function gets a value of a specific phy attribute.

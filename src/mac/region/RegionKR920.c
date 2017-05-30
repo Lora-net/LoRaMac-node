@@ -185,9 +185,13 @@ PhyParam_t RegionKR920GetPhyParam( GetPhyParams_t* getPhy )
             break;
         }
         case PHY_MAX_PAYLOAD:
-        case PHY_MAX_PAYLOAD_REPEATER:
         {
             phyParam.Value = MaxPayloadOfDatarateKR920[getPhy->Datarate];
+            break;
+        }
+        case PHY_MAX_PAYLOAD_REPEATER:
+        {
+            phyParam.Value = MaxPayloadOfDatarateRepeaterKR920[getPhy->Datarate];
             break;
         }
         case PHY_DUTY_CYCLE:
