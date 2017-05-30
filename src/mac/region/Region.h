@@ -720,15 +720,21 @@ typedef struct sGetPhyParams
      */
     PhyAttribute_t Attribute;
     /*!
-     * Datarate. The parameter is only used to query maximum payload lengths.
+     * Datarate.
+     * The parameter is needed for the following queries:
+     * PHY_MAX_PAYLOAD, PHY_MAX_PAYLOAD_REPEATER, PHY_NEXT_LOWER_TX_DR.
      */
     int8_t Datarate;
     /*!
      * Uplink dwell time.
+     * The parameter is needed for the following queries:
+     * PHY_MIN_TX_DR, PHY_MAX_PAYLOAD, PHY_MAX_PAYLOAD_REPEATER, PHY_NEXT_LOWER_TX_DR.
      */
     uint8_t UplinkDwellTime;
     /*!
      * Downlink dwell time.
+     * The parameter is needed for the following queries:
+     * PHY_MIN_RX_DR, PHY_MAX_PAYLOAD, PHY_MAX_PAYLOAD_REPEATER.
      */
     uint8_t DownlinkDwellTime;
 }GetPhyParams_t;
