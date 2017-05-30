@@ -48,7 +48,7 @@
 /*!
  * Maximal datarate that can be used by the node
  */
-#define AU915_TX_MAX_DATARATE                       DR_4
+#define AU915_TX_MAX_DATARATE                       DR_6
 
 /*!
  * Minimal datarate that can be used by the node
@@ -199,12 +199,12 @@
 /*!
  * Data rates table definition
  */
-static const uint8_t DataratesAU915[]  = { 10, 9, 8,  7,  8,  0,  0, 0, 12, 11, 10, 9, 8, 7, 0, 0 };
+static const uint8_t DataratesAU915[]  = { 12, 11, 10, 9, 8, 7, 8, 0, 12, 11, 10, 9, 8, 7, 0, 0 };
 
 /*!
  * Bandwidths table definition in Hz
  */
-static const uint32_t BandwidthsAU915[] = { 125e3, 125e3, 125e3, 125e3, 500e3, 0, 0, 0, 500e3, 500e3, 500e3, 500e3, 500e3, 500e3, 0, 0 };
+static const uint32_t BandwidthsAU915[] = { 125e3, 125e3, 125e3, 125e3, 125e3, 125e3, 500e3, 0, 500e3, 500e3, 500e3, 500e3, 500e3, 500e3, 0, 0 };
 
 /*!
  * Up/Down link data rates offset definition
@@ -221,15 +221,12 @@ static const int8_t DatarateOffsetsAU915[5][4] =
 /*!
  * Maximum payload with respect to the datarate index. Cannot operate with repeater.
  */
-static const uint8_t MaxPayloadOfDatarateAU915[] = { 11, 53, 126, 242, 242, 0, 0, 0, 53, 129, 242, 242, 242, 242, 0, 0 };
+static const uint8_t MaxPayloadOfDatarateAU915[] = { 51, 51, 51, 115, 242, 242, 242, 0, 53, 129, 242, 242, 242, 242, 0, 0 };
 
 /*!
  * Maximum payload with respect to the datarate index. Can operate with repeater.
  */
-static const uint8_t MaxPayloadOfDatarateRepeaterAU915[] = { 11, 53, 126, 242, 242, 0, 0, 0, 33, 109, 222, 222, 222, 222, 0, 0 };
-
-
-
+static const uint8_t MaxPayloadOfDatarateRepeaterAU915[] = { 51, 51, 51, 115, 222, 222, 222, 0, 33, 109, 222, 222, 222, 222, 0, 0 };
 
 /*!
  * \brief The function gets a value of a specific phy attribute.
