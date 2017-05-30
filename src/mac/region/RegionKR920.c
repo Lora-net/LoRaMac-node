@@ -59,14 +59,14 @@ static uint16_t ChannelsMask[CHANNELS_MASK_SIZE];
 static uint16_t ChannelsDefaultMask[CHANNELS_MASK_SIZE];
 
 // Static functions
-static int8_t GetMaxBandTxPower( uint32_t freq )
+static int8_t GetMaxEIRP( uint32_t freq )
 {
     if( freq >= 922100000 )
     {// Limit to 14dBm
-        return TX_POWER_1;
+        return KR920_DEFAULT_MAX_EIRP_HIGH;
     }
     // Limit to 10dBm
-    return TX_POWER_2;
+    return KR920_DEFAULT_MAX_EIRP_LOW;
 }
 
 static uint32_t GetBandwidth( uint32_t drIndex )
@@ -267,9 +267,22 @@ PhyParam_t RegionKR920GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_DEF_UPLINK_DWELL_TIME:
         case PHY_DEF_DOWNLINK_DWELL_TIME:
-        case PHY_DEF_MAX_EIRP:
         {
             phyParam.Value = 0;
+            break;
+        }
+        case PHY_DEF_MAX_EIRP:
+        {
+            // We set the lower maximum EIRP as default value.
+            // The reason for this is, that the frequency may
+            // change during a channel selection for the next uplink.
+            // The value has to be recalculated in the TX configuration.
+            phyParam.fValue = KR920_DEFAULT_MAX_EIRP_LOW;
+            break;
+        }
+        case PHY_DEF_ANTENNA_GAIN:
+        {
+            phyParam.fValue = KR920_DEFAULT_ANTENNA_GAIN;
             break;
         }
         case PHY_NB_JOIN_TRIALS:
@@ -539,12 +552,17 @@ bool RegionKR920RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
 bool RegionKR920TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime_t* txTimeOnAir )
 {
     int8_t phyDr = DataratesKR920[txConfig->Datarate];
-    int8_t maxTxPower = MAX( GetMaxBandTxPower( Channels[txConfig->Channel].Frequency ), Bands[Channels[txConfig->Channel].Band].TxMaxPower );
-    int8_t txPowerLimited = LimitTxPower( txConfig->TxPower, maxTxPower, txConfig->Datarate, ChannelsMask );
+    int8_t txPowerLimited = LimitTxPower( txConfig->TxPower, Bands[Channels[txConfig->Channel].Band].TxMaxPower, txConfig->Datarate, ChannelsMask );
     uint32_t bandwidth = GetBandwidth( txConfig->Datarate );
+    float maxEIRP = GetMaxEIRP( Channels[txConfig->Channel].Frequency );
     int8_t phyTxPower = 0;
 
-    phyTxPower = TxPowersKR920[txPowerLimited];
+    // Take the minimum between the maxEIRP and txConfig->MaxEirp.
+    // The value of txConfig->MaxEirp could have changed during runtime, e.g. due to a MAC command.
+    maxEIRP = MIN( txConfig->MaxEirp, maxEIRP );
+
+    // Calculate physical TX power
+    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, maxEIRP, txConfig->AntennaGain );
 
     // Setup the radio frequency
     Radio.SetChannel( Channels[txConfig->Channel].Frequency );
@@ -992,7 +1010,8 @@ void RegionKR920SetContinuousWave( ContinuousWaveParams_t* continuousWave )
     int8_t phyTxPower = 0;
     uint32_t frequency = Channels[continuousWave->Channel].Frequency;
 
-    phyTxPower = TxPowersKR920[txPowerLimited];
+    // Calculate physical TX power
+    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, continuousWave->MaxEirp, continuousWave->AntennaGain );
 
     Radio.SetTxContinuousWave( frequency, phyTxPower, continuousWave->Timeout );
 }

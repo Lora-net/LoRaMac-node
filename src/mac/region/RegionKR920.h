@@ -101,6 +101,21 @@
 #define KR920_DEFAULT_TX_POWER                      TX_POWER_1
 
 /*!
+ * Default Max EIRP for frequency 920.9 MHz - 921.9 MHz
+ */
+#define KR920_DEFAULT_MAX_EIRP_LOW                  10.0f
+
+/*!
+ * Default Max EIRP for frequency 922.1 MHz - 923.3 MHz
+ */
+#define KR920_DEFAULT_MAX_EIRP_HIGH                 14.0f
+
+/*!
+ * Default antenna gain
+ */
+#define KR920_DEFAULT_ANTENNA_GAIN                  2.15f
+
+/*!
  * ADR Ack limit
  */
 #define KR920_ADR_ACK_LIMIT                         64
@@ -229,12 +244,7 @@ static const uint32_t BandwidthsKR920[] = { 125e3, 125e3, 125e3, 125e3, 125e3, 1
 static const uint8_t MaxPayloadOfDatarateKR920[] = { 65, 151, 242, 242, 242, 242 };
 
 /*!
- * Tx output powers table definition
  */
-static const int8_t TxPowersKR920[] = { 20, 14, 10,  8,  5,  2, 0 };
-
-
-
 
 /*!
  * \brief The function gets a value of a specific phy attribute.

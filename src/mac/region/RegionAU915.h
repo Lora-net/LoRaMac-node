@@ -96,6 +96,16 @@
 #define AU915_DEFAULT_TX_POWER                      TX_POWER_5
 
 /*!
+ * Default Max EIRP
+ */
+#define AU915_DEFAULT_MAX_EIRP                      30.0f
+
+/*!
+ * Default antenna gain
+ */
+#define AU915_DEFAULT_ANTENNA_GAIN                  2.15f
+
+/*!
  * ADR Ack limit
  */
 #define AU915_ADR_ACK_LIMIT                         64
@@ -218,10 +228,6 @@ static const uint8_t MaxPayloadOfDatarateAU915[] = { 11, 53, 126, 242, 242, 0, 0
  */
 static const uint8_t MaxPayloadOfDatarateRepeaterAU915[] = { 11, 53, 126, 242, 242, 0, 0, 0, 33, 109, 222, 222, 222, 222, 0, 0 };
 
-/*!
- * Tx output powers table definition
- */
-static const int8_t TxPowersAU915[] = { 30, 28, 26, 24, 22, 20, 18, 16, 14, 12, 10 };
 
 
 

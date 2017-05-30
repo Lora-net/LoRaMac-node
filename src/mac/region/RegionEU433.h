@@ -101,6 +101,16 @@
 #define EU433_DEFAULT_TX_POWER                      TX_POWER_0
 
 /*!
+ * Default Max EIRP
+ */
+#define EU433_DEFAULT_MAX_EIRP                      12.15f
+
+/*!
+ * Default antenna gain
+ */
+#define EU433_DEFAULT_ANTENNA_GAIN                  2.15f
+
+/*!
  * ADR Ack limit
  */
 #define EU433_ADR_ACK_LIMIT                         64
@@ -225,13 +235,6 @@ static const uint8_t MaxPayloadOfDatarateEU433[] = { 51, 51, 51, 115, 242, 242, 
  * Maximum payload with respect to the datarate index. Can operate with repeater.
  */
 static const uint8_t MaxPayloadOfDatarateRepeaterEU433[] = { 51, 51, 51, 115, 222, 222, 222, 222 };
-
-/*!
- * Tx output powers table definition
- */
-static const int8_t TxPowersEU433[] = { 10, 7, 4,  1,  -2,  -5 };
-
-
 
 /*!
  * \brief The function gets a value of a specific phy attribute.

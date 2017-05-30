@@ -101,6 +101,16 @@
 #define EU868_DEFAULT_TX_POWER                      TX_POWER_1
 
 /*!
+ * Default Max EIRP
+ */
+#define EU868_DEFAULT_MAX_EIRP                      16.0f
+
+/*!
+ * Default antenna gain
+ */
+#define EU868_DEFAULT_ANTENNA_GAIN                  2.15f
+
+/*!
  * ADR Ack limit
  */
 #define EU868_ADR_ACK_LIMIT                         64
@@ -246,14 +256,6 @@ static const uint8_t MaxPayloadOfDatarateEU868[] = { 51, 51, 51, 115, 242, 242, 
  * Maximum payload with respect to the datarate index. Can operate with repeater.
  */
 static const uint8_t MaxPayloadOfDatarateRepeaterEU868[] = { 51, 51, 51, 115, 222, 222, 222, 222 };
-
-/*!
- * Tx output powers table definition
- */
-static const int8_t TxPowersEU868[] = { 20, 14, 11,  8,  5,  2 };
-
-
-
 
 /*!
  * \brief The function gets a value of a specific phy attribute.

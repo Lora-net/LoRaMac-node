@@ -96,6 +96,16 @@
 #define CN470_DEFAULT_TX_POWER                    TX_POWER_2
 
 /*!
+ * Default Max EIRP
+ */
+#define CN470_DEFAULT_MAX_EIRP                      19.15f
+
+/*!
+ * Default antenna gain
+ */
+#define CN470_DEFAULT_ANTENNA_GAIN                  2.15f
+
+/*!
  * ADR Ack limit
  */
 #define CN470_ADR_ACK_LIMIT                         64
@@ -205,13 +215,6 @@ static const uint8_t MaxPayloadOfDatarateCN470[] = { 51, 51, 51, 115, 222, 222 }
  * Maximum payload with respect to the datarate index. Can operate with repeater.
  */
 static const uint8_t MaxPayloadOfDatarateRepeaterCN470[] = { 51, 51, 51, 115, 222, 222 };
-
-/*!
- * Tx output powers table definition
- */
-static const int8_t TxPowersCN470[] = { 17, 16, 14, 12, 10, 7, 5, 2 };
-
-
 
 /*!
  * \brief The function gets a value of a specific phy attribute.

@@ -230,9 +230,18 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_DEF_UPLINK_DWELL_TIME:
         case PHY_DEF_DOWNLINK_DWELL_TIME:
-        case PHY_DEF_MAX_EIRP:
         {
             phyParam.Value = 0;
+            break;
+        }
+        case PHY_DEF_MAX_EIRP:
+        {
+            phyParam.fValue = CN470_DEFAULT_MAX_EIRP;
+            break;
+        }
+        case PHY_DEF_ANTENNA_GAIN:
+        {
+            phyParam.fValue = CN470_DEFAULT_ANTENNA_GAIN;
             break;
         }
         case PHY_NB_JOIN_TRIALS:
@@ -484,7 +493,8 @@ bool RegionCN470TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
     int8_t txPowerLimited = LimitTxPower( txConfig->TxPower, Bands[Channels[txConfig->Channel].Band].TxMaxPower, txConfig->Datarate, ChannelsMask );
     int8_t phyTxPower = 0;
 
-    phyTxPower = TxPowersCN470[txPowerLimited];
+    // Calculate physical TX power
+    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, txConfig->MaxEirp, txConfig->AntennaGain );
 
     // Setup the radio frequency
     Radio.SetChannel( Channels[txConfig->Channel].Frequency );
@@ -756,7 +766,8 @@ void RegionCN470SetContinuousWave( ContinuousWaveParams_t* continuousWave )
     int8_t phyTxPower = 0;
     uint32_t frequency = Channels[continuousWave->Channel].Frequency;
 
-    phyTxPower = TxPowersCN470[txPowerLimited];
+    // Calculate physical TX power
+    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, continuousWave->MaxEirp, continuousWave->AntennaGain );
 
     Radio.SetTxContinuousWave( frequency, phyTxPower, continuousWave->Timeout );
 }

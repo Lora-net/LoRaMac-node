@@ -101,6 +101,16 @@
 #define IN865_DEFAULT_TX_POWER                      TX_POWER_0
 
 /*!
+ * Default Max EIRP
+ */
+#define IN865_DEFAULT_MAX_EIRP                      30.0f
+
+/*!
+ * Default antenna gain
+ */
+#define IN865_DEFAULT_ANTENNA_GAIN                  2.15f
+
+/*!
  * ADR Ack limit
  */
 #define IN865_ADR_ACK_LIMIT                         64
@@ -222,11 +232,6 @@ static const uint8_t MaxPayloadOfDatarateIN865[] = { 51, 51, 51, 115, 242, 242, 
  * Maximum payload with respect to the datarate index. Can operate with repeater.
  */
 static const uint8_t MaxPayloadOfDatarateRepeaterIN865[] = { 51, 51, 51, 115, 222, 222, 222, 222 };
-
-/*!
- * Tx output powers table definition
- */
-static const int8_t TxPowersIN865[] = { 20, 18, 16, 14, 12, 10, 8, 6, 4, 2, 0 };
 
 /*!
  * Effective datarate offsets for receive window 1.

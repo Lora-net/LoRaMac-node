@@ -222,6 +222,19 @@ double RegionCommonComputeSymbolTimeFsk( uint8_t phyDr );
  */
 void RegionCommonComputeRxWindowParameters( double tSymbol, uint8_t minRxSymbols, uint32_t rxError, uint32_t wakeUpTime, uint32_t* windowTimeout, int32_t* windowOffset );
 
+/*!
+ * \brief Computes the txPower, based on the max EIRP and the antenna gain.
+ *
+ * \param [IN] txPower TX power index.
+ *
+ * \param [IN] maxEirp Maximum EIRP.
+ *
+ * \param [IN] antennaGain Antenna gain.
+ *
+ * \retval Returns the physical TX power.
+ */
+int8_t RegionCommonComputeTxPower( int8_t txPowerIndex, float maxEirp, float antennaGain );
+
 /*! \} defgroup REGIONCOMMON */
 
 #endif // __REGIONCOMMON_H__

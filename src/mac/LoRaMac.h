@@ -279,7 +279,11 @@ typedef struct sLoRaMacParams
     /*!
      * Maximum possible EIRP
      */
-    uint8_t MaxEirp;
+    float MaxEirp;
+    /*!
+     * Antenna gain of the node
+     */
+    float AntennaGain;
 }LoRaMacParams_t;
 
 /*!
@@ -1090,6 +1094,7 @@ typedef struct sMlmeConfirm
  * \ref MIB_MULTICAST_CHANNEL        | YES | NO
  * \ref MIB_SYSTEM_MAX_RX_ERROR      | YES | YES
  * \ref MIB_MIN_RX_SYMBOLS           | YES | YES
+ * \ref MIB_ANTENNA_GAIN             | YES | YES
  *
  * The following table provides links to the function implementations of the
  * related MIB primitives:
@@ -1306,6 +1311,13 @@ typedef enum eMib
      * Default: 6 symbols
      */
     MIB_MIN_RX_SYMBOLS,
+    /*!
+     * Antenna gain of the node. Default value is region specific.
+     * The antenna gain is used to calculate the TX power of the node.
+     * The formula is:
+     * radioTxPower = ( int8_t )floor( maxEirp - antennaGain )
+     */
+    MIB_ANTENNA_GAIN
 }Mib_t;
 
 /*!
@@ -1487,6 +1499,12 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_MIN_RX_SYMBOLS
      */
     uint8_t MinRxSymbols;
+    /*!
+     * Antenna gain
+     *
+     * Related MIB type: \ref MIB_ANTENNA_GAIN
+     */
+    float AntennaGain;
 }MibParam_t;
 
 /*!

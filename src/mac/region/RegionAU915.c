@@ -246,9 +246,18 @@ PhyParam_t RegionAU915GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_DEF_UPLINK_DWELL_TIME:
         case PHY_DEF_DOWNLINK_DWELL_TIME:
-        case PHY_DEF_MAX_EIRP:
         {
             phyParam.Value = 0;
+            break;
+        }
+        case PHY_DEF_MAX_EIRP:
+        {
+            phyParam.fValue = AU915_DEFAULT_MAX_EIRP;
+            break;
+        }
+        case PHY_DEF_ANTENNA_GAIN:
+        {
+            phyParam.fValue = AU915_DEFAULT_ANTENNA_GAIN;
             break;
         }
         case PHY_NB_JOIN_TRIALS:
@@ -536,7 +545,8 @@ bool RegionAU915TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
     uint32_t bandwidth = GetBandwidth( txConfig->Datarate );
     int8_t phyTxPower = 0;
 
-    phyTxPower = TxPowersAU915[txPowerLimited];
+    // Calculate physical TX power
+    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, txConfig->MaxEirp, txConfig->AntennaGain );
 
     Radio.SetChannel( Channels[txConfig->Channel].Frequency );
 
@@ -818,7 +828,8 @@ void RegionAU915SetContinuousWave( ContinuousWaveParams_t* continuousWave )
     int8_t phyTxPower = 0;
     uint32_t frequency = Channels[continuousWave->Channel].Frequency;
 
-    phyTxPower = TxPowersAU915[txPowerLimited];
+    // Calculate physical TX power
+    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, continuousWave->MaxEirp, continuousWave->AntennaGain );
 
     Radio.SetTxContinuousWave( frequency, phyTxPower, continuousWave->Timeout );
 }

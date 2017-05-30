@@ -1963,6 +1963,7 @@ static void ResetMacParameters( void )
     LoRaMacParams.UplinkDwellTime = LoRaMacParamsDefaults.UplinkDwellTime;
     LoRaMacParams.DownlinkDwellTime = LoRaMacParamsDefaults.DownlinkDwellTime;
     LoRaMacParams.MaxEirp = LoRaMacParamsDefaults.MaxEirp;
+    LoRaMacParams.AntennaGain = LoRaMacParamsDefaults.AntennaGain;
 
     NodeAckRequested = false;
     SrvAckRequested = false;
@@ -2144,6 +2145,7 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
     txConfig.Datarate = LoRaMacParams.ChannelsDatarate;
     txConfig.TxPower = LoRaMacParams.ChannelsTxPower;
     txConfig.MaxEirp = LoRaMacParams.MaxEirp;
+    txConfig.AntennaGain = LoRaMacParams.AntennaGain;
     txConfig.PktLen = LoRaMacBufferPktLen;
 
     RegionTxConfig( LoRaMacRegion, &txConfig, &txPower, &TxTimeOnAir );
@@ -2182,6 +2184,7 @@ LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout )
     continuousWave.Datarate = LoRaMacParams.ChannelsDatarate;
     continuousWave.TxPower = LoRaMacParams.ChannelsTxPower;
     continuousWave.MaxEirp = LoRaMacParams.MaxEirp;
+    continuousWave.AntennaGain = LoRaMacParams.AntennaGain;
     continuousWave.Timeout = timeout;
 
     RegionSetContinuousWave( LoRaMacRegion, &continuousWave );
@@ -2306,9 +2309,11 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
 
     getPhy.Attribute = PHY_DEF_MAX_EIRP;
     phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    LoRaMacParamsDefaults.MaxEirp = phyParam.Value;
+    LoRaMacParamsDefaults.MaxEirp = phyParam.fValue;
 
-    LoRaMacParamsDefaults.ChannelsNbRep = 1;
+    getPhy.Attribute = PHY_DEF_ANTENNA_GAIN;
+    phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+    LoRaMacParamsDefaults.AntennaGain = phyParam.fValue;
 
     RegionInitDefaults( LoRaMacRegion, INIT_TYPE_INIT );
 
@@ -2583,6 +2588,11 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t *mibGet )
             mibGet->Param.MinRxSymbols = LoRaMacParams.MinRxSymbols;
             break;
         }
+        case MIB_ANTENNA_GAIN:
+        {
+            mibGet->Param.AntennaGain = LoRaMacParams.AntennaGain;
+            break;
+        }
         default:
             status = LORAMAC_STATUS_SERVICE_UNKNOWN;
             break;
@@ -2854,6 +2864,11 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         case MIB_MIN_RX_SYMBOLS:
         {
             LoRaMacParams.MinRxSymbols = LoRaMacParamsDefaults.MinRxSymbols = mibSet->Param.MinRxSymbols;
+            break;
+        }
+        case MIB_ANTENNA_GAIN:
+        {
+            LoRaMacParams.AntennaGain = mibSet->Param.AntennaGain;
             break;
         }
         default:

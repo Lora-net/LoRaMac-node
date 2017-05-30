@@ -321,128 +321,128 @@
 /*!
  * Region       | dBM
  * ------------ | :-----:
- * AS923        | Max ERP
- * AU915        | 30
- * CN470        | 17
- * CN779        | 10
- * EU433        | 10
- * EU868        | 20
- * IN865        | Max ERP
- * KR920        | 20
- * US915        | 30
- * US915_HYBRID | 30
+ * AS923        | Max EIRP
+ * AU915        | Max EIRP
+ * CN470        | Max EIRP
+ * CN779        | Max EIRP
+ * EU433        | Max EIRP
+ * EU868        | Max EIRP
+ * IN865        | Max EIRP
+ * KR920        | Max EIRP
+ * US915        | Max ERP
+ * US915_HYBRID | Max ERP
  */
 #define TX_POWER_0                                  0
 
 /*!
  * Region       | dBM
  * ------------ | :-----:
- * AS923        | Max ERP - 2
- * AU915        | 28
- * CN470        | 16
- * CN779        | 7
- * EU433        | 7
- * EU868        | 14
- * IN865        | Max ERP - 2
- * KR920        | 14
- * US915        | 28
- * US915_HYBRID | 28
+ * AS923        | Max EIRP - 2
+ * AU915        | Max EIRP - 2
+ * CN470        | Max EIRP - 2
+ * CN779        | Max EIRP - 2
+ * EU433        | Max EIRP - 2
+ * EU868        | Max EIRP - 2
+ * IN865        | Max EIRP - 2
+ * KR920        | Max EIRP - 2
+ * US915        | Max ERP - 2
+ * US915_HYBRID | Max ERP - 2
  */
 #define TX_POWER_1                                  1
 
 /*!
  * Region       | dBM
  * ------------ | :-----:
- * AS923        | Max ERP - 4
- * AU915        | 26
- * CN470        | 14
- * CN779        | 4
- * EU433        | 4
- * EU868        | 11
- * IN865        | Max ERP - 4
- * KR920        | 10
- * US915        | 26
- * US915_HYBRID | 26
+ * AS923        | Max EIRP - 4
+ * AU915        | Max EIRP - 4
+ * CN470        | Max EIRP - 4
+ * CN779        | Max EIRP - 4
+ * EU433        | Max EIRP - 4
+ * EU868        | Max EIRP - 4
+ * IN865        | Max EIRP - 4
+ * KR920        | Max EIRP - 4
+ * US915        | Max ERP - 4
+ * US915_HYBRID | Max ERP - 4
  */
 #define TX_POWER_2                                  2
 
 /*!
  * Region       | dBM
  * ------------ | :-----:
- * AS923        | Max ERP - 6
- * AU915        | 24
- * CN470        | 12
- * CN779        | 1
- * EU433        | 1
- * EU868        | 8
- * IN865        | Max ERP - 6
- * KR920        | 8
- * US915        | 24
- * US915_HYBRID | 24
+ * AS923        | Max EIRP - 6
+ * AU915        | Max EIRP - 6
+ * CN470        | Max EIRP - 6
+ * CN779        | Max EIRP - 6
+ * EU433        | Max EIRP - 6
+ * EU868        | Max EIRP - 6
+ * IN865        | Max EIRP - 6
+ * KR920        | Max EIRP - 6
+ * US915        | Max ERP - 6
+ * US915_HYBRID | Max ERP - 6
  */
 #define TX_POWER_3                                  3
 
 /*!
  * Region       | dBM
  * ------------ | :-----:
- * AS923        | Max ERP - 8
- * AU915        | 22
- * CN470        | 10
- * CN779        | M2
- * EU433        | M2
- * EU868        | 5
- * IN865        | Max ERP - 8
- * KR920        | 5
- * US915        | 22
- * US915_HYBRID | 22
+ * AS923        | Max EIRP - 8
+ * AU915        | Max EIRP - 8
+ * CN470        | Max EIRP - 8
+ * CN779        | Max EIRP - 8
+ * EU433        | Max EIRP - 8
+ * EU868        | Max EIRP - 8
+ * IN865        | Max EIRP - 8
+ * KR920        | Max EIRP - 8
+ * US915        | Max ERP - 8
+ * US915_HYBRID | Max ERP - 8
  */
 #define TX_POWER_4                                  4
 
 /*!
  * Region       | dBM
  * ------------ | :-----:
- * AS923        | Max ERP - 10
- * AU915        | 20
- * CN470        | 7
- * CN779        | M5
- * EU433        | M5
- * EU868        | 2
- * IN865        | Max ERP - 10
- * KR920        | 2
- * US915        | 20
- * US915_HYBRID | 20
+ * AS923        | Max EIRP - 10
+ * AU915        | Max EIRP - 10
+ * CN470        | Max EIRP - 10
+ * CN779        | Max EIRP - 10
+ * EU433        | Max EIRP - 10
+ * EU868        | Max EIRP - 10
+ * IN865        | Max EIRP - 10
+ * KR920        | Max EIRP - 10
+ * US915        | Max ERP - 10
+ * US915_HYBRID | Max ERP - 10
  */
 #define TX_POWER_5                                  5
 
 /*!
  * Region       | dBM
  * ------------ | :-----:
- * AS923        | -
- * AU915        | 18
- * CN470        | 5
+ * AS923        | Max EIRP - 12
+ * AU915        | Max EIRP - 12
+ * CN470        | Max EIRP - 12
  * CN779        | -
  * EU433        | -
- * EU868        | -
- * IN865        | Max ERP - 12
- * KR920        | 0
- * US915        | 18
- * US915_HYBRID | 18
+ * EU868        | Max EIRP - 12
+ * IN865        | Max EIRP - 12
+ * KR920        | Max EIRP - 12
+ * US915        | Max ERP - 12
+ * US915_HYBRID | Max ERP - 12
  */
 #define TX_POWER_6                                  6
 
 /*!
  * Region       | dBM
  * ------------ | :-----:
- * AS923        | -
- * AU915        | 16
- * CN470        | 2
+ * AS923        | Max EIRP - 14
+ * AU915        | Max EIRP - 14
+ * CN470        | Max EIRP - 14
  * CN779        | -
  * EU433        | -
- * EU868        | -
- * IN865        | Max ERP - 14
- * KR920        | -
- * US915        | 16
- * US915_HYBRID | 16
+ * EU868        | Max EIRP - 14
+ * IN865        | Max EIRP - 14
+ * KR920        | Max EIRP - 14
+ * US915        | Max ERP - 14
+ * US915_HYBRID | Max ERP - 14
  */
 #define TX_POWER_7                                  7
 
@@ -450,15 +450,15 @@
  * Region       | dBM
  * ------------ | :-----:
  * AS923        | -
- * AU915        | 14
+ * AU915        | Max EIRP - 16
  * CN470        | -
  * CN779        | -
  * EU433        | -
  * EU868        | -
- * IN865        | Max ERP - 16
- * KR920        | 0
- * US915        | 14
- * US915_HYBRID | 14
+ * IN865        | Max EIRP - 16
+ * KR920        | Max EIRP - 16
+ * US915        | Max ERP - 16
+ * US915_HYBRID | Max ERP -16
  */
 #define TX_POWER_8                                  8
 
@@ -466,15 +466,15 @@
  * Region       | dBM
  * ------------ | :-----:
  * AS923        | -
- * AU915        | 12
+ * AU915        | Max EIRP - 18
  * CN470        | -
  * CN779        | -
  * EU433        | -
  * EU868        | -
- * IN865        | Max ERP - 18
- * KR920        | 0
- * US915        | 12
- * US915_HYBRID | 12
+ * IN865        | Max EIRP - 18
+ * KR920        | Max EIRP - 18
+ * US915        | Max ERP - 16
+ * US915_HYBRID | Max ERP - 16
  */
 #define TX_POWER_9                                  9
 
@@ -482,15 +482,15 @@
  * Region       | dBM
  * ------------ | :-----:
  * AS923        | -
- * AU915        | 10
+ * AU915        | Max EIRP - 20
  * CN470        | -
  * CN779        | -
  * EU433        | -
  * EU868        | -
- * IN865        | Max ERP - 20
- * KR920        | 0
- * US915        | 10
- * US915_HYBRID | 10
+ * IN865        | Max EIRP - 20
+ * KR920        | Max EIRP - 20
+ * US915        | Max ERP - 10
+ * US915_HYBRID | Max ERP - 10
  */
 #define TX_POWER_10                                 10
 
@@ -643,6 +643,10 @@ typedef enum ePhyAttribute
      */
     PHY_DEF_MAX_EIRP,
     /*!
+     * Default value of the antenna gain.
+     */
+    PHY_DEF_ANTENNA_GAIN,
+    /*!
      * Value for the number of join trials.
      */
     PHY_NB_JOIN_TRIALS,
@@ -688,6 +692,10 @@ typedef union uPhyParam
      * A parameter value.
      */
     uint32_t Value;
+    /*!
+     * A floating point value.
+     */
+    float fValue;
     /*!
      * Pointer to the channels mask.
      */
@@ -905,7 +913,11 @@ typedef struct sTxConfigParams
     /*!
      * The Max EIRP, if applicable.
      */
-    uint8_t MaxEirp;
+    float MaxEirp;
+    /*!
+     * The antenna gain, if applicable.
+     */
+    float AntennaGain;
     /*!
      * Frame length to setup.
      */
@@ -1106,7 +1118,11 @@ typedef struct sContinuousWaveParams
     /*!
      * Max EIRP, if applicable.
      */
-    uint8_t MaxEirp;
+    float MaxEirp;
+    /*!
+     * The antenna gain, if applicable.
+     */
+    float AntennaGain;
     /*!
      * Specifies the time the radio will stay in CW mode.
      */

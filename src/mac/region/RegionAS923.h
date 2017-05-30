@@ -119,7 +119,12 @@
 /*!
  * Default Max EIRP
  */
-#define AS923_DEFAULT_MAX_EIRP                      14
+#define AS923_DEFAULT_MAX_EIRP                      16.0f
+
+/*!
+ * Default antenna gain
+ */
+#define AS923_DEFAULT_ANTENNA_GAIN                  2.15f
 
 /*!
  * ADR Ack limit
@@ -267,9 +272,6 @@ static const uint8_t MaxPayloadOfDatarateDwell1DownAS923[] = { 0, 0, 11, 53, 126
  * Effective datarate offsets for receive window 1.
  */
 static const int8_t EffectiveRx1DrOffsetAS923[] = { 0, 1, 2, 3, 4, 5, -1, -2 };
-
-
-
 
 /*!
  * \brief The function gets a value of a specific phy attribute.
