@@ -79,7 +79,7 @@ static bool McuInitialized = false;
 static bool UsbIsConnected = false;
 
 /*!
- * UART1 FIFO buffers size
+ * UART2 FIFO buffers size
  */
 #define UART2_FIFO_TX_SIZE                                1056
 #define UART2_FIFO_RX_SIZE                                1056
