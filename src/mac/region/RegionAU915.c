@@ -788,7 +788,7 @@ bool RegionAU915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
 
         // Search how many channels are enabled
         nbEnabledChannels = CountNbOfEnabledChannels( nextChanParams->Datarate,
-                                                      ChannelsMask, Channels,
+                                                      ChannelsMaskRemaining, Channels,
                                                       Bands, enabledChannels, &delayTx );
     }
     else
