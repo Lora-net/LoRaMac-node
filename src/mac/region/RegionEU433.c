@@ -873,7 +873,7 @@ void RegionEU433CalcBackOff( CalcBackOffParams_t* calcBackOff )
     }
 }
 
-bool RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time )
+bool RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
 {
     uint8_t nbEnabledChannels = 0;
     uint8_t delayTx = 0;
@@ -887,6 +887,9 @@ bool RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
 
     if( nextChanParams->AggrTimeOff <= TimerGetElapsedTime( nextChanParams->LastAggrTx ) )
     {
+        // Reset Aggregated time off
+        *aggregatedTimeOff = 0;
+
         // Update bands Time OFF
         nextTxDelay = RegionCommonUpdateBandTimeOff( nextChanParams->DutyCycleEnabled, Bands, EU433_MAX_NB_BANDS );
 

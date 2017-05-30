@@ -1876,7 +1876,7 @@ static LoRaMacStatus_t ScheduleTx( void )
     nextChan.LastAggrTx = AggregatedLastTxDoneTime;
 
     // Select channel
-    while( RegionNextChannel( LoRaMacRegion, &nextChan, &Channel, &dutyCycleTimeOff ) == false )
+    while( RegionNextChannel( LoRaMacRegion, &nextChan, &Channel, &dutyCycleTimeOff, &AggregatedTimeOff ) == false )
     {
         // Set the default datarate
         LoRaMacParams.ChannelsDatarate = LoRaMacParamsDefaults.ChannelsDatarate;

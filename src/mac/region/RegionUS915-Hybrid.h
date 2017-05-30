@@ -399,9 +399,11 @@ void RegionUS915HybridCalcBackOff( CalcBackOffParams_t* calcBackOff );
  * \param [OUT] time Time to wait for the next transmission according to the duty
  *              cycle.
  *
+ * \param [OUT] aggregatedTimeOff Updates the aggregated time off.
+ *
  * \retval Function status [1: OK, 0: Unable to find a channel on the current datarate]
  */
-bool RegionUS915HybridNextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time );
+bool RegionUS915HybridNextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff );
 
 /*!
  * \brief Adds a channel.

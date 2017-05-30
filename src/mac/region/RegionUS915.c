@@ -768,7 +768,7 @@ void RegionUS915CalcBackOff( CalcBackOffParams_t* calcBackOff )
     }
 }
 
-bool RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time )
+bool RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
 {
     uint8_t nbEnabledChannels = 0;
     uint8_t delayTx = 0;
@@ -791,6 +791,9 @@ bool RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
 
     if( nextChanParams->AggrTimeOff <= TimerGetElapsedTime( nextChanParams->LastAggrTx ) )
     {
+        // Reset Aggregated time off
+        *aggregatedTimeOff = 0;
+
         // Search how many channels are enabled
         nbEnabledChannels = CountNbOfEnabledChannels( nextChanParams->Datarate,
                                                       ChannelsMask, Channels,
