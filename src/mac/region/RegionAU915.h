@@ -73,7 +73,7 @@
 /*!
  * Maximal Rx1 receive datarate offset
  */
-#define AU915_MAX_RX1_DR_OFFSET                     3
+#define AU915_MAX_RX1_DR_OFFSET                     6
 
 /*!
  * Default Rx1 receive datarate offset
@@ -209,13 +209,15 @@ static const uint32_t BandwidthsAU915[] = { 125e3, 125e3, 125e3, 125e3, 125e3, 1
 /*!
  * Up/Down link data rates offset definition
  */
-static const int8_t DatarateOffsetsAU915[5][4] =
+static const int8_t DatarateOffsetsAU915[7][6] =
 {
-    { DR_10, DR_9 , DR_8 , DR_8  }, // DR_0
-    { DR_11, DR_10, DR_9 , DR_8  }, // DR_1
-    { DR_12, DR_11, DR_10, DR_9  }, // DR_2
-    { DR_13, DR_12, DR_11, DR_10 }, // DR_3
-    { DR_13, DR_13, DR_12, DR_11 }, // DR_4
+    { DR_8 , DR_8 , DR_8 , DR_8 , DR_8 , DR_8  }, // DR_0
+    { DR_9 , DR_8 , DR_8 , DR_8 , DR_8 , DR_8  }, // DR_1
+    { DR_10, DR_9 , DR_8 , DR_8 , DR_8 , DR_8  }, // DR_2
+    { DR_11, DR_10, DR_9 , DR_8 , DR_8 , DR_8  }, // DR_3
+    { DR_12, DR_11, DR_10, DR_9 , DR_8 , DR_8  }, // DR_4
+    { DR_13, DR_12, DR_11, DR_10, DR_9 , DR_8  }, // DR_5
+    { DR_13, DR_13, DR_12, DR_11, DR_10, DR_9  }, // DR_6
 };
 
 /*!
