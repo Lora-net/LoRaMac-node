@@ -378,6 +378,9 @@ void SystemClockConfig( void )
         assert_param( FAIL );
     }
 
+    // Recalculate the SystemCoreClock global variable
+    SystemCoreClockUpdate( );
+
     HAL_SYSTICK_Config( HAL_RCC_GetHCLKFreq( ) / 1000 );
 
     HAL_SYSTICK_CLKSourceConfig( SYSTICK_CLKSOURCE_HCLK );
@@ -391,9 +394,6 @@ void SystemClockConfig( void )
 #else
     __HAL_RCC_DBGMCU_CLK_DISABLE( );
 #endif
-
-    // Recalculate the SystemCoreClock global variable
-    SystemCoreClockUpdate( );
 }
 
 void CalibrateSystemWakeupTime( void )
