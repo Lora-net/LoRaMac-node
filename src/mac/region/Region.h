@@ -951,6 +951,26 @@ typedef struct sLinkAdrReqParams
      * Size of the payload.
      */
     uint8_t PayloadSize;
+    /*!
+     * Uplink dwell time.
+     */
+    uint8_t UplinkDwellTime;
+    /*!
+     * Set to true, if ADR is enabled.
+     */
+    bool AdrEnabled;
+    /*!
+     * The current datarate.
+     */
+    int8_t CurrentDatarate;
+    /*!
+     * The current TX power.
+     */
+    int8_t CurrentTxPower;
+    /*!
+     * The current number of repetitions.
+     */
+    uint8_t CurrentNbRep;
 }LinkAdrReqParams_t;
 
 /*!
