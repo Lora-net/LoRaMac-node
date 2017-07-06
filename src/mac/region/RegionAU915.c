@@ -300,14 +300,14 @@ void RegionAU915InitDefaults( InitType_t type )
             for( uint8_t i = 0; i < AU915_MAX_NB_CHANNELS - 8; i++ )
             {
                 Channels[i].Frequency = 915200000 + i * 200000;
-                Channels[i].DrRange.Value = ( DR_3 << 4 ) | DR_0;
+                Channels[i].DrRange.Value = ( DR_5 << 4 ) | DR_0;
                 Channels[i].Band = 0;
             }
             // 500 kHz channels
             for( uint8_t i = AU915_MAX_NB_CHANNELS - 8; i < AU915_MAX_NB_CHANNELS; i++ )
             {
                 Channels[i].Frequency = 915900000 + ( i - ( AU915_MAX_NB_CHANNELS - 8 ) ) * 1600000;
-                Channels[i].DrRange.Value = ( DR_4 << 4 ) | DR_4;
+                Channels[i].DrRange.Value = ( DR_6 << 4 ) | DR_6;
                 Channels[i].Band = 0;
             }
 
@@ -627,7 +627,7 @@ uint8_t RegionAU915LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
     }
 
     // FCC 15.247 paragraph F mandates to hop on at least 2 125 kHz channels
-    if( ( linkAdrParams.Datarate < DR_4 ) && ( RegionCommonCountChannels( channelsMask, 0, 4 ) < 2 ) )
+    if( ( linkAdrParams.Datarate < DR_6 ) && ( RegionCommonCountChannels( channelsMask, 0, 4 ) < 2 ) )
     {
         status &= 0xFE; // Channel mask KO
     }
@@ -698,7 +698,7 @@ uint8_t RegionAU915RxParamSetupReq( RxParamSetupReqParams_t* rxParamSetupReq )
     {
         status &= 0xFD; // Datarate KO
     }
-    if( ( RegionCommonValueInRange( rxParamSetupReq->Datarate, DR_5, DR_7 ) == true ) ||
+    if( ( rxParamSetupReq->Datarate == DR_7 ) ||
         ( rxParamSetupReq->Datarate > DR_13 ) )
     {
         status &= 0xFD; // Datarate KO
@@ -738,7 +738,7 @@ int8_t RegionAU915AlternateDr( AlternateDrParams_t* alternateDr )
 
     if( ( alternateDr->NbTrials & 0x01 ) == 0x01 )
     {
-        datarate = DR_4;
+        datarate = DR_6;
     }
     else
     {
@@ -776,7 +776,7 @@ bool RegionAU915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
         RegionCommonChanMaskCopy( ChannelsMaskRemaining, ChannelsMask, 4  );
     }
     // Check other channels
-    if( nextChanParams->Datarate >= DR_4 )
+    if( nextChanParams->Datarate >= DR_6 )
     {
         if( ( ChannelsMaskRemaining[4] & 0x00FF ) == 0 )
         {
