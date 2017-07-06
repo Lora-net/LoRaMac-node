@@ -669,9 +669,9 @@ bool RegionAS923TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
     // Setup maximum payload lenght of the radio driver
     Radio.SetMaxPayloadLength( modem, txConfig->PktLen );
     // Get the time-on-air of the next tx frame
-    *txTimeOnAir = Radio.TimeOnAir( modem,  txConfig->PktLen );
+    *txTimeOnAir = Radio.TimeOnAir( modem, txConfig->PktLen );
 
-    *txPower = txConfig->TxPower;
+    *txPower = txPowerLimited;
     return true;
 }
 

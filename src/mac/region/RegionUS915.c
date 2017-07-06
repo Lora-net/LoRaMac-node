@@ -562,12 +562,15 @@ bool RegionUS915TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
     // Calculate physical TX power
     phyTxPower = RegionCommonComputeTxPower( txPowerLimited, US915_DEFAULT_MAX_ERP, 0 );
 
+    // Setup the radio frequency
     Radio.SetChannel( Channels[txConfig->Channel].Frequency );
 
-    Radio.SetMaxPayloadLength( MODEM_LORA, txConfig->PktLen );
     Radio.SetTxConfig( MODEM_LORA, phyTxPower, 0, bandwidth, phyDr, 1, 8, false, true, 0, 0, false, 3000 );
 
-    *txTimeOnAir = Radio.TimeOnAir( MODEM_LORA,  txConfig->PktLen );
+    // Setup maximum payload lenght of the radio driver
+    Radio.SetMaxPayloadLength( MODEM_LORA, txConfig->PktLen );
+    // Get the time-on-air of the next tx frame
+    *txTimeOnAir = Radio.TimeOnAir( MODEM_LORA, txConfig->PktLen );
     *txPower = txPowerLimited;
 
     return true;
