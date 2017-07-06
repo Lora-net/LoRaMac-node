@@ -1039,8 +1039,6 @@ void SX1272SetOpMode( uint8_t opMode )
 
 void SX1272SetModem( RadioModems_t modem )
 {
-    assert_param( ( SX1272.Spi.Spi.Instance != NULL ) );
-
     if( ( SX1272Read( REG_OPMODE ) & RFLR_OPMODE_LONGRANGEMODE_ON ) != 0 )
     {
         SX1272.Settings.Modem = MODEM_LORA;
@@ -1206,7 +1204,7 @@ void SX1272OnTimeoutIrq( void )
         // Tx timeout shouldn't happen.
         // But it has been observed that when it happens it is a result of a corrupted SPI transfer
         // it depends on the platform design.
-        // 
+        //
         // The workaround is to put the radio in a known state. Thus, we re-initialize it.
 
         // BEGIN WORKAROUND
