@@ -297,11 +297,11 @@ PhyParam_t RegionKR920GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_DEF_MAX_EIRP:
         {
-            // We set the lower maximum EIRP as default value.
+            // We set the higher maximum EIRP as default value.
             // The reason for this is, that the frequency may
             // change during a channel selection for the next uplink.
             // The value has to be recalculated in the TX configuration.
-            phyParam.fValue = KR920_DEFAULT_MAX_EIRP_LOW;
+            phyParam.fValue = KR920_DEFAULT_MAX_EIRP_HIGH;
             break;
         }
         case PHY_DEF_ANTENNA_GAIN:

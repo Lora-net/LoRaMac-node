@@ -456,7 +456,7 @@
  * EU433        | -
  * EU868        | -
  * IN865        | Max EIRP - 16
- * KR920        | Max EIRP - 16
+ * KR920        | -
  * US915        | Max ERP - 16
  * US915_HYBRID | Max ERP -16
  */
@@ -472,7 +472,7 @@
  * EU433        | -
  * EU868        | -
  * IN865        | Max EIRP - 18
- * KR920        | Max EIRP - 18
+ * KR920        | -
  * US915        | Max ERP - 16
  * US915_HYBRID | Max ERP - 16
  */
@@ -488,7 +488,7 @@
  * EU433        | -
  * EU868        | -
  * IN865        | Max EIRP - 20
- * KR920        | Max EIRP - 20
+ * KR920        | -
  * US915        | Max ERP - 10
  * US915_HYBRID | Max ERP - 10
  */

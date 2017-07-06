@@ -93,7 +93,7 @@
 /*!
  * Minimal Tx output power that can be used by the node
  */
-#define KR920_MIN_TX_POWER                          TX_POWER_10
+#define KR920_MIN_TX_POWER                          TX_POWER_7
 
 /*!
  * Maximal Tx output power that can be used by the node
@@ -103,7 +103,7 @@
 /*!
  * Default Tx output power used by the node
  */
-#define KR920_DEFAULT_TX_POWER                      TX_POWER_1
+#define KR920_DEFAULT_TX_POWER                      TX_POWER_0
 
 /*!
  * Default Max EIRP for frequency 920.9 MHz - 921.9 MHz
