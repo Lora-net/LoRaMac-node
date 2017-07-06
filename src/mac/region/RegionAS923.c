@@ -926,8 +926,6 @@ bool RegionAS923NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
     uint8_t delayTx = 0;
     uint8_t enabledChannels[AS923_MAX_NB_CHANNELS] = { 0 };
     TimerTime_t nextTxDelay = 0;
-    TimerTime_t carrierSenseTime = 0;
-    bool channelFree = false;
 
     if( RegionCommonCountChannels( ChannelsMask, 0, 1 ) == 0 )
     { // Reactivate default channels
@@ -960,21 +958,9 @@ bool RegionAS923NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
             channelNext = enabledChannels[j];
             j = ( j + 1 ) % nbEnabledChannels;
 
-            carrierSenseTime = TimerGetCurrentTime( );
-            channelFree = true;
-
-            // Perform carrier sense for 6ms
-            while( TimerGetElapsedTime( carrierSenseTime ) < AS923_CARRIER_SENSE_TIME )
-            {
-                if( Radio.IsChannelFree( MODEM_LORA, Channels[channelNext].Frequency, AS923_RSSI_FREE_TH ) == false )
-                {
-                    channelFree = false;
-                    break;
-                }
-            }
-
+            // Perform carrier sense for AS923_CARRIER_SENSE_TIME
             // If the channel is free, we can stop the LBT mechanism
-            if( channelFree == true )
+            if( Radio.IsChannelFree( MODEM_LORA, Channels[channelNext].Frequency, AS923_RSSI_FREE_TH, AS923_CARRIER_SENSE_TIME ) == true )
             {
                 // Free channel found
                 *channel = channelNext;

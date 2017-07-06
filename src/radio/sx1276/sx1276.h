@@ -179,15 +179,16 @@ void SX1276SetModem( RadioModems_t modem );
 void SX1276SetChannel( uint32_t freq );
 
 /*!
- * \brief Sets the channels configuration
+ * \brief Checks if the channel is free for the given time
  *
  * \param [IN] modem      Radio modem to be used [0: FSK, 1: LoRa]
  * \param [IN] freq       Channel RF frequency
  * \param [IN] rssiThresh RSSI threshold
+ * \param [IN] maxCarrierSenseTime Max time while the RSSI is measured
  *
  * \retval isFree         [true: Channel is free, false: Channel is not free]
  */
-bool SX1276IsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh );
+bool SX1276IsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh, uint32_t maxCarrierSenseTime );
 
 /*!
  * \brief Generates a 32 bits random value based on the RSSI readings
