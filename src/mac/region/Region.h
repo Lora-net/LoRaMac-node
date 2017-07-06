@@ -749,6 +749,10 @@ typedef struct sSetBandTxDoneParams
      */
     uint8_t Channel;
     /*!
+     * Joined Set to true, if the node has joined the network
+     */
+    bool Joined;
+    /*!
      * Last TX done time.
      */
     TimerTime_t LastTxDoneTime;
