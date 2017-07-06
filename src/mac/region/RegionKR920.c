@@ -1024,8 +1024,13 @@ bool RegionKR920ChannelsRemove( ChannelRemoveParams_t* channelRemove  )
 void RegionKR920SetContinuousWave( ContinuousWaveParams_t* continuousWave )
 {
     int8_t txPowerLimited = LimitTxPower( continuousWave->TxPower, Bands[Channels[continuousWave->Channel].Band].TxMaxPower, continuousWave->Datarate, ChannelsMask );
+    float maxEIRP = GetMaxEIRP( Channels[continuousWave->Channel].Frequency );
     int8_t phyTxPower = 0;
     uint32_t frequency = Channels[continuousWave->Channel].Frequency;
+
+    // Take the minimum between the maxEIRP and continuousWave->MaxEirp.
+    // The value of continuousWave->MaxEirp could have changed during runtime, e.g. due to a MAC command.
+    maxEIRP = MIN( continuousWave->MaxEirp, maxEIRP );
 
     // Calculate physical TX power
     phyTxPower = RegionCommonComputeTxPower( txPowerLimited, maxEIRP, continuousWave->AntennaGain );
