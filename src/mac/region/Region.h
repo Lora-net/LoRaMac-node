@@ -1349,6 +1349,14 @@ bool RegionTxConfig( LoRaMacRegion_t region, TxConfigParams_t* txConfig, int8_t*
  *
  * \param [IN] linkAdrReq Pointer to the function parameters.
  *
+ * \param [OUT] drOut The datarate which was applied.
+ *
+ * \param [OUT] txPowOut The TX power which was applied.
+ *
+ * \param [OUT] nbRepOut The number of repetitions to apply.
+ *
+ * \param [OUT] nbBytesParsed The number bytes which were parsed.
+ *
  * \retval Returns the status of the operation, according to the LoRaMAC specification.
  */
 uint8_t RegionLinkAdrReq( LoRaMacRegion_t region, LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, int8_t* txPowOut, uint8_t* nbRepOut, uint8_t* nbBytesParsed );
