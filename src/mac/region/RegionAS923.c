@@ -624,24 +624,14 @@ bool RegionAS923RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
         Radio.SetRxConfig( modem, rxConfig->Bandwidth, phyDr, 1, 0, 8, rxConfig->WindowTimeout, false, 0, false, 0, 0, true, rxConfig->RxContinuous );
     }
 
-    // Check the downlink dwell time
-    if( rxConfig->DownlinkDwellTime == 0 )
+    // Check for repeater support
+    if( rxConfig->RepeaterSupport == true )
     {
-        // Check for repeater support
-        if( rxConfig->RepeaterSupport == true )
-        {
-            maxPayload = MaxPayloadOfDatarateRepeaterDwell0AS923[dr];
-        }
-        else
-        {
-            maxPayload = MaxPayloadOfDatarateDwell0AS923[dr];
-        }
+        maxPayload = MaxPayloadOfDatarateRepeaterDwell0AS923[dr];
     }
     else
     {
-        // Same table for repeater and non-repeater support for dwell time
-        // configuration 1.
-        maxPayload = MaxPayloadOfDatarateDwell1DownAS923[dr];
+        maxPayload = MaxPayloadOfDatarateDwell0AS923[dr];
     }
 
     Radio.SetMaxPayloadLength( modem, maxPayload + LORA_MAC_FRMPAYLOAD_OVERHEAD );
