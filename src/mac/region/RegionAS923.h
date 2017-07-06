@@ -46,6 +46,11 @@
 #define AS923_NUMB_DEFAULT_CHANNELS                 2
 
 /*!
+ * Number of channels to apply for the CF list
+ */
+#define AS923_NUMB_CHANNELS_CF_LIST                 5
+
+/*!
  * Minimal datarate that can be used by the node
  */
 #define AS923_TX_MIN_DATARATE                       DR_0

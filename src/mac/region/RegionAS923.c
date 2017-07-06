@@ -439,16 +439,25 @@ void RegionAS923ApplyCFList( ApplyCFListParams_t* applyCFList )
     }
 
     // Last byte is RFU, don't take it into account
-    for( uint8_t i = 0, chanIdx = AS923_NUMB_DEFAULT_CHANNELS; i < 15; i+=3, chanIdx++ )
+    for( uint8_t i = 0, chanIdx = AS923_NUMB_DEFAULT_CHANNELS; chanIdx < AS923_MAX_NB_CHANNELS; i+=3, chanIdx++ )
     {
-        // Channel frequency
-        newChannel.Frequency = (uint32_t) applyCFList->Payload[i];
-        newChannel.Frequency |= ( (uint32_t) applyCFList->Payload[i + 1] << 8 );
-        newChannel.Frequency |= ( (uint32_t) applyCFList->Payload[i + 2] << 16 );
-        newChannel.Frequency *= 100;
+        if( chanIdx < ( AS923_NUMB_CHANNELS_CF_LIST + AS923_NUMB_DEFAULT_CHANNELS ) )
+        {
+            // Channel frequency
+            newChannel.Frequency = (uint32_t) applyCFList->Payload[i];
+            newChannel.Frequency |= ( (uint32_t) applyCFList->Payload[i + 1] << 8 );
+            newChannel.Frequency |= ( (uint32_t) applyCFList->Payload[i + 2] << 16 );
+            newChannel.Frequency *= 100;
 
-        // Initialize alternative frequency to 0
-        newChannel.Rx1Frequency = 0;
+            // Initialize alternative frequency to 0
+            newChannel.Rx1Frequency = 0;
+        }
+        else
+        {
+            newChannel.Frequency = 0;
+            newChannel.DrRange.Value = 0;
+            newChannel.Rx1Frequency = 0;
+        }
 
         if( newChannel.Frequency != 0 )
         {

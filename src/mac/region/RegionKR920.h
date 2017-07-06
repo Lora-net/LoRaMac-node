@@ -46,6 +46,11 @@
 #define KR920_NUMB_DEFAULT_CHANNELS                 3
 
 /*!
+ * Number of channels to apply for the CF list
+ */
+#define KR920_NUMB_CHANNELS_CF_LIST                 5
+
+/*!
  * Minimal datarate that can be used by the node
  */
 #define KR920_TX_MIN_DATARATE                       DR_0

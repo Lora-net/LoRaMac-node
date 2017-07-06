@@ -46,6 +46,11 @@
 #define IN865_NUMB_DEFAULT_CHANNELS                 3
 
 /*!
+ * Number of channels to apply for the CF list
+ */
+#define IN865_NUMB_CHANNELS_CF_LIST                 5
+
+/*!
  * Minimal datarate that can be used by the node
  */
 #define IN865_TX_MIN_DATARATE                       DR_0
