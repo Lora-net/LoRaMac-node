@@ -34,7 +34,12 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 /*!
  * Maximum MAC commands buffer size
  */
-#define LORA_MAC_COMMAND_MAX_LENGTH                 15
+#define LORA_MAC_COMMAND_MAX_LENGTH                 128
+
+/*!
+ * Maximum length of the fOpts field
+ */
+#define LORA_MAC_COMMAND_MAX_FOPTS_LENGTH           15
 
 /*!
  * LoRaMac region.
@@ -2082,15 +2087,24 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
 
             if( ( payload != NULL ) && ( LoRaMacTxPayloadLen > 0 ) )
             {
-                if( ( MacCommandsBufferIndex <= LORA_MAC_COMMAND_MAX_LENGTH ) && ( MacCommandsInNextTx == true ) )
+                if( MacCommandsInNextTx == true )
                 {
-                    fCtrl->Bits.FOptsLen += MacCommandsBufferIndex;
-
-                    // Update FCtrl field with new value of OptionsLength
-                    LoRaMacBuffer[0x05] = fCtrl->Value;
-                    for( i = 0; i < MacCommandsBufferIndex; i++ )
+                    if( MacCommandsBufferIndex <= LORA_MAC_COMMAND_MAX_FOPTS_LENGTH )
                     {
-                        LoRaMacBuffer[pktHeaderLen++] = MacCommandsBuffer[i];
+                        fCtrl->Bits.FOptsLen += MacCommandsBufferIndex;
+
+                        // Update FCtrl field with new value of OptionsLength
+                        LoRaMacBuffer[0x05] = fCtrl->Value;
+                        for( i = 0; i < MacCommandsBufferIndex; i++ )
+                        {
+                            LoRaMacBuffer[pktHeaderLen++] = MacCommandsBuffer[i];
+                        }
+                    }
+                    else
+                    {
+                        LoRaMacTxPayloadLen = MacCommandsBufferIndex;
+                        payload = MacCommandsBuffer;
+                        framePort = 0;
                     }
                 }
             }
