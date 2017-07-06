@@ -1038,6 +1038,10 @@ typedef struct sCalcBackOffParams
      */
     bool Joined;
     /*!
+     * Joined Set to true, if the last uplink was a join request
+     */
+    bool LastTxIsJoinRequest;
+    /*!
      * Set to true, if the duty cycle is enabled, otherwise false.
      */
     bool DutyCycleEnabled;

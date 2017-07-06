@@ -269,6 +269,11 @@ static uint8_t Channel;
 static uint8_t LastTxChannel;
 
 /*!
+ * Set to true, if the last uplink was a join request
+ */
+static bool LastTxIsJoinRequest;
+
+/*!
  * Stores the time at LoRaMac initialization.
  *
  * \remark Used for the BACKOFF_DC computation.
@@ -642,10 +647,21 @@ static void OnRadioTxDone( void )
         LoRaMacFlags.Bits.MacDone = 1;
     }
 
+    // Verify if the last uplink was a join request
+    if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) && ( MlmeConfirm.MlmeRequest == MLME_JOIN ) )
+    {
+        LastTxIsJoinRequest = true;
+    }
+    else
+    {
+        LastTxIsJoinRequest = false;
+    }
+
     // Store last Tx channel
     LastTxChannel = Channel;
     // Update last tx done time for the current channel
     txDone.Channel = Channel;
+    txDone.Joined = IsLoRaMacNetworkJoined;
     txDone.LastTxDoneTime = curTime;
     RegionSetBandTxDone( LoRaMacRegion, &txDone );
     // Update Aggregated last tx done time
@@ -1943,6 +1959,7 @@ static void CalculateBackOff( uint8_t channel )
     calcBackOff.Channel = channel;
     calcBackOff.ElapsedTime = TimerGetElapsedTime( LoRaMacInitializationTime );
     calcBackOff.TxTimeOnAir = TxTimeOnAir;
+    calcBackOff.LastTxIsJoinRequest = LastTxIsJoinRequest;
 
     // Update regional back-off
     RegionCalcBackOff( LoRaMacRegion, &calcBackOff );

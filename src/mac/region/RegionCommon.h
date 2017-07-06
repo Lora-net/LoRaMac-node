@@ -58,6 +58,41 @@ typedef struct sLinkAdrParams
      */
     uint16_t ChMask;
 }LinkAdrParams_t;
+typedef struct sRegionCommonCalcBackOffParams
+{
+    /*!
+     * A pointer to region specific channels.
+     */
+    ChannelParams_t* Channels;
+    /*!
+     * A pointer to region specific bands.
+     */
+    Band_t* Bands;
+    /*!
+     * Set to true, if the last uplink was a join request.
+     */
+    bool LastTxIsJoinRequest;
+    /*!
+     * Set to true, if the node is joined.
+     */
+    bool Joined;
+    /*!
+     * Set to true, if the duty cycle is enabled.
+     */
+    bool DutyCycleEnabled;
+    /*!
+     * The current channel.
+     */
+    uint8_t Channel;
+    /*!
+     * The elapsed time since initialization.
+     */
+    TimerTime_t ElapsedTime;
+    /*!
+     * The time on air of the last Tx frame.
+     */
+    TimerTime_t TxTimeOnAir;
+}RegionCommonCalcBackOffParams_t;
 
 /*!
  * \brief Calculates the join duty cycle.
@@ -148,15 +183,19 @@ void RegionCommonChanMaskCopy( uint16_t* channelsMaskDest, uint16_t* channelsMas
  * \brief Sets the last tx done property.
  *        This is a generic function and valid for all regions.
  *
+ * \param [IN] joined Set to true, if the node has joined the network
+ *
  * \param [IN] band The band to be updated.
  *
  * \param [IN] lastTxDone The time of the last TX done.
  */
-void RegionCommonSetBandTxDone( Band_t* band, TimerTime_t lastTxDone );
+void RegionCommonSetBandTxDone( bool joined, Band_t* band, TimerTime_t lastTxDone );
 
 /*!
  * \brief Updates the time-offs of the bands.
  *        This is a generic function and valid for all regions.
+ *
+ * \param [IN] joined Set to true, if the node has joined the network
  *
  * \param [IN] dutyCycle Set to true, if the duty cycle is enabled.
  *
@@ -166,7 +205,7 @@ void RegionCommonSetBandTxDone( Band_t* band, TimerTime_t lastTxDone );
  *
  * \retval Returns the time which must be waited to perform the next uplink.
  */
-TimerTime_t RegionCommonUpdateBandTimeOff( bool dutyCycle, Band_t* bands, uint8_t nbBands );
+TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, bool dutyCycle, Band_t* bands, uint8_t nbBands );
 
 /*!
  * \brief Parses the parameter of an LinkAdrRequest.
@@ -234,6 +273,13 @@ void RegionCommonComputeRxWindowParameters( double tSymbol, uint8_t minRxSymbols
  * \retval Returns the physical TX power.
  */
 int8_t RegionCommonComputeTxPower( int8_t txPowerIndex, float maxEirp, float antennaGain );
+
+/*!
+ * \brief Calculates the duty cycle for the current band.
+ *
+ * \param [IN] calcBackOffParams A pointer to the input parameters.
+ */
+void RegionCommonCalcBackOff( RegionCommonCalcBackOffParams_t* calcBackOffParams );
 
 /*! \} defgroup REGIONCOMMON */
 

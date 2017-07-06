@@ -293,7 +293,7 @@ PhyParam_t RegionUS915GetPhyParam( GetPhyParams_t* getPhy )
 
 void RegionUS915SetBandTxDone( SetBandTxDoneParams_t* txDone )
 {
-    RegionCommonSetBandTxDone( &Bands[Channels[txDone->Channel].Band], txDone->LastTxDoneTime );
+    RegionCommonSetBandTxDone( txDone->Joined, &Bands[Channels[txDone->Channel].Band], txDone->LastTxDoneTime );
 }
 
 void RegionUS915InitDefaults( InitType_t type )
@@ -755,20 +755,18 @@ int8_t RegionUS915AlternateDr( AlternateDrParams_t* alternateDr )
 
 void RegionUS915CalcBackOff( CalcBackOffParams_t* calcBackOff )
 {
-    uint8_t channel = calcBackOff->Channel;
-    uint16_t joinDutyCycle = 0;
+    RegionCommonCalcBackOffParams_t calcBackOffParams;
 
-    if( calcBackOff->Joined == false )
-    {
-        // Get the join duty cycle
-        joinDutyCycle = RegionCommonGetJoinDc( calcBackOff->ElapsedTime );
-        // Apply band time-off.
-        Bands[Channels[channel].Band].TimeOff = calcBackOff->TxTimeOnAir * joinDutyCycle - calcBackOff->TxTimeOnAir;
-    }
-    else
-    {
-        Bands[Channels[channel].Band].TimeOff = 0;
-    }
+    calcBackOffParams.Channels = Channels;
+    calcBackOffParams.Bands = Bands;
+    calcBackOffParams.LastTxIsJoinRequest = calcBackOff->LastTxIsJoinRequest;
+    calcBackOffParams.Joined = calcBackOff->Joined;
+    calcBackOffParams.DutyCycleEnabled = calcBackOff->DutyCycleEnabled;
+    calcBackOffParams.Channel = calcBackOff->Channel;
+    calcBackOffParams.ElapsedTime = calcBackOff->ElapsedTime;
+    calcBackOffParams.TxTimeOnAir = calcBackOff->TxTimeOnAir;
+
+    RegionCommonCalcBackOff( &calcBackOffParams );
 }
 
 bool RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
@@ -796,6 +794,9 @@ bool RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
     {
         // Reset Aggregated time off
         *aggregatedTimeOff = 0;
+
+        // Update bands Time OFF
+        nextTxDelay = RegionCommonUpdateBandTimeOff( nextChanParams->Joined, nextChanParams->DutyCycleEnabled, Bands, US915_MAX_NB_BANDS );
 
         // Search how many channels are enabled
         nbEnabledChannels = CountNbOfEnabledChannels( nextChanParams->Datarate,

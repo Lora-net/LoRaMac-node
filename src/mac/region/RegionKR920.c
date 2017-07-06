@@ -326,7 +326,7 @@ PhyParam_t RegionKR920GetPhyParam( GetPhyParams_t* getPhy )
 
 void RegionKR920SetBandTxDone( SetBandTxDoneParams_t* txDone )
 {
-    RegionCommonSetBandTxDone( &Bands[Channels[txDone->Channel].Band], txDone->LastTxDoneTime );
+    RegionCommonSetBandTxDone( txDone->Joined, &Bands[Channels[txDone->Channel].Band], txDone->LastTxDoneTime );
 }
 
 void RegionKR920InitDefaults( InitType_t type )
@@ -858,29 +858,18 @@ int8_t RegionKR920AlternateDr( AlternateDrParams_t* alternateDr )
 
 void RegionKR920CalcBackOff( CalcBackOffParams_t* calcBackOff )
 {
-    uint8_t channel = calcBackOff->Channel;
-    uint16_t dutyCycle = Bands[Channels[channel].Band].DCycle;
-    uint16_t joinDutyCycle = 0;
+    RegionCommonCalcBackOffParams_t calcBackOffParams;
 
-    // Reset time-off to initial value.
-    Bands[Channels[channel].Band].TimeOff = 0;
+    calcBackOffParams.Channels = Channels;
+    calcBackOffParams.Bands = Bands;
+    calcBackOffParams.LastTxIsJoinRequest = calcBackOff->LastTxIsJoinRequest;
+    calcBackOffParams.Joined = calcBackOff->Joined;
+    calcBackOffParams.DutyCycleEnabled = calcBackOff->DutyCycleEnabled;
+    calcBackOffParams.Channel = calcBackOff->Channel;
+    calcBackOffParams.ElapsedTime = calcBackOff->ElapsedTime;
+    calcBackOffParams.TxTimeOnAir = calcBackOff->TxTimeOnAir;
 
-    if( calcBackOff->Joined == false )
-    {
-        // Get the join duty cycle
-        joinDutyCycle = RegionCommonGetJoinDc( calcBackOff->ElapsedTime );
-        // Apply the most restricting duty cycle
-        dutyCycle = MAX( dutyCycle, joinDutyCycle );
-        // Apply band time-off.
-        Bands[Channels[channel].Band].TimeOff = calcBackOff->TxTimeOnAir * dutyCycle - calcBackOff->TxTimeOnAir;
-    }
-    else
-    {
-        if( calcBackOff->DutyCycleEnabled == true )
-        {
-            Bands[Channels[channel].Band].TimeOff = calcBackOff->TxTimeOnAir * dutyCycle - calcBackOff->TxTimeOnAir;
-        }
-    }
+    RegionCommonCalcBackOff( &calcBackOffParams );
 }
 
 bool RegionKR920NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
@@ -902,7 +891,7 @@ bool RegionKR920NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
         *aggregatedTimeOff = 0;
 
         // Update bands Time OFF
-        nextTxDelay = RegionCommonUpdateBandTimeOff( nextChanParams->DutyCycleEnabled, Bands, KR920_MAX_NB_BANDS );
+        nextTxDelay = RegionCommonUpdateBandTimeOff( nextChanParams->Joined, nextChanParams->DutyCycleEnabled, Bands, KR920_MAX_NB_BANDS );
 
         // Search how many channels are enabled
         nbEnabledChannels = CountNbOfEnabledChannels( nextChanParams->Joined, nextChanParams->Datarate,
@@ -1037,7 +1026,7 @@ void RegionKR920SetContinuousWave( ContinuousWaveParams_t* continuousWave )
     uint32_t frequency = Channels[continuousWave->Channel].Frequency;
 
     // Calculate physical TX power
-    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, continuousWave->MaxEirp, continuousWave->AntennaGain );
+    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, maxEIRP, continuousWave->AntennaGain );
 
     Radio.SetTxContinuousWave( frequency, phyTxPower, continuousWave->Timeout );
 }

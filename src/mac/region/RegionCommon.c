@@ -147,34 +147,58 @@ void RegionCommonChanMaskCopy( uint16_t* channelsMaskDest, uint16_t* channelsMas
     }
 }
 
-void RegionCommonSetBandTxDone( Band_t* band, TimerTime_t lastTxDone )
+void RegionCommonSetBandTxDone( bool joined, Band_t* band, TimerTime_t lastTxDone )
 {
-    band->LastTxDoneTime = lastTxDone;
+    if( joined == true )
+    {
+        band->LastTxDoneTime = lastTxDone;
+    }
+    else
+    {
+        band->LastJoinTxDoneTime = lastTxDone;
+    }
 }
 
-TimerTime_t RegionCommonUpdateBandTimeOff( bool dutyCycle, Band_t* bands, uint8_t nbBands )
+TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, bool dutyCycle, Band_t* bands, uint8_t nbBands )
 {
     TimerTime_t nextTxDelay = ( TimerTime_t )( -1 );
 
     // Update bands Time OFF
     for( uint8_t i = 0; i < nbBands; i++ )
     {
-        if( dutyCycle == true )
+        if( joined == false )
         {
-            if( bands[i].TimeOff <= TimerGetElapsedTime( bands[i].LastTxDoneTime ) )
+            uint32_t txDoneTime =  MAX( TimerGetElapsedTime( bands[i].LastJoinTxDoneTime ),
+                                        ( dutyCycle == true ) ? TimerGetElapsedTime( bands[i].LastTxDoneTime ) : 0 );
+
+            if( bands[i].TimeOff <= txDoneTime )
             {
                 bands[i].TimeOff = 0;
             }
             if( bands[i].TimeOff != 0 )
             {
-                nextTxDelay = MIN( bands[i].TimeOff - TimerGetElapsedTime( bands[i].LastTxDoneTime ),
-                                   nextTxDelay );
+                nextTxDelay = MIN( bands[i].TimeOff - txDoneTime, nextTxDelay );
             }
         }
         else
         {
-            nextTxDelay = 0;
-            bands[i].TimeOff = 0;
+            if( dutyCycle == true )
+            {
+                if( bands[i].TimeOff <= TimerGetElapsedTime( bands[i].LastTxDoneTime ) )
+                {
+                    bands[i].TimeOff = 0;
+                }
+                if( bands[i].TimeOff != 0 )
+                {
+                    nextTxDelay = MIN( bands[i].TimeOff - TimerGetElapsedTime( bands[i].LastTxDoneTime ),
+                                       nextTxDelay );
+                }
+            }
+            else
+            {
+                nextTxDelay = 0;
+                bands[i].TimeOff = 0;
+            }
         }
     }
     return nextTxDelay;
@@ -227,4 +251,47 @@ int8_t RegionCommonComputeTxPower( int8_t txPowerIndex, float maxEirp, float ant
     phyTxPower = ( int8_t )floor( ( maxEirp - ( txPowerIndex * 2U ) ) - antennaGain );
 
     return phyTxPower;
+}
+
+void RegionCommonCalcBackOff( RegionCommonCalcBackOffParams_t* calcBackOffParams )
+{
+    uint8_t bandIdx = calcBackOffParams->Channels[calcBackOffParams->Channel].Band;
+    uint16_t dutyCycle = calcBackOffParams->Bands[bandIdx].DCycle;
+    uint16_t joinDutyCycle = 0;
+
+    // Reset time-off to initial value.
+    calcBackOffParams->Bands[bandIdx].TimeOff = 0;
+
+    if( calcBackOffParams->Joined == false )
+    {
+        // Get the join duty cycle
+        joinDutyCycle = RegionCommonGetJoinDc( calcBackOffParams->ElapsedTime );
+        // Apply the most restricting duty cycle
+        dutyCycle = MAX( dutyCycle, joinDutyCycle );
+        // Reset the timeoff if the last frame was not a join request and when the duty cycle is not enabled
+        if( ( calcBackOffParams->DutyCycleEnabled == false ) && ( calcBackOffParams->LastTxIsJoinRequest == false ) )
+        {
+            // This is the case when the duty cycle is off and the last uplink frame was not a join.
+            // This could happen in case of a rejoin, e.g. in compliance test mode.
+            // In this special case we have to set the time off to 0, since the join duty cycle shall only
+            // be applied after the first join request.
+            calcBackOffParams->Bands[bandIdx].TimeOff = 0;
+        }
+        else
+        {
+            // Apply band time-off.
+            calcBackOffParams->Bands[bandIdx].TimeOff = calcBackOffParams->TxTimeOnAir * dutyCycle - calcBackOffParams->TxTimeOnAir;
+        }
+    }
+    else
+    {
+        if( calcBackOffParams->DutyCycleEnabled == true )
+        {
+            calcBackOffParams->Bands[bandIdx].TimeOff = calcBackOffParams->TxTimeOnAir * dutyCycle - calcBackOffParams->TxTimeOnAir;
+        }
+        else
+        {
+            calcBackOffParams->Bands[bandIdx].TimeOff = 0;
+        }
+    }
 }
