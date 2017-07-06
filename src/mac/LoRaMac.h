@@ -161,6 +161,10 @@ typedef struct sBand
      */
     int8_t TxMaxPower;
     /*!
+     * Time stamp of the last JoinReq Tx frame.
+     */
+    TimerTime_t LastJoinTxDoneTime;
+    /*!
      * Time stamp of the last Tx frame
      */
     TimerTime_t LastTxDoneTime;
