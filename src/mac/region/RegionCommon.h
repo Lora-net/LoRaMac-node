@@ -35,7 +35,7 @@
 #ifndef __REGIONCOMMON_H__
 #define __REGIONCOMMON_H__
 
-typedef struct sLinkAdrParams
+typedef struct sRegionCommonLinkAdrParams
 {
     /*!
      * Number of repetitions.
@@ -57,7 +57,7 @@ typedef struct sLinkAdrParams
      * Channels mask field.
      */
     uint16_t ChMask;
-}LinkAdrParams_t;
+}RegionCommonLinkAdrParams_t;
 typedef struct sRegionCommonCalcBackOffParams
 {
     /*!
@@ -219,7 +219,7 @@ TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, bool dutyCycle, Band_t* 
  * \retval Returns the length of the ADR request, if a request was found. Otherwise, the
  *         function returns 0.
  */
-uint8_t RegionCommonParseLinkAdrReq( uint8_t* payload, LinkAdrParams_t* parseLinkAdr );
+uint8_t RegionCommonParseLinkAdrReq( uint8_t* payload, RegionCommonLinkAdrParams_t* parseLinkAdr );
 
 /*!
  * \brief Computes the symbol time for LoRa modulation.
