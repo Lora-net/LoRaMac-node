@@ -58,6 +58,71 @@ typedef struct sRegionCommonLinkAdrParams
      */
     uint16_t ChMask;
 }RegionCommonLinkAdrParams_t;
+
+typedef struct sRegionCommonLinkAdrReqVerifyParams
+{
+    /*!
+     * The current status of the AdrLinkRequest.
+     */
+    uint8_t Status;
+    /*!
+     * Set to true, if ADR is enabled.
+     */
+    bool AdrEnabled;
+    /*!
+     * The datarate the AdrLinkRequest wants to set.
+     */
+    int8_t Datarate;
+    /*!
+     * The TX power the AdrLinkRequest wants to set.
+     */
+    int8_t TxPower;
+    /*!
+     * The number of repetitions the AdrLinkRequest wants to set.
+     */
+    uint8_t NbRep;
+    /*!
+     * The current datarate the node is using.
+     */
+    int8_t CurrentDatarate;
+    /*!
+     * The current TX power the node is using.
+     */
+    int8_t CurrentTxPower;
+    /*!
+     * The current number of repetitions the node is using.
+     */
+    int8_t CurrentNbRep;
+    /*!
+     * The number of channels.
+     */
+    uint8_t NbChannels;
+    /*!
+     * Pointer to the first element of the channels mask.
+     */
+    uint16_t* ChannelsMask;
+    /*!
+     * The minimum possible datarate.
+     */
+    int8_t MinDatarate;
+    /*!
+     * The maximum possible datarate.
+     */
+    int8_t MaxDatarate;
+    /*!
+     * Pointer to the channels.
+     */
+    ChannelParams_t* Channels;
+    /*!
+     * The minimum possible TX power.
+     */
+    int8_t MinTxPower;
+    /*!
+     * The maximum possible TX power.
+     */
+    int8_t MaxTxPower;
+}RegionCommonLinkAdrReqVerifyParams_t;
+
 typedef struct sRegionCommonCalcBackOffParams
 {
     /*!
@@ -220,6 +285,22 @@ TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, bool dutyCycle, Band_t* 
  *         function returns 0.
  */
 uint8_t RegionCommonParseLinkAdrReq( uint8_t* payload, RegionCommonLinkAdrParams_t* parseLinkAdr );
+
+/*!
+ * \brief Verifies and updates the datarate, the TX power and the number of repetitions
+ *        of a LinkAdrRequest. This depends on the configuration of ADR also.
+ *
+ * \param [IN] verifyParams Pointer to a structure containing input parameters.
+ *
+ * \param [OUT] dr The updated datarate.
+ *
+ * \param [OUT] txPow The updated TX power.
+ *
+ * \param [OUT] nbRep The updated number of repetitions.
+ *
+ * \retval Returns the status according to the LinkAdrRequest definition.
+ */
+uint8_t RegionCommonLinkAdrReqVerifyParams( RegionCommonLinkAdrReqVerifyParams_t* verifyParams, int8_t* dr, int8_t* txPow, uint8_t* nbRep );
 
 /*!
  * \brief Computes the symbol time for LoRa modulation.

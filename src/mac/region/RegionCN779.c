@@ -622,6 +622,9 @@ uint8_t RegionCN779LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
     uint8_t nextIndex = 0;
     uint8_t bytesProcessed = 0;
     uint16_t chMask = 0;
+    GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
+    RegionCommonLinkAdrReqVerifyParams_t linkAdrVerifyParams;
 
     while( bytesProcessed < linkAdrReq->PayloadSize )
     {
@@ -674,34 +677,33 @@ uint8_t RegionCN779LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
         }
     }
 
-    // Verify datarate
-    if( RegionCommonChanVerifyDr( CN779_MAX_NB_CHANNELS, &chMask, linkAdrParams.Datarate, CN779_TX_MIN_DATARATE, CN779_TX_MAX_DATARATE, Channels  ) == false )
-    {
-        status &= 0xFD; // Datarate KO
-    }
+    // Get the minimum possible datarate
+    getPhy.Attribute = PHY_MIN_TX_DR;
+    getPhy.UplinkDwellTime = linkAdrReq->UplinkDwellTime;
+    phyParam = RegionCN779GetPhyParam( &getPhy );
 
-    // Verify tx power
-    if( RegionCommonValueInRange( linkAdrParams.TxPower, CN779_MAX_TX_POWER, CN779_MIN_TX_POWER ) == 0 )
-    {
-        // Verify if the maximum TX power is exceeded
-        if( CN779_MAX_TX_POWER > linkAdrParams.TxPower )
-        { // Apply maximum TX power. Accept TX power.
-            linkAdrParams.TxPower = CN779_MAX_TX_POWER;
-        }
-        else
-        {
-            status &= 0xFB; // TxPower KO
-        }
-    }
+    linkAdrVerifyParams.Status = status;
+    linkAdrVerifyParams.AdrEnabled = linkAdrReq->AdrEnabled;
+    linkAdrVerifyParams.Datarate = linkAdrParams.Datarate;
+    linkAdrVerifyParams.TxPower = linkAdrParams.TxPower;
+    linkAdrVerifyParams.NbRep = linkAdrParams.NbRep;
+    linkAdrVerifyParams.CurrentDatarate = linkAdrReq->CurrentDatarate;
+    linkAdrVerifyParams.CurrentTxPower = linkAdrReq->CurrentTxPower;
+    linkAdrVerifyParams.CurrentNbRep = linkAdrReq->CurrentNbRep;
+    linkAdrVerifyParams.NbChannels = CN779_MAX_NB_CHANNELS;
+    linkAdrVerifyParams.ChannelsMask = &chMask;
+    linkAdrVerifyParams.MinDatarate = ( int8_t )phyParam.Value;
+    linkAdrVerifyParams.MaxDatarate = CN779_TX_MAX_DATARATE;
+    linkAdrVerifyParams.Channels = Channels;
+    linkAdrVerifyParams.MinTxPower = CN779_MIN_TX_POWER;
+    linkAdrVerifyParams.MaxTxPower = CN779_MAX_TX_POWER;
+
+    // Verify the parameters and update, if necessary
+    status = RegionCommonLinkAdrReqVerifyParams( &linkAdrVerifyParams, &linkAdrParams.Datarate, &linkAdrParams.TxPower, &linkAdrParams.NbRep );
 
     // Update channelsMask if everything is correct
     if( status == 0x07 )
     {
-        if( linkAdrParams.NbRep == 0 )
-        { // Value of 0 is not allowed, revert to default.
-            linkAdrParams.NbRep = 1;
-        }
-
         // Set the channels mask to a default value
         memset( ChannelsMask, 0, sizeof( ChannelsMask ) );
         // Update the channels mask

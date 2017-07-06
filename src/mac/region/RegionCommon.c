@@ -228,6 +228,69 @@ uint8_t RegionCommonParseLinkAdrReq( uint8_t* payload, RegionCommonLinkAdrParams
     return retIndex;
 }
 
+uint8_t RegionCommonLinkAdrReqVerifyParams( RegionCommonLinkAdrReqVerifyParams_t* verifyParams, int8_t* dr, int8_t* txPow, uint8_t* nbRep )
+{
+    uint8_t status = verifyParams->Status;
+    int8_t datarate = verifyParams->Datarate;
+    int8_t txPower = verifyParams->TxPower;
+    int8_t nbRepetitions = verifyParams->NbRep;
+
+    // Handle the case when ADR is off.
+    if( verifyParams->AdrEnabled == false )
+    {
+        // When ADR is off, we are allowed to change the channels mask and the NbRep,
+        // if the datarate and the TX power of the LinkAdrReq are set to 0x0F.
+        if( ( verifyParams->Datarate != 0x0F ) || ( verifyParams->TxPower != 0x0F ) )
+        {
+            status = 0;
+            nbRepetitions = verifyParams->CurrentNbRep;
+        }
+        // Get the current datarate and tx power
+        datarate = verifyParams->CurrentDatarate;
+        txPower = verifyParams->CurrentTxPower;
+    }
+
+    if( status != 0 )
+    {
+        // Verify datarate. The variable phyParam. Value contains the minimum allowed datarate.
+        if( RegionCommonChanVerifyDr( verifyParams->NbChannels, verifyParams->ChannelsMask, datarate,
+                                      verifyParams->MinDatarate, verifyParams->MaxDatarate, verifyParams->Channels  ) == false )
+        {
+            status &= 0xFD; // Datarate KO
+        }
+
+        // Verify tx power
+        if( RegionCommonValueInRange( txPower, verifyParams->MaxTxPower, verifyParams->MinTxPower ) == 0 )
+        {
+            // Verify if the maximum TX power is exceeded
+            if( verifyParams->MaxTxPower > txPower )
+            { // Apply maximum TX power. Accept TX power.
+                txPower = verifyParams->MaxTxPower;
+            }
+            else
+            {
+                status &= 0xFB; // TxPower KO
+            }
+        }
+    }
+
+    // If the status is ok, verify the NbRep
+    if( status == 0x07 )
+    {
+        if( nbRepetitions == 0 )
+        { // Keep the current one
+            nbRepetitions = verifyParams->CurrentNbRep;
+        }
+    }
+
+    // Apply changes
+    *dr = datarate;
+    *txPow = txPower;
+    *nbRep = nbRepetitions;
+
+    return status;
+}
+
 double RegionCommonComputeSymbolTimeLoRa( uint8_t phyDr, uint32_t bandwidth )
 {
     return ( ( double )( 1 << phyDr ) / ( double )bandwidth ) * 1000;
