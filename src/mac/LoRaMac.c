@@ -1794,11 +1794,11 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
 
                     if( ( eirpDwellTime & 0x20 ) == 0x20 )
                     {
-                        txParamSetupReq.UplinkDwellTime = 1;
+                        txParamSetupReq.DownlinkDwellTime = 1;
                     }
                     if( ( eirpDwellTime & 0x10 ) == 0x10 )
                     {
-                        txParamSetupReq.DownlinkDwellTime = 1;
+                        txParamSetupReq.UplinkDwellTime = 1;
                     }
                     txParamSetupReq.MaxEirp = eirpDwellTime & 0x0F;
 
