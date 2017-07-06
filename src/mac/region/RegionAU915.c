@@ -299,14 +299,14 @@ void RegionAU915InitDefaults( InitType_t type )
             // 125 kHz channels
             for( uint8_t i = 0; i < AU915_MAX_NB_CHANNELS - 8; i++ )
             {
-                Channels[i].Frequency = 915.2e6 + i * 200e3;
+                Channels[i].Frequency = 915200000 + i * 200000;
                 Channels[i].DrRange.Value = ( DR_3 << 4 ) | DR_0;
                 Channels[i].Band = 0;
             }
             // 500 kHz channels
             for( uint8_t i = AU915_MAX_NB_CHANNELS - 8; i < AU915_MAX_NB_CHANNELS; i++ )
             {
-                Channels[i].Frequency = 915.9e6 + ( i - ( AU915_MAX_NB_CHANNELS - 8 ) ) * 1.6e6;
+                Channels[i].Frequency = 915900000 + ( i - ( AU915_MAX_NB_CHANNELS - 8 ) ) * 1600000;
                 Channels[i].DrRange.Value = ( DR_4 << 4 ) | DR_4;
                 Channels[i].Band = 0;
             }
@@ -556,8 +556,10 @@ bool RegionAU915TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
 
     Radio.SetChannel( Channels[txConfig->Channel].Frequency );
 
+    Radio.SetTxConfig( MODEM_LORA, phyTxPower, 0, bandwidth, phyDr, 1, 8, false, true, 0, 0, false, 3000 );
+
+    // Setup maximum payload lenght of the radio driver
     Radio.SetMaxPayloadLength( MODEM_LORA, txConfig->PktLen );
-    Radio.SetTxConfig( MODEM_LORA, phyTxPower, 0, bandwidth, phyDr, 1, 8, false, true, 0, 0, false, 3e3 );
 
     *txTimeOnAir = Radio.TimeOnAir( MODEM_LORA,  txConfig->PktLen );
     *txPower = txPowerLimited;

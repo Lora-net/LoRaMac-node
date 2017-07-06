@@ -762,8 +762,8 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                 {
                     LoRaMacParams.ReceiveDelay1 = 1;
                 }
-                LoRaMacParams.ReceiveDelay1 *= 1e3;
-                LoRaMacParams.ReceiveDelay2 = LoRaMacParams.ReceiveDelay1 + 1e3;
+                LoRaMacParams.ReceiveDelay1 *= 1000;
+                LoRaMacParams.ReceiveDelay2 = LoRaMacParams.ReceiveDelay1 + 1000;
 
                 // Apply CF list
                 applyCFList.Payload = &LoRaMacRxPayload[13];
@@ -1762,8 +1762,8 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     {
                         delay++;
                     }
-                    LoRaMacParams.ReceiveDelay1 = delay * 1e3;
-                    LoRaMacParams.ReceiveDelay2 = LoRaMacParams.ReceiveDelay1 + 1e3;
+                    LoRaMacParams.ReceiveDelay1 = delay * 1000;
+                    LoRaMacParams.ReceiveDelay2 = LoRaMacParams.ReceiveDelay1 + 1000;
                     AddMacCommand( MOTE_MAC_RX_TIMING_SETUP_ANS, 0, 0 );
                 }
                 break;

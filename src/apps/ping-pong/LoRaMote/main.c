@@ -48,10 +48,10 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 #elif defined( USE_MODEM_FSK )
 
-#define FSK_FDEV                                    25e3      // Hz
-#define FSK_DATARATE                                50e3      // bps
-#define FSK_BANDWIDTH                               50e3      // Hz
-#define FSK_AFC_BANDWIDTH                           83.333e3  // Hz
+#define FSK_FDEV                                    25000     // Hz
+#define FSK_DATARATE                                50000     // bps
+#define FSK_BANDWIDTH                               50000     // Hz
+#define FSK_AFC_BANDWIDTH                           83333     // Hz
 #define FSK_PREAMBLE_LENGTH                         5         // Same for Tx and Rx
 #define FSK_FIX_LENGTH_PAYLOAD_ON                   false
 

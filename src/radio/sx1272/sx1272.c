@@ -352,7 +352,7 @@ void SX1272SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
             SX1272.Settings.Fsk.IqInverted = iqInverted;
             SX1272.Settings.Fsk.RxContinuous = rxContinuous;
             SX1272.Settings.Fsk.PreambleLen = preambleLen;
-            SX1272.Settings.Fsk.RxSingleTimeout = symbTimeout * ( ( 1.0 / ( double )datarate ) * 8.0 ) * 1e3;
+            SX1272.Settings.Fsk.RxSingleTimeout = ( uint32_t )( symbTimeout * ( ( 1.0 / ( double )datarate ) * 8.0 ) * 1000 );
 
             datarate = ( uint16_t )( ( double )XTAL_FREQ / ( double )datarate );
             SX1272Write( REG_BITRATEMSB, ( uint8_t )( datarate >> 8 ) );
@@ -611,7 +611,7 @@ uint32_t SX1272GetTimeOnAir( RadioModems_t modem, uint8_t pktLen )
                                      ( ( ( SX1272Read( REG_PACKETCONFIG1 ) & ~RF_PACKETCONFIG1_ADDRSFILTERING_MASK ) != 0x00 ) ? 1.0 : 0 ) +
                                      pktLen +
                                      ( ( SX1272.Settings.Fsk.CrcOn == 0x01 ) ? 2.0 : 0 ) ) /
-                                     SX1272.Settings.Fsk.Datarate ) * 1e3 );
+                                     SX1272.Settings.Fsk.Datarate ) * 1000 );
         }
         break;
     case MODEM_LORA:
@@ -620,13 +620,13 @@ uint32_t SX1272GetTimeOnAir( RadioModems_t modem, uint8_t pktLen )
             switch( SX1272.Settings.LoRa.Bandwidth )
             {
             case 0: // 125 kHz
-                bw = 125e3;
+                bw = 125000;
                 break;
             case 1: // 250 kHz
-                bw = 250e3;
+                bw = 250000;
                 break;
             case 2: // 500 kHz
-                bw = 500e3;
+                bw = 500000;
                 break;
             }
 
@@ -647,7 +647,7 @@ uint32_t SX1272GetTimeOnAir( RadioModems_t modem, uint8_t pktLen )
             // Time on air
             double tOnAir = tPreamble + tPayload;
             // return ms secs
-            airTime = floor( tOnAir * 1e3 + 0.999 );
+            airTime = floor( tOnAir * 1000 + 0.999 );
         }
         break;
     }
@@ -963,7 +963,7 @@ void SX1272StartCad( void )
 
 void SX1272SetTxContinuousWave( uint32_t freq, int8_t power, uint16_t time )
 {
-    uint32_t timeout = ( uint32_t )( time * 1e3 );
+    uint32_t timeout = ( uint32_t )( time * 1000 );
 
     SX1272SetChannel( freq );
 

@@ -245,7 +245,7 @@ static const uint8_t DataratesEU868[]  = { 12, 11, 10,  9,  8,  7,  7, 50 };
 /*!
  * Bandwidths table definition in Hz
  */
-static const uint32_t BandwidthsEU868[] = { 125e3, 125e3, 125e3, 125e3, 125e3, 125e3, 250e3, 0 };
+static const uint32_t BandwidthsEU868[] = { 125000, 125000, 125000, 125000, 125000, 125000, 250000, 0 };
 
 /*!
  * Maximum payload with respect to the datarate index. Cannot operate with repeater.

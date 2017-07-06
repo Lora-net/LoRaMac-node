@@ -184,17 +184,17 @@
 /*!
  * Defines the first channel for RX window 1 for CN470 band
  */
-#define CN470_FIRST_RX1_CHANNEL                     ( (uint32_t) 500.3e6 )
+#define CN470_FIRST_RX1_CHANNEL                     ( (uint32_t) 500300000 )
 
 /*!
  * Defines the last channel for RX window 1 for CN470 band
  */
-#define CN470_LAST_RX1_CHANNEL                      ( (uint32_t) 509.7e6 )
+#define CN470_LAST_RX1_CHANNEL                      ( (uint32_t) 509700000 )
 
 /*!
  * Defines the step width of the channels for RX window 1
  */
-#define CN470_STEPWIDTH_RX1_CHANNEL                 ( (uint32_t) 200e3 )
+#define CN470_STEPWIDTH_RX1_CHANNEL                 ( (uint32_t) 200000 )
 
 /*!
  * Data rates table definition
@@ -204,7 +204,7 @@ static const uint8_t DataratesCN470[]  = { 12, 11, 10,  9,  8,  7 };
 /*!
  * Bandwidths table definition in Hz
  */
-static const uint32_t BandwidthsCN470[] = { 125e3, 125e3, 125e3, 125e3, 125e3, 125e3 };
+static const uint32_t BandwidthsCN470[] = { 125000, 125000, 125000, 125000, 125000, 125000 };
 
 /*!
  * Maximum payload with respect to the datarate index. Cannot operate with repeater.

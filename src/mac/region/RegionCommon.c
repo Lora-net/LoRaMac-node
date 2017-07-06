@@ -206,7 +206,7 @@ uint8_t RegionCommonParseLinkAdrReq( uint8_t* payload, LinkAdrParams_t* linkAdrP
 
 double RegionCommonComputeSymbolTimeLoRa( uint8_t phyDr, uint32_t bandwidth )
 {
-    return ( ( double )( 1 << phyDr ) / ( double )bandwidth ) * 1e3;
+    return ( ( double )( 1 << phyDr ) / ( double )bandwidth ) * 1000;
 }
 
 double RegionCommonComputeSymbolTimeFsk( uint8_t phyDr )

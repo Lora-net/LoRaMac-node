@@ -179,17 +179,17 @@
 /*!
  * Defines the first channel for RX window 1 for US band
  */
-#define US915_HYBRID_FIRST_RX1_CHANNEL              ( (uint32_t) 923.3e6 )
+#define US915_HYBRID_FIRST_RX1_CHANNEL              ( (uint32_t) 923300000 )
 
 /*!
  * Defines the last channel for RX window 1 for US band
  */
-#define US915_HYBRID_LAST_RX1_CHANNEL               ( (uint32_t) 927.5e6 )
+#define US915_HYBRID_LAST_RX1_CHANNEL               ( (uint32_t) 927500000 )
 
 /*!
  * Defines the step width of the channels for RX window 1
  */
-#define US915_HYBRID_STEPWIDTH_RX1_CHANNEL          ( (uint32_t) 600e3 )
+#define US915_HYBRID_STEPWIDTH_RX1_CHANNEL          ( (uint32_t) 600000 )
 
 /*!
  * Data rates table definition
@@ -199,7 +199,7 @@ static const uint8_t DataratesUS915_HYBRID[]  = { 10, 9, 8,  7,  8,  0,  0, 0, 1
 /*!
  * Bandwidths table definition in Hz
  */
-static const uint32_t BandwidthsUS915_HYBRID[] = { 125e3, 125e3, 125e3, 125e3, 500e3, 0, 0, 0, 500e3, 500e3, 500e3, 500e3, 500e3, 500e3, 0, 0 };
+static const uint32_t BandwidthsUS915_HYBRID[] = { 125000, 125000, 125000, 125000, 500000, 0, 0, 0, 500000, 500000, 500000, 500000, 500000, 500000, 0, 0 };
 
 /*!
  * Up/Down link data rates offset definition
