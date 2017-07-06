@@ -1683,6 +1683,11 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     // Fill parameter structure
                     linkAdrReq.Payload = &payload[macIndex - 1];
                     linkAdrReq.PayloadSize = commandsSize - ( macIndex - 1 );
+                    linkAdrReq.AdrEnabled = AdrCtrlOn;
+                    linkAdrReq.UplinkDwellTime = LoRaMacParams.UplinkDwellTime;
+                    linkAdrReq.CurrentDatarate = LoRaMacParams.ChannelsDatarate;
+                    linkAdrReq.CurrentTxPower = LoRaMacParams.ChannelsTxPower;
+                    linkAdrReq.CurrentNbRep = LoRaMacParams.ChannelsNbRep;
 
                     // Process the ADR requests
                     status = RegionLinkAdrReq( LoRaMacRegion, &linkAdrReq, &linkAdrDatarate,
@@ -1690,18 +1695,9 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
 
                     if( ( status & 0x07 ) == 0x07 )
                     {
-                        if( ( AdrCtrlOn == false ) &&
-                            ( ( LoRaMacParams.ChannelsDatarate != linkAdrDatarate ) ||
-                            ( LoRaMacParams.ChannelsTxPower != linkAdrTxPower ) ) )
-                        { // ADR disabled don't handle ADR requests if server tries to change datarate or tx power
-                            status = 0;
-                        }
-                        else
-                        {
-                            LoRaMacParams.ChannelsDatarate = linkAdrDatarate;
-                            LoRaMacParams.ChannelsTxPower = linkAdrTxPower;
-                            LoRaMacParams.ChannelsNbRep = linkAdrNbRep;
-                        }
+                        LoRaMacParams.ChannelsDatarate = linkAdrDatarate;
+                        LoRaMacParams.ChannelsTxPower = linkAdrTxPower;
+                        LoRaMacParams.ChannelsNbRep = linkAdrNbRep;
                     }
 
                     // Add the answers to the buffer
