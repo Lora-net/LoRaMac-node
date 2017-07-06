@@ -103,7 +103,7 @@
 /*!
  * Default Tx output power used by the node
  */
-#define EU868_DEFAULT_TX_POWER                      TX_POWER_1
+#define EU868_DEFAULT_TX_POWER                      TX_POWER_0
 
 /*!
  * Default Max EIRP

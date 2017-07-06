@@ -93,7 +93,7 @@
 /*!
  * Default Tx output power used by the node
  */
-#define US915_HYBRID_DEFAULT_TX_POWER               TX_POWER_5
+#define US915_HYBRID_DEFAULT_TX_POWER               TX_POWER_0
 
 /*!
  * Default Max ERP
