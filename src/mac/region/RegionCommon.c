@@ -84,7 +84,8 @@ bool RegionCommonChanVerifyDr( uint8_t nbChannels, uint16_t* channelsMask, int8_
         {
             if( ( ( channelsMask[k] & ( 1 << j ) ) != 0 ) )
             {// Check datarate validity for enabled channels
-                if( RegionCommonValueInRange( dr, channels[i + j].DrRange.Fields.Min, channels[i + j].DrRange.Fields.Max ) == 1 )
+                if( RegionCommonValueInRange( dr, ( channels[i + j].DrRange.Fields.Min & 0x0F ),
+                                                  ( channels[i + j].DrRange.Fields.Max & 0x0F ) ) == 1 )
                 {
                     // At least 1 channel has been found we can return OK.
                     return true;
