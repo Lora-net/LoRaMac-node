@@ -139,7 +139,7 @@ static uint8_t CountNbOfEnabledChannels( uint8_t datarate, uint16_t* channelsMas
 
 PhyParam_t RegionAU915GetPhyParam( GetPhyParams_t* getPhy )
 {
-    PhyParam_t phyParam;
+    PhyParam_t phyParam = { 0 };
 
     switch( getPhy->Attribute )
     {
