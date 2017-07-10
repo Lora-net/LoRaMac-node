@@ -148,14 +148,14 @@ const RadioRegisters_t RadioRegsInit[] = RADIO_INIT_REGISTERS_VALUE;
     and RxBwExp is one of [0..7]
   Round numbers to nearest whole number - The radio chip only takes integer values!
 */
-#infdef ROUND_TO_NEAREST_DIVISION_DEN_MIGHT_BE_ODD
+#ifndef ROUND_TO_NEAREST_DIVISION_DEN_MIGHT_BE_ODD
 
 #define ROUND_TO_NEAREST_DIVISION_DEN_MIGHT_BE_ODD(num,den)     \
           ((  ( (num) * 2 ) + (den) ) / ( (den) * 2 ) )
               
 #endif
               
-#infdef ROUND_TO_NEAREST_DIVISION_DEN_IS_NEVER_ODD
+#ifndef ROUND_TO_NEAREST_DIVISION_DEN_IS_NEVER_ODD
 
 #define ROUND_TO_NEAREST_DIVISION_DEN_IS_NEVER_ODD(num,den)     \
           ((  (num) + ( (den) / 2 ) ) / (den) )
@@ -167,7 +167,7 @@ const RadioRegisters_t RadioRegsInit[] = RADIO_INIT_REGISTERS_VALUE;
 /*note the denominator is ALWAYS even*/
 #define RX_BW_TO_NEAREST_INTEGER(mant, exp)                             \
           ROUND_TO_NEAREST_DIVISION_DEN_IS_NEVER_ODD( XTAL_FREQ ,       \
-            ( ( (uint16_t)(mant) ) * ( (uint16_t)1 << ( (exp) + 2 ) ) ) )
+            ( ( 1u << ( (exp) + 2 ) ) * ( ( (mant) * 4 ) + 16 ) ) )
               
 #endif
             
@@ -177,7 +177,7 @@ const RadioRegisters_t RadioRegsInit[] = RADIO_INIT_REGISTERS_VALUE;
             
 #endif
             
-/*See section 5.5.6 Channel Filter od Datasheet*/
+/*See section 5.5.6 Channel Filter of Datasheet*/
 #define LAST_VALID_BANDWIDTH_VALUE 250000
 
 /*
