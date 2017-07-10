@@ -190,6 +190,25 @@ struct ComplianceTest_s
  */
 static void PrepareTxFrame( uint8_t port )
 {
+#if defined( LOW_BAT_THRESHOLD )
+#if defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
+    MibRequestConfirm_t mibReq;
+
+    if( BoardGetBatteryVoltage( ) < LOW_BAT_THRESHOLD )
+    {
+        mibReq.Type = MIB_CHANNELS_TX_POWER;
+        LoRaMacMibGetRequestConfirm( &mibReq );
+        // TX_POWER_30_DBM = 0, TX_POWER_28_DBM = 1, ..., TX_POWER_20_DBM = 5, ..., TX_POWER_10_DBM = 10
+        // The if condition is then "less than" to check if the power is greater than 20 dBm
+        if( mibReq.Param.ChannelsTxPower < TX_POWER_5 )
+        {
+            mibReq.Param.ChannelsTxPower = TX_POWER_5;
+            LoRaMacMibSetRequestConfirm( &mibReq );
+        }
+    }
+#endif
+#endif
+
     switch( port )
     {
     case 3:
