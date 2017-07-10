@@ -1624,13 +1624,21 @@ void SX1276OnDio1Irq( void )
 
                 if( ( SX1276.Settings.FskPacketHandler.Size - SX1276.Settings.FskPacketHandler.NbBytes ) > SX1276.Settings.FskPacketHandler.FifoThresh )
                 {
-                    SX1276ReadFifo( ( RxTxBuffer + SX1276.Settings.FskPacketHandler.NbBytes ), SX1276.Settings.FskPacketHandler.FifoThresh );
-                    SX1276.Settings.FskPacketHandler.NbBytes += SX1276.Settings.FskPacketHandler.FifoThresh;
+                    // ERRATA 3.1 - PayloadReady Set for 31.25ns if FIFO is Empty
+                    if( SX1276.Settings.FskPacketHandler.FifoThresh >= 2)
+                    {
+                      SX1276ReadFifo( ( RxTxBuffer + SX1276.Settings.FskPacketHandler.NbBytes ), ( SX1276.Settings.FskPacketHandler.FifoThresh - 1 ) );
+                      SX1276.Settings.FskPacketHandler.NbBytes += ( SX1276.Settings.FskPacketHandler.FifoThresh - 1 );
+                    }
                 }
                 else
                 {
-                    SX1276ReadFifo( ( RxTxBuffer + SX1276.Settings.FskPacketHandler.NbBytes ), SX1276.Settings.FskPacketHandler.Size - SX1276.Settings.FskPacketHandler.NbBytes );
-                    SX1276.Settings.FskPacketHandler.NbBytes += ( SX1276.Settings.FskPacketHandler.Size - SX1276.Settings.FskPacketHandler.NbBytes );
+                    // ERRATA 3.1 - PayloadReady Set for 31.25ns if FIFO is Empty
+                    if( SX1276.Settings.FskPacketHandler.FifoThresh >= 2)
+                    {
+                      SX1276ReadFifo( ( RxTxBuffer + SX1276.Settings.FskPacketHandler.NbBytes ), ( SX1276.Settings.FskPacketHandler.Size - SX1276.Settings.FskPacketHandler.NbBytes - 1 ) );
+                      SX1276.Settings.FskPacketHandler.NbBytes += ( SX1276.Settings.FskPacketHandler.Size - SX1276.Settings.FskPacketHandler.NbBytes - 1 );
+                    }
                 }
                 break;
             case MODEM_LORA:

@@ -805,6 +805,12 @@ void SX1272SetRx( uint32_t timeout )
                 SX1272Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_OFF );
             }
 
+            // ERRATA 2.2 - Receiver Spurious Reception
+            if( SX1272.Settings.LoRa.Bandwidth < 2 )
+            {
+                SX1272Write( REG_LR_DETECTOPTIMIZE, SX1272Read( REG_LR_DETECTOPTIMIZE ) & 0x7F );
+            }
+            
             rxContinuous = SX1272.Settings.LoRa.RxContinuous;
 
             if( SX1272.Settings.LoRa.FreqHopOn == true )
@@ -1447,13 +1453,21 @@ void SX1272OnDio1Irq( void )
 
                 if( ( SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes ) > SX1272.Settings.FskPacketHandler.FifoThresh )
                 {
-                    SX1272ReadFifo( ( RxTxBuffer + SX1272.Settings.FskPacketHandler.NbBytes ), SX1272.Settings.FskPacketHandler.FifoThresh );
-                    SX1272.Settings.FskPacketHandler.NbBytes += SX1272.Settings.FskPacketHandler.FifoThresh;
+                    // ERRATA 3.1 - PayloadReady Set for 31.25ns if FIFO is Empty
+                    if( SX1272.Settings.FskPacketHandler.FifoThresh >= 2)
+                    {
+                      SX1272ReadFifo( ( RxTxBuffer + SX1272.Settings.FskPacketHandler.NbBytes ), ( SX1272.Settings.FskPacketHandler.FifoThresh - 1 ) );
+                      SX1272.Settings.FskPacketHandler.NbBytes += ( SX1272.Settings.FskPacketHandler.FifoThresh - 1 );
+                    }
                 }
                 else
                 {
-                    SX1272ReadFifo( ( RxTxBuffer + SX1272.Settings.FskPacketHandler.NbBytes ), SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes );
-                    SX1272.Settings.FskPacketHandler.NbBytes += ( SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes );
+                    // ERRATA 3.1 - PayloadReady Set for 31.25ns if FIFO is Empty
+                    if( SX1272.Settings.FskPacketHandler.FifoThresh >= 2)
+                    {
+                      SX1272ReadFifo( ( RxTxBuffer + SX1272.Settings.FskPacketHandler.NbBytes ), ( SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes - 1 ) );
+                      SX1272.Settings.FskPacketHandler.NbBytes += ( SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes - 1 );
+                    }
                 }
                 break;
             case MODEM_LORA:
