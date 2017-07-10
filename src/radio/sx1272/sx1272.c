@@ -140,30 +140,125 @@ const RadioRegisters_t RadioRegsInit[] = RADIO_INIT_REGISTERS_VALUE;
 /*!
  * Precomputed FSK bandwidth registers values
  */
+/*
+  These values depend on XTAL_FREQ, so let the compiler do the work for us,
+  in case somebody edits XTAL_FREQ.
+    Formula: RxBw = FXOSC / (RxBwMant * (1 << (RxBwExp + 2)))
+    where RxBwMant is one of [0..2]
+    and RxBwExp is one of [0..7]
+  Round numbers to nearest whole number - The radio chip only takes integer values!
+*/
+#infdef ROUND_TO_NEAREST_DIVISION_DEN_MIGHT_BE_ODD
+
+#define ROUND_TO_NEAREST_DIVISION_DEN_MIGHT_BE_ODD(num,den)     \
+          ((  ( (num) * 2 ) + (den) ) / ( (den) * 2 ) )
+              
+#endif
+              
+#infdef ROUND_TO_NEAREST_DIVISION_DEN_IS_NEVER_ODD
+
+#define ROUND_TO_NEAREST_DIVISION_DEN_IS_NEVER_ODD(num,den)     \
+          ((  (num) + ( (den) / 2 ) ) / (den) )
+              
+#endif
+              
+#ifndef RX_BW_TO_NEAREST_INTEGER
+              
+/*note the denominator is ALWAYS even*/
+#define RX_BW_TO_NEAREST_INTEGER(mant, exp)                             \
+          ROUND_TO_NEAREST_DIVISION_DEN_IS_NEVER_ODD( XTAL_FREQ ,       \
+            ( ( (uint16_t)(mant) ) * ( (uint16_t)1 << ( (exp) + 2 ) ) ) )
+              
+#endif
+            
+#ifndef RX_BW_REG_VALUE
+            
+#define RX_BW_REG_VALUE(mant, exp)      ( ( (mant) << 3 ) | (exp) )
+            
+#endif
+            
+/*See section 5.5.6 Channel Filter od Datasheet*/
+#define LAST_VALID_BANDWIDTH_VALUE 250000
+
+/*
+Later code relies on table being sorted small to large, 
+so order entries that way
+*/
 const FskBandwidth_t FskBandwidths[] =
 {
-    { 2600  , 0x17 },
-    { 3100  , 0x0F },
-    { 3900  , 0x07 },
-    { 5200  , 0x16 },
-    { 6300  , 0x0E },
-    { 7800  , 0x06 },
-    { 10400 , 0x15 },
-    { 12500 , 0x0D },
-    { 15600 , 0x05 },
-    { 20800 , 0x14 },
-    { 25000 , 0x0C },
-    { 31300 , 0x04 },
-    { 41700 , 0x13 },
-    { 50000 , 0x0B },
-    { 62500 , 0x03 },
-    { 83333 , 0x12 },
-    { 100000, 0x0A },
-    { 125000, 0x02 },
-    { 166700, 0x11 },
-    { 200000, 0x09 },
-    { 250000, 0x01 },
-    { 300000, 0x00 }, // Invalid Bandwidth
+#if  RX_BW_TO_NEAREST_INTEGER(2, 7) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(2, 7) , RX_BW_REG_VALUE(2, 7) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(1, 7) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(1, 7) , RX_BW_REG_VALUE(1, 7) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(0, 7) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(0, 7) , RX_BW_REG_VALUE(0, 7) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(2, 6) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(2, 6) , RX_BW_REG_VALUE(2, 6) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(1, 6) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(1, 6) , RX_BW_REG_VALUE(1, 6) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(0, 6) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(0, 6) , RX_BW_REG_VALUE(0, 6) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(2, 5) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(2, 5) , RX_BW_REG_VALUE(2, 5) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(1, 5) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(1, 5) , RX_BW_REG_VALUE(1, 5) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(0, 5) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(0, 5) , RX_BW_REG_VALUE(0, 5) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(2, 4) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(2, 4) , RX_BW_REG_VALUE(2, 4) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(1, 4) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(1, 4) , RX_BW_REG_VALUE(1, 4) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(0, 4) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(0, 4) , RX_BW_REG_VALUE(0, 4) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(2, 3) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(2, 3) , RX_BW_REG_VALUE(2, 3) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(1, 3) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(1, 3) , RX_BW_REG_VALUE(1, 3) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(0, 3) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(0, 3) , RX_BW_REG_VALUE(0, 3) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(2, 2) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(2, 2) , RX_BW_REG_VALUE(2, 2) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(1, 2) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(1, 2) , RX_BW_REG_VALUE(1, 2) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(0, 2) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(0, 2) , RX_BW_REG_VALUE(0, 2) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(2, 1) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(2, 1) , RX_BW_REG_VALUE(2, 1) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(1, 1) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(1, 1) , RX_BW_REG_VALUE(1, 1) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(0, 1) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(0, 1) , RX_BW_REG_VALUE(0, 1) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(2, 0) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(2, 0) , RX_BW_REG_VALUE(2, 0) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(1, 0) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(1, 0) , RX_BW_REG_VALUE(1, 0) },
+#endif    
+#if  RX_BW_TO_NEAREST_INTEGER(0, 0) <= LAST_VALID_BANDWIDTH_VALUE
+    {RX_BW_TO_NEAREST_INTEGER(0, 0) , RX_BW_REG_VALUE(0, 0) },
+#endif    
+    {(LAST_VALID_BANDWIDTH_VALUE + 1) , 0x00 }, // Invalid Bandwidth
 };
 
 /*
