@@ -609,17 +609,25 @@ void SX1276SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
                 SX1276Write( REG_LR_HOPPERIOD, SX1276.Settings.LoRa.HopPeriod );
             }
 
-            if( ( bandwidth == 9 ) && ( SX1276.Settings.Channel > RF_MID_BAND_THRESH ) )
+            if( ( SX1276Read( REG_LR_MODEMCONFIG1 ) & ~RFLR_MODEMCONFIG1_BW_MASK ) == RFLR_MODEMCONFIG1_BW_500_KHZ)
             {
-                // ERRATA 2.1 - Sensitivity Optimization with a 500 kHz Bandwidth
-                SX1276Write( REG_LR_TEST36, 0x02 );
-                SX1276Write( REG_LR_TEST3A, 0x64 );
-            }
-            else if( bandwidth == 9 )
-            {
-                // ERRATA 2.1 - Sensitivity Optimization with a 500 kHz Bandwidth
-                SX1276Write( REG_LR_TEST36, 0x02 );
-                SX1276Write( REG_LR_TEST3A, 0x7F );
+                if( (SX1276.Settings.Channel >= 862000000) && ( SX1276.Settings.Channel <= 1020000000 ) )
+                {
+                    // ERRATA 2.1 - Sensitivity Optimization with a 500 kHz Bandwidth
+                    SX1276Write( REG_LR_TEST36, 0x02 );
+                    SX1276Write( REG_LR_TEST3A, 0x64 );
+                }
+                else if( (SX1276.Settings.Channel >= 410000000) && ( SX1276.Settings.Channel <= 525000000 ) )
+                {
+                    // ERRATA 2.1 - Sensitivity Optimization with a 500 kHz Bandwidth
+                    SX1276Write( REG_LR_TEST36, 0x02 );
+                    SX1276Write( REG_LR_TEST3A, 0x7F );
+                }
+                else
+                {
+                    // ERRATA 2.1 - Sensitivity Optimization with a 500 kHz Bandwidth
+                    SX1276Write( REG_LR_TEST36, 0x03 );
+                }
             }
             else
             {
@@ -1006,50 +1014,56 @@ void SX1276SetRx( uint32_t timeout )
             }
 
             // ERRATA 2.3 - Receiver Spurious Reception of a LoRa Signal
-            if( SX1276.Settings.LoRa.Bandwidth < 9 )
+            switch( ( SX1276Read( REG_LR_MODEMCONFIG1 ) & ~RFLR_MODEMCONFIG1_BW_MASK ) )
             {
-                SX1276Write( REG_LR_DETECTOPTIMIZE, SX1276Read( REG_LR_DETECTOPTIMIZE ) & 0x7F );
-                SX1276Write( REG_LR_TEST30, 0x00 );
-                switch( SX1276.Settings.LoRa.Bandwidth )
-                {
-                case 0: // 7.8 kHz
-                    SX1276Write( REG_LR_TEST2F, 0x48 );
-                    SX1276SetChannel(SX1276.Settings.Channel + 7810 );
-                    break;
-                case 1: // 10.4 kHz
-                    SX1276Write( REG_LR_TEST2F, 0x44 );
-                    SX1276SetChannel(SX1276.Settings.Channel + 10420 );
-                    break;
-                case 2: // 15.6 kHz
-                    SX1276Write( REG_LR_TEST2F, 0x44 );
-                    SX1276SetChannel(SX1276.Settings.Channel + 15620 );
-                    break;
-                case 3: // 20.8 kHz
-                    SX1276Write( REG_LR_TEST2F, 0x44 );
-                    SX1276SetChannel(SX1276.Settings.Channel + 20830 );
-                    break;
-                case 4: // 31.2 kHz
-                    SX1276Write( REG_LR_TEST2F, 0x44 );
-                    SX1276SetChannel(SX1276.Settings.Channel + 31250 );
-                    break;
-                case 5: // 41.4 kHz
-                    SX1276Write( REG_LR_TEST2F, 0x44 );
-                    SX1276SetChannel(SX1276.Settings.Channel + 41670 );
-                    break;
-                case 6: // 62.5 kHz
-                    SX1276Write( REG_LR_TEST2F, 0x40 );
-                    break;
-                case 7: // 125 kHz
-                    SX1276Write( REG_LR_TEST2F, 0x40 );
-                    break;
-                case 8: // 250 kHz
-                    SX1276Write( REG_LR_TEST2F, 0x40 );
-                    break;
-                }
-            }
-            else
-            {
+            case RFLR_MODEMCONFIG1_BW_500_KHZ:
                 SX1276Write( REG_LR_DETECTOPTIMIZE, SX1276Read( REG_LR_DETECTOPTIMIZE ) | 0x80 );
+                break;
+            case RFLR_MODEMCONFIG1_BW_250_KHZ:
+                // Intentional fallthrough
+            case RFLR_MODEMCONFIG1_BW_125_KHZ:
+                // Intentional fallthrough
+            case RFLR_MODEMCONFIG1_BW_62_50_KHZ:
+                SX1276Write( REG_LR_DETECTOPTIMIZE, SX1276Read( REG_LR_DETECTOPTIMIZE ) & 0x7F );
+                SX1276Write( REG_LR_TEST2F, 0x40 );
+                SX1276Write( REG_LR_TEST30, 0x00 );
+                break;
+            case RFLR_MODEMCONFIG1_BW_41_66_KHZ:
+                SX1276SetChannel(SX1276.Settings.Channel + 41670 );
+                SX1276Write( REG_LR_DETECTOPTIMIZE, SX1276Read( REG_LR_DETECTOPTIMIZE ) & 0x7F );
+                SX1276Write( REG_LR_TEST2F, 0x44 );
+                SX1276Write( REG_LR_TEST30, 0x00 );
+                break;
+            case RFLR_MODEMCONFIG1_BW_31_25_KHZ:
+                SX1276SetChannel(SX1276.Settings.Channel + 31250 );
+                SX1276Write( REG_LR_DETECTOPTIMIZE, SX1276Read( REG_LR_DETECTOPTIMIZE ) & 0x7F );
+                SX1276Write( REG_LR_TEST2F, 0x44 );
+                SX1276Write( REG_LR_TEST30, 0x00 );
+                break;
+            case RFLR_MODEMCONFIG1_BW_20_83_KHZ:
+                SX1276SetChannel(SX1276.Settings.Channel + 20830 );
+                SX1276Write( REG_LR_DETECTOPTIMIZE, SX1276Read( REG_LR_DETECTOPTIMIZE ) & 0x7F );
+                SX1276Write( REG_LR_TEST2F, 0x44 );
+                SX1276Write( REG_LR_TEST30, 0x00 );
+                break;
+            case RFLR_MODEMCONFIG1_BW_15_62_KHZ:
+                SX1276SetChannel(SX1276.Settings.Channel + 15620 );
+                SX1276Write( REG_LR_DETECTOPTIMIZE, SX1276Read( REG_LR_DETECTOPTIMIZE ) & 0x7F );
+                SX1276Write( REG_LR_TEST2F, 0x44 );
+                SX1276Write( REG_LR_TEST30, 0x00 );
+                break;
+            case RFLR_MODEMCONFIG1_BW_10_41_KHZ:
+                SX1276SetChannel(SX1276.Settings.Channel + 10420 );
+                SX1276Write( REG_LR_DETECTOPTIMIZE, SX1276Read( REG_LR_DETECTOPTIMIZE ) & 0x7F );
+                SX1276Write( REG_LR_TEST2F, 0x44 );
+                SX1276Write( REG_LR_TEST30, 0x00 );
+                break;
+            case RFLR_MODEMCONFIG1_BW_7_81_KHZ:
+                SX1276SetChannel(SX1276.Settings.Channel + 7810 );
+                SX1276Write( REG_LR_DETECTOPTIMIZE, SX1276Read( REG_LR_DETECTOPTIMIZE ) & 0x7F );
+                SX1276Write( REG_LR_TEST2F, 0x48 );
+                SX1276Write( REG_LR_TEST30, 0x00 );
+                break;
             }
 
             rxContinuous = SX1276.Settings.LoRa.RxContinuous;

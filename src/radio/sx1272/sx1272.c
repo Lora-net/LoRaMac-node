@@ -901,9 +901,16 @@ void SX1272SetRx( uint32_t timeout )
             }
 
             // ERRATA 2.2 - Receiver Spurious Reception
-            if( SX1272.Settings.LoRa.Bandwidth < 2 )
+            switch( ( SX1272Read( REG_LR_MODEMCONFIG1 ) & ~RFLR_MODEMCONFIG1_BW_MASK ) )
             {
+            case RFLR_MODEMCONFIG1_BW_500_KHZ:
+                SX1272Write( REG_LR_DETECTOPTIMIZE, SX1272Read( REG_LR_DETECTOPTIMIZE ) | 0x80 );
+                break;
+            case RFLR_MODEMCONFIG1_BW_250_KHZ:
+                // Intentional fallthrough
+            case RFLR_MODEMCONFIG1_BW_125_KHZ:
                 SX1272Write( REG_LR_DETECTOPTIMIZE, SX1272Read( REG_LR_DETECTOPTIMIZE ) & 0x7F );
+                break;
             }
             
             rxContinuous = SX1272.Settings.LoRa.RxContinuous;
