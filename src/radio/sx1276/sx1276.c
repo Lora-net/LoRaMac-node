@@ -155,116 +155,94 @@ const RadioRegisters_t RadioRegsInit[] = RADIO_INIT_REGISTERS_VALUE;
     and RxBwExp is one of [0..7]
   Round numbers to nearest whole number - The radio chip only takes integer values!
 */
-#ifndef ROUND_TO_NEAREST_DIVISION_DEN_MIGHT_BE_ODD
-
-#define ROUND_TO_NEAREST_DIVISION_DEN_MIGHT_BE_ODD(num,den)     \
-          ((  ( (num) * 2 ) + (den) ) / ( (den) * 2 ) )
-              
-#endif
-              
-#ifndef ROUND_TO_NEAREST_DIVISION_DEN_IS_NEVER_ODD
-
-#define ROUND_TO_NEAREST_DIVISION_DEN_IS_NEVER_ODD(num,den)     \
-          ((  (num) + ( (den) / 2 ) ) / (den) )
-              
-#endif
-              
-#ifndef RX_BW_TO_NEAREST_INTEGER
-              
-/*note the denominator is ALWAYS even*/
-#define RX_BW_TO_NEAREST_INTEGER(mant, exp)                             \
-          ROUND_TO_NEAREST_DIVISION_DEN_IS_NEVER_ODD( XTAL_FREQ ,       \
+/*some helper macros*/
+#define RX_BW_TO_NEAREST_INTEGER(mant, exp)                         \
+          INT_CLOSEST_TO_DIV_BOTH_POSTITIVE_SIGNS( XTAL_FREQ ,      \
             ( ( 1u << ( (exp) + 2 ) ) * ( ( (mant) * 4 ) + 16 ) ) )
-              
-#endif
-            
-#ifndef RX_BW_REG_VALUE
-            
+
 #define RX_BW_REG_VALUE(mant, exp)      ( ( (mant) << 3 ) | (exp) )
-            
-#endif
-            
+
 /*See section 5.5.6 Channel Filter of Datasheet*/
-#define LAST_VALID_BANDWIDTH_VALUE 250000
+#define LAST_VALID_BANDWIDTH_VALUE  250000
 
 /*
-Later code relies on table being sorted small to large, 
+Later code relies on table being sorted small to large,
 so order entries that way
 */
 const FskBandwidth_t FskBandwidths[] =
 {
 #if  RX_BW_TO_NEAREST_INTEGER(2, 7) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(2, 7) , RX_BW_REG_VALUE(2, 7) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(1, 7) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(1, 7) , RX_BW_REG_VALUE(1, 7) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(0, 7) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(0, 7) , RX_BW_REG_VALUE(0, 7) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(2, 6) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(2, 6) , RX_BW_REG_VALUE(2, 6) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(1, 6) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(1, 6) , RX_BW_REG_VALUE(1, 6) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(0, 6) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(0, 6) , RX_BW_REG_VALUE(0, 6) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(2, 5) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(2, 5) , RX_BW_REG_VALUE(2, 5) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(1, 5) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(1, 5) , RX_BW_REG_VALUE(1, 5) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(0, 5) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(0, 5) , RX_BW_REG_VALUE(0, 5) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(2, 4) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(2, 4) , RX_BW_REG_VALUE(2, 4) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(1, 4) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(1, 4) , RX_BW_REG_VALUE(1, 4) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(0, 4) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(0, 4) , RX_BW_REG_VALUE(0, 4) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(2, 3) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(2, 3) , RX_BW_REG_VALUE(2, 3) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(1, 3) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(1, 3) , RX_BW_REG_VALUE(1, 3) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(0, 3) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(0, 3) , RX_BW_REG_VALUE(0, 3) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(2, 2) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(2, 2) , RX_BW_REG_VALUE(2, 2) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(1, 2) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(1, 2) , RX_BW_REG_VALUE(1, 2) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(0, 2) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(0, 2) , RX_BW_REG_VALUE(0, 2) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(2, 1) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(2, 1) , RX_BW_REG_VALUE(2, 1) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(1, 1) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(1, 1) , RX_BW_REG_VALUE(1, 1) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(0, 1) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(0, 1) , RX_BW_REG_VALUE(0, 1) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(2, 0) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(2, 0) , RX_BW_REG_VALUE(2, 0) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(1, 0) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(1, 0) , RX_BW_REG_VALUE(1, 0) },
-#endif    
+#endif
 #if  RX_BW_TO_NEAREST_INTEGER(0, 0) <= LAST_VALID_BANDWIDTH_VALUE
     {RX_BW_TO_NEAREST_INTEGER(0, 0) , RX_BW_REG_VALUE(0, 0) },
-#endif    
+#endif
     {(LAST_VALID_BANDWIDTH_VALUE + 1) , 0x00 }, // Invalid Bandwidth
 };
 
@@ -347,7 +325,8 @@ RadioState_t SX1276GetStatus( void )
 void SX1276SetChannel( uint32_t freq )
 {
     SX1276.Settings.Channel = freq;
-    freq = ( uint32_t )( ( double )freq / ( double )FREQ_STEP );
+    freq = ( uint32_t )
+      INT_CLOSEST_TO_DIV_BOTH_POSTITIVE_SIGNS( ( ( uint64_t )freq * FREQ_STEP_DIVIDER ), XTAL_FREQ );
     SX1276Write( REG_FRFMSB, ( uint8_t )( ( freq >> 16 ) & 0xFF ) );
     SX1276Write( REG_FRFMID, ( uint8_t )( ( freq >> 8 ) & 0xFF ) );
     SX1276Write( REG_FRFLSB, ( uint8_t )( freq & 0xFF ) );
@@ -432,9 +411,13 @@ static void RxChainCalibration( void )
 
     // Save context
     regPaConfigInitVal = SX1276Read( REG_PACONFIG );
-    initialFreq = ( double )( ( ( uint32_t )SX1276Read( REG_FRFMSB ) << 16 ) |
-                              ( ( uint32_t )SX1276Read( REG_FRFMID ) << 8 ) |
-                              ( ( uint32_t )SX1276Read( REG_FRFLSB ) ) ) * ( double )FREQ_STEP;
+    {
+      uint32_t ChipFreqVal = ( ( uint32_t )SX1276Read( REG_FRFMSB ) << 16 ) |
+                             ( ( uint32_t )SX1276Read( REG_FRFMID ) <<  8 ) |
+                             ( ( uint32_t )SX1276Read( REG_FRFLSB ) <<  0 );
+      initialFreq = ( uint32_t )
+        INT_CLOSEST_TO_DIV_BOTH_POSTITIVE_SIGNS( ( ( uint64_t )ChipFreqVal * XTAL_FREQ ), FREQ_STEP_DIVIDER );
+    }
 
     // Cut the PA just in case, RFO output, power = -1 dBm
     SX1276Write( REG_PACONFIG, 0x00 );
@@ -503,9 +486,10 @@ void SX1276SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
             SX1276.Settings.Fsk.IqInverted = iqInverted;
             SX1276.Settings.Fsk.RxContinuous = rxContinuous;
             SX1276.Settings.Fsk.PreambleLen = preambleLen;
-            SX1276.Settings.Fsk.RxSingleTimeout = ( uint32_t )( symbTimeout * ( ( 1.0 / ( double )datarate ) * 8.0 ) * 1000 );
+            SX1276.Settings.Fsk.RxSingleTimeout = ( uint32_t )
+              INT_CLOSEST_TO_INFINITIES_DIV_BOTH_POSTITIVE_SIGNS( ( uint32_t)symbTimeout * 8000, datarate);
 
-            datarate = ( uint16_t )( ( double )XTAL_FREQ / ( double )datarate );
+            datarate = ( uint16_t )INT_CLOSEST_TO_DIV_BOTH_POSTITIVE_SIGNS( XTAL_FREQ, datarate );
             SX1276Write( REG_BITRATEMSB, ( uint8_t )( datarate >> 8 ) );
             SX1276Write( REG_BITRATELSB, ( uint8_t )( datarate & 0xFF ) );
 
@@ -682,11 +666,12 @@ void SX1276SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
             SX1276.Settings.Fsk.IqInverted = iqInverted;
             SX1276.Settings.Fsk.TxTimeout = timeout;
 
-            fdev = ( uint16_t )( ( double )fdev / ( double )FREQ_STEP );
+            fdev = ( uint16_t )
+              INT_CLOSEST_TO_DIV_BOTH_POSTITIVE_SIGNS( ( ( uint64_t )fdev * FREQ_STEP_DIVIDER ), XTAL_FREQ );
             SX1276Write( REG_FDEVMSB, ( uint8_t )( fdev >> 8 ) );
             SX1276Write( REG_FDEVLSB, ( uint8_t )( fdev & 0xFF ) );
 
-            datarate = ( uint16_t )( ( double )XTAL_FREQ / ( double )datarate );
+            datarate = ( uint16_t )INT_CLOSEST_TO_DIV_BOTH_POSTITIVE_SIGNS( XTAL_FREQ, datarate );
             SX1276Write( REG_BITRATEMSB, ( uint8_t )( datarate >> 8 ) );
             SX1276Write( REG_BITRATELSB, ( uint8_t )( datarate & 0xFF ) );
 
@@ -799,18 +784,22 @@ uint32_t SX1276GetTimeOnAir( RadioModems_t modem, uint8_t pktLen )
     {
     case MODEM_FSK:
         {
-            airTime = round( ( 8 * ( SX1276.Settings.Fsk.PreambleLen +
-                                     ( ( SX1276Read( REG_SYNCCONFIG ) & ~RF_SYNCCONFIG_SYNCSIZE_MASK ) + 1 ) +
-                                     ( ( SX1276.Settings.Fsk.FixLen == 0x01 ) ? 0.0 : 1.0 ) +
-                                     ( ( ( SX1276Read( REG_PACKETCONFIG1 ) & ~RF_PACKETCONFIG1_ADDRSFILTERING_MASK ) != 0x00 ) ? 1.0 : 0 ) +
-                                     pktLen +
-                                     ( ( SX1276.Settings.Fsk.CrcOn == 0x01 ) ? 2.0 : 0 ) ) /
-                                     SX1276.Settings.Fsk.Datarate ) * 1000 );
+            uint64_t Num =
+              ( uint64_t )8 *
+                (
+                  ( uint32_t )SX1276.Settings.Fsk.PreambleLen +
+                  ( ( SX1276Read( REG_SYNCCONFIG ) & ~RF_SYNCCONFIG_SYNCSIZE_MASK ) + 1 ) +
+                  ( ( SX1276.Settings.Fsk.FixLen == 0x01 ) ? 0 : 1 ) +
+                  ( ( ( SX1276Read( REG_PACKETCONFIG1 ) & ~RF_PACKETCONFIG1_ADDRSFILTERING_MASK ) != 0x00 ) ? 1 : 0 ) +
+                  pktLen +
+                  ( ( SX1276.Settings.Fsk.CrcOn == 0x01 ) ? 2 : 0 )
+                ) * 1000;
+            airTime = INT_CLOSEST_TO_INFINITIES_DIV_BOTH_POSTITIVE_SIGNS(Num, SX1276.Settings.Fsk.Datarate);
         }
         break;
     case MODEM_LORA:
         {
-            double bw = 0.0;
+            uint32_t bw = 0;
             // REMARK: When using LoRa modem only bandwidths 125, 250 and 500 kHz are supported
             switch( SX1276.Settings.LoRa.Bandwidth )
             {
@@ -846,24 +835,24 @@ uint32_t SX1276GetTimeOnAir( RadioModems_t modem, uint8_t pktLen )
                 break;
             }
 
-            // Symbol rate : time for one symbol (secs)
-            double rs = bw / ( 1 << SX1276.Settings.LoRa.Datarate );
-            double ts = 1 / rs;
-            // time of preamble
-            double tPreamble = ( SX1276.Settings.LoRa.PreambleLen + 4.25 ) * ts;
-            // Symbol length of payload and time
-            double tmp = ceil( ( 8 * pktLen - 4 * SX1276.Settings.LoRa.Datarate +
-                                 28 + 16 * SX1276.Settings.LoRa.CrcOn -
-                                 ( SX1276.Settings.LoRa.FixLen ? 20 : 0 ) ) /
-                                 ( double )( 4 * ( SX1276.Settings.LoRa.Datarate -
-                                 ( ( SX1276.Settings.LoRa.LowDatarateOptimize > 0 ) ? 2 : 0 ) ) ) ) *
-                                 ( SX1276.Settings.LoRa.Coderate + 4 );
-            double nPayload = 8 + ( ( tmp > 0 ) ? tmp : 0 );
-            double tPayload = nPayload * ts;
-            // Time on air
-            double tOnAir = tPreamble + tPayload;
-            // return ms secs
-            airTime = floor( tOnAir * 1000 + 0.999 );
+            // time of preamble times 4
+            uint32_t nPreambleLenTimes4 = ( ( uint32_t )( SX1276.Settings.LoRa.PreambleLen ) * 4 + 17 );
+            // number of payload bytes times 4
+            int64_t num = 8 * ( uint16_t )pktLen -
+                          4 * ( int64_t )( SX1276.Settings.LoRa.Datarate ) +
+                          28 +
+                          16 * ( SX1276.Settings.LoRa.CrcOn ? 1 : 0 ) -
+                          ( SX1276.Settings.LoRa.FixLen ? 20 : 0 );
+            int64_t den = 4 * ( uint64_t )( SX1276.Settings.LoRa.Datarate -
+                          ( ( SX1276.Settings.LoRa.LowDatarateOptimize > 0 ) ? 2 : 0 ) );
+            int64_t tmp = INT_CLOSEST_TO_INFINITIES_DIV_ANY_SIGNS(num, den) *
+                          ( SX1276.Settings.LoRa.Coderate + 4 );
+            uint8_t nPayloadTimes4 = (8 + ( ( tmp > 0 ) ? tmp : 0 )) * 4;
+            // Time on air in ms secs
+            airTime = INT_CLOSEST_TO_INFINITIES_DIV_BOTH_POSTITIVE_SIGNS(
+              ( ( uint64_t )( nPreambleLenTimes4 +  nPayloadTimes4 ) *
+                ( ( uint32_t )( 1 << SX1276.Settings.LoRa.Datarate ) * 1000 ) )
+              , ( bw * 4 ) );
         }
         break;
     }
@@ -1816,9 +1805,14 @@ void SX1276OnDio2Irq( void )
 
                     SX1276.Settings.FskPacketHandler.RssiValue = -( SX1276Read( REG_RSSIVALUE ) >> 1 );
 
-                    SX1276.Settings.FskPacketHandler.AfcValue = ( int32_t )( double )( ( ( uint16_t )SX1276Read( REG_AFCMSB ) << 8 ) |
-                                                                           ( uint16_t )SX1276Read( REG_AFCLSB ) ) *
-                                                                           ( double )FREQ_STEP;
+                    {
+                      int16_t Afc2CompVal =  ( int16_t )
+                        ( ( ( uint16_t )SX1276Read( REG_AFCMSB ) << 8 ) |
+                          ( ( uint16_t )SX1276Read( REG_AFCLSB ) << 0 ) );
+                      SX1276.Settings.FskPacketHandler.AfcValue = ( int32_t )
+                        INT_CLOSEST_TO_DIV_ANY_SIGNS( ( ( int64_t )Afc2CompVal * XTAL_FREQ ), FREQ_STEP_DIVIDER );
+                    }
+
                     SX1276.Settings.FskPacketHandler.RxGain = ( SX1276Read( REG_LNA ) >> 5 ) & 0x07;
                 }
                 break;

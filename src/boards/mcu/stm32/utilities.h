@@ -42,6 +42,178 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define POW2( n ) ( 1 << n )
 
 /*!
+ * \brief Returns num / den with any fractional part discarded
+ *
+ * \param [IN] num the numerator, which can have any sign
+ * \param [IN] den the denominator, which can have any sign
+ * \retval num / den with any fractional part discarded
+ *
+ * According to C standard:
+ *  when den != 0, this is the definition of num / den
+ *  when den == 0, the result is undefined
+ *
+ * Examples:  num den | result
+ *            +4  +4  | +1
+ *            +4  -4  | -1
+ *            -4  +4  | -1
+ *            -4  -4  | +1
+ *            +5  +4  | +1
+ *            +5  -4  | -1
+ *            -5  +4  | -1
+ *            -5  -4  | +1
+ *            +6  +4  | +1
+ *            +6  -4  | -1
+ *            -6  +4  | -1
+ *            -6  -4  | +1
+ *            +7  +4  | +1
+ *            +7  -4  | -1
+ *            -7  +4  | -1
+ *            -7  -4  | +1
+ *            +8  +4  | +2
+ *            +8  -4  | -2
+ *            -8  +4  | -2
+ *            -8  -4  | +2
+ *
+ * The _BOTH_POSTITIVE_SIGNS version exists to suppress compiler warnings if it
+ * is known that both arguments are postive
+ */
+#define INT_CLOSEST_TO_ZERO_DIV_ANY_SIGNS( num, den )           \
+  ( ( num ) / ( den ) )
+
+#define INT_CLOSEST_TO_ZERO_DIV_BOTH_POSTITIVE_SIGNS( num, den )  \
+  ( ( num ) / ( den ) )
+
+/*!
+ * \brief Returns num / den with any fractional part rounded to nearest infinity
+ *
+ * \param [IN] num the numerator, which can have any sign
+ * \param [IN] den the denominator, which can have any sign
+ * \retval num / den with any fractional part rounded to nearest infinity
+ *
+ *  when den == 0, the result is undefined
+ *
+ * Note, according to C standard, when num / den is representable,
+ * ( num / den ) * den + num % den == num.
+ * This implies num % den == num - ( num / den ) * den.
+ * Therefore:  num den | num % den
+ *            +7  +4  | +3
+ *            +7  -4  | +3
+ *            -7  +4  | -3
+ *            -7  -4  | -3
+ *
+ * The results of this macro then produce
+ * Examples:  num den | result
+ *            +4  +4  | +1
+ *            +4  -4  | -1
+ *            -4  +4  | -1
+ *            -4  -4  | +1
+ *            +5  +4  | +2
+ *            +5  -4  | -2
+ *            -5  +4  | -2
+ *            -5  -4  | +2
+ *            +6  +4  | +2
+ *            +6  -4  | -2
+ *            -6  +4  | -2
+ *            -6  -4  | +2
+ *            +7  +4  | +2
+ *            +7  -4  | -2
+ *            -7  +4  | -2
+ *            -7  -4  | +2
+ *            +8  +4  | +2
+ *            +8  -4  | -2
+ *            -8  +4  | -2
+ *            -8  -4  | +2
+ *
+ * Note the optimizer on the compiler should compute a/b and a%b simultaneously,
+ * and only use these subexpressions further on, so this is as tight as possible
+ *
+ * The _BOTH_POSTITIVE_SIGNS version exists to suppress compiler warnings if it
+ * is known that both arguments are postive
+ */
+/*
+ * macros to enable or diable warings about pointless comparison of unsigned
+ * quantities with zero in a compiler-specific way
+ */
+#define INT_CLOSEST_TO_INFINITIES_DIV_ANY_SIGNS( num, den )                 \
+  (                                                                         \
+    (                                                                       \
+      ( ( ( ( num ) / ( den ) ) >= 0 ) && ( ( ( num ) % ( den ) ) >= 0 ) )  \
+      ||                                                                    \
+      ( ( ( ( num ) / ( den ) ) <= 0 ) && ( ( ( num ) % ( den ) ) <= 0 ) )  \
+    )                                                                       \
+    ? ( ( ( num ) / ( den ) ) + ( ( ( num ) % ( den ) ) ? 1 : 0) )          \
+    : ( ( ( num ) / ( den ) ) - ( ( ( num ) % ( den ) ) ? 1 : 0) )          \
+  )
+
+#define INT_CLOSEST_TO_INFINITIES_DIV_BOTH_POSTITIVE_SIGNS( num, den )      \
+  ( ( ( num ) / ( den ) ) + ( ( ( num ) % ( den ) ) ? 1 : 0) )
+
+/*!
+ * \brief Returns the closest integer to num / den
+ *
+ * \param [IN] num the numerator, which can have any sign
+ * \param [IN] den the denominator, which can have any sign
+ * \retval closest integer to num / den
+ *
+ *  when den == 0, the result is undefined
+ *
+ * Note, according to C standard, when num / den is representable,
+ * ( num / den ) * den + num % den == num.
+ * This implies num % den == num - ( num / den ) * den.
+ * Therefore:  num den | num % den
+ *            +7  +4  | +3
+ *            +7  -4  | +3
+ *            -7  +4  | -3
+ *            -7  -4  | -3
+ *
+ * The results of this macro then produce
+ * Examples:  num den | result
+ *            +4  +4  | +1
+ *            +4  -4  | -1
+ *            -4  +4  | -1
+ *            -4  -4  | +1
+ *            +5  +4  | +1
+ *            +5  -4  | -1
+ *            -5  +4  | -1
+ *            -5  -4  | +1
+ *            +6  +4  | +2
+ *            +6  -4  | -2
+ *            -6  +4  | -2
+ *            -6  -4  | +2
+ *            +7  +4  | +2
+ *            +7  -4  | -2
+ *            -7  +4  | -2
+ *            -7  -4  | +2
+ *            +8  +4  | +2
+ *            +8  -4  | -2
+ *            -8  +4  | -2
+ *            -8  -4  | +2
+ *
+ * Note the optimizer on the compiler should compute a/b and a%b simultaneously,
+ * and only use these subexpressions further on, so this is as tight as possible
+ *
+ * The _BOTH_POSTITIVE_SIGNS version exists to suppress compiler warnings if it
+ * is known that both arguments are postive
+ */
+#define INT_CLOSEST_TO_DIV_ANY_SIGNS( num, den )                            \
+  (                                                                         \
+    (                                                                       \
+      ( ( ( num ) >= 0 ) && ( ( ( ( num ) % ( den ) ) * 2 ) >= ( den ) ) )  \
+      ||                                                                    \
+      ( ( ( num ) <= 0 ) && ( ( ( ( num ) % ( den ) ) * 2 ) <= ( den ) ) )  \
+    )                                                                       \
+    ? ( INT_CLOSEST_TO_INFINITIES_DIV_ANY_SIGNS( ( num ), ( den ) ) )       \
+    : ( INT_CLOSEST_TO_ZERO_DIV_ANY_SIGNS( ( num ), ( den ) ) )             \
+  )
+
+#define INT_CLOSEST_TO_DIV_BOTH_POSTITIVE_SIGNS( num, den )                       \
+  (                                                                               \
+    ( ( ( ( num ) % ( den ) ) * 2 ) >= ( den ) )                                  \
+    ? ( INT_CLOSEST_TO_INFINITIES_DIV_BOTH_POSTITIVE_SIGNS( ( num ), ( den ) ) )  \
+    : ( INT_CLOSEST_TO_ZERO_DIV_BOTH_POSTITIVE_SIGNS( ( num ), ( den ) ) )        \
+  )
+
+/*!
  * \brief Initializes the pseudo random generator initial value
  *
  * \param [IN] seed Pseudo random generator initial value
