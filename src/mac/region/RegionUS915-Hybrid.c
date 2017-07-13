@@ -359,10 +359,10 @@ PhyParam_t RegionUS915HybridGetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = 0;
             break;
         }
-        case PHY_DEF_MAX_EIRP:
-        case PHY_DEF_ANTENNA_GAIN:
+        case PHY_DEF_MAX_EIRP_IN_MILLI_BELS:
+        case PHY_DEF_ANTENNA_GAIN_IN_MILLI_BELS:
         {
-            phyParam.fValue = 0;
+            phyParam.milli_bel_Value = 0;
             break;
         }
         case PHY_NB_JOIN_TRIALS:
@@ -583,21 +583,18 @@ bool RegionUS915HybridAdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* 
 
 void RegionUS915HybridComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols, uint32_t rxError, RxConfigParams_t *rxConfigParams )
 {
-    double tSymbol = 0.0;
-
     rxConfigParams->Datarate = datarate;
     rxConfigParams->Bandwidth = GetBandwidth( datarate );
 
-    if( datarate == DR_7 )
-    { // FSK
-        tSymbol = RegionCommonComputeSymbolTimeFsk( DataratesUS915_HYBRID[datarate] );
-    }
-    else
-    { // LoRa
-        tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesUS915_HYBRID[datarate], BandwidthsUS915_HYBRID[datarate] );
-    }
-
-    RegionCommonComputeRxWindowParameters( tSymbol, minRxSymbols, rxError, RADIO_WAKEUP_TIME, &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
+    RegionCommonComputeRxWindowParameters( ( datarate == DR_7 ),
+                                            DataratesUS915_HYBRID,
+                                            BandwidthsUS915_HYBRID,
+                                            datarate,
+                                            minRxSymbols,
+                                            rxError,
+                                            RADIO_WAKEUP_TIME,
+                                            &rxConfigParams->WindowTimeout,
+                                            &rxConfigParams->WindowOffset );
 }
 
 bool RegionUS915HybridRxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
@@ -648,7 +645,7 @@ bool RegionUS915HybridTxConfig( TxConfigParams_t* txConfig, int8_t* txPower, Tim
     int8_t phyTxPower = 0;
 
     // Calculate physical TX power
-    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, US915_HYBRID_DEFAULT_MAX_ERP, 0 );
+    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, US915_HYBRID_DEFAULT_MAX_ERP_IN_MILLI_BELS, 0 );
 
     // Setup the radio frequency
     Radio.SetChannel( Channels[txConfig->Channel].Frequency );
@@ -945,7 +942,7 @@ void RegionUS915HybridSetContinuousWave( ContinuousWaveParams_t* continuousWave 
     uint32_t frequency = Channels[continuousWave->Channel].Frequency;
 
     // Calculate physical TX power
-    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, US915_HYBRID_DEFAULT_MAX_ERP, 0 );
+    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, US915_HYBRID_DEFAULT_MAX_ERP_IN_MILLI_BELS, 0 );
 
     Radio.SetTxContinuousWave( frequency, phyTxPower, continuousWave->Timeout );
 }

@@ -108,17 +108,17 @@
 /*!
  * Default Max EIRP for frequency 920.9 MHz - 921.9 MHz
  */
-#define KR920_DEFAULT_MAX_EIRP_LOW                  10.0f
+#define KR920_DEFAULT_MAX_EIRP_IN_MILLI_BELS_LOW    1000
 
 /*!
  * Default Max EIRP for frequency 922.1 MHz - 923.3 MHz
  */
-#define KR920_DEFAULT_MAX_EIRP_HIGH                 14.0f
+#define KR920_DEFAULT_MAX_EIRP_IN_MILLI_BELS_HIGH   1400
 
 /*!
  * Default antenna gain
  */
-#define KR920_DEFAULT_ANTENNA_GAIN                  2.15f
+#define KR920_DEFAULT_ANTENNA_GAIN_IN_MILLI_BELS    215
 
 /*!
  * ADR Ack limit

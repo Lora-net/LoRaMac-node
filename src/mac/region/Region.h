@@ -641,11 +641,11 @@ typedef enum ePhyAttribute
     /*!
      * Default value of the MaxEIRP.
      */
-    PHY_DEF_MAX_EIRP,
+    PHY_DEF_MAX_EIRP_IN_MILLI_BELS,
     /*!
      * Default value of the antenna gain.
      */
-    PHY_DEF_ANTENNA_GAIN,
+    PHY_DEF_ANTENNA_GAIN_IN_MILLI_BELS,
     /*!
      * Value for the number of join trials.
      */
@@ -697,9 +697,9 @@ typedef union uPhyParam
      */
     uint32_t Value;
     /*!
-     * A floating point value.
+     * A signed value in milli-bels.
      */
-    float fValue;
+    int16_t milli_bel_Value;
     /*!
      * Pointer to the channels mask.
      */
@@ -925,13 +925,13 @@ typedef struct sTxConfigParams
      */
     int8_t TxPower;
     /*!
-     * The Max EIRP, if applicable.
+     * The Max EIRP in milli_bels, if applicable.
      */
-    float MaxEirp;
+    int16_t MaxEirpInMilliBels;
     /*!
-     * The antenna gain, if applicable.
+     * The antenna gain in milli_bels, if applicable.
      */
-    float AntennaGain;
+    int16_t AntennaGainInMilliBels;
     /*!
      * Frame length to setup.
      */
@@ -1021,9 +1021,9 @@ typedef struct sTxParamSetupReqParams
      */
     uint8_t DownlinkDwellTime;
     /*!
-     * Max EIRP.
+     * Max EIRP in milli_bels.
      */
-    uint8_t MaxEirp;
+    int16_t MaxEirpInMilliBels;
 }TxParamSetupReqParams_t;
 
 /*!
@@ -1154,13 +1154,13 @@ typedef struct sContinuousWaveParams
      */
     int8_t TxPower;
     /*!
-     * Max EIRP, if applicable.
+     * Max EIRP in milli_bels, if applicable.
      */
-    float MaxEirp;
+    int16_t MaxEirpInMilliBels;
     /*!
-     * The antenna gain, if applicable.
+     * The antenna gain in milli_bels, if applicable.
      */
-    float AntennaGain;
+    int16_t AntennaGainInMilliBels;
     /*!
      * Specifies the time the radio will stay in CW mode.
      */

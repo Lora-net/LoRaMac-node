@@ -303,31 +303,15 @@ uint8_t RegionCommonParseLinkAdrReq( uint8_t* payload, RegionCommonLinkAdrParams
 uint8_t RegionCommonLinkAdrReqVerifyParams( RegionCommonLinkAdrReqVerifyParams_t* verifyParams, int8_t* dr, int8_t* txPow, uint8_t* nbRep );
 
 /*!
- * \brief Computes the symbol time for LoRa modulation.
- *
- * \param [IN] phyDr Physical datarate to use.
- *
- * \param [IN] bandwidth Bandwidth to use.
- *
- * \retval Returns the symbol time.
- */
-double RegionCommonComputeSymbolTimeLoRa( uint8_t phyDr, uint32_t bandwidth );
-
-/*!
- * \brief Computes the symbol time for FSK modulation.
- *
- * \param [IN] phyDr Physical datarate to use.
- *
- * \param [IN] bandwidth Bandwidth to use.
- *
- * \retval Returns the symbol time.
- */
-double RegionCommonComputeSymbolTimeFsk( uint8_t phyDr );
-
-/*!
  * \brief Computes the RX window timeout and the RX window offset.
  *
- * \param [IN] tSymbol Symbol timeout.
+ * \param [IN] useFskMethod true for FSK, false for LoRa.
+ *
+ * \param [IN] pDataRatesTable pointer to a table of data rates
+ *
+ * \param [IN] pBandwidthsTable pointer to a table of bandwidths
+ *
+ * \param [IN] drIdx index into the tables to use
  *
  * \param [IN] minRxSymbols Minimum required number of symbols to detect an Rx frame.
  *
@@ -340,20 +324,28 @@ double RegionCommonComputeSymbolTimeFsk( uint8_t phyDr );
  *
  * \param [OUT] windowOffset RX window time offset to be applied to the RX delay.
  */
-void RegionCommonComputeRxWindowParameters( double tSymbol, uint8_t minRxSymbols, uint32_t rxError, uint32_t wakeUpTime, uint32_t* windowTimeout, int32_t* windowOffset );
+void RegionCommonComputeRxWindowParameters(bool useFskMethod,
+                                           const uint8_t * const pDataRatesTable,
+                                           const uint32_t * const pBandwidthsTable,
+                                           uint8_t drIdx,
+                                           uint8_t minRxSymbols,
+                                           uint32_t rxError,
+                                           uint32_t wakeUpTime,
+                                           uint32_t* windowTimeout,
+                                           int32_t* windowOffset );
 
 /*!
  * \brief Computes the txPower, based on the max EIRP and the antenna gain.
  *
  * \param [IN] txPower TX power index.
  *
- * \param [IN] maxEirp Maximum EIRP.
+ * \param [IN] maxEirpInMilliBels Maximum EIRP in milli_bels.
  *
- * \param [IN] antennaGain Antenna gain.
+ * \param [IN] antennaGainInMilliBels Antenna gain in milli_bels.
  *
  * \retval Returns the physical TX power.
  */
-int8_t RegionCommonComputeTxPower( int8_t txPowerIndex, float maxEirp, float antennaGain );
+int8_t RegionCommonComputeTxPower( int8_t txPowerIndex, int16_t maxEirpInMilliBels, int16_t antennaGainInMilliBels );
 
 /*!
  * \brief Calculates the duty cycle for the current band.

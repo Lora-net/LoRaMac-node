@@ -108,12 +108,12 @@
 /*!
  * Default Max EIRP
  */
-#define CN779_DEFAULT_MAX_EIRP                      12.15f
+#define CN779_DEFAULT_MAX_EIRP_IN_MILLI_BELS        1215
 
 /*!
  * Default antenna gain
  */
-#define CN779_DEFAULT_ANTENNA_GAIN                  2.15f
+#define CN779_DEFAULT_ANTENNA_GAIN_IN_MILLI_BELS    215
 
 /*!
  * ADR Ack limit
