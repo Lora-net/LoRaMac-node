@@ -245,9 +245,9 @@ static void PrepareTxFrame( uint8_t port )
     case 2:
         {
 #if defined( REGION_EU868 )
-            LoRaMacUplinkStatus.Pressure = ( uint16_t )( MPL3115ReadPressure( ) / 10 );             // in hPa / 10
-            LoRaMacUplinkStatus.Temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
-            LoRaMacUplinkStatus.AltitudeBar = ( int16_t )( MPL3115ReadAltitude( ) * 10 );           // in m * 10
+            LoRaMacUplinkStatus.Pressure = ( uint16_t )INT_CLOSEST_TO_DIV_BOTH_POSTITIVE_SIGNS( MPL3115ReadPressurePascalsTimes4( ), ( 10 * 4 )); // in hPa / 10
+            LoRaMacUplinkStatus.Temperature = ( int16_t )INT_CLOSEST_TO_DIV_ANY_SIGNS( ( MPL3115ReadTemperatureDegCTimes4( ) * 100 ), 4 );        // in °C * 100
+            LoRaMacUplinkStatus.AltitudeBar = ( int16_t )INT_CLOSEST_TO_DIV_ANY_SIGNS( ( MPL3115ReadAltitudeInMetersTimes16( ) * 10 ), 16 );      // in m * 10
             LoRaMacUplinkStatus.BatteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
             GpsGetLatestGpsPositionBinary( &LoRaMacUplinkStatus.Latitude, &LoRaMacUplinkStatus.Longitude );
             LoRaMacUplinkStatus.AltitudeGps = GpsGetLatestGpsAltitude( );                           // in m
@@ -270,7 +270,7 @@ static void PrepareTxFrame( uint8_t port )
             AppData[14] = ( LoRaMacUplinkStatus.AltitudeGps >> 8 ) & 0xFF;
             AppData[15] = LoRaMacUplinkStatus.AltitudeGps & 0xFF;
 #elif defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
-            LoRaMacUplinkStatus.Temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
+            LoRaMacUplinkStatus.Temperature = ( int16_t )INT_CLOSEST_TO_DIV_ANY_SIGNS( ( MPL3115ReadTemperatureDegCTimes4( ) * 100 ), 4 );  // in °C * 100
 
             LoRaMacUplinkStatus.BatteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
             GpsGetLatestGpsPositionBinary( &LoRaMacUplinkStatus.Latitude, &LoRaMacUplinkStatus.Longitude );
