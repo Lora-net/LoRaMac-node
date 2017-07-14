@@ -719,22 +719,22 @@ uint32_t SX1272GetTimeOnAir( RadioModems_t modem, uint8_t pktLen )
             }
 
             // time of preamble times 4
-            uint32_t nPreambleLenTimes4 = ( ( uint32_t )( SX1276.Settings.LoRa.PreambleLen ) * 4 + 17 );
+            uint32_t nPreambleLenTimes4 = ( ( uint32_t )( SX1272.Settings.LoRa.PreambleLen ) * 4 + 17 );
             // number of payload bytes times 4
             int64_t num = 8 * ( uint16_t )pktLen -
-                          4 * ( int64_t )( SX1276.Settings.LoRa.Datarate ) +
+                          4 * ( int64_t )( SX1272.Settings.LoRa.Datarate ) +
                           28 +
-                          16 * ( SX1276.Settings.LoRa.CrcOn ? 1 : 0 ) -
-                          ( SX1276.Settings.LoRa.FixLen ? 20 : 0 );
-            int64_t den = 4 * ( uint64_t )( SX1276.Settings.LoRa.Datarate -
-                          ( ( SX1276.Settings.LoRa.LowDatarateOptimize > 0 ) ? 2 : 0 ) );
+                          16 * ( SX1272.Settings.LoRa.CrcOn ? 1 : 0 ) -
+                          ( SX1272.Settings.LoRa.FixLen ? 20 : 0 );
+            int64_t den = 4 * ( uint64_t )( SX1272.Settings.LoRa.Datarate -
+                          ( ( SX1272.Settings.LoRa.LowDatarateOptimize > 0 ) ? 2 : 0 ) );
             int64_t tmp = INT_CLOSEST_TO_INFINITIES_DIV_ANY_SIGNS(num, den) *
-                          ( SX1276.Settings.LoRa.Coderate + 4 );
+                          ( SX1272.Settings.LoRa.Coderate + 4 );
             uint8_t nPayloadTimes4 = (8 + ( ( tmp > 0 ) ? tmp : 0 )) * 4;
             // Time on air in ms secs
             airTime = INT_CLOSEST_TO_INFINITIES_DIV_BOTH_POSTITIVE_SIGNS(
               ( ( uint64_t )( nPreambleLenTimes4 +  nPayloadTimes4 ) *
-                ( ( uint32_t )( 1 << SX1276.Settings.LoRa.Datarate ) * 1000 ) )
+                ( ( uint32_t )( 1 << SX1272.Settings.LoRa.Datarate ) * 1000 ) )
               , ( bw * 4 ) );
         }
         break;
