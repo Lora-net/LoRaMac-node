@@ -264,7 +264,6 @@ static uint16_t BatteryVoltage = BATTERY_MAX_LEVEL;
 
 uint16_t BoardBatteryMeasureVolage( void )
 {
-    uint16_t vdd = 0;
     uint16_t vref = VREFINT_CAL;
     uint16_t vdiv = 0;
     uint16_t batteryVoltage = 0;
@@ -272,12 +271,11 @@ uint16_t BoardBatteryMeasureVolage( void )
     vdiv = AdcReadChannel( &Adc, BAT_LEVEL_CHANNEL );
     //vref = AdcReadChannel( &Adc, ADC_CHANNEL_VREFINT );
 
-    vdd = ( float )FACTORY_POWER_SUPPLY * ( float )VREFINT_CAL / ( float )vref;
-    batteryVoltage = vdd * ( ( float )vdiv / ( float )ADC_MAX_VALUE );
-
     //                                vDiv
     // Divider bridge  VBAT <-> 20k -<--|-->- 10k <-> GND => vBat = 3 * vDiv
-    batteryVoltage = 3 * batteryVoltage;
+    batteryVoltage = INT_CLOSEST_TO_DIV_BOTH_POSTITIVE_SIGNS(
+      ( ( uint64_t )( ( uint32_t )FACTORY_POWER_SUPPLY * VREFINT_CAL ) * ( ( uint32_t )vdiv * 3 ) ),
+      ( ( uint32_t )vref * ADC_MAX_VALUE ) );
     return batteryVoltage;
 }
 
