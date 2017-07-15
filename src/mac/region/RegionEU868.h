@@ -108,12 +108,12 @@
 /*!
  * Default Max EIRP
  */
-#define EU868_DEFAULT_MAX_EIRP                      16.0f
+#define EU868_DEFAULT_MAX_EIRP_IN_MILLI_BELS        1600
 
 /*!
  * Default antenna gain
  */
-#define EU868_DEFAULT_ANTENNA_GAIN                  2.15f
+#define EU868_DEFAULT_ANTENNA_GAIN_IN_MILLI_BELS    215
 
 /*!
  * ADR Ack limit

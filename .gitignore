@@ -17,3 +17,72 @@ bin/
 *.pbxproj
 *.cogui
 *.comarker
+
+#IAR auto generated files and directories to NOT commit under the IAR folder
+
+#Any directory matching the following
+IAR/**/settings/
+IAR/**/Exe/
+IAR/**/List/
+IAR/**/Obj/
+
+#Any directory matching the following
+IAR/LoRaMote/Bootloader/**/
+IAR/LoRaMote/LoRaMac/classA/**/
+IAR/LoRaMote/LoRaMac/classB/**/
+IAR/LoRaMote/LoRaMac/classC/**/
+IAR/LoRaMote/ping-pong/**/
+IAR/LoRaMote/rx-sensi/**/
+IAR/LoRaMote/tx-cw/**/
+
+#Any directory matching the following
+IAR/MoteII/LoRaMac/classA/**/
+IAR/MoteII/LoRaMac/classB/**/
+IAR/MoteII/LoRaMac/classC/**/
+IAR/MoteII/ping-pong/**/
+IAR/MoteII/rx-sensi/**/
+IAR/MoteII/tx-cw/**/
+
+#Any directory matching the following
+IAR/NAMote72/LoRaMac/classA/**/
+IAR/NAMote72/LoRaMac/classB/**/
+IAR/NAMote72/LoRaMac/classC/**/
+IAR/NAMote72/ping-pong/**/
+IAR/NAMote72/rx-sensi/**/
+IAR/NAMote72/tx-cw/**/
+
+#Any directory matching the following
+IAR/SensorNode/Bootloader/**/
+IAR/SensorNode/LoRaMac/classA/**/
+IAR/SensorNode/LoRaMac/classB/**/
+IAR/SensorNode/LoRaMac/classC/**/
+IAR/SensorNode/ping-pong/**/
+IAR/SensorNode/rx-sensi/**/
+IAR/SensorNode/tx-cw/**/
+
+#Any directory matching the following
+IAR/SK-iM880A/LoRaMac/classA/**/
+IAR/SK-iM880A/LoRaMac/classB/**/
+IAR/SK-iM880A/LoRaMac/classC/**/
+IAR/SK-iM880A/ping-pong/**/
+IAR/SK-iM880A/rx-sensi/**/
+IAR/SK-iM880A/tx-cw/**/
+
+#Any files with the following extensions, regardsless of directory
+IAR/**/*.bat
+IAR/**/*.browse
+IAR/**/*.crun
+IAR/**/*.dbgdt
+IAR/**/*.dep
+IAR/**/*.dnx
+IAR/**/*.ewd
+IAR/**/*.linf
+IAR/**/*.log
+IAR/**/*.map
+IAR/**/*.o
+IAR/**/*.out
+IAR/**/*.pbd
+IAR/**/*.pbi
+IAR/**/*.ps1
+IAR/**/*.wsdt
+IAR/**/*.xcl

@@ -305,14 +305,14 @@ PhyParam_t RegionEU868GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = 0;
             break;
         }
-        case PHY_DEF_MAX_EIRP:
+        case PHY_DEF_MAX_EIRP_IN_MILLI_BELS:
         {
-            phyParam.fValue = EU868_DEFAULT_MAX_EIRP;
+            phyParam.milli_bel_Value = EU868_DEFAULT_MAX_EIRP_IN_MILLI_BELS;
             break;
         }
-        case PHY_DEF_ANTENNA_GAIN:
+        case PHY_DEF_ANTENNA_GAIN_IN_MILLI_BELS:
         {
-            phyParam.fValue = EU868_DEFAULT_ANTENNA_GAIN;
+            phyParam.milli_bel_Value = EU868_DEFAULT_ANTENNA_GAIN_IN_MILLI_BELS;
             break;
         }
         case PHY_NB_JOIN_TRIALS:
@@ -538,21 +538,18 @@ bool RegionEU868AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
 
 void RegionEU868ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols, uint32_t rxError, RxConfigParams_t *rxConfigParams )
 {
-    double tSymbol = 0.0;
-
     rxConfigParams->Datarate = datarate;
     rxConfigParams->Bandwidth = GetBandwidth( datarate );
 
-    if( datarate == DR_7 )
-    { // FSK
-        tSymbol = RegionCommonComputeSymbolTimeFsk( DataratesEU868[datarate] );
-    }
-    else
-    { // LoRa
-        tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesEU868[datarate], BandwidthsEU868[datarate] );
-    }
-
-    RegionCommonComputeRxWindowParameters( tSymbol, minRxSymbols, rxError, RADIO_WAKEUP_TIME, &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
+    RegionCommonComputeRxWindowParameters( ( datarate == DR_7 ),
+                                            DataratesEU868,
+                                            BandwidthsEU868,
+                                            datarate,
+                                            minRxSymbols,
+                                            rxError,
+                                            RADIO_WAKEUP_TIME,
+                                            &rxConfigParams->WindowTimeout,
+                                            &rxConfigParams->WindowOffset );
 }
 
 bool RegionEU868RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
@@ -620,7 +617,7 @@ bool RegionEU868TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
     int8_t phyTxPower = 0;
 
     // Calculate physical TX power
-    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, txConfig->MaxEirp, txConfig->AntennaGain );
+    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, txConfig->MaxEirpInMilliBels, txConfig->AntennaGainInMilliBels );
 
     // Setup the radio frequency
     Radio.SetChannel( Channels[txConfig->Channel].Frequency );
@@ -1056,7 +1053,7 @@ void RegionEU868SetContinuousWave( ContinuousWaveParams_t* continuousWave )
     uint32_t frequency = Channels[continuousWave->Channel].Frequency;
 
     // Calculate physical TX power
-    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, continuousWave->MaxEirp, continuousWave->AntennaGain );
+    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, continuousWave->MaxEirpInMilliBels, continuousWave->AntennaGainInMilliBels );
 
     Radio.SetTxContinuousWave( frequency, phyTxPower, continuousWave->Timeout );
 }

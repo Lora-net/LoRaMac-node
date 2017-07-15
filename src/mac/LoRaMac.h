@@ -230,7 +230,7 @@ typedef struct sLoRaMacParams
      */
     int8_t ChannelsDatarate;
     /*!
-     * System overall timing error in milliseconds. 
+     * System overall timing error in milliseconds.
      * [-SystemMaxRxError : +SystemMaxRxError]
      * Default: +/-10 ms
      */
@@ -281,13 +281,13 @@ typedef struct sLoRaMacParams
      */
     uint8_t DownlinkDwellTime;
     /*!
-     * Maximum possible EIRP
+     * Maximum possible EIRP in milli_bels
      */
-    float MaxEirp;
+    int16_t MaxEirpInMilliBels;
     /*!
-     * Antenna gain of the node
+     * Antenna gain of the node in milli_bels
      */
-    float AntennaGain;
+    int16_t AntennaGainInMilliBels;
 }LoRaMacParams_t;
 
 /*!
@@ -1305,7 +1305,7 @@ typedef enum eMib
      */
     MIB_MULTICAST_CHANNEL,
     /*!
-     * System overall timing error in milliseconds. 
+     * System overall timing error in milliseconds.
      * [-SystemMaxRxError : +SystemMaxRxError]
      * Default: +/-10 ms
      */
@@ -1492,7 +1492,7 @@ typedef union uMibParam
      */
     MulticastParams_t* MulticastList;
     /*!
-     * System overall timing error in milliseconds. 
+     * System overall timing error in milliseconds.
      *
      * Related MIB type: \ref MIB_SYSTEM_MAX_RX_ERROR
      */
@@ -1508,7 +1508,7 @@ typedef union uMibParam
      *
      * Related MIB type: \ref MIB_ANTENNA_GAIN
      */
-    float AntennaGain;
+    int16_t AntennaGainInMilliBels;
 }MibParam_t;
 
 /*!
@@ -1684,9 +1684,13 @@ typedef struct sLoRaMacCallback
 }LoRaMacCallback_t;
 
 /*!
- * LoRaMAC Max EIRP (dBm) table
+ * LoRaMAC Max EIRP (mBm) table
  */
-static const uint8_t LoRaMacMaxEirpTable[] = { 8, 10, 12, 13, 14, 16, 18, 20, 21, 24, 26, 27, 29, 30, 33, 36 };
+static const int16_t LoRaMacMaxEirpTableInMilliBels[] = {
+   800, 1000, 1200, 1300,
+  1400, 1600, 1800, 2000,
+  2100, 2400, 2600, 2700,
+  2900, 3000, 3300, 3600 };
 
 
 

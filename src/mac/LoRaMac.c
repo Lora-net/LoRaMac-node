@@ -1800,7 +1800,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     {
                         txParamSetupReq.UplinkDwellTime = 1;
                     }
-                    txParamSetupReq.MaxEirp = eirpDwellTime & 0x0F;
+                    txParamSetupReq.MaxEirpInMilliBels = (int16_t)( eirpDwellTime & 0x0F ) * 100;
 
                     // Check the status for correctness
                     if( RegionTxParamSetupReq( LoRaMacRegion, &txParamSetupReq ) != -1 )
@@ -1808,7 +1808,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                         // Accept command
                         LoRaMacParams.UplinkDwellTime = txParamSetupReq.UplinkDwellTime;
                         LoRaMacParams.DownlinkDwellTime = txParamSetupReq.DownlinkDwellTime;
-                        LoRaMacParams.MaxEirp = LoRaMacMaxEirpTable[txParamSetupReq.MaxEirp];
+                        LoRaMacParams.MaxEirpInMilliBels = LoRaMacMaxEirpTableInMilliBels[txParamSetupReq.MaxEirpInMilliBels / 100];
                         // Add command response
                         AddMacCommand( MOTE_MAC_TX_PARAM_SETUP_ANS, 0, 0 );
                     }
@@ -1993,8 +1993,8 @@ static void ResetMacParameters( void )
     LoRaMacParams.Rx2Channel = LoRaMacParamsDefaults.Rx2Channel;
     LoRaMacParams.UplinkDwellTime = LoRaMacParamsDefaults.UplinkDwellTime;
     LoRaMacParams.DownlinkDwellTime = LoRaMacParamsDefaults.DownlinkDwellTime;
-    LoRaMacParams.MaxEirp = LoRaMacParamsDefaults.MaxEirp;
-    LoRaMacParams.AntennaGain = LoRaMacParamsDefaults.AntennaGain;
+    LoRaMacParams.MaxEirpInMilliBels = LoRaMacParamsDefaults.MaxEirpInMilliBels;
+    LoRaMacParams.AntennaGainInMilliBels = LoRaMacParamsDefaults.AntennaGainInMilliBels;
 
     NodeAckRequested = false;
     SrvAckRequested = false;
@@ -2185,8 +2185,8 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
     txConfig.Channel = channel;
     txConfig.Datarate = LoRaMacParams.ChannelsDatarate;
     txConfig.TxPower = LoRaMacParams.ChannelsTxPower;
-    txConfig.MaxEirp = LoRaMacParams.MaxEirp;
-    txConfig.AntennaGain = LoRaMacParams.AntennaGain;
+    txConfig.MaxEirpInMilliBels = LoRaMacParams.MaxEirpInMilliBels;
+    txConfig.AntennaGainInMilliBels = LoRaMacParams.AntennaGainInMilliBels;
     txConfig.PktLen = LoRaMacBufferPktLen;
 
     RegionTxConfig( LoRaMacRegion, &txConfig, &txPower, &TxTimeOnAir );
@@ -2224,8 +2224,8 @@ LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout )
     continuousWave.Channel = Channel;
     continuousWave.Datarate = LoRaMacParams.ChannelsDatarate;
     continuousWave.TxPower = LoRaMacParams.ChannelsTxPower;
-    continuousWave.MaxEirp = LoRaMacParams.MaxEirp;
-    continuousWave.AntennaGain = LoRaMacParams.AntennaGain;
+    continuousWave.MaxEirpInMilliBels = LoRaMacParams.MaxEirpInMilliBels;
+    continuousWave.AntennaGainInMilliBels = LoRaMacParams.AntennaGainInMilliBels;
     continuousWave.Timeout = timeout;
 
     RegionSetContinuousWave( LoRaMacRegion, &continuousWave );
@@ -2344,13 +2344,13 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
     LoRaMacParamsDefaults.DownlinkDwellTime = phyParam.Value;
 
-    getPhy.Attribute = PHY_DEF_MAX_EIRP;
+    getPhy.Attribute = PHY_DEF_MAX_EIRP_IN_MILLI_BELS;
     phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    LoRaMacParamsDefaults.MaxEirp = phyParam.fValue;
+    LoRaMacParamsDefaults.MaxEirpInMilliBels = phyParam.milli_bel_Value;
 
-    getPhy.Attribute = PHY_DEF_ANTENNA_GAIN;
+    getPhy.Attribute = PHY_DEF_ANTENNA_GAIN_IN_MILLI_BELS;
     phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
-    LoRaMacParamsDefaults.AntennaGain = phyParam.fValue;
+    LoRaMacParamsDefaults.AntennaGainInMilliBels = phyParam.milli_bel_Value;
 
     RegionInitDefaults( LoRaMacRegion, INIT_TYPE_INIT );
 
@@ -2631,7 +2631,7 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t *mibGet )
         }
         case MIB_ANTENNA_GAIN:
         {
-            mibGet->Param.AntennaGain = LoRaMacParams.AntennaGain;
+            mibGet->Param.AntennaGainInMilliBels = LoRaMacParams.AntennaGainInMilliBels;
             break;
         }
         default:
@@ -2909,7 +2909,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         }
         case MIB_ANTENNA_GAIN:
         {
-            LoRaMacParams.AntennaGain = mibSet->Param.AntennaGain;
+            LoRaMacParams.AntennaGainInMilliBels = mibSet->Param.AntennaGainInMilliBels;
             break;
         }
         default:

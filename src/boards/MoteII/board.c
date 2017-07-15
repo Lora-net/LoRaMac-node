@@ -258,7 +258,6 @@ static uint16_t BatteryVoltage = BATTERY_MAX_LEVEL;
 
 uint16_t BoardBatteryMeasureVolage( void )
 {
-    uint16_t vdd = 0;
     uint16_t vref = VREFINT_CAL;
     uint16_t vdiv = 0;
     uint16_t batteryVoltage = 0;
@@ -266,12 +265,11 @@ uint16_t BoardBatteryMeasureVolage( void )
     vdiv = AdcReadChannel( &Adc, BAT_LEVEL_CHANNEL );
     //vref = AdcReadChannel( &Adc, ADC_CHANNEL_VREFINT );
 
-    vdd = ( float )FACTORY_POWER_SUPPLY * ( float )VREFINT_CAL / ( float )vref;
-    batteryVoltage = vdd * ( ( float )vdiv / ( float )ADC_MAX_VALUE );
-
     //                                vDiv
     // Divider bridge  VBAT <-> 47k -<--|-->- 47k <-> GND => vBat = 2 * vDiv
-    batteryVoltage = 2 * batteryVoltage;
+    batteryVoltage = INT_CLOSEST_TO_DIV_BOTH_POSTITIVE_SIGNS(
+      ( ( uint64_t )( ( uint32_t )FACTORY_POWER_SUPPLY * VREFINT_CAL ) * ( ( uint32_t )vdiv * 2 ) ),
+      ( ( uint32_t )vref * ADC_MAX_VALUE ) );
     return batteryVoltage;
 }
 
@@ -461,9 +459,9 @@ uint8_t GetBoardPowerSource( void )
 void assert_failed( uint8_t* file, uint32_t line )
 {
     /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+     ex: printf("Wrong parameters value: file %s on line %u\r\n", file, line) */
 
-    printf( "Wrong parameters value: file %s on line %d\r\n", file, line );
+    printf( "Wrong parameters value: file %s on line %u\r\n", (const char*)file, line );
     /* Infinite loop */
     while( 1 )
     {
