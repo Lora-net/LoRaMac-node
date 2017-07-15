@@ -18,26 +18,38 @@ Maintainer: Miguel Luis and Gregory Cristian
 /* Structure to handle the GPS parsed data in ASCII */
 typedef struct
 {
-    char NmeaDataType[6];
-    char NmeaUtcTime[11];
-    char NmeaDataStatus[2];
-    char NmeaLatitude[10];
-    char NmeaLatitudePole[2];
-    char NmeaLongitude[11];
-    char NmeaLongitudePole[2];
-    char NmeaFixQuality[2];
-    char NmeaSatelliteTracked[3];
-    char NmeaHorizontalDilution[6];
-    char NmeaAltitude[8];
-    char NmeaAltitudeUnit[2];
-    char NmeaHeightGeoid[8];
-    char NmeaHeightGeoidUnit[2];
-    char NmeaSpeed[8];
-    char NmeaDetectionAngle[8];
-    char NmeaDate[8];
+    char NmeaDataType[6];           /* "GP" + 3 letters sentence type */
+    char NmeaUtcTime[11];           /* "hhmmss.sss" */
+    char NmeaDataStatus[2];         /* "V" or "A" */
+    char NmeaLatitude[10];          /* "ddmm.mmmm" */
+    char NmeaLatitudePole[2];       /* "N" or "S" */
+    char NmeaLongitude[11];         /* "dddmm.mmmm" */
+    char NmeaLongitudePole[2];      /* "E" or "W" */
+    char NmeaFixQuality[2];         /* "0" -> "8" */
+    char NmeaSatelliteTracked[3];   /* "00" -> "99" */
+    char NmeaHorizontalDilution[6]; /* "00.00" -> "99.99" */
+    char NmeaAltitude[8];           /* "-9999.9" -> "17999.9" */
+    char NmeaAltitudeUnit[2];       /* "M" */
+    char NmeaHeightGeoid[8];        /* "-9999.9" -> "17999.9" */
+    char NmeaHeightGeoidUnit[2];    /* "M" */
+    char NmeaSpeed[8];              /* "000.000" */
+    char NmeaDetectionAngle[8];     /* "000.000" */
+    char NmeaDate[7];               /* "DDMMYY" */
 }tNmeaGpsData;
 
 extern tNmeaGpsData NmeaGpsData;
+
+/*!
+ * NMEA cordinate strings are in [d]ddmm.mmmm format
+ * to convert it to an integer number, we need an integer capable of storing
+ * a value of magnitude 10000*60*180, and an extra bit for a sign.
+ * i.e. ceil(log(10000*60*180)/log(2))[value]+1[sign] bits = 27 + 1 bits = 28 bits
+ */
+typedef int32_t tGpsIntegerCoord;
+#include <inttypes.h>
+#define GPS_PRINT_FORMAT_FLAG PRId32
+#define GPS_SUB_MINUTE_FACTOR  10000
+#define GPS_SUB_DEGREE_FACTOR 600000
 
 /*!
  * \brief Initializes the handling of the GPS receiver
@@ -79,27 +91,21 @@ bool GpsGetPpsDetectedState( void );
 bool GpsHasFix( void );
 
 /*!
- * \brief Converts the latest Position (latitude and longitude) into a binary
- *        number
- */
-void GpsConvertPositionIntoBinary( void );
-
-/*!
  * \brief Converts the latest Position (latitude and Longitude) from ASCII into
- *        DMS numerical format
+ *        tGpsIntegerCoord numerical format
  */
-void GpsConvertPositionFromStringToNumerical( void );
+void GpsConvertPositionFromStringToNumericalGpsIntegerCoord( void );
 
 /*!
- * \brief Gets the latest Position (latitude and Longitude) as two double values
- *        if available
+ * \brief Gets the latest Position (latitude and Longitude) as two tGpsIntegerCoord
+ *        values if available
  *
  * \param [OUT] lati Latitude value
  * \param [OUT] longi Longitude value
  *
  * \retval status [SUCCESS, FAIL]
  */
-uint8_t GpsGetLatestGpsPositionDouble ( double *lati, double *longi );
+uint8_t GpsGetLatestGpsPositionGpsIntegerCoord( tGpsIntegerCoord *lati, tGpsIntegerCoord *longi );
 
 /*!
  * \brief Gets the latest Position (latitude and Longitude) as two binary values
@@ -115,7 +121,7 @@ uint8_t GpsGetLatestGpsPositionBinary ( int32_t *latiBin, int32_t *longiBin );
 /*!
  * \brief Parses the NMEA sentence.
  *
- * \remark Only parses GPGGA and GPRMC sentences
+ * \remark Only parses GPGGA, GPRMC and GPGLL sentences
  *
  * \param [IN] rxBuffer Data buffer to be parsed
  * \param [IN] rxBufferSize Size of data buffer

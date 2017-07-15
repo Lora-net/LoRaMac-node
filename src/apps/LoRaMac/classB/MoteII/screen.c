@@ -803,13 +803,17 @@ void ScreenProcess( AppSettings_t *appSettings, LoRaMacUplinkStatus_t *uplink, L
         }
         else
         {
-            double lati = 0.0, longi = 0.0;
-            GpsGetLatestGpsPositionDouble( &lati, &longi );
+            tGpsIntegerCoord lati = 0, longi = 0;
+            GpsGetLatestGpsPositionGpsIntegerCoord( &lati, &longi );
 
             DisplaySetLine( 3 );
-            DisplayPrintf( "Latitude: %f", lati );
+            DisplayPrintf( "Latitude: %01" GPS_PRINT_FORMAT_FLAG ".%06" GPS_PRINT_FORMAT_FLAG,
+              ( tGpsIntegerCoord )( INT_CLOSEST_TO_ZERO_DIV_ANY_SIGNS( lati, GPS_SUB_DEGREE_FACTOR ) ),
+              ( tGpsIntegerCoord )( lati >= 0? ( lati % GPS_SUB_DEGREE_FACTOR ): (0 - ( lati % GPS_SUB_DEGREE_FACTOR ) ) ) );
             DisplaySetLine( 4 );
-            DisplayPrintf( "Longitude: %f", longi );
+            DisplayPrintf( "Longitude: %01" GPS_PRINT_FORMAT_FLAG ".%06" GPS_PRINT_FORMAT_FLAG,
+              ( tGpsIntegerCoord )( INT_CLOSEST_TO_ZERO_DIV_ANY_SIGNS( longi, GPS_SUB_DEGREE_FACTOR ) ),
+              ( tGpsIntegerCoord )( longi >= 0? ( longi % GPS_SUB_DEGREE_FACTOR ): (0 - ( longi % GPS_SUB_DEGREE_FACTOR ) ) ) );
             DisplaySetLine( 5 );
             DisplayPrintf( "Altitude: %d", GpsGetLatestGpsAltitude( ) );
         }
