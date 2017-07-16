@@ -96,9 +96,9 @@
 #define US915_HYBRID_DEFAULT_TX_POWER               TX_POWER_0
 
 /*!
- * Default Max ERP
+ * Default Max ERP in milli bels
  */
-#define US915_HYBRID_DEFAULT_MAX_ERP                30.0f
+#define US915_HYBRID_DEFAULT_MAX_ERP_IN_MILLI_BELS  3000
 
 /*!
  * ADR Ack limit

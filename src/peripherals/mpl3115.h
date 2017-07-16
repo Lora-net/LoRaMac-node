@@ -127,22 +127,22 @@ uint8_t MPL3115Reset( void );
 /*!
  * \brief Reads the altitude from the MPL3115
  *
- * \retval altitude Measured altitude
+ * \retval altitude Measured altitude in meters * 16
  */
-float MPL3115ReadAltitude( void );
+int32_t MPL3115ReadAltitudeInMetersTimes16( void );
 
 /*!
  * \brief Reads the Pressure from the MPL3115
  *
- * \retval pressure Measured pressure
+ * \retval pressure Measured pressure in Pascals * 4
  */
-float MPL3115ReadPressure( void );
+uint32_t MPL3115ReadPressurePascalsTimes4( void );
 
 /*!
  * \brief Reads the Temperature from the MPL3115
  *
- * \retval temperature Measured temperature
+ * \retval temperature Measured temperature in Degrees C * 4
  */
-float MPL3115ReadTemperature( void );
+int16_t MPL3115ReadTemperatureDegCTimes4( void );
 
 #endif  // __MPL3115_H__

@@ -91,6 +91,15 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 #define LORAWAN_APP_DATA_SIZE                       11
 
+#elif defined( REGION_AS923 ) || defined( REGION_AU915 ) || defined( REGION_IN865 ) || defined( REGION_KR920 )
+
+/*Don't know what size the compliance test use in these regions, so just use the smaller of the above two*/
+#define LORAWAN_APP_DATA_SIZE                       11
+
+#else
+
+#error "Please define a region in the compiler options."
+
 #endif
 
 static uint8_t DevEui[] = LORAWAN_DEVICE_EUI;
@@ -203,6 +212,25 @@ struct ComplianceTest_s
  */
 static void PrepareTxFrame( uint8_t port )
 {
+#if defined( LOW_BAT_THRESHOLD )
+#if defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
+    MibRequestConfirm_t mibReq;
+
+    if( BoardGetBatteryVoltage( ) < LOW_BAT_THRESHOLD )
+    {
+        mibReq.Type = MIB_CHANNELS_TX_POWER;
+        LoRaMacMibGetRequestConfirm( &mibReq );
+        // TX_POWER_30_DBM = 0, TX_POWER_28_DBM = 1, ..., TX_POWER_20_DBM = 5, ..., TX_POWER_10_DBM = 10
+        // The if condition is then "less than" to check if the power is greater than 20 dBm
+        if( mibReq.Param.ChannelsTxPower < TX_POWER_5 )
+        {
+            mibReq.Param.ChannelsTxPower = TX_POWER_5;
+            LoRaMacMibSetRequestConfirm( &mibReq );
+        }
+    }
+#endif
+#endif
+
     switch( port )
     {
     case 2:
@@ -215,9 +243,9 @@ static void PrepareTxFrame( uint8_t port )
             int16_t altitudeGps = 0xFFFF;
             uint8_t batteryLevel = 0;
 
-            pressure = ( uint16_t )( MPL3115ReadPressure( ) / 10 );             // in hPa / 10
-            temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
-            altitudeBar = ( int16_t )( MPL3115ReadAltitude( ) * 10 );           // in m * 10
+            pressure = ( uint16_t )INT_CLOSEST_TO_DIV_BOTH_POSTITIVE_SIGNS( MPL3115ReadPressurePascalsTimes4( ), ( 10 * 4 )); // in hPa / 10
+            temperature = ( int16_t )INT_CLOSEST_TO_DIV_ANY_SIGNS( ( MPL3115ReadTemperatureDegCTimes4( ) * 100 ), 4 );        // in °C * 100
+            altitudeBar = ( int16_t )INT_CLOSEST_TO_DIV_ANY_SIGNS( ( MPL3115ReadAltitudeInMetersTimes16( ) * 10 ), 16 );      // in m * 10
             batteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
             GpsGetLatestGpsPositionBinary( &latitude, &longitude );
             altitudeGps = GpsGetLatestGpsAltitude( );                           // in m
@@ -244,7 +272,7 @@ static void PrepareTxFrame( uint8_t port )
             uint16_t altitudeGps = 0xFFFF;
             uint8_t batteryLevel = 0;
 
-            temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
+            temperature = ( int16_t )INT_CLOSEST_TO_DIV_ANY_SIGNS( ( MPL3115ReadTemperatureDegCTimes4( ) * 100 ), 4 );  // in °C * 100
 
             batteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
             GpsGetLatestGpsPositionBinary( &latitude, &longitude );
@@ -727,6 +755,8 @@ int main( void )
                 LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_EU433 );
 #elif defined( REGION_EU868 )
                 LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_EU868 );
+#elif defined( REGION_IN865 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_IN865 );
 #elif defined( REGION_KR920 )
                 LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_KR920 );
 #elif defined( REGION_US915 )

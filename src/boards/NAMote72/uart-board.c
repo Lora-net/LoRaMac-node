@@ -345,6 +345,9 @@ void USART2_IRQHandler( void )
 /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
    set to 'Yes') calls __io_putchar() */
 int __io_putchar( int c )
+#elif defined (__ICCARM__)
+/* With IAR Compiler,  small printf calls putchar()*/
+int putchar( int c )
 #else /* __GNUC__ */
 int fputc( int c, FILE *stream )
 #endif

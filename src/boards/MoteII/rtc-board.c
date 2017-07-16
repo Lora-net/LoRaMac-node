@@ -673,15 +673,17 @@ static TimerTime_t RtcConvertCalendarTickToTimerTime( RtcCalendar_t *calendar )
 
 TimerTime_t RtcConvertMsToTick( TimerTime_t timeoutValue )
 {
-    double retVal = 0;
-    retVal = round( ( ( double )timeoutValue * CONV_DENOM ) / CONV_NUMER );
+    uint64_t retVal = 0;
+    retVal = INT_CLOSEST_TO_DIV_BOTH_POSTITIVE_SIGNS(
+              ( ( uint64_t)timeoutValue * CONV_DENOM ), CONV_NUMER);
     return( ( TimerTime_t )retVal );
 }
 
 TimerTime_t RtcConvertTickToMs( TimerTime_t timeoutValue )
 {
-    double retVal = 0.0;
-    retVal = round( ( ( double )timeoutValue * CONV_NUMER ) / CONV_DENOM );
+    uint64_t retVal = 0;
+    retVal = INT_CLOSEST_TO_DIV_BOTH_POSTITIVE_SIGNS
+              ( ( ( uint64_t)timeoutValue * CONV_NUMER ), CONV_DENOM);
     return( ( TimerTime_t )retVal );
 }
 

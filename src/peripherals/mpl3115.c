@@ -178,11 +178,10 @@ uint8_t MPL3115GetDeviceAddr( void )
     return I2cDeviceAddr;
 }
 
-static float MPL3115ReadBarometer( BarometerReadingType_t type )
+static uint32_t MPL3115ReadBarometer( BarometerReadingType_t type )
 {
     uint8_t counter = 0;
-    uint8_t tempBuf[3];
-    uint8_t msb = 0, csb = 0, lsb = 0;
+    uint32_t resultBits = 0;
     uint8_t status = 0;
 
     if( MPL3115Initialized == false )
@@ -237,48 +236,38 @@ static float MPL3115ReadBarometer( BarometerReadingType_t type )
         }
     }
 
-    MPL3115ReadBuffer( OUT_P_MSB_REG, tempBuf, 3 );       //Read altitude data
+    MPL3115ReadBuffer( OUT_P_MSB_REG, (uint8_t*)&resultBits, 3 );       //Read altitude data
 
-    msb = tempBuf[0];
-    csb = tempBuf[1];
-    lsb = tempBuf[2];
-
-    if( type == ALTITUDE )
-    {
-        float altitude = 0;
-        float decimal = ( ( float )( lsb >> 4 ) ) / 16.0;
-        altitude = ( float )( ( int16_t )( ( msb << 8 ) | csb ) ) + decimal;
-        return( altitude );
-    }
-    else
-    {
-        float pressure = ( float )( ( msb << 16 | csb << 8 | lsb ) >> 6 );
-        lsb &= 0x30;                                // Bits 5/4 represent the fractional component
-        lsb >>= 4;                                  // Get it right aligned
-        float decimal = ( ( float )lsb ) / 4.0;
-        pressure = pressure + decimal;
-        return( pressure );
-    }
+    return resultBits;
 }
 
-float MPL3115ReadAltitude( void )
+int32_t MPL3115ReadAltitudeInMetersTimes16( void )
 {
-    return MPL3115ReadBarometer( ALTITUDE );
+    /*resultBits is unsigned so right shift is defined*/
+    uint32_t resultBits = MPL3115ReadBarometer( ALTITUDE ) & 0x00FFFFFF;
+    //shift out unused 4 lsb's
+    resultBits >>= 4;
+    //if it was negative
+    if(resultBits & 0x00080000)
+    {
+      //sign extend
+      resultBits |= 0xFFF00000;
+    }
+    return ( int32_t )resultBits;
 }
 
-float MPL3115ReadPressure( void )
+uint32_t MPL3115ReadPressurePascalsTimes4( void )
 {
-    return MPL3115ReadBarometer( PRESSURE );
+    uint32_t resultBits = MPL3115ReadBarometer( PRESSURE ) & 0x00FFFFFF;
+    //shift out unused 4 lsb's
+    return ( resultBits >> 4 );
 }
 
-float MPL3115ReadTemperature( void )
+int16_t MPL3115ReadTemperatureDegCTimes4( void )
 {
     uint8_t counter = 0;
-    uint8_t tempBuf[2];
-    uint8_t msb = 0, lsb = 0;
-    bool negSign = false;
-    uint8_t val = 0;
-    float temperature = 0;
+    /*resultBits is unsigned so right shift is defined*/
+    uint16_t resultBits = 0;
     uint8_t status = 0;
 
     if( MPL3115Initialized == false )
@@ -316,31 +305,20 @@ float MPL3115ReadTemperature( void )
         }
     }
 
-    MPL3115ReadBuffer( OUT_T_MSB_REG, tempBuf, 2 );
+    MPL3115ReadBuffer( OUT_T_MSB_REG, (uint8_t*)&resultBits, 2 );
 
-    msb = tempBuf[0];
-    lsb = tempBuf[1];
-
-    if( msb > 0x7F )
+    //shift out unused 4 lsb's
+    resultBits >>= 4;
+    //if it was negative
+    if(resultBits & 0x0800)
     {
-        val = ~( ( msb << 8 ) + lsb ) + 1;      // 2’s complement
-        msb = val >> 8;
-        lsb = val & 0x00F0;
-        negSign = true;
-    }
-
-    if( negSign == true )
-    {
-        temperature = 0 - ( msb + ( float )( ( lsb >> 4 ) / 16.0 ) );
-    }
-    else
-    {
-        temperature = msb + ( float )( ( lsb >> 4 ) / 16.0 );
+      //sign extend
+      resultBits |= 0xF000;
     }
 
     MPL3115ToggleOneShot( );
 
-    return( temperature );
+    return( (int16_t) resultBits );
 }
 
 void MPL3115ToggleOneShot( void )

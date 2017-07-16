@@ -19,8 +19,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * RTC Time base in ms
  */
-#define RTC_ALARM_TICK_DURATION                     0.48828125      // 1 tick every 488us
-#define RTC_ALARM_TICK_PER_MS                       2.048           // 1/2.048 = tick duration in ms
+#define RTC_ALARM_TICKS_PER_SECOND                  2048
 
 /*!
  * Maximum number of days that can be handled by the RTC alarm counter before overflow.
@@ -130,11 +129,6 @@ static bool WakeUpTimeInitialized = false;
 volatile uint32_t McuWakeUpTime = 0;
 
 /*!
- * \brief Hold the cumulated error in micro-second to compensate the timing errors
- */
-static int32_t TimeoutValueError = 0;
-
-/*!
  * \brief RTC wakeup time computation
  */
 static void RtcComputeWakeUpTime( void );
@@ -151,12 +145,12 @@ static void RtcStartWakeUpAlarm( uint32_t timeoutValue );
  * \retval rtcCalendar New RTC calendar value
  */
 //
-// REMARK: Removed function static attribute in order to suppress 
+// REMARK: Removed function static attribute in order to suppress
 //         "#177-D function was declared but never referenced" warning.
 // static RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter )
 //
 RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter );
- 
+
 /*!
  * \brief Converts a RtcCalendar_t value into TimerTime_t value
  *
@@ -246,9 +240,9 @@ TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout )
             timeout -= McuWakeUpTime;
         }
     }
-    
+
     if( timeout > McuWakeUpTime )
-    {   // we don't go in Low Power mode for delay below 50ms (needed for LEDs)        
+    {   // we don't go in Low Power mode for delay below 50ms (needed for LEDs)
         if( timeout < 50 ) // 50 ms
         {
             RtcTimerEventAllowsLowPower = false;
@@ -346,7 +340,7 @@ void RtcEnterLowPowerStopMode( void )
 void RtcRecoverMcuStatus( void )
 {
     // PWR_FLAG_WU indicates the Alarm has waken-up the MCU
-    if( __HAL_PWR_GET_FLAG( PWR_FLAG_WU ) != RESET ) 
+    if( __HAL_PWR_GET_FLAG( PWR_FLAG_WU ) != RESET )
     {
         __HAL_PWR_CLEAR_FLAG( PWR_FLAG_WU );
     }
@@ -377,7 +371,7 @@ static void RtcComputeWakeUpTime( void )
         start = alarmRtc.AlarmTime.Seconds + ( SecondsInMinute * alarmRtc.AlarmTime.Minutes ) + ( SecondsInHour * alarmRtc.AlarmTime.Hours );
         stop = now.CalendarTime.Seconds + ( SecondsInMinute * now.CalendarTime.Minutes ) + ( SecondsInHour * now.CalendarTime.Hours );
 
-        McuWakeUpTime = ceil ( ( stop - start ) * RTC_ALARM_TICK_DURATION );
+        McuWakeUpTime = INT_CLOSEST_TO_INFINITIES_DIV_ANY_SIGNS ( ( ( int64_t )( stop - start ) * 1000 ), RTC_ALARM_TICKS_PER_SECOND );
 
         WakeUpTimeInitialized = true;
     }
@@ -398,7 +392,7 @@ static void RtcStartWakeUpAlarm( uint32_t timeoutValue )
     // Save the calendar into RtcCalendarContext to be able to calculate the elapsed time
     RtcCalendarContext = now;
 
-    // timeoutValue is in ms 
+    // timeoutValue is in ms
     alarmTimer = RtcComputeTimerTimeToAlarmTick( timeoutValue, now );
 
     alarmStructure.Alarm = RTC_ALARM_A;
@@ -419,39 +413,47 @@ static void RtcStartWakeUpAlarm( uint32_t timeoutValue )
 
 static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, RtcCalendar_t now )
 {
+    /*!
+     * \brief Hold the cumulated sub-milli-second error to compensate the timing errors
+     */
+    static int16_t TimeoutValueError = 0;
+
     RtcCalendar_t calendar = now;
 
     uint16_t seconds = now.CalendarTime.Seconds;
     uint16_t minutes = now.CalendarTime.Minutes;
     uint16_t hours = now.CalendarTime.Hours;
     uint16_t days = now.CalendarDate.Date;
-    double timeoutValueTemp = 0.0;
-    double timeoutValue = 0.0;
-    double error = 0.0;
+    uint64_t timeoutValueTemp = 0;
+    uint64_t timeoutValue = 0;
+    int16_t error = 0;
 
-    timeCounter = MIN( timeCounter, ( TimerTime_t )( RTC_ALARM_MAX_NUMBER_OF_DAYS * SecondsInDay * RTC_ALARM_TICK_DURATION ) );
+    timeCounter = MIN( timeCounter,
+      ( TimerTime_t )INT_CLOSEST_TO_INFINITIES_DIV_BOTH_POSTITIVE_SIGNS(
+        ( ( ( uint64_t )RTC_ALARM_MAX_NUMBER_OF_DAYS * SecondsInDay ) * 1000 ),
+        RTC_ALARM_TICKS_PER_SECOND ) );
 
     if( timeCounter < 1 )
     {
         timeCounter = 1;
     }
 
-    // timeoutValue is used for complete computation
-    timeoutValue = round( timeCounter * RTC_ALARM_TICK_PER_MS );
-
     // timeoutValueTemp is used to compensate the cumulating errors in timing far in the future
-    timeoutValueTemp =  ( double )timeCounter * RTC_ALARM_TICK_PER_MS;
+    timeoutValueTemp =  ( uint64_t )timeCounter * RTC_ALARM_TICKS_PER_SECOND;
+
+    // timeoutValue is used for complete computation
+    timeoutValue = INT_CLOSEST_TO_DIV_BOTH_POSTITIVE_SIGNS( timeoutValueTemp, 1000 );
 
     // Compute timeoutValue error
-    error = timeoutValue - timeoutValueTemp;
+    error = ( timeoutValue * 1000 ) - timeoutValueTemp;
 
-    // Add new error value to the cumulated value in uS
-    TimeoutValueError += ( error  * 1000 );
+    // Add new error value to the cumulated value in sub-milli-seconds
+    TimeoutValueError += error;
 
-    // Correct cumulated error if greater than ( RTC_ALARM_TICK_DURATION * 1000 )
-    if( TimeoutValueError >= ( int32_t )( RTC_ALARM_TICK_DURATION * 1000 ) )
+    // Correct cumulated error if greater than 1000
+    if( TimeoutValueError >= 1000 )
     {
-        TimeoutValueError = TimeoutValueError - ( uint32_t )( RTC_ALARM_TICK_DURATION * 1000 );
+        TimeoutValueError = TimeoutValueError - 1000;
         timeoutValue = timeoutValue + 1;
     }
 
@@ -481,7 +483,7 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
 
     // Correct for modulo
     while( seconds >= 60 )
-    { 
+    {
         seconds -= 60;
         minutes++;
     }
@@ -508,7 +510,7 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
     else
     {
         if( days > DaysInMonth[now.CalendarDate.Month - 1] )
-        {   
+        {
             days = days % DaysInMonth[now.CalendarDate.Month - 1];
         }
     }
@@ -522,7 +524,7 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
 }
 
 //
-// REMARK: Removed function static attribute in order to suppress 
+// REMARK: Removed function static attribute in order to suppress
 //         "#177-D function was declared but never referenced" warning.
 // static RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter )
 //
@@ -537,9 +539,13 @@ RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter )
     uint8_t months = 1; // Start at 1, month 0 does not exist
     uint16_t years = 0;
     uint16_t century = 0;
-    double timeCounterTemp = 0.0;
+    uint64_t timeCounterTemp = 0;
+    bool roundUpOneSecond;
 
-    timeCounterTemp = ( double )timeCounter * RTC_ALARM_TICK_PER_MS;
+    //can't go negative in subsequent calculations, so round DOWN. we'll correct
+    //the seconds value at the end to round up by one if neccesary
+    timeCounterTemp = INT_CLOSEST_TO_ZERO_DIV_BOTH_POSTITIVE_SIGNS( ( ( uint64_t )timeCounter * RTC_ALARM_TICKS_PER_SECOND ), 1000 );
+    roundUpOneSecond = ( ( ( ( uint64_t )timeCounter * RTC_ALARM_TICKS_PER_SECOND ) % 1000 ) >= ( 1000 / 2 ) )? true: false;
 
     // Convert milliseconds to RTC format and add to now
     while( timeCounterTemp >= SecondsInLeapYear )
@@ -553,7 +559,7 @@ RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter )
             timeCounterTemp -= SecondsInYear;
         }
         years++;
-        if( years == 100 ) 
+        if( years == 100 )
         {
             century = century + 100;
             years = 0;
@@ -612,7 +618,7 @@ RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter )
     }
 
     // Calculate seconds
-    seconds = round( timeCounterTemp );
+    seconds = timeCounterTemp + ( roundUpOneSecond? 1 : 0 );
 
     calendar.CalendarTime.Seconds = seconds;
     calendar.CalendarTime.Minutes = minutes;
@@ -629,7 +635,7 @@ static TimerTime_t RtcConvertCalendarTickToTimerTime( RtcCalendar_t *calendar )
 {
     TimerTime_t timeCounter = 0;
     RtcCalendar_t now;
-    double timeCounterTemp = 0.0;
+    uint64_t timeCounterTemp = 0;
 
     // Passing a NULL pointer will compute from "now" else,
     // compute from the given calendar value
@@ -647,11 +653,11 @@ static TimerTime_t RtcConvertCalendarTickToTimerTime( RtcCalendar_t *calendar )
     {
         if( ( i == 0 ) || ( i % 4 ) == 0 )
         {
-            timeCounterTemp += ( double )SecondsInLeapYear;
+            timeCounterTemp += ( uint64_t )SecondsInLeapYear;
         }
         else
         {
-            timeCounterTemp += ( double )SecondsInYear;
+            timeCounterTemp += ( uint64_t )SecondsInYear;
         }
     }
 
@@ -660,25 +666,23 @@ static TimerTime_t RtcConvertCalendarTickToTimerTime( RtcCalendar_t *calendar )
     {
         for( uint8_t i = 0; i < ( now.CalendarDate.Month - 1 ); i++ )
         {
-            timeCounterTemp += ( double )( DaysInMonthLeapYear[i] * SecondsInDay );
+            timeCounterTemp += ( uint64_t )( DaysInMonthLeapYear[i] * SecondsInDay );
         }
     }
     else
     {
         for( uint8_t i = 0;  i < ( now.CalendarDate.Month - 1 ); i++ )
         {
-            timeCounterTemp += ( double )( DaysInMonth[i] * SecondsInDay );
+            timeCounterTemp += ( uint64_t )( DaysInMonth[i] * SecondsInDay );
         }
     }
 
-    timeCounterTemp += ( double )( ( uint32_t )now.CalendarTime.Seconds +
+    timeCounterTemp += ( uint64_t )( ( uint32_t )now.CalendarTime.Seconds +
                      ( ( uint32_t )now.CalendarTime.Minutes * SecondsInMinute ) +
                      ( ( uint32_t )now.CalendarTime.Hours * SecondsInHour ) +
                      ( ( uint32_t )( now.CalendarDate.Date * SecondsInDay ) ) );
 
-    timeCounterTemp = ( double )timeCounterTemp * RTC_ALARM_TICK_DURATION;
-
-    timeCounter = round( timeCounterTemp );
+    timeCounter = INT_CLOSEST_TO_DIV_BOTH_POSTITIVE_SIGNS( ( timeCounterTemp * 1000 ),  RTC_ALARM_TICKS_PER_SECOND );
     return ( timeCounter );
 }
 
