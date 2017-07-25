@@ -520,6 +520,8 @@ bool RegionEU868AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
 
                     if( datarate == EU868_TX_MIN_DATARATE )
                     {
+                        // We must set adrAckReq to false as soon as we reach the lowest datarate
+                        adrAckReq = false;
                         if( adrNext->UpdateChanMask == true )
                         {
                             // Re-enable default channels

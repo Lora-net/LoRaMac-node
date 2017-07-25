@@ -548,6 +548,8 @@ bool RegionAS923AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
 
                     if( datarate == minTxDatarate )
                     {
+                        // We must set adrAckReq to false as soon as we reach the lowest datarate
+                        adrAckReq = false;
                         if( adrNext->UpdateChanMask == true )
                         {
                             // Re-enable default channels
