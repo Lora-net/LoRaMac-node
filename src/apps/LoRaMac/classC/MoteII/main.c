@@ -121,7 +121,7 @@ static uint8_t AppDataSize = LORAWAN_APP_DATA_SIZE;
 /*!
  * User application data buffer size
  */
-#define LORAWAN_APP_DATA_MAX_SIZE                           64
+#define LORAWAN_APP_DATA_MAX_SIZE                           242
 
 /*!
  * User application data
@@ -604,7 +604,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     AppDataSize = mcpsIndication->BufferSize;
 
                     AppData[0] = 4;
-                    for( uint8_t i = 1; i < AppDataSize; i++ )
+                    for( uint8_t i = 1; i < MIN( AppDataSize, LORAWAN_APP_DATA_MAX_SIZE ); i++ )
                     {
                         AppData[i] = mcpsIndication->Buffer[i] + 1;
                     }
