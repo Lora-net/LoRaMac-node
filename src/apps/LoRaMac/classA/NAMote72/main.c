@@ -84,13 +84,17 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * User application data buffer size
  */
-#if defined( REGION_EU868 )
+#if defined( REGION_CN779 ) || defined( REGION_EU868 ) || defined( REGION_IN865 ) || defined( REGION_KR920 )
 
 #define LORAWAN_APP_DATA_SIZE                       16
 
-#elif defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
+#elif defined( REGION_AS923 ) || defined( REGION_AU915 ) || defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
 
 #define LORAWAN_APP_DATA_SIZE                       11
+
+#else
+
+#error "Please define a region in the compiler options."
 
 #endif
 
@@ -199,18 +203,18 @@ struct ComplianceTest_s
  */
 static void PrepareTxFrame( uint8_t port )
 {
-#if defined( USE_BAND_915 ) || defined( USE_BAND_915_HYBRID )
+#if defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
     MibRequestConfirm_t mibReq;
 
     if( BoardGetBatteryVoltage( ) < LOW_BAT_THRESHOLD )
     {
         mibReq.Type = MIB_CHANNELS_TX_POWER;
         LoRaMacMibGetRequestConfirm( &mibReq );
-        // TX_POWER_30_DBM = 0, TX_POWER_28_DBM = 1, ..., TX_POWER_20_DBM = 5, ..., TX_POWER_10_DBM = 10
+        // 30 dBm = TX_POWER_0, 28 dBm = TX_POWER_1, ..., 20 dBm = TX_POWER_5, ..., 10 dBm = TX_POWER_10
         // The if condition is then "less than" to check if the power is greater than 20 dBm
-        if( mibReq.Param.ChannelsTxPower < TX_POWER_20_DBM )
+        if( mibReq.Param.ChannelsTxPower < TX_POWER_5 )
         {
-            mibReq.Param.ChannelsTxPower = TX_POWER_20_DBM;
+            mibReq.Param.ChannelsTxPower = TX_POWER_5;
             LoRaMacMibSetRequestConfirm( &mibReq );
         }
     }
@@ -220,7 +224,7 @@ static void PrepareTxFrame( uint8_t port )
     {
     case 2:
         {
-#if defined( REGION_EU868 )
+#if defined( REGION_CN779 ) || defined( REGION_EU868 ) || defined( REGION_IN865 ) || defined( REGION_KR920 )
             uint16_t pressure = 0;
             int16_t altitudeBar = 0;
             int16_t temperature = 0;
@@ -251,7 +255,7 @@ static void PrepareTxFrame( uint8_t port )
             AppData[13] = longitude & 0xFF;
             AppData[14] = ( altitudeGps >> 8 ) & 0xFF;
             AppData[15] = altitudeGps & 0xFF;
-#elif defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
+#elif defined( REGION_AS923 ) || defined( REGION_AU915 ) || defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
             int16_t temperature = 0;
             int32_t latitude, longitude = 0;
             uint16_t altitudeGps = 0xFFFF;
@@ -718,8 +722,18 @@ int main( void )
                 LoRaMacPrimitives.MacMcpsIndication = McpsIndication;
                 LoRaMacPrimitives.MacMlmeConfirm = MlmeConfirm;
                 LoRaMacCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
-#if defined( REGION_EU868 )
+#if defined( REGION_AS923 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_AS923 );
+#elif defined( REGION_AU915 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_AU915 );
+#elif defined( REGION_CN779 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_CN779 );
+#elif defined( REGION_EU868 )
                 LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_EU868 );
+#elif defined( REGION_IN865 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_IN865 );
+#elif defined( REGION_KR920 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_KR920 );
 #elif defined( REGION_US915 )
                 LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_US915 );
 #elif defined( REGION_US915_HYBRID )
