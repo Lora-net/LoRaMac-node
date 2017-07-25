@@ -559,6 +559,10 @@ typedef enum eLoRaMacEventInfoStatus
      */
     LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT,
     /*!
+     * An Rx timeout occurred on receive window 1
+     */
+    LORAMAC_EVENT_INFO_STATUS_RX1_TIMEOUT,
+    /*!
      * An Rx timeout occurred on receive window 2
      */
     LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT,

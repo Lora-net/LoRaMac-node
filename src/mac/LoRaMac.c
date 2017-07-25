@@ -1154,7 +1154,20 @@ static void OnRadioRxTimeout( void )
         OnRxWindow2TimerEvent( );
     }
 
-    if( RxSlot == 1 )
+    if( RxSlot == 0 )
+    {
+        if( NodeAckRequested == true )
+        {
+            McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX1_TIMEOUT;
+        }
+        MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX1_TIMEOUT;
+
+        if( TimerGetElapsedTime( AggregatedLastTxDoneTime ) >= RxWindow2Delay )
+        {
+            LoRaMacFlags.Bits.MacDone = 1;
+        }
+    }
+    else
     {
         if( NodeAckRequested == true )
         {
