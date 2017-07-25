@@ -2782,6 +2782,33 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
             if( RegionVerify( LoRaMacRegion, &verify, PHY_RX_DR ) == true )
             {
                 LoRaMacParams.Rx2Channel = mibSet->Param.Rx2Channel;
+
+                if( ( LoRaMacDeviceClass == CLASS_C ) && ( IsLoRaMacNetworkJoined == true ) )
+                {
+                    // Compute Rx2 windows parameters
+                    RegionComputeRxWindowParameters( LoRaMacRegion,
+                                                     LoRaMacParams.Rx2Channel.Datarate,
+                                                     LoRaMacParams.MinRxSymbols,
+                                                     LoRaMacParams.SystemMaxRxError,
+                                                     &RxWindow2Config );
+
+                    RxWindow2Config.Channel = Channel;
+                    RxWindow2Config.Frequency = LoRaMacParams.Rx2Channel.Frequency;
+                    RxWindow2Config.DownlinkDwellTime = LoRaMacParams.DownlinkDwellTime;
+                    RxWindow2Config.RepeaterSupport = RepeaterSupport;
+                    RxWindow2Config.Window = 1;
+                    RxWindow2Config.RxContinuous = true;
+
+                    if( RegionRxConfig( LoRaMacRegion, &RxWindow2Config, ( int8_t* )&McpsIndication.RxDatarate ) == true )
+                    {
+                        RxWindowSetup( RxWindow2Config.RxContinuous, LoRaMacParams.MaxRxWindow );
+                        RxSlot = RxWindow2Config.Window;
+                    }
+                    else
+                    {
+                        status = LORAMAC_STATUS_PARAMETER_INVALID;
+                    }
+                }
             }
             else
             {
