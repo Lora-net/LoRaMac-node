@@ -156,6 +156,7 @@ void RegionCommonSetBandTxDone( bool joined, Band_t* band, TimerTime_t lastTxDon
     }
     else
     {
+        band->LastTxDoneTime = lastTxDone;
         band->LastJoinTxDoneTime = lastTxDone;
     }
 }
