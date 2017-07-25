@@ -805,6 +805,24 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
         case FRAME_TYPE_DATA_CONFIRMED_DOWN:
         case FRAME_TYPE_DATA_UNCONFIRMED_DOWN:
             {
+                // Check if the received payload size is valid
+                getPhy.UplinkDwellTime = LoRaMacParams.DownlinkDwellTime;
+                getPhy.Datarate = McpsIndication.RxDatarate;
+                getPhy.Attribute = PHY_MAX_PAYLOAD;
+
+                // Get the maximum payload length
+                if( RepeaterSupport == true )
+                {
+                    getPhy.Attribute = PHY_MAX_PAYLOAD_REPEATER;
+                }
+                phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+                if( MAX( 0, ( int16_t )( ( int16_t )size - ( int16_t )LORA_MAC_FRMPAYLOAD_OVERHEAD ) ) > phyParam.Value )
+                {
+                    McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+                    PrepareRxDoneAbort( );
+                    return;
+                }
+
                 address = payload[pktHeaderLen++];
                 address |= ( (uint32_t)payload[pktHeaderLen++] << 8 );
                 address |= ( (uint32_t)payload[pktHeaderLen++] << 16 );
