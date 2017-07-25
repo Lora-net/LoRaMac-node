@@ -2175,6 +2175,8 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
 
                 if( framePort == 0 )
                 {
+                    // Reset buffer index as the mac commands are being sent on port 0
+                    MacCommandsBufferIndex = 0;
                     LoRaMacPayloadEncrypt( (uint8_t* ) payload, LoRaMacTxPayloadLen, LoRaMacNwkSKey, LoRaMacDevAddr, UP_LINK, UpLinkCounter, &LoRaMacBuffer[pktHeaderLen] );
                 }
                 else
