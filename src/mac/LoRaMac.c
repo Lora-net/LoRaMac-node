@@ -2154,7 +2154,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
             }
             else
             {
-                if( ( MacCommandsBufferIndex > 0 ) && ( MacCommandsInNextTx ) )
+                if( ( MacCommandsBufferIndex > 0 ) && ( MacCommandsInNextTx == true ) )
                 {
                     LoRaMacTxPayloadLen = MacCommandsBufferIndex;
                     payload = MacCommandsBuffer;
