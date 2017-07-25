@@ -570,16 +570,17 @@ void RegionAS923ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
 {
     double tSymbol = 0.0;
 
-    rxConfigParams->Datarate = datarate;
-    rxConfigParams->Bandwidth = GetBandwidth( datarate );
+    // Get the datarate, perform a boundary check
+    rxConfigParams->Datarate = MIN( datarate, AS923_RX_MAX_DATARATE );
+    rxConfigParams->Bandwidth = GetBandwidth( rxConfigParams->Datarate );
 
-    if( datarate == DR_7 )
+    if( rxConfigParams->Datarate == DR_7 )
     { // FSK
-        tSymbol = RegionCommonComputeSymbolTimeFsk( DataratesAS923[datarate] );
+        tSymbol = RegionCommonComputeSymbolTimeFsk( DataratesAS923[rxConfigParams->Datarate] );
     }
     else
     { // LoRa
-        tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesAS923[datarate], BandwidthsAS923[datarate] );
+        tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesAS923[rxConfigParams->Datarate], BandwidthsAS923[rxConfigParams->Datarate] );
     }
 
     RegionCommonComputeRxWindowParameters( tSymbol, minRxSymbols, rxError, RADIO_WAKEUP_TIME, &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
