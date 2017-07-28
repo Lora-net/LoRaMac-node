@@ -197,8 +197,6 @@ void RtcInit( void )
 
     if( RtcInitialized == false )
     {
-        __HAL_RCC_RTC_ENABLE( );
-
         RtcHandle.Instance = RTC;
         RtcHandle.Init.HourFormat = RTC_HOURFORMAT_24;
         RtcHandle.Init.AsynchPrediv = PREDIV_A; // RTC_ASYNCH_PREDIV;
@@ -376,7 +374,7 @@ void RtcEnterLowPowerStopMode( void )
         // SysTick interrupt would wake up the MCU for every tick
         HAL_SuspendTick();
 
-        // Enter Stop Mode        
+        // Enter Stop Mode
 #if defined(DEBUG)
         HAL_PWR_EnterSTOPMode( PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI );
 #else
@@ -856,6 +854,22 @@ static RtcCalendar_t RtcGetCalendar( void )
     }
     HAL_RTC_GetDate( &RtcHandle, &now.CalendarDate, RTC_FORMAT_BIN );
     return( now );
+}
+
+void HAL_RTC_MspInit( RTC_HandleTypeDef *rtcHandle )
+{
+    if( rtcHandle->Instance == RTC )
+    {
+        __HAL_RCC_RTC_ENABLE( );
+    }
+}
+
+void HAL_RTC_MspDeInit( RTC_HandleTypeDef *rtcHandle )
+{
+    if( rtcHandle->Instance == RTC )
+    {
+        __HAL_RCC_RTC_DISABLE( );
+    }
 }
 
 /*!
