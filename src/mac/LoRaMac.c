@@ -3231,6 +3231,9 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
     memset1 ( ( uint8_t* ) &McpsConfirm, 0, sizeof( McpsConfirm ) );
     McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
 
+    // AckTimeoutRetriesCounter must be reset every time a new request (unconfirmed or confirmed) is performed.
+    AckTimeoutRetriesCounter = 1;
+
     switch( mcpsRequest->Type )
     {
         case MCPS_UNCONFIRMED:
@@ -3248,7 +3251,6 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
         case MCPS_CONFIRMED:
         {
             readyToSend = true;
-            AckTimeoutRetriesCounter = 1;
             AckTimeoutRetries = mcpsRequest->Req.Confirmed.NbTrials;
 
             macHdr.Bits.MType = FRAME_TYPE_DATA_CONFIRMED_UP;
