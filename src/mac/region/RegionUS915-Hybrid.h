@@ -375,7 +375,7 @@ int8_t RegionUS915HybridTxParamSetupReq( TxParamSetupReqParams_t* txParamSetupRe
  */
 uint8_t RegionUS915HybridDlChannelReq( DlChannelReqParams_t* dlChannelReq );
 
-/*
+/*!
  * \brief Alternates the datarate of the channel for the join request.
  *
  * \param [IN] alternateDr Pointer to the function parameters.

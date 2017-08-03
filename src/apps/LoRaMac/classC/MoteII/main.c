@@ -13,6 +13,8 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 Maintainer: Miguel Luis and Gregory Cristian
 */
 
+/*! \file classC/MoteII/main.c */
+
 #include <string.h>
 #include <math.h>
 #include "board.h"

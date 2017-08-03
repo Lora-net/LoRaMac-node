@@ -12,6 +12,9 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
+
+/*! \file classA/SensorNode/main.c */
+
 #include <string.h>
 #include <math.h>
 #include "board.h"
