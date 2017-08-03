@@ -83,12 +83,6 @@
 #define __LORAMAC_H__
 
 /*!
- * Beacon interval in ms
- */
-#define BEACON_INTERVAL                             128000
-
-
-/*!
  * Check the Mac layer state every MAC_STATE_CHECK_TIMEOUT in ms
  */
 #define MAC_STATE_CHECK_TIMEOUT                     1000
