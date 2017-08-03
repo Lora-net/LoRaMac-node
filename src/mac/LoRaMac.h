@@ -1475,7 +1475,57 @@ typedef enum eMib
      * The formula is:
      * radioTxPower = ( int8_t )floor( maxEirp - antennaGain )
      */
-    MIB_ANTENNA_GAIN
+    MIB_ANTENNA_GAIN,
+    /*!
+     * Beacon interval in ms
+     */
+    MIB_BEACON_INTERVAL,
+    /*!
+     * Beacon reserved time in ms
+     */
+    MIB_BEACON_RESERVED,
+    /*!
+     * Beacon guard time in ms
+     */
+    MIB_BEACON_GUARD,
+    /*!
+     * Beacon window time in ms
+     */
+    MIB_BEACON_WINDOW,
+    /*!
+     * Beacon window time in number of slots
+     */
+    MIB_BEACON_WINDOW_SLOTS,
+    /*!
+     * Ping slot length time in ms
+     */
+    MIB_PING_SLOT_WINDOW,
+    /*!
+     * Default symbol timeout for beacons and ping slot windows
+     */
+    MIB_BEACON_SYMBOL_TO_DEFAULT,
+    /*!
+     * Maximum symbol timeout for beacons
+     */
+    MIB_BEACON_SYMBOL_TO_EXPANSION_MAX,
+    /*!
+     * Maximum symbol timeout for ping slots
+     */
+    MIB_PING_SLOT_SYMBOL_TO_EXPANSION_MAX,
+    /*!
+     * Symbol expansion value for beacon windows in case of beacon
+     * loss in symbols
+     */
+    MIB_BEACON_SYMBOL_TO_EXPANSION_FACTOR,
+    /*!
+     * Symbol expansion value for ping slot windows in case of beacon
+     * loss in symbols
+     */
+    MIB_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR,
+    /*!
+     * Maximum allowed beacon less time in ms
+     */
+    MIB_MAX_BEACON_LESS_PERIOD
 }Mib_t;
 
 /*!
@@ -1663,6 +1713,80 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_ANTENNA_GAIN
      */
     float AntennaGain;
+    /*!
+     * Beacon interval in ms
+     *
+     * Related MIB type: \ref MIB_BEACON_INTERVAL
+     */
+    uint32_t BeaconInterval;
+    /*!
+     * Beacon reserved time in ms
+     *
+     * Related MIB type: \ref MIB_BEACON_RESERVED
+     */
+    uint32_t BeaconReserved;
+    /*!
+     * Beacon guard time in ms
+     *
+     * Related MIB type: \ref MIB_BEACON_GUARD
+     */
+    uint32_t BeaconGuard;
+    /*!
+     * Beacon window time in ms
+     *
+     * Related MIB type: \ref MIB_BEACON_WINDOW
+     */
+    uint32_t BeaconWindow;
+    /*!
+     * Beacon window time in number of slots
+     *
+     * Related MIB type: \ref MIB_BEACON_WINDOW_SLOTS
+     */
+    uint32_t BeaconWindowSlots;
+    /*!
+     * Ping slot length time in ms
+     *
+     * Related MIB type: \ref MIB_PING_SLOT_WINDOW
+     */
+    uint32_t PingSlotWindow;
+    /*!
+     * Default symbol timeout for beacons and ping slot windows
+     *
+     * Related MIB type: \ref MIB_BEACON_SYMBOL_TO_DEFAULT
+     */
+    uint32_t BeaconSymbolToDefault;
+    /*!
+     * Maximum symbol timeout for beacons
+     *
+     * Related MIB type: \ref MIB_BEACON_SYMBOL_TO_EXPANSION_MAX
+     */
+    uint32_t BeaconSymbolToExpansionMax;
+    /*!
+     * Maximum symbol timeout for ping slots
+     *
+     * Related MIB type: \ref MIB_PING_SLOT_SYMBOL_TO_EXPANSION_MAX
+     */
+    uint32_t PingSlotSymbolToExpansionMax;
+    /*!
+     * Symbol expansion value for beacon windows in case of beacon
+     * loss in symbols
+     *
+     * Related MIB type: \ref MIB_BEACON_SYMBOL_TO_EXPANSION_FACTOR
+     */
+    uint32_t BeaconSymbolToExpansionFactor;
+    /*!
+     * Symbol expansion value for ping slot windows in case of beacon
+     * loss in symbols
+     *
+     * Related MIB type: \ref MIB_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR
+     */
+    uint32_t PingSlotSymbolToExpansionFactor;
+    /*!
+     * Maximum allowed beacon less time in ms
+     *
+     * Related MIB type: \ref MIB_MAX_BEACON_LESS_PERIOD
+     */
+    uint32_t MaxBeaconLessPeriod;
 }MibParam_t;
 
 /*!
