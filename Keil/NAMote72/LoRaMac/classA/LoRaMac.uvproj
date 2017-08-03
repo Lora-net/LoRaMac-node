@@ -599,6 +599,11 @@
               <FilePath>..\..\..\..\src\mac\LoRaMac.c</FilePath>
             </File>
             <File>
+              <FileName>LoRaMacClassB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
+            </File>
+            <File>
               <FileName>LoRaMacCrypto.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMacCrypto.c</FilePath>
@@ -1368,6 +1373,11 @@
               <FileName>LoRaMac.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMac.c</FilePath>
+            </File>
+            <File>
+              <FileName>LoRaMacClassB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
             </File>
             <File>
               <FileName>LoRaMacCrypto.c</FileName>
@@ -2141,6 +2151,11 @@
               <FilePath>..\..\..\..\src\mac\LoRaMac.c</FilePath>
             </File>
             <File>
+              <FileName>LoRaMacClassB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
+            </File>
+            <File>
               <FileName>LoRaMacCrypto.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMacCrypto.c</FilePath>
@@ -2910,6 +2925,11 @@
               <FileName>LoRaMac.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMac.c</FilePath>
+            </File>
+            <File>
+              <FileName>LoRaMacClassB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
             </File>
             <File>
               <FileName>LoRaMacCrypto.c</FileName>
@@ -3683,6 +3703,11 @@
               <FilePath>..\..\..\..\src\mac\LoRaMac.c</FilePath>
             </File>
             <File>
+              <FileName>LoRaMacClassB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
+            </File>
+            <File>
               <FileName>LoRaMacCrypto.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMacCrypto.c</FilePath>
@@ -4452,6 +4477,11 @@
               <FileName>LoRaMac.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMac.c</FilePath>
+            </File>
+            <File>
+              <FileName>LoRaMacClassB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
             </File>
             <File>
               <FileName>LoRaMacCrypto.c</FileName>
@@ -5225,6 +5255,11 @@
               <FilePath>..\..\..\..\src\mac\LoRaMac.c</FilePath>
             </File>
             <File>
+              <FileName>LoRaMacClassB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
+            </File>
+            <File>
               <FileName>LoRaMacCrypto.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMacCrypto.c</FilePath>
@@ -5994,6 +6029,11 @@
               <FileName>LoRaMac.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMac.c</FilePath>
+            </File>
+            <File>
+              <FileName>LoRaMacClassB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
             </File>
             <File>
               <FileName>LoRaMacCrypto.c</FileName>

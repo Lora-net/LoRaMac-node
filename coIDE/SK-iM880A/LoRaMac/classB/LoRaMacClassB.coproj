@@ -29,6 +29,7 @@
           <Define name="STM32L151xB"/>
           <Define name="USE_DEBUGGER"/>
           <Define name="REGION_EU868"/>
+          <define name="LORAMAC_CLASSB_ENABLED"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
@@ -110,6 +111,7 @@
           <Define name="STM32L151xB"/>
           <Define name="USE_DEBUGGER"/>
           <Define name="REGION_US915"/>
+          <define name="LORAMAC_CLASSB_ENABLED"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
@@ -192,6 +194,7 @@
           <Define name="USE_DEBUGGER"/>
           <Define name="REGION_CN779"/>
           <Define name="USE_BOOTLOADER"/>
+          <define name="LORAMAC_CLASSB_ENABLED"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
@@ -274,6 +277,7 @@
           <Define name="USE_DEBUGGER"/>
           <Define name="REGION_AU915"/>
           <Define name="USE_BOOTLOADER"/>
+          <define name="LORAMAC_CLASSB_ENABLED"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
@@ -356,6 +360,7 @@
           <Define name="USE_DEBUGGER"/>
           <Define name="REGION_AS923"/>
           <Define name="USE_BOOTLOADER"/>
+          <define name="LORAMAC_CLASSB_ENABLED"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
@@ -438,6 +443,7 @@
           <Define name="USE_DEBUGGER"/>
           <Define name="REGION_KR920"/>
           <Define name="USE_BOOTLOADER"/>
+          <define name="LORAMAC_CLASSB_ENABLED"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
@@ -520,6 +526,7 @@
           <Define name="USE_DEBUGGER"/>
           <Define name="REGION_IN865"/>
           <Define name="USE_BOOTLOADER"/>
+          <define name="LORAMAC_CLASSB_ENABLED"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
@@ -590,6 +597,7 @@
     <File name="boards/SK-iM880A" path="" type="2"/>
     <File name="mac/region/Region.c" path="../../../../src/mac/region/Region.c" type="1"/>
     <File name="mac/LoRaMac.c" path="../../../../src/mac/LoRaMac.c" type="1"/>
+    <File name="mac/LoRaMacClassB.c" path="../../../../src/mac/LoRaMacClassB.c" type="1"/>
     <File name="system/fifo.c" path="../../../../src/system/fifo.c" type="1"/>
     <File name="system" path="" type="2"/>
     <File name="mac/region/RegionKR920.c" path="../../../../src/mac/region/RegionKR920.c" type="1"/>

@@ -584,6 +584,7 @@
     <File name="system/gps.c" path="../../../../src/system/gps.c" type="1"/>
     <File name="mac/region/Region.c" path="../../../../src/mac/region/Region.c" type="1"/>
     <File name="mac/LoRaMac.c" path="../../../../src/mac/LoRaMac.c" type="1"/>
+    <File name="mac/LoRaMacClassB.c" path="../../../../src/mac/LoRaMacClassB.c" type="1"/>
     <File name="system/fifo.c" path="../../../../src/system/fifo.c" type="1"/>
     <File name="boards/MoteII/STM32L0xx_HAL_Driver/stm32l0xx_hal_rcc.c" path="../../../../src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Src/stm32l0xx_hal_rcc.c" type="1"/>
     <File name="system" path="" type="2"/>

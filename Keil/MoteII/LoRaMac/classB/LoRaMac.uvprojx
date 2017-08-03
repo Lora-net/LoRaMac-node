@@ -333,7 +333,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L051xx REGION_EU868</Define>
+              <Define>USE_HAL_DRIVER STM32L051xx REGION_EU868 LORAMAC_CLASSB_ENABLED</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -593,6 +593,11 @@
               <FileName>LoRaMac.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMac.c</FilePath>
+            </File>
+            <File>
+              <FileName>LoRaMacClassB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
             </File>
             <File>
               <FileName>LoRaMacCrypto.c</FileName>
@@ -1100,7 +1105,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L051xx REGION_US915</Define>
+              <Define>USE_HAL_DRIVER STM32L051xx REGION_US915 LORAMAC_CLASSB_ENABLED</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -1360,6 +1365,11 @@
               <FileName>LoRaMac.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMac.c</FilePath>
+            </File>
+            <File>
+              <FileName>LoRaMacClassB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
             </File>
             <File>
               <FileName>LoRaMacCrypto.c</FileName>
@@ -1867,7 +1877,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L051xx REGION_US915_HYBRID</Define>
+              <Define>USE_HAL_DRIVER STM32L051xx REGION_US915_HYBRID LORAMAC_CLASSB_ENABLED</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -2127,6 +2137,11 @@
               <FileName>LoRaMac.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMac.c</FilePath>
+            </File>
+            <File>
+              <FileName>LoRaMacClassB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
             </File>
             <File>
               <FileName>LoRaMacCrypto.c</FileName>
@@ -2634,7 +2649,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L051xx REGION_AS923</Define>
+              <Define>USE_HAL_DRIVER STM32L051xx REGION_AS923 LORAMAC_CLASSB_ENABLED</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -2894,6 +2909,11 @@
               <FileName>LoRaMac.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMac.c</FilePath>
+            </File>
+            <File>
+              <FileName>LoRaMacClassB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
             </File>
             <File>
               <FileName>LoRaMacCrypto.c</FileName>
@@ -3401,7 +3421,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L051xx REGION_AU915</Define>
+              <Define>USE_HAL_DRIVER STM32L051xx REGION_AU915 LORAMAC_CLASSB_ENABLED</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -3661,6 +3681,11 @@
               <FileName>LoRaMac.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMac.c</FilePath>
+            </File>
+            <File>
+              <FileName>LoRaMacClassB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
             </File>
             <File>
               <FileName>LoRaMacCrypto.c</FileName>
@@ -4168,7 +4193,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L051xx REGION_KR920</Define>
+              <Define>USE_HAL_DRIVER STM32L051xx REGION_KR920 LORAMAC_CLASSB_ENABLED</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -4428,6 +4453,11 @@
               <FileName>LoRaMac.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMac.c</FilePath>
+            </File>
+            <File>
+              <FileName>LoRaMacClassB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
             </File>
             <File>
               <FileName>LoRaMacCrypto.c</FileName>
@@ -4935,7 +4965,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L051xx REGION_IN865</Define>
+              <Define>USE_HAL_DRIVER STM32L051xx REGION_IN865 LORAMAC_CLASSB_ENABLED</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -5195,6 +5225,11 @@
               <FileName>LoRaMac.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMac.c</FilePath>
+            </File>
+            <File>
+              <FileName>LoRaMacClassB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
             </File>
             <File>
               <FileName>LoRaMacCrypto.c</FileName>
@@ -5702,7 +5737,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L051xx REGION_CN779</Define>
+              <Define>USE_HAL_DRIVER STM32L051xx REGION_CN779 LORAMAC_CLASSB_ENABLED</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -5962,6 +5997,11 @@
               <FileName>LoRaMac.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMac.c</FilePath>
+            </File>
+            <File>
+              <FileName>LoRaMacClassB.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
             </File>
             <File>
               <FileName>LoRaMacCrypto.c</FileName>

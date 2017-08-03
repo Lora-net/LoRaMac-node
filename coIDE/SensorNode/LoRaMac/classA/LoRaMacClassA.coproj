@@ -925,6 +925,7 @@
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver" path="" type="2"/>
     <File name="boards/SensorNode/STM32L1xx_HAL_Driver/stm32l1xx_hal.c" path="../../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c" type="1"/>
     <File name="mac/LoRaMac.c" path="../../../../src/mac/LoRaMac.c" type="1"/>
+    <File name="mac/LoRaMacClassB.c" path="../../../../src/mac/LoRaMacClassB.c" type="1"/>
     <File name="system/fifo.c" path="../../../../src/system/fifo.c" type="1"/>
     <File name="system" path="" type="2"/>
     <File name="boards/SensorNode" path="" type="2"/>
