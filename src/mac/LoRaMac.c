@@ -591,7 +591,7 @@ LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout );
  *
  * \param [IN] timeout     Time in seconds while the radio is kept in continuous wave mode
  * \param [IN] frequency   RF frequency to be set.
- * \param [IN] power       RF ouptput power to be set.
+ * \param [IN] power       RF ouptut power to be set.
  * \retval status          Status of the operation.
  */
 LoRaMacStatus_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint8_t power );
@@ -1264,7 +1264,7 @@ static void OnMacStateCheckTimerEvent( void )
                     if( ( ChannelsNbRepCounter >= LoRaMacParams.ChannelsNbRep ) || ( LoRaMacFlags.Bits.McpsInd == 1 ) )
                     {
                         if( LoRaMacFlags.Bits.McpsInd == 0 )
-                        {   // Maximum repititions without downlink. Reset MacCommandsBufferIndex. Increase ADR Ack counter.
+                        {   // Maximum repetitions without downlink. Reset MacCommandsBufferIndex. Increase ADR Ack counter.
                             // Only process the case when the MAC did not receive a downlink.
                             MacCommandsBufferIndex = 0;
                             AdrAckCounter++;
