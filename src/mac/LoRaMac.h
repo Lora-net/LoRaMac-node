@@ -438,7 +438,23 @@ typedef enum eLoRaMacMoteCmd
     /*!
      * DlChannelAns
      */
-    MOTE_MAC_DL_CHANNEL_ANS          = 0x0A
+    MOTE_MAC_DL_CHANNEL_ANS          = 0x0A,
+    /*!
+     * PingSlotInfoReq
+     */
+    MOTE_MAC_PING_SLOT_INFO_REQ      = 0x10,
+    /*!
+     * PingSlotFreqAns
+     */
+    MOTE_MAC_PING_SLOT_FREQ_ANS      = 0x11,
+    /*!
+     * BeaconTimingReq
+     */
+    MOTE_MAC_BEACON_TIMING_REQ       = 0x12,
+    /*!
+     * BeaconFreqAns
+     */
+    MOTE_MAC_BEACON_FREQ_ANS         = 0x13,
 }LoRaMacMoteCmd_t;
 
 /*!
@@ -484,6 +500,22 @@ typedef enum eLoRaMacSrvCmd
      * DlChannelReq
      */
     SRV_MAC_DL_CHANNEL_REQ           = 0x0A,
+    /*!
+     * PingSlotInfoAns
+     */
+    SRV_MAC_PING_SLOT_INFO_ANS       = 0x10,
+    /*!
+     * PingSlotChannelReq
+     */
+    SRV_MAC_PING_SLOT_CHANNEL_REQ    = 0x11,
+    /*!
+     * BeaconTimingAns
+     */
+    SRV_MAC_BEACON_TIMING_ANS        = 0x12,
+    /*!
+     * BeaconFreqReq
+     */
+    SRV_MAC_BEACON_FREQ_REQ          = 0x13,
 }LoRaMacSrvCmd_t;
 
 /*!
