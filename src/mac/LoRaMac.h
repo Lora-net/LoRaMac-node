@@ -98,11 +98,6 @@
 #define MAX_ACK_RETRIES                             8
 
 /*!
- * RSSI free threshold [dBm]
- */
-#define RSSI_FREE_TH                                ( int8_t )( -90 )
-
-/*!
  * Frame direction definition for up-link communications
  */
 #define UP_LINK                                     0
