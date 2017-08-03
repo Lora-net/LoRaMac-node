@@ -277,11 +277,6 @@ static bool LastTxIsJoinRequest;
 static TimerTime_t LoRaMacInitializationTime = 0;
 
 /*!
- * Last channel index
- */
-static uint8_t LastTxChannel = 0;
-
-/*!
  * LoRaMac internal states
  */
 enum eLoRaMacState
