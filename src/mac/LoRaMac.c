@@ -605,9 +605,9 @@ static void SetEveryMlmeConfirmStatus( MlmeConfirmQueue_t* queue, LoRaMacEventIn
  *         function.
  *
  * \param [IN] channel     Channel to transmit on
- * \retval status          Status of the operation.
+ * \retval Time delay      Returns a time which shall delay the next TX.
  */
-LoRaMacStatus_t SendFrameOnChannel( uint8_t channel );
+TimerTime_t SendFrameOnChannel( uint8_t channel );
 
 /*!
  * \brief Sets the radio in continuous transmission mode
@@ -2128,6 +2128,8 @@ LoRaMacStatus_t Send( LoRaMacHeader_t *macHdr, uint8_t fPort, void *fBuffer, uin
 static LoRaMacStatus_t ScheduleTx( void )
 {
     TimerTime_t dutyCycleTimeOff = 0;
+    TimerTime_t mutexTimeLock = 0;
+    TimerTime_t timeOff = 0;
     NextChanParams_t nextChan;
 
     // Check if the device is off
@@ -2190,7 +2192,7 @@ static LoRaMacStatus_t ScheduleTx( void )
     if( dutyCycleTimeOff == 0 )
     {
         // Try to send now
-        return SendFrameOnChannel( Channel );
+        mutexTimeLock =  SendFrameOnChannel( Channel );
     }
 
     timeOff = MAX( dutyCycleTimeOff, mutexTimeLock );
@@ -2461,7 +2463,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
     return LORAMAC_STATUS_OK;
 }
 
-LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
+TimerTime_t SendFrameOnChannel( uint8_t channel )
 {
     TxConfigParams_t txConfig;
     int8_t txPower = 0;
