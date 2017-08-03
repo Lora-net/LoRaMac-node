@@ -42,11 +42,6 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define LORA_MAC_COMMAND_MAX_FOPTS_LENGTH           15
 
 /*!
- * LoRaMac region.
- */
-static LoRaMacRegion_t LoRaMacRegion;
-
-/*!
  * LoRaMac duty cycle for the back-off procedure during the first hour.
  */
 #define BACKOFF_DC_1_HOUR                           100
@@ -60,6 +55,11 @@ static LoRaMacRegion_t LoRaMacRegion;
  * LoRaMac duty cycle for the back-off procedure during the next 24 hours.
  */
 #define BACKOFF_DC_24_HOURS                         10000
+
+/*!
+ * LoRaMac region.
+ */
+static LoRaMacRegion_t LoRaMacRegion;
 
 /*!
  * Device IEEE EUI
