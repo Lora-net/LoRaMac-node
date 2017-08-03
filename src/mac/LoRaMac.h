@@ -115,6 +115,11 @@
 #define LORAMAC_MFR_LEN                             4
 
 /*!
+ * LoRaMac MLME-Confirm queue length
+ */
+#define LORA_MAC_MLME_CONFIRM_QUEUE_LEN             5
+
+/*!
  * FRMPayload overhead to be used when setting the Radio.SetMaxPayloadLength
  * in RxWindowSetup function.
  * Maximum PHYPayload = MaxPayloadOfDatarate/MaxPayloadOfDatarateRepeater + LORA_MAC_FRMPAYLOAD_OVERHEAD
@@ -1823,6 +1828,21 @@ typedef struct sLoRaMacTxInfo
      */
     uint8_t CurrentPayloadSize;
 }LoRaMacTxInfo_t;
+
+/*!
+ * Structure to hold multiple MLME request confirm data
+ */
+typedef struct sMlmeConfirmQueue
+{
+    /*!
+     * Holds the previously performed MLME-Request
+     */
+    Mlme_t MlmeRequest;
+    /*!
+     * Status of the operation
+     */
+    LoRaMacEventInfoStatus_t Status;
+}MlmeConfirmQueue_t;
 
 /*!
  * LoRaMAC Status
