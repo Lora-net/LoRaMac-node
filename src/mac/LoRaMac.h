@@ -130,19 +130,19 @@ typedef enum eDeviceClass
     /*!
      * LoRaWAN device class A
      *
-     * LoRaWAN Specification V1.0.2, chapter 3ff
+     * LoRaWAN Specification V1.0.2, chapter 3
      */
     CLASS_A,
     /*!
      * LoRaWAN device class B
      *
-     * LoRaWAN Specification V1.0.2, chapter 8ff
+     * LoRaWAN Specification V1.0.2, chapter 8
      */
     CLASS_B,
     /*!
      * LoRaWAN device class C
      *
-     * LoRaWAN Specification V1.0.2, chapter 17ff
+     * LoRaWAN Specification V1.0.2, chapter 17
      */
     CLASS_C,
 }DeviceClass_t;
@@ -164,17 +164,17 @@ typedef union uDrRange
          /*!
          * Minimum data rate
          *
-         * EU868 - [DR_0, DR_1, DR_2, DR_3, DR_4, DR_5, DR_6, DR_7]
+         * LoRaWAN Regional Parameters V1.0.2rB
          *
-         * US915 - [DR_0, DR_1, DR_2, DR_3, DR_4]
+         * The allowed ranges are region specific. Please refer to \ref DR_0 to \ref DR_15 for details.
          */
         int8_t Min : 4;
         /*!
          * Maximum data rate
          *
-         * EU868 - [DR_0, DR_1, DR_2, DR_3, DR_4, DR_5, DR_6, DR_7]
+         * LoRaWAN Regional Parameters V1.0.2rB
          *
-         * US915 - [DR_0, DR_1, DR_2, DR_3, DR_4]
+         * The allowed ranges are region specific. Please refer to \ref DR_0 to \ref DR_15 for details.
          */
         int8_t Max : 4;
     }Fields;
@@ -242,9 +242,9 @@ typedef struct sRx2ChannelParams
     /*!
      * Data rate
      *
-     * EU868 - [DR_0, DR_1, DR_2, DR_3, DR_4, DR_5, DR_6, DR_7]
+     * LoRaWAN Regional Parameters V1.0.2rB
      *
-     * US915 - [DR_8, DR_9, DR_10, DR_11, DR_12, DR_13]
+     * The allowed ranges are region specific. Please refer to \ref DR_0 to \ref DR_15 for details.
      */
     uint8_t  Datarate;
 }Rx2ChannelParams_t;
@@ -2051,18 +2051,10 @@ LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo );
  * \brief   LoRaMAC channel add service
  *
  * \details Adds a new channel to the channel list and activates the id in
- *          the channel mask. For the US915 band, all channels are enabled
- *          by default. Please note that this functionality is not available
- *          on all regions.
+ *          the channel mask. Please note that this functionality is not available
+ *          on all regions. Information about allowed ranges are available at the LoRaWAN Regional Parameters V1.0.2rB
  *
- * \param   [IN] id - Id of the channel. Possible values are:
- *
- *          0-15 for EU868
- *          0-15 for CN779
- *          0-15 for EU433
- *          0-15 for AS923
- *          0-15 for KR920
- *          0-15 for IN865
+ * \param   [IN] id - Id of the channel.
  *
  * \param   [IN] params - Channel parameters to set.
  *
