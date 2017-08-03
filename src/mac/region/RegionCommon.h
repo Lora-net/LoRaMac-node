@@ -159,6 +159,54 @@ typedef struct sRegionCommonCalcBackOffParams
     TimerTime_t TxTimeOnAir;
 }RegionCommonCalcBackOffParams_t;
 
+typedef struct sRegionCommonRxBeaconSetupParams
+{
+    /*!
+     * A pointer to the available datarates.
+     */
+    const uint8_t* Datarates;
+    /*!
+     * The default channel floor plan frequency.
+     */
+    uint32_t ChannelPlanFrequency;
+    /*!
+     * The frequency to use when a BeaconTimingAns was performed.
+     */
+    uint32_t BeaconTimingAnsFrequency;
+    /*!
+     * The size of the beacon frame.
+     */
+    uint8_t BeaconSize;
+    /*!
+     * The datarate of the beacon.
+     */
+    uint8_t BeaconDatarate;
+    /*!
+     * The channel bandwidth of the beacon.
+     */
+    uint8_t BeaconChannelBW;
+    /*!
+     * A custom frequency.
+     */
+    uint32_t CustomFrequency;
+    /*!
+     * Set to true, if a custom frequency shall be used.
+     */
+    bool CustomFrequencyEnabled;
+    /*!
+     * Set to true, if a BeaconTimingAns MAC command was performed.
+     */
+    bool BeaconChannelSet;
+    /*!
+     * The RX time.
+     */
+    uint32_t RxTime;
+    /*!
+     * The symbol timeout of the RX procedure.
+     */
+    uint16_t SymbolTimeout;
+}RegionCommonRxBeaconSetupParams_t;
+
 /*!
  * \brief Calculates the join duty cycle.
  *        This is a generic function and valid for all regions.
@@ -361,6 +409,15 @@ int8_t RegionCommonComputeTxPower( int8_t txPowerIndex, float maxEirp, float ant
  * \param [IN] calcBackOffParams A pointer to the input parameters.
  */
 void RegionCommonCalcBackOff( RegionCommonCalcBackOffParams_t* calcBackOffParams );
+
+/*!
+ * \brief Sets up the radio into RX beacon mode.
+ *
+ * \param [IN] rxBeaconSetupParams A pointer to the input parameters.
+ *
+ * \param [OUT] beaconChannelSet A pointer ot the beaconChannelSet variable.
+ */
+void RegionCommonRxBeaconSetup( RegionCommonRxBeaconSetupParams_t* rxBeaconSetupParams, bool *beaconChannelSet );
 
 /*! \} defgroup REGIONCOMMON */
 

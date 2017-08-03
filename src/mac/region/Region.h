@@ -651,13 +651,81 @@ typedef enum ePhyAttribute
      */
     PHY_NB_JOIN_TRIALS,
     /*!
+     * Next lower datarate.
+     */
+    PHY_NEXT_LOWER_TX_DR,
+    /*!
      * Default value for the number of join trials.
      */
     PHY_DEF_NB_JOIN_TRIALS,
     /*!
-     * Next lower datarate.
+     * Beacon interval in ms.
      */
-    PHY_NEXT_LOWER_TX_DR
+    PHY_BEACON_INTERVAL,
+    /*!
+     * Beacon reserved time in ms.
+     */
+    PHY_BEACON_RESERVED,
+    /*!
+     * Beacon guard time in ms.
+     */
+    PHY_BEACON_GUARD,
+    /*!
+     * Beacon window time in ms.
+     */
+    PHY_BEACON_WINDOW,
+    /*!
+     * Beacon window time in numer of slots.
+     */
+    PHY_BEACON_WINDOW_SLOTS,
+    /*!
+     * Ping slot length time in ms.
+     */
+    PHY_PING_SLOT_WINDOW,
+    /*!
+     * Default symbol timeout for beacons and ping slot windows.
+     */
+    PHY_BEACON_SYMBOL_TO_DEFAULT,
+    /*!
+     * Maximum symbol timeout for beacons.
+     */
+    PHY_BEACON_SYMBOL_TO_EXPANSION_MAX,
+    /*!
+     * Maximum symbol timeout for ping slots.
+     */
+    PHY_PING_SLOT_SYMBOL_TO_EXPANSION_MAX,
+    /*!
+     * Symbol expansion value for beacon windows in case of beacon
+     * loss in symbols.
+     */
+    PHY_BEACON_SYMBOL_TO_EXPANSION_FACTOR,
+    /*!
+     * Symbol expansion value for ping slot windows in case of beacon
+     * loss in symbols.
+     */
+    PHY_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR,
+    /*!
+     * Maximum allowed beacon less time in ms.
+     */
+    PHY_MAX_BEACON_LESS_PERIOD,
+    /*!
+     * Delay time for the BeaconTimingAns in ms.
+     */
+    PHY_BEACON_DELAY_BEACON_TIMING_ANS,
+    /*!
+     * Delay time for the BeaconTimingAns in ms.
+     */
+    PHY_BEACON_CHANNEL_FREQ,
+    /*!
+     * Delay time for the BeaconTimingAns in ms.
+     */
+    PHY_BEACON_CHANNEL_FREQ_IDX,
+    /*!
+     * Delay time for the BeaconTimingAns in ms.
+     */
+    PHY_PINGSLOT_CHANNEL_FREQ,
+    PHY_BEACON_SIZE,
+    PHY_BEACON_CHANNEL_DR,
 }PhyAttribute_t;
 
 /*!
@@ -726,17 +794,24 @@ typedef struct sGetPhyParams
      */
     int8_t Datarate;
     /*!
-     * Uplink dwell time.
+     * Uplink dwell time. This parameter must be set to query:
+     * PHY_MAX_PAYLOAD, PHY_MAX_PAYLOAD_REPEATER, PHY_MIN_TX_DR.
      * The parameter is needed for the following queries:
      * PHY_MIN_TX_DR, PHY_MAX_PAYLOAD, PHY_MAX_PAYLOAD_REPEATER, PHY_NEXT_LOWER_TX_DR.
      */
     uint8_t UplinkDwellTime;
     /*!
-     * Downlink dwell time.
+     * Downlink dwell time.This parameter must be set to query:
+     * PHY_MAX_PAYLOAD, PHY_MAX_PAYLOAD_REPEATER, PHY_MIN_RX_DR.
      * The parameter is needed for the following queries:
      * PHY_MIN_RX_DR, PHY_MAX_PAYLOAD, PHY_MAX_PAYLOAD_REPEATER.
      */
     uint8_t DownlinkDwellTime;
+    /*!
+     * LoRaMAC Device Address.This parameter must be set to query:
+     * PHY_PINGSLOT_CHANNEL_FREQ.
+     */
+    uint32_t DeviceAddress;
 }GetPhyParams_t;
 
 /*!
@@ -1167,6 +1242,49 @@ typedef struct sContinuousWaveParams
     uint16_t Timeout;
 }ContinuousWaveParams_t;
 
+/*!
+ * Parameter structure for the function RegionRxBeaconSetup
+ */
+typedef struct sRxBeaconSetupParams
+{
+    /*!
+     * Symbol timeout.
+     */
+    uint16_t SymbolTimeout;
+    /*!
+     * Receive time.
+     */
+    uint32_t RxTime;
+    /*!
+     * The address of the node.
+     */
+    uint32_t DeviceAddress;
+    /*!
+     * The beacon timing channel.
+     */
+    uint8_t BeaconTimingChannel;
+    /*!
+     * Set to true if a custom frequency is enabled.
+     */
+    bool CustomFrequencyEnabled;
+    /*!
+     * Set to true if the beacon channel is set.
+     */
+    bool BeaconChannelSet;
+    /*!
+     * Custom frequency. Only valid of CustomFrequencyEnabled is set.
+     */
+    uint32_t CustomFrequency;
+    /*!
+     * THe beacon time.
+     */
+    TimerTime_t BeaconTime;
+    /*!
+     * The beacon interval.
+     */
+    TimerTime_t BeaconInterval;
+}RxBeaconSetup_t;
+
 
 
 /*!
@@ -1486,6 +1604,8 @@ void RegionSetContinuousWave( LoRaMacRegion_t region, ContinuousWaveParams_t* co
  * \retval newDr Computed datarate.
  */
 uint8_t RegionApplyDrOffset( LoRaMacRegion_t region, uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset );
+
+void RegionRxBeaconSetup( LoRaMacRegion_t region, RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr, bool *beaconChannelSet );
 
 /*! \} defgroup REGION */
 

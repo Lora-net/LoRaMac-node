@@ -189,6 +189,96 @@
  */
 #define KR920_RX_WND_2_DR                           DR_0
 
+/*
+ * CLASS B
+ */
+/*!
+ * Beacon interval in ms
+ */
+#define KR920_BEACON_INTERVAL                       128000
+
+/*!
+ * Beacon reserved time in ms
+ */
+#define KR920_BEACON_RESERVED                       2120
+
+/*!
+ * Beacon guard time in ms
+ */
+#define KR920_BEACON_GUARD                          3000
+
+/*!
+ * Beacon window time in ms
+ */
+#define KR920_BEACON_WINDOW                         122880
+
+/*!
+ * Beacon window time in numer of slots
+ */
+#define KR920_BEACON_WINDOW_SLOTS                   4096
+
+/*!
+ * Ping slot length time in ms
+ */
+#define KR920_PING_SLOT_WINDOW                      30
+
+/*!
+ * Default symbol timeout for beacons and ping slot windows
+ */
+#define KR920_BEACON_SYMBOL_TO_DEFAULT              8
+
+/*!
+ * Maximum symbol timeout for beacons
+ */
+#define KR920_BEACON_SYMBOL_TO_EXPANSION_MAX        400
+
+/*!
+ * Maximum symbol timeout for ping slots
+ */
+#define KR920_PING_SLOT_SYMBOL_TO_EXPANSION_MAX     40
+
+/*!
+ * Symbol expansion value for beacon windows in case of beacon
+ * loss in symbols
+ */
+#define KR920_BEACON_SYMBOL_TO_EXPANSION_FACTOR     2
+
+/*!
+ * Symbol expansion value for ping slot windows in case of beacon
+ * loss in symbols
+ */
+#define KR920_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR  2
+
+/*!
+ * Maximum allowed beacon less time in ms
+ */
+#define KR920_MAX_BEACON_LESS_PERIOD                7200000
+
+/*!
+ * Delay time for the BeaconTimingAns in ms
+ */
+#define KR920_BEACON_DELAY_BEACON_TIMING_ANS        30
+
+/*!
+ * Beacon frequency
+ */
+#define KR920_BEACON_CHANNEL_FREQ                   923100000
+
+/*!
+ * Payload size of a beacon frame
+ */
+#define KR920_BEACON_SIZE                           17
+
+/*!
+ * Datarate of the beacon channel
+ */
+#define KR920_BEACON_CHANNEL_DR                     DR_3
+
+/*!
+ * Bandwith of the beacon channel
+ */
+#define KR920_BEACON_CHANNEL_BW                     0
+
 /*!
  * Maximum number of bands
  */

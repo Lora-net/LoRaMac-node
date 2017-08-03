@@ -170,10 +170,100 @@
  */
 #define AU915_RX_WND_2_DR                           DR_8
 
+/*
+ * CLASS B
+ */
+/*!
+ * Beacon interval in ms
+ */
+#define AU915_BEACON_INTERVAL                       128000
+
+/*!
+ * Beacon reserved time in ms
+ */
+#define AU915_BEACON_RESERVED                       2120
+
+/*!
+ * Beacon guard time in ms
+ */
+#define AU915_BEACON_GUARD                          3000
+
+/*!
+ * Beacon window time in ms
+ */
+#define AU915_BEACON_WINDOW                         122880
+
+/*!
+ * Beacon window time in numer of slots
+ */
+#define AU915_BEACON_WINDOW_SLOTS                   4096
+
+/*!
+ * Ping slot length time in ms
+ */
+#define AU915_PING_SLOT_WINDOW                      30
+
+/*!
+ * Beacon frequency
+ */
+#define AU915_BEACON_CHANNEL_FREQ                  923300000
+
+/*!
+ * Default symbol timeout for beacons and ping slot windows
+ */
+#define AU915_BEACON_SYMBOL_TO_DEFAULT              8
+
+/*!
+ * Maximum symbol timeout for beacons
+ */
+#define AU915_BEACON_SYMBOL_TO_EXPANSION_MAX        400
+
+/*!
+ * Maximum symbol timeout for ping slots
+ */
+#define AU915_PING_SLOT_SYMBOL_TO_EXPANSION_MAX     40
+
+/*!
+ * Symbol expansion value for beacon windows in case of beacon
+ * loss in symbols
+ */
+#define AU915_BEACON_SYMBOL_TO_EXPANSION_FACTOR     2
+
+/*!
+ * Symbol expansion value for ping slot windows in case of beacon
+ * loss in symbols
+ */
+#define AU915_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR  2
+
+/*!
+ * Maximum allowed beacon less time in ms
+ */
+#define AU915_MAX_BEACON_LESS_PERIOD                7200000
+
+/*!
+ * Delay time for the BeaconTimingAns in ms
+ */
+#define AU915_BEACON_DELAY_BEACON_TIMING_ANS        30
+
+/*!
+ * Payload size of a beacon frame
+ */
+#define AU915_BEACON_SIZE                           19
+
+/*!
+ * Datarate of the beacon channel
+ */
+#define AU915_BEACON_CHANNEL_DR                     DR_10
+
+/*!
+ * Bandwith of the beacon channel
+ */
+#define AU915_BEACON_CHANNEL_BW                     2
+
 /*!
  * LoRaMac maximum number of bands
  */
-#define AU915_MAX_NB_BANDS                           1
+#define AU915_MAX_NB_BANDS                          1
 
 /*!
  * Band 0 definition

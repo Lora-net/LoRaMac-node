@@ -23,6 +23,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include <stdint.h>
 #include <math.h>
 
+#include "radio.h"
 #include "timer.h"
 #include "utilities.h"
 #include "LoRaMac.h"
@@ -359,4 +360,49 @@ void RegionCommonCalcBackOff( RegionCommonCalcBackOffParams_t* calcBackOffParams
             calcBackOffParams->Bands[bandIdx].TimeOff = 0;
         }
     }
+}
+
+
+void RegionCommonRxBeaconSetup( RegionCommonRxBeaconSetupParams_t* rxBeaconSetupParams, bool *beaconChannelSet )
+{
+    bool rxContinuous = true;
+    uint32_t frequency = rxBeaconSetupParams->CustomFrequency;
+    uint8_t datarate;
+
+    // Set the radio into sleep mode
+    Radio.Sleep( );
+
+    // If no custom frequency is enabled, use the default floor plan frequency
+    if( rxBeaconSetupParams->CustomFrequencyEnabled == false )
+    {
+        // Restore floor plan
+        frequency = rxBeaconSetupParams->ChannelPlanFrequency;
+    }
+
+    // Set the frequency which was provided by BeaconTimingAns MAC command
+    if( rxBeaconSetupParams->BeaconChannelSet == true )
+    {
+        // Take the frequency of the next beacon
+        *beaconChannelSet = false;
+        frequency = rxBeaconSetupParams->BeaconTimingAnsFrequency;
+    }
+
+    // Setup frequency and payload length
+    Radio.SetChannel( frequency );
+    Radio.SetMaxPayloadLength( MODEM_LORA, rxBeaconSetupParams->BeaconSize );
+
+    // Check the RX continuous mode
+    if( rxBeaconSetupParams->RxTime != 0 )
+    {
+        rxContinuous = false;
+    }
+
+    // Get region specific datarate
+    datarate = rxBeaconSetupParams->Datarates[rxBeaconSetupParams->BeaconDatarate];
+
+    // Setup radio
+    Radio.SetRxConfig( MODEM_LORA, rxBeaconSetupParams->BeaconChannelBW, datarate,
+                       1, 0, 10, rxBeaconSetupParams->SymbolTimeout, true, rxBeaconSetupParams->BeaconSize, false, 0, 0, false, rxContinuous );
+
+    Radio.Rx( rxBeaconSetupParams->RxTime );
 }

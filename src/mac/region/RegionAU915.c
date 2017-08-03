@@ -137,6 +137,15 @@ static uint8_t CountNbOfEnabledChannels( uint8_t datarate, uint16_t* channelsMas
     return nbEnabledChannels;
 }
 
+static uint8_t BeaconChannel( uint32_t devAddr, TimerTime_t beaconTime, TimerTime_t beaconInterval )
+{
+    uint32_t frequency = 0;
+
+    frequency = devAddr + ( beaconTime / ( beaconInterval / 1000 ) );
+
+    return ( ( uint8_t )( frequency % 8 ) );
+}
+
 PhyParam_t RegionAU915GetPhyParam( GetPhyParams_t* getPhy )
 {
     PhyParam_t phyParam = { 0 };
@@ -273,6 +282,86 @@ PhyParam_t RegionAU915GetPhyParam( GetPhyParams_t* getPhy )
         case PHY_DEF_NB_JOIN_TRIALS:
         {
             phyParam.Value = 2;
+            break;
+        }
+        case PHY_BEACON_INTERVAL:
+        {
+            phyParam.Value = AU915_BEACON_INTERVAL;
+            break;
+        }
+        case PHY_BEACON_RESERVED:
+        {
+            phyParam.Value = AU915_BEACON_RESERVED;
+            break;
+        }
+        case PHY_BEACON_GUARD:
+        {
+            phyParam.Value = AU915_BEACON_GUARD;
+            break;
+        }
+        case PHY_BEACON_WINDOW:
+        {
+            phyParam.Value = AU915_BEACON_WINDOW;
+            break;
+        }
+        case PHY_BEACON_WINDOW_SLOTS:
+        {
+            phyParam.Value = AU915_BEACON_WINDOW_SLOTS;
+            break;
+        }
+        case PHY_PING_SLOT_WINDOW:
+        {
+            phyParam.Value = AU915_PING_SLOT_WINDOW;
+            break;
+        }
+        case PHY_BEACON_SYMBOL_TO_DEFAULT:
+        {
+            phyParam.Value = AU915_BEACON_SYMBOL_TO_DEFAULT;
+            break;
+        }
+        case PHY_BEACON_SYMBOL_TO_EXPANSION_MAX:
+        {
+            phyParam.Value = AU915_BEACON_SYMBOL_TO_EXPANSION_MAX;
+            break;
+        }
+        case PHY_PING_SLOT_SYMBOL_TO_EXPANSION_MAX:
+        {
+            phyParam.Value = AU915_PING_SLOT_SYMBOL_TO_EXPANSION_MAX;
+            break;
+        }
+        case PHY_BEACON_SYMBOL_TO_EXPANSION_FACTOR:
+        {
+            phyParam.Value = AU915_BEACON_SYMBOL_TO_EXPANSION_FACTOR;
+            break;
+        }
+        case PHY_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR:
+        {
+            phyParam.Value = AU915_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR;
+            break;
+        }
+        case PHY_MAX_BEACON_LESS_PERIOD:
+        {
+            phyParam.Value = AU915_MAX_BEACON_LESS_PERIOD;
+            break;
+        }
+        case PHY_BEACON_DELAY_BEACON_TIMING_ANS:
+        {
+            phyParam.Value = AU915_BEACON_DELAY_BEACON_TIMING_ANS;
+            break;
+        }
+        case PHY_PINGSLOT_CHANNEL_FREQ:
+        {
+            phyParam.Value = AU915_BEACON_CHANNEL_FREQ;
+            break;
+        }
+        case PHY_BEACON_SIZE:
+        {
+            phyParam.Value = AU915_BEACON_SIZE;
+            break;
+        }
+        case PHY_BEACON_CHANNEL_DR:
+        {
+            phyParam.Value = AU915_BEACON_CHANNEL_DR;
             break;
         }
         default:
@@ -854,4 +943,26 @@ uint8_t RegionAU915ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t d
         datarate = DR_0;
     }
     return datarate;
+}
+
+void RegionAU915RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr, bool *beaconChannelSet )
+{
+    RegionCommonRxBeaconSetupParams_t regionCommonRxBeaconSetup;
+
+    regionCommonRxBeaconSetup.Datarates = DataratesAU915;
+    regionCommonRxBeaconSetup.ChannelPlanFrequency = ( 923.3e6 + ( BeaconChannel( 0, rxBeaconSetup->BeaconTime, rxBeaconSetup->BeaconInterval ) * 600e3 ) );
+    regionCommonRxBeaconSetup.BeaconTimingAnsFrequency = ( 923.3e6 + ( rxBeaconSetup->BeaconTimingChannel * 600e3 ) );
+    regionCommonRxBeaconSetup.BeaconSize = AU915_BEACON_SIZE;
+    regionCommonRxBeaconSetup.BeaconDatarate = AU915_BEACON_CHANNEL_DR;
+    regionCommonRxBeaconSetup.BeaconChannelBW = AU915_BEACON_CHANNEL_BW;
+    regionCommonRxBeaconSetup.CustomFrequency = rxBeaconSetup->CustomFrequency;
+    regionCommonRxBeaconSetup.CustomFrequencyEnabled = rxBeaconSetup->CustomFrequencyEnabled;
+    regionCommonRxBeaconSetup.BeaconChannelSet = rxBeaconSetup->BeaconChannelSet;
+    regionCommonRxBeaconSetup.RxTime = rxBeaconSetup->RxTime;
+    regionCommonRxBeaconSetup.SymbolTimeout = rxBeaconSetup->SymbolTimeout;
+
+    RegionCommonRxBeaconSetup( &regionCommonRxBeaconSetup, beaconChannelSet );
+
+    // Store downlink datarate
+    *outDr = AU915_BEACON_CHANNEL_DR;
 }

@@ -296,6 +296,91 @@ PhyParam_t RegionIN865GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = 48;
             break;
         }
+        case PHY_BEACON_INTERVAL:
+        {
+            phyParam.Value = IN865_BEACON_INTERVAL;
+            break;
+        }
+        case PHY_BEACON_RESERVED:
+        {
+            phyParam.Value = IN865_BEACON_RESERVED;
+            break;
+        }
+        case PHY_BEACON_GUARD:
+        {
+            phyParam.Value = IN865_BEACON_GUARD;
+            break;
+        }
+        case PHY_BEACON_WINDOW:
+        {
+            phyParam.Value = IN865_BEACON_WINDOW;
+            break;
+        }
+        case PHY_BEACON_WINDOW_SLOTS:
+        {
+            phyParam.Value = IN865_BEACON_WINDOW_SLOTS;
+            break;
+        }
+        case PHY_PING_SLOT_WINDOW:
+        {
+            phyParam.Value = IN865_PING_SLOT_WINDOW;
+            break;
+        }
+        case PHY_BEACON_SYMBOL_TO_DEFAULT:
+        {
+            phyParam.Value = IN865_BEACON_SYMBOL_TO_DEFAULT;
+            break;
+        }
+        case PHY_BEACON_SYMBOL_TO_EXPANSION_MAX:
+        {
+            phyParam.Value = IN865_BEACON_SYMBOL_TO_EXPANSION_MAX;
+            break;
+        }
+        case PHY_PING_SLOT_SYMBOL_TO_EXPANSION_MAX:
+        {
+            phyParam.Value = IN865_PING_SLOT_SYMBOL_TO_EXPANSION_MAX;
+            break;
+        }
+        case PHY_BEACON_SYMBOL_TO_EXPANSION_FACTOR:
+        {
+            phyParam.Value = IN865_BEACON_SYMBOL_TO_EXPANSION_FACTOR;
+            break;
+        }
+        case PHY_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR:
+        {
+            phyParam.Value = IN865_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR;
+            break;
+        }
+        case PHY_MAX_BEACON_LESS_PERIOD:
+        {
+            phyParam.Value = IN865_MAX_BEACON_LESS_PERIOD;
+            break;
+        }
+        case PHY_BEACON_DELAY_BEACON_TIMING_ANS:
+        {
+            phyParam.Value = IN865_BEACON_DELAY_BEACON_TIMING_ANS;
+            break;
+        }
+        case PHY_BEACON_CHANNEL_FREQ:
+        {
+            phyParam.Value = IN865_BEACON_CHANNEL_FREQ;
+            break;
+        }
+        case PHY_PINGSLOT_CHANNEL_FREQ:
+        {
+            phyParam.Value = IN865_BEACON_CHANNEL_FREQ;
+            break;
+        }
+        case PHY_BEACON_SIZE:
+        {
+            phyParam.Value = IN865_BEACON_SIZE;
+            break;
+        }
+        case PHY_BEACON_CHANNEL_DR:
+        {
+            phyParam.Value = IN865_BEACON_CHANNEL_DR;
+            break;
+        }
         default:
         {
             break;
@@ -1042,4 +1127,26 @@ uint8_t RegionIN865ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t d
 {
     // Apply offset formula
     return MIN( DR_5, MAX( DR_0, dr - EffectiveRx1DrOffsetIN865[drOffset] ) );
+}
+
+void RegionIN865RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr, bool *beaconChannelSet )
+{
+    RegionCommonRxBeaconSetupParams_t regionCommonRxBeaconSetup;
+
+    regionCommonRxBeaconSetup.Datarates = DataratesIN865;
+    regionCommonRxBeaconSetup.ChannelPlanFrequency = IN865_BEACON_CHANNEL_FREQ;
+    regionCommonRxBeaconSetup.BeaconTimingAnsFrequency = IN865_BEACON_CHANNEL_FREQ;
+    regionCommonRxBeaconSetup.BeaconSize = IN865_BEACON_SIZE;
+    regionCommonRxBeaconSetup.BeaconDatarate = IN865_BEACON_CHANNEL_DR;
+    regionCommonRxBeaconSetup.BeaconChannelBW = IN865_BEACON_CHANNEL_BW;
+    regionCommonRxBeaconSetup.CustomFrequency = rxBeaconSetup->CustomFrequency;
+    regionCommonRxBeaconSetup.CustomFrequencyEnabled = rxBeaconSetup->CustomFrequencyEnabled;
+    regionCommonRxBeaconSetup.BeaconChannelSet = rxBeaconSetup->BeaconChannelSet;
+    regionCommonRxBeaconSetup.RxTime = rxBeaconSetup->RxTime;
+    regionCommonRxBeaconSetup.SymbolTimeout = rxBeaconSetup->SymbolTimeout;
+
+    RegionCommonRxBeaconSetup( &regionCommonRxBeaconSetup, beaconChannelSet );
+
+    // Store downlink datarate
+    *outDr = IN865_BEACON_CHANNEL_DR;
 }
