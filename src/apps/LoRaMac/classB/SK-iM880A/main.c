@@ -12,11 +12,15 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 */
+
+/*! \file classB/SK-iM880A/main.c */
+
 #include <string.h>
 #include <math.h>
 #include "board.h"
 
 #include "LoRaMac.h"
+#include "Region.h"
 #include "Commissioning.h"
 
 /*!
@@ -47,7 +51,7 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
  */
 #define LORAWAN_ADR_ON                              1
 
-#if defined( USE_BAND_868 )
+#if defined( REGION_EU868 )
 
 #include "LoRaMacTest.h"
 
@@ -62,13 +66,13 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 
 #if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 )
 
-#define LC4                { 867100000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC5                { 867300000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC6                { 867500000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC7                { 867700000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC8                { 867900000, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC9                { 868800000, { ( ( DR_7 << 4 ) | DR_7 ) }, 2 }
-#define LC10               { 868300000, { ( ( DR_6 << 4 ) | DR_6 ) }, 1 }
+#define LC4                { 867100000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC5                { 867300000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC6                { 867500000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC7                { 867700000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC8                { 867900000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
+#define LC9                { 868800000, 0, { ( ( DR_7 << 4 ) | DR_7 ) }, 2 }
+#define LC10               { 868300000, 0, { ( ( DR_6 << 4 ) | DR_6 ) }, 1 }
 
 #endif
 
@@ -113,7 +117,7 @@ static uint8_t AppDataSize = LORAWAN_APP_DATA_SIZE;
 /*!
  * User application data buffer size
  */
-#define LORAWAN_APP_DATA_MAX_SIZE                           64
+#define LORAWAN_APP_DATA_MAX_SIZE                           242
 
 /*!
  * User application data
@@ -479,7 +483,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     mibReq.Param.AdrEnable = true;
                     LoRaMacMibSetRequestConfirm( &mibReq );
 
-#if defined( USE_BAND_868 )
+#if defined( REGION_EU868 )
                     LoRaMacTestSetDutyCycleOn( false );
 #endif
                 }
@@ -500,7 +504,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     mibReq.Type = MIB_ADR;
                     mibReq.Param.AdrEnable = LORAWAN_ADR_ON;
                     LoRaMacMibSetRequestConfirm( &mibReq );
-#if defined( USE_BAND_868 )
+#if defined( REGION_EU868 )
                     LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
 #endif
                     break;
@@ -519,7 +523,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     AppDataSize = mcpsIndication->BufferSize;
 
                     AppData[0] = 4;
-                    for( uint8_t i = 1; i < AppDataSize; i++ )
+                    for( uint8_t i = 1; i < MIN( AppDataSize, LORAWAN_APP_DATA_MAX_SIZE ); i++ )
                     {
                         AppData[i] = mcpsIndication->Buffer[i] + 1;
                     }
@@ -546,7 +550,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         mibReq.Type = MIB_ADR;
                         mibReq.Param.AdrEnable = LORAWAN_ADR_ON;
                         LoRaMacMibSetRequestConfirm( &mibReq );
-#if defined( USE_BAND_868 )
+#if defined( REGION_EU868 )
                         LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
 #endif
 
@@ -790,8 +794,25 @@ int main( void )
                 LoRaMacPrimitives.MacMlmeIndication = MlmeIndication;
                 LoRaMacCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
                 LoRaMacCallbacks.GetTemperatureLevel = GetTemperatureLevel;
-                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks );
-
+#if defined( REGION_AS923 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_AS923 );
+#elif defined( REGION_AU915 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_AU915 );
+#elif defined( REGION_CN779 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_CN779 );
+#elif defined( REGION_EU868 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_EU868 );
+#elif defined( REGION_IN865 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_IN865 );
+#elif defined( REGION_KR920 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_KR920 );
+#elif defined( REGION_US915 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_US915 );
+#elif defined( REGION_US915_HYBRID )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_US915_HYBRID );
+#else
+    #error "Please define a region in the compiler options."
+#endif
                 TimerInit( &TxNextPacketTimer, OnTxNextPacketTimerEvent );
 
                 TimerInit( &Led4Timer, OnLed4TimerEvent );
@@ -811,7 +832,7 @@ int main( void )
                 mibReq.Param.EnablePublicNetwork = LORAWAN_PUBLIC_NETWORK;
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
-#if defined( USE_BAND_868 )
+#if defined( REGION_EU868 )
                 LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
 
 #if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 )

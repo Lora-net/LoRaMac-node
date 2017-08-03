@@ -6,7 +6,7 @@
       <Compile>
         <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-fno-builtin;--specs=nano.specs;-Wl,--gc-sections;-std=c99;-ffunction-sections;-fdata-sections;-fomit-frame-pointer;-mabi=aapcs;-fno-unroll-loops;-ffast-math;-ftree-vectorize;-flto;"/>
         <Option name="SupportCPlusplus" value="0"/>
         <Option name="DEBUG" value="2"/>
         <Option name="WARNING" value="1"/>
@@ -34,13 +34,12 @@
       </Compile>
       <Link useDefault="0">
         <Option name="DiscardUnusedSection" value="0"/>
-        <Option name="UserEditLinkder" value=""/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
         <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lm;"/>
+        <Option name="UserEditLinker" value=" -mabi=aapcs; -lc; -lm; -lrdimon;-flto;"/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
@@ -92,10 +91,10 @@
     <File name="boards/LoRaMote/usb/usbd_dfu_flash.c" path="../../../src/boards/LoRaMote/usb/dfu/src/usbd_dfu_flash.c" type="1"/>
     <File name="peripherals/gpio-ioe.c" path="../../../src/peripherals/gpio-ioe.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c" type="1"/>
-    <File name="boards/mcu/stm32/sysIrqHandlers.c" path="../../../src/boards/mcu/stm32/sysIrqHandlers.c" type="1"/>
-    <File name="boards/mcu/stm32" path="" type="2"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_uart.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c" type="1"/>
+    <File name="boards/mcu/stm32" path="" type="2"/>
     <File name="boards/LoRaMote/i2c-board.c" path="../../../src/boards/LoRaMote/i2c-board.c" type="1"/>
+    <File name="boards/mcu/stm32/sysIrqHandlers.c" path="../../../src/boards/mcu/stm32/sysIrqHandlers.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_pcd_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pcd_ex.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_spi_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi_ex.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_flash_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash_ex.c" type="1"/>

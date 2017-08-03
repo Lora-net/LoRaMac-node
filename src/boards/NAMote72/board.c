@@ -79,7 +79,7 @@ static bool McuInitialized = false;
 static bool UsbIsConnected = false;
 
 /*!
- * UART1 FIFO buffers size
+ * UART2 FIFO buffers size
  */
 #define UART2_FIFO_TX_SIZE                                1056
 #define UART2_FIFO_RX_SIZE                                1056
@@ -540,9 +540,9 @@ BoardVersion_t BoardGetVersion( void )
 void assert_failed( uint8_t* file, uint32_t line )
 {
     /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+     ex: printf("Wrong parameters value: file %s on line %u\r\n", file, line) */
 
-    printf( "Wrong parameters value: file %s on line %d\r\n", file, line );
+    printf( "Wrong parameters value: file %s on line %u\r\n", ( const char* )file, line );
     /* Infinite loop */
     while( 1 )
     {
