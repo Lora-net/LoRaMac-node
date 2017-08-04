@@ -626,7 +626,7 @@ LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout );
  *
  * \param [IN] timeout     Time in seconds while the radio is kept in continuous wave mode
  * \param [IN] frequency   RF frequency to be set.
- * \param [IN] power       RF ouptut power to be set.
+ * \param [IN] power       RF output power to be set.
  * \retval status          Status of the operation.
  */
 LoRaMacStatus_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint8_t power );
