@@ -683,6 +683,15 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
     NextTx = true;
 }
 
+static void MlmeIndication( MlmeIndication_t *MlmeIndication )
+{
+    switch( MlmeIndication->MlmeIndication )
+    {
+        default:
+            break;
+    }
+}
+
 /**
  * Main application entry point.
  */
@@ -706,7 +715,9 @@ int main( void )
                 LoRaMacPrimitives.MacMcpsConfirm = McpsConfirm;
                 LoRaMacPrimitives.MacMcpsIndication = McpsIndication;
                 LoRaMacPrimitives.MacMlmeConfirm = MlmeConfirm;
+                LoRaMacPrimitives.MacMlmeIndication = MlmeIndication;
                 LoRaMacCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
+                LoRaMacCallbacks.GetTemperatureLevel = MPL3115ReadTemperature;
 #if defined( REGION_AS923 )
                 LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_AS923 );
 #elif defined( REGION_AU915 )
