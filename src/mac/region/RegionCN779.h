@@ -46,6 +46,11 @@
 #define CN779_NUMB_DEFAULT_CHANNELS                 3
 
 /*!
+ * Number of channels to apply for the CF list
+ */
+#define CN779_NUMB_CHANNELS_CF_LIST                 5
+
+/*!
  * Minimal datarate that can be used by the node
  */
 #define CN779_TX_MIN_DATARATE                       DR_0
@@ -99,6 +104,16 @@
  * Default Tx output power used by the node
  */
 #define CN779_DEFAULT_TX_POWER                      TX_POWER_0
+
+/*!
+ * Default Max EIRP
+ */
+#define CN779_DEFAULT_MAX_EIRP                      12.15f
+
+/*!
+ * Default antenna gain
+ */
+#define CN779_DEFAULT_ANTENNA_GAIN                  2.15f
 
 /*!
  * ADR Ack limit
@@ -181,7 +196,7 @@
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
  */
-#define CN779_BAND0                                 { 100, CN779_DEFAULT_TX_POWER, 0,  0 } //  1.0 %
+#define CN779_BAND0                                 { 100, CN779_MAX_TX_POWER, 0,  0 } //  1.0 %
 
 /*!
  * LoRaMac default channel 1
@@ -213,7 +228,7 @@ static const uint8_t DataratesCN779[]  = { 12, 11, 10,  9,  8,  7,  7, 50 };
 /*!
  * Bandwidths table definition in Hz
  */
-static const uint32_t BandwidthsCN779[] = { 125e3, 125e3, 125e3, 125e3, 125e3, 125e3, 250e3, 0 };
+static const uint32_t BandwidthsCN779[] = { 125000, 125000, 125000, 125000, 125000, 125000, 250000, 0 };
 
 /*!
  * Maximum payload with respect to the datarate index. Cannot operate with repeater.
@@ -224,13 +239,6 @@ static const uint8_t MaxPayloadOfDatarateCN779[] = { 51, 51, 51, 115, 242, 242, 
  * Maximum payload with respect to the datarate index. Can operate with repeater.
  */
 static const uint8_t MaxPayloadOfDatarateRepeaterCN779[] = { 51, 51, 51, 115, 222, 222, 222, 222 };
-
-/*!
- * Tx output powers table definition
- */
-static const int8_t TxPowersCN779[] = { 10, 7, 4,  1,  -2,  -5 };
-
-
 
 /*!
  * \brief The function gets a value of a specific phy attribute.
@@ -384,7 +392,7 @@ int8_t RegionCN779TxParamSetupReq( TxParamSetupReqParams_t* txParamSetupReq );
  */
 uint8_t RegionCN779DlChannelReq( DlChannelReqParams_t* dlChannelReq );
 
-/*
+/*!
  * \brief Alternates the datarate of the channel for the join request.
  *
  * \param [IN] alternateDr Pointer to the function parameters.
@@ -408,9 +416,11 @@ void RegionCN779CalcBackOff( CalcBackOffParams_t* calcBackOff );
  * \param [OUT] time Time to wait for the next transmission according to the duty
  *              cycle.
  *
+ * \param [OUT] aggregatedTimeOff Updates the aggregated time off.
+ *
  * \retval Function status [1: OK, 0: Unable to find a channel on the current datarate]
  */
-bool RegionCN779NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time );
+bool RegionCN779NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff );
 
 /*!
  * \brief Adds a channel.

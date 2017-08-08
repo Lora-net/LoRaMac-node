@@ -84,7 +84,8 @@ bool RegionCommonChanVerifyDr( uint8_t nbChannels, uint16_t* channelsMask, int8_
         {
             if( ( ( channelsMask[k] & ( 1 << j ) ) != 0 ) )
             {// Check datarate validity for enabled channels
-                if( RegionCommonValueInRange( dr, channels[i + j].DrRange.Fields.Min, channels[i + j].DrRange.Fields.Max ) == 1 )
+                if( RegionCommonValueInRange( dr, ( channels[i + j].DrRange.Fields.Min & 0x0F ),
+                                                  ( channels[i + j].DrRange.Fields.Max & 0x0F ) ) == 1 )
                 {
                     // At least 1 channel has been found we can return OK.
                     return true;
@@ -147,40 +148,65 @@ void RegionCommonChanMaskCopy( uint16_t* channelsMaskDest, uint16_t* channelsMas
     }
 }
 
-void RegionCommonSetBandTxDone( Band_t* band, TimerTime_t lastTxDone )
+void RegionCommonSetBandTxDone( bool joined, Band_t* band, TimerTime_t lastTxDone )
 {
-    band->LastTxDoneTime = lastTxDone;
+    if( joined == true )
+    {
+        band->LastTxDoneTime = lastTxDone;
+    }
+    else
+    {
+        band->LastTxDoneTime = lastTxDone;
+        band->LastJoinTxDoneTime = lastTxDone;
+    }
 }
 
-TimerTime_t RegionCommonUpdateBandTimeOff( bool dutyCycle, Band_t* bands, uint8_t nbBands )
+TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, bool dutyCycle, Band_t* bands, uint8_t nbBands )
 {
     TimerTime_t nextTxDelay = ( TimerTime_t )( -1 );
 
     // Update bands Time OFF
     for( uint8_t i = 0; i < nbBands; i++ )
     {
-        if( dutyCycle == true )
+        if( joined == false )
         {
-            if( bands[i].TimeOff <= TimerGetElapsedTime( bands[i].LastTxDoneTime ) )
+            uint32_t txDoneTime =  MAX( TimerGetElapsedTime( bands[i].LastJoinTxDoneTime ),
+                                        ( dutyCycle == true ) ? TimerGetElapsedTime( bands[i].LastTxDoneTime ) : 0 );
+
+            if( bands[i].TimeOff <= txDoneTime )
             {
                 bands[i].TimeOff = 0;
             }
             if( bands[i].TimeOff != 0 )
             {
-                nextTxDelay = MIN( bands[i].TimeOff - TimerGetElapsedTime( bands[i].LastTxDoneTime ),
-                                   nextTxDelay );
+                nextTxDelay = MIN( bands[i].TimeOff - txDoneTime, nextTxDelay );
             }
         }
         else
         {
-            nextTxDelay = 0;
-            bands[i].TimeOff = 0;
+            if( dutyCycle == true )
+            {
+                if( bands[i].TimeOff <= TimerGetElapsedTime( bands[i].LastTxDoneTime ) )
+                {
+                    bands[i].TimeOff = 0;
+                }
+                if( bands[i].TimeOff != 0 )
+                {
+                    nextTxDelay = MIN( bands[i].TimeOff - TimerGetElapsedTime( bands[i].LastTxDoneTime ),
+                                       nextTxDelay );
+                }
+            }
+            else
+            {
+                nextTxDelay = 0;
+                bands[i].TimeOff = 0;
+            }
         }
     }
     return nextTxDelay;
 }
 
-uint8_t RegionCommonParseLinkAdrReq( uint8_t* payload, LinkAdrParams_t* linkAdrParams )
+uint8_t RegionCommonParseLinkAdrReq( uint8_t* payload, RegionCommonLinkAdrParams_t* linkAdrParams )
 {
     uint8_t retIndex = 0;
 
@@ -204,9 +230,72 @@ uint8_t RegionCommonParseLinkAdrReq( uint8_t* payload, LinkAdrParams_t* linkAdrP
     return retIndex;
 }
 
+uint8_t RegionCommonLinkAdrReqVerifyParams( RegionCommonLinkAdrReqVerifyParams_t* verifyParams, int8_t* dr, int8_t* txPow, uint8_t* nbRep )
+{
+    uint8_t status = verifyParams->Status;
+    int8_t datarate = verifyParams->Datarate;
+    int8_t txPower = verifyParams->TxPower;
+    int8_t nbRepetitions = verifyParams->NbRep;
+
+    // Handle the case when ADR is off.
+    if( verifyParams->AdrEnabled == false )
+    {
+        // When ADR is off, we are allowed to change the channels mask and the NbRep,
+        // if the datarate and the TX power of the LinkAdrReq are set to 0x0F.
+        if( ( verifyParams->Datarate != 0x0F ) || ( verifyParams->TxPower != 0x0F ) )
+        {
+            status = 0;
+            nbRepetitions = verifyParams->CurrentNbRep;
+        }
+        // Get the current datarate and tx power
+        datarate = verifyParams->CurrentDatarate;
+        txPower = verifyParams->CurrentTxPower;
+    }
+
+    if( status != 0 )
+    {
+        // Verify datarate. The variable phyParam. Value contains the minimum allowed datarate.
+        if( RegionCommonChanVerifyDr( verifyParams->NbChannels, verifyParams->ChannelsMask, datarate,
+                                      verifyParams->MinDatarate, verifyParams->MaxDatarate, verifyParams->Channels  ) == false )
+        {
+            status &= 0xFD; // Datarate KO
+        }
+
+        // Verify tx power
+        if( RegionCommonValueInRange( txPower, verifyParams->MaxTxPower, verifyParams->MinTxPower ) == 0 )
+        {
+            // Verify if the maximum TX power is exceeded
+            if( verifyParams->MaxTxPower > txPower )
+            { // Apply maximum TX power. Accept TX power.
+                txPower = verifyParams->MaxTxPower;
+            }
+            else
+            {
+                status &= 0xFB; // TxPower KO
+            }
+        }
+    }
+
+    // If the status is ok, verify the NbRep
+    if( status == 0x07 )
+    {
+        if( nbRepetitions == 0 )
+        { // Keep the current one
+            nbRepetitions = verifyParams->CurrentNbRep;
+        }
+    }
+
+    // Apply changes
+    *dr = datarate;
+    *txPow = txPower;
+    *nbRep = nbRepetitions;
+
+    return status;
+}
+
 double RegionCommonComputeSymbolTimeLoRa( uint8_t phyDr, uint32_t bandwidth )
 {
-    return ( ( double )( 1 << phyDr ) / ( double )bandwidth ) * 1e3;
+    return ( ( double )( 1 << phyDr ) / ( double )bandwidth ) * 1000;
 }
 
 double RegionCommonComputeSymbolTimeFsk( uint8_t phyDr )
@@ -218,4 +307,56 @@ void RegionCommonComputeRxWindowParameters( double tSymbol, uint8_t minRxSymbols
 {
     *windowTimeout = MAX( ( uint32_t )ceil( ( ( 2 * minRxSymbols - 8 ) * tSymbol + 2 * rxError ) / tSymbol ), minRxSymbols ); // Computed number of symbols
     *windowOffset = ( int32_t )ceil( ( 4.0 * tSymbol ) - ( ( *windowTimeout * tSymbol ) / 2.0 ) - wakeUpTime );
+}
+
+int8_t RegionCommonComputeTxPower( int8_t txPowerIndex, float maxEirp, float antennaGain )
+{
+    int8_t phyTxPower = 0;
+
+    phyTxPower = ( int8_t )floor( ( maxEirp - ( txPowerIndex * 2U ) ) - antennaGain );
+
+    return phyTxPower;
+}
+
+void RegionCommonCalcBackOff( RegionCommonCalcBackOffParams_t* calcBackOffParams )
+{
+    uint8_t bandIdx = calcBackOffParams->Channels[calcBackOffParams->Channel].Band;
+    uint16_t dutyCycle = calcBackOffParams->Bands[bandIdx].DCycle;
+    uint16_t joinDutyCycle = 0;
+
+    // Reset time-off to initial value.
+    calcBackOffParams->Bands[bandIdx].TimeOff = 0;
+
+    if( calcBackOffParams->Joined == false )
+    {
+        // Get the join duty cycle
+        joinDutyCycle = RegionCommonGetJoinDc( calcBackOffParams->ElapsedTime );
+        // Apply the most restricting duty cycle
+        dutyCycle = MAX( dutyCycle, joinDutyCycle );
+        // Reset the timeoff if the last frame was not a join request and when the duty cycle is not enabled
+        if( ( calcBackOffParams->DutyCycleEnabled == false ) && ( calcBackOffParams->LastTxIsJoinRequest == false ) )
+        {
+            // This is the case when the duty cycle is off and the last uplink frame was not a join.
+            // This could happen in case of a rejoin, e.g. in compliance test mode.
+            // In this special case we have to set the time off to 0, since the join duty cycle shall only
+            // be applied after the first join request.
+            calcBackOffParams->Bands[bandIdx].TimeOff = 0;
+        }
+        else
+        {
+            // Apply band time-off.
+            calcBackOffParams->Bands[bandIdx].TimeOff = calcBackOffParams->TxTimeOnAir * dutyCycle - calcBackOffParams->TxTimeOnAir;
+        }
+    }
+    else
+    {
+        if( calcBackOffParams->DutyCycleEnabled == true )
+        {
+            calcBackOffParams->Bands[bandIdx].TimeOff = calcBackOffParams->TxTimeOnAir * dutyCycle - calcBackOffParams->TxTimeOnAir;
+        }
+        else
+        {
+            calcBackOffParams->Bands[bandIdx].TimeOff = 0;
+        }
+    }
 }

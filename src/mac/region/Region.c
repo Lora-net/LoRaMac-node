@@ -53,7 +53,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define AS923_DL_CHANNEL_REQ( )                    AS923_CASE { return RegionAS923DlChannelReq( dlChannelReq ); }
 #define AS923_ALTERNATE_DR( )                      AS923_CASE { return RegionAS923AlternateDr( alternateDr ); }
 #define AS923_CALC_BACKOFF( )                      AS923_CASE { RegionAS923CalcBackOff( calcBackOff ); break; }
-#define AS923_NEXT_CHANNEL( )                      AS923_CASE { return RegionAS923NextChannel( nextChanParams, channel, time ); }
+#define AS923_NEXT_CHANNEL( )                      AS923_CASE { return RegionAS923NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define AS923_CHANNEL_ADD( )                       AS923_CASE { return RegionAS923ChannelAdd( channelAdd ); }
 #define AS923_CHANNEL_REMOVE( )                    AS923_CASE { return RegionAS923ChannelsRemove( channelRemove ); }
 #define AS923_SET_CONTINUOUS_WAVE( )               AS923_CASE { RegionAS923SetContinuousWave( continuousWave ); break; }
@@ -105,7 +105,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define AU915_DL_CHANNEL_REQ( )                    AU915_CASE { return RegionAU915DlChannelReq( dlChannelReq ); }
 #define AU915_ALTERNATE_DR( )                      AU915_CASE { return RegionAU915AlternateDr( alternateDr ); }
 #define AU915_CALC_BACKOFF( )                      AU915_CASE { RegionAU915CalcBackOff( calcBackOff ); break; }
-#define AU915_NEXT_CHANNEL( )                      AU915_CASE { return RegionAU915NextChannel( nextChanParams, channel, time ); }
+#define AU915_NEXT_CHANNEL( )                      AU915_CASE { return RegionAU915NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define AU915_CHANNEL_ADD( )                       AU915_CASE { return RegionAU915ChannelAdd( channelAdd ); }
 #define AU915_CHANNEL_REMOVE( )                    AU915_CASE { return RegionAU915ChannelsRemove( channelRemove ); }
 #define AU915_SET_CONTINUOUS_WAVE( )               AU915_CASE { RegionAU915SetContinuousWave( continuousWave ); break; }
@@ -157,7 +157,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define CN470_DL_CHANNEL_REQ( )                    CN470_CASE { return RegionCN470DlChannelReq( dlChannelReq ); }
 #define CN470_ALTERNATE_DR( )                      CN470_CASE { return RegionCN470AlternateDr( alternateDr ); }
 #define CN470_CALC_BACKOFF( )                      CN470_CASE { RegionCN470CalcBackOff( calcBackOff ); break; }
-#define CN470_NEXT_CHANNEL( )                      CN470_CASE { return RegionCN470NextChannel( nextChanParams, channel, time ); }
+#define CN470_NEXT_CHANNEL( )                      CN470_CASE { return RegionCN470NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define CN470_CHANNEL_ADD( )                       CN470_CASE { return RegionCN470ChannelAdd( channelAdd ); }
 #define CN470_CHANNEL_REMOVE( )                    CN470_CASE { return RegionCN470ChannelsRemove( channelRemove ); }
 #define CN470_SET_CONTINUOUS_WAVE( )               CN470_CASE { RegionCN470SetContinuousWave( continuousWave ); break; }
@@ -209,7 +209,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define CN779_DL_CHANNEL_REQ( )                    CN779_CASE { return RegionCN779DlChannelReq( dlChannelReq ); }
 #define CN779_ALTERNATE_DR( )                      CN779_CASE { return RegionCN779AlternateDr( alternateDr ); }
 #define CN779_CALC_BACKOFF( )                      CN779_CASE { RegionCN779CalcBackOff( calcBackOff ); break; }
-#define CN779_NEXT_CHANNEL( )                      CN779_CASE { return RegionCN779NextChannel( nextChanParams, channel, time ); }
+#define CN779_NEXT_CHANNEL( )                      CN779_CASE { return RegionCN779NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define CN779_CHANNEL_ADD( )                       CN779_CASE { return RegionCN779ChannelAdd( channelAdd ); }
 #define CN779_CHANNEL_REMOVE( )                    CN779_CASE { return RegionCN779ChannelsRemove( channelRemove ); }
 #define CN779_SET_CONTINUOUS_WAVE( )               CN779_CASE { RegionCN779SetContinuousWave( continuousWave ); break; }
@@ -261,7 +261,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define EU433_DL_CHANNEL_REQ( )                    EU433_CASE { return RegionEU433DlChannelReq( dlChannelReq ); }
 #define EU433_ALTERNATE_DR( )                      EU433_CASE { return RegionEU433AlternateDr( alternateDr ); }
 #define EU433_CALC_BACKOFF( )                      EU433_CASE { RegionEU433CalcBackOff( calcBackOff ); break; }
-#define EU433_NEXT_CHANNEL( )                      EU433_CASE { return RegionEU433NextChannel( nextChanParams, channel, time ); }
+#define EU433_NEXT_CHANNEL( )                      EU433_CASE { return RegionEU433NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define EU433_CHANNEL_ADD( )                       EU433_CASE { return RegionEU433ChannelAdd( channelAdd ); }
 #define EU433_CHANNEL_REMOVE( )                    EU433_CASE { return RegionEU433ChannelsRemove( channelRemove ); }
 #define EU433_SET_CONTINUOUS_WAVE( )               EU433_CASE { RegionEU433SetContinuousWave( continuousWave ); break; }
@@ -313,7 +313,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define EU868_DL_CHANNEL_REQ( )                    EU868_CASE { return RegionEU868DlChannelReq( dlChannelReq ); }
 #define EU868_ALTERNATE_DR( )                      EU868_CASE { return RegionEU868AlternateDr( alternateDr ); }
 #define EU868_CALC_BACKOFF( )                      EU868_CASE { RegionEU868CalcBackOff( calcBackOff ); break; }
-#define EU868_NEXT_CHANNEL( )                      EU868_CASE { return RegionEU868NextChannel( nextChanParams, channel, time ); }
+#define EU868_NEXT_CHANNEL( )                      EU868_CASE { return RegionEU868NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define EU868_CHANNEL_ADD( )                       EU868_CASE { return RegionEU868ChannelAdd( channelAdd ); }
 #define EU868_CHANNEL_REMOVE( )                    EU868_CASE { return RegionEU868ChannelsRemove( channelRemove ); }
 #define EU868_SET_CONTINUOUS_WAVE( )               EU868_CASE { RegionEU868SetContinuousWave( continuousWave ); break; }
@@ -365,7 +365,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define KR920_DL_CHANNEL_REQ( )                    KR920_CASE { return RegionKR920DlChannelReq( dlChannelReq ); }
 #define KR920_ALTERNATE_DR( )                      KR920_CASE { return RegionKR920AlternateDr( alternateDr ); }
 #define KR920_CALC_BACKOFF( )                      KR920_CASE { RegionKR920CalcBackOff( calcBackOff ); break; }
-#define KR920_NEXT_CHANNEL( )                      KR920_CASE { return RegionKR920NextChannel( nextChanParams, channel, time ); }
+#define KR920_NEXT_CHANNEL( )                      KR920_CASE { return RegionKR920NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define KR920_CHANNEL_ADD( )                       KR920_CASE { return RegionKR920ChannelAdd( channelAdd ); }
 #define KR920_CHANNEL_REMOVE( )                    KR920_CASE { return RegionKR920ChannelsRemove( channelRemove ); }
 #define KR920_SET_CONTINUOUS_WAVE( )               KR920_CASE { RegionKR920SetContinuousWave( continuousWave ); break; }
@@ -417,7 +417,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define IN865_DL_CHANNEL_REQ( )                    IN865_CASE { return RegionIN865DlChannelReq( dlChannelReq ); }
 #define IN865_ALTERNATE_DR( )                      IN865_CASE { return RegionIN865AlternateDr( alternateDr ); }
 #define IN865_CALC_BACKOFF( )                      IN865_CASE { RegionIN865CalcBackOff( calcBackOff ); break; }
-#define IN865_NEXT_CHANNEL( )                      IN865_CASE { return RegionIN865NextChannel( nextChanParams, channel, time ); }
+#define IN865_NEXT_CHANNEL( )                      IN865_CASE { return RegionIN865NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define IN865_CHANNEL_ADD( )                       IN865_CASE { return RegionIN865ChannelAdd( channelAdd ); }
 #define IN865_CHANNEL_REMOVE( )                    IN865_CASE { return RegionIN865ChannelsRemove( channelRemove ); }
 #define IN865_SET_CONTINUOUS_WAVE( )               IN865_CASE { RegionIN865SetContinuousWave( continuousWave ); break; }
@@ -469,7 +469,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define US915_DL_CHANNEL_REQ( )                    US915_CASE { return RegionUS915DlChannelReq( dlChannelReq ); }
 #define US915_ALTERNATE_DR( )                      US915_CASE { return RegionUS915AlternateDr( alternateDr ); }
 #define US915_CALC_BACKOFF( )                      US915_CASE { RegionUS915CalcBackOff( calcBackOff ); break; }
-#define US915_NEXT_CHANNEL( )                      US915_CASE { return RegionUS915NextChannel( nextChanParams, channel, time ); }
+#define US915_NEXT_CHANNEL( )                      US915_CASE { return RegionUS915NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define US915_CHANNEL_ADD( )                       US915_CASE { return RegionUS915ChannelAdd( channelAdd ); }
 #define US915_CHANNEL_REMOVE( )                    US915_CASE { return RegionUS915ChannelsRemove( channelRemove ); }
 #define US915_SET_CONTINUOUS_WAVE( )               US915_CASE { RegionUS915SetContinuousWave( continuousWave ); break; }
@@ -521,7 +521,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define US915_HYBRID_DL_CHANNEL_REQ( )                    US915_HYBRID_CASE { return RegionUS915HybridDlChannelReq( dlChannelReq ); }
 #define US915_HYBRID_ALTERNATE_DR( )                      US915_HYBRID_CASE { return RegionUS915HybridAlternateDr( alternateDr ); }
 #define US915_HYBRID_CALC_BACKOFF( )                      US915_HYBRID_CASE { RegionUS915HybridCalcBackOff( calcBackOff ); break; }
-#define US915_HYBRID_NEXT_CHANNEL( )                      US915_HYBRID_CASE { return RegionUS915HybridNextChannel( nextChanParams, channel, time ); }
+#define US915_HYBRID_NEXT_CHANNEL( )                      US915_HYBRID_CASE { return RegionUS915HybridNextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define US915_HYBRID_CHANNEL_ADD( )                       US915_HYBRID_CASE { return RegionUS915HybridChannelAdd( channelAdd ); }
 #define US915_HYBRID_CHANNEL_REMOVE( )                    US915_HYBRID_CASE { return RegionUS915HybridChannelsRemove( channelRemove ); }
 #define US915_HYBRID_SET_CONTINUOUS_WAVE( )               US915_HYBRID_CASE { RegionUS915HybridSetContinuousWave( continuousWave ); break; }
@@ -931,7 +931,7 @@ void RegionCalcBackOff( LoRaMacRegion_t region, CalcBackOffParams_t* calcBackOff
     }
 }
 
-bool RegionNextChannel( LoRaMacRegion_t region, NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time )
+bool RegionNextChannel( LoRaMacRegion_t region, NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
 {
     switch( region )
     {

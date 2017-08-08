@@ -135,7 +135,7 @@ void SX1272SetRfTxPower( int8_t power )
     else
     {
         paConfig = ( paConfig & RF_PACONFIG_PASELECT_MASK ) | RF_PACONFIG_PASELECT_PABOOST;
-        paConfig = ( paConfig & RFLR_PACONFIG_OUTPUTPOWER_MASK ) | PaBTable[power];
+        paConfig = ( paConfig & RFLR_PACONFIG_OUTPUTPOWER_MASK ) | PaBTable[MAX( power, 0 )];
     }
     Radio.Write( REG_PACONFIG, paConfig );
     Radio.Write( REG_PADAC, paDac );

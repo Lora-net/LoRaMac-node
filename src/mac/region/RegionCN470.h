@@ -93,7 +93,17 @@
 /*!
  * Default Tx output power used by the node
  */
-#define CN470_DEFAULT_TX_POWER                    TX_POWER_2
+#define CN470_DEFAULT_TX_POWER                    TX_POWER_0
+
+/*!
+ * Default Max EIRP
+ */
+#define CN470_DEFAULT_MAX_EIRP                      19.15f
+
+/*!
+ * Default antenna gain
+ */
+#define CN470_DEFAULT_ANTENNA_GAIN                  2.15f
 
 /*!
  * ADR Ack limit
@@ -169,22 +179,22 @@
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
  */
-#define CN470_BAND0                                 { 1, CN470_DEFAULT_TX_POWER, 0,  0 } //  100.0 %
+#define CN470_BAND0                                 { 1, CN470_MAX_TX_POWER, 0,  0 } //  100.0 %
 
 /*!
  * Defines the first channel for RX window 1 for CN470 band
  */
-#define CN470_FIRST_RX1_CHANNEL                     ( (uint32_t) 500.3e6 )
+#define CN470_FIRST_RX1_CHANNEL                     ( (uint32_t) 500300000 )
 
 /*!
  * Defines the last channel for RX window 1 for CN470 band
  */
-#define CN470_LAST_RX1_CHANNEL                      ( (uint32_t) 509.7e6 )
+#define CN470_LAST_RX1_CHANNEL                      ( (uint32_t) 509700000 )
 
 /*!
  * Defines the step width of the channels for RX window 1
  */
-#define CN470_STEPWIDTH_RX1_CHANNEL                 ( (uint32_t) 200e3 )
+#define CN470_STEPWIDTH_RX1_CHANNEL                 ( (uint32_t) 200000 )
 
 /*!
  * Data rates table definition
@@ -194,7 +204,7 @@ static const uint8_t DataratesCN470[]  = { 12, 11, 10,  9,  8,  7 };
 /*!
  * Bandwidths table definition in Hz
  */
-static const uint32_t BandwidthsCN470[] = { 125e3, 125e3, 125e3, 125e3, 125e3, 125e3 };
+static const uint32_t BandwidthsCN470[] = { 125000, 125000, 125000, 125000, 125000, 125000 };
 
 /*!
  * Maximum payload with respect to the datarate index. Cannot operate with repeater.
@@ -205,13 +215,6 @@ static const uint8_t MaxPayloadOfDatarateCN470[] = { 51, 51, 51, 115, 222, 222 }
  * Maximum payload with respect to the datarate index. Can operate with repeater.
  */
 static const uint8_t MaxPayloadOfDatarateRepeaterCN470[] = { 51, 51, 51, 115, 222, 222 };
-
-/*!
- * Tx output powers table definition
- */
-static const int8_t TxPowersCN470[] = { 17, 16, 14, 12, 10, 7, 5, 2 };
-
-
 
 /*!
  * \brief The function gets a value of a specific phy attribute.
@@ -365,7 +368,7 @@ int8_t RegionCN470TxParamSetupReq( TxParamSetupReqParams_t* txParamSetupReq );
  */
 uint8_t RegionCN470DlChannelReq( DlChannelReqParams_t* dlChannelReq );
 
-/*
+/*!
  * \brief Alternates the datarate of the channel for the join request.
  *
  * \param [IN] alternateDr Pointer to the function parameters.
@@ -389,9 +392,11 @@ void RegionCN470CalcBackOff( CalcBackOffParams_t* calcBackOff );
  * \param [OUT] time Time to wait for the next transmission according to the duty
  *              cycle.
  *
+ * \param [OUT] aggregatedTimeOff Updates the aggregated time off.
+ *
  * \retval Function status [1: OK, 0: Unable to find a channel on the current datarate]
  */
-bool RegionCN470NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time );
+bool RegionCN470NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff );
 
 /*!
  * \brief Adds a channel.

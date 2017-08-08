@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Project version="2G - 2.0.1" name="Ping-Pong">
-  <Target name="Ping-Pong-868" isCurrent="0">
+  <Target name="Ping-Pong-eu868-lora" isCurrent="0">
     <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
-        <Option name="OptimizationLevel" value="1"/>
+        <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-fno-builtin;--specs=nano.specs;-Wl,--gc-sections;-std=c99;-ffunction-sections;-fdata-sections;-fomit-frame-pointer;-mabi=aapcs;-fno-unroll-loops;-ffast-math;-ftree-vectorize;"/>
         <Option name="SupportCPlusplus" value="0"/>
         <Option name="DEBUG" value="2"/>
         <Option name="WARNING" value="1"/>
         <Includepaths>
           <Includepath path="../../../src"/>
-          <Includepath path="../../../src/boards/loramote"/>
-          <Includepath path="../../../src/boards/loramote/cmsis"/>
+          <Includepath path="../../../src/boards/LoRaMote"/>
+          <Includepath path="../../../src/boards/LoRaMote/cmsis"/>
           <Includepath path="../../../src/boards/mcu/stm32"/>
           <Includepath path="../../../src/boards/mcu/stm32/cmsis"/>
           <Includepath path="../../../src/boards/mcu/stm32/stm32l1xx_HAL_Driver/inc"/>
           <Includepath path="../../../src/mac"/>
+          <Includepath path="../../../src/mac/region"/>
           <Includepath path="../../../src/peripherals"/>
           <Includepath path="../../../src/radio"/>
           <Includepath path="../../../src/system"/>
@@ -27,19 +28,18 @@
           <Define name="USE_HAL_DRIVER"/>
           <Define name="STM32L151xB"/>
           <Define name="USE_DEBUGGER"/>
-          <Define name="USE_BAND_868"/>
+          <Define name="REGION_EU868"/>
           <Define name="USE_MODEM_LORA"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
         <Option name="DiscardUnusedSection" value="0"/>
-        <Option name="UserEditLinkder" value=""/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
         <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lm;"/>
+        <Option name="UserEditLinker" value=" -mabi=aapcs; -lc; -lm; -lrdimon; ;"/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
@@ -47,12 +47,12 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../src/boards/loramote/cmsis/arm-gcc/stm32l151xb_flash.ld" type="0"/>
+        <LocateLinkFile path="../../../src/boards/LoRaMote/cmsis/arm-gcc/stm32l151xb_flash.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
         <Option name="Path" value="./"/>
-        <Option name="Name" value="Ping-Pong"/>
+        <Option name="Name" value="Ping-Pong-eu868-lora"/>
         <Option name="HEX" value="1"/>
         <Option name="BIN" value="1"/>
       </Output>
@@ -78,28 +78,29 @@
       <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="C:\Users\mluis\AppData\Roaming\CooCox\CoIDE\config\flash\CooCox-Flash\CoIDE_STM32L1xx_128K\STM32L1xx_128.elf"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="coocox-flash/coide_stm32l1xx_128k/stm32l1xx_128.elf"/>
     </DebugOption>
     <ExcludeFile/>
   </Target>
-  <Target name="Ping-Pong-868-Bootloader" isCurrent="1">
+  <Target name="Ping-Pong-eu868-fsk" isCurrent="0">
     <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
-        <Option name="OptimizationLevel" value="0"/>
+        <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-fno-builtin;--specs=nano.specs;-Wl,--gc-sections;-std=c99;-ffunction-sections;-fdata-sections;-fomit-frame-pointer;-mabi=aapcs;-fno-unroll-loops;-ffast-math;-ftree-vectorize;"/>
         <Option name="SupportCPlusplus" value="0"/>
         <Option name="DEBUG" value="2"/>
         <Option name="WARNING" value="1"/>
         <Includepaths>
           <Includepath path="../../../src"/>
-          <Includepath path="../../../src/boards/loramote"/>
-          <Includepath path="../../../src/boards/loramote/cmsis"/>
+          <Includepath path="../../../src/boards/LoRaMote"/>
+          <Includepath path="../../../src/boards/LoRaMote/cmsis"/>
           <Includepath path="../../../src/boards/mcu/stm32"/>
           <Includepath path="../../../src/boards/mcu/stm32/cmsis"/>
           <Includepath path="../../../src/boards/mcu/stm32/stm32l1xx_HAL_Driver/inc"/>
           <Includepath path="../../../src/mac"/>
+          <Includepath path="../../../src/mac/region"/>
           <Includepath path="../../../src/peripherals"/>
           <Includepath path="../../../src/radio"/>
           <Includepath path="../../../src/system"/>
@@ -109,20 +110,101 @@
           <Define name="USE_HAL_DRIVER"/>
           <Define name="STM32L151xB"/>
           <Define name="USE_DEBUGGER"/>
-          <Define name="USE_BAND_868"/>
+          <Define name="REGION_EU868"/>
+          <Define name="USE_MODEM_FSK"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UseMemoryLayout" value="0"/>
+        <Option name="nostartfiles" value="0"/>
+        <Option name="LTO" value="1"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <Option name="Library" value="Use nano C Library"/>
+        <Option name="UserEditLinker" value=" -mabi=aapcs; -lc; -lm; -lrdimon; ;"/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00004000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="../../../src/boards/LoRaMote/cmsis/arm-gcc/stm32l151xb_flash.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="Ping-Pong-eu868-fsk"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="coocox-flash/coide_stm32l1xx_128k/stm32l1xx_128.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Target name="Ping-Pong-eu868-lora-Bootloader" isCurrent="1">
+    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="4"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value="-fno-builtin;--specs=nano.specs;-Wl,--gc-sections;-std=c99;-ffunction-sections;-fdata-sections;-fomit-frame-pointer;-mabi=aapcs;-fno-unroll-loops;-ffast-math;-ftree-vectorize;"/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
+        <Includepaths>
+          <Includepath path="../../../src"/>
+          <Includepath path="../../../src/boards/LoRaMote"/>
+          <Includepath path="../../../src/boards/LoRaMote/cmsis"/>
+          <Includepath path="../../../src/boards/mcu/stm32"/>
+          <Includepath path="../../../src/boards/mcu/stm32/cmsis"/>
+          <Includepath path="../../../src/boards/mcu/stm32/stm32l1xx_HAL_Driver/inc"/>
+          <Includepath path="../../../src/mac"/>
+          <Includepath path="../../../src/mac/region"/>
+          <Includepath path="../../../src/peripherals"/>
+          <Includepath path="../../../src/radio"/>
+          <Includepath path="../../../src/system"/>
+          <Includepath path="../../../src/system/crypto"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="USE_HAL_DRIVER"/>
+          <Define name="STM32L151xB"/>
+          <Define name="USE_DEBUGGER"/>
+          <Define name="REGION_EU868"/>
           <Define name="USE_MODEM_LORA"/>
           <Define name="USE_BOOTLOADER"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
         <Option name="DiscardUnusedSection" value="0"/>
-        <Option name="UserEditLinkder" value=""/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
         <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lm;"/>
+        <Option name="UserEditLinker" value=" -mabi=aapcs; -lc; -lm; -lrdimon; ;"/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
@@ -130,12 +212,12 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../src/boards/loramote/cmsis/arm-gcc/stm32l151xb_flash_offset.ld" type="0"/>
+        <LocateLinkFile path="../../../src/boards/LoRaMote/cmsis/arm-gcc/stm32l151xb_flash_offset.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
         <Option name="Path" value="./"/>
-        <Option name="Name" value="Ping-Pong"/>
+        <Option name="Name" value="Ping-Pong-eu868-lora"/>
         <Option name="HEX" value="1"/>
         <Option name="BIN" value="1"/>
       </Output>
@@ -161,28 +243,29 @@
       <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="C:\Users\mluis\AppData\Roaming\CooCox\CoIDE\config\flash\CooCox-Flash\CoIDE_STM32L1xx_128K\STM32L1xx_128.elf"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="coocox-flash/coide_stm32l1xx_128k/stm32l1xx_128.elf"/>
     </DebugOption>
     <ExcludeFile/>
   </Target>
-  <Target name="Ping-Pong-915" isCurrent="0">
+  <Target name="Ping-Pong-eu868-fsk-Bootloader" isCurrent="0">
     <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
-        <Option name="OptimizationLevel" value="0"/>
+        <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-fno-builtin;--specs=nano.specs;-Wl,--gc-sections;-std=c99;-ffunction-sections;-fdata-sections;-fomit-frame-pointer;-mabi=aapcs;-fno-unroll-loops;-ffast-math;-ftree-vectorize;"/>
         <Option name="SupportCPlusplus" value="0"/>
         <Option name="DEBUG" value="2"/>
         <Option name="WARNING" value="1"/>
         <Includepaths>
           <Includepath path="../../../src"/>
-          <Includepath path="../../../src/boards/loramote"/>
-          <Includepath path="../../../src/boards/loramote/cmsis"/>
+          <Includepath path="../../../src/boards/LoRaMote"/>
+          <Includepath path="../../../src/boards/LoRaMote/cmsis"/>
           <Includepath path="../../../src/boards/mcu/stm32"/>
           <Includepath path="../../../src/boards/mcu/stm32/cmsis"/>
           <Includepath path="../../../src/boards/mcu/stm32/stm32l1xx_HAL_Driver/inc"/>
           <Includepath path="../../../src/mac"/>
+          <Includepath path="../../../src/mac/region"/>
           <Includepath path="../../../src/peripherals"/>
           <Includepath path="../../../src/radio"/>
           <Includepath path="../../../src/system"/>
@@ -192,19 +275,101 @@
           <Define name="USE_HAL_DRIVER"/>
           <Define name="STM32L151xB"/>
           <Define name="USE_DEBUGGER"/>
-          <Define name="USE_BAND_915"/>
+          <Define name="REGION_EU868"/>
+          <Define name="USE_MODEM_FSK"/>
+          <Define name="USE_BOOTLOADER"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UseMemoryLayout" value="0"/>
+        <Option name="nostartfiles" value="0"/>
+        <Option name="LTO" value="1"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <Option name="Library" value="Use nano C Library"/>
+        <Option name="UserEditLinker" value=" -mabi=aapcs; -lc; -lm; -lrdimon; ;"/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00004000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="../../../src/boards/LoRaMote/cmsis/arm-gcc/stm32l151xb_flash_offset.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="Ping-Pong-eu868-fsk"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="coocox-flash/coide_stm32l1xx_128k/stm32l1xx_128.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Target name="Ping-Pong-us915-lora" isCurrent="0">
+    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="4"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value="-fno-builtin;--specs=nano.specs;-Wl,--gc-sections;-std=c99;-ffunction-sections;-fdata-sections;-fomit-frame-pointer;-mabi=aapcs;-fno-unroll-loops;-ffast-math;-ftree-vectorize;"/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
+        <Includepaths>
+          <Includepath path="../../../src"/>
+          <Includepath path="../../../src/boards/LoRaMote"/>
+          <Includepath path="../../../src/boards/LoRaMote/cmsis"/>
+          <Includepath path="../../../src/boards/mcu/stm32"/>
+          <Includepath path="../../../src/boards/mcu/stm32/cmsis"/>
+          <Includepath path="../../../src/boards/mcu/stm32/stm32l1xx_HAL_Driver/inc"/>
+          <Includepath path="../../../src/mac"/>
+          <Includepath path="../../../src/mac/region"/>
+          <Includepath path="../../../src/peripherals"/>
+          <Includepath path="../../../src/radio"/>
+          <Includepath path="../../../src/system"/>
+          <Includepath path="../../../src/system/crypto"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="USE_HAL_DRIVER"/>
+          <Define name="STM32L151xB"/>
+          <Define name="USE_DEBUGGER"/>
+          <Define name="REGION_US915"/>
           <Define name="USE_MODEM_LORA"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
         <Option name="DiscardUnusedSection" value="0"/>
-        <Option name="UserEditLinkder" value=""/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
         <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lm;"/>
+        <Option name="UserEditLinker" value=" -mabi=aapcs; -lc; -lm; -lrdimon; ;"/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
@@ -212,12 +377,12 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../src/boards/loramote/cmsis/arm-gcc/stm32l151xb_flash.ld" type="0"/>
+        <LocateLinkFile path="../../../src/boards/LoRaMote/cmsis/arm-gcc/stm32l151xb_flash.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
         <Option name="Path" value="./"/>
-        <Option name="Name" value="Ping-Pong"/>
+        <Option name="Name" value="Ping-Pong-us915-lora"/>
         <Option name="HEX" value="1"/>
         <Option name="BIN" value="1"/>
       </Output>
@@ -243,28 +408,29 @@
       <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="C:\Users\mluis\AppData\Roaming\CooCox\CoIDE\config\flash\CooCox-Flash\CoIDE_STM32L1xx_128K\STM32L1xx_128.elf"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="coocox-flash/coide_stm32l1xx_128k/stm32l1xx_128.elf"/>
     </DebugOption>
     <ExcludeFile/>
   </Target>
-  <Target name="Ping-Pong-915-Bootloader" isCurrent="0">
+  <Target name="Ping-Pong-us915-fsk" isCurrent="0">
     <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
-        <Option name="OptimizationLevel" value="0"/>
+        <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-fno-builtin;--specs=nano.specs;-Wl,--gc-sections;-std=c99;-ffunction-sections;-fdata-sections;-fomit-frame-pointer;-mabi=aapcs;-fno-unroll-loops;-ffast-math;-ftree-vectorize;"/>
         <Option name="SupportCPlusplus" value="0"/>
         <Option name="DEBUG" value="2"/>
         <Option name="WARNING" value="1"/>
         <Includepaths>
           <Includepath path="../../../src"/>
-          <Includepath path="../../../src/boards/loramote"/>
-          <Includepath path="../../../src/boards/loramote/cmsis"/>
+          <Includepath path="../../../src/boards/LoRaMote"/>
+          <Includepath path="../../../src/boards/LoRaMote/cmsis"/>
           <Includepath path="../../../src/boards/mcu/stm32"/>
           <Includepath path="../../../src/boards/mcu/stm32/cmsis"/>
           <Includepath path="../../../src/boards/mcu/stm32/stm32l1xx_HAL_Driver/inc"/>
           <Includepath path="../../../src/mac"/>
+          <Includepath path="../../../src/mac/region"/>
           <Includepath path="../../../src/peripherals"/>
           <Includepath path="../../../src/radio"/>
           <Includepath path="../../../src/system"/>
@@ -274,20 +440,101 @@
           <Define name="USE_HAL_DRIVER"/>
           <Define name="STM32L151xB"/>
           <Define name="USE_DEBUGGER"/>
-          <Define name="USE_BAND_915"/>
+          <Define name="REGION_US915"/>
+          <Define name="USE_MODEM_FSK"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UseMemoryLayout" value="0"/>
+        <Option name="nostartfiles" value="0"/>
+        <Option name="LTO" value="1"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <Option name="Library" value="Use nano C Library"/>
+        <Option name="UserEditLinker" value=" -mabi=aapcs; -lc; -lm; -lrdimon; ;"/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00004000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="../../../src/boards/LoRaMote/cmsis/arm-gcc/stm32l151xb_flash.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="Ping-Pong-us915-fsk"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="coocox-flash/coide_stm32l1xx_128k/stm32l1xx_128.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Target name="Ping-Pong-us915-lora-Bootloader" isCurrent="0">
+    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="4"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value="-fno-builtin;--specs=nano.specs;-Wl,--gc-sections;-std=c99;-ffunction-sections;-fdata-sections;-fomit-frame-pointer;-mabi=aapcs;-fno-unroll-loops;-ffast-math;-ftree-vectorize;"/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
+        <Includepaths>
+          <Includepath path="../../../src"/>
+          <Includepath path="../../../src/boards/LoRaMote"/>
+          <Includepath path="../../../src/boards/LoRaMote/cmsis"/>
+          <Includepath path="../../../src/boards/mcu/stm32"/>
+          <Includepath path="../../../src/boards/mcu/stm32/cmsis"/>
+          <Includepath path="../../../src/boards/mcu/stm32/stm32l1xx_HAL_Driver/inc"/>
+          <Includepath path="../../../src/mac"/>
+          <Includepath path="../../../src/mac/region"/>
+          <Includepath path="../../../src/peripherals"/>
+          <Includepath path="../../../src/radio"/>
+          <Includepath path="../../../src/system"/>
+          <Includepath path="../../../src/system/crypto"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="USE_HAL_DRIVER"/>
+          <Define name="STM32L151xB"/>
+          <Define name="USE_DEBUGGER"/>
+          <Define name="REGION_US915"/>
           <Define name="USE_MODEM_LORA"/>
           <Define name="USE_BOOTLOADER"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
         <Option name="DiscardUnusedSection" value="0"/>
-        <Option name="UserEditLinkder" value=""/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
         <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lm;"/>
+        <Option name="UserEditLinker" value=" -mabi=aapcs; -lc; -lm; -lrdimon; ;"/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
@@ -295,12 +542,12 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../src/boards/loramote/cmsis/arm-gcc/stm32l151xb_flash_offset.ld" type="0"/>
+        <LocateLinkFile path="../../../src/boards/LoRaMote/cmsis/arm-gcc/stm32l151xb_flash_offset.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
         <Option name="Path" value="./"/>
-        <Option name="Name" value="Ping-Pong"/>
+        <Option name="Name" value="Ping-Pong-us915-lora"/>
         <Option name="HEX" value="1"/>
         <Option name="BIN" value="1"/>
       </Output>
@@ -326,7 +573,90 @@
       <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="C:\Users\mluis\AppData\Roaming\CooCox\CoIDE\config\flash\CooCox-Flash\CoIDE_STM32L1xx_128K\STM32L1xx_128.elf"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="coocox-flash/coide_stm32l1xx_128k/stm32l1xx_128.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Target name="Ping-Pong-us915-fsk-Bootloader" isCurrent="0">
+    <Device manufacturerId="9" manufacturerName="ST" chipId="822" chipName="STM32L151CBT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="4"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value="-fno-builtin;--specs=nano.specs;-Wl,--gc-sections;-std=c99;-ffunction-sections;-fdata-sections;-fomit-frame-pointer;-mabi=aapcs;-fno-unroll-loops;-ffast-math;-ftree-vectorize;"/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
+        <Includepaths>
+          <Includepath path="../../../src"/>
+          <Includepath path="../../../src/boards/LoRaMote"/>
+          <Includepath path="../../../src/boards/LoRaMote/cmsis"/>
+          <Includepath path="../../../src/boards/mcu/stm32"/>
+          <Includepath path="../../../src/boards/mcu/stm32/cmsis"/>
+          <Includepath path="../../../src/boards/mcu/stm32/stm32l1xx_HAL_Driver/inc"/>
+          <Includepath path="../../../src/mac"/>
+          <Includepath path="../../../src/mac/region"/>
+          <Includepath path="../../../src/peripherals"/>
+          <Includepath path="../../../src/radio"/>
+          <Includepath path="../../../src/system"/>
+          <Includepath path="../../../src/system/crypto"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="USE_HAL_DRIVER"/>
+          <Define name="STM32L151xB"/>
+          <Define name="USE_DEBUGGER"/>
+          <Define name="REGION_US915"/>
+          <Define name="USE_MODEM_FSK"/>
+          <Define name="USE_BOOTLOADER"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UseMemoryLayout" value="0"/>
+        <Option name="nostartfiles" value="0"/>
+        <Option name="LTO" value="1"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <Option name="Library" value="Use nano C Library"/>
+        <Option name="UserEditLinker" value=" -mabi=aapcs; -lc; -lm; -lrdimon; ;"/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00004000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="../../../src/boards/LoRaMote/cmsis/arm-gcc/stm32l151xb_flash_offset.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="Ping-Pong-us915-fsk"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="coocox-flash/coide_stm32l1xx_128k/stm32l1xx_128.elf"/>
     </DebugOption>
     <ExcludeFile/>
   </Target>
@@ -337,14 +667,14 @@
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_pwr.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_pwr.c" type="1"/>
     <File name="boards" path="" type="2"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_i2c.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_i2c.c" type="1"/>
-    <File name="boards/LoRaMote/board.c" path="../../../src/boards/LoRaMote/board.c" type="1"/>
     <File name="peripherals/gpio-ioe.c" path="../../../src/peripherals/gpio-ioe.c" type="1"/>
+    <File name="boards/LoRaMote/board.c" path="../../../src/boards/LoRaMote/board.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c" type="1"/>
-    <File name="boards/mcu/stm32/sysIrqHandlers.c" path="../../../src/boards/mcu/stm32/sysIrqHandlers.c" type="1"/>
-    <File name="boards/LoRaMote/i2c-board.c" path="../../../src/boards/LoRaMote/i2c-board.c" type="1"/>
-    <File name="radio" path="" type="2"/>
-    <File name="boards/mcu/stm32" path="" type="2"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_uart.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_uart.c" type="1"/>
+    <File name="boards/LoRaMote/i2c-board.c" path="../../../src/boards/LoRaMote/i2c-board.c" type="1"/>
+    <File name="boards/mcu/stm32" path="" type="2"/>
+    <File name="boards/mcu/stm32/sysIrqHandlers.c" path="../../../src/boards/mcu/stm32/sysIrqHandlers.c" type="1"/>
+    <File name="radio" path="" type="2"/>
     <File name="boards/LoRaMote/spi-board.c" path="../../../src/boards/LoRaMote/spi-board.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_spi_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi_ex.c" type="1"/>
     <File name="boards/LoRaMote" path="" type="2"/>
@@ -355,8 +685,8 @@
     <File name="boards/LoRaMote/cmsis/system_stm32l1xx.c" path="../../../src/boards/LoRaMote/cmsis/system_stm32l1xx.c" type="1"/>
     <File name="system/timer.c" path="../../../src/system/timer.c" type="1"/>
     <File name="system/uart.c" path="../../../src/system/uart.c" type="1"/>
-    <File name="peripherals/mag3110.c" path="../../../src/peripherals/mag3110.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_gpio.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_gpio.c" type="1"/>
+    <File name="peripherals/mag3110.c" path="../../../src/peripherals/mag3110.c" type="1"/>
     <File name="boards/mcu/stm32/utilities.c" path="../../../src/boards/mcu/stm32/utilities.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_rcc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rcc.c" type="1"/>
     <File name="peripherals/sx9500.c" path="../../../src/peripherals/sx9500.c" type="1"/>
@@ -374,10 +704,10 @@
     <File name="boards/mcu" path="" type="2"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_spi.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_spi.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_cortex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c" type="1"/>
-    <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_adc_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.c" type="1"/>
-    <File name="system/gpio.c" path="../../../src/system/gpio.c" type="1"/>
-    <File name="radio/sx1272.c" path="../../../src/radio/sx1272/sx1272.c" type="1"/>
     <File name="system/adc.c" path="../../../src/system/adc.c" type="1"/>
+    <File name="system/gpio.c" path="../../../src/system/gpio.c" type="1"/>
+    <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_adc_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc_ex.c" type="1"/>
+    <File name="radio/sx1272.c" path="../../../src/radio/sx1272/sx1272.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_rtc_ex.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_rtc_ex.c" type="1"/>
     <File name="peripherals/mma8451.c" path="../../../src/peripherals/mma8451.c" type="1"/>
     <File name="boards/LoRaMote/STM32L1xx_HAL_Driver/stm32l1xx_hal_adc.c" path="../../../src/boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_adc.c" type="1"/>

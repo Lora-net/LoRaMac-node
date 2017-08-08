@@ -46,6 +46,11 @@
 #define IN865_NUMB_DEFAULT_CHANNELS                 3
 
 /*!
+ * Number of channels to apply for the CF list
+ */
+#define IN865_NUMB_CHANNELS_CF_LIST                 5
+
+/*!
  * Minimal datarate that can be used by the node
  */
 #define IN865_TX_MIN_DATARATE                       DR_0
@@ -99,6 +104,16 @@
  * Default Tx output power used by the node
  */
 #define IN865_DEFAULT_TX_POWER                      TX_POWER_0
+
+/*!
+ * Default Max EIRP
+ */
+#define IN865_DEFAULT_MAX_EIRP                      30.0f
+
+/*!
+ * Default antenna gain
+ */
+#define IN865_DEFAULT_ANTENNA_GAIN                  2.15f
 
 /*!
  * ADR Ack limit
@@ -178,25 +193,25 @@
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
  */
-#define IN865_BAND0                                 { 1 , IN865_DEFAULT_TX_POWER, 0,  0 } //  100.0 %
+#define IN865_BAND0                                 { 1 , IN865_MAX_TX_POWER, 0,  0 } //  100.0 %
 
 /*!
  * LoRaMac default channel 1
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-#define IN865_LC1                                   { 865062500, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 }
+#define IN865_LC1                                   { 865062500, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 
 /*!
  * LoRaMac default channel 2
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-#define IN865_LC2                                   { 865402500, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 }
+#define IN865_LC2                                   { 865402500, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 
 /*!
  * LoRaMac default channel 3
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-#define IN865_LC3                                   { 865985000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 1 }
+#define IN865_LC3                                   { 865985000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
 
 /*!
  * LoRaMac channels which are allowed for the join procedure
@@ -211,7 +226,7 @@ static const uint8_t DataratesIN865[]  = { 12, 11, 10,  9,  8,  7,  7, 50 };
 /*!
  * Bandwidths table definition in Hz
  */
-static const uint32_t BandwidthsIN865[] = { 125e3, 125e3, 125e3, 125e3, 125e3, 125e3, 250e3, 0 };
+static const uint32_t BandwidthsIN865[] = { 125000, 125000, 125000, 125000, 125000, 125000, 250000, 0 };
 
 /*!
  * Maximum payload with respect to the datarate index. Cannot operate with repeater.
@@ -222,11 +237,6 @@ static const uint8_t MaxPayloadOfDatarateIN865[] = { 51, 51, 51, 115, 242, 242, 
  * Maximum payload with respect to the datarate index. Can operate with repeater.
  */
 static const uint8_t MaxPayloadOfDatarateRepeaterIN865[] = { 51, 51, 51, 115, 222, 222, 222, 222 };
-
-/*!
- * Tx output powers table definition
- */
-static const int8_t TxPowersIN865[] = { 20, 18, 16, 14, 12, 10, 8, 6, 4, 2, 0 };
 
 /*!
  * Effective datarate offsets for receive window 1.
@@ -385,7 +395,7 @@ int8_t RegionIN865TxParamSetupReq( TxParamSetupReqParams_t* txParamSetupReq );
  */
 uint8_t RegionIN865DlChannelReq( DlChannelReqParams_t* dlChannelReq );
 
-/*
+/*!
  * \brief Alternates the datarate of the channel for the join request.
  *
  * \param [IN] alternateDr Pointer to the function parameters.
@@ -409,9 +419,11 @@ void RegionIN865CalcBackOff( CalcBackOffParams_t* calcBackOff );
  * \param [OUT] time Time to wait for the next transmission according to the duty
  *              cycle.
  *
+ * \param [OUT] aggregatedTimeOff Updates the aggregated time off.
+ *
  * \retval Function status [1: OK, 0: Unable to find a channel on the current datarate]
  */
-bool RegionIN865NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time );
+bool RegionIN865NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff );
 
 /*!
  * \brief Adds a channel.

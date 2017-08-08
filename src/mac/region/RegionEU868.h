@@ -46,6 +46,11 @@
 #define EU868_NUMB_DEFAULT_CHANNELS                 3
 
 /*!
+ * Number of channels to apply for the CF list
+ */
+#define EU868_NUMB_CHANNELS_CF_LIST                 5
+
+/*!
  * Minimal datarate that can be used by the node
  */
 #define EU868_TX_MIN_DATARATE                       DR_0
@@ -88,7 +93,7 @@
 /*!
  * Minimal Tx output power that can be used by the node
  */
-#define EU868_MIN_TX_POWER                          TX_POWER_5
+#define EU868_MIN_TX_POWER                          TX_POWER_7
 
 /*!
  * Maximal Tx output power that can be used by the node
@@ -98,7 +103,17 @@
 /*!
  * Default Tx output power used by the node
  */
-#define EU868_DEFAULT_TX_POWER                      TX_POWER_1
+#define EU868_DEFAULT_TX_POWER                      TX_POWER_0
+
+/*!
+ * Default Max EIRP
+ */
+#define EU868_DEFAULT_MAX_EIRP                      16.0f
+
+/*!
+ * Default antenna gain
+ */
+#define EU868_DEFAULT_ANTENNA_GAIN                  2.15f
 
 /*!
  * ADR Ack limit
@@ -178,31 +193,31 @@
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
  */
-#define EU868_BAND0                                 { 100 , TX_POWER_1, 0,  0 } //  1.0 %
+#define EU868_BAND0                                 { 100 , EU868_MAX_TX_POWER, 0,  0 } //  1.0 %
 
 /*!
  * Band 1 definition
  * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
  */
-#define EU868_BAND1                                 { 100 , TX_POWER_1, 0,  0 } //  1.0 %
+#define EU868_BAND1                                 { 100 , EU868_MAX_TX_POWER, 0,  0 } //  1.0 %
 
 /*!
  * Band 2 definition
  * Band = { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
  */
-#define EU868_BAND2                                 { 1000, TX_POWER_1, 0,  0 } //  0.1 %
+#define EU868_BAND2                                 { 1000, EU868_MAX_TX_POWER, 0,  0 } //  0.1 %
 
 /*!
  * Band 2 definition
  * Band = { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
  */
-#define EU868_BAND3                                 { 10  , TX_POWER_1, 0,  0 } // 10.0 %
+#define EU868_BAND3                                 { 10  , EU868_MAX_TX_POWER, 0,  0 } // 10.0 %
 
 /*!
  * Band 2 definition
  * Band = { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
  */
-#define EU868_BAND4                                 { 100 , TX_POWER_1, 0,  0 } //  1.0 %
+#define EU868_BAND4                                 { 100 , EU868_MAX_TX_POWER, 0,  0 } //  1.0 %
 
 /*!
  * LoRaMac default channel 1
@@ -235,7 +250,7 @@ static const uint8_t DataratesEU868[]  = { 12, 11, 10,  9,  8,  7,  7, 50 };
 /*!
  * Bandwidths table definition in Hz
  */
-static const uint32_t BandwidthsEU868[] = { 125e3, 125e3, 125e3, 125e3, 125e3, 125e3, 250e3, 0 };
+static const uint32_t BandwidthsEU868[] = { 125000, 125000, 125000, 125000, 125000, 125000, 250000, 0 };
 
 /*!
  * Maximum payload with respect to the datarate index. Cannot operate with repeater.
@@ -246,14 +261,6 @@ static const uint8_t MaxPayloadOfDatarateEU868[] = { 51, 51, 51, 115, 242, 242, 
  * Maximum payload with respect to the datarate index. Can operate with repeater.
  */
 static const uint8_t MaxPayloadOfDatarateRepeaterEU868[] = { 51, 51, 51, 115, 222, 222, 222, 222 };
-
-/*!
- * Tx output powers table definition
- */
-static const int8_t TxPowersEU868[] = { 20, 14, 11,  8,  5,  2 };
-
-
-
 
 /*!
  * \brief The function gets a value of a specific phy attribute.
@@ -407,7 +414,7 @@ int8_t RegionEU868TxParamSetupReq( TxParamSetupReqParams_t* txParamSetupReq );
  */
 uint8_t RegionEU868DlChannelReq( DlChannelReqParams_t* dlChannelReq );
 
-/*
+/*!
  * \brief Alternates the datarate of the channel for the join request.
  *
  * \param [IN] alternateDr Pointer to the function parameters.
@@ -431,9 +438,11 @@ void RegionEU868CalcBackOff( CalcBackOffParams_t* calcBackOff );
  * \param [OUT] time Time to wait for the next transmission according to the duty
  *              cycle.
  *
+ * \param [OUT] aggregatedTimeOff Updates the aggregated time off.
+ *
  * \retval Function status [1: OK, 0: Unable to find a channel on the current datarate]
  */
-bool RegionEU868NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time );
+bool RegionEU868NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff );
 
 /*!
  * \brief Adds a channel.

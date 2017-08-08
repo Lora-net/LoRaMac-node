@@ -59,14 +59,29 @@ static uint16_t ChannelsMask[CHANNELS_MASK_SIZE];
 static uint16_t ChannelsDefaultMask[CHANNELS_MASK_SIZE];
 
 // Static functions
-static int8_t GetMaxBandTxPower( uint32_t freq )
+static int8_t GetNextLowerTxDr( int8_t dr, int8_t minDr )
+{
+    uint8_t nextLowerDr = 0;
+
+    if( dr == minDr )
+    {
+        nextLowerDr = minDr;
+    }
+    else
+    {
+        nextLowerDr = dr - 1;
+    }
+    return nextLowerDr;
+}
+
+static int8_t GetMaxEIRP( uint32_t freq )
 {
     if( freq >= 922100000 )
     {// Limit to 14dBm
-        return TX_POWER_1;
+        return KR920_DEFAULT_MAX_EIRP_HIGH;
     }
     // Limit to 10dBm
-    return TX_POWER_2;
+    return KR920_DEFAULT_MAX_EIRP_LOW;
 }
 
 static uint32_t GetBandwidth( uint32_t drIndex )
@@ -160,7 +175,7 @@ static uint8_t CountNbOfEnabledChannels( bool joined, uint8_t datarate, uint16_t
 
 PhyParam_t RegionKR920GetPhyParam( GetPhyParams_t* getPhy )
 {
-    PhyParam_t phyParam;
+    PhyParam_t phyParam = { 0 };
 
     switch( getPhy->Attribute )
     {
@@ -179,15 +194,24 @@ PhyParam_t RegionKR920GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = KR920_DEFAULT_DATARATE;
             break;
         }
+        case PHY_NEXT_LOWER_TX_DR:
+        {
+            phyParam.Value = GetNextLowerTxDr( getPhy->Datarate, KR920_TX_MIN_DATARATE );
+            break;
+        }
         case PHY_DEF_TX_POWER:
         {
             phyParam.Value = KR920_DEFAULT_TX_POWER;
             break;
         }
         case PHY_MAX_PAYLOAD:
-        case PHY_MAX_PAYLOAD_REPEATER:
         {
             phyParam.Value = MaxPayloadOfDatarateKR920[getPhy->Datarate];
+            break;
+        }
+        case PHY_MAX_PAYLOAD_REPEATER:
+        {
+            phyParam.Value = MaxPayloadOfDatarateRepeaterKR920[getPhy->Datarate];
             break;
         }
         case PHY_DUTY_CYCLE:
@@ -267,9 +291,22 @@ PhyParam_t RegionKR920GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_DEF_UPLINK_DWELL_TIME:
         case PHY_DEF_DOWNLINK_DWELL_TIME:
-        case PHY_DEF_MAX_EIRP:
         {
             phyParam.Value = 0;
+            break;
+        }
+        case PHY_DEF_MAX_EIRP:
+        {
+            // We set the higher maximum EIRP as default value.
+            // The reason for this is, that the frequency may
+            // change during a channel selection for the next uplink.
+            // The value has to be recalculated in the TX configuration.
+            phyParam.fValue = KR920_DEFAULT_MAX_EIRP_HIGH;
+            break;
+        }
+        case PHY_DEF_ANTENNA_GAIN:
+        {
+            phyParam.fValue = KR920_DEFAULT_ANTENNA_GAIN;
             break;
         }
         case PHY_NB_JOIN_TRIALS:
@@ -289,7 +326,7 @@ PhyParam_t RegionKR920GetPhyParam( GetPhyParams_t* getPhy )
 
 void RegionKR920SetBandTxDone( SetBandTxDoneParams_t* txDone )
 {
-    RegionCommonSetBandTxDone( &Bands[Channels[txDone->Channel].Band], txDone->LastTxDoneTime );
+    RegionCommonSetBandTxDone( txDone->Joined, &Bands[Channels[txDone->Channel].Band], txDone->LastTxDoneTime );
 }
 
 void RegionKR920InitDefaults( InitType_t type )
@@ -378,16 +415,25 @@ void RegionKR920ApplyCFList( ApplyCFListParams_t* applyCFList )
     }
 
     // Last byte is RFU, don't take it into account
-    for( uint8_t i = 0, chanIdx = KR920_NUMB_DEFAULT_CHANNELS; i < 15; i+=3, chanIdx++ )
+    for( uint8_t i = 0, chanIdx = KR920_NUMB_DEFAULT_CHANNELS; chanIdx < KR920_MAX_NB_CHANNELS; i+=3, chanIdx++ )
     {
-        // Channel frequency
-        newChannel.Frequency = (uint32_t) applyCFList->Payload[i];
-        newChannel.Frequency |= ( (uint32_t) applyCFList->Payload[i + 1] << 8 );
-        newChannel.Frequency |= ( (uint32_t) applyCFList->Payload[i + 2] << 16 );
-        newChannel.Frequency *= 100;
+        if( chanIdx < ( KR920_NUMB_CHANNELS_CF_LIST + KR920_NUMB_DEFAULT_CHANNELS ) )
+        {
+            // Channel frequency
+            newChannel.Frequency = (uint32_t) applyCFList->Payload[i];
+            newChannel.Frequency |= ( (uint32_t) applyCFList->Payload[i + 1] << 8 );
+            newChannel.Frequency |= ( (uint32_t) applyCFList->Payload[i + 2] << 16 );
+            newChannel.Frequency *= 100;
 
-        // Initialize alternative frequency to 0
-        newChannel.Rx1Frequency = 0;
+            // Initialize alternative frequency to 0
+            newChannel.Rx1Frequency = 0;
+        }
+        else
+        {
+            newChannel.Frequency = 0;
+            newChannel.DrRange.Value = 0;
+            newChannel.Rx1Frequency = 0;
+        }
 
         if( newChannel.Frequency != 0 )
         {
@@ -431,6 +477,8 @@ bool RegionKR920AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
     bool adrAckReq = false;
     int8_t datarate = adrNext->Datarate;
     int8_t txPower = adrNext->TxPower;
+    GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
 
     // Report back the adr ack counter
     *adrAckCounter = adrNext->AdrAckCounter;
@@ -457,13 +505,17 @@ bool RegionKR920AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
             {
                 if( ( adrNext->AdrAckCounter % KR920_ADR_ACK_DELAY ) == 1 )
                 {
-                    if( datarate > KR920_TX_MIN_DATARATE )
-                    {
-                        datarate--;
-                    }
+                    // Decrease the datarate
+                    getPhy.Attribute = PHY_NEXT_LOWER_TX_DR;
+                    getPhy.Datarate = datarate;
+                    getPhy.UplinkDwellTime = adrNext->UplinkDwellTime;
+                    phyParam = RegionKR920GetPhyParam( &getPhy );
+                    datarate = phyParam.Value;
 
                     if( datarate == KR920_TX_MIN_DATARATE )
                     {
+                        // We must set adrAckReq to false as soon as we reach the lowest datarate
+                        adrAckReq = false;
                         if( adrNext->UpdateChanMask == true )
                         {
                             // Re-enable default channels
@@ -484,17 +536,11 @@ void RegionKR920ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
 {
     double tSymbol = 0.0;
 
-    rxConfigParams->Datarate = datarate;
-    rxConfigParams->Bandwidth = GetBandwidth( datarate );
+    // Get the datarate, perform a boundary check
+    rxConfigParams->Datarate = MIN( datarate, KR920_RX_MAX_DATARATE );
+    rxConfigParams->Bandwidth = GetBandwidth( rxConfigParams->Datarate );
 
-    if( datarate == DR_7 )
-    { // FSK
-        tSymbol = RegionCommonComputeSymbolTimeFsk( DataratesKR920[datarate] );
-    }
-    else
-    { // LoRa
-        tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesKR920[datarate], BandwidthsKR920[datarate] );
-    }
+    tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesKR920[rxConfigParams->Datarate], BandwidthsKR920[rxConfigParams->Datarate] );
 
     RegionCommonComputeRxWindowParameters( tSymbol, minRxSymbols, rxError, RADIO_WAKEUP_TIME, &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
 }
@@ -539,34 +585,42 @@ bool RegionKR920RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
 bool RegionKR920TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime_t* txTimeOnAir )
 {
     int8_t phyDr = DataratesKR920[txConfig->Datarate];
-    int8_t maxTxPower = MAX( GetMaxBandTxPower( Channels[txConfig->Channel].Frequency ), Bands[Channels[txConfig->Channel].Band].TxMaxPower );
-    int8_t txPowerLimited = LimitTxPower( txConfig->TxPower, maxTxPower, txConfig->Datarate, ChannelsMask );
+    int8_t txPowerLimited = LimitTxPower( txConfig->TxPower, Bands[Channels[txConfig->Channel].Band].TxMaxPower, txConfig->Datarate, ChannelsMask );
     uint32_t bandwidth = GetBandwidth( txConfig->Datarate );
+    float maxEIRP = GetMaxEIRP( Channels[txConfig->Channel].Frequency );
     int8_t phyTxPower = 0;
 
-    phyTxPower = TxPowersKR920[txPowerLimited];
+    // Take the minimum between the maxEIRP and txConfig->MaxEirp.
+    // The value of txConfig->MaxEirp could have changed during runtime, e.g. due to a MAC command.
+    maxEIRP = MIN( txConfig->MaxEirp, maxEIRP );
+
+    // Calculate physical TX power
+    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, maxEIRP, txConfig->AntennaGain );
 
     // Setup the radio frequency
     Radio.SetChannel( Channels[txConfig->Channel].Frequency );
 
-    Radio.SetTxConfig( MODEM_LORA, phyTxPower, 0, bandwidth, phyDr, 1, 8, false, true, 0, 0, false, 4e3 );
+    Radio.SetTxConfig( MODEM_LORA, phyTxPower, 0, bandwidth, phyDr, 1, 8, false, true, 0, 0, false, 3000 );
 
     // Setup maximum payload lenght of the radio driver
     Radio.SetMaxPayloadLength( MODEM_LORA, txConfig->PktLen );
     // Get the time-on-air of the next tx frame
-    *txTimeOnAir = Radio.TimeOnAir( MODEM_LORA,  txConfig->PktLen );
+    *txTimeOnAir = Radio.TimeOnAir( MODEM_LORA, txConfig->PktLen );
 
-    *txPower = txConfig->TxPower;
+    *txPower = txPowerLimited;
     return true;
 }
 
 uint8_t RegionKR920LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, int8_t* txPowOut, uint8_t* nbRepOut, uint8_t* nbBytesParsed )
 {
     uint8_t status = 0x07;
-    LinkAdrParams_t linkAdrParams;
+    RegionCommonLinkAdrParams_t linkAdrParams;
     uint8_t nextIndex = 0;
     uint8_t bytesProcessed = 0;
     uint16_t chMask = 0;
+    GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
+    RegionCommonLinkAdrReqVerifyParams_t linkAdrVerifyParams;
 
     while( bytesProcessed < linkAdrReq->PayloadSize )
     {
@@ -619,34 +673,33 @@ uint8_t RegionKR920LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
         }
     }
 
-    // Verify datarate
-    if( RegionCommonChanVerifyDr( KR920_MAX_NB_CHANNELS, &chMask, linkAdrParams.Datarate, KR920_TX_MIN_DATARATE, KR920_TX_MAX_DATARATE, Channels  ) == false )
-    {
-        status &= 0xFD; // Datarate KO
-    }
+    // Get the minimum possible datarate
+    getPhy.Attribute = PHY_MIN_TX_DR;
+    getPhy.UplinkDwellTime = linkAdrReq->UplinkDwellTime;
+    phyParam = RegionKR920GetPhyParam( &getPhy );
 
-    // Verify tx power
-    if( RegionCommonValueInRange( linkAdrParams.TxPower, KR920_MAX_TX_POWER, KR920_MIN_TX_POWER ) == 0 )
-    {
-        // Verify if the maximum TX power is exceeded
-        if( KR920_MAX_TX_POWER > linkAdrParams.TxPower )
-        { // Apply maximum TX power. Accept TX power.
-            linkAdrParams.TxPower = KR920_MAX_TX_POWER;
-        }
-        else
-        {
-            status &= 0xFB; // TxPower KO
-        }
-    }
+    linkAdrVerifyParams.Status = status;
+    linkAdrVerifyParams.AdrEnabled = linkAdrReq->AdrEnabled;
+    linkAdrVerifyParams.Datarate = linkAdrParams.Datarate;
+    linkAdrVerifyParams.TxPower = linkAdrParams.TxPower;
+    linkAdrVerifyParams.NbRep = linkAdrParams.NbRep;
+    linkAdrVerifyParams.CurrentDatarate = linkAdrReq->CurrentDatarate;
+    linkAdrVerifyParams.CurrentTxPower = linkAdrReq->CurrentTxPower;
+    linkAdrVerifyParams.CurrentNbRep = linkAdrReq->CurrentNbRep;
+    linkAdrVerifyParams.NbChannels = KR920_MAX_NB_CHANNELS;
+    linkAdrVerifyParams.ChannelsMask = &chMask;
+    linkAdrVerifyParams.MinDatarate = ( int8_t )phyParam.Value;
+    linkAdrVerifyParams.MaxDatarate = KR920_TX_MAX_DATARATE;
+    linkAdrVerifyParams.Channels = Channels;
+    linkAdrVerifyParams.MinTxPower = KR920_MIN_TX_POWER;
+    linkAdrVerifyParams.MaxTxPower = KR920_MAX_TX_POWER;
+
+    // Verify the parameters and update, if necessary
+    status = RegionCommonLinkAdrReqVerifyParams( &linkAdrVerifyParams, &linkAdrParams.Datarate, &linkAdrParams.TxPower, &linkAdrParams.NbRep );
 
     // Update channelsMask if everything is correct
     if( status == 0x07 )
     {
-        if( linkAdrParams.NbRep == 0 )
-        { // Value of 0 is not allowed, revert to default.
-            linkAdrParams.NbRep = 1;
-        }
-
         // Set the channels mask to a default value
         memset( ChannelsMask, 0, sizeof( ChannelsMask ) );
         // Update the channels mask
@@ -803,40 +856,27 @@ int8_t RegionKR920AlternateDr( AlternateDrParams_t* alternateDr )
 
 void RegionKR920CalcBackOff( CalcBackOffParams_t* calcBackOff )
 {
-    uint8_t channel = calcBackOff->Channel;
-    uint16_t dutyCycle = Bands[Channels[channel].Band].DCycle;
-    uint16_t joinDutyCycle = 0;
+    RegionCommonCalcBackOffParams_t calcBackOffParams;
 
-    // Reset time-off to initial value.
-    Bands[Channels[channel].Band].TimeOff = 0;
+    calcBackOffParams.Channels = Channels;
+    calcBackOffParams.Bands = Bands;
+    calcBackOffParams.LastTxIsJoinRequest = calcBackOff->LastTxIsJoinRequest;
+    calcBackOffParams.Joined = calcBackOff->Joined;
+    calcBackOffParams.DutyCycleEnabled = calcBackOff->DutyCycleEnabled;
+    calcBackOffParams.Channel = calcBackOff->Channel;
+    calcBackOffParams.ElapsedTime = calcBackOff->ElapsedTime;
+    calcBackOffParams.TxTimeOnAir = calcBackOff->TxTimeOnAir;
 
-    if( calcBackOff->Joined == false )
-    {
-        // Get the join duty cycle
-        joinDutyCycle = RegionCommonGetJoinDc( calcBackOff->ElapsedTime );
-        // Apply the most restricting duty cycle
-        dutyCycle = MAX( dutyCycle, joinDutyCycle );
-        // Apply band time-off.
-        Bands[Channels[channel].Band].TimeOff = calcBackOff->TxTimeOnAir * dutyCycle - calcBackOff->TxTimeOnAir;
-    }
-    else
-    {
-        if( calcBackOff->DutyCycleEnabled == true )
-        {
-            Bands[Channels[channel].Band].TimeOff = calcBackOff->TxTimeOnAir * dutyCycle - calcBackOff->TxTimeOnAir;
-        }
-    }
+    RegionCommonCalcBackOff( &calcBackOffParams );
 }
 
-bool RegionKR920NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time )
+bool RegionKR920NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
 {
     uint8_t channelNext = 0;
     uint8_t nbEnabledChannels = 0;
     uint8_t delayTx = 0;
     uint8_t enabledChannels[KR920_MAX_NB_CHANNELS] = { 0 };
     TimerTime_t nextTxDelay = 0;
-    TimerTime_t carrierSenseTime = 0;
-    bool channelFree = false;
 
     if( RegionCommonCountChannels( ChannelsMask, 0, 1 ) == 0 )
     { // Reactivate default channels
@@ -845,8 +885,11 @@ bool RegionKR920NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
 
     if( nextChanParams->AggrTimeOff <= TimerGetElapsedTime( nextChanParams->LastAggrTx ) )
     {
+        // Reset Aggregated time off
+        *aggregatedTimeOff = 0;
+
         // Update bands Time OFF
-        nextTxDelay = RegionCommonUpdateBandTimeOff( nextChanParams->DutyCycleEnabled, Bands, KR920_MAX_NB_BANDS );
+        nextTxDelay = RegionCommonUpdateBandTimeOff( nextChanParams->Joined, nextChanParams->DutyCycleEnabled, Bands, KR920_MAX_NB_BANDS );
 
         // Search how many channels are enabled
         nbEnabledChannels = CountNbOfEnabledChannels( nextChanParams->Joined, nextChanParams->Datarate,
@@ -866,21 +909,9 @@ bool RegionKR920NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
             channelNext = enabledChannels[j];
             j = ( j + 1 ) % nbEnabledChannels;
 
-            carrierSenseTime = TimerGetCurrentTime( );
-            channelFree = true;
-
-            // Perform carrier sense for 6ms
-            while( TimerGetElapsedTime( carrierSenseTime ) < KR920_CARRIER_SENSE_TIME )
-            {
-                if( Radio.IsChannelFree( MODEM_LORA, Channels[channelNext].Frequency, KR920_RSSI_FREE_TH ) == false )
-                {
-                    channelFree = false;
-                    break;
-                }
-            }
-
+            // Perform carrier sense for KR920_CARRIER_SENSE_TIME
             // If the channel is free, we can stop the LBT mechanism
-            if( channelFree == true )
+            if( Radio.IsChannelFree( MODEM_LORA, Channels[channelNext].Frequency, KR920_RSSI_FREE_TH, KR920_CARRIER_SENSE_TIME ) == true )
             {
                 // Free channel found
                 *channel = channelNext;
@@ -989,10 +1020,16 @@ bool RegionKR920ChannelsRemove( ChannelRemoveParams_t* channelRemove  )
 void RegionKR920SetContinuousWave( ContinuousWaveParams_t* continuousWave )
 {
     int8_t txPowerLimited = LimitTxPower( continuousWave->TxPower, Bands[Channels[continuousWave->Channel].Band].TxMaxPower, continuousWave->Datarate, ChannelsMask );
+    float maxEIRP = GetMaxEIRP( Channels[continuousWave->Channel].Frequency );
     int8_t phyTxPower = 0;
     uint32_t frequency = Channels[continuousWave->Channel].Frequency;
 
-    phyTxPower = TxPowersKR920[txPowerLimited];
+    // Take the minimum between the maxEIRP and continuousWave->MaxEirp.
+    // The value of continuousWave->MaxEirp could have changed during runtime, e.g. due to a MAC command.
+    maxEIRP = MIN( continuousWave->MaxEirp, maxEIRP );
+
+    // Calculate physical TX power
+    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, maxEIRP, continuousWave->AntennaGain );
 
     Radio.SetTxContinuousWave( frequency, phyTxPower, continuousWave->Timeout );
 }

@@ -48,7 +48,7 @@
 /*!
  * Maximal datarate that can be used by the node
  */
-#define AU915_TX_MAX_DATARATE                       DR_4
+#define AU915_TX_MAX_DATARATE                       DR_6
 
 /*!
  * Minimal datarate that can be used by the node
@@ -73,7 +73,7 @@
 /*!
  * Maximal Rx1 receive datarate offset
  */
-#define AU915_MAX_RX1_DR_OFFSET                     3
+#define AU915_MAX_RX1_DR_OFFSET                     6
 
 /*!
  * Default Rx1 receive datarate offset
@@ -93,7 +93,17 @@
 /*!
  * Default Tx output power used by the node
  */
-#define AU915_DEFAULT_TX_POWER                      TX_POWER_5
+#define AU915_DEFAULT_TX_POWER                      TX_POWER_0
+
+/*!
+ * Default Max EIRP
+ */
+#define AU915_DEFAULT_MAX_EIRP                      30.0f
+
+/*!
+ * Default antenna gain
+ */
+#define AU915_DEFAULT_ANTENNA_GAIN                  2.15f
 
 /*!
  * ADR Ack limit
@@ -169,61 +179,56 @@
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
  */
-#define AU915_BAND0                                 { 1, AU915_DEFAULT_TX_POWER, 0,  0 } //  100.0 %
+#define AU915_BAND0                                 { 1, AU915_MAX_TX_POWER, 0,  0 } //  100.0 %
 
 /*!
  * Defines the first channel for RX window 1 for US band
  */
-#define AU915_FIRST_RX1_CHANNEL                     ( (uint32_t) 923.3e6 )
+#define AU915_FIRST_RX1_CHANNEL                     ( (uint32_t) 923300000 )
 
 /*!
  * Defines the last channel for RX window 1 for US band
  */
-#define AU915_LAST_RX1_CHANNEL                      ( (uint32_t) 927.5e6 )
+#define AU915_LAST_RX1_CHANNEL                      ( (uint32_t) 927500000 )
 
 /*!
  * Defines the step width of the channels for RX window 1
  */
-#define AU915_STEPWIDTH_RX1_CHANNEL                 ( (uint32_t) 600e3 )
+#define AU915_STEPWIDTH_RX1_CHANNEL                 ( (uint32_t) 600000 )
 
 /*!
  * Data rates table definition
  */
-static const uint8_t DataratesAU915[]  = { 10, 9, 8,  7,  8,  0,  0, 0, 12, 11, 10, 9, 8, 7, 0, 0 };
+static const uint8_t DataratesAU915[]  = { 12, 11, 10, 9, 8, 7, 8, 0, 12, 11, 10, 9, 8, 7, 0, 0 };
 
 /*!
  * Bandwidths table definition in Hz
  */
-static const uint32_t BandwidthsAU915[] = { 125e3, 125e3, 125e3, 125e3, 500e3, 0, 0, 0, 500e3, 500e3, 500e3, 500e3, 500e3, 500e3, 0, 0 };
+static const uint32_t BandwidthsAU915[] = { 125000, 125000, 125000, 125000, 125000, 125000, 500000, 0, 500000, 500000, 500000, 500000, 500000, 500000, 0, 0 };
 
 /*!
  * Up/Down link data rates offset definition
  */
-static const int8_t DatarateOffsetsAU915[5][4] =
+static const int8_t DatarateOffsetsAU915[7][6] =
 {
-    { DR_10, DR_9 , DR_8 , DR_8  }, // DR_0
-    { DR_11, DR_10, DR_9 , DR_8  }, // DR_1
-    { DR_12, DR_11, DR_10, DR_9  }, // DR_2
-    { DR_13, DR_12, DR_11, DR_10 }, // DR_3
-    { DR_13, DR_13, DR_12, DR_11 }, // DR_4
+    { DR_8 , DR_8 , DR_8 , DR_8 , DR_8 , DR_8  }, // DR_0
+    { DR_9 , DR_8 , DR_8 , DR_8 , DR_8 , DR_8  }, // DR_1
+    { DR_10, DR_9 , DR_8 , DR_8 , DR_8 , DR_8  }, // DR_2
+    { DR_11, DR_10, DR_9 , DR_8 , DR_8 , DR_8  }, // DR_3
+    { DR_12, DR_11, DR_10, DR_9 , DR_8 , DR_8  }, // DR_4
+    { DR_13, DR_12, DR_11, DR_10, DR_9 , DR_8  }, // DR_5
+    { DR_13, DR_13, DR_12, DR_11, DR_10, DR_9  }, // DR_6
 };
 
 /*!
  * Maximum payload with respect to the datarate index. Cannot operate with repeater.
  */
-static const uint8_t MaxPayloadOfDatarateAU915[] = { 11, 53, 126, 242, 242, 0, 0, 0, 53, 129, 242, 242, 242, 242, 0, 0 };
+static const uint8_t MaxPayloadOfDatarateAU915[] = { 51, 51, 51, 115, 242, 242, 242, 0, 53, 129, 242, 242, 242, 242, 0, 0 };
 
 /*!
  * Maximum payload with respect to the datarate index. Can operate with repeater.
  */
-static const uint8_t MaxPayloadOfDatarateRepeaterAU915[] = { 11, 53, 126, 242, 242, 0, 0, 0, 33, 109, 222, 222, 222, 222, 0, 0 };
-
-/*!
- * Tx output powers table definition
- */
-static const int8_t TxPowersAU915[] = { 30, 28, 26, 24, 22, 20, 18, 16, 14, 12, 10 };
-
-
+static const uint8_t MaxPayloadOfDatarateRepeaterAU915[] = { 51, 51, 51, 115, 222, 222, 222, 0, 33, 109, 222, 222, 222, 222, 0, 0 };
 
 /*!
  * \brief The function gets a value of a specific phy attribute.
@@ -377,7 +382,7 @@ int8_t RegionAU915TxParamSetupReq( TxParamSetupReqParams_t* txParamSetupReq );
  */
 uint8_t RegionAU915DlChannelReq( DlChannelReqParams_t* dlChannelReq );
 
-/*
+/*!
  * \brief Alternates the datarate of the channel for the join request.
  *
  * \param [IN] alternateDr Pointer to the function parameters.
@@ -401,9 +406,11 @@ void RegionAU915CalcBackOff( CalcBackOffParams_t* calcBackOff );
  * \param [OUT] time Time to wait for the next transmission according to the duty
  *              cycle.
  *
+ * \param [OUT] aggregatedTimeOff Updates the aggregated time off.
+ *
  * \retval Function status [1: OK, 0: Unable to find a channel on the current datarate]
  */
-bool RegionAU915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time );
+bool RegionAU915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff );
 
 /*!
  * \brief Adds a channel.

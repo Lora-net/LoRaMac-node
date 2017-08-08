@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Project version="2G - 2.0.1" name="LoRaMacClassB">
-  <Target name="LoRaMacClassB-US915" isCurrent="1">
+  <Target name="LoRaMacClassB-eu868" isCurrent="0">
     <Device manufacturerId="9" manufacturerName="ST" chipId="932" chipName="STM32L152RCT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="4"/>
         <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
+        <Option name="UserEditCompiler" value="-fno-builtin;--specs=nano.specs;-Wl,--gc-sections;-std=c99;-ffunction-sections;-fdata-sections;-fomit-frame-pointer;-mabi=aapcs;-fno-unroll-loops;-ffast-math;-ftree-vectorize;"/>
         <Option name="SupportCPlusplus" value="0"/>
         <Option name="DEBUG" value="2"/>
         <Option name="WARNING" value="1"/>
@@ -27,19 +27,17 @@
         <DefinedSymbols>
           <Define name="USE_HAL_DRIVER"/>
           <Define name="STM32L152xC"/>
-          <Define name="REGION_US915"/>
+          <Define name="REGION_EU868"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
-        <Option name="DiscardUnusedSection" value="1"/>
-        <Option name="UserEditLinkder" value=""/>
+        <Option name="DiscardUnusedSection" value="0"/>
         <Option name="UseMemoryLayout" value="0"/>
         <Option name="nostartfiles" value="0"/>
         <Option name="LTO" value="1"/>
         <Option name="IsNewStartupCode" value="1"/>
         <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lc;-lm; -lrdimon; "/>
-        <Option name="DiscardUnusedSections" value="1"/>
+        <Option name="UserEditLinker" value=" -mabi=aapcs; -lc; -lm; -lrdimon; ;"/>
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
@@ -52,92 +50,7 @@
       <Output>
         <Option name="OutputFileType" value="0"/>
         <Option name="Path" value="./"/>
-        <Option name="Name" value="LoRaMacClassB"/>
-        <Option name="HEX" value="1"/>
-        <Option name="BIN" value="1"/>
-      </Output>
-      <User>
-        <UserRun name="Run#1" type="Before" checked="0" value=""/>
-        <UserRun name="Run#1" type="After" checked="0" value=""/>
-      </User>
-    </BuildOption>
-    <DebugOption>
-      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
-      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="0"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="C:\Users\mluis\AppData\Roaming\CooCox\CoIDE\config\flash\CooCox-Flash\CoIDE_STM32L1xx_256K\STM32L1xx_256.elf"/>
-    </DebugOption>
-    <ExcludeFile/>
-  </Target>
-  <Target name="LoRaMacClassB-US915-hybrid" isCurrent="0">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="932" chipName="STM32L152RCT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
-    <BuildOption>
-      <Compile>
-        <Option name="OptimizationLevel" value="4"/>
-        <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value="-std=c99"/>
-        <Option name="SupportCPlusplus" value="0"/>
-        <Option name="DEBUG" value="2"/>
-        <Option name="WARNING" value="1"/>
-        <Option name="STANDARD" value="1"/>
-        <Option name="STANDARDCPP" value="2"/>
-        <Option name="CPPADVANCES" value="0,0,0,0,0,0"/>
-        <Includepaths>
-          <Includepath path="../../../../src"/>
-          <Includepath path="../../../../src/boards/NAMote72"/>
-          <Includepath path="../../../../src/boards/NAMote72/cmsis"/>
-          <Includepath path="../../../../src/boards/mcu/stm32"/>
-          <Includepath path="../../../../src/boards/mcu/stm32/cmsis"/>
-          <Includepath path="../../../../src/boards/mcu/stm32/stm32l1xx_HAL_Driver/inc"/>
-          <Includepath path="../../../../src/mac"/>
-          <Includepath path="../../../../src/mac/region"/>
-          <Includepath path="../../../../src/peripherals"/>
-          <Includepath path="../../../../src/radio"/>
-          <Includepath path="../../../../src/system"/>
-          <Includepath path="../../../../src/system/crypto"/>
-        </Includepaths>
-        <DefinedSymbols>
-          <Define name="USE_HAL_DRIVER"/>
-          <Define name="STM32L152xC"/>
-          <Define name="REGION_US915_HYBRID"/>
-        </DefinedSymbols>
-      </Compile>
-      <Link useDefault="0">
-        <Option name="DiscardUnusedSection" value="1"/>
-        <Option name="UserEditLinkder" value=""/>
-        <Option name="UseMemoryLayout" value="0"/>
-        <Option name="nostartfiles" value="0"/>
-        <Option name="LTO" value="1"/>
-        <Option name="IsNewStartupCode" value="1"/>
-        <Option name="Library" value="Use nano C Library"/>
-        <Option name="UserEditLinker" value="-lc;-lm; -lrdimon; "/>
-        <Option name="DiscardUnusedSections" value="1"/>
-        <LinkedLibraries/>
-        <MemoryAreas debugInFlashNotRAM="1">
-          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
-          <Memory name="IRAM1" type="ReadWrite" size="0x00004000" startValue="0x20000000"/>
-          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
-          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
-        </MemoryAreas>
-        <LocateLinkFile path="../../../../src/boards/NAMote72/cmsis/arm-gcc/stm32l152xc_flash.ld" type="0"/>
-      </Link>
-      <Output>
-        <Option name="OutputFileType" value="0"/>
-        <Option name="Path" value="./"/>
-        <Option name="Name" value="LoRaMacClassB"/>
+        <Option name="Name" value="LoRaMac-eu868"/>
         <Option name="HEX" value="1"/>
         <Option name="BIN" value="1"/>
       </Output>
@@ -163,7 +76,567 @@
       <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="C:\Users\mluis\AppData\Roaming\CooCox\CoIDE\config\flash\CooCox-Flash\CoIDE_STM32L1xx_256K\STM32L1xx_256.elf"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="coocox-flash/coide_stm32l1xx_256k/stm32l1xx_256.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Target name="LoRaMacClassB-us915" isCurrent="1">
+    <Device manufacturerId="9" manufacturerName="ST" chipId="932" chipName="STM32L152RCT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="4"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value="-fno-builtin;--specs=nano.specs;-Wl,--gc-sections;-std=c99;-ffunction-sections;-fdata-sections;-fomit-frame-pointer;-mabi=aapcs;-fno-unroll-loops;-ffast-math;-ftree-vectorize;"/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
+        <Includepaths>
+          <Includepath path="../../../../src"/>
+          <Includepath path="../../../../src/boards/NAMote72"/>
+          <Includepath path="../../../../src/boards/NAMote72/cmsis"/>
+          <Includepath path="../../../../src/boards/mcu/stm32"/>
+          <Includepath path="../../../../src/boards/mcu/stm32/cmsis"/>
+          <Includepath path="../../../../src/boards/mcu/stm32/stm32l1xx_HAL_Driver/inc"/>
+          <Includepath path="../../../../src/mac"/>
+          <Includepath path="../../../../src/mac/region"/>
+          <Includepath path="../../../../src/peripherals"/>
+          <Includepath path="../../../../src/radio"/>
+          <Includepath path="../../../../src/system"/>
+          <Includepath path="../../../../src/system/crypto"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="USE_HAL_DRIVER"/>
+          <Define name="STM32L152xC"/>
+          <Define name="REGION_US915"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UseMemoryLayout" value="0"/>
+        <Option name="nostartfiles" value="0"/>
+        <Option name="LTO" value="1"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <Option name="Library" value="Use nano C Library"/>
+        <Option name="UserEditLinker" value=" -mabi=aapcs; -lc; -lm; -lrdimon; ;"/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00004000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="../../../../src/boards/NAMote72/cmsis/arm-gcc/stm32l152xc_flash.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="LoRaMac-us915"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="coocox-flash/coide_stm32l1xx_256k/stm32l1xx_256.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Target name="LoRaMacClassB-us915-hybrid" isCurrent="0">
+    <Device manufacturerId="9" manufacturerName="ST" chipId="932" chipName="STM32L152RCT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="4"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value="-fno-builtin;--specs=nano.specs;-Wl,--gc-sections;-std=c99;-ffunction-sections;-fdata-sections;-fomit-frame-pointer;-mabi=aapcs;-fno-unroll-loops;-ffast-math;-ftree-vectorize;"/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
+        <Includepaths>
+          <Includepath path="../../../../src"/>
+          <Includepath path="../../../../src/boards/NAMote72"/>
+          <Includepath path="../../../../src/boards/NAMote72/cmsis"/>
+          <Includepath path="../../../../src/boards/mcu/stm32"/>
+          <Includepath path="../../../../src/boards/mcu/stm32/cmsis"/>
+          <Includepath path="../../../../src/boards/mcu/stm32/stm32l1xx_HAL_Driver/inc"/>
+          <Includepath path="../../../../src/mac"/>
+          <Includepath path="../../../../src/mac/region"/>
+          <Includepath path="../../../../src/peripherals"/>
+          <Includepath path="../../../../src/radio"/>
+          <Includepath path="../../../../src/system"/>
+          <Includepath path="../../../../src/system/crypto"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="USE_HAL_DRIVER"/>
+          <Define name="STM32L152xC"/>
+          <Define name="REGION_US915_HYBRID"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UseMemoryLayout" value="0"/>
+        <Option name="nostartfiles" value="0"/>
+        <Option name="LTO" value="1"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <Option name="Library" value="Use nano C Library"/>
+        <Option name="UserEditLinker" value=" -mabi=aapcs; -lc; -lm; -lrdimon; ;"/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00004000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="../../../../src/boards/NAMote72/cmsis/arm-gcc/stm32l152xc_flash.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="LoRaMac-us915-hybrid"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="coocox-flash/coide_stm32l1xx_256k/stm32l1xx_256.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Target name="LoRaMacClassB-cn779" isCurrent="0">
+    <Device manufacturerId="9" manufacturerName="ST" chipId="932" chipName="STM32L152RCT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="4"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value="-fno-builtin;--specs=nano.specs;-Wl,--gc-sections;-std=c99;-ffunction-sections;-fdata-sections;-fomit-frame-pointer;-mabi=aapcs;-fno-unroll-loops;-ffast-math;-ftree-vectorize;"/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
+        <Includepaths>
+          <Includepath path="../../../../src"/>
+          <Includepath path="../../../../src/boards/NAMote72"/>
+          <Includepath path="../../../../src/boards/NAMote72/cmsis"/>
+          <Includepath path="../../../../src/boards/mcu/stm32"/>
+          <Includepath path="../../../../src/boards/mcu/stm32/cmsis"/>
+          <Includepath path="../../../../src/boards/mcu/stm32/stm32l1xx_HAL_Driver/inc"/>
+          <Includepath path="../../../../src/mac"/>
+          <Includepath path="../../../../src/mac/region"/>
+          <Includepath path="../../../../src/peripherals"/>
+          <Includepath path="../../../../src/radio"/>
+          <Includepath path="../../../../src/system"/>
+          <Includepath path="../../../../src/system/crypto"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="USE_HAL_DRIVER"/>
+          <Define name="STM32L152xC"/>
+          <Define name="REGION_CN779"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UseMemoryLayout" value="0"/>
+        <Option name="nostartfiles" value="0"/>
+        <Option name="LTO" value="1"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <Option name="Library" value="Use nano C Library"/>
+        <Option name="UserEditLinker" value=" -mabi=aapcs; -lc; -lm; -lrdimon; ;"/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00004000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="../../../../src/boards/NAMote72/cmsis/arm-gcc/stm32l152xc_flash.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="LoRaMac-cn779"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="coocox-flash/coide_stm32l1xx_256k/stm32l1xx_256.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Target name="LoRaMacClassB-au915" isCurrent="0">
+    <Device manufacturerId="9" manufacturerName="ST" chipId="932" chipName="STM32L152RCT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="4"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value="-fno-builtin;--specs=nano.specs;-Wl,--gc-sections;-std=c99;-ffunction-sections;-fdata-sections;-fomit-frame-pointer;-mabi=aapcs;-fno-unroll-loops;-ffast-math;-ftree-vectorize;"/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
+        <Includepaths>
+          <Includepath path="../../../../src"/>
+          <Includepath path="../../../../src/boards/NAMote72"/>
+          <Includepath path="../../../../src/boards/NAMote72/cmsis"/>
+          <Includepath path="../../../../src/boards/mcu/stm32"/>
+          <Includepath path="../../../../src/boards/mcu/stm32/cmsis"/>
+          <Includepath path="../../../../src/boards/mcu/stm32/stm32l1xx_HAL_Driver/inc"/>
+          <Includepath path="../../../../src/mac"/>
+          <Includepath path="../../../../src/mac/region"/>
+          <Includepath path="../../../../src/peripherals"/>
+          <Includepath path="../../../../src/radio"/>
+          <Includepath path="../../../../src/system"/>
+          <Includepath path="../../../../src/system/crypto"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="USE_HAL_DRIVER"/>
+          <Define name="STM32L152xC"/>
+          <Define name="REGION_AU915"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UseMemoryLayout" value="0"/>
+        <Option name="nostartfiles" value="0"/>
+        <Option name="LTO" value="1"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <Option name="Library" value="Use nano C Library"/>
+        <Option name="UserEditLinker" value=" -mabi=aapcs; -lc; -lm; -lrdimon; ;"/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00004000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="../../../../src/boards/NAMote72/cmsis/arm-gcc/stm32l152xc_flash.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="LoRaMac-au915"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="coocox-flash/coide_stm32l1xx_256k/stm32l1xx_256.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Target name="LoRaMacClassB-as923" isCurrent="0">
+    <Device manufacturerId="9" manufacturerName="ST" chipId="932" chipName="STM32L152RCT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="4"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value="-fno-builtin;--specs=nano.specs;-Wl,--gc-sections;-std=c99;-ffunction-sections;-fdata-sections;-fomit-frame-pointer;-mabi=aapcs;-fno-unroll-loops;-ffast-math;-ftree-vectorize;"/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
+        <Includepaths>
+          <Includepath path="../../../../src"/>
+          <Includepath path="../../../../src/boards/NAMote72"/>
+          <Includepath path="../../../../src/boards/NAMote72/cmsis"/>
+          <Includepath path="../../../../src/boards/mcu/stm32"/>
+          <Includepath path="../../../../src/boards/mcu/stm32/cmsis"/>
+          <Includepath path="../../../../src/boards/mcu/stm32/stm32l1xx_HAL_Driver/inc"/>
+          <Includepath path="../../../../src/mac"/>
+          <Includepath path="../../../../src/mac/region"/>
+          <Includepath path="../../../../src/peripherals"/>
+          <Includepath path="../../../../src/radio"/>
+          <Includepath path="../../../../src/system"/>
+          <Includepath path="../../../../src/system/crypto"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="USE_HAL_DRIVER"/>
+          <Define name="STM32L152xC"/>
+          <Define name="REGION_AS923"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UseMemoryLayout" value="0"/>
+        <Option name="nostartfiles" value="0"/>
+        <Option name="LTO" value="1"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <Option name="Library" value="Use nano C Library"/>
+        <Option name="UserEditLinker" value=" -mabi=aapcs; -lc; -lm; -lrdimon; ;"/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00004000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="../../../../src/boards/NAMote72/cmsis/arm-gcc/stm32l152xc_flash.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="LoRaMac-as923"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="coocox-flash/coide_stm32l1xx_256k/stm32l1xx_256.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Target name="LoRaMacClassB-kr920" isCurrent="0">
+    <Device manufacturerId="9" manufacturerName="ST" chipId="932" chipName="STM32L152RCT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="4"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value="-fno-builtin;--specs=nano.specs;-Wl,--gc-sections;-std=c99;-ffunction-sections;-fdata-sections;-fomit-frame-pointer;-mabi=aapcs;-fno-unroll-loops;-ffast-math;-ftree-vectorize;"/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
+        <Includepaths>
+          <Includepath path="../../../../src"/>
+          <Includepath path="../../../../src/boards/NAMote72"/>
+          <Includepath path="../../../../src/boards/NAMote72/cmsis"/>
+          <Includepath path="../../../../src/boards/mcu/stm32"/>
+          <Includepath path="../../../../src/boards/mcu/stm32/cmsis"/>
+          <Includepath path="../../../../src/boards/mcu/stm32/stm32l1xx_HAL_Driver/inc"/>
+          <Includepath path="../../../../src/mac"/>
+          <Includepath path="../../../../src/mac/region"/>
+          <Includepath path="../../../../src/peripherals"/>
+          <Includepath path="../../../../src/radio"/>
+          <Includepath path="../../../../src/system"/>
+          <Includepath path="../../../../src/system/crypto"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="USE_HAL_DRIVER"/>
+          <Define name="STM32L152xC"/>
+          <Define name="REGION_KR920"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UseMemoryLayout" value="0"/>
+        <Option name="nostartfiles" value="0"/>
+        <Option name="LTO" value="1"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <Option name="Library" value="Use nano C Library"/>
+        <Option name="UserEditLinker" value=" -mabi=aapcs; -lc; -lm; -lrdimon; ;"/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00004000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="../../../../src/boards/NAMote72/cmsis/arm-gcc/stm32l152xc_flash.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="LoRaMac-kr920"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="coocox-flash/coide_stm32l1xx_256k/stm32l1xx_256.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Target name="LoRaMacClassB-in865" isCurrent="0">
+    <Device manufacturerId="9" manufacturerName="ST" chipId="932" chipName="STM32L152RCT6" boardId="" boardName="" boardUrl="" coreId="" coreName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="4"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value="-fno-builtin;--specs=nano.specs;-Wl,--gc-sections;-std=c99;-ffunction-sections;-fdata-sections;-fomit-frame-pointer;-mabi=aapcs;-fno-unroll-loops;-ffast-math;-ftree-vectorize;"/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Option name="DEBUG" value="2"/>
+        <Option name="WARNING" value="1"/>
+        <Includepaths>
+          <Includepath path="../../../../src"/>
+          <Includepath path="../../../../src/boards/NAMote72"/>
+          <Includepath path="../../../../src/boards/NAMote72/cmsis"/>
+          <Includepath path="../../../../src/boards/mcu/stm32"/>
+          <Includepath path="../../../../src/boards/mcu/stm32/cmsis"/>
+          <Includepath path="../../../../src/boards/mcu/stm32/stm32l1xx_HAL_Driver/inc"/>
+          <Includepath path="../../../../src/mac"/>
+          <Includepath path="../../../../src/mac/region"/>
+          <Includepath path="../../../../src/peripherals"/>
+          <Includepath path="../../../../src/radio"/>
+          <Includepath path="../../../../src/system"/>
+          <Includepath path="../../../../src/system/crypto"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="USE_HAL_DRIVER"/>
+          <Define name="STM32L152xC"/>
+          <Define name="REGION_IN865"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UseMemoryLayout" value="0"/>
+        <Option name="nostartfiles" value="0"/>
+        <Option name="LTO" value="1"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <Option name="Library" value="Use nano C Library"/>
+        <Option name="UserEditLinker" value=" -mabi=aapcs; -lc; -lm; -lrdimon; ;"/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00020000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00004000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="../../../../src/boards/NAMote72/cmsis/arm-gcc/stm32l152xc_flash.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="LoRaMac-in865"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="coocox-flash/coide_stm32l1xx_256k/stm32l1xx_256.elf"/>
     </DebugOption>
     <ExcludeFile/>
   </Target>

@@ -93,7 +93,12 @@
 /*!
  * Default Tx output power used by the node
  */
-#define US915_DEFAULT_TX_POWER                      TX_POWER_5
+#define US915_DEFAULT_TX_POWER                      TX_POWER_0
+
+/*!
+ * Default Max ERP
+ */
+#define US915_DEFAULT_MAX_ERP                      30.0f
 
 /*!
  * ADR Ack limit
@@ -169,22 +174,22 @@
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
  */
-#define US915_BAND0                                 { 1, US915_DEFAULT_TX_POWER, 0,  0 } //  100.0 %
+#define US915_BAND0                                 { 1, US915_MAX_TX_POWER, 0,  0 } //  100.0 %
 
 /*!
  * Defines the first channel for RX window 1 for US band
  */
-#define US915_FIRST_RX1_CHANNEL                     ( (uint32_t) 923.3e6 )
+#define US915_FIRST_RX1_CHANNEL                     ( (uint32_t) 923300000 )
 
 /*!
  * Defines the last channel for RX window 1 for US band
  */
-#define US915_LAST_RX1_CHANNEL                      ( (uint32_t) 927.5e6 )
+#define US915_LAST_RX1_CHANNEL                      ( (uint32_t) 927500000 )
 
 /*!
  * Defines the step width of the channels for RX window 1
  */
-#define US915_STEPWIDTH_RX1_CHANNEL                 ( (uint32_t) 600e3 )
+#define US915_STEPWIDTH_RX1_CHANNEL                 ( (uint32_t) 600000 )
 
 /*!
  * Data rates table definition
@@ -194,7 +199,7 @@ static const uint8_t DataratesUS915[]  = { 10, 9, 8,  7,  8,  0,  0, 0, 12, 11, 
 /*!
  * Bandwidths table definition in Hz
  */
-static const uint32_t BandwidthsUS915[] = { 125e3, 125e3, 125e3, 125e3, 500e3, 0, 0, 0, 500e3, 500e3, 500e3, 500e3, 500e3, 500e3, 0, 0 };
+static const uint32_t BandwidthsUS915[] = { 125000, 125000, 125000, 125000, 500000, 0, 0, 0, 500000, 500000, 500000, 500000, 500000, 500000, 0, 0 };
 
 /*!
  * Up/Down link data rates offset definition
@@ -217,13 +222,6 @@ static const uint8_t MaxPayloadOfDatarateUS915[] = { 11, 53, 125, 242, 242, 0, 0
  * Maximum payload with respect to the datarate index. Can operate with repeater.
  */
 static const uint8_t MaxPayloadOfDatarateRepeaterUS915[] = { 11, 53, 125, 242, 242, 0, 0, 0, 33, 109, 222, 222, 222, 222, 0, 0 };
-
-/*!
- * Tx output powers table definition
- */
-static const int8_t TxPowersUS915[] = { 30, 28, 26, 24, 22, 20, 18, 16, 14, 12, 10 };
-
-
 
 /*!
  * \brief The function gets a value of a specific phy attribute.
@@ -377,7 +375,7 @@ int8_t RegionUS915TxParamSetupReq( TxParamSetupReqParams_t* txParamSetupReq );
  */
 uint8_t RegionUS915DlChannelReq( DlChannelReqParams_t* dlChannelReq );
 
-/*
+/*!
  * \brief Alternates the datarate of the channel for the join request.
  *
  * \param [IN] alternateDr Pointer to the function parameters.
@@ -401,9 +399,11 @@ void RegionUS915CalcBackOff( CalcBackOffParams_t* calcBackOff );
  * \param [OUT] time Time to wait for the next transmission according to the duty
  *              cycle.
  *
+ * \param [OUT] aggregatedTimeOff Updates the aggregated time off.
+ *
  * \retval Function status [1: OK, 0: Unable to find a channel on the current datarate]
  */
-bool RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time );
+bool RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff );
 
 /*!
  * \brief Adds a channel.

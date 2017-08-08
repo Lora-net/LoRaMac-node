@@ -59,6 +59,21 @@ static uint16_t ChannelsMask[CHANNELS_MASK_SIZE];
 static uint16_t ChannelsDefaultMask[CHANNELS_MASK_SIZE];
 
 // Static functions
+static int8_t GetNextLowerTxDr( int8_t dr, int8_t minDr )
+{
+    uint8_t nextLowerDr = 0;
+
+    if( dr == minDr )
+    {
+        nextLowerDr = minDr;
+    }
+    else
+    {
+        nextLowerDr = dr - 1;
+    }
+    return nextLowerDr;
+}
+
 static uint32_t GetBandwidth( uint32_t drIndex )
 {
     switch( BandwidthsCN470[drIndex] )
@@ -119,7 +134,7 @@ static uint8_t CountNbOfEnabledChannels( uint8_t datarate, uint16_t* channelsMas
 
 PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
 {
-    PhyParam_t phyParam;
+    PhyParam_t phyParam = { 0 };
 
     switch( getPhy->Attribute )
     {
@@ -136,6 +151,11 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
         case PHY_DEF_TX_DR:
         {
             phyParam.Value = CN470_DEFAULT_DATARATE;
+            break;
+        }
+        case PHY_NEXT_LOWER_TX_DR:
+        {
+            phyParam.Value = GetNextLowerTxDr( getPhy->Datarate, CN470_TX_MIN_DATARATE );
             break;
         }
         case PHY_DEF_TX_POWER:
@@ -230,9 +250,18 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_DEF_UPLINK_DWELL_TIME:
         case PHY_DEF_DOWNLINK_DWELL_TIME:
-        case PHY_DEF_MAX_EIRP:
         {
             phyParam.Value = 0;
+            break;
+        }
+        case PHY_DEF_MAX_EIRP:
+        {
+            phyParam.fValue = CN470_DEFAULT_MAX_EIRP;
+            break;
+        }
+        case PHY_DEF_ANTENNA_GAIN:
+        {
+            phyParam.fValue = CN470_DEFAULT_ANTENNA_GAIN;
             break;
         }
         case PHY_NB_JOIN_TRIALS:
@@ -252,7 +281,7 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
 
 void RegionCN470SetBandTxDone( SetBandTxDoneParams_t* txDone )
 {
-    RegionCommonSetBandTxDone( &Bands[Channels[txDone->Channel].Band], txDone->LastTxDoneTime );
+    RegionCommonSetBandTxDone( txDone->Joined, &Bands[Channels[txDone->Channel].Band], txDone->LastTxDoneTime );
 }
 
 void RegionCN470InitDefaults( InitType_t type )
@@ -265,7 +294,7 @@ void RegionCN470InitDefaults( InitType_t type )
             // 125 kHz channels
             for( uint8_t i = 0; i < CN470_MAX_NB_CHANNELS; i++ )
             {
-                Channels[i].Frequency = 470.3e6 + i * 200e3;
+                Channels[i].Frequency = 470300000 + i * 200000;
                 Channels[i].DrRange.Value = ( DR_5 << 4 ) | DR_0;
                 Channels[i].Band = 0;
             }
@@ -300,12 +329,9 @@ bool RegionCN470Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
     switch( phyAttribute )
     {
         case PHY_TX_DR:
-        {
-            return RegionCommonValueInRange( verify->DatarateParams.Datarate, CN470_TX_MIN_DATARATE, CN470_TX_MAX_DATARATE );
-        }
         case PHY_DEF_TX_DR:
         {
-            return RegionCommonValueInRange( verify->DatarateParams.Datarate, DR_0, DR_5 );
+            return RegionCommonValueInRange( verify->DatarateParams.Datarate, CN470_TX_MIN_DATARATE, CN470_TX_MAX_DATARATE );
         }
         case PHY_RX_DR:
         {
@@ -365,6 +391,8 @@ bool RegionCN470AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
     bool adrAckReq = false;
     int8_t datarate = adrNext->Datarate;
     int8_t txPower = adrNext->TxPower;
+    GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
 
     // Report back the adr ack counter
     *adrAckCounter = adrNext->AdrAckCounter;
@@ -391,13 +419,17 @@ bool RegionCN470AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowO
             {
                 if( ( adrNext->AdrAckCounter % CN470_ADR_ACK_DELAY ) == 1 )
                 {
-                    if( datarate > CN470_TX_MIN_DATARATE )
-                    {
-                        datarate--;
-                    }
+                    // Decrease the datarate
+                    getPhy.Attribute = PHY_NEXT_LOWER_TX_DR;
+                    getPhy.Datarate = datarate;
+                    getPhy.UplinkDwellTime = adrNext->UplinkDwellTime;
+                    phyParam = RegionCN470GetPhyParam( &getPhy );
+                    datarate = phyParam.Value;
 
                     if( datarate == CN470_TX_MIN_DATARATE )
                     {
+                        // We must set adrAckReq to false as soon as we reach the lowest datarate
+                        adrAckReq = false;
                         if( adrNext->UpdateChanMask == true )
                         {
                             // Re-enable default channels
@@ -423,17 +455,11 @@ void RegionCN470ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
 {
     double tSymbol = 0.0;
 
-    rxConfigParams->Datarate = datarate;
-    rxConfigParams->Bandwidth = GetBandwidth( datarate );
+    // Get the datarate, perform a boundary check
+    rxConfigParams->Datarate = MIN( datarate, CN470_RX_MAX_DATARATE );
+    rxConfigParams->Bandwidth = GetBandwidth( rxConfigParams->Datarate );
 
-    if( datarate == DR_7 )
-    { // FSK
-        tSymbol = RegionCommonComputeSymbolTimeFsk( DataratesCN470[datarate] );
-    }
-    else
-    { // LoRa
-        tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesCN470[datarate], BandwidthsCN470[datarate] );
-    }
+    tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesCN470[rxConfigParams->Datarate], BandwidthsCN470[rxConfigParams->Datarate] );
 
     RegionCommonComputeRxWindowParameters( tSymbol, minRxSymbols, rxError, RADIO_WAKEUP_TIME, &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
 }
@@ -484,28 +510,32 @@ bool RegionCN470TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
     int8_t txPowerLimited = LimitTxPower( txConfig->TxPower, Bands[Channels[txConfig->Channel].Band].TxMaxPower, txConfig->Datarate, ChannelsMask );
     int8_t phyTxPower = 0;
 
-    phyTxPower = TxPowersCN470[txPowerLimited];
+    // Calculate physical TX power
+    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, txConfig->MaxEirp, txConfig->AntennaGain );
 
     // Setup the radio frequency
     Radio.SetChannel( Channels[txConfig->Channel].Frequency );
 
+    Radio.SetTxConfig( MODEM_LORA, phyTxPower, 0, 0, phyDr, 1, 8, false, true, 0, 0, false, 3000 );
     // Setup maximum payload lenght of the radio driver
     Radio.SetMaxPayloadLength( MODEM_LORA, txConfig->PktLen );
-    Radio.SetTxConfig( MODEM_LORA, phyTxPower, 0, 0, phyDr, 1, 8, false, true, 0, 0, false, 3e3 );
     // Get the time-on-air of the next tx frame
-    *txTimeOnAir = Radio.TimeOnAir( MODEM_LORA,  txConfig->PktLen );
+    *txTimeOnAir = Radio.TimeOnAir( MODEM_LORA, txConfig->PktLen );
+    *txPower = txPowerLimited;
 
-    *txPower = txConfig->TxPower;
     return true;
 }
 
 uint8_t RegionCN470LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, int8_t* txPowOut, uint8_t* nbRepOut, uint8_t* nbBytesParsed )
 {
     uint8_t status = 0x07;
-    LinkAdrParams_t linkAdrParams;
+    RegionCommonLinkAdrParams_t linkAdrParams;
     uint8_t nextIndex = 0;
     uint8_t bytesProcessed = 0;
     uint16_t channelsMask[6] = { 0, 0, 0, 0, 0, 0 };
+    GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
+    RegionCommonLinkAdrReqVerifyParams_t linkAdrVerifyParams;
 
     // Initialize local copy of channels mask
     RegionCommonChanMaskCopy( channelsMask, ChannelsMask, 6 );
@@ -552,34 +582,33 @@ uint8_t RegionCN470LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
         }
     }
 
-    // Verify datarate
-    if( RegionCommonChanVerifyDr( CN470_MAX_NB_CHANNELS, channelsMask, linkAdrParams.Datarate, CN470_TX_MIN_DATARATE, CN470_TX_MAX_DATARATE, Channels  ) == false )
-    {
-        status &= 0xFD; // Datarate KO
-    }
+    // Get the minimum possible datarate
+    getPhy.Attribute = PHY_MIN_TX_DR;
+    getPhy.UplinkDwellTime = linkAdrReq->UplinkDwellTime;
+    phyParam = RegionCN470GetPhyParam( &getPhy );
 
-    // Verify tx power
-    if( RegionCommonValueInRange( linkAdrParams.TxPower, CN470_MAX_TX_POWER, CN470_MIN_TX_POWER ) == 0 )
-    {
-        // Verify if the maximum TX power is exceeded
-        if( CN470_MAX_TX_POWER > linkAdrParams.TxPower )
-        { // Apply maximum TX power. Accept TX power.
-            linkAdrParams.TxPower = CN470_MAX_TX_POWER;
-        }
-        else
-        {
-            status &= 0xFB; // TxPower KO
-        }
-    }
+    linkAdrVerifyParams.Status = status;
+    linkAdrVerifyParams.AdrEnabled = linkAdrReq->AdrEnabled;
+    linkAdrVerifyParams.Datarate = linkAdrParams.Datarate;
+    linkAdrVerifyParams.TxPower = linkAdrParams.TxPower;
+    linkAdrVerifyParams.NbRep = linkAdrParams.NbRep;
+    linkAdrVerifyParams.CurrentDatarate = linkAdrReq->CurrentDatarate;
+    linkAdrVerifyParams.CurrentTxPower = linkAdrReq->CurrentTxPower;
+    linkAdrVerifyParams.CurrentNbRep = linkAdrReq->CurrentNbRep;
+    linkAdrVerifyParams.NbChannels = CN470_MAX_NB_CHANNELS;
+    linkAdrVerifyParams.ChannelsMask = channelsMask;
+    linkAdrVerifyParams.MinDatarate = ( int8_t )phyParam.Value;
+    linkAdrVerifyParams.MaxDatarate = CN470_TX_MAX_DATARATE;
+    linkAdrVerifyParams.Channels = Channels;
+    linkAdrVerifyParams.MinTxPower = CN470_MIN_TX_POWER;
+    linkAdrVerifyParams.MaxTxPower = CN470_MAX_TX_POWER;
+
+    // Verify the parameters and update, if necessary
+    status = RegionCommonLinkAdrReqVerifyParams( &linkAdrVerifyParams, &linkAdrParams.Datarate, &linkAdrParams.TxPower, &linkAdrParams.NbRep );
 
     // Update channelsMask if everything is correct
     if( status == 0x07 )
     {
-        if( linkAdrParams.NbRep == 0 )
-        { // Value of 0 is not allowed, revert to default.
-            linkAdrParams.NbRep = 1;
-        }
-
         // Copy Mask
         RegionCommonChanMaskCopy( ChannelsMask, channelsMask, 6 );
     }
@@ -671,28 +700,26 @@ int8_t RegionCN470AlternateDr( AlternateDrParams_t* alternateDr )
 
 void RegionCN470CalcBackOff( CalcBackOffParams_t* calcBackOff )
 {
-    uint8_t channel = calcBackOff->Channel;
-    uint16_t joinDutyCycle = 0;
+    RegionCommonCalcBackOffParams_t calcBackOffParams;
 
-    if( calcBackOff->Joined == false )
-    {
-        // Get the join duty cycle
-        joinDutyCycle = RegionCommonGetJoinDc( calcBackOff->ElapsedTime );
-        // Apply band time-off.
-        Bands[Channels[channel].Band].TimeOff = calcBackOff->TxTimeOnAir * joinDutyCycle - calcBackOff->TxTimeOnAir;
-    }
-    else
-    {
-        Bands[Channels[channel].Band].TimeOff = 0;
-    }
+    calcBackOffParams.Channels = Channels;
+    calcBackOffParams.Bands = Bands;
+    calcBackOffParams.LastTxIsJoinRequest = calcBackOff->LastTxIsJoinRequest;
+    calcBackOffParams.Joined = calcBackOff->Joined;
+    calcBackOffParams.DutyCycleEnabled = calcBackOff->DutyCycleEnabled;
+    calcBackOffParams.Channel = calcBackOff->Channel;
+    calcBackOffParams.ElapsedTime = calcBackOff->ElapsedTime;
+    calcBackOffParams.TxTimeOnAir = calcBackOff->TxTimeOnAir;
+
+    RegionCommonCalcBackOff( &calcBackOffParams );
 }
 
-bool RegionCN470NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time )
+bool RegionCN470NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
 {
     uint8_t nbEnabledChannels = 0;
     uint8_t delayTx = 0;
     uint8_t enabledChannels[CN470_MAX_NB_CHANNELS] = { 0 };
-    TimerTime_t nextTxDelay = ( TimerTime_t )( -1 );
+    TimerTime_t nextTxDelay = 0;
 
     // Count 125kHz channels
     if( RegionCommonCountChannels( ChannelsMask, 0, 6 ) == 0 )
@@ -707,6 +734,12 @@ bool RegionCN470NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
 
     if( nextChanParams->AggrTimeOff <= TimerGetElapsedTime( nextChanParams->LastAggrTx ) )
     {
+        // Reset Aggregated time off
+        *aggregatedTimeOff = 0;
+
+        // Update bands Time OFF
+        nextTxDelay = RegionCommonUpdateBandTimeOff( nextChanParams->Joined, nextChanParams->DutyCycleEnabled, Bands, CN470_MAX_NB_BANDS );
+
         // Search how many channels are enabled
         nbEnabledChannels = CountNbOfEnabledChannels( nextChanParams->Datarate,
                                                       ChannelsMask, Channels,
@@ -756,7 +789,8 @@ void RegionCN470SetContinuousWave( ContinuousWaveParams_t* continuousWave )
     int8_t phyTxPower = 0;
     uint32_t frequency = Channels[continuousWave->Channel].Frequency;
 
-    phyTxPower = TxPowersCN470[txPowerLimited];
+    // Calculate physical TX power
+    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, continuousWave->MaxEirp, continuousWave->AntennaGain );
 
     Radio.SetTxContinuousWave( frequency, phyTxPower, continuousWave->Timeout );
 }

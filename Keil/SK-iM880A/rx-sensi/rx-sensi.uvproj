@@ -7,10 +7,10 @@
 
   <Targets>
     <Target>
-      <TargetName>rx-sensi-lora</TargetName>
+      <TargetName>rx-sensi-eu868-lora</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060300::V5.06 update 3 (build 300)::ARMCC</pCCUsed>
+      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L151CB</Device>
@@ -45,14 +45,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\obj\rx-sensi-lora\</OutputDirectory>
-          <OutputName>rx-sensi</OutputName>
+          <OutputDirectory>.\obj\rx-sensi-eu868-lora\</OutputDirectory>
+          <OutputName>rx-sensi-eu868-lora</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\lst\rx-sensi-lora\</ListingPath>
+          <ListingPath>.\lst\rx-sensi-eu868-lora\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -86,7 +86,7 @@
             <nStopA1X>0</nStopA1X>
             <nStopA2X>0</nStopA2X>
           </AfterMake>
-          <SelectedForBatchBuild>0</SelectedForBatchBuild>
+          <SelectedForBatchBuild>1</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
         </TargetCommonOption>
         <CommonProperty>
@@ -372,7 +372,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER USE_MODEM_LORA</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER  REGION_EU868 USE_MODEM_LORA</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\src;..\..\..\src\boards\SK-iM880A;..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\src\mac;..\..\..\src\peripherals;..\..\..\src\radio;..\..\..\src\system;..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -638,10 +638,10 @@
       </Groups>
     </Target>
     <Target>
-      <TargetName>rx-sensi-fsk</TargetName>
+      <TargetName>rx-sensi-eu868-fsk</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060300::V5.06 update 3 (build 300)::ARMCC</pCCUsed>
+      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32L151CB</Device>
@@ -676,14 +676,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\obj\rx-sensi-fsk\</OutputDirectory>
-          <OutputName>rx-sensi</OutputName>
+          <OutputDirectory>.\obj\rx-sensi-eu868-fsk\</OutputDirectory>
+          <OutputName>rx-sensi-eu868-fsk</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\lst\rx-sensi-fsk\</ListingPath>
+          <ListingPath>.\lst\rx-sensi-eu868-fsk\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -717,7 +717,7 @@
             <nStopA1X>0</nStopA1X>
             <nStopA2X>0</nStopA2X>
           </AfterMake>
-          <SelectedForBatchBuild>0</SelectedForBatchBuild>
+          <SelectedForBatchBuild>1</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
         </TargetCommonOption>
         <CommonProperty>
@@ -1003,7 +1003,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER USE_MODEM_FSK</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER  REGION_EU868 USE_MODEM_FSK</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\src;..\..\..\src\boards\SK-iM880A;..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\src\mac;..\..\..\src\peripherals;..\..\..\src\radio;..\..\..\src\system;..\..\..\src\system\crypto</IncludePath>
             </VariousControls>

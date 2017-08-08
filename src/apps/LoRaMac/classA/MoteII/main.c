@@ -13,6 +13,8 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 Maintainer: Miguel Luis and Gregory Cristian
 */
 
+/*! \file classA/MoteII/main.c */
+
 #include <string.h>
 #include <math.h>
 #include "board.h"
@@ -87,13 +89,17 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * User application data buffer size
  */
-#if defined( REGION_EU868 )
+#if defined( REGION_CN779 ) || defined( REGION_EU868 ) || defined( REGION_IN865 ) || defined( REGION_KR920 )
 
 #define LORAWAN_APP_DATA_SIZE                       16
 
-#elif defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
+#elif defined( REGION_AS923 ) || defined( REGION_AU915 ) || defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
 
 #define LORAWAN_APP_DATA_SIZE                       11
+
+#else
+
+#error "Please define a region in the compiler options."
 
 #endif
 
@@ -121,7 +127,7 @@ static uint8_t AppDataSize = LORAWAN_APP_DATA_SIZE;
 /*!
  * User application data buffer size
  */
-#define LORAWAN_APP_DATA_MAX_SIZE                           64
+#define LORAWAN_APP_DATA_MAX_SIZE                           242
 
 /*!
  * User application data
@@ -216,7 +222,7 @@ static void PrepareTxFrame( uint8_t port )
     {
     case 2:
         {
-#if defined( REGION_EU868 )
+#if defined( REGION_CN779 ) || defined( REGION_EU868 ) || defined( REGION_IN865 ) || defined( REGION_KR920 )
             LoRaMacUplinkStatus.Pressure = ( uint16_t )( MPL3115ReadPressure( ) / 10 );             // in hPa / 10
             LoRaMacUplinkStatus.Temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
             LoRaMacUplinkStatus.AltitudeBar = ( int16_t )( MPL3115ReadAltitude( ) * 10 );           // in m * 10
@@ -241,7 +247,7 @@ static void PrepareTxFrame( uint8_t port )
             AppData[13] = LoRaMacUplinkStatus.Longitude & 0xFF;
             AppData[14] = ( LoRaMacUplinkStatus.AltitudeGps >> 8 ) & 0xFF;
             AppData[15] = LoRaMacUplinkStatus.AltitudeGps & 0xFF;
-#elif defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
+#elif defined( REGION_AS923 ) || defined( REGION_AU915 ) || defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
             LoRaMacUplinkStatus.Temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
 
             LoRaMacUplinkStatus.BatteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
@@ -604,7 +610,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     AppDataSize = mcpsIndication->BufferSize;
 
                     AppData[0] = 4;
-                    for( uint8_t i = 1; i < AppDataSize; i++ )
+                    for( uint8_t i = 1; i < MIN( AppDataSize, LORAWAN_APP_DATA_MAX_SIZE ); i++ )
                     {
                         AppData[i] = mcpsIndication->Buffer[i] + 1;
                     }
@@ -793,8 +799,18 @@ int main( void )
                 LoRaMacPrimitives.MacMcpsIndication = McpsIndication;
                 LoRaMacPrimitives.MacMlmeConfirm = MlmeConfirm;
                 LoRaMacCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
-#if defined( REGION_EU868 )
+#if defined( REGION_AS923 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_AS923 );
+#elif defined( REGION_AU915 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_AU915 );
+#elif defined( REGION_CN779 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_CN779 );
+#elif defined( REGION_EU868 )
                 LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_EU868 );
+#elif defined( REGION_IN865 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_IN865 );
+#elif defined( REGION_KR920 )
+                LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_KR920 );
 #elif defined( REGION_US915 )
                 LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_US915 );
 #elif defined( REGION_US915_HYBRID )
@@ -802,7 +818,6 @@ int main( void )
 #else
     #error "Please define a region in the compiler options."
 #endif
-
                 TimerInit( &TxNextPacketTimer, OnTxNextPacketTimerEvent );
 
                 TimerInit( &Led1Timer, OnLed1TimerEvent );

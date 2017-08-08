@@ -16,7 +16,42 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "board.h"
 #include "radio.h"
 
+#if defined( REGION_AS923 )
+
+#define RF_FREQUENCY                                923000000 // Hz
+
+#elif defined( REGION_AU915 )
+
+#define RF_FREQUENCY                                915000000 // Hz
+
+#elif defined( REGION_CN779 )
+
+#define RF_FREQUENCY                                779000000 // Hz
+
+#elif defined( REGION_EU868 )
+
 #define RF_FREQUENCY                                868000000 // Hz
+
+#elif defined( REGION_KR920 )
+
+#define RF_FREQUENCY                                920000000 // Hz
+
+#elif defined( REGION_IN865 )
+
+#define RF_FREQUENCY                                865000000 // Hz
+
+#elif defined( REGION_US915 )
+
+#define RF_FREQUENCY                                915000000 // Hz
+
+#elif defined( REGION_US915_HYBRID )
+
+#define RF_FREQUENCY                                915000000 // Hz
+
+#else
+    #error "Please define a frequency band in the compiler options."
+#endif
+
 #define TX_OUTPUT_POWER                             14        // dBm
 
 #if defined( USE_MODEM_LORA )
@@ -37,10 +72,10 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 #elif defined( USE_MODEM_FSK )
 
-#define FSK_FDEV                                    25e3      // Hz
-#define FSK_DATARATE                                50e3      // bps
-#define FSK_BANDWIDTH                               50e3      // Hz
-#define FSK_AFC_BANDWIDTH                           83.333e3  // Hz
+#define FSK_FDEV                                    25000     // Hz
+#define FSK_DATARATE                                50000     // bps
+#define FSK_BANDWIDTH                               50000     // Hz
+#define FSK_AFC_BANDWIDTH                           83333     // Hz
 #define FSK_PREAMBLE_LENGTH                         5         // Same for Tx and Rx
 #define FSK_FIX_LENGTH_PAYLOAD_ON                   false
 
