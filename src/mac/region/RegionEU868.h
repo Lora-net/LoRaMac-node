@@ -208,13 +208,13 @@
 #define EU868_BAND2                                 { 1000, EU868_MAX_TX_POWER, 0,  0 } //  0.1 %
 
 /*!
- * Band 2 definition
+ * Band 3 definition
  * Band = { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
  */
 #define EU868_BAND3                                 { 10  , EU868_MAX_TX_POWER, 0,  0 } // 10.0 %
 
 /*!
- * Band 2 definition
+ * Band 4 definition
  * Band = { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
  */
 #define EU868_BAND4                                 { 100 , EU868_MAX_TX_POWER, 0,  0 } //  1.0 %
