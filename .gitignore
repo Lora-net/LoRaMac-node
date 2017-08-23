@@ -17,3 +17,8 @@ bin/
 *.pbxproj
 *.cogui
 *.comarker
+*.uvoptx
+*.uvoptx.*
+JLink*.txt
+JLink*.ini
+EventRecorderStub.scvd
