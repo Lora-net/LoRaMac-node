@@ -1235,59 +1235,34 @@ void SX1276SetModem( RadioModems_t modem )
 
 void SX1276Write( uint8_t addr, uint8_t data )
 {
-    SX1276WriteBuffer( addr, &data, 1 );
+    SpiOut( &SX1276.Spi, addr, &data, 1 );
 }
 
 uint8_t SX1276Read( uint8_t addr )
 {
     uint8_t data;
-    SX1276ReadBuffer( addr, &data, 1 );
+    SpiIn( &SX1276.Spi, addr, &data, 1 );
     return data;
 }
 
 void SX1276WriteBuffer( uint8_t addr, uint8_t *buffer, uint8_t size )
 {
-    uint8_t i;
-
-    //NSS = 0;
-    GpioWrite( &SX1276.Spi.Nss, 0 );
-
-    SpiInOut( &SX1276.Spi, addr | 0x80 );
-    for( i = 0; i < size; i++ )
-    {
-        SpiInOut( &SX1276.Spi, buffer[i] );
-    }
-
-    //NSS = 1;
-    GpioWrite( &SX1276.Spi.Nss, 1 );
+	SpiOut( &SX1276.Spi, addr, buffer, size );
 }
 
 void SX1276ReadBuffer( uint8_t addr, uint8_t *buffer, uint8_t size )
 {
-    uint8_t i;
-
-    //NSS = 0;
-    GpioWrite( &SX1276.Spi.Nss, 0 );
-
-    SpiInOut( &SX1276.Spi, addr & 0x7F );
-
-    for( i = 0; i < size; i++ )
-    {
-        buffer[i] = SpiInOut( &SX1276.Spi, 0 );
-    }
-
-    //NSS = 1;
-    GpioWrite( &SX1276.Spi.Nss, 1 );
+	SpiIn( &SX1276.Spi, addr, buffer, size );
 }
 
 void SX1276WriteFifo( uint8_t *buffer, uint8_t size )
 {
-    SX1276WriteBuffer( 0, buffer, size );
+    SpiOut( &SX1276.Spi, 0, buffer, size );
 }
 
 void SX1276ReadFifo( uint8_t *buffer, uint8_t size )
 {
-    SX1276ReadBuffer( 0, buffer, size );
+    SpiIn( &SX1276.Spi, 0, buffer, size );
 }
 
 void SX1276SetMaxPayloadLength( RadioModems_t modem, uint8_t max )
