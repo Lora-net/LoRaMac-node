@@ -252,26 +252,25 @@ static const uint32_t BandwidthsAS923[] = { 125000, 125000, 125000, 125000, 1250
  * Maximum payload with respect to the datarate index. Cannot operate with repeater.
  * The table is valid for the dwell time configuration of 0 for uplinks and downlinks.
  */
-static const uint8_t MaxPayloadOfDatarateDwell0AS923[] = { 51, 51, 51, 115, 242, 242, 242, 242 };
+static const uint8_t MaxPayloadOfDatarateDwell0AS923[] = { 59, 59, 59, 123, 250, 250, 250, 250 };
 
 /*!
  * Maximum payload with respect to the datarate index. Can operate with repeater.
- * The table is valid for the dwell time configuration of 0 for uplinks and downlinks. The table provides
- * repeater support.
+ * The table is valid for the dwell time configuration of 0 for uplinks and downlinks.
  */
-static const uint8_t MaxPayloadOfDatarateRepeaterDwell0AS923[] = { 51, 51, 51, 115, 222, 222, 222, 222 };
+static const uint8_t MaxPayloadOfDatarateRepeaterDwell0AS923[] = { 59, 59, 59, 123, 230, 230, 230, 230 };
 
 /*!
  * Maximum payload with respect to the datarate index. Can operate with and without repeater.
  * The table proides repeater support. The table is only valid for uplinks.
  */
-static const uint8_t MaxPayloadOfDatarateDwell1UpAS923[] = { 0, 0, 11, 53, 125, 242, 242, 242 };
+static const uint8_t MaxPayloadOfDatarateDwell1UpAS923[] = { 0, 0, 19, 61, 133, 250, 250, 250 };
 
 /*!
  * Maximum payload with respect to the datarate index. Can operate with and without repeater.
  * The table proides repeater support. The table is only valid for downlinks.
  */
-static const uint8_t MaxPayloadOfDatarateDwell1DownAS923[] = { 0, 0, 11, 53, 126, 242, 242, 242 };
+static const uint8_t MaxPayloadOfDatarateDwell1DownAS923[] = { 0, 0, 19, 61, 133, 250, 250, 250 };
 
 /*!
  * Effective datarate offsets for receive window 1.
