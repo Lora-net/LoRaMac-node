@@ -214,7 +214,7 @@ PhyParam_t RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
             }
             else
             {
-                phyParam.Value = MaxPayloadOfDatarateDwell1UpAS923[getPhy->Datarate];
+                phyParam.Value = MaxPayloadOfDatarateDwell1AS923[getPhy->Datarate];
             }
             break;
         }
@@ -226,7 +226,7 @@ PhyParam_t RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
             }
             else
             {
-                phyParam.Value = MaxPayloadOfDatarateDwell1UpAS923[getPhy->Datarate];
+                phyParam.Value = MaxPayloadOfDatarateDwell1AS923[getPhy->Datarate];
             }
             break;
         }
