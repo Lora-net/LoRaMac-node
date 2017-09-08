@@ -2657,6 +2657,10 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
         return LORAMAC_STATUS_REGION_NOT_SUPPORTED;
     }
 
+    // Confirm queue reset
+    MlmeConfirmQueueCnt = 0;
+    memset( &MlmeConfirmQueue, 0xFF, sizeof( MlmeConfirmQueue ) );
+
     LoRaMacPrimitives = primitives;
     LoRaMacCallbacks = callbacks;
     LoRaMacRegion = region;
