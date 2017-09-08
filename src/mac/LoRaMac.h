@@ -1166,14 +1166,6 @@ typedef struct sMlmeReqPingSlotInfo
 }MlmeReqPingSlotInfo_t;
 
 /*!
- * LoRaMAC MLME-Request for the switch class service
- */
-typedef struct sMlmeReqSwitchClass
-{
-    DeviceClass_t Class;
-}MlmeReqSwitchClass_t;
-
-/*!
  * LoRaMAC MLME-Request for Tx continuous wave mode
  */
 typedef struct sMlmeReqTxCw
@@ -1215,10 +1207,6 @@ typedef struct sMlmeReq
          * MLME-Request parameters for a ping slot info request
          */
         MlmeReqPingSlotInfo_t PingSlotInfo;
-        /*!
-         * MLME-Request parameters for a switch class request
-         */
-        MlmeReqSwitchClass_t SwitchClass;
         /*!
          * MLME-Request parameters for Tx continuous mode request
          */

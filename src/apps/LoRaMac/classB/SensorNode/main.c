@@ -658,14 +658,12 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     break;
                 case 8: // Switch end device Class
                     {
-                        MlmeReq_t mlmeReq;
+                        MibRequestConfirm_t mibReq;
 
-                        mlmeReq.Type = MLME_SWITCH_CLASS;
-
+                        mibReq.Type = MIB_DEVICE_CLASS;
                         // CLASS_A = 0, CLASS_B = 1, CLASS_C = 2
-                        mlmeReq.Req.SwitchClass.Class = ( DeviceClass_t )mcpsIndication->Buffer[1];
-
-                        LoRaMacMlmeRequest( &mlmeReq );
+                        mibReq.Param.Class = ( DeviceClass_t )mcpsIndication->Buffer[1];;
+                        LoRaMacMibSetRequestConfirm( &mibReq );
 
                         DeviceState = DEVICE_STATE_SEND;
                     }
