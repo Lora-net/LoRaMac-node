@@ -263,7 +263,7 @@ typedef struct sLoRaMacParams
      */
     int8_t ChannelsDatarate;
     /*!
-     * System overall timing error in milliseconds. 
+     * System overall timing error in milliseconds.
      * [-SystemMaxRxError : +SystemMaxRxError]
      * Default: +/-10 ms
      */
@@ -1454,7 +1454,7 @@ typedef enum eMib
      */
     MIB_MULTICAST_CHANNEL,
     /*!
-     * System overall timing error in milliseconds. 
+     * System overall timing error in milliseconds.
      * [-SystemMaxRxError : +SystemMaxRxError]
      * Default: +/-10 ms
      */
@@ -1691,7 +1691,7 @@ typedef union uMibParam
      */
     MulticastParams_t* MulticastList;
     /*!
-     * System overall timing error in milliseconds. 
+     * System overall timing error in milliseconds.
      *
      * Related MIB type: \ref MIB_SYSTEM_MAX_RX_ERROR
      */
