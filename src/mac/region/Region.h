@@ -711,10 +711,6 @@ typedef enum ePhyAttribute
     /*!
      * Delay time for the BeaconTimingAns in ms.
      */
-    PHY_BEACON_DELAY_BEACON_TIMING_ANS,
-    /*!
-     * Delay time for the BeaconTimingAns in ms.
-     */
     PHY_BEACON_CHANNEL_FREQ,
     /*!
      * Delay time for the BeaconTimingAns in ms.
@@ -1260,17 +1256,9 @@ typedef struct sRxBeaconSetupParams
      */
     uint32_t DeviceAddress;
     /*!
-     * The beacon timing channel.
-     */
-    uint8_t BeaconTimingChannel;
-    /*!
      * Set to true if a custom frequency is enabled.
      */
     bool CustomFrequencyEnabled;
-    /*!
-     * Set to true if the beacon channel is set.
-     */
-    bool BeaconChannelSet;
     /*!
      * Custom frequency. Only valid of CustomFrequencyEnabled is set.
      */
@@ -1605,7 +1593,7 @@ void RegionSetContinuousWave( LoRaMacRegion_t region, ContinuousWaveParams_t* co
  */
 uint8_t RegionApplyDrOffset( LoRaMacRegion_t region, uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset );
 
-void RegionRxBeaconSetup( LoRaMacRegion_t region, RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr, bool *beaconChannelSet );
+void RegionRxBeaconSetup( LoRaMacRegion_t region, RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
 
 /*! \} defgroup REGION */
 

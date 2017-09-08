@@ -258,11 +258,6 @@
 #define EU433_MAX_BEACON_LESS_PERIOD                7200000
 
 /*!
- * Delay time for the BeaconTimingAns in ms
- */
-#define EU433_BEACON_DELAY_BEACON_TIMING_ANS        30
-
-/*!
  * Beacon frequency
  */
 #define EU433_BEACON_CHANNEL_FREQ                   434665000
@@ -550,6 +545,15 @@ void RegionEU433SetContinuousWave( ContinuousWaveParams_t* continuousWave );
  * \retval newDr Computed datarate.
  */
 uint8_t RegionEU433ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset );
+
+/*!
+ * \brief Sets the radio into beacon reception mode
+ *
+ * \param [IN] rxBeaconSetup Pointer to the function parameters
+ *
+ * \param [out] outDr Datarate used to receive the beacon
+ */
+ void RegionEU433RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
 
 /*! \} defgroup REGIONEU433 */
 

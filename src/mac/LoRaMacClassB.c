@@ -232,10 +232,6 @@ void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallba
     phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
     BeaconCtx.Cfg.MaxBeaconLessPeriod = phyParam.Value;
 
-    getPhy.Attribute = PHY_BEACON_DELAY_BEACON_TIMING_ANS;
-    phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    BeaconCtx.Cfg.DelayBeaconTimingAns = phyParam.Value;
-
     getPhy.Attribute = PHY_PING_SLOT_WINDOW;
     phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
     PingSlotCtx.Cfg.PingSlotWindow = phyParam.Value;
@@ -268,7 +264,6 @@ void LoRaMacClassBBeaconTimerEvent( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     RxBeaconSetup_t rxBeaconSetup;
-    bool beaconChannelSet = false;
     uint8_t index = 0;
     bool activateTimer = false;
     TimerTime_t beaconEventTime = 1;
@@ -294,80 +289,18 @@ void LoRaMacClassBBeaconTimerEvent( void )
                 BeaconCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
                 PingSlotCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
 
-                if( BeaconCtx.Ctrl.BeaconDelaySet == 1 )
-                {
-                    if( BeaconCtx.BeaconTimingDelay > 0 )
-                    {
-                        if( BeaconCtx.NextBeaconRx > currentTime )
-                        {
-                            BeaconCtx.Ctrl.AcquisitionTimerSet = 1;
-                            beaconEventTime = TimerTempCompensation( BeaconCtx.NextBeaconRx - currentTime, BeaconCtx.Temperature );
-                        }
-                        else
-                        {
-                            BeaconCtx.Ctrl.BeaconDelaySet = 0;
-                            BeaconCtx.Ctrl.AcquisitionPending = 1;
-                            BeaconCtx.Ctrl.AcquisitionTimerSet = 0;
-                            beaconEventTime = BeaconCtx.Cfg.Interval;
+                BeaconCtx.Ctrl.AcquisitionPending = 1;
+                beaconEventTime = BeaconCtx.Cfg.Interval;
 
-                            rxBeaconSetup.SymbolTimeout = BeaconCtx.SymbolTimeout;
-                            rxBeaconSetup.RxTime = 0;
-                            rxBeaconSetup.DeviceAddress = *LoRaMacClassBParams.LoRaMacDevAddr;
-                            rxBeaconSetup.BeaconTimingChannel = BeaconCtx.BeaconTimingChannel;
-                            rxBeaconSetup.CustomFrequencyEnabled = BeaconCtx.Ctrl.CustomFreq;
-                            rxBeaconSetup.BeaconChannelSet = BeaconCtx.Ctrl.BeaconChannelSet;
-                            rxBeaconSetup.CustomFrequency = BeaconCtx.Frequency;
-                            rxBeaconSetup.BeaconTime = BeaconCtx.BeaconTime;
-                            rxBeaconSetup.BeaconInterval = BeaconCtx.Cfg.Interval;
+                rxBeaconSetup.SymbolTimeout = BeaconCtx.SymbolTimeout;
+                rxBeaconSetup.RxTime = 0;
+                rxBeaconSetup.DeviceAddress = *LoRaMacClassBParams.LoRaMacDevAddr;
+                rxBeaconSetup.CustomFrequencyEnabled = BeaconCtx.Ctrl.CustomFreq;
+                rxBeaconSetup.CustomFrequency = BeaconCtx.Frequency;
+                rxBeaconSetup.BeaconTime = BeaconCtx.BeaconTime;
+                rxBeaconSetup.BeaconInterval = BeaconCtx.Cfg.Interval;
 
-                            RegionRxBeaconSetup( *LoRaMacClassBParams.LoRaMacRegion, &rxBeaconSetup, &LoRaMacClassBParams.McpsIndication->RxDatarate, &beaconChannelSet );
-                            BeaconCtx.Ctrl.BeaconChannelSet = beaconChannelSet;
-                        }
-                        BeaconCtx.NextBeaconRx = 0;
-                        BeaconCtx.BeaconTimingDelay = 0;
-                    }
-                    else
-                    {
-                        BeaconCtx.Ctrl.BeaconDelaySet = 0;
-                        BeaconCtx.Ctrl.AcquisitionPending = 0;
-                        BeaconCtx.Ctrl.AcquisitionTimerSet = 1;
-                        beaconEventTime = BeaconCtx.Cfg.DelayBeaconTimingAns;
-
-                        rxBeaconSetup.SymbolTimeout = BeaconCtx.SymbolTimeout;
-                        rxBeaconSetup.RxTime = 0;
-                        rxBeaconSetup.DeviceAddress = *LoRaMacClassBParams.LoRaMacDevAddr;
-                        rxBeaconSetup.BeaconTimingChannel = BeaconCtx.BeaconTimingChannel;
-                        rxBeaconSetup.CustomFrequencyEnabled = BeaconCtx.Ctrl.CustomFreq;
-                        rxBeaconSetup.BeaconChannelSet = BeaconCtx.Ctrl.BeaconChannelSet;
-                        rxBeaconSetup.CustomFrequency = BeaconCtx.Frequency;
-                        rxBeaconSetup.BeaconTime = BeaconCtx.BeaconTime;
-                        rxBeaconSetup.BeaconInterval = BeaconCtx.Cfg.Interval;
-
-                        RegionRxBeaconSetup( *LoRaMacClassBParams.LoRaMacRegion, &rxBeaconSetup, &LoRaMacClassBParams.McpsIndication->RxDatarate, &beaconChannelSet );
-                        BeaconCtx.Ctrl.BeaconChannelSet = beaconChannelSet;
-                    }
-                }
-                else
-                {
-                    BeaconCtx.Ctrl.AcquisitionPending = 1;
-                    beaconEventTime = BeaconCtx.Cfg.Interval;
-                    if( BeaconCtx.Ctrl.AcquisitionTimerSet == 0 )
-                    {
-                        rxBeaconSetup.SymbolTimeout = BeaconCtx.SymbolTimeout;
-                        rxBeaconSetup.RxTime = 0;
-                        rxBeaconSetup.DeviceAddress = *LoRaMacClassBParams.LoRaMacDevAddr;
-                        rxBeaconSetup.BeaconTimingChannel = BeaconCtx.BeaconTimingChannel;
-                        rxBeaconSetup.CustomFrequencyEnabled = BeaconCtx.Ctrl.CustomFreq;
-                        rxBeaconSetup.BeaconChannelSet = BeaconCtx.Ctrl.BeaconChannelSet;
-                        rxBeaconSetup.CustomFrequency = BeaconCtx.Frequency;
-                        rxBeaconSetup.BeaconTime = BeaconCtx.BeaconTime;
-                        rxBeaconSetup.BeaconInterval = BeaconCtx.Cfg.Interval;
-
-                        RegionRxBeaconSetup( *LoRaMacClassBParams.LoRaMacRegion, &rxBeaconSetup, &LoRaMacClassBParams.McpsIndication->RxDatarate, &beaconChannelSet );
-                        BeaconCtx.Ctrl.BeaconChannelSet = beaconChannelSet;
-                    }
-                    BeaconCtx.Ctrl.AcquisitionTimerSet = 0;
-                }
+                RegionRxBeaconSetup( *LoRaMacClassBParams.LoRaMacRegion, &rxBeaconSetup, &LoRaMacClassBParams.McpsIndication->RxDatarate );
             }
             break;
         }
@@ -537,15 +470,12 @@ void LoRaMacClassBBeaconTimerEvent( void )
             rxBeaconSetup.SymbolTimeout = BeaconCtx.SymbolTimeout;
             rxBeaconSetup.RxTime = BeaconCtx.Cfg.Reserved;
             rxBeaconSetup.DeviceAddress = *LoRaMacClassBParams.LoRaMacDevAddr;
-            rxBeaconSetup.BeaconTimingChannel = BeaconCtx.BeaconTimingChannel;
             rxBeaconSetup.CustomFrequencyEnabled = BeaconCtx.Ctrl.CustomFreq;
-            rxBeaconSetup.BeaconChannelSet = BeaconCtx.Ctrl.BeaconChannelSet;
             rxBeaconSetup.CustomFrequency = BeaconCtx.Frequency;
             rxBeaconSetup.BeaconTime = BeaconCtx.BeaconTime;
             rxBeaconSetup.BeaconInterval = BeaconCtx.Cfg.Interval;
 
-            RegionRxBeaconSetup( *LoRaMacClassBParams.LoRaMacRegion, &rxBeaconSetup, &LoRaMacClassBParams.McpsIndication->RxDatarate, &beaconChannelSet );
-            BeaconCtx.Ctrl.BeaconChannelSet = beaconChannelSet;
+            RegionRxBeaconSetup( *LoRaMacClassBParams.LoRaMacRegion, &rxBeaconSetup, &LoRaMacClassBParams.McpsIndication->RxDatarate );
             break;
         }
         case BEACON_STATE_SWITCH_CLASS:
@@ -570,7 +500,6 @@ void LoRaMacClassBBeaconTimerEvent( void )
 
             BeaconCtx.Ctrl.BeaconMode = 0;
             BeaconCtx.Ctrl.AcquisitionPending = 0;
-            BeaconCtx.Ctrl.AcquisitionTimerSet = 0;
             LoRaMacClassBParams.LoRaMacFlags->Bits.MacDone = 1;
 
             TimerSetValue( LoRaMacClassBParams.MacStateCheckTimer, beaconEventTime );
@@ -894,7 +823,6 @@ bool LoRaMacClassBIsBeaconExpected( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     if( ( BeaconCtx.Ctrl.AcquisitionPending == 1 ) ||
-        ( BeaconCtx.Ctrl.AcquisitionTimerSet == 1 ) ||
         ( BeaconState == BEACON_STATE_RX ) )
     {
         return true;
@@ -922,19 +850,6 @@ bool LoRaMacClassBIsAcquisitionPending( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     if( BeaconCtx.Ctrl.AcquisitionPending == 1 )
-    {
-        return true;
-    }
-    return false;
-#else
-    return false;
-#endif // LORAMAC_CLASSB_ENABLED
-}
-
-bool LoRaMacClassBIsAcquisitionTimerSet( void )
-{
-#ifdef LORAMAC_CLASSB_ENABLED
-    if( BeaconCtx.Ctrl.AcquisitionTimerSet == 1 )
     {
         return true;
     }
@@ -1244,39 +1159,6 @@ uint8_t LoRaMacClassBPingSlotChannelReq( uint8_t datarate, uint32_t frequency )
     return status;
 #else
     return 0;
-#endif // LORAMAC_CLASSB_ENABLED
-}
-
-void LoRaMacClassBBeaconTimingAns( uint16_t beaconTimingDelay, uint8_t beaconTimingChannel )
-{
-#ifdef LORAMAC_CLASSB_ENABLED
-    uint8_t index = LORA_MAC_MLME_CONFIRM_QUEUE_LEN;
-    TimerTime_t currentTime = TimerGetCurrentTime( );
-
-    BeaconCtx.BeaconTimingDelay = ( BeaconCtx.Cfg.DelayBeaconTimingAns * beaconTimingDelay );
-    BeaconCtx.BeaconTimingChannel = beaconTimingChannel;
-
-    index = LoRaMacClassBCallbacks.GetMlmeConfrimIndex( LoRaMacClassBParams.MlmeConfirmQueue, MLME_BEACON_TIMING );
-    if( index < LORA_MAC_MLME_CONFIRM_QUEUE_LEN )
-    {
-        if( BeaconCtx.BeaconTimingDelay > BeaconCtx.Cfg.Interval )
-        {
-            // We missed the beacon already
-            BeaconCtx.BeaconTimingDelay = 0;
-            BeaconCtx.BeaconTimingChannel = 0;
-            LoRaMacClassBParams.MlmeConfirmQueue[index].Status = LORAMAC_EVENT_INFO_STATUS_BEACON_NOT_FOUND;
-        }
-        else
-        {
-            BeaconCtx.Ctrl.BeaconDelaySet = 1;
-            BeaconCtx.Ctrl.BeaconChannelSet = 1;
-            BeaconCtx.NextBeaconRx = currentTime + BeaconCtx.BeaconTimingDelay;
-            LoRaMacClassBParams.MlmeConfirmQueue[index].Status = LORAMAC_EVENT_INFO_STATUS_OK;
-        }
-
-        LoRaMacClassBParams.MlmeConfirm->BeaconTimingDelay = BeaconCtx.BeaconTimingDelay;
-        LoRaMacClassBParams.MlmeConfirm->BeaconTimingChannel = BeaconCtx.BeaconTimingChannel;
-    }
 #endif // LORAMAC_CLASSB_ENABLED
 }
 

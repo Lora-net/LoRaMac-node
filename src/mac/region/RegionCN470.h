@@ -241,9 +241,18 @@
 #define CN470_MAX_BEACON_LESS_PERIOD                7200000
 
 /*!
- * Delay time for the BeaconTimingAns in ms
+ * Beacon frequency
  */
-#define CN470_BEACON_DELAY_BEACON_TIMING_ANS        30
+#define CN470_BEACON_CHANNEL_FREQ                   508300000
+
+/*!
+ * Beacon frequency channel stepwidth
+ */
+#define CN470_BEACON_CHANNEL_STEPWIDTH              200000
+
+/*!
+ * Number of possible beacon channels
+ */
 
 /*!
  * Payload size of a beacon frame
@@ -525,6 +534,15 @@ void RegionCN470SetContinuousWave( ContinuousWaveParams_t* continuousWave );
  * \retval newDr Computed datarate.
  */
 uint8_t RegionCN470ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset );
+
+/*!
+ * \brief Sets the radio into beacon reception mode
+ *
+ * \param [IN] rxBeaconSetup Pointer to the function parameters
+ *
+ * \param [out] outDr Datarate used to receive the beacon
+ */
+ void RegionCN470RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
 
 /*! \} defgroup REGIONCN470 */
 

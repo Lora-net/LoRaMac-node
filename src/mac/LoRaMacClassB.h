@@ -194,21 +194,9 @@ typedef struct sBeaconContext
          */
         uint8_t CustomFreq          : 1;
         /*!
-         * Set if a beacon delay was set for the beacon acquisition
-         */
-        uint8_t BeaconDelaySet      : 1;
-        /*!
-         * Set if a beacon channel was set for the beacon acquisition
-         */
-        uint8_t BeaconChannelSet    : 1;
-        /*!
          * Set if beacon acquisition is pending
          */
         uint8_t AcquisitionPending  : 1;
-        /*!
-         * Set if beacon timer is set to acquire a beacon
-         */
-        uint8_t AcquisitionTimerSet  : 1;
         /*!
          * Set if the beacon state machine will be resumed
          */
@@ -255,10 +243,6 @@ typedef struct sBeaconContext
          * loss in symbols
          */
         uint32_t MaxBeaconLessPeriod;
-        /*!
-         * Delay time for the BeaconTimingAns in ms
-         */
-        uint32_t DelayBeaconTimingAns;
     }Cfg;
     /*!
      * Beacon reception frequency
@@ -289,14 +273,6 @@ typedef struct sBeaconContext
      * Listen time for the beacon in case of reception timeout
      */
     TimerTime_t ListenTime;
-    /*!
-     * Beacon timing channel for next beacon
-     */
-    uint8_t BeaconTimingChannel;
-    /*!
-     * Delay for next beacon in ms
-     */
-    TimerTime_t BeaconTimingDelay;
 }BeaconContext_t;
 
 /*!
@@ -521,14 +497,6 @@ void LoRaMacClassBPingSlotInfoAns( void );
  * \retval Status for the MAC answer.
  */
 uint8_t LoRaMacClassBPingSlotChannelReq( uint8_t datarate, uint32_t frequency );
-
-/*!
- * \brief This function handles the BEACON_TIMING_ANS
- *
- * \param [IN] beaconTimingDelay The beacon timing delay
- * \param [IN] beaconTimingChannel The beacon timing channel
- */
-void LoRaMacClassBBeaconTimingAns( uint16_t beaconTimingDelay, uint8_t beaconTimingChannel );
 
 /*!
  * \brief This function handles the BEACON_FREQ_REQ

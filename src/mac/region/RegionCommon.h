@@ -414,10 +414,8 @@ void RegionCommonCalcBackOff( RegionCommonCalcBackOffParams_t* calcBackOffParams
  * \brief Sets up the radio into RX beacon mode.
  *
  * \param [IN] rxBeaconSetupParams A pointer to the input parameters.
- *
- * \param [OUT] beaconChannelSet A pointer ot the beaconChannelSet variable.
  */
-void RegionCommonRxBeaconSetup( RegionCommonRxBeaconSetupParams_t* rxBeaconSetupParams, bool *beaconChannelSet );
+void RegionCommonRxBeaconSetup( RegionCommonRxBeaconSetupParams_t* rxBeaconSetupParams );
 
 /*! \} defgroup REGIONCOMMON */
 

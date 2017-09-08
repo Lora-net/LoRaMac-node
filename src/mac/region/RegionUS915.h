@@ -236,9 +236,16 @@
 #define US915_MAX_BEACON_LESS_PERIOD                7200000
 
 /*!
- * Delay time for the BeaconTimingAns in ms
+
+/*!
+ * Beacon frequency channel stepwidth
  */
-#define US915_BEACON_DELAY_BEACON_TIMING_ANS        30
+#define US915_BEACON_CHANNEL_STEPWIDTH              600000
+
+/*!
+ * Number of possible beacon channels
+ */
+#define US915_BEACON_NB_CHANNELS                    8
 
 /*!
  * Payload size of a beacon frame
@@ -532,6 +539,15 @@ void RegionUS915SetContinuousWave( ContinuousWaveParams_t* continuousWave );
  * \retval newDr Computed datarate.
  */
 uint8_t RegionUS915ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset );
+
+/*!
+ * \brief Sets the radio into beacon reception mode
+ *
+ * \param [IN] rxBeaconSetup Pointer to the function parameters
+ *
+ * \param [out] outDr Datarate used to receive the beacon
+ */
+ void RegionUS915RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
 
 /*! \} defgroup REGIONUS915 */
 

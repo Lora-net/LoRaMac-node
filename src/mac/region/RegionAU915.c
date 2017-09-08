@@ -143,7 +143,7 @@ static uint8_t BeaconChannel( uint32_t devAddr, TimerTime_t beaconTime, TimerTim
 
     frequency = devAddr + ( beaconTime / ( beaconInterval / 1000 ) );
 
-    return ( ( uint8_t )( frequency % 8 ) );
+    return ( ( uint8_t )( frequency % AU915_BEACON_NB_CHANNELS ) );
 }
 
 PhyParam_t RegionAU915GetPhyParam( GetPhyParams_t* getPhy )
@@ -342,11 +342,6 @@ PhyParam_t RegionAU915GetPhyParam( GetPhyParams_t* getPhy )
         case PHY_MAX_BEACON_LESS_PERIOD:
         {
             phyParam.Value = AU915_MAX_BEACON_LESS_PERIOD;
-            break;
-        }
-        case PHY_BEACON_DELAY_BEACON_TIMING_ANS:
-        {
-            phyParam.Value = AU915_BEACON_DELAY_BEACON_TIMING_ANS;
             break;
         }
         case PHY_PINGSLOT_CHANNEL_FREQ:
@@ -945,23 +940,21 @@ uint8_t RegionAU915ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t d
     return datarate;
 }
 
-void RegionAU915RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr, bool *beaconChannelSet )
+void RegionAU915RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr )
 {
     RegionCommonRxBeaconSetupParams_t regionCommonRxBeaconSetup;
 
     regionCommonRxBeaconSetup.Datarates = DataratesAU915;
-    regionCommonRxBeaconSetup.ChannelPlanFrequency = ( 923.3e6 + ( BeaconChannel( 0, rxBeaconSetup->BeaconTime, rxBeaconSetup->BeaconInterval ) * 600e3 ) );
-    regionCommonRxBeaconSetup.BeaconTimingAnsFrequency = ( 923.3e6 + ( rxBeaconSetup->BeaconTimingChannel * 600e3 ) );
+    regionCommonRxBeaconSetup.ChannelPlanFrequency = ( AU915_BEACON_CHANNEL_FREQ + ( BeaconChannel( 0, rxBeaconSetup->BeaconTime, rxBeaconSetup->BeaconInterval ) * AU915_BEACON_CHANNEL_STEPWIDTH ) );
     regionCommonRxBeaconSetup.BeaconSize = AU915_BEACON_SIZE;
     regionCommonRxBeaconSetup.BeaconDatarate = AU915_BEACON_CHANNEL_DR;
     regionCommonRxBeaconSetup.BeaconChannelBW = AU915_BEACON_CHANNEL_BW;
     regionCommonRxBeaconSetup.CustomFrequency = rxBeaconSetup->CustomFrequency;
     regionCommonRxBeaconSetup.CustomFrequencyEnabled = rxBeaconSetup->CustomFrequencyEnabled;
-    regionCommonRxBeaconSetup.BeaconChannelSet = rxBeaconSetup->BeaconChannelSet;
     regionCommonRxBeaconSetup.RxTime = rxBeaconSetup->RxTime;
     regionCommonRxBeaconSetup.SymbolTimeout = rxBeaconSetup->SymbolTimeout;
 
-    RegionCommonRxBeaconSetup( &regionCommonRxBeaconSetup, beaconChannelSet );
+    RegionCommonRxBeaconSetup( &regionCommonRxBeaconSetup );
 
     // Store downlink datarate
     *outDr = AU915_BEACON_CHANNEL_DR;

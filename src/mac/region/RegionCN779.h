@@ -253,11 +253,6 @@
 #define CN779_MAX_BEACON_LESS_PERIOD                7200000
 
 /*!
- * Delay time for the BeaconTimingAns in ms
- */
-#define CN779_BEACON_DELAY_BEACON_TIMING_ANS        30
-
-/*!
  * Beacon frequency
  */
 #define CN779_BEACON_CHANNEL_FREQ                   785000000
@@ -549,6 +544,15 @@ void RegionCN779SetContinuousWave( ContinuousWaveParams_t* continuousWave );
  * \retval newDr Computed datarate.
  */
 uint8_t RegionCN779ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset );
+
+/*!
+ * \brief Sets the radio into beacon reception mode
+ *
+ * \param [IN] rxBeaconSetup Pointer to the function parameters
+ *
+ * \param [out] outDr Datarate used to receive the beacon
+ */
+ void RegionCN779RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
 
 /*! \} defgroup REGIONCN779 */
 

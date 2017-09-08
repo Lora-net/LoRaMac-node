@@ -451,10 +451,6 @@ typedef enum eLoRaMacMoteCmd
      */
     MOTE_MAC_PING_SLOT_FREQ_ANS      = 0x11,
     /*!
-     * BeaconTimingReq
-     */
-    MOTE_MAC_BEACON_TIMING_REQ       = 0x12,
-    /*!
      * BeaconFreqAns
      */
     MOTE_MAC_BEACON_FREQ_ANS         = 0x13,
@@ -511,10 +507,6 @@ typedef enum eLoRaMacSrvCmd
      * PingSlotChannelReq
      */
     SRV_MAC_PING_SLOT_CHANNEL_REQ    = 0x11,
-    /*!
-     * BeaconTimingAns
-     */
-    SRV_MAC_BEACON_TIMING_ANS        = 0x12,
     /*!
      * BeaconFreqReq
      */

@@ -363,7 +363,7 @@ void RegionCommonCalcBackOff( RegionCommonCalcBackOffParams_t* calcBackOffParams
 }
 
 
-void RegionCommonRxBeaconSetup( RegionCommonRxBeaconSetupParams_t* rxBeaconSetupParams, bool *beaconChannelSet )
+void RegionCommonRxBeaconSetup( RegionCommonRxBeaconSetupParams_t* rxBeaconSetupParams )
 {
     bool rxContinuous = true;
     uint32_t frequency = rxBeaconSetupParams->CustomFrequency;
@@ -377,14 +377,6 @@ void RegionCommonRxBeaconSetup( RegionCommonRxBeaconSetupParams_t* rxBeaconSetup
     {
         // Restore floor plan
         frequency = rxBeaconSetupParams->ChannelPlanFrequency;
-    }
-
-    // Set the frequency which was provided by BeaconTimingAns MAC command
-    if( rxBeaconSetupParams->BeaconChannelSet == true )
-    {
-        // Take the frequency of the next beacon
-        *beaconChannelSet = false;
-        frequency = rxBeaconSetupParams->BeaconTimingAnsFrequency;
     }
 
     // Setup frequency and payload length

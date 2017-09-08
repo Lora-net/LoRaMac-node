@@ -58,7 +58,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define AS923_CHANNEL_REMOVE( )                    AS923_CASE { return RegionAS923ChannelsRemove( channelRemove ); }
 #define AS923_SET_CONTINUOUS_WAVE( )               AS923_CASE { RegionAS923SetContinuousWave( continuousWave ); break; }
 #define AS923_APPLY_DR_OFFSET( )                   AS923_CASE { return RegionAS923ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
-#define AS923_RX_BEACON_SETUP( )
+#define AS923_RX_BEACON_SETUP( )                   AS923_CASE { RegionAS923RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define AS923_IS_ACTIVE( )
 #define AS923_GET_PHY_PARAM( )
@@ -112,7 +112,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define AU915_CHANNEL_REMOVE( )                    AU915_CASE { return RegionAU915ChannelsRemove( channelRemove ); }
 #define AU915_SET_CONTINUOUS_WAVE( )               AU915_CASE { RegionAU915SetContinuousWave( continuousWave ); break; }
 #define AU915_APPLY_DR_OFFSET( )                   AU915_CASE { return RegionAU915ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
-#define AU915_RX_BEACON_SETUP( )
+#define AU915_RX_BEACON_SETUP( )                   AU915_CASE { RegionAU915RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define AU915_IS_ACTIVE( )
 #define AU915_GET_PHY_PARAM( )
@@ -166,7 +166,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define CN470_CHANNEL_REMOVE( )                    CN470_CASE { return RegionCN470ChannelsRemove( channelRemove ); }
 #define CN470_SET_CONTINUOUS_WAVE( )               CN470_CASE { RegionCN470SetContinuousWave( continuousWave ); break; }
 #define CN470_APPLY_DR_OFFSET( )                   CN470_CASE { return RegionCN470ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
-#define CN470_RX_BEACON_SETUP( )
+#define CN470_RX_BEACON_SETUP( )                   CN470_CASE { RegionAU915RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define CN470_IS_ACTIVE( )
 #define CN470_GET_PHY_PARAM( )
@@ -220,7 +220,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define CN779_CHANNEL_REMOVE( )                    CN779_CASE { return RegionCN779ChannelsRemove( channelRemove ); }
 #define CN779_SET_CONTINUOUS_WAVE( )               CN779_CASE { RegionCN779SetContinuousWave( continuousWave ); break; }
 #define CN779_APPLY_DR_OFFSET( )                   CN779_CASE { return RegionCN779ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
-#define CN779_RX_BEACON_SETUP( )
+#define CN779_RX_BEACON_SETUP( )                   CN779_CASE { RegionCN779RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define CN779_IS_ACTIVE( )
 #define CN779_GET_PHY_PARAM( )
@@ -274,7 +274,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define EU433_CHANNEL_REMOVE( )                    EU433_CASE { return RegionEU433ChannelsRemove( channelRemove ); }
 #define EU433_SET_CONTINUOUS_WAVE( )               EU433_CASE { RegionEU433SetContinuousWave( continuousWave ); break; }
 #define EU433_APPLY_DR_OFFSET( )                   EU433_CASE { return RegionEU433ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
-#define EU433_RX_BEACON_SETUP( )
+#define EU433_RX_BEACON_SETUP( )                   EU433_CASE { RegionEU433RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define EU433_IS_ACTIVE( )
 #define EU433_GET_PHY_PARAM( )
@@ -328,7 +328,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define EU868_CHANNEL_REMOVE( )                    EU868_CASE { return RegionEU868ChannelsRemove( channelRemove ); }
 #define EU868_SET_CONTINUOUS_WAVE( )               EU868_CASE { RegionEU868SetContinuousWave( continuousWave ); break; }
 #define EU868_APPLY_DR_OFFSET( )                   EU868_CASE { return RegionEU868ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
-#define EU868_RX_BEACON_SETUP( )                   EU868_CASE { RegionEU868RxBeaconSetup( rxBeaconSetup, outDr, beaconChannelSet ); }
+#define EU868_RX_BEACON_SETUP( )                   EU868_CASE { RegionEU868RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define EU868_IS_ACTIVE( )
 #define EU868_GET_PHY_PARAM( )
@@ -382,7 +382,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define KR920_CHANNEL_REMOVE( )                    KR920_CASE { return RegionKR920ChannelsRemove( channelRemove ); }
 #define KR920_SET_CONTINUOUS_WAVE( )               KR920_CASE { RegionKR920SetContinuousWave( continuousWave ); break; }
 #define KR920_APPLY_DR_OFFSET( )                   KR920_CASE { return RegionKR920ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
-#define KR920_RX_BEACON_SETUP( )
+#define KR920_RX_BEACON_SETUP( )                   KR920_CASE { RegionKR920RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define KR920_IS_ACTIVE( )
 #define KR920_GET_PHY_PARAM( )
@@ -436,7 +436,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define IN865_CHANNEL_REMOVE( )                    IN865_CASE { return RegionIN865ChannelsRemove( channelRemove ); }
 #define IN865_SET_CONTINUOUS_WAVE( )               IN865_CASE { RegionIN865SetContinuousWave( continuousWave ); break; }
 #define IN865_APPLY_DR_OFFSET( )                   IN865_CASE { return RegionIN865ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
-#define IN865_RX_BEACON_SETUP( )
+#define IN865_RX_BEACON_SETUP( )                   IN865_CASE { RegionIN865RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define IN865_IS_ACTIVE( )
 #define IN865_GET_PHY_PARAM( )
@@ -490,7 +490,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define US915_CHANNEL_REMOVE( )                    US915_CASE { return RegionUS915ChannelsRemove( channelRemove ); }
 #define US915_SET_CONTINUOUS_WAVE( )               US915_CASE { RegionUS915SetContinuousWave( continuousWave ); break; }
 #define US915_APPLY_DR_OFFSET( )                   US915_CASE { return RegionUS915ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
-#define US915_RX_BEACON_SETUP( )
+#define US915_RX_BEACON_SETUP( )                   US915_CASE { RegionUS915RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define US915_IS_ACTIVE( )
 #define US915_GET_PHY_PARAM( )
@@ -544,7 +544,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #define US915_HYBRID_CHANNEL_REMOVE( )                    US915_HYBRID_CASE { return RegionUS915HybridChannelsRemove( channelRemove ); }
 #define US915_HYBRID_SET_CONTINUOUS_WAVE( )               US915_HYBRID_CASE { RegionUS915HybridSetContinuousWave( continuousWave ); break; }
 #define US915_HYBRID_APPLY_DR_OFFSET( )                   US915_HYBRID_CASE { return RegionUS915HybridApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
-#define US915_HYBRID_RX_BEACON_SETUP( )
+#define US915_HYBRID_RX_BEACON_SETUP( )                   US915_HYBRID_CASE { RegionUS915HybridRxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define US915_HYBRID_IS_ACTIVE( )
 #define US915_HYBRID_GET_PHY_PARAM( )
@@ -1056,7 +1056,7 @@ uint8_t RegionApplyDrOffset( LoRaMacRegion_t region, uint8_t downlinkDwellTime, 
     }
 }
 
-void RegionRxBeaconSetup( LoRaMacRegion_t region, RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr, bool *beaconChannelSet )
+void RegionRxBeaconSetup( LoRaMacRegion_t region, RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr )
 {
     switch( region )
     {

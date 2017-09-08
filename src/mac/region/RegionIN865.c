@@ -356,11 +356,6 @@ PhyParam_t RegionIN865GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = IN865_MAX_BEACON_LESS_PERIOD;
             break;
         }
-        case PHY_BEACON_DELAY_BEACON_TIMING_ANS:
-        {
-            phyParam.Value = IN865_BEACON_DELAY_BEACON_TIMING_ANS;
-            break;
-        }
         case PHY_BEACON_CHANNEL_FREQ:
         {
             phyParam.Value = IN865_BEACON_CHANNEL_FREQ;
@@ -1129,23 +1124,21 @@ uint8_t RegionIN865ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t d
     return MIN( DR_5, MAX( DR_0, dr - EffectiveRx1DrOffsetIN865[drOffset] ) );
 }
 
-void RegionIN865RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr, bool *beaconChannelSet )
+void RegionIN865RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr )
 {
     RegionCommonRxBeaconSetupParams_t regionCommonRxBeaconSetup;
 
     regionCommonRxBeaconSetup.Datarates = DataratesIN865;
     regionCommonRxBeaconSetup.ChannelPlanFrequency = IN865_BEACON_CHANNEL_FREQ;
-    regionCommonRxBeaconSetup.BeaconTimingAnsFrequency = IN865_BEACON_CHANNEL_FREQ;
     regionCommonRxBeaconSetup.BeaconSize = IN865_BEACON_SIZE;
     regionCommonRxBeaconSetup.BeaconDatarate = IN865_BEACON_CHANNEL_DR;
     regionCommonRxBeaconSetup.BeaconChannelBW = IN865_BEACON_CHANNEL_BW;
     regionCommonRxBeaconSetup.CustomFrequency = rxBeaconSetup->CustomFrequency;
     regionCommonRxBeaconSetup.CustomFrequencyEnabled = rxBeaconSetup->CustomFrequencyEnabled;
-    regionCommonRxBeaconSetup.BeaconChannelSet = rxBeaconSetup->BeaconChannelSet;
     regionCommonRxBeaconSetup.RxTime = rxBeaconSetup->RxTime;
     regionCommonRxBeaconSetup.SymbolTimeout = rxBeaconSetup->SymbolTimeout;
 
-    RegionCommonRxBeaconSetup( &regionCommonRxBeaconSetup, beaconChannelSet );
+    RegionCommonRxBeaconSetup( &regionCommonRxBeaconSetup );
 
     // Store downlink datarate
     *outDr = IN865_BEACON_CHANNEL_DR;
