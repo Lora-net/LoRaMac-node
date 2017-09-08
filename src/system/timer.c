@@ -17,7 +17,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 
 /*!
- * This flag is used to make sure we have looped through the main several time to avoid race issues
+ * This flag is used to loop through the main several times in order to be sure
+ * that all pending events have been processed.
  */
 volatile uint8_t HasLoopedThroughMain = 0;
 

@@ -26,7 +26,7 @@
  *
  * \author    Gregory Cristian ( Semtech )
  *
- * \author    Daniel Jäckle ( STACKFORCE )
+ * \author    Daniel Jaeckle ( STACKFORCE )
  *
  * \defgroup  LORAMACTEST LoRa MAC layer test function implementation
  *            This module specifies the API implementation of test function of the LoRaMAC layer.

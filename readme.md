@@ -12,8 +12,9 @@ LoRaWAN endpoint stack implementation and example projects.
 ----------------
 The aim of this project is to show an example of the endpoint LoRaWAN stack implementation.
 
-This LoRaWAN stack is an EU868 and US915 bands Class A and Class C endpoint implementation
-fully compatible with LoRaWAN 1.0.1 specification.
+This LoRaWAN stack implements all regions defined in "LoRaWAN Regional Parameters v1.0.2rB" document. Class A and Class C endpoint implementation
+is fully compatible with "LoRaWAN specification 1.0.2".
+
 Each LoRaWAN application example includes the LoRaWAN certification protocol implementation.
 
 SX1272/76 radio drivers are also provided.
@@ -142,6 +143,32 @@ not of a bootloader and the radio frequency band to be used.
 
 6. Changelog
 -------------
+2017-09-08, V4.4.0
+* General
+    1. First release based on "LoRaWAN specification 1.0.2" and "LoRaWAN Regional Parameters v1.0.2rB"
+    2. This version has passed the LoRa-Alliance compliance tests for the regions shown in the below table.
+    3. GitHub reported issues corrections.
+    4. Updated radio driver to perform the LBT carrier sense continuously for a given period of time.
+
+* LoRaWAN
+    1. GitHub reported issues corrections.
+    2. Updated implementation to support 1.0.2 specification additions.
+    3. Added the support for all "LoRaWAN Regional Parameters v1.0.2rB" document defined regions.
+
+**LoRaWAN certification results**
+
+| Region        | Verdict       | # Test houses | Comments      |
+| ------------- |:-------------:|:-------------:|:--------------|
+| EU868         | <font color='green'>PASS</font> | 2 | - |
+| US915         | <font color='green'>PASS</font> | 2 | - |
+| CN779         | <font color='orange'>Partial PASS</font> | 1 | No certification specification - tests based on EU868 certification - All tests PASS except 1. Join Accept Rx2 parameters not being applied (under investigation) |
+| EU433         | <font color='green'>PASS</font> | 1 | No certification specification - tests based on EU868 certification |
+| AU915         | <font color='orange'>Not tested yet</font> | 0 | No certification specification |
+| CN470         | <font color='orange'>Not tested yet</font> | 0 | No certification specification |
+| AS923         | <font color='green'>PASS</font> | 2 | - |
+| KR920         | <font color='green'>PASS</font> | 1 | As of today only one test house has sent a report. We decided to perform the release anyway |
+| IN865         | <font color='orange'>PASS</font> | 1 | No certification specification - tests based on EU868 certification |
+
 2017-04-19, V4.3.2
 * General (Last release based on LoRaWAN specification 1.0.1)
     1. This version has passed EU868 and US915 LoRa-Alliance compliance tests.

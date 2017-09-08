@@ -26,7 +26,7 @@
  *
  * \author    Gregory Cristian ( Semtech )
  *
- * \author    Daniel Jäckle ( STACKFORCE )
+ * \author    Daniel Jaeckle ( STACKFORCE )
  *
  * \defgroup    LORAMAC_CRYPTO  LoRa MAC layer cryptography implementation
  *              This module covers the implementation of cryptographic functions

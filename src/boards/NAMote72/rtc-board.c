@@ -21,13 +21,13 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 #define RTC_ALARM_TICK_PER_MS                       0x7FF           //  2047 > number of sub-second ticks per second
 
-/* subsecond number of bits */
+/* sub-second number of bits */
 #define N_PREDIV_S                11
 
-/* Synchonuous prediv  */
+/* Synchronous prediv  */
 #define PREDIV_S                  ( ( 1 << N_PREDIV_S ) - 1 )
 
-/* Asynchonuous prediv   */
+/* Asynchronous prediv   */
 #define PREDIV_A                  ( 1 << ( 15 - N_PREDIV_S ) ) - 1
 
 /* RTC Time base in us */
@@ -99,14 +99,14 @@ typedef struct RtcCalendar_s
 RtcCalendar_t RtcCalendarContext;
 
 /*!
- * \brief Flag to indicate if the timestamps until the next event is long enough
+ * \brief Flag to indicate if the timestamp until the next event is long enough
  * to set the MCU into low power mode
  */
 static bool RtcTimerEventAllowsLowPower = false;
 
 /*!
- * \brief Flag to disable the LowPower Mode even if the timestamps until the
- * next event is long enough to allow Low Power mode
+ * \brief Flag to disable the low power mode even if the timestamp until the
+ * next event is long enough to allow low power mode
  */
 static bool LowPowerDisableDuringTask = false;
 
@@ -118,7 +118,7 @@ RTC_HandleTypeDef RtcHandle = { 0 };
 /*!
  * \brief Indicates if the RTC is already Initialized or not
  */
-static bool RtcInitalized = false;
+static bool RtcInitialized = false;
 
 /*!
  * \brief Indicates if the RTC Wake Up Time is calibrated or not
@@ -187,7 +187,7 @@ void RtcInit( void )
 {
     RtcCalendar_t rtcInit;
 
-    if( RtcInitalized == false )
+    if( RtcInitialized == false )
     {
         __HAL_RCC_RTC_ENABLE( );
 
@@ -223,7 +223,7 @@ void RtcInit( void )
 
         HAL_NVIC_SetPriority( RTC_Alarm_IRQn, 1, 0 );
         HAL_NVIC_EnableIRQ( RTC_Alarm_IRQn );
-        RtcInitalized = true;
+        RtcInitialized = true;
     }
 }
 
@@ -696,7 +696,7 @@ static RtcCalendar_t RtcGetCalendar( void )
     HAL_RTC_GetTime( &RtcHandle, &now.CalendarTime, RTC_FORMAT_BIN );
     second_read = now.CalendarTime.SubSeconds;
 
-    // make sure it is correct due to asynchronus nature of RTC
+    // make sure it is correct due to asynchronous nature of RTC
     while( first_read != second_read )
     {
         first_read = second_read;
