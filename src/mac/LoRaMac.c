@@ -3514,6 +3514,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             // Apply the request
             LoRaMacFlags.Bits.MlmeReq = 1;
             MlmeConfirmQueue[MlmeConfirmQueueCnt].MlmeRequest = mlmeRequest->Type;
+            MlmeConfirmQueue[MlmeConfirmQueueCnt].Status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
             MlmeConfirmQueueCnt++;
 
             // Verify the parameter NbTrials for the join procedure
