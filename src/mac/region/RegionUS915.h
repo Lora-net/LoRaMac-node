@@ -199,11 +199,6 @@
 #define US915_PING_SLOT_WINDOW                      30
 
 /*!
- * Beacon frequency
- */
-#define US915_BEACON_CHANNEL_FREQ                   923300000
-
-/*!
  * Default symbol timeout for beacons and ping slot windows
  */
 #define US915_BEACON_SYMBOL_TO_DEFAULT              8
@@ -236,6 +231,9 @@
 #define US915_MAX_BEACON_LESS_PERIOD                7200000
 
 /*!
+ * Beacon frequency
+ */
+#define US915_BEACON_CHANNEL_FREQ                   923300000
 
 /*!
  * Beacon frequency channel stepwidth

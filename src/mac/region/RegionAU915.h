@@ -204,11 +204,6 @@
 #define AU915_PING_SLOT_WINDOW                      30
 
 /*!
- * Beacon frequency
- */
-#define AU915_BEACON_CHANNEL_FREQ                  923300000
-
-/*!
  * Default symbol timeout for beacons and ping slot windows
  */
 #define AU915_BEACON_SYMBOL_TO_DEFAULT              8
@@ -253,6 +248,7 @@
 /*!
  * Number of possible beacon channels
  */
+#define AU915_BEACON_NB_CHANNELS                    8
 
 /*!
  * Payload size of a beacon frame
