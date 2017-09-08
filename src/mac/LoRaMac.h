@@ -606,22 +606,59 @@ typedef union uLoRaMacFrameCtrl
     }Bits;
 }LoRaMacFrameCtrl_t;
 
+/*!
+ * LoRaMAC data structure for a PingSlotInfoReq \ref MLME_PING_SLOT_INFO
+ *
+ * LoRaWAN Specification
+ */
 typedef union uPingSlotInfo
 {
+    /*!
+     * Parameter for byte access
+     */
     uint8_t Value;
+    /*!
+     * Structure containing the parameters for the PingSlotInfoReq
+     */
     struct sInfoFields
     {
+        /*!
+         * Periodicity = 0: ping slot every second
+         * Periodicity = 7: ping slot every 128 seconds
+         */
         uint8_t Periodicity     : 3;
+        /*!
+         * RFU
+         */
         uint8_t RFU             : 5;
     }Fields;
 }PingSlotInfo_t;
 
+/*!
+ * LoRaMAC data structure for the \ref MLME_BEACON MLME-Indication
+ *
+ * LoRaWAN Specification
+ */
 typedef struct sBeaconInfo
 {
+    /*!
+     * Timestamp in seconds since 00:00:00, Sunday 6th of January 1980
+     * (start of the GPS epoch) modulo 2^32
+     */
     uint32_t Time;
+    /*!
+     * Data structure for the gateway specific part. The
+     * content of the values may differ for each gateway
+     */
     struct sGwSpecific
     {
+        /*!
+         * Info descriptor - can differ for each gateway
+         */
         uint8_t InfoDesc;
+        /*!
+         * Info - can differ for each gateway
+         */
         uint8_t Info[6];
     }GwSpecific;
 }BeaconInfo_t;
@@ -1051,11 +1088,6 @@ typedef enum eMlme
      * LoRaWAN Specification V1.0.2, chapter 5, table 4
      */
     MLME_LINK_CHECK,
-    MLME_PING_SLOT_INFO,
-    MLME_BEACON_TIMING,
-    MLME_SWITCH_CLASS,
-    MLME_BEACON_ACQUISITION,
-    MLME_BEACON,
     /*!
      * Sets Tx continuous wave mode
      *
@@ -1068,6 +1100,32 @@ typedef enum eMlme
      * LoRaWAN end-device certification
      */
     MLME_TXCW_1,
+    /*!
+     * The MAC uses this MLME primitive to indicate a beacon reception
+     * status.
+     *
+     * LoRaWAN end-device certification
+     */
+    MLME_BEACON,
+    /*!
+     * Initiate a beacon acquisition. The MAC will search for a beacon.
+     * It will search for XX_BEACON_INTERVAL milliseconds.
+     *
+     * LoRaWAN end-device certification
+     */
+    MLME_BEACON_ACQUISITION,
+    /*!
+     * Initiates a PingSlotInfoReq
+     *
+     * LoRaWAN end-device certification
+     */
+    MLME_PING_SLOT_INFO,
+    /*!
+     * Primitive which is used to switch the LoRaWAN device class
+     *
+     * LoRaWAN end-device certification
+     */
+    MLME_SWITCH_CLASS,
 }Mlme_t;
 
 /*!
