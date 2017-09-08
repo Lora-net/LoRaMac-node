@@ -237,6 +237,16 @@ static uint8_t CountNbOfEnabledChannels( uint8_t datarate, uint16_t* channelsMas
     return nbEnabledChannels;
 }
 
+static uint8_t BeaconChannel( uint32_t devAddr, TimerTime_t beaconTime, TimerTime_t beaconInterval )
+{
+    uint32_t frequency = 0;
+
+    // Calculate the channel for the next beacon
+    frequency = devAddr + ( beaconTime / ( beaconInterval / 1000 ) );
+
+    return ( ( uint8_t )( frequency % US915_HYBRID_BEACON_NB_CHANNELS ) );
+}
+
 PhyParam_t RegionUS915HybridGetPhyParam( GetPhyParams_t* getPhy )
 {
     PhyParam_t phyParam = { 0 };
@@ -369,6 +379,81 @@ PhyParam_t RegionUS915HybridGetPhyParam( GetPhyParams_t* getPhy )
         case PHY_DEF_NB_JOIN_TRIALS:
         {
             phyParam.Value = 2;
+            break;
+        }
+        case PHY_BEACON_INTERVAL:
+        {
+            phyParam.Value = US915_HYBRID_BEACON_INTERVAL;
+            break;
+        }
+        case PHY_BEACON_RESERVED:
+        {
+            phyParam.Value = US915_HYBRID_BEACON_RESERVED;
+            break;
+        }
+        case PHY_BEACON_GUARD:
+        {
+            phyParam.Value = US915_HYBRID_BEACON_GUARD;
+            break;
+        }
+        case PHY_BEACON_WINDOW:
+        {
+            phyParam.Value = US915_HYBRID_BEACON_WINDOW;
+            break;
+        }
+        case PHY_BEACON_WINDOW_SLOTS:
+        {
+            phyParam.Value = US915_HYBRID_BEACON_WINDOW_SLOTS;
+            break;
+        }
+        case PHY_PING_SLOT_WINDOW:
+        {
+            phyParam.Value = US915_HYBRID_PING_SLOT_WINDOW;
+            break;
+        }
+        case PHY_BEACON_SYMBOL_TO_DEFAULT:
+        {
+            phyParam.Value = US915_HYBRID_BEACON_SYMBOL_TO_DEFAULT;
+            break;
+        }
+        case PHY_BEACON_SYMBOL_TO_EXPANSION_MAX:
+        {
+            phyParam.Value = US915_HYBRID_BEACON_SYMBOL_TO_EXPANSION_MAX;
+            break;
+        }
+        case PHY_PING_SLOT_SYMBOL_TO_EXPANSION_MAX:
+        {
+            phyParam.Value = US915_HYBRID_PING_SLOT_SYMBOL_TO_EXPANSION_MAX;
+            break;
+        }
+        case PHY_BEACON_SYMBOL_TO_EXPANSION_FACTOR:
+        {
+            phyParam.Value = US915_HYBRID_BEACON_SYMBOL_TO_EXPANSION_FACTOR;
+            break;
+        }
+        case PHY_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR:
+        {
+            phyParam.Value = US915_HYBRID_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR;
+            break;
+        }
+        case PHY_MAX_BEACON_LESS_PERIOD:
+        {
+            phyParam.Value = US915_HYBRID_MAX_BEACON_LESS_PERIOD;
+            break;
+        }
+        case PHY_PINGSLOT_CHANNEL_FREQ:
+        {
+            phyParam.Value = US915_HYBRID_BEACON_CHANNEL_FREQ;
+            break;
+        }
+        case PHY_BEACON_SIZE:
+        {
+            phyParam.Value = US915_HYBRID_BEACON_SIZE;
+            break;
+        }
+        case PHY_BEACON_CHANNEL_DR:
+        {
+            phyParam.Value = US915_HYBRID_BEACON_CHANNEL_DR;
             break;
         }
         default:
@@ -955,4 +1040,24 @@ uint8_t RegionUS915HybridApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, in
         datarate = DR_0;
     }
     return datarate;
+}
+
+void RegionUS915HybridRxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr )
+{
+    RegionCommonRxBeaconSetupParams_t regionCommonRxBeaconSetup;
+
+    regionCommonRxBeaconSetup.Datarates = DataratesUS915_HYBRID;
+    regionCommonRxBeaconSetup.ChannelPlanFrequency = ( US915_HYBRID_BEACON_CHANNEL_FREQ + ( BeaconChannel( 0, rxBeaconSetup->BeaconTime, rxBeaconSetup->BeaconInterval ) * US915_HYBRID_BEACON_CHANNEL_STEPWIDTH ) );
+    regionCommonRxBeaconSetup.BeaconSize = US915_HYBRID_BEACON_SIZE;
+    regionCommonRxBeaconSetup.BeaconDatarate = US915_HYBRID_BEACON_CHANNEL_DR;
+    regionCommonRxBeaconSetup.BeaconChannelBW = US915_HYBRID_BEACON_CHANNEL_BW;
+    regionCommonRxBeaconSetup.CustomFrequency = rxBeaconSetup->CustomFrequency;
+    regionCommonRxBeaconSetup.CustomFrequencyEnabled = rxBeaconSetup->CustomFrequencyEnabled;
+    regionCommonRxBeaconSetup.RxTime = rxBeaconSetup->RxTime;
+    regionCommonRxBeaconSetup.SymbolTimeout = rxBeaconSetup->SymbolTimeout;
+
+    RegionCommonRxBeaconSetup( &regionCommonRxBeaconSetup );
+
+    // Store downlink datarate
+    *outDr = US915_HYBRID_BEACON_CHANNEL_DR;
 }
