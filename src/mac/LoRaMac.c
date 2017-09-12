@@ -1778,7 +1778,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     {
                         batteryLevel = LoRaMacCallbacks->GetBatteryLevel( );
                     }
-                    AddMacCommand( MOTE_MAC_DEV_STATUS_ANS, batteryLevel, snr );
+                    AddMacCommand( MOTE_MAC_DEV_STATUS_ANS, batteryLevel, snr & 3F );
                     break;
                 }
             case SRV_MAC_NEW_CHANNEL_REQ:
