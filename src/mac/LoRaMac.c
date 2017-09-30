@@ -336,8 +336,8 @@ static TimerEvent_t RxWindowTimer2;
  * \remark normal frame: RxWindowXDelay = ReceiveDelayX - RADIO_WAKEUP_TIME
  *         join frame  : RxWindowXDelay = JoinAcceptDelayX - RADIO_WAKEUP_TIME
  */
-static uint32_t RxWindow1Delay;
-static uint32_t RxWindow2Delay;
+static TimerTime_t RxWindow1Delay;
+static TimerTime_t RxWindow2Delay;
 
 /*!
  * LoRaMac Rx windows configuration
