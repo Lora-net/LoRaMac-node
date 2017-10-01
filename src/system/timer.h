@@ -16,23 +16,27 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define __TIMER_H__
 
 /*!
+ * \brief TimerTime_t type definition
+ *
+ * \remark TimerTime_t is used for variables counting in milliseconds
+ *
+ */
+#ifndef TimerTime_t
+typedef uint64_t TimerTime_t;
+#define TIMERTIME_MAX ( (TimerTime_t) UINT64_MAX)
+#endif
+
+/*!
  * \brief Timer object description
  */
 typedef struct TimerEvent_s
 {
-    uint32_t Timestamp;         //! Current timer value
-    uint32_t ReloadValue;       //! Timer delay value
+    TimerTime_t Timestamp;         //! Current timer value
+    TimerTime_t ReloadValue;       //! Timer delay value
     bool IsRunning;             //! Is the timer currently running
     void ( *Callback )( void ); //! Timer IRQ callback function
     struct TimerEvent_s *Next;  //! Pointer to the next Timer object.
 }TimerEvent_t;
-
-/*!
- * \brief Timer time variable definition
- */
-#ifndef TimerTime_t
-typedef uint32_t TimerTime_t;
-#endif
 
 /*!
  * \brief Initializes the timer object
@@ -77,7 +81,7 @@ void TimerReset( TimerEvent_t *obj );
  * \param [IN] obj   Structure containing the timer object parameters
  * \param [IN] value New timer timeout value
  */
-void TimerSetValue( TimerEvent_t *obj, uint32_t value );
+void TimerSetValue( TimerEvent_t *obj, TimerTime_t value );
 
 /*!
  * \brief Read the current time
