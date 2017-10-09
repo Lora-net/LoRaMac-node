@@ -196,9 +196,9 @@
 
 /*!
  * Band 0 definition
- * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
+ * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-#define KR920_BAND0                                 { 1 , KR920_MAX_TX_POWER, 0,  0 } //  100.0 %
+#define KR920_BAND0                                 { 1 , KR920_MAX_TX_POWER, 0, 0, 0 } //  100.0 %
 
 /*!
  * LoRaMac default channel 1
