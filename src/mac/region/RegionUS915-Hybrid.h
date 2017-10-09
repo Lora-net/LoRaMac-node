@@ -172,9 +172,9 @@
 
 /*!
  * Band 0 definition
- * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
+ * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-#define US915_HYBRID_BAND0                          { 1, US915_HYBRID_MAX_TX_POWER, 0,  0 } //  100.0 %
+#define US915_HYBRID_BAND0                          { 1, US915_HYBRID_MAX_TX_POWER, 0, 0, 0 } //  100.0 %
 
 /*!
  * Defines the first channel for RX window 1 for US band
