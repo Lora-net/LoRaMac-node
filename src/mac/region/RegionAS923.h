@@ -207,9 +207,9 @@
 
 /*!
  * Band 0 definition
- * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
+ * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-#define AS923_BAND0                                 { 100, AS923_MAX_TX_POWER, 0,  0 } //  1.0 %
+#define AS923_BAND0                                 { 100, AS923_MAX_TX_POWER, 0, 0, 0 } //  1.0 %
 
 /*!
  * LoRaMac default channel 1
