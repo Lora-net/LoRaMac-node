@@ -483,6 +483,13 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         {
             break;
         }
+        case MCPS_FORCE_SEND:
+        {
+            // Force a new send
+            DeviceState = DEVICE_STATE_SEND;
+            NextTx = true;
+            break;
+        }
         default:
             break;
     }

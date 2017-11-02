@@ -644,6 +644,7 @@ typedef union eLoRaMacFlags_t
  * \ref MCPS_CONFIRMED   | YES     | YES        | NO       | YES
  * \ref MCPS_MULTICAST   | NO      | YES        | NO       | NO
  * \ref MCPS_PROPRIETARY | YES     | YES        | NO       | YES
+ * \ref MCPS_FORCE_SEND  | NO      | YES        | NO       | NO
  *
  * The following table provides links to the function implementations of the
  * related MCPS primitives:
@@ -672,6 +673,11 @@ typedef enum eMcps
      * Proprietary frame
      */
     MCPS_PROPRIETARY,
+    /*!
+     * Force send 
+     * Used to ensure MAC responses sent to server.
+     */
+    MCPS_FORCE_SEND,
 }Mcps_t;
 
 /*!

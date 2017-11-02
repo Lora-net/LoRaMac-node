@@ -623,6 +623,17 @@ static uint8_t RxSlot = 0;
 LoRaMacFlags_t LoRaMacFlags;
 
 /*!
+ * Flag still waiting for RX from server after RXParamSetupReq
+ */
+static bool RXParamSetupWaitingForRx = false;
+
+/*!
+ * Timeout timer for detection of an RX send of RXParamSetupAns
+ * Timout should be set to RxDelay1 + 2000ms after transmission
+ */
+static TimerEvent_t RXParamSetupWaitingForRxTimeoutTimer;
+
+/*!
  * \brief Function to be executed on Radio Tx Done event
  */
 static void OnRadioTxDone( void );
@@ -955,6 +966,14 @@ static void OnRadioTxDone( void )
     else
     {
         OnRxWindow2TimerEvent( );
+
+        // Setup RX timeout if waiting for response to RXParamSetup
+        if (RXParamSetupWaitingForRx)
+        {
+            // Set timeout to end of Class A RX window
+            TimerSetValue(&RXParamSetupWaitingForRxTimeoutTimer, RxWindow1Delay + 2000);
+            TimerStart(&RXParamSetupWaitingForRxTimeoutTimer);
+        }
     }
 
     // Setup timers
@@ -1411,6 +1430,13 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
         OnRxWindow2TimerEvent( );
     }
     LoRaMacFlags.Bits.MacDone = 1;
+
+    if (LoRaMacDeviceClass == CLASS_C)
+    {
+        // We are now no longer waiting for any receive after RXParamSetupReq
+        TimerStop(&RXParamSetupWaitingForRxTimeoutTimer);
+        RXParamSetupWaitingForRx = false;
+    }
 
     // Trig OnMacCheckTimerEvent call as soon as possible
     TimerSetValue( &MacStateCheckTimer, 1 );
@@ -2749,6 +2775,23 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                         LoRaMacParams.Rx2Channel.Frequency = freq;
                         LoRaMacParams.Rx1DrOffset = drOffset;
                     }
+
+                    if (LoRaMacDeviceClass == CLASS_C)
+                    {
+                        // We are now waiting for any receive to prove server received MOTE_MAC_RX_PARAM_SETUP_ANS
+                        RXParamSetupWaitingForRx = true;
+                        
+                        // Request application to perform send to get MOTE_MAC_RX_PARAM_SETUP_ANS to be sent
+                        McpsIndication.McpsIndication = MCPS_FORCE_SEND;
+                        McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_OK;
+                        LoRaMacFlags.Bits.McpsInd = 1;
+                        LoRaMacFlags.Bits.McpsIndSkip = 0;
+
+                        // Trig OnMacCheckTimerEvent call as soon as possible
+                        TimerSetValue(&MacStateCheckTimer, 1);
+                        TimerStart(&MacStateCheckTimer);
+                    }
+
                     AddMacCommand( MOTE_MAC_RX_PARAM_SETUP_ANS, status, 0 );
                 }
                 break;
@@ -3340,6 +3383,23 @@ LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout )
     return LORAMAC_STATUS_OK;
 }
 
+static void OnRXParamSetupWaitingForRxTimeoutEvent(void)
+{
+    TimerStop(&RXParamSetupWaitingForRxTimeoutTimer);
+    if (LoRaMacDeviceClass == CLASS_C)
+    {
+        // Request application to perform send to get MOTE_MAC_RX_PARAM_SETUP_ANS to be sent
+        McpsIndication.McpsIndication = MCPS_FORCE_SEND;
+        McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_OK;
+        LoRaMacFlags.Bits.McpsInd = 1;
+        LoRaMacFlags.Bits.McpsIndSkip = 0;
+        
+        // Trig OnMacCheckTimerEvent call as soon as possible
+        TimerSetValue(&MacStateCheckTimer, 1);
+        TimerStart(&MacStateCheckTimer);
+    }
+}
+
 LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks )
 {
     if( primitives == NULL )
@@ -3467,6 +3527,8 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     TimerInit( &RxWindowTimer1, OnRxWindow1TimerEvent );
     TimerInit( &RxWindowTimer2, OnRxWindow2TimerEvent );
     TimerInit( &AckTimeoutTimer, OnAckTimeoutTimerEvent );
+
+    TimerInit( &RXParamSetupWaitingForRxTimeoutTimer, OnRXParamSetupWaitingForRxTimeoutEvent );
 
     // Initialize Radio driver
     RadioEvents.TxDone = OnRadioTxDone;
