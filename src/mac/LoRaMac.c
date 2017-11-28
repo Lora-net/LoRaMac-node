@@ -1338,7 +1338,7 @@ static void OnMacStateCheckTimerEvent( void )
         {
             if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) || ( ( LoRaMacFlags.Bits.McpsReq == 1 ) ) )
             {
-                if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) && ( LoRaMacConfirmQueueIsCmdActive( MLME_JOIN == true ) ) )
+                if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) && ( LoRaMacConfirmQueueIsCmdActive( MLME_JOIN ) == true ) )
                 {// Procedure for the join request
                     MlmeConfirm.NbRetries = JoinRequestTrials;
 
