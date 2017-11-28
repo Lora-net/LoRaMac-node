@@ -1322,7 +1322,7 @@ static void OnMacStateCheckTimerEvent( void )
                 noTx = true;
             }
 
-            if( ( LoRaMacConfirmQueueIsCmdActive( MLME_BEACON_ACQUISITION ) == true ) && 
+            if( ( LoRaMacConfirmQueueIsCmdActive( MLME_BEACON_ACQUISITION ) == true ) &&
                 ( LoRaMacFlags.Bits.McpsReq == 0 ) )
             {
                 if( LoRaMacFlags.Bits.MlmeReq == 1 )
