@@ -230,12 +230,12 @@
 /*!
  * Maximum symbol timeout for beacons
  */
-#define KR920_BEACON_SYMBOL_TO_EXPANSION_MAX        400
+#define KR920_BEACON_SYMBOL_TO_EXPANSION_MAX        255
 
 /*!
  * Maximum symbol timeout for ping slots
  */
-#define KR920_PING_SLOT_SYMBOL_TO_EXPANSION_MAX     40
+#define KR920_PING_SLOT_SYMBOL_TO_EXPANSION_MAX     30
 
 /*!
  * Symbol expansion value for beacon windows in case of beacon
