@@ -1880,21 +1880,6 @@ typedef struct sLoRaMacTxInfo
 }LoRaMacTxInfo_t;
 
 /*!
- * Structure to hold multiple MLME request confirm data
- */
-typedef struct sMlmeConfirmQueue
-{
-    /*!
-     * Holds the previously performed MLME-Request
-     */
-    Mlme_t MlmeRequest;
-    /*!
-     * Status of the operation
-     */
-    LoRaMacEventInfoStatus_t Status;
-}MlmeConfirmQueue_t;
-
-/*!
  * LoRaMAC Status
  */
 typedef enum eLoRaMacStatus

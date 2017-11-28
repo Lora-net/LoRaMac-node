@@ -1293,10 +1293,7 @@ static void OnMacStateCheckTimerEvent( void )
 {
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;
-    uint8_t index = 0;
     bool noTx = false;
-    uint8_t i, j = 0;
-
 
     TimerStop( &MacStateCheckTimer );
 
@@ -1479,7 +1476,7 @@ static void OnMacStateCheckTimerEvent( void )
 
         if( LoRaMacFlags.Bits.MlmeReq == 1 )
         {
-            LoRaMacConfirmQueueHandleCb( ):
+            LoRaMacConfirmQueueHandleCb( &MlmeConfirm );
 
             if( LoRaMacConfirmQueueGetCnt( ) == 0 )
             {
@@ -1967,7 +1964,6 @@ static uint8_t ParseMacCommandsToRepeat( uint8_t* cmdBufIn, uint8_t length, uint
 static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t commandsSize, uint8_t snr )
 {
     uint8_t status = 0;
-    uint8_t index = 0;
 
     while( macIndex < commandsSize )
     {
@@ -2669,7 +2665,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     }
 
     // Confirm queue reset
-    LoRaMacConfirmQueueRemove( primitives );
+    LoRaMacConfirmQueueInit( primitives );
 
     LoRaMacPrimitives = primitives;
     LoRaMacCallbacks = callbacks;
@@ -3496,7 +3492,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
     {
         return LORAMAC_STATUS_BUSY;
     }
-    if( LoRaMacConfirmQueueGetCnt( ) <= MlmeConfirmQueueCnt )
+    if( LoRaMacConfirmQueueIsFull( ) == true )
     {
         return LORAMAC_STATUS_BUSY;
     }
@@ -3636,7 +3632,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
     if( status != LORAMAC_STATUS_OK )
     {
         NodeAckRequested = false;
-        LoRaMacConfirmQueueRemove( &queueElement );
+        LoRaMacConfirmQueueRemoveLast( );
         if( LoRaMacConfirmQueueGetCnt( ) == 0 )
         {
             LoRaMacFlags.Bits.MlmeReq = 0;

@@ -1104,8 +1104,6 @@ LoRaMacStatus_t LoRaMacMibClassBSetRequestConfirm( MibRequestConfirm_t *mibSet )
 void LoRaMacClassBPingSlotInfoAns( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
-    uint8_t index = LORA_MAC_MLME_CONFIRM_QUEUE_LEN;
-
     if( LoRaMacConfirmQueueIsCmdActive( MLME_PING_SLOT_INFO ) == true )
     {
         LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_OK, MLME_PING_SLOT_INFO );

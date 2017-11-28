@@ -286,14 +286,6 @@ typedef struct sLoRaMacClassBCallback
      * \retval  Temperature level
      */
     float ( *GetTemperatureLevel )( void );
-    /*!
-     * \brief Gets the index of the confirm queue of a specific MLME-request
-     *
-     * \param [IN] queue        MLME-Confirm queue pointer
-     * \param [IN] req          MLME-Request to validate
-     * \retval Index of the MLME-Confirm. 0xFF is no entry found.
-     */
-    uint8_t ( *GetMlmeConfrimIndex )( MlmeConfirmQueue_t* queue, Mlme_t req );
 }LoRaMacClassBCallback_t;
 
 /*!
@@ -321,10 +313,6 @@ typedef struct sLoRaMacClassBParams
      * Pointer to the LoRaMac device address
      */
     uint32_t *LoRaMacDevAddr;
-    /*!
-     * Pointer to the MLME confirmation queue
-     */
-    MlmeConfirmQueue_t *MlmeConfirmQueue;
     /*!
      * Pointer to the LoRaMac region definition
      */
