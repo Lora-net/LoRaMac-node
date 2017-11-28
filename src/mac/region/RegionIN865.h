@@ -260,6 +260,16 @@
 #define IN865_BEACON_SIZE                           19
 
 /*!
+ * Size of RFU 1 field
+ */
+#define IN865_RFU1_SIZE                             1
+
+/*!
+ * Size of RFU 2 field
+ */
+#define IN865_RFU2_SIZE                             3
+
+/*!
  * Datarate of the beacon channel
  */
 #define IN865_BEACON_CHANNEL_DR                     DR_4

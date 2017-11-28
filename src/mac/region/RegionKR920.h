@@ -265,6 +265,16 @@
 #define KR920_BEACON_SIZE                           17
 
 /*!
+ * Size of RFU 1 field
+ */
+#define KR920_RFU1_SIZE                             2
+
+/*!
+ * Size of RFU 2 field
+ */
+#define KR920_RFU2_SIZE                             0
+
+/*!
  * Datarate of the beacon channel
  */
 #define KR920_BEACON_CHANNEL_DR                     DR_3

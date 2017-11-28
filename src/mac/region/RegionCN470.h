@@ -256,6 +256,16 @@
 #define CN470_BEACON_SIZE                           19
 
 /*!
+ * Size of RFU 1 field
+ */
+#define CN470_RFU1_SIZE                             3
+
+/*!
+ * Size of RFU 2 field
+ */
+#define CN470_RFU2_SIZE                             1
+
+/*!
  * Datarate of the beacon channel
  */
 #define CN470_BEACON_CHANNEL_DR                     DR_2

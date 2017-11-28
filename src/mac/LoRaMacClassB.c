@@ -742,49 +742,51 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
     uint16_t crc1 = 0;
     uint16_t beaconCrc0 = 0;
     uint16_t beaconCrc1 = 0;
-    uint8_t rfuOffset1 = 0;
-    uint8_t rfuOffset2 = 0;
 
-    getPhy.Attribute = PHY_BEACON_SIZE;
+    getPhy.Attribute = PHY_BEACON_FORMAT;
     phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-
-    // For beacon payload sizes > 17 we need to apply an offset
-    if( phyParam.Value > 17 )
-    {
-        rfuOffset1 = 1;
-        rfuOffset2 = 1;
-    }
 
     // Verify if we are in the state where we expect a beacon
     if( ( BeaconState == BEACON_STATE_RX ) || ( BeaconCtx.Ctrl.AcquisitionPending == 1 ) )
     {
-        if( size == phyParam.Value )
+        if( size == phyParam.BeaconFormat.BeaconSize )
         {
-            beaconCrc0 = ( ( uint16_t ) payload[6 + rfuOffset1] ) & 0x00FF;
-            beaconCrc0 |= ( ( uint16_t ) payload[7 + rfuOffset1] << 8 ) & 0xFF00;
-            crc0 = BeaconCrc( payload, 6 + rfuOffset1 );
+            // A beacon frame is defined as:
+            // Bytes: |  x   |  4   |  2   |     7      |  y   |  2   |
+            //        |------|------|------|------------|------|------|
+            // Field: | RFU1 | Time | CRC1 | GwSpecific | RFU2 | CRC2 |
+            //
+            // Field RFU1 and RFU2 have variable sizes. It depends on the region specific implementation
+
+            // Read CRC1 field from the frame
+            beaconCrc0 = ( ( uint16_t )payload[phyParam.BeaconFormat.Rfu1Size + 4] ) & 0x00FF;
+            beaconCrc0 |= ( ( uint16_t )payload[phyParam.BeaconFormat.Rfu1Size + 4 + 1] << 8 ) & 0xFF00;
+            crc0 = BeaconCrc( payload, phyParam.BeaconFormat.Rfu1Size + 4 );
 
             // Validate the first crc of the beacon frame
             if( crc0 == beaconCrc0 )
             {
-                BeaconCtx.BeaconTime  = ( ( uint32_t ) payload[2 + rfuOffset1] ) & 0x000000FF;
-                BeaconCtx.BeaconTime |= ( ( uint32_t ) ( payload[3 + rfuOffset1] << 8 ) ) & 0x0000FF00;
-                BeaconCtx.BeaconTime |= ( ( uint32_t ) ( payload[4 + rfuOffset1] << 16 ) ) & 0x00FF0000;
-                BeaconCtx.BeaconTime |= ( ( uint32_t ) ( payload[5 + rfuOffset1] << 24 ) ) & 0xFF000000;
+                // Read Time field from the frame
+                BeaconCtx.BeaconTime  = ( ( uint32_t )payload[phyParam.BeaconFormat.Rfu1Size] ) & 0x000000FF;
+                BeaconCtx.BeaconTime |= ( ( uint32_t )( payload[phyParam.BeaconFormat.Rfu1Size + 1] << 8 ) ) & 0x0000FF00;
+                BeaconCtx.BeaconTime |= ( ( uint32_t )( payload[phyParam.BeaconFormat.Rfu1Size + 2] << 16 ) ) & 0x00FF0000;
+                BeaconCtx.BeaconTime |= ( ( uint32_t )( payload[phyParam.BeaconFormat.Rfu1Size + 3] << 24 ) ) & 0xFF000000;
                 LoRaMacClassBParams.MlmeIndication->BeaconInfo.Time = BeaconCtx.BeaconTime;
                 beaconReceived = true;
             }
 
-            beaconCrc1 = ( ( uint16_t ) payload[15 + rfuOffset1 + rfuOffset2] ) & 0x00FF;
-            beaconCrc1 |= ( ( uint16_t ) payload[16 + rfuOffset1 + rfuOffset2] << 8 ) & 0xFF00;
-            crc1 = BeaconCrc( &payload[8 + rfuOffset1], 7 + rfuOffset2 );
+            // Read CRC2 field from the frame
+            beaconCrc1 = ( ( uint16_t )payload[phyParam.BeaconFormat.Rfu1Size + 4 + 2 + 7 + phyParam.BeaconFormat.Rfu2Size] ) & 0x00FF;
+            beaconCrc1 |= ( ( uint16_t )payload[phyParam.BeaconFormat.Rfu1Size + 4 + 2 + 7 + phyParam.BeaconFormat.Rfu2Size + 1] << 8 ) & 0xFF00;
+            crc1 = BeaconCrc( &payload[phyParam.BeaconFormat.Rfu1Size + 4 + 2], 7 + phyParam.BeaconFormat.Rfu2Size );
 
             // Validate the second crc of the beacon frame
             if( crc1 == beaconCrc1 )
             {
-                // Beacon valid, apply data
-                LoRaMacClassBParams.MlmeIndication->BeaconInfo.GwSpecific.InfoDesc = payload[8 + rfuOffset1];
-                memcpy1( LoRaMacClassBParams.MlmeIndication->BeaconInfo.GwSpecific.Info, &payload[9 + rfuOffset1], 7 );
+                // Read GwSpecific field from the frame
+                // The GwSpecific field contains 1 byte InfoDesc and 6 bytes Info
+                LoRaMacClassBParams.MlmeIndication->BeaconInfo.GwSpecific.InfoDesc = payload[phyParam.BeaconFormat.Rfu1Size + 4 + 2];
+                memcpy1( LoRaMacClassBParams.MlmeIndication->BeaconInfo.GwSpecific.Info, &payload[phyParam.BeaconFormat.Rfu1Size + 4 + 2 + 1], 6 );
                 beaconReceived = true;
             }
 

@@ -248,7 +248,17 @@
  /*!
   * Payload size of a beacon frame
   */
- #define US915_HYBRID_BEACON_SIZE                   19
+ #define US915_HYBRID_BEACON_SIZE                   23
+
+/*!
+ * Size of RFU 1 field
+ */
+#define US915_HYBRID_RFU1_SIZE                      5
+
+/*!
+ * Size of RFU 2 field
+ */
+#define US915_HYBRID_RFU2_SIZE                      3
 
  /*!
   * Datarate of the beacon channel

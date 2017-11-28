@@ -256,6 +256,16 @@
 #define AU915_BEACON_SIZE                           19
 
 /*!
+ * Size of RFU 1 field
+ */
+#define AU915_RFU1_SIZE                             3
+
+/*!
+ * Size of RFU 2 field
+ */
+#define AU915_RFU2_SIZE                             1
+
+/*!
  * Datarate of the beacon channel
  */
 #define AU915_BEACON_CHANNEL_DR                     DR_10

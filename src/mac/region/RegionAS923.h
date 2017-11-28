@@ -266,6 +266,11 @@
 #define AS923_MAX_BEACON_LESS_PERIOD                7200000
 
 /*!
+ * Delay time for the BeaconTimingAns in ms
+ */
+#define AS923_BEACON_DELAY_BEACON_TIMING_ANS        30
+
+/*!
  * Beacon frequency
  */
 #define AS923_BEACON_CHANNEL_FREQ                   923400000
@@ -274,6 +279,16 @@
  * Payload size of a beacon frame
  */
 #define AS923_BEACON_SIZE                           17
+
+/*!
+ * Size of RFU 1 field
+ */
+#define AS923_RFU1_SIZE                             2
+
+/*!
+ * Size of RFU 2 field
+ */
+#define AS923_RFU2_SIZE                             0
 
 /*!
  * Datarate of the beacon channel

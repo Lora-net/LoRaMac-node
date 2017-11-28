@@ -263,6 +263,16 @@
 #define CN779_BEACON_SIZE                           17
 
 /*!
+ * Size of RFU 1 field
+ */
+#define CN779_RFU1_SIZE                             2
+
+/*!
+ * Size of RFU 2 field
+ */
+#define CN779_RFU2_SIZE                             0
+
+/*!
  * Datarate of the beacon channel
  */
 #define CN779_BEACON_CHANNEL_DR                     DR_3

@@ -260,6 +260,16 @@
 #define EU868_BEACON_SIZE                           17
 
 /*!
+ * Size of RFU 1 field
+ */
+#define EU868_RFU1_SIZE                             2
+
+/*!
+ * Size of RFU 2 field
+ */
+#define EU868_RFU2_SIZE                             0
+
+/*!
  * Datarate of the beacon channel
  */
 #define EU868_BEACON_CHANNEL_DR                     DR_3

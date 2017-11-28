@@ -713,8 +713,10 @@ typedef enum ePhyAttribute
      */
     PHY_BEACON_CHANNEL_FREQ,
     /*!
+     * The format of the beacon.
      * Delay time for the BeaconTimingAns in ms.
      */
+    PHY_BEACON_FORMAT,
     PHY_BEACON_CHANNEL_FREQ_IDX,
     /*!
      * Delay time for the BeaconTimingAns in ms.
@@ -752,6 +754,25 @@ typedef enum eChannelsMask
 }ChannelsMask_t;
 
 /*!
+ * Structure containing the beacon format
+ */
+typedef struct sBeaconFormat
+{
+    /*!
+     * Size of the beacon
+     */
+    uint8_t BeaconSize;
+    /*!
+     * Size of the RFU 1 data field
+     */
+    uint8_t Rfu1Size;
+    /*!
+     * Size of the RFU 2 data field
+     */
+    uint8_t Rfu2Size;
+}BeaconFormat_t;
+
+/*!
  * Union for the structure uGetPhyParams
  */
 typedef union uPhyParam
@@ -772,6 +793,10 @@ typedef union uPhyParam
      * Pointer to the channels.
      */
     ChannelParams_t* Channels;
+    /*!
+     * Beacon format
+     */
+    BeaconFormat_t BeaconFormat;
 }PhyParam_t;
 
 /*!
