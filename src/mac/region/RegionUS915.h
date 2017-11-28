@@ -552,8 +552,6 @@ uint8_t RegionUS915ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t d
  * \brief Sets the radio into beacon reception mode
  *
  * \param [IN] rxBeaconSetup Pointer to the function parameters
- *
- * \param [out] outDr Datarate used to receive the beacon
  */
  void RegionUS915RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
 
