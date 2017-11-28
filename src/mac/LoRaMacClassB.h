@@ -83,7 +83,7 @@ typedef enum eBeaconState
     /*!
      * The nodes switches the device class
      */
-    BEACON_STATE_SWITCH_CLASS,
+    BEACON_STATE_LOST,
 }BeaconState_t;
 
 /*!

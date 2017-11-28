@@ -417,7 +417,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
             if( BeaconCtx.Ctrl.AcquisitionPending == 1 )
             {
                 Radio.Sleep();
-                BeaconState = BEACON_STATE_SWITCH_CLASS;
+                BeaconState = BEACON_STATE_LOST;
             }
             else
             {
@@ -512,7 +512,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
             if( ( currentTime - BeaconCtx.LastBeaconRx ) > BeaconCtx.Cfg.MaxBeaconLessPeriod )
             {
                 activateTimer = true;
-                BeaconState = BEACON_STATE_SWITCH_CLASS;
+                BeaconState = BEACON_STATE_LOST;
             }
             else
             {
@@ -645,7 +645,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
             RxBeaconSetup( BeaconCtx.Cfg.Reserved, false );
             break;
         }
-        case BEACON_STATE_SWITCH_CLASS:
+        case BEACON_STATE_LOST:
         {
             if( LoRaMacClassBParams.LoRaMacFlags->Bits.MlmeReq == 1 )
             {
@@ -656,7 +656,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
             }
             else
             {
-                LoRaMacClassBParams.MlmeIndication->MlmeIndication = MLME_SWITCH_CLASS;
+                LoRaMacClassBParams.MlmeIndication->MlmeIndication = MLME_BEACON_LOST;
                 LoRaMacClassBParams.MlmeIndication->Status = LORAMAC_EVENT_INFO_STATUS_OK;
                 PingSlotCtx.Ctrl.Assigned = 0;
                 LoRaMacClassBParams.LoRaMacFlags->Bits.MlmeInd = 1;
