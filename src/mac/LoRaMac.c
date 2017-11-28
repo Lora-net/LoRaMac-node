@@ -1147,6 +1147,7 @@ static void OnRadioRxError( void )
 
         if( TimerGetElapsedTime( AggregatedLastTxDoneTime ) >= RxWindow2Delay )
         {
+            TimerStop( &RxWindowTimer2 );
             LoRaMacFlags.Bits.MacDone = 1;
         }
     }
@@ -1182,6 +1183,7 @@ static void OnRadioRxTimeout( void )
 
         if( TimerGetElapsedTime( AggregatedLastTxDoneTime ) >= RxWindow2Delay )
         {
+            TimerStop( &RxWindowTimer2 );
             LoRaMacFlags.Bits.MacDone = 1;
         }
     }
