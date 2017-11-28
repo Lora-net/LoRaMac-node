@@ -1278,6 +1278,9 @@ typedef struct sMlmeConfirm
     uint8_t NbRetries;
 }MlmeConfirm_t;
 
+/*!
+ * LoRaMAC MLME-Indication primitive
+ */
 typedef struct sMlmeIndication
 {
     /*!
@@ -1288,19 +1291,11 @@ typedef struct sMlmeIndication
      * Status of the operation
      */
     LoRaMacEventInfoStatus_t Status;
-
-    BeaconInfo_t BeaconInfo;
-}MlmeIndication_t;
-
-/*!
- * LoRaMAC MLME-Indication primitive
- */
-typedef struct sMlmeIndication
-{
     /*!
-     * MLME-Indication type
+     * Beacon information. Only valid for \ref MLME_BEACON,
+     * status \ref LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED
      */
-    Mlme_t MlmeIndication;
+    BeaconInfo_t BeaconInfo;
 }MlmeIndication_t;
 
 /*!

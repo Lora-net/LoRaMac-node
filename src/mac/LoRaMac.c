@@ -484,13 +484,6 @@ static void OnAckTimeoutTimerEvent( void );
 static void RxWindowSetup( bool rxContinuous, uint32_t maxRxWindow );
 
 /*!
- * \brief Switches the device class
- *
- * \param [IN] deviceClass Device class to switch to
- */
-static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass );
-
-/*
  * \brief Verifies if sticky MAC commands are pending.
  *
  * \retval [true: sticky MAC commands pending, false: No MAC commands pending]
@@ -502,6 +495,13 @@ static bool IsStickyMacCommandPending( void );
  *        a MLME type of MLME_SCHEDULE_UPLINK.
  */
 static void SetMlmeScheduleUplinkIndication( void );
+
+/*!
+ * \brief Switches the device class
+ *
+ * \param [IN] deviceClass Device class to switch to
+ */
+static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass );
 
 /*!
  * \brief Adds a new MAC command to be sent.
@@ -847,7 +847,6 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
 
                     LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_OK, MLME_JOIN );
                     IsLoRaMacNetworkJoined = true;
-                    LoRaMacParams.ChannelsDatarate = LoRaMacParamsDefaults.ChannelsDatarate;
                 }
                 else
                 {
@@ -1213,6 +1212,7 @@ static void OnRadioRxError( void )
             LoRaMacConfirmQueueSetStatusCmn( LORAMAC_EVENT_INFO_STATUS_RX1_ERROR );
             if( TimerGetElapsedTime( AggregatedLastTxDoneTime ) >= RxWindow2Delay )
             {
+                TimerStop( &RxWindowTimer2 );
                 LoRaMacFlags.Bits.MacDone = 1;
             }
         }
@@ -1270,6 +1270,7 @@ static void OnRadioRxTimeout( void )
 
             if( TimerGetElapsedTime( AggregatedLastTxDoneTime ) >= RxWindow2Delay )
             {
+                TimerStop( &RxWindowTimer2 );
                 LoRaMacFlags.Bits.MacDone = 1;
             }
         }
@@ -3528,11 +3529,6 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
     {
         case MLME_JOIN:
         {
-            if( ( LoRaMacState & LORAMAC_TX_DELAYED ) == LORAMAC_TX_DELAYED )
-            {
-                return LORAMAC_STATUS_BUSY;
-            }
-
             if( ( mlmeRequest->Req.Join.DevEui == NULL ) ||
                 ( mlmeRequest->Req.Join.AppEui == NULL ) ||
                 ( mlmeRequest->Req.Join.AppKey == NULL ) ||
@@ -3652,6 +3648,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             if( LoRaMacClassBIsAcquisitionPending( ) == false )
             {
                 // Start class B algorithm
+                LoRaMacState |= LORAMAC_RX;
                 LoRaMacClassBSetBeaconState( BEACON_STATE_ACQUISITION );
                 LoRaMacClassBBeaconTimerEvent( );
 
