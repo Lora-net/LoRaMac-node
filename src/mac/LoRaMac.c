@@ -1500,10 +1500,7 @@ static void OnMacStateCheckTimerEvent( void )
         // Procedure done. Reset variables.
         LoRaMacFlags.Bits.MacDone = 0;
 
-        if( LoRaMacDeviceClass == CLASS_B )
-        {
-            LoRaMacClassBResumeBeaconing( );
-        }
+        LoRaMacClassBResumeBeaconing( );
     }
     else
     {
@@ -2588,7 +2585,7 @@ TimerTime_t SendFrameOnChannel( uint8_t channel )
     McpsConfirm.TxTimeOnAir = TxTimeOnAir;
     MlmeConfirm.TxTimeOnAir = TxTimeOnAir;
 
-    if( ( LoRaMacDeviceClass == CLASS_B ) || ( LoRaMacClassBIsBeaconModeActive( ) == true ) )
+    if(LoRaMacClassBIsBeaconModeActive( ) == true )
     {
         TimerTime_t collisionTime = LoRaMacClassBIsUplinkCollision( TxTimeOnAir );
 
@@ -2598,10 +2595,7 @@ TimerTime_t SendFrameOnChannel( uint8_t channel )
         }
     }
 
-    if( LoRaMacDeviceClass == CLASS_B )
-    {
-        LoRaMacClassBHaltBeaconing( );
-    }
+    LoRaMacClassBHaltBeaconing( );
 
     // Starts the MAC layer status check timer
     TimerSetValue( &MacStateCheckTimer, MAC_STATE_CHECK_TIMEOUT );
