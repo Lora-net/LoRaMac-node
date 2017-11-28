@@ -671,7 +671,7 @@ int main( void )
                 LoRaMacPrimitives.MacMlmeConfirm = MlmeConfirm;
                 LoRaMacPrimitives.MacMlmeIndication = MlmeIndication;
                 LoRaMacCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
-                LoRaMacCallbacks.GetTemperatureLevel = MPL3115ReadTemperature;
+                LoRaMacCallbacks.GetTemperatureLevel = NULL;
 #if defined( REGION_AS923 )
                 LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_AS923 );
 #elif defined( REGION_AU915 )
