@@ -1042,24 +1042,27 @@ void LoRaMacClassBSetPingSlotInfo( uint8_t periodicity )
 void LoRaMacClassBHaltBeaconing( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
-    if( ( BeaconState == BEACON_STATE_TIMEOUT ) ||
-        ( BeaconState == BEACON_STATE_SWITCH_CLASS ) )
+    if( LoRaMacClassBIsBeaconModeActive( ) == true )
     {
-        // Update the state machine before halt
-        LoRaMacClassBBeaconTimerEvent( );
+        if( ( BeaconState == BEACON_STATE_TIMEOUT ) ||
+            ( BeaconState == BEACON_STATE_LOST ) )
+        {
+            // Update the state machine before halt
+            LoRaMacClassBBeaconTimerEvent( );
+        }
+
+        // Halt beacon state machine
+        BeaconState = BEACON_STATE_HALT;
+
+        // Halt ping slot state machine
+        TimerStop( &BeaconTimer );
+
+        // Halt ping slot state machine
+        TimerStop( &PingSlotTimer );
+
+        // Halt multicast ping slot state machine
+        TimerStop( &MulticastSlotTimer );
     }
-
-    // Halt beacon state machine
-    BeaconState = BEACON_STATE_HALT;
-
-    // Halt ping slot state machine
-    TimerStop( &BeaconTimer );
-
-    // Halt ping slot state machine
-    TimerStop( &PingSlotTimer );
-
-    // Halt multicast ping slot state machine
-    TimerStop( &MulticastSlotTimer );
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
