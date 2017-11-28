@@ -665,6 +665,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
 
             BeaconCtx.Ctrl.BeaconMode = 0;
             BeaconCtx.Ctrl.AcquisitionPending = 0;
+            BeaconCtx.Ctrl.AcquisitionTimerSet = 0;
             LoRaMacClassBParams.LoRaMacFlags->Bits.MacDone = 1;
 
             TimerSetValue( LoRaMacClassBParams.MacStateCheckTimer, beaconEventTime );
@@ -982,6 +983,7 @@ bool LoRaMacClassBIsBeaconExpected( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     if( ( BeaconCtx.Ctrl.AcquisitionPending == 1 ) ||
+        ( BeaconCtx.Ctrl.AcquisitionTimerSet == 1 ) ||
         ( BeaconState == BEACON_STATE_RX ) )
     {
         return true;
@@ -1009,6 +1011,19 @@ bool LoRaMacClassBIsAcquisitionPending( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     if( BeaconCtx.Ctrl.AcquisitionPending == 1 )
+    {
+        return true;
+    }
+    return false;
+#else
+    return false;
+#endif // LORAMAC_CLASSB_ENABLED
+}
+
+bool LoRaMacClassBIsAcquisitionTimerSet( void )
+{
+#ifdef LORAMAC_CLASSB_ENABLED
+    if( BeaconCtx.Ctrl.AcquisitionTimerSet == 1 )
     {
         return true;
     }
