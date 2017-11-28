@@ -352,19 +352,21 @@ PhyParam_t RegionEU433GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = EU433_MAX_BEACON_LESS_PERIOD;
             break;
         }
+        case PHY_BEACON_DELAY_BEACON_TIMING_ANS:
+        {
+            phyParam.Value = EU433_BEACON_DELAY_BEACON_TIMING_ANS;
+            break;
+        }
         case PHY_BEACON_CHANNEL_FREQ:
         {
             phyParam.Value = EU433_BEACON_CHANNEL_FREQ;
             break;
         }
-        case PHY_PINGSLOT_CHANNEL_FREQ:
+        case PHY_BEACON_FORMAT:
         {
-            phyParam.Value = EU433_BEACON_CHANNEL_FREQ;
-            break;
-        }
-        case PHY_BEACON_SIZE:
-        {
-            phyParam.Value = EU433_BEACON_SIZE;
+            phyParam.BeaconFormat.BeaconSize = EU433_BEACON_SIZE;
+            phyParam.BeaconFormat.Rfu1Size = EU433_RFU1_SIZE;
+            phyParam.BeaconFormat.Rfu2Size = EU433_RFU2_SIZE;
             break;
         }
         case PHY_BEACON_CHANNEL_DR:

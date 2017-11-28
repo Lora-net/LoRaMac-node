@@ -381,19 +381,21 @@ PhyParam_t RegionEU868GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = EU868_MAX_BEACON_LESS_PERIOD;
             break;
         }
+        case PHY_BEACON_DELAY_BEACON_TIMING_ANS:
+        {
+            phyParam.Value = EU868_BEACON_DELAY_BEACON_TIMING_ANS;
+            break;
+        }
         case PHY_BEACON_CHANNEL_FREQ:
         {
             phyParam.Value = EU868_BEACON_CHANNEL_FREQ;
             break;
         }
-        case PHY_PINGSLOT_CHANNEL_FREQ:
+        case PHY_BEACON_FORMAT:
         {
-            phyParam.Value = EU868_BEACON_CHANNEL_FREQ;
-            break;
-        }
-        case PHY_BEACON_SIZE:
-        {
-            phyParam.Value = EU868_BEACON_SIZE;
+            phyParam.BeaconFormat.BeaconSize = EU868_BEACON_SIZE;
+            phyParam.BeaconFormat.Rfu1Size = EU868_RFU1_SIZE;
+            phyParam.BeaconFormat.Rfu2Size = EU868_RFU2_SIZE;
             break;
         }
         case PHY_BEACON_CHANNEL_DR:

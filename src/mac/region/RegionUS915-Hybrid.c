@@ -441,19 +441,36 @@ PhyParam_t RegionUS915HybridGetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = US915_HYBRID_MAX_BEACON_LESS_PERIOD;
             break;
         }
-        case PHY_PINGSLOT_CHANNEL_FREQ:
+        case PHY_BEACON_DELAY_BEACON_TIMING_ANS:
+        {
+            phyParam.Value = US915_HYBRID_BEACON_DELAY_BEACON_TIMING_ANS;
+            break;
+        }
+        case PHY_BEACON_CHANNEL_FREQ:
         {
             phyParam.Value = US915_HYBRID_BEACON_CHANNEL_FREQ;
             break;
         }
-        case PHY_BEACON_SIZE:
+        case PHY_BEACON_FORMAT:
         {
-            phyParam.Value = US915_HYBRID_BEACON_SIZE;
+            phyParam.BeaconFormat.BeaconSize = US915_HYBRID_BEACON_SIZE;
+            phyParam.BeaconFormat.Rfu1Size = US915_HYBRID_RFU1_SIZE;
+            phyParam.BeaconFormat.Rfu2Size = US915_HYBRID_RFU2_SIZE;
             break;
         }
         case PHY_BEACON_CHANNEL_DR:
         {
             phyParam.Value = US915_HYBRID_BEACON_CHANNEL_DR;
+            break;
+        }
+        case PHY_BEACON_CHANNEL_STEPWIDTH:
+        {
+            phyParam.Value = US915_HYBRID_BEACON_CHANNEL_STEPWIDTH;
+            break;
+        }
+        case PHY_BEACON_NB_CHANNELS:
+        {
+            phyParam.Value = US915_HYBRID_BEACON_NB_CHANNELS;
             break;
         }
         default:

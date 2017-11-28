@@ -375,19 +375,21 @@ PhyParam_t RegionKR920GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = KR920_MAX_BEACON_LESS_PERIOD;
             break;
         }
+        case PHY_BEACON_DELAY_BEACON_TIMING_ANS:
+        {
+            phyParam.Value = KR920_BEACON_DELAY_BEACON_TIMING_ANS;
+            break;
+        }
         case PHY_BEACON_CHANNEL_FREQ:
         {
             phyParam.Value = KR920_BEACON_CHANNEL_FREQ;
             break;
         }
-        case PHY_PINGSLOT_CHANNEL_FREQ:
+        case PHY_BEACON_FORMAT:
         {
-            phyParam.Value = KR920_BEACON_CHANNEL_FREQ;
-            break;
-        }
-        case PHY_BEACON_SIZE:
-        {
-            phyParam.Value = KR920_BEACON_SIZE;
+            phyParam.BeaconFormat.BeaconSize = KR920_BEACON_SIZE;
+            phyParam.BeaconFormat.Rfu1Size = KR920_RFU1_SIZE;
+            phyParam.BeaconFormat.Rfu2Size = KR920_RFU2_SIZE;
             break;
         }
         case PHY_BEACON_CHANNEL_DR:

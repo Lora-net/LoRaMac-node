@@ -344,19 +344,31 @@ PhyParam_t RegionAU915GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = AU915_MAX_BEACON_LESS_PERIOD;
             break;
         }
-        case PHY_PINGSLOT_CHANNEL_FREQ:
+        case PHY_BEACON_DELAY_BEACON_TIMING_ANS:
         {
-            phyParam.Value = AU915_BEACON_CHANNEL_FREQ;
+            phyParam.Value = AU915_BEACON_DELAY_BEACON_TIMING_ANS;
             break;
         }
-        case PHY_BEACON_SIZE:
+        case PHY_BEACON_FORMAT:
         {
-            phyParam.Value = AU915_BEACON_SIZE;
+            phyParam.BeaconFormat.BeaconSize = AU915_BEACON_SIZE;
+            phyParam.BeaconFormat.Rfu1Size = AU915_RFU1_SIZE;
+            phyParam.BeaconFormat.Rfu2Size = AU915_RFU2_SIZE;
             break;
         }
         case PHY_BEACON_CHANNEL_DR:
         {
             phyParam.Value = AU915_BEACON_CHANNEL_DR;
+            break;
+        }
+        case PHY_BEACON_CHANNEL_STEPWIDTH:
+        {
+            phyParam.Value = AU915_BEACON_CHANNEL_STEPWIDTH;
+            break;
+        }
+        case PHY_BEACON_NB_CHANNELS:
+        {
+            phyParam.Value = AU915_BEACON_NB_CHANNELS;
             break;
         }
         default:

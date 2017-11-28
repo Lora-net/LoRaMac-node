@@ -339,19 +339,31 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = CN470_MAX_BEACON_LESS_PERIOD;
             break;
         }
-        case PHY_PINGSLOT_CHANNEL_FREQ:
+        case PHY_BEACON_DELAY_BEACON_TIMING_ANS:
         {
-            phyParam.Value = CN470_BEACON_CHANNEL_FREQ;
+            phyParam.Value = CN470_BEACON_DELAY_BEACON_TIMING_ANS;
             break;
         }
-        case PHY_BEACON_SIZE:
+        case PHY_BEACON_FORMAT:
         {
-            phyParam.Value = CN470_BEACON_SIZE;
+            phyParam.BeaconFormat.BeaconSize = CN470_BEACON_SIZE;
+            phyParam.BeaconFormat.Rfu1Size = CN470_RFU1_SIZE;
+            phyParam.BeaconFormat.Rfu2Size = CN470_RFU2_SIZE;
             break;
         }
         case PHY_BEACON_CHANNEL_DR:
         {
             phyParam.Value = CN470_BEACON_CHANNEL_DR;
+            break;
+        }
+        case PHY_BEACON_CHANNEL_STEPWIDTH:
+        {
+            phyParam.Value = CN470_BEACON_CHANNEL_STEPWIDTH;
+            break;
+        }
+        case PHY_BEACON_NB_CHANNELS:
+        {
+            phyParam.Value = CN470_BEACON_NB_CHANNELS;
             break;
         }
         default:

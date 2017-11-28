@@ -352,19 +352,21 @@ PhyParam_t RegionCN779GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = CN779_MAX_BEACON_LESS_PERIOD;
             break;
         }
+        case PHY_BEACON_DELAY_BEACON_TIMING_ANS:
+        {
+            phyParam.Value = CN779_BEACON_DELAY_BEACON_TIMING_ANS;
+            break;
+        }
         case PHY_BEACON_CHANNEL_FREQ:
         {
             phyParam.Value = CN779_BEACON_CHANNEL_FREQ;
             break;
         }
-        case PHY_PINGSLOT_CHANNEL_FREQ:
+        case PHY_BEACON_FORMAT:
         {
-            phyParam.Value = CN779_BEACON_CHANNEL_FREQ;
-            break;
-        }
-        case PHY_BEACON_SIZE:
-        {
-            phyParam.Value = CN779_BEACON_SIZE;
+            phyParam.BeaconFormat.BeaconSize = CN779_BEACON_SIZE;
+            phyParam.BeaconFormat.Rfu1Size = CN779_RFU1_SIZE;
+            phyParam.BeaconFormat.Rfu2Size = CN779_RFU2_SIZE;
             break;
         }
         case PHY_BEACON_CHANNEL_DR:

@@ -391,19 +391,21 @@ PhyParam_t RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = AS923_MAX_BEACON_LESS_PERIOD;
             break;
         }
+        case PHY_BEACON_DELAY_BEACON_TIMING_ANS:
+        {
+            phyParam.Value = AS923_BEACON_DELAY_BEACON_TIMING_ANS;
+            break;
+        }
         case PHY_BEACON_CHANNEL_FREQ:
         {
             phyParam.Value = AS923_BEACON_CHANNEL_FREQ;
             break;
         }
-        case PHY_PINGSLOT_CHANNEL_FREQ:
+        case PHY_BEACON_FORMAT:
         {
-            phyParam.Value = AS923_BEACON_CHANNEL_FREQ;
-            break;
-        }
-        case PHY_BEACON_SIZE:
-        {
-            phyParam.Value = AS923_BEACON_SIZE;
+            phyParam.BeaconFormat.BeaconSize = AS923_BEACON_SIZE;
+            phyParam.BeaconFormat.Rfu1Size = AS923_RFU1_SIZE;
+            phyParam.BeaconFormat.Rfu2Size = AS923_RFU2_SIZE;
             break;
         }
         case PHY_BEACON_CHANNEL_DR:
