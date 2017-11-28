@@ -281,8 +281,8 @@ uint8_t RegionCommonLinkAdrReqVerifyParams( RegionCommonLinkAdrReqVerifyParams_t
     if( status == 0x07 )
     {
         if( nbRepetitions == 0 )
-        { // Keep the current one
-            nbRepetitions = verifyParams->CurrentNbRep;
+        { // Restore the default value according to the LoRaWAN specification
+            nbRepetitions = 1;
         }
     }
 

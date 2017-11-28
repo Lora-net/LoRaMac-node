@@ -1060,11 +1060,12 @@ typedef struct sMcpsIndication
  * \details The following table list the primitives which are supported by the
  *          specific MAC management service:
  *
- * Name                  | Request | Indication | Response | Confirm
- * --------------------- | :-----: | :--------: | :------: | :-----:
- * \ref MLME_JOIN        | YES     | NO         | NO       | YES
- * \ref MLME_LINK_CHECK  | YES     | NO         | NO       | YES
- * \ref MLME_TXCW        | YES     | NO         | NO       | YES
+ * Name                         | Request | Indication | Response | Confirm
+ * ---------------------------- | :-----: | :--------: | :------: | :-----:
+ * \ref MLME_JOIN               | YES     | NO         | NO       | YES
+ * \ref MLME_LINK_CHECK         | YES     | NO         | NO       | YES
+ * \ref MLME_TXCW               | YES     | NO         | NO       | YES
+ * \ref MLME_SCHEDULE_UPLINK    | NO      | YES        | NO       | NO
  *
  * The following table provides links to the function implementations of the
  * related MLME primitives.
@@ -1073,6 +1074,7 @@ typedef struct sMcpsIndication
  * ---------------- | :---------------------:
  * MLME-Request     | \ref LoRaMacMlmeRequest
  * MLME-Confirm     | MacMlmeConfirm in \ref LoRaMacPrimitives_t
+ * MLME-Indication  | MacMlmeIndication in \ref LoRaMacPrimitives_t
  */
 typedef enum eMlme
 {
@@ -1126,6 +1128,11 @@ typedef enum eMlme
      * LoRaWAN end-device certification
      */
     MLME_SWITCH_CLASS,
+    /*!
+     * Indicates that the application shall perform an uplink as
+     * soon as possible.
+     */
+    MLME_SCHEDULE_UPLINK
 }Mlme_t;
 
 /*!
@@ -1260,6 +1267,17 @@ typedef struct sMlmeIndication
     LoRaMacEventInfoStatus_t Status;
 
     BeaconInfo_t BeaconInfo;
+}MlmeIndication_t;
+
+/*!
+ * LoRaMAC MLME-Indication primitive
+ */
+typedef struct sMlmeIndication
+{
+    /*!
+     * MLME-Indication type
+     */
+    Mlme_t MlmeIndication;
 }MlmeIndication_t;
 
 /*!

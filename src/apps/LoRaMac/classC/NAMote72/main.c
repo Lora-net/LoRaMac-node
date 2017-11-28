@@ -700,10 +700,20 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
     NextTx = true;
 }
 
-static void MlmeIndication( MlmeIndication_t *MlmeIndication )
+/*!
+ * \brief   MLME-Indication event function
+ *
+ * \param   [IN] mlmeIndication - Pointer to the indication structure.
+ */
+static void MlmeIndication( MlmeIndication_t *mlmeIndication )
 {
-    switch( MlmeIndication->MlmeIndication )
+    switch( mlmeIndication->MlmeIndication )
     {
+        case MLME_SCHEDULE_UPLINK:
+        {// The MAC signals that we shall provide an uplink as soon as possible
+            OnTxNextPacketTimerEvent( );
+            break;
+        }
         default:
             break;
     }
