@@ -1185,14 +1185,15 @@ static void OnRadioRxError( void )
         OnRxWindow2TimerEvent( );
     }
 
+
+    if( LoRaMacClassBIsBeaconExpected( ) == true )
+    {
+        LoRaMacClassBSetBeaconState( BEACON_STATE_TIMEOUT );
+        LoRaMacClassBBeaconTimerEvent( );
+        classBRx = true;
+    }
     if( LoRaMacDeviceClass == CLASS_B )
     {
-        if( LoRaMacClassBIsBeaconExpected( ) == true )
-        {
-            LoRaMacClassBSetBeaconState( BEACON_STATE_TIMEOUT );
-            LoRaMacClassBBeaconTimerEvent( );
-            classBRx = true;
-        }
         if( LoRaMacClassBIsPingExpected( ) == true )
         {
             LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_SET_TIMER );
@@ -1241,15 +1242,14 @@ static void OnRadioRxTimeout( void )
         OnRxWindow2TimerEvent( );
     }
 
+    if( LoRaMacClassBIsBeaconExpected( ) == true )
+    {
+        LoRaMacClassBSetBeaconState( BEACON_STATE_TIMEOUT );
+        LoRaMacClassBBeaconTimerEvent( );
+        classBRx = true;
+    }
     if( LoRaMacDeviceClass == CLASS_B )
     {
-        if( LoRaMacClassBIsBeaconExpected( ) == true )
-        {
-            LoRaMacClassBSetBeaconState( BEACON_STATE_TIMEOUT );
-            LoRaMacClassBBeaconTimerEvent( );
-            classBRx = true;
-        }
-
         if( LoRaMacClassBIsPingExpected( ) == true )
         {
             LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_SET_TIMER );
@@ -2570,12 +2570,14 @@ TimerTime_t SendFrameOnChannel( uint8_t channel )
     txConfig.AntennaGain = LoRaMacParams.AntennaGain;
     txConfig.PktLen = LoRaMacBufferPktLen;
 
+
+    if( LoRaMacClassBIsBeaconExpected( ) == true )
+    {
+        return LoRaMacClassBGetBeaconReservedTime( );
+    }
+
     if( LoRaMacDeviceClass == CLASS_B )
     {
-        if( LoRaMacClassBIsBeaconExpected( ) == true )
-        {
-            return LoRaMacClassBGetBeaconReservedTime( );
-        }
         if( LoRaMacClassBIsPingExpected( ) == true )
         {
             return LoRaMacClassBGetPingSlotWinTime( );
