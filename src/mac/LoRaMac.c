@@ -1495,6 +1495,8 @@ static void OnMacStateCheckTimerEvent( void )
         if( IsStickyMacCommandPending( ) == true )
         {// Setup MLME indication
             SetMlmeScheduleUplinkIndication( );
+            LoRaMacPrimitives->MacMlmeIndication( &MlmeIndication );
+            LoRaMacFlags.Bits.MlmeInd = 0;
         }
 
         // Procedure done. Reset variables.
