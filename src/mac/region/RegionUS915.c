@@ -148,16 +148,6 @@ static uint8_t CountNbOfEnabledChannels( uint8_t datarate, uint16_t* channelsMas
     return nbEnabledChannels;
 }
 
-static uint8_t BeaconChannel( uint32_t devAddr, TimerTime_t beaconTime, TimerTime_t beaconInterval )
-{
-    uint32_t frequency = 0;
-
-    // Calculate the channel for the next beacon
-    frequency = devAddr + ( beaconTime / ( beaconInterval / 1000 ) );
-
-    return ( ( uint8_t )( frequency % US915_BEACON_NB_CHANNELS ) );
-}
-
 PhyParam_t RegionUS915GetPhyParam( GetPhyParams_t* getPhy )
 {
     PhyParam_t phyParam = { 0 };
@@ -971,12 +961,10 @@ void RegionUS915RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr )
     RegionCommonRxBeaconSetupParams_t regionCommonRxBeaconSetup;
 
     regionCommonRxBeaconSetup.Datarates = DataratesUS915;
-    regionCommonRxBeaconSetup.ChannelPlanFrequency = ( US915_BEACON_CHANNEL_FREQ + ( BeaconChannel( 0, rxBeaconSetup->BeaconTime, rxBeaconSetup->BeaconInterval ) * US915_BEACON_CHANNEL_STEPWIDTH ) );
+    regionCommonRxBeaconSetup.Frequency = rxBeaconSetup->Frequency;
     regionCommonRxBeaconSetup.BeaconSize = US915_BEACON_SIZE;
     regionCommonRxBeaconSetup.BeaconDatarate = US915_BEACON_CHANNEL_DR;
     regionCommonRxBeaconSetup.BeaconChannelBW = US915_BEACON_CHANNEL_BW;
-    regionCommonRxBeaconSetup.CustomFrequency = rxBeaconSetup->CustomFrequency;
-    regionCommonRxBeaconSetup.CustomFrequencyEnabled = rxBeaconSetup->CustomFrequencyEnabled;
     regionCommonRxBeaconSetup.RxTime = rxBeaconSetup->RxTime;
     regionCommonRxBeaconSetup.SymbolTimeout = rxBeaconSetup->SymbolTimeout;
 

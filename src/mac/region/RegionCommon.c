@@ -366,21 +366,13 @@ void RegionCommonCalcBackOff( RegionCommonCalcBackOffParams_t* calcBackOffParams
 void RegionCommonRxBeaconSetup( RegionCommonRxBeaconSetupParams_t* rxBeaconSetupParams )
 {
     bool rxContinuous = true;
-    uint32_t frequency = rxBeaconSetupParams->CustomFrequency;
     uint8_t datarate;
 
     // Set the radio into sleep mode
     Radio.Sleep( );
 
-    // If no custom frequency is enabled, use the default floor plan frequency
-    if( rxBeaconSetupParams->CustomFrequencyEnabled == false )
-    {
-        // Restore floor plan
-        frequency = rxBeaconSetupParams->ChannelPlanFrequency;
-    }
-
     // Setup frequency and payload length
-    Radio.SetChannel( frequency );
+    Radio.SetChannel( rxBeaconSetupParams->Frequency );
     Radio.SetMaxPayloadLength( MODEM_LORA, rxBeaconSetupParams->BeaconSize );
 
     // Check the RX continuous mode

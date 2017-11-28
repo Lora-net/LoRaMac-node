@@ -258,6 +258,11 @@
 #define EU433_MAX_BEACON_LESS_PERIOD                7200000
 
 /*!
+ * Delay time for the BeaconTimingAns in ms
+ */
+#define EU433_BEACON_DELAY_BEACON_TIMING_ANS        30
+
+/*!
  * Beacon frequency
  */
 #define EU433_BEACON_CHANNEL_FREQ                   434665000

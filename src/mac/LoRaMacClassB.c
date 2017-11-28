@@ -76,6 +76,134 @@ static LoRaMacClassBCallback_t LoRaMacClassBCallbacks;
  */
 static LoRaMacClassBParams_t LoRaMacClassBParams;
 
+/*!
+ * \brief Calculates the downlink frequency for a given channel.
+ *
+ * \param [IN] channel The channel according to the channel plan.
+ *
+ * \retval The downlink frequency
+ */
+static uint32_t CalcDownlinkFrequency( uint8_t channel )
+{
+    GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
+    uint32_t frequency = 0;
+    uint32_t stepwidth = 0;
+
+    getPhy.Attribute = PHY_BEACON_CHANNEL_FREQ;
+    phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
+    frequency = phyParam.Value;
+
+    getPhy.Attribute = PHY_BEACON_CHANNEL_STEPWIDTH;
+    phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
+    stepwidth = phyParam.Value;
+
+    // Calculate the frequency
+    return frequency + ( channel * stepwidth );
+}
+
+/*!
+ * \brief Calculates the downlink channel for the beacon and for
+ *        ping slot downlinks.
+ *
+ * \param [IN] devAddr The address of the device
+ *
+ * \param [IN] beaconTime The beacon time of the beacon.
+ *
+ * \param [IN] beaconInterval The beacon interval
+ *
+ * \retval The downlink channel
+ */
+static uint32_t CalcDownlinkChannelAndFrequency( uint32_t devAddr, TimerTime_t beaconTime, TimerTime_t beaconInterval )
+{
+    GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
+    uint32_t channel = 0;
+    uint8_t nbChannels = 0;
+    uint32_t frequency = 0;
+
+    getPhy.Attribute = PHY_BEACON_NB_CHANNELS;
+    phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
+    nbChannels = (uint8_t) phyParam.Value;
+
+    if( nbChannels > 1 )
+    {
+        // Calculate the channel for the next downlink
+        channel = devAddr + ( beaconTime / ( beaconInterval / 1000 ) );
+        channel = channel % nbChannels;
+    }
+
+    // Calculate the frequency for the next downlink
+    frequency = CalcDownlinkFrequency( channel );
+
+    // Calculate the frequency for the next downlink
+    return frequency;
+}
+
+/*!
+ * \brief Calculates the correct frequency and opens up the beacon reception window.
+ *
+ * \param [IN] rxTime The reception time which should be setup
+ *
+ * \param [IN] activateDefaultChannel Set to true, if the function shall setup the default channel
+ */
+static void RxBeaconSetup( TimerTime_t rxTime, bool activateDefaultChannel )
+{
+    RxBeaconSetup_t rxBeaconSetup;
+    uint32_t frequency = 0;
+    RxConfigParams_t beaconRxConfig;
+    GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
+    uint16_t windowTimeout = BeaconCtx.SymbolTimeout;
+
+    if( activateDefaultChannel == true )
+    {
+        // This is the default frequency in case o we don't know when the next
+        // beacon will be transmitted. We select channel 0 as default.
+        frequency = CalcDownlinkFrequency( 0 );
+    }
+    else
+    {
+        // This is the frequency according to the channel plan
+        frequency = CalcDownlinkChannelAndFrequency( 0, BeaconCtx.BeaconTime + ( BeaconCtx.Cfg.Interval / 1000 ), BeaconCtx.Cfg.Interval );
+    }
+
+    if( BeaconCtx.Ctrl.CustomFreq == 1 )
+    {
+        // Set the frequency from the BeaconFreqReq
+        frequency = BeaconCtx.Frequency;
+    }
+
+    if( BeaconCtx.Ctrl.BeaconChannelSet == 1 )
+    {
+        // Set the frequency which was provided by BeaconTimingAns MAC command
+        BeaconCtx.Ctrl.BeaconChannelSet = 0;
+        frequency = CalcDownlinkFrequency( BeaconCtx.BeaconTimingChannel );
+    }
+
+    if( ( BeaconCtx.Ctrl.BeaconAcquired == 1 ) || ( BeaconCtx.Ctrl.AcquisitionPending == 1 ) )
+    {
+        // Apply the symbol timeout only if we have acquired the beacon
+        // Otherwise, take the window enlargement into account
+        // Read beacon datarate
+        getPhy.Attribute = PHY_BEACON_CHANNEL_DR;
+        phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
+
+        // Calculate downlink symbols
+        RegionComputeRxWindowParameters( *LoRaMacClassBParams.LoRaMacRegion,
+                                        (int8_t) phyParam.Value, // datarate
+                                        LoRaMacClassBParams.LoRaMacParams->MinRxSymbols,
+                                        LoRaMacClassBParams.LoRaMacParams->SystemMaxRxError,
+                                        &beaconRxConfig );
+        windowTimeout = beaconRxConfig.WindowTimeout;
+    }
+
+    rxBeaconSetup.SymbolTimeout = windowTimeout;
+    rxBeaconSetup.RxTime = rxTime;
+    rxBeaconSetup.Frequency = frequency;
+
+    RegionRxBeaconSetup( *LoRaMacClassBParams.LoRaMacRegion, &rxBeaconSetup, &LoRaMacClassBParams.McpsIndication->RxDatarate );
+}
 
 /*!
  * \brief Calculates the next ping slot time.
@@ -233,6 +361,10 @@ void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallba
     phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
     BeaconCtx.Cfg.MaxBeaconLessPeriod = phyParam.Value;
 
+    getPhy.Attribute = PHY_BEACON_DELAY_BEACON_TIMING_ANS;
+    phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
+    BeaconCtx.Cfg.DelayBeaconTimingAns = phyParam.Value;
+
     getPhy.Attribute = PHY_PING_SLOT_WINDOW;
     phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
     PingSlotCtx.Cfg.PingSlotWindow = phyParam.Value;
@@ -250,7 +382,12 @@ void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallba
 void LoRaMacClassBSetBeaconState( BeaconState_t beaconState )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
-    BeaconState = beaconState;
+    if( BeaconState != BEACON_STATE_ACQUISITION )
+    {
+        // Do only apply a new state if the current state
+        // is not BEACON_STATE_ACQUISITION
+        BeaconState = beaconState;
+    }
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -264,8 +401,6 @@ void LoRaMacClassBSetPingSlotState( PingSlotState_t pingSlotState )
 void LoRaMacClassBBeaconTimerEvent( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
-    RxBeaconSetup_t rxBeaconSetup;
-    uint8_t index = 0;
     bool activateTimer = false;
     TimerTime_t beaconEventTime = 1;
     TimerTime_t currentTime = TimerGetCurrentTime( );
@@ -290,18 +425,57 @@ void LoRaMacClassBBeaconTimerEvent( void )
                 BeaconCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
                 PingSlotCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
 
-                BeaconCtx.Ctrl.AcquisitionPending = 1;
-                beaconEventTime = BeaconCtx.Cfg.Interval;
+                if( BeaconCtx.Ctrl.BeaconDelaySet == 1 )
+                {
+                    if( BeaconCtx.BeaconTimingDelay > 0 )
+                    {
+                        if( BeaconCtx.NextBeaconRx > currentTime )
+                        {
+                            BeaconCtx.Ctrl.AcquisitionTimerSet = 1;
+                            beaconEventTime = TimerTempCompensation( BeaconCtx.NextBeaconRx - currentTime, BeaconCtx.Temperature );
+                        }
+                        else
+                        {
+                            BeaconCtx.Ctrl.BeaconDelaySet = 0;
+                            BeaconCtx.Ctrl.AcquisitionPending = 1;
+                            BeaconCtx.Ctrl.AcquisitionTimerSet = 0;
+                            beaconEventTime = BeaconCtx.Cfg.Interval;
 
-                rxBeaconSetup.SymbolTimeout = BeaconCtx.SymbolTimeout;
-                rxBeaconSetup.RxTime = 0;
-                rxBeaconSetup.DeviceAddress = *LoRaMacClassBParams.LoRaMacDevAddr;
-                rxBeaconSetup.CustomFrequencyEnabled = BeaconCtx.Ctrl.CustomFreq;
-                rxBeaconSetup.CustomFrequency = BeaconCtx.Frequency;
-                rxBeaconSetup.BeaconTime = BeaconCtx.BeaconTime;
-                rxBeaconSetup.BeaconInterval = BeaconCtx.Cfg.Interval;
+                            // Use the default channel. We don't know on which
+                            // channel the next beacon will be transmitted
+                            RxBeaconSetup( 0, true );
+                        }
+                        BeaconCtx.NextBeaconRx = 0;
+                        BeaconCtx.BeaconTimingDelay = 0;
+                    }
+                    else
+                    {
+                        activateTimer = false;
 
-                RegionRxBeaconSetup( *LoRaMacClassBParams.LoRaMacRegion, &rxBeaconSetup, &LoRaMacClassBParams.McpsIndication->RxDatarate );
+                        BeaconCtx.Ctrl.BeaconDelaySet = 0;
+                        BeaconCtx.Ctrl.AcquisitionPending = 1;
+                        BeaconCtx.Ctrl.AcquisitionTimerSet = 0;
+
+                        // Don't use the default channel. We know on which
+                        // channel the next beacon will be transmitted
+                        RxBeaconSetup( BeaconCtx.Cfg.Reserved, false );
+                    }
+                }
+                else
+                {
+                    BeaconCtx.Ctrl.AcquisitionPending = 1;
+                    beaconEventTime = BeaconCtx.Cfg.Interval;
+                    if( BeaconCtx.Ctrl.AcquisitionTimerSet == 0 )
+                    {
+                        // Start the beacon acquisition. When the MAC has received a beacon in function
+                        // RxBeacon successfully, the next state is BEACON_STATE_LOCKED. If the MAC does not
+                        // find a beacon, the state machine will stay in state BEACON_STATE_ACQUISITION.
+                        // This state detects that a acquisition was pending previously and will change the next
+                        // state to BEACON_STATE_LOST.
+                        RxBeaconSetup( 0, true );
+                    }
+                    BeaconCtx.Ctrl.AcquisitionTimerSet = 0;
+                }
             }
             break;
         }
@@ -466,15 +640,9 @@ void LoRaMacClassBBeaconTimerEvent( void )
         {
             BeaconState = BEACON_STATE_RX;
 
-            rxBeaconSetup.SymbolTimeout = BeaconCtx.SymbolTimeout;
-            rxBeaconSetup.RxTime = BeaconCtx.Cfg.Reserved;
-            rxBeaconSetup.DeviceAddress = *LoRaMacClassBParams.LoRaMacDevAddr;
-            rxBeaconSetup.CustomFrequencyEnabled = BeaconCtx.Ctrl.CustomFreq;
-            rxBeaconSetup.CustomFrequency = BeaconCtx.Frequency;
-            rxBeaconSetup.BeaconTime = BeaconCtx.BeaconTime;
-            rxBeaconSetup.BeaconInterval = BeaconCtx.Cfg.Interval;
-
-            RegionRxBeaconSetup( *LoRaMacClassBParams.LoRaMacRegion, &rxBeaconSetup, &LoRaMacClassBParams.McpsIndication->RxDatarate );
+            // Don't use the default channel. We know on which
+            // channel the next beacon will be transmitted
+            RxBeaconSetup( BeaconCtx.Cfg.Reserved, false );
             break;
         }
         case BEACON_STATE_SWITCH_CLASS:
@@ -521,8 +689,6 @@ void LoRaMacClassBBeaconTimerEvent( void )
 void LoRaMacClassBPingSlotTimerEvent( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
-    GetPhyParams_t getPhy;
-    PhyParam_t phyParam;
     RxConfigParams_t pingSlotRxConfig;
     TimerTime_t pingSlotTime = 0;
 
@@ -557,16 +723,15 @@ void LoRaMacClassBPingSlotTimerEvent( void )
             if( PingSlotCtx.Ctrl.CustomFreq == 0 )
             {
                 // Restore floor plan
-                getPhy.Attribute = PHY_PINGSLOT_CHANNEL_FREQ;
-                getPhy.DeviceAddress = *LoRaMacClassBParams.LoRaMacDevAddr;
-                phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-                frequency = phyParam.Value;
+                frequency = CalcDownlinkChannelAndFrequency( *LoRaMacClassBParams.LoRaMacDevAddr, BeaconCtx.BeaconTime, BeaconCtx.Cfg.Interval );
             }
 
             if( MulticastSlotState != PINGSLOT_STATE_RX )
             {
                 if( BeaconCtx.Ctrl.BeaconAcquired == 1 )
                 {
+                    // Compute the symbol timeout. Apply it only, if the beacon is acquired
+                    // Otherwise, take the enlargement of the symbols into account.
                     RegionComputeRxWindowParameters( *LoRaMacClassBParams.LoRaMacRegion,
                                                      PingSlotCtx.Datarate,
                                                      LoRaMacClassBParams.LoRaMacParams->MinRxSymbols,
@@ -615,8 +780,6 @@ void LoRaMacClassBPingSlotTimerEvent( void )
 void LoRaMacClassBMulticastSlotTimerEvent( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
-    GetPhyParams_t getPhy;
-    PhyParam_t phyParam;
     RxConfigParams_t multicastSlotRxConfig;
     TimerTime_t multicastSlotTime = 0;
     TimerTime_t slotTime = 0;
@@ -687,10 +850,7 @@ void LoRaMacClassBMulticastSlotTimerEvent( void )
             if( PingSlotCtx.Ctrl.CustomFreq == 0 )
             {
                 // Restore floor plan
-                getPhy.Attribute = PHY_PINGSLOT_CHANNEL_FREQ;
-                getPhy.DeviceAddress = PingSlotCtx.NextMulticastChannel->Address;
-                phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-                frequency = phyParam.Value;
+                frequency = CalcDownlinkChannelAndFrequency( PingSlotCtx.NextMulticastChannel->Address, BeaconCtx.BeaconTime, BeaconCtx.Cfg.Interval );
             }
 
             if( BeaconCtx.Ctrl.BeaconAcquired == 1 )
@@ -1155,6 +1315,37 @@ uint8_t LoRaMacClassBPingSlotChannelReq( uint8_t datarate, uint32_t frequency )
     return status;
 #else
     return 0;
+#endif // LORAMAC_CLASSB_ENABLED
+}
+
+void LoRaMacClassBBeaconTimingAns( uint16_t beaconTimingDelay, uint8_t beaconTimingChannel )
+{
+#ifdef LORAMAC_CLASSB_ENABLED
+    TimerTime_t currentTime = TimerGetCurrentTime( );
+
+    BeaconCtx.BeaconTimingDelay = ( BeaconCtx.Cfg.DelayBeaconTimingAns * beaconTimingDelay );
+    BeaconCtx.BeaconTimingChannel = beaconTimingChannel;
+
+    if( LoRaMacConfirmQueueIsCmdActive( MLME_BEACON_TIMING ) == true )
+    {
+        if( BeaconCtx.BeaconTimingDelay > BeaconCtx.Cfg.Interval )
+        {
+            // We missed the beacon already
+            BeaconCtx.BeaconTimingDelay = 0;
+            BeaconCtx.BeaconTimingChannel = 0;
+            LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_BEACON_NOT_FOUND, MLME_BEACON_TIMING );
+        }
+        else
+        {
+            BeaconCtx.Ctrl.BeaconDelaySet = 1;
+            BeaconCtx.Ctrl.BeaconChannelSet = 1;
+            BeaconCtx.NextBeaconRx = currentTime + BeaconCtx.BeaconTimingDelay;
+            LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_OK, MLME_BEACON_TIMING );
+        }
+
+        LoRaMacClassBParams.MlmeConfirm->BeaconTimingDelay = BeaconCtx.BeaconTimingDelay;
+        LoRaMacClassBParams.MlmeConfirm->BeaconTimingChannel = BeaconCtx.BeaconTimingChannel;
+    }
 #endif // LORAMAC_CLASSB_ENABLED
 }
 

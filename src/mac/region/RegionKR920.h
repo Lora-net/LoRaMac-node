@@ -255,6 +255,11 @@
 #define KR920_MAX_BEACON_LESS_PERIOD                7200000
 
 /*!
+ * Delay time for the BeaconTimingAns in ms
+ */
+#define KR920_BEACON_DELAY_BEACON_TIMING_ANS        30
+
+/*!
  * Beacon frequency
  */
 #define KR920_BEACON_CHANNEL_FREQ                   923100000

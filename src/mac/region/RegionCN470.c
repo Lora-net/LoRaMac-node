@@ -132,15 +132,6 @@ static uint8_t CountNbOfEnabledChannels( uint8_t datarate, uint16_t* channelsMas
     return nbEnabledChannels;
 }
 
-static uint8_t BeaconChannel( uint32_t devAddr, TimerTime_t beaconTime, TimerTime_t beaconInterval )
-{
-    uint32_t frequency = 0;
-
-    frequency = devAddr + ( beaconTime / ( beaconInterval / 1000 ) );
-
-    return ( ( uint8_t )( frequency % CN470_BEACON_NB_CHANNELS ) );
-}
-
 PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
 {
     PhyParam_t phyParam = { 0 };
@@ -907,12 +898,10 @@ void RegionCN470RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr )
     RegionCommonRxBeaconSetupParams_t regionCommonRxBeaconSetup;
 
     regionCommonRxBeaconSetup.Datarates = DataratesCN470;
-    regionCommonRxBeaconSetup.ChannelPlanFrequency = ( CN470_BEACON_CHANNEL_FREQ + ( BeaconChannel( 0, rxBeaconSetup->BeaconTime, rxBeaconSetup->BeaconInterval ) * CN470_BEACON_CHANNEL_STEPWIDTH ) );
+    regionCommonRxBeaconSetup.Frequency = rxBeaconSetup->Frequency;
     regionCommonRxBeaconSetup.BeaconSize = CN470_BEACON_SIZE;
     regionCommonRxBeaconSetup.BeaconDatarate = CN470_BEACON_CHANNEL_DR;
     regionCommonRxBeaconSetup.BeaconChannelBW = CN470_BEACON_CHANNEL_BW;
-    regionCommonRxBeaconSetup.CustomFrequency = rxBeaconSetup->CustomFrequency;
-    regionCommonRxBeaconSetup.CustomFrequencyEnabled = rxBeaconSetup->CustomFrequencyEnabled;
     regionCommonRxBeaconSetup.RxTime = rxBeaconSetup->RxTime;
     regionCommonRxBeaconSetup.SymbolTimeout = rxBeaconSetup->SymbolTimeout;
 

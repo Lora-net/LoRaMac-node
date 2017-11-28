@@ -1182,12 +1182,10 @@ void RegionAS923RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr )
     RegionCommonRxBeaconSetupParams_t regionCommonRxBeaconSetup;
 
     regionCommonRxBeaconSetup.Datarates = DataratesAS923;
-    regionCommonRxBeaconSetup.ChannelPlanFrequency = AS923_BEACON_CHANNEL_FREQ;
+    regionCommonRxBeaconSetup.Frequency = rxBeaconSetup->Frequency;
     regionCommonRxBeaconSetup.BeaconSize = AS923_BEACON_SIZE;
     regionCommonRxBeaconSetup.BeaconDatarate = AS923_BEACON_CHANNEL_DR;
     regionCommonRxBeaconSetup.BeaconChannelBW = AS923_BEACON_CHANNEL_BW;
-    regionCommonRxBeaconSetup.CustomFrequency = rxBeaconSetup->CustomFrequency;
-    regionCommonRxBeaconSetup.CustomFrequencyEnabled = rxBeaconSetup->CustomFrequencyEnabled;
     regionCommonRxBeaconSetup.RxTime = rxBeaconSetup->RxTime;
     regionCommonRxBeaconSetup.SymbolTimeout = rxBeaconSetup->SymbolTimeout;
 

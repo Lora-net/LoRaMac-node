@@ -166,13 +166,9 @@ typedef struct sRegionCommonRxBeaconSetupParams
      */
     const uint8_t* Datarates;
     /*!
-     * The default channel floor plan frequency.
+     * Frequency
      */
-    uint32_t ChannelPlanFrequency;
-    /*!
-     * The frequency to use when a BeaconTimingAns was performed.
-     */
-    uint32_t BeaconTimingAnsFrequency;
+    uint32_t Frequency;
     /*!
      * The size of the beacon frame.
      */
@@ -185,18 +181,6 @@ typedef struct sRegionCommonRxBeaconSetupParams
      * The channel bandwidth of the beacon.
      */
     uint8_t BeaconChannelBW;
-    /*!
-     * A custom frequency.
-     */
-    uint32_t CustomFrequency;
-    /*!
-     * Set to true, if a custom frequency shall be used.
-     */
-    bool CustomFrequencyEnabled;
-    /*!
-     * Set to true, if a BeaconTimingAns MAC command was performed.
-     */
-    bool BeaconChannelSet;
     /*!
      * The RX time.
      */

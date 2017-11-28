@@ -544,6 +544,8 @@ typedef enum ePhyAttribute
     PHY_MAX_TX_DR,
     /*!
      * TX datarate.
+     * This is a parameter which can't be queried. It is available
+     * to perform a verification with RegionVerify().
      */
     PHY_TX_DR,
     /*!
@@ -551,11 +553,13 @@ typedef enum ePhyAttribute
      */
     PHY_DEF_TX_DR,
     /*!
-     * RX datarate.
+     * RX datarate. It is available
+     * to perform a verification with RegionVerify().
      */
     PHY_RX_DR,
     /*!
-     * TX power.
+     * TX power. It is available
+     * to perform a verification with RegionVerify().
      */
     PHY_TX_POWER,
     /*!
@@ -711,19 +715,27 @@ typedef enum ePhyAttribute
     /*!
      * Delay time for the BeaconTimingAns in ms.
      */
+    PHY_BEACON_DELAY_BEACON_TIMING_ANS,
+    /*!
+     * Beacon channel frequency.
+     */
     PHY_BEACON_CHANNEL_FREQ,
     /*!
      * The format of the beacon.
-     * Delay time for the BeaconTimingAns in ms.
      */
     PHY_BEACON_FORMAT,
-    PHY_BEACON_CHANNEL_FREQ_IDX,
     /*!
-     * Delay time for the BeaconTimingAns in ms.
+     * The beacon channel datarate.
      */
-    PHY_PINGSLOT_CHANNEL_FREQ,
-    PHY_BEACON_SIZE,
     PHY_BEACON_CHANNEL_DR,
+    /*!
+     * The frequency stepwidth between the beacon channels.
+     */
+    PHY_BEACON_CHANNEL_STEPWIDTH,
+    /*!
+     * The number of channels for the beacon reception.
+     */
+    PHY_BEACON_NB_CHANNELS
 }PhyAttribute_t;
 
 /*!
@@ -822,17 +834,12 @@ typedef struct sGetPhyParams
      */
     uint8_t UplinkDwellTime;
     /*!
-     * Downlink dwell time.This parameter must be set to query:
+     * Downlink dwell time. This parameter must be set to query:
      * PHY_MAX_PAYLOAD, PHY_MAX_PAYLOAD_REPEATER, PHY_MIN_RX_DR.
      * The parameter is needed for the following queries:
      * PHY_MIN_RX_DR, PHY_MAX_PAYLOAD, PHY_MAX_PAYLOAD_REPEATER.
      */
     uint8_t DownlinkDwellTime;
-    /*!
-     * LoRaMAC Device Address.This parameter must be set to query:
-     * PHY_PINGSLOT_CHANNEL_FREQ.
-     */
-    uint32_t DeviceAddress;
 }GetPhyParams_t;
 
 /*!
@@ -1277,25 +1284,9 @@ typedef struct sRxBeaconSetupParams
      */
     uint32_t RxTime;
     /*!
-     * The address of the node.
+     * The frequency to setup.
      */
-    uint32_t DeviceAddress;
-    /*!
-     * Set to true if a custom frequency is enabled.
-     */
-    bool CustomFrequencyEnabled;
-    /*!
-     * Custom frequency. Only valid of CustomFrequencyEnabled is set.
-     */
-    uint32_t CustomFrequency;
-    /*!
-     * THe beacon time.
-     */
-    TimerTime_t BeaconTime;
-    /*!
-     * The beacon interval.
-     */
-    TimerTime_t BeaconInterval;
+    uint32_t Frequency;
 }RxBeaconSetup_t;
 
 

@@ -1890,11 +1890,20 @@ static LoRaMacStatus_t AddMacCommand( uint8_t cmd, uint8_t p1, uint8_t p2 )
                 status = LORAMAC_STATUS_OK;
             }
             break;
-        case MOTE_MAC_BEACON_FREQ_ANS:
+        case MOTE_MAC_BEACON_TIMING_REQ:
             if( MacCommandsBufferIndex < LORA_MAC_COMMAND_MAX_LENGTH )
             {
                 MacCommandsBuffer[MacCommandsBufferIndex++] = cmd;
                 // No payload for this answer
+                status = LORAMAC_STATUS_OK;
+            }
+            break;
+        case MOTE_MAC_BEACON_FREQ_ANS:
+            if( MacCommandsBufferIndex < LORA_MAC_COMMAND_MAX_LENGTH )
+            {
+                MacCommandsBuffer[MacCommandsBufferIndex++] = cmd;
+                // Status: Channel frequency OK
+                MacCommandsBuffer[MacCommandsBufferIndex++] = p1;
                 status = LORAMAC_STATUS_OK;
             }
             break;
@@ -2155,6 +2164,18 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
 
                     status = LoRaMacClassBPingSlotChannelReq( datarate, frequency );
                     AddMacCommand( MOTE_MAC_PING_SLOT_FREQ_ANS, status, 0 );
+                }
+                break;
+            case SRV_MAC_BEACON_TIMING_ANS:
+                {
+                    uint16_t beaconTimingDelay = 0;
+                    uint8_t beaconTimingChannel = 0;
+
+                    beaconTimingDelay = ( uint16_t )payload[macIndex++];
+                    beaconTimingDelay |= ( uint16_t )payload[macIndex++] << 8;
+                    beaconTimingChannel = payload[macIndex++];
+
+                    LoRaMacClassBBeaconTimingAns( beaconTimingDelay, beaconTimingChannel );
                 }
                 break;
             case SRV_MAC_BEACON_FREQ_REQ:
@@ -3601,6 +3622,18 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             LoRaMacClassBSetPingSlotInfo( mlmeRequest->Req.PingSlotInfo.PingSlot.Fields.Periodicity );
 
             status = AddMacCommand( MOTE_MAC_PING_SLOT_INFO_REQ, value, 0 );
+            break;
+        }
+        case MLME_BEACON_TIMING:
+        {
+            // Apply the request
+            LoRaMacFlags.Bits.MlmeReq = 1;
+            queueElement.Request = mlmeRequest->Type;
+            queueElement.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+            LoRaMacConfirmQueueAdd( &queueElement );
+
+            // LoRaMac will send this command piggy-pack
+            status = AddMacCommand( MOTE_MAC_BEACON_TIMING_REQ, 0, 0 );
             break;
         }
         case MLME_BEACON_ACQUISITION:

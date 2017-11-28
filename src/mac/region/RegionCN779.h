@@ -253,6 +253,11 @@
 #define CN779_MAX_BEACON_LESS_PERIOD                7200000
 
 /*!
+ * Delay time for the BeaconTimingAns in ms
+ */
+#define CN779_BEACON_DELAY_BEACON_TIMING_ANS        30
+
+/*!
  * Beacon frequency
  */
 #define CN779_BEACON_CHANNEL_FREQ                   785000000

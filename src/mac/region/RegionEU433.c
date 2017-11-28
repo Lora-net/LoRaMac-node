@@ -1131,13 +1131,11 @@ void RegionEU433RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr )
     RegionCommonRxBeaconSetupParams_t regionCommonRxBeaconSetup;
 
     regionCommonRxBeaconSetup.Datarates = DataratesEU433;
-    regionCommonRxBeaconSetup.ChannelPlanFrequency = EU433_BEACON_CHANNEL_FREQ;
+    regionCommonRxBeaconSetup.Frequency = rxBeaconSetup->Frequency;
     regionCommonRxBeaconSetup.BeaconSize = EU433_BEACON_SIZE;
     regionCommonRxBeaconSetup.BeaconDatarate = EU433_BEACON_CHANNEL_DR;
     regionCommonRxBeaconSetup.BeaconChannelBW = EU433_BEACON_CHANNEL_BW;
-    regionCommonRxBeaconSetup.CustomFrequency = rxBeaconSetup->CustomFrequency;
-    regionCommonRxBeaconSetup.CustomFrequencyEnabled = rxBeaconSetup->CustomFrequencyEnabled;
-    regionCommonRxBeaconSetup.RxTime = rxBeaconSetup->RxTime;
+   regionCommonRxBeaconSetup.RxTime = rxBeaconSetup->RxTime;
     regionCommonRxBeaconSetup.SymbolTimeout = rxBeaconSetup->SymbolTimeout;
 
     RegionCommonRxBeaconSetup( &regionCommonRxBeaconSetup );

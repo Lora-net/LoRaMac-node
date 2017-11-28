@@ -451,6 +451,10 @@ typedef enum eLoRaMacMoteCmd
      */
     MOTE_MAC_PING_SLOT_FREQ_ANS      = 0x11,
     /*!
+     * BeaconTimingReq
+     */
+    MOTE_MAC_BEACON_TIMING_REQ       = 0x12,
+    /*!
      * BeaconFreqAns
      */
     MOTE_MAC_BEACON_FREQ_ANS         = 0x13,
@@ -507,6 +511,10 @@ typedef enum eLoRaMacSrvCmd
      * PingSlotChannelReq
      */
     SRV_MAC_PING_SLOT_CHANNEL_REQ    = 0x11,
+    /*!
+     * BeaconTimingAns
+     */
+    SRV_MAC_BEACON_TIMING_ANS        = 0x12,
     /*!
      * BeaconFreqReq
      */
@@ -1103,6 +1111,11 @@ typedef enum eMlme
      */
     MLME_TXCW_1,
     /*!
+     * Indicates that the application shall perform an uplink as
+     * soon as possible.
+     */
+    MLME_SCHEDULE_UPLINK,
+    /*!
      * The MAC uses this MLME primitive to indicate a beacon reception
      * status.
      *
@@ -1123,16 +1136,19 @@ typedef enum eMlme
      */
     MLME_PING_SLOT_INFO,
     /*!
-     * Primitive which is used to switch the LoRaWAN device class
+     * Initiates a BeaconTimingReq
      *
      * LoRaWAN end-device certification
      */
-    MLME_SWITCH_CLASS,
+    MLME_BEACON_TIMING,
     /*!
-     * Indicates that the application shall perform an uplink as
-     * soon as possible.
+     * Primitive which indicates that the beacon has been lost
+     *
+     * \remark The upper layer is required to switch the device class to ClassA
+     *
+     * LoRaWAN end-device certification
      */
-    MLME_SCHEDULE_UPLINK
+    MLME_BEACON_LOST,
 }Mlme_t;
 
 /*!
@@ -1247,7 +1263,14 @@ typedef struct sMlmeConfirm
      * Number of gateways which received the last LinkCheckReq
      */
     uint8_t NbGateways;
+    /*!
+     * The delay which we have received through the
+     * BeaconTimingAns
+     */
     TimerTime_t BeaconTimingDelay;
+    /*!
+     * The channel of the next beacon
+     */
     uint8_t BeaconTimingChannel;
     /*!
      * Provides the number of retransmissions
