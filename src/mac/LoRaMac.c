@@ -2998,6 +2998,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         case MIB_CHANNELS_DATARATE:
         {
             verify.DatarateParams.Datarate = mibSet->Param.ChannelsDatarate;
+            verify.DatarateParams.UplinkDwellTime = LoRaMacParams.UplinkDwellTime;
 
             if( RegionVerify( LoRaMacRegion, &verify, PHY_TX_DR ) == true )
             {
