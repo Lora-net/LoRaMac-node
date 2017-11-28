@@ -1527,12 +1527,6 @@ static void OnMacStateCheckTimerEvent( void )
         LoRaMacFlags.Bits.McpsInd = 0;
     }
 
-    // Handle MLME indication
-    if( LoRaMacFlags.Bits.MlmeInd == 1 )
-    {
-        LoRaMacPrimitives->MacMlmeIndication( &MlmeIndication );
-        LoRaMacFlags.Bits.MlmeInd = 0;
-    }
 }
 
 static void OnTxDelayedTimerEvent( void )
