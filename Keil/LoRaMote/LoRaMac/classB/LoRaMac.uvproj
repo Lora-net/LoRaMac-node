@@ -604,6 +604,11 @@
               <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
             </File>
             <File>
+              <FileName>LoRaMacConfirmQueue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacConfirmQueue.c</FilePath>
+            </File>
+            <File>
               <FileName>LoRaMacCrypto.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMacCrypto.c</FilePath>
@@ -1378,6 +1383,11 @@
               <FileName>LoRaMacClassB.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
+            </File>
+            <File>
+              <FileName>LoRaMacConfirmQueue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacConfirmQueue.c</FilePath>
             </File>
             <File>
               <FileName>LoRaMacCrypto.c</FileName>
@@ -2156,6 +2166,11 @@
               <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
             </File>
             <File>
+              <FileName>LoRaMacConfirmQueue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacConfirmQueue.c</FilePath>
+            </File>
+            <File>
               <FileName>LoRaMacCrypto.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMacCrypto.c</FilePath>
@@ -2930,6 +2945,11 @@
               <FileName>LoRaMacClassB.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
+            </File>
+            <File>
+              <FileName>LoRaMacConfirmQueue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacConfirmQueue.c</FilePath>
             </File>
             <File>
               <FileName>LoRaMacCrypto.c</FileName>
@@ -3708,6 +3728,11 @@
               <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
             </File>
             <File>
+              <FileName>LoRaMacConfirmQueue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacConfirmQueue.c</FilePath>
+            </File>
+            <File>
               <FileName>LoRaMacCrypto.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMacCrypto.c</FilePath>
@@ -4482,6 +4507,11 @@
               <FileName>LoRaMacClassB.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
+            </File>
+            <File>
+              <FileName>LoRaMacConfirmQueue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacConfirmQueue.c</FilePath>
             </File>
             <File>
               <FileName>LoRaMacCrypto.c</FileName>
@@ -5260,6 +5290,11 @@
               <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
             </File>
             <File>
+              <FileName>LoRaMacConfirmQueue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacConfirmQueue.c</FilePath>
+            </File>
+            <File>
               <FileName>LoRaMacCrypto.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMacCrypto.c</FilePath>
@@ -6036,6 +6071,11 @@
               <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
             </File>
             <File>
+              <FileName>LoRaMacConfirmQueue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacConfirmQueue.c</FilePath>
+            </File>
+            <File>
               <FileName>LoRaMacCrypto.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMacCrypto.c</FilePath>
@@ -6810,6 +6850,11 @@
               <FileName>LoRaMacClassB.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\mac\LoRaMacClassB.c</FilePath>
+            </File>
+            <File>
+              <FileName>LoRaMacConfirmQueue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mac\LoRaMacConfirmQueue.c</FilePath>
             </File>
             <File>
               <FileName>LoRaMacCrypto.c</FileName>
