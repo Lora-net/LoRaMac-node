@@ -28,6 +28,10 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 #define RF_FREQUENCY                                779000000 // Hz
 
+#elif defined( REGION_EU433 )
+
+#define RF_FREQUENCY                                434000000 // Hz
+
 #elif defined( REGION_EU868 )
 
 #define RF_FREQUENCY                                868000000 // Hz

@@ -18,27 +18,34 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "rtc-board.h"
 
 /*!
- * RTC Time base in ms
+ * RTCCLK is 32768 Hz from LSE, or 37000 Hz from LSI
+ *
+ * It should be divided twice to get a 1 Hz clock:
+ *
+ * CK_SPRE = RTCCLK / ( PREDIV_A + 1 ) * ( PREDIV_S + 1 )
+ *
+ * LSE Example:
+ * 1 = 32768 / ( 16 * 2048 )
+ *
+ * LSI Example:
+ * 1 = 37000 / ( 37 * 1000 )
+ *
+ * PREDIV_A can be 1,2,3,..., or 127   (7-bit),  defaults to 127
+ * PREDIV_S can be 0,1,2,..., or 32767 (15-bit), defaults to 255
+ *
+ * The PREDIV_S + 1 value also becomes the number of subseconds in a second,
+ * also note that subseconds are being counted from up to down
  */
-#define RTC_ALARM_TICK_PER_MS                       0x7FF           //  2047 > number of sub-second ticks per second
 
-/* sub-second number of bits */
-#define N_PREDIV_S                11
+/* Asynchronous prediv */
+#define PREDIV_A                  ( 16 - 1 )
 
-/* Synchronous prediv  */
-#define PREDIV_S                  ( ( 1 << N_PREDIV_S ) - 1 )
-
-/* Asynchronous prediv   */
-#define PREDIV_A                  ( 1 << ( 15 - N_PREDIV_S ) ) - 1
+/* Synchronous prediv */
+#define PREDIV_S                  ( 2048 - 1 )
 
 /* RTC Time base in us */
 #define USEC_NUMBER               1000000
-#define MSEC_NUMBER               ( USEC_NUMBER / 1000 )
-#define RTC_ALARM_TIME_BASE       ( USEC_NUMBER >> N_PREDIV_S )
-
-#define COMMON_FACTOR             3
-#define CONV_NUMER                ( MSEC_NUMBER >> COMMON_FACTOR )
-#define CONV_DENOM                ( 1 << ( N_PREDIV_S - COMMON_FACTOR ) )
+#define MSEC_NUMBER               1000
 
 /*!
  * Number of seconds in a minute
@@ -129,7 +136,7 @@ static bool WakeUpTimeInitialized = false;
 /*!
  * \brief Hold the Wake-up time duration in ms
  */
-volatile uint32_t McuWakeUpTime = 0;
+volatile MsTime_t McuWakeUpTime = 0;
 
 /*!
  * \brief RTC wakeup time computation
@@ -139,7 +146,7 @@ static void RtcComputeWakeUpTime( void );
 /*!
  * \brief Start the RTC Alarm (timeoutValue is in ms)
  */
-static void RtcStartWakeUpAlarm( uint32_t timeoutValue );
+static void RtcStartWakeUpAlarm( TimerTime_t timeoutValue );
 
 /*!
  * \brief Converts a TimerTime_t value into RtcCalendar_t value
@@ -164,9 +171,9 @@ RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter );
  */
 static TimerTime_t RtcConvertCalendarTickToTimerTime( RtcCalendar_t *calendar );
 
-static TimerTime_t RtcConvertMsToTick( TimerTime_t timeoutValue );
+static TimerTime_t RtcConvertMsToTick( MsTime_t timeoutValue );
 
-static TimerTime_t RtcConvertTickToMs( TimerTime_t timeoutValue );
+static MsTime_t RtcConvertTickToMs( TimerTime_t timeoutValue );
 
 /*!
  * \brief Converts a TimerTime_t value into a value for the RTC Alarm
@@ -190,8 +197,6 @@ void RtcInit( void )
 
     if( RtcInitialized == false )
     {
-        __HAL_RCC_RTC_ENABLE( );
-
         RtcHandle.Instance = RTC;
         RtcHandle.Init.HourFormat = RTC_HOURFORMAT_24;
         RtcHandle.Init.AsynchPrediv = PREDIV_A; // RTC_ASYNCH_PREDIV;
@@ -200,43 +205,61 @@ void RtcInit( void )
         RtcHandle.Init.OutPut = RTC_OUTPUT_DISABLE;
         RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
         RtcHandle.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
-        HAL_RTC_Init( &RtcHandle );
+        if( HAL_RTC_Init( &RtcHandle ) != HAL_OK )
+        {
+            assert_param(FAIL);
+        }
 
-        // Set Date: Friday 1st of January 2000
-        rtcInit.CalendarDate.Year = 0;
-        rtcInit.CalendarDate.Month = RTC_MONTH_JANUARY;
-        rtcInit.CalendarDate.Date = 1;
-        rtcInit.CalendarDate.WeekDay = RTC_WEEKDAY_SATURDAY;
-        HAL_RTC_SetDate( &RtcHandle, &rtcInit.CalendarDate, RTC_FORMAT_BIN );
+        if( HAL_RTCEx_BKUPRead(&RtcHandle, RTC_BKP_DR0) != 0x32F2 )
+        {
+            // Set Date: Friday 1st of January 2000
+            rtcInit.CalendarDate.Year = 0;
+            rtcInit.CalendarDate.Month = RTC_MONTH_JANUARY;
+            rtcInit.CalendarDate.Date = 1;
+            rtcInit.CalendarDate.WeekDay = RTC_WEEKDAY_SATURDAY;
+            if( HAL_RTC_SetDate( &RtcHandle, &rtcInit.CalendarDate, RTC_FORMAT_BIN ) != HAL_OK )
+            {
+                assert_param(FAIL);
+            }
 
-        // Set Time: 00:00:00
-        rtcInit.CalendarTime.Hours = 0;
-        rtcInit.CalendarTime.Minutes = 0;
-        rtcInit.CalendarTime.Seconds = 0;
-        rtcInit.CalendarTime.SecondFraction = 0;
-        rtcInit.CalendarTime.TimeFormat = RTC_HOURFORMAT12_AM;
-        rtcInit.CalendarTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-        rtcInit.CalendarTime.StoreOperation = RTC_STOREOPERATION_RESET;
-        HAL_RTC_SetTime( &RtcHandle, &rtcInit.CalendarTime, RTC_FORMAT_BIN );
+            // Set Time: 00:00:00
+            rtcInit.CalendarTime.Hours = 0;
+            rtcInit.CalendarTime.Minutes = 0;
+            rtcInit.CalendarTime.Seconds = 0;
+            rtcInit.CalendarTime.SecondFraction = 0;
+            rtcInit.CalendarTime.TimeFormat = RTC_HOURFORMAT12_AM;
+            rtcInit.CalendarTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+            rtcInit.CalendarTime.StoreOperation = RTC_STOREOPERATION_RESET;
+            if( HAL_RTC_SetTime( &RtcHandle, &rtcInit.CalendarTime, RTC_FORMAT_BIN ) != HAL_OK )
+            {
+                assert_param(FAIL);
+            }
+
+            HAL_RTCEx_BKUPWrite( &RtcHandle, RTC_BKP_DR0, 0x32F2 );
+        }
 
         // Enable Direct Read of the calendar registers (not through Shadow registers)
         HAL_RTCEx_EnableBypassShadow( &RtcHandle );
 
+        // Enable the interrupt
         HAL_NVIC_SetPriority( RTC_IRQn, 1, 0 );
         HAL_NVIC_EnableIRQ( RTC_IRQn );
+
         RtcInitialized = true;
     }
 }
 
-void RtcSetTimeout( uint32_t timeout )
+void RtcSetTimeout( MsTime_t timeout )
 {
     RtcStartWakeUpAlarm( RtcConvertMsToTick( timeout ) );
 }
 
-TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout )
+MsTime_t RtcGetAdjustedTimeoutValue( MsTime_t timeout )
 {
     if( timeout > McuWakeUpTime )
-    {   // we have waken up from a GPIO and we have lost "McuWakeUpTime" that we need to compensate on next event
+    {
+        // if we have woken up from a GPIO then we have lost "McuWakeUpTime"
+        // that we need to compensate on next event
         if( NonScheduledWakeUp == true )
         {
             NonScheduledWakeUp = false;
@@ -245,7 +268,8 @@ TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout )
     }
 
     if( timeout > McuWakeUpTime )
-    {   // we don't go in Low Power mode for delay below 50ms (needed for LEDs)
+    {
+        // we don't go into Low Power mode for a delay below 50ms (needed for LEDs)
         if( timeout < 50 ) // 50 ms
         {
             RtcTimerEventAllowsLowPower = false;
@@ -256,46 +280,52 @@ TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout )
             timeout -= McuWakeUpTime;
         }
     }
+    else
+    {
+        RtcTimerEventAllowsLowPower = false;
+    }
+
     return  timeout;
 }
 
-TimerTime_t RtcGetTimerValue( void )
+MsTime_t RtcGetTimerValue( void )
 {
-    TimerTime_t retVal = 0;
+    TimerTime_t retVal;
+
     retVal = RtcConvertCalendarTickToTimerTime( NULL );
-    RtcConvertTickToMs( retVal );
 
     return( RtcConvertTickToMs( retVal ) );
 }
 
-TimerTime_t RtcGetElapsedAlarmTime( void )
+MsTime_t RtcGetElapsedAlarmTime( void )
 {
-    TimerTime_t retVal = 0;
-    TimerTime_t currentTime = 0;
-    TimerTime_t contextTime = 0;
+    TimerTime_t retVal;
+    TimerTime_t currentTime;
+    TimerTime_t contextTime;
 
     currentTime = RtcConvertCalendarTickToTimerTime( NULL );
     contextTime = RtcConvertCalendarTickToTimerTime( &RtcCalendarContext );
 
     if( currentTime < contextTime )
     {
-        retVal = ( currentTime + ( 0xFFFFFFFF - contextTime ) );
+        retVal = ( currentTime + ( TIMERTIME_MAX - contextTime ) );
     }
     else
     {
         retVal = ( currentTime - contextTime );
     }
+
     return( RtcConvertTickToMs( retVal ) );
 }
 
-TimerTime_t RtcComputeFutureEventTime( TimerTime_t futureEventInTime )
+MsTime_t RtcComputeFutureEventTime( MsTime_t futureEventInTime )
 {
     return( RtcGetTimerValue( ) + futureEventInTime );
 }
 
-TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime )
+MsTime_t RtcComputeElapsedTime( MsTime_t eventInTime )
 {
-    TimerTime_t elapsedTime = 0;
+    MsTime_t elapsedTime;
 
     // Needed at boot, cannot compute with 0 or elapsed time will be equal to current time
     if( eventInTime == 0 )
@@ -303,13 +333,11 @@ TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime )
         return 0;
     }
 
-    elapsedTime = RtcConvertCalendarTickToTimerTime( NULL );
-
-    elapsedTime = RtcConvertTickToMs( elapsedTime );
+    elapsedTime = RtcConvertTickToMs( RtcConvertCalendarTickToTimerTime( NULL ) );
 
     if( elapsedTime < eventInTime )
     { // roll over of the counter
-        return( elapsedTime + ( 0xFFFFFFFF - eventInTime ) );
+        return( elapsedTime + ( MSTIME_MAX - eventInTime ) );
     }
     else
     {
@@ -343,8 +371,18 @@ void RtcEnterLowPowerStopMode( void )
         // Enable the fast wake up from Ultra low power mode
         HAL_PWREx_EnableFastWakeUp( );
 
+        // SysTick interrupt would wake up the MCU for every tick
+        HAL_SuspendTick();
+
         // Enter Stop Mode
+#if defined(DEBUG)
+        HAL_PWR_EnterSTOPMode( PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI );
+#else
         HAL_PWR_EnterSTOPMode( PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI );
+#endif
+
+        // Resume the SysTick interrupt
+        HAL_ResumeTick( );
     }
 }
 
@@ -369,9 +407,9 @@ void RtcRecoverMcuStatus( void )
 
 static void RtcComputeWakeUpTime( void )
 {
-    uint32_t start = 0;
-    uint32_t stop = 0;
-    RTC_AlarmTypeDef  alarmRtc;
+    TimerTime_t start;
+    TimerTime_t stop;
+    RTC_AlarmTypeDef alarmRtc;
     RtcCalendar_t now;
 
     if( WakeUpTimeInitialized == false )
@@ -379,8 +417,15 @@ static void RtcComputeWakeUpTime( void )
         now = RtcGetCalendar( );
         HAL_RTC_GetAlarm( &RtcHandle, &alarmRtc, RTC_ALARM_A, RTC_FORMAT_BIN );
 
-        start = PREDIV_S - alarmRtc.AlarmTime.SubSeconds;
-        stop = PREDIV_S - now.CalendarTime.SubSeconds;
+        start = alarmRtc.AlarmTime.Hours    * 3600 * (PREDIV_S + 1);
+        start += alarmRtc.AlarmTime.Minutes * 60   * (PREDIV_S + 1);
+        start += alarmRtc.AlarmTime.Seconds * 1    * (PREDIV_S + 1);
+        start += PREDIV_S - alarmRtc.AlarmTime.SubSeconds;
+
+        stop = now.CalendarTime.Hours * 3600 * (PREDIV_S + 1);
+        stop += now.CalendarTime.Minutes * 60 * (PREDIV_S + 1);
+        stop += now.CalendarTime.Seconds * (PREDIV_S + 1);
+        stop += PREDIV_S - now.CalendarTime.SubSeconds;
 
         McuWakeUpTime = RtcConvertTickToMs( stop - start );
 
@@ -388,7 +433,7 @@ static void RtcComputeWakeUpTime( void )
     }
 }
 
-static void RtcStartWakeUpAlarm( uint32_t timeoutValue )
+static void RtcStartWakeUpAlarm( TimerTime_t timeoutValue )
 {
     RtcCalendar_t now;
     RtcCalendar_t alarmTimer;
@@ -407,7 +452,7 @@ static void RtcStartWakeUpAlarm( uint32_t timeoutValue )
     // Save the calendar into RtcCalendarContext to be able to calculate the elapsed time
     RtcCalendarContext = now;
 
-    // timeoutValue is in ms
+    // timeoutValue is in subseconds
     alarmTimer = RtcComputeTimerTimeToAlarmTick( timeoutValue, now );
 
     alarmStructure.Alarm = RTC_ALARM_A;
@@ -432,52 +477,50 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
 {
     RtcCalendar_t calendar = now;
 
-    TimerTime_t timeoutValue = 0;
-
-    uint16_t milliseconds = 0;
+    uint32_t subseconds = PREDIV_S - now.CalendarTime.SubSeconds;
     uint16_t seconds = now.CalendarTime.Seconds;
     uint16_t minutes = now.CalendarTime.Minutes;
     uint16_t hours = now.CalendarTime.Hours;
-    uint16_t days = now.CalendarDate.Date;
+    uint16_t day = now.CalendarDate.Date;
+    uint8_t month = now.CalendarDate.Month;
+    uint16_t year = now.CalendarDate.Year;
 
-    timeoutValue = timeCounter;
+    // Extract the subseconds part from the timeCounter
+    subseconds += timeCounter % ( PREDIV_S + 1 );
 
-    milliseconds = PREDIV_S - now.CalendarTime.SubSeconds;
-    milliseconds += ( timeoutValue & PREDIV_S);
+    // Convert timeout to whole seconds
+    timeCounter /= ( PREDIV_S + 1 );
 
-    /* convert timeout  to seconds */
-    timeoutValue >>= N_PREDIV_S;  /* convert timeout  in seconds */
-
-    // Convert milliseconds to RTC format and add to now
-    while( timeoutValue >= SecondsInDay )
+    // Calculate the days
+    while( timeCounter >= SecondsInDay )
     {
-        timeoutValue -= SecondsInDay;
-        days++;
+        timeCounter -= SecondsInDay;
+        day++;
     }
 
-    // Calculate hours
-    while( timeoutValue >= SecondsInHour )
+    // Calculate the hours
+    while( timeCounter >= SecondsInHour )
     {
-        timeoutValue -= SecondsInHour;
+        timeCounter -= SecondsInHour;
         hours++;
     }
 
-    // Calculate minutes
-    while( timeoutValue >= SecondsInMinute )
+    // Calculate the minutes
+    while( timeCounter >= SecondsInMinute )
     {
-        timeoutValue -= SecondsInMinute;
+        timeCounter -= SecondsInMinute;
         minutes++;
     }
 
-    // Calculate seconds
-    seconds += timeoutValue;
-
-    // Correct for modulo
-    while( milliseconds >= ( PREDIV_S + 1 ) )
+    // Calculate the seconds
+    seconds += timeCounter;
+    while( subseconds >= ( PREDIV_S + 1 ) )
     {
-        milliseconds -= ( PREDIV_S + 1 );
+        subseconds -= ( PREDIV_S + 1 );
         seconds++;
     }
+
+    // Convert the calculated seconds and subseconds into a calendar
 
     while( seconds >= SecondsInMinute )
     {
@@ -494,31 +537,74 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
     while( hours >= HoursInDay )
     {
         hours -= HoursInDay;
-        days++;
+        day++;
     }
 
-    if( ( now.CalendarDate.Year == 0 ) || ( now.CalendarDate.Year % 4 ) == 0 )
+    for ( ;; )
     {
-        if( days > DaysInMonthLeapYear[now.CalendarDate.Month - 1] )
+        uint8_t cont = 0;
+
+        if( year % 4 == 0 )
         {
-            days = days % DaysInMonthLeapYear[now.CalendarDate.Month - 1];
-            calendar.CalendarDate.Month++;
+            while( day > DaysInMonthLeapYear[month - 1] )
+            {
+                day -= DaysInMonthLeapYear[month - 1];
+                month++;
+
+                if( month > 12 )
+                {
+                    month -= 12;
+                    year++;
+
+                    cont = 1;
+                    break;
+                }
+            }
+
+            if( cont )
+            {
+                // Year was changed, start from the scratch
+                continue;
+            }
+
+            // Calculations done
+            break;
         }
-    }
-    else
-    {
-        if( days > DaysInMonth[now.CalendarDate.Month - 1] )
+        else
         {
-            days = days % DaysInMonth[now.CalendarDate.Month - 1];
-            calendar.CalendarDate.Month++;
+            while( day > DaysInMonth[month - 1] )
+            {
+                day -= DaysInMonth[month - 1];
+                month++;
+
+                if( month > 12 )
+                {
+                    month -= 12;
+                    year++;
+
+                    cont = 1;
+                    break;
+                }
+            }
+
+            if( cont )
+            {
+                // Year was changed, start from the scratch
+                continue;
+            }
+
+            // Calculations done
+            break;
         }
     }
 
-    calendar.CalendarTime.SubSeconds = PREDIV_S - milliseconds;
+    calendar.CalendarTime.SubSeconds = PREDIV_S - subseconds;
     calendar.CalendarTime.Seconds = seconds;
     calendar.CalendarTime.Minutes = minutes;
     calendar.CalendarTime.Hours = hours;
-    calendar.CalendarDate.Date = days;
+    calendar.CalendarDate.Date = day;
+    calendar.CalendarDate.Month = month;
+    calendar.CalendarDate.Year = year;
 
     return calendar;
 }
@@ -532,53 +618,50 @@ RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter )
 {
     RtcCalendar_t calendar = { { 0 }, { 0 } };
 
-    TimerTime_t timeoutValue = 0;
-
-    uint16_t milliseconds = 0;
+    uint32_t subseconds;
     uint16_t seconds = 0;
     uint16_t minutes = 0;
     uint16_t hours = 0;
-    uint16_t days = 0;
-    uint8_t months = 1; // Start at 1, month 0 does not exist
-    uint16_t years = 0;
+    uint16_t day = 0;
+    uint8_t month = 1; // Start at 1, month 0 does not exist
+    uint16_t year = 0;
 
-    timeoutValue = timeCounter;
+    // Extract the subseconds part from the timeCounter
+    subseconds = timeCounter % ( PREDIV_S + 1 );
 
-    milliseconds += ( timeoutValue & PREDIV_S);
+    // Convert timeout to whole seconds
+    timeCounter /= ( PREDIV_S + 1 );
 
-    /* convert timeout  to seconds */
-    timeoutValue >>= N_PREDIV_S; // convert timeout  in seconds
-
-    // Convert milliseconds to RTC format and add to now
-    while( timeoutValue >= SecondsInDay )
+    // Calculate the day
+    while( timeCounter >= SecondsInDay )
     {
-        timeoutValue -= SecondsInDay;
-        days++;
+        timeCounter -= SecondsInDay;
+        day++;
     }
 
-    // Calculate hours
-    while( timeoutValue >= SecondsInHour )
+    // Calculate the hours
+    while( timeCounter >= SecondsInHour )
     {
-        timeoutValue -= SecondsInHour;
+        timeCounter -= SecondsInHour;
         hours++;
     }
 
-    // Calculate minutes
-    while( timeoutValue >= SecondsInMinute )
+    // Calculate the minutes
+    while( timeCounter >= SecondsInMinute )
     {
-        timeoutValue -= SecondsInMinute;
+        timeCounter -= SecondsInMinute;
         minutes++;
     }
 
-    // Calculate seconds
-    seconds += timeoutValue;
-
-    // Correct for modulo
-    while( milliseconds >= ( PREDIV_S + 1 ) )
+    // Calculate the seconds
+    seconds += timeCounter;
+    while( subseconds >= ( PREDIV_S + 1 ) )
     {
-        milliseconds -= ( PREDIV_S + 1 );
+        subseconds -= ( PREDIV_S + 1 );
         seconds++;
     }
+
+    // Convert the calculated seconds and subseconds into a calendar
 
     while( seconds >= SecondsInMinute )
     {
@@ -595,22 +678,80 @@ RtcCalendar_t RtcConvertTimerTimeToCalendarTick( TimerTime_t timeCounter )
     while( hours >= HoursInDay )
     {
         hours -= HoursInDay;
-        days++;
+        day++;
     }
 
-    while( days > DaysInMonthLeapYear[months - 1] )
+    while( hours >= HoursInDay )
     {
-        days -= DaysInMonthLeapYear[months - 1];
-        months++;
+        hours -= HoursInDay;
+        day++;
     }
 
-    calendar.CalendarTime.SubSeconds = PREDIV_S - milliseconds;
+    for ( ;; )
+    {
+        uint8_t cont = 0;
+
+        if( year % 4 == 0 )
+        {
+            while( day > DaysInMonthLeapYear[month - 1] )
+            {
+                day -= DaysInMonthLeapYear[month - 1];
+                month++;
+
+                if( month > 12 )
+                {
+                    month -= 12;
+                    year++;
+
+                    cont = 1;
+                    break;
+                }
+            }
+
+            if( cont )
+            {
+                // Year was changed, start from the scratch
+                continue;
+            }
+
+            // Calculations done
+            break;
+        }
+        else
+        {
+            while( day > DaysInMonth[month - 1] )
+            {
+                day -= DaysInMonth[month - 1];
+                month++;
+
+                if( month > 12 )
+                {
+                    month -= 12;
+                    year++;
+
+                    cont = 1;
+                    break;
+                }
+            }
+
+            if( cont )
+            {
+                // Year was changed, start from the scratch
+                continue;
+            }
+
+            // Calculations done
+            break;
+        }
+    }
+
+    calendar.CalendarTime.SubSeconds = PREDIV_S - subseconds;
     calendar.CalendarTime.Seconds = seconds;
     calendar.CalendarTime.Minutes = minutes;
     calendar.CalendarTime.Hours = hours;
-    calendar.CalendarDate.Date = days;
-    calendar.CalendarDate.Month = months;
-    calendar.CalendarDate.Year = years; // on 32-bit, years will never go up
+    calendar.CalendarDate.Date = day;
+    calendar.CalendarDate.Month = month;
+    calendar.CalendarDate.Year = year;
 
     return calendar;
 }
@@ -619,7 +760,6 @@ static TimerTime_t RtcConvertCalendarTickToTimerTime( RtcCalendar_t *calendar )
 {
     TimerTime_t timeCounter = 0;
     RtcCalendar_t now;
-    uint32_t timeCounterTemp = 0;
 
     // Passing a NULL pointer will compute from "now" else,
     // compute from the given calendar value
@@ -633,56 +773,64 @@ static TimerTime_t RtcConvertCalendarTickToTimerTime( RtcCalendar_t *calendar )
     }
 
     // Years (calculation valid up to year 2099)
-    for( int16_t i = 0; i < now.CalendarDate.Year ; i++ )
+    for( uint8_t i = 0; i < now.CalendarDate.Year ; i++ )
     {
-        if( ( i == 0 ) || ( i % 4 ) == 0 )
+        if( i % 4 == 0 )
         {
-            timeCounterTemp += ( uint32_t )SecondsInLeapYear;
+            timeCounter += SecondsInLeapYear;
         }
         else
         {
-            timeCounterTemp += ( uint32_t )SecondsInYear;
+            timeCounter += SecondsInYear;
         }
     }
 
     // Months (calculation valid up to year 2099)*/
-    if( ( now.CalendarDate.Year == 0 ) || ( now.CalendarDate.Year % 4 ) == 0 )
+    if( now.CalendarDate.Year % 4 == 0 )
     {
         for( uint8_t i = 0; i < ( now.CalendarDate.Month - 1 ); i++ )
         {
-            timeCounterTemp += ( uint32_t )( DaysInMonthLeapYear[i] * SecondsInDay );
+            timeCounter += ( DaysInMonthLeapYear[i] * SecondsInDay );
         }
     }
     else
     {
         for( uint8_t i = 0;  i < ( now.CalendarDate.Month - 1 ); i++ )
         {
-            timeCounterTemp += ( uint32_t )( DaysInMonth[i] * SecondsInDay );
+            timeCounter += ( DaysInMonth[i] * SecondsInDay );
         }
     }
 
-    timeCounterTemp += ( uint32_t )( ( uint32_t )now.CalendarTime.Seconds +
-                     ( ( uint32_t )now.CalendarTime.Minutes * SecondsInMinute ) +
-                     ( ( uint32_t )now.CalendarTime.Hours * SecondsInHour ) +
-                     ( ( uint32_t )( now.CalendarDate.Date * SecondsInDay ) ) );
+    timeCounter += ( now.CalendarTime.Seconds +
+                     ( now.CalendarTime.Minutes * SecondsInMinute ) +
+                     ( now.CalendarTime.Hours * SecondsInHour ) +
+                     ( now.CalendarDate.Date * SecondsInDay ) );
 
-    timeCounter = ( timeCounterTemp << N_PREDIV_S ) + ( PREDIV_S - now.CalendarTime.SubSeconds);
+    timeCounter *= (PREDIV_S + 1);
+
+    timeCounter += PREDIV_S - now.CalendarTime.SubSeconds;
 
     return ( timeCounter );
 }
 
-TimerTime_t RtcConvertMsToTick( TimerTime_t timeoutValue )
+TimerTime_t RtcConvertMsToTick( MsTime_t timeoutValue )
 {
-    double retVal = 0;
-    retVal = round( ( ( double )timeoutValue * CONV_DENOM ) / CONV_NUMER );
+#if (PREDIV_S + 1 == MSEC_NUMBER)
+    return ( TimerTime_t )timeoutValue;
+#else
+    double retVal = round( ( double )( timeoutValue * ( PREDIV_S + 1 ) ) / MSEC_NUMBER );
     return( ( TimerTime_t )retVal );
+#endif
 }
 
-TimerTime_t RtcConvertTickToMs( TimerTime_t timeoutValue )
+MsTime_t RtcConvertTickToMs( TimerTime_t timeoutValue )
 {
-    double retVal = 0.0;
-    retVal = round( ( ( double )timeoutValue * CONV_NUMER ) / CONV_DENOM );
-    return( ( TimerTime_t )retVal );
+#if (PREDIV_S + 1 == MSEC_NUMBER)
+    return ( MsTime_t )timeoutValue;
+#else
+    double retVal = round( ( double ) ( timeoutValue * MSEC_NUMBER ) / ( PREDIV_S + 1 ) );
+    return( ( MsTime_t )retVal );
+#endif
 }
 
 static RtcCalendar_t RtcGetCalendar( void )
@@ -706,6 +854,22 @@ static RtcCalendar_t RtcGetCalendar( void )
     }
     HAL_RTC_GetDate( &RtcHandle, &now.CalendarDate, RTC_FORMAT_BIN );
     return( now );
+}
+
+void HAL_RTC_MspInit( RTC_HandleTypeDef *rtcHandle )
+{
+    if( rtcHandle->Instance == RTC )
+    {
+        __HAL_RCC_RTC_ENABLE( );
+    }
+}
+
+void HAL_RTC_MspDeInit( RTC_HandleTypeDef *rtcHandle )
+{
+    if( rtcHandle->Instance == RTC )
+    {
+        __HAL_RCC_RTC_DISABLE( );
+    }
 }
 
 /*!

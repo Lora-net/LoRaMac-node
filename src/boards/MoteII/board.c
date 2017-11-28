@@ -378,12 +378,22 @@ void SystemClockConfig( void )
         assert_param( FAIL );
     }
 
+    // Recalculate the SystemCoreClock global variable
+    SystemCoreClockUpdate( );
+
     HAL_SYSTICK_Config( HAL_RCC_GetHCLKFreq( ) / 1000 );
 
     HAL_SYSTICK_CLKSourceConfig( SYSTICK_CLKSOURCE_HCLK );
 
     // SysTick_IRQn interrupt configuration
     HAL_NVIC_SetPriority( SysTick_IRQn, 0, 0 );
+
+    // Configure the microcontroller's Debug peripheral clock
+#if defined( DEBUG )
+    __HAL_RCC_DBGMCU_CLK_ENABLE( );
+#else
+    __HAL_RCC_DBGMCU_CLK_DISABLE( );
+#endif
 }
 
 void CalibrateSystemWakeupTime( void )
@@ -428,6 +438,9 @@ void SystemClockReConfig( void )
     while( __HAL_RCC_GET_SYSCLK_SOURCE( ) != RCC_SYSCLKSOURCE_STATUS_PLLCLK )
     {
     }
+
+    // Recalculate the SystemCoreClock global variable
+    SystemCoreClockUpdate( );
 }
 
 void SysTick_Handler( void )

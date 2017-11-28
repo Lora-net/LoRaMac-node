@@ -36,7 +36,7 @@ static TimerEvent_t *TimerListHead = NULL;
  * \param [IN]  obj Timer object to be become the new head
  * \param [IN]  remainingTime Remaining time of the previous head to be replaced
  */
-static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime );
+static void TimerInsertNewHeadTimer( TimerEvent_t *obj, MsTime_t remainingTime );
 
 /*!
  * \brief Adds a timer to the list.
@@ -47,7 +47,7 @@ static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime )
  * \param [IN]  obj Timer object to be added to the list
  * \param [IN]  remainingTime Remaining time of the running head after which the object may be added
  */
-static void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime );
+static void TimerInsertTimer( TimerEvent_t *obj, MsTime_t remainingTime );
 
 /*!
  * \brief Sets a timeout with the duration "timestamp"
@@ -69,7 +69,7 @@ static bool TimerExists( TimerEvent_t *obj );
  *
  * \retval value current timer value
  */
-TimerTime_t TimerGetValue( void );
+static MsTime_t TimerGetValue( void );
 
 void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
 {
@@ -82,8 +82,8 @@ void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
 
 void TimerStart( TimerEvent_t *obj )
 {
-    uint32_t elapsedTime = 0;
-    uint32_t remainingTime = 0;
+    MsTime_t elapsedTime = 0;
+    MsTime_t remainingTime = 0;
 
     BoardDisableIrq( );
 
@@ -128,10 +128,10 @@ void TimerStart( TimerEvent_t *obj )
     BoardEnableIrq( );
 }
 
-static void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime )
+static void TimerInsertTimer( TimerEvent_t *obj, MsTime_t remainingTime )
 {
-    uint32_t aggregatedTimestamp = 0;      // hold the sum of timestamps
-    uint32_t aggregatedTimestampNext = 0;  // hold the sum of timestamps up to the next event
+    MsTime_t aggregatedTimestamp = 0;      // hold the sum of timestamps
+    MsTime_t aggregatedTimestampNext = 0;  // hold the sum of timestamps up to the next event
 
     TimerEvent_t* prev = TimerListHead;
     TimerEvent_t* cur = TimerListHead->Next;
@@ -182,7 +182,7 @@ static void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime )
     }
 }
 
-static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime )
+static void TimerInsertNewHeadTimer( TimerEvent_t *obj, MsTime_t remainingTime )
 {
     TimerEvent_t* cur = TimerListHead;
 
@@ -200,7 +200,7 @@ static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime )
 
 void TimerIrqHandler( void )
 {
-    uint32_t elapsedTime = 0;
+    MsTime_t elapsedTime = 0;
 
     // Early out when TimerListHead is null to prevent null pointer
     if ( TimerListHead == NULL )
@@ -247,8 +247,8 @@ void TimerStop( TimerEvent_t *obj )
 {
     BoardDisableIrq( );
 
-    uint32_t elapsedTime = 0;
-    uint32_t remainingTime = 0;
+    MsTime_t elapsedTime = 0;
+    MsTime_t remainingTime = 0;
 
     TimerEvent_t* prev = TimerListHead;
     TimerEvent_t* cur = TimerListHead;
@@ -351,29 +351,29 @@ void TimerReset( TimerEvent_t *obj )
     TimerStart( obj );
 }
 
-void TimerSetValue( TimerEvent_t *obj, uint32_t value )
+void TimerSetValue( TimerEvent_t *obj, MsTime_t value )
 {
     TimerStop( obj );
     obj->Timestamp = value;
     obj->ReloadValue = value;
 }
 
-TimerTime_t TimerGetValue( void )
+static MsTime_t TimerGetValue( void )
 {
     return RtcGetElapsedAlarmTime( );
 }
 
-TimerTime_t TimerGetCurrentTime( void )
+MsTime_t TimerGetCurrentTime( void )
 {
     return RtcGetTimerValue( );
 }
 
-TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime )
+MsTime_t TimerGetElapsedTime( MsTime_t savedTime )
 {
     return RtcComputeElapsedTime( savedTime );
 }
 
-TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture )
+MsTime_t TimerGetFutureTime( MsTime_t eventInFuture )
 {
     return RtcComputeFutureEventTime( eventInFuture );
 }
