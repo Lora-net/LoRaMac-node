@@ -22,6 +22,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include "region/Region.h"
 #include "LoRaMacClassB.h"
 #include "LoRaMacCrypto.h"
+#include "LoRaMacConfirmQueue.h"
 
 #ifdef LORAMAC_CLASSB_ENABLED
 /*!
@@ -409,11 +410,9 @@ void LoRaMacClassBBeaconTimerEvent( void )
 
             if( LoRaMacClassBParams.LoRaMacFlags->Bits.MlmeReq == 1 )
             {
-                // index = GetMlmeConfirmIndex( MlmeConfirmQueue, MLME_BEACON_ACQUISITION, MlmeConfirmQueueCnt );
-                index = LoRaMacClassBCallbacks.GetMlmeConfrimIndex( LoRaMacClassBParams.MlmeConfirmQueue, MLME_BEACON_ACQUISITION );
-                if( index < LORA_MAC_MLME_CONFIRM_QUEUE_LEN )
+                if( LoRaMacConfirmQueueIsCmdActive( MLME_BEACON_ACQUISITION ) == true )
                 {
-                    LoRaMacClassBParams.MlmeConfirmQueue[index].Status = LORAMAC_EVENT_INFO_STATUS_OK;
+                    LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_OK, MLME_BEACON_ACQUISITION );
                     LoRaMacClassBParams.MlmeConfirm->TxTimeOnAir = 0;
                 }
             }
@@ -482,11 +481,9 @@ void LoRaMacClassBBeaconTimerEvent( void )
         {
             if( LoRaMacClassBParams.LoRaMacFlags->Bits.MlmeReq == 1 )
             {
-                // index = GetMlmeConfirmIndex( MlmeConfirmQueue, MLME_BEACON_ACQUISITION, MlmeConfirmQueueCnt );
-                index = LoRaMacClassBCallbacks.GetMlmeConfrimIndex( LoRaMacClassBParams.MlmeConfirmQueue, MLME_BEACON_ACQUISITION );
-                if( index < LORA_MAC_MLME_CONFIRM_QUEUE_LEN )
+                if( LoRaMacConfirmQueueIsCmdActive( MLME_BEACON_ACQUISITION ) == true )
                 {
-                    LoRaMacClassBParams.MlmeConfirmQueue[index].Status = LORAMAC_EVENT_INFO_STATUS_BEACON_NOT_FOUND;
+                    LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_BEACON_NOT_FOUND, MLME_BEACON_ACQUISITION );
                 }
             }
             else
@@ -1109,10 +1106,9 @@ void LoRaMacClassBPingSlotInfoAns( void )
 #ifdef LORAMAC_CLASSB_ENABLED
     uint8_t index = LORA_MAC_MLME_CONFIRM_QUEUE_LEN;
 
-    index = LoRaMacClassBCallbacks.GetMlmeConfrimIndex( LoRaMacClassBParams.MlmeConfirmQueue, MLME_PING_SLOT_INFO );
-    if( index < LORA_MAC_MLME_CONFIRM_QUEUE_LEN )
+    if( LoRaMacConfirmQueueIsCmdActive( MLME_PING_SLOT_INFO ) == true )
     {
-        LoRaMacClassBParams.MlmeConfirmQueue[index].Status = LORAMAC_EVENT_INFO_STATUS_OK;
+        LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_OK, MLME_PING_SLOT_INFO );
         PingSlotCtx.Ctrl.Assigned = 1;
     }
 #endif // LORAMAC_CLASSB_ENABLED
