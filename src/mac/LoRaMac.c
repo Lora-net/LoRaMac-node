@@ -1304,7 +1304,8 @@ static void OnMacStateCheckTimerEvent( void )
             LoRaMacState &= ~LORAMAC_TX_RUNNING;
         }
 
-        if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) || ( ( LoRaMacFlags.Bits.McpsReq == 1 ) ) )
+        if( ( LoRaMacFlags.Bits.MlmeReq == 1 ) ||
+            ( LoRaMacFlags.Bits.McpsReq == 1 ) )
         {
             // Get a status of any request and check if we have a TX timeout
             MlmeConfirm.Status = LoRaMacConfirmQueueGetStatusCmn( );
