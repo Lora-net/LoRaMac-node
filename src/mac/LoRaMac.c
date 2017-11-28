@@ -3363,6 +3363,11 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
             LoRaMacParams.AntennaGain = mibSet->Param.AntennaGain;
             break;
         }
+        case MIB_PING_SLOT_DATARATE:
+        {
+            status = LoRaMacMibClassBSetRequestConfirm( mibSet );
+            break;
+        }
         default:
         {
             if( LoRaMacDeviceClass == CLASS_B )

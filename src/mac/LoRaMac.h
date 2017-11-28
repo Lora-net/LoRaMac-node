@@ -1607,7 +1607,15 @@ typedef enum eMib
     /*!
      * Maximum allowed beacon less time in ms
      */
-    MIB_MAX_BEACON_LESS_PERIOD
+    MIB_MAX_BEACON_LESS_PERIOD,
+    /*!
+     * Ping slot data rate
+     *
+     * LoRaWAN Regional Parameters V1.0.2rB
+     *
+     * The allowed ranges are region specific. Please refer to \ref DR_0 to \ref DR_15 for details.
+     */
+     MIB_PING_SLOT_DATARATE,
 }Mib_t;
 
 /*!
@@ -1869,6 +1877,12 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_MAX_BEACON_LESS_PERIOD
      */
     uint32_t MaxBeaconLessPeriod;
+    /*!
+     * Ping slots data rate
+     *
+     * Related MIB type: \ref MIB_PING_SLOT_DATARATE
+     */
+    int8_t PingSlotDatarate;
 }MibParam_t;
 
 /*!

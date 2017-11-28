@@ -1190,6 +1190,11 @@ LoRaMacStatus_t LoRaMacClassBMibGetRequestConfirm( MibRequestConfirm_t *mibGet )
             mibGet->Param.MaxBeaconLessPeriod = BeaconCtx.Cfg.MaxBeaconLessPeriod;
             break;
         }
+        case MIB_PING_SLOT_DATARATE:
+        {
+            mibGet->Param.PingSlotDatarate = PingSlotCtx.Datarate;
+            break;
+        }
         default:
         {
             status = LORAMAC_STATUS_SERVICE_UNKNOWN;
@@ -1267,6 +1272,11 @@ LoRaMacStatus_t LoRaMacMibClassBSetRequestConfirm( MibRequestConfirm_t *mibSet )
         case MIB_MAX_BEACON_LESS_PERIOD:
         {
             BeaconCtx.Cfg.MaxBeaconLessPeriod = mibSet->Param.MaxBeaconLessPeriod;
+            break;
+        }
+        case MIB_PING_SLOT_DATARATE:
+        {
+            PingSlotCtx.Datarate = mibSet->Param.PingSlotDatarate;
             break;
         }
         default:
