@@ -737,6 +737,25 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
     LoRaMacUplinkStatus.StatusUpdated = true;
 }
 
+/*!
+ * \brief   MLME-Indication event function
+ *
+ * \param   [IN] mlmeIndication - Pointer to the indication structure.
+ */
+static void MlmeIndication( MlmeIndication_t *mlmeIndication )
+{
+    switch( mlmeIndication->MlmeIndication )
+    {
+        case MLME_SCHEDULE_UPLINK:
+        {// The MAC signals that we shall provide an uplink as soon as possible
+            OnTxNextPacketTimerEvent( );
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 /**
  * Main application entry point.
  */
@@ -798,6 +817,7 @@ int main( void )
                 LoRaMacPrimitives.MacMcpsConfirm = McpsConfirm;
                 LoRaMacPrimitives.MacMcpsIndication = McpsIndication;
                 LoRaMacPrimitives.MacMlmeConfirm = MlmeConfirm;
+                LoRaMacPrimitives.MacMlmeIndication = MlmeIndication;
                 LoRaMacCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
 #if defined( REGION_AS923 )
                 LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LORAMAC_REGION_AS923 );

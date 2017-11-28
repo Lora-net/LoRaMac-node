@@ -391,6 +391,11 @@ static McpsIndication_t McpsIndication;
 static McpsConfirm_t McpsConfirm;
 
 /*!
+ * Structure to hold MLME indication data.
+ */
+static MlmeIndication_t MlmeIndication;
+
+/*!
  * Structure to hold MLME confirm data.
  */
 static MlmeConfirm_t MlmeConfirm;
@@ -468,6 +473,19 @@ static void OnAckTimeoutTimerEvent( void );
  * \param [IN] maxRxWindow Maximum RX window timeout
  */
 static void RxWindowSetup( bool rxContinuous, uint32_t maxRxWindow );
+
+/*!
+ * \brief Verifies if sticky MAC commands are pending.
+ *
+ * \retval [true: sticky MAC commands pending, false: No MAC commands pending]
+ */
+static bool IsStickyMacCommandPending( void );
+
+/*!
+ * \brief Configures the events to trigger an MLME-Indication with
+ *        a MLME type of MLME_SCHEDULE_UPLINK.
+ */
+static void SetMlmeScheduleUplinkIndication( void );
 
 /*!
  * \brief Adds a new MAC command to be sent.
@@ -1380,6 +1398,12 @@ static void OnMacStateCheckTimerEvent( void )
             LoRaMacFlags.Bits.MlmeReq = 0;
         }
 
+        // Verify if sticky MAC commands are pending or not
+        if( IsStickyMacCommandPending( ) == true )
+        {// Setup MLME indication
+            SetMlmeScheduleUplinkIndication( );
+        }
+
         // Procedure done. Reset variables.
         LoRaMacFlags.Bits.MacDone = 0;
     }
@@ -1402,6 +1426,13 @@ static void OnMacStateCheckTimerEvent( void )
         }
         LoRaMacFlags.Bits.McpsIndSkip = 0;
         LoRaMacFlags.Bits.McpsInd = 0;
+    }
+
+    // Handle MLME indication
+    if( LoRaMacFlags.Bits.MlmeInd == 1 )
+    {
+        LoRaMacPrimitives->MacMlmeIndication( &MlmeIndication );
+        LoRaMacFlags.Bits.MlmeInd = 0;
     }
 }
 
@@ -1541,6 +1572,22 @@ static bool ValidatePayloadLength( uint8_t lenN, int8_t datarate, uint8_t fOptsL
     return false;
 }
 
+static bool IsStickyMacCommandPending( void )
+{
+    if( MacCommandsBufferToRepeatIndex > 0 )
+    {
+        // Sticky MAC commands pending
+        return true;
+    }
+    return false;
+}
+
+static void SetMlmeScheduleUplinkIndication( void )
+{
+    MlmeIndication.MlmeIndication = MLME_SCHEDULE_UPLINK;
+    LoRaMacFlags.Bits.MlmeInd = 1;
+}
+
 static LoRaMacStatus_t AddMacCommand( uint8_t cmd, uint8_t p1, uint8_t p2 )
 {
     LoRaMacStatus_t status = LORAMAC_STATUS_BUSY;
@@ -1580,6 +1627,8 @@ static LoRaMacStatus_t AddMacCommand( uint8_t cmd, uint8_t p1, uint8_t p2 )
                 MacCommandsBuffer[MacCommandsBufferIndex++] = cmd;
                 // Status: Datarate ACK, Channel ACK
                 MacCommandsBuffer[MacCommandsBufferIndex++] = p1;
+                // This is a sticky MAC command answer. Setup indication
+                SetMlmeScheduleUplinkIndication( );
                 status = LORAMAC_STATUS_OK;
             }
             break;
@@ -1608,6 +1657,8 @@ static LoRaMacStatus_t AddMacCommand( uint8_t cmd, uint8_t p1, uint8_t p2 )
             {
                 MacCommandsBuffer[MacCommandsBufferIndex++] = cmd;
                 // No payload for this answer
+                // This is a sticky MAC command answer. Setup indication
+                SetMlmeScheduleUplinkIndication( );
                 status = LORAMAC_STATUS_OK;
             }
             break;
@@ -1625,6 +1676,10 @@ static LoRaMacStatus_t AddMacCommand( uint8_t cmd, uint8_t p1, uint8_t p2 )
                 MacCommandsBuffer[MacCommandsBufferIndex++] = cmd;
                 // Status: Uplink frequency exists, Channel frequency OK
                 MacCommandsBuffer[MacCommandsBufferIndex++] = p1;
+
+                // This is a sticky MAC command answer. Setup indication
+                SetMlmeScheduleUplinkIndication( );
+
                 status = LORAMAC_STATUS_OK;
             }
             break;
@@ -2299,7 +2354,8 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
 
     if( ( primitives->MacMcpsConfirm == NULL ) ||
         ( primitives->MacMcpsIndication == NULL ) ||
-        ( primitives->MacMlmeConfirm == NULL ) )
+        ( primitives->MacMlmeConfirm == NULL ) ||
+        ( primitives->MacMlmeIndication == NULL ) )
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
