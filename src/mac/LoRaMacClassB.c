@@ -1297,39 +1297,40 @@ uint8_t LoRaMacClassBPingSlotChannelReq( uint8_t datarate, uint32_t frequency )
 #ifdef LORAMAC_CLASSB_ENABLED
     uint8_t status = 0x03;
     VerifyParams_t verify;
-    GetPhyParams_t getPhy;
-    PhyParam_t phyParam;
+    bool isCustomFreq = false;
 
     if( frequency != 0 )
     {
+        isCustomFreq = true;
         if( Radio.CheckRfFrequency( frequency ) == false )
         {
             status &= 0xFE; // Channel frequency KO
         }
+    }
 
-        verify.DatarateParams.Datarate = datarate;
-        verify.DatarateParams.DownlinkDwellTime = LoRaMacClassBParams.LoRaMacParams->DownlinkDwellTime;
+    verify.DatarateParams.Datarate = datarate;
+    verify.DatarateParams.DownlinkDwellTime = LoRaMacClassBParams.LoRaMacParams->DownlinkDwellTime;
 
-        if( RegionVerify( *LoRaMacClassBParams.LoRaMacRegion, &verify, PHY_RX_DR ) == false )
-        {
-            status &= 0xFD; // Datarate range KO
-        }
+    if( RegionVerify( *LoRaMacClassBParams.LoRaMacRegion, &verify, PHY_RX_DR ) == false )
+    {
+        status &= 0xFD; // Datarate range KO
+    }
 
-        if( status == 0x03 )
+    if( status == 0x03 )
+    {
+        if( isCustomFreq == true )
         {
             PingSlotCtx.Ctrl.CustomFreq = 1;
             PingSlotCtx.Frequency = frequency;
-            PingSlotCtx.Datarate = datarate;
         }
+        else
+        {
+            PingSlotCtx.Ctrl.CustomFreq = 0;
+            PingSlotCtx.Frequency = 0;
+        }
+        PingSlotCtx.Datarate = datarate;
     }
-    else
-    {
-        getPhy.Attribute = PHY_BEACON_CHANNEL_DR;
-        phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
 
-        PingSlotCtx.Ctrl.CustomFreq = 0;
-        PingSlotCtx.Datarate = phyParam.Value;
-    }
     return status;
 #else
     return 0;
