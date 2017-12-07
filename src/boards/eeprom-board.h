@@ -1,4 +1,5 @@
 /*
+  ______                              _
  / _____)             _              | |
 ( (____  _____ ____ _| |_ _____  ____| |__
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
@@ -6,7 +7,7 @@
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
     (C)2013 Semtech
 
-Description: Timer objects and scheduling management
+Description: Imlements the EEPROM driver
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 

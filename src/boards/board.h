@@ -1,4 +1,5 @@
 /*
+  ______                              _
  / _____)             _              | |
 ( (____  _____ ____ _| |_ _____  ____| |__
  \____ \| ___ |    (_   _) ___ |/ ___)  _ \
@@ -15,10 +16,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __BOARD_H__
 #define __BOARD_H__
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <stdint.h>
 
 /*!
@@ -29,6 +26,21 @@ enum BoardPowerSources
     USB_POWER = 0,
     BATTERY_POWER,
 };
+
+/*!
+ * Board Version
+ */
+typedef union BoardVersion_u
+{
+    struct BoardVersion_s
+    {
+        uint8_t Rfu;
+        uint8_t Revision;
+        uint8_t Minor;
+        uint8_t Major;
+    }Fields;
+    uint32_t Value;
+}BoardVersion_t;
 
 /*!
  * \brief Disable interrupts
@@ -64,6 +76,13 @@ void BoardInitPeriph( void );
  *        consumption.
  */
 void BoardDeInitMcu( void );
+
+/*!
+ * \brief Gets the current potentiometer level value
+ *
+ * \retval value  Potentiometer level ( value in percent )
+ */
+uint8_t BoardGetPotiLevel( void );
 
 /*!
  * \brief Measure the Battery voltage
@@ -103,5 +122,12 @@ void BoardGetUniqueId( uint8_t *id );
  * \retval value  power source [0: USB_POWER, 1: BATTERY_POWER]
  */
 uint8_t GetBoardPowerSource( void );
+
+/*!
+ * \brief Get the board version
+ *
+ * \retval value  Version
+ */
+BoardVersion_t BoardGetVersion( void );
 
 #endif // __BOARD_H__

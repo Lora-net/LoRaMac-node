@@ -81,7 +81,7 @@ TimerTime_t RtcComputeFutureEventTime( TimerTime_t futureEventInTime );
 TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime );
 
 /*!
- * \brief This function blocks the MCU from going into Low Power mode
+ * \brief This function blocks the MCU from going into low power mode
  *
  * \param [IN] status [true: Enable, false: Disable
  */
