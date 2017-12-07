@@ -35,6 +35,8 @@
 #ifndef __REGION_US915_HYBRID_H__
 #define __REGION_US915_HYBRID_H__
 
+#include "LoRaMac.h"
+
 /*!
  * LoRaMac maximum number of channels
  */

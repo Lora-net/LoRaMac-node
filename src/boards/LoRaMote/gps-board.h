@@ -15,6 +15,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __GPS_BOARD_H__
 #define __GPS_BOARD_H__
 
+#include "uart.h"
+
 /*!
  * Select the edge of the PPS signal which is used to start the
  * reception of data on the UART. Depending of the GPS, the PPS

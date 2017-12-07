@@ -14,6 +14,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 */
 #include <string.h>
 #include "board.h"
+#include "gpio.h"
+#include "delay.h"
+#include "timer.h"
 #include "radio.h"
 
 #if defined( REGION_AS923 )

@@ -13,7 +13,8 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#include "board.h"
+#include "stm32l0xx.h"
+#include "board-config.h"
 #include "adc-board.h"
 
 ADC_HandleTypeDef AdcHandle;

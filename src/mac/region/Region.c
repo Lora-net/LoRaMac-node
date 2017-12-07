@@ -17,19 +17,7 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jaeckle ( STACKFORCE )
 */
-#include <stdbool.h>
-#include <string.h>
-#include <stdint.h>
-
-#include "timer.h"
 #include "LoRaMac.h"
-
-
-
-// Regional includes
-#include "Region.h"
-
-
 
 // Setup regions
 #ifdef REGION_AS923

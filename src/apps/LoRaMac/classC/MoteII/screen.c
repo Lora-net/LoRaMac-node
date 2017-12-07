@@ -13,9 +13,9 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#include "board.h"
-
-#include "LoRaMac.h"
+#include "delay.h"
+#include "gps.h"
+#include "display-board.h"
 
 #include "buttons.h"
 #include "screen.h"

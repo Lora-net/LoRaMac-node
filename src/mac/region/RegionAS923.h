@@ -35,6 +35,8 @@
 #ifndef __REGION_AS923_H__
 #define __REGION_AS923_H__
 
+#include "LoRaMac.h"
+
 /*!
  * LoRaMac maximum number of channels
  */

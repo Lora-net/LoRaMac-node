@@ -18,8 +18,14 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
+#include <stdlib.h>
+#include <stdio.h>
 #include <stdarg.h>
-#include "board.h"
+#include "utilities.h"
+#include "board-config.h"
+#include "gpio.h"
+#include "spi.h"
+#include "delay.h"
 #include "display-board.h"
 
 /*!

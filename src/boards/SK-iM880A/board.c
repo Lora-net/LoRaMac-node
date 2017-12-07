@@ -12,6 +12,19 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 */
+#include "stm32l1xx.h"
+#include "utilities.h"
+#include "delay.h"
+#include "gpio.h"
+#include "adc.h"
+#include "spi.h"
+#include "i2c.h"
+#include "uart.h"
+#include "timer.h"
+#include "gps.h"
+#include "board-config.h"
+#include "rtc-board.h"
+#include "sx1272-board.h"
 #include "board.h"
 
 /*!
@@ -200,7 +213,7 @@ uint8_t BoardMeasurePotiLevel( void )
     uint16_t vpoti = 0;
 
     // Read the current potentiometer setting
-    vpoti = AdcMcuReadChannel( &Adc , ADC_CHANNEL_3 );
+    vpoti = AdcReadChannel( &Adc , ADC_CHANNEL_3 );
 
     // check the limits
     if( vpoti >= POTI_MAX_LEVEL )
@@ -254,7 +267,7 @@ uint16_t BoardBatteryMeasureVolage( void )
     uint32_t batteryVoltage = 0;
 
     // Read the current Voltage
-    vref = AdcMcuReadChannel( &Adc , ADC_CHANNEL_17 );
+    vref = AdcReadChannel( &Adc , ADC_CHANNEL_17 );
 
     // We don't use the VREF from calibValues here.
     // calculate the Voltage in millivolt

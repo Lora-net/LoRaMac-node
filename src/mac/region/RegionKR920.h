@@ -35,6 +35,8 @@
 #ifndef __REGION_KR920_H__
 #define __REGION_KR920_H__
 
+#include "LoRaMac.h"
+
 /*!
  * LoRaMac maximum number of channels
  */

@@ -17,24 +17,13 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jaeckle ( STACKFORCE )
 */
-
-#include <stdbool.h>
-#include <string.h>
-#include <stdint.h>
 #include <math.h>
-
-#include "timer.h"
 #include "utilities.h"
-#include "LoRaMac.h"
 #include "RegionCommon.h"
-
-
 
 #define BACKOFF_DC_1_HOUR       100
 #define BACKOFF_DC_10_HOURS     1000
 #define BACKOFF_DC_24_HOURS     10000
-
-
 
 static uint8_t CountChannels( uint16_t mask, uint8_t nbBits )
 {
@@ -49,8 +38,6 @@ static uint8_t CountChannels( uint16_t mask, uint8_t nbBits )
     }
     return nbActiveBits;
 }
-
-
 
 uint16_t RegionCommonGetJoinDc( TimerTime_t elapsedTime )
 {

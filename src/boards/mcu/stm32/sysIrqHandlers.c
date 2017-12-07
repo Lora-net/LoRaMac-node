@@ -12,7 +12,6 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#include "board.h"
 
 /*!
  * \brief  This function handles NMI exception.

@@ -16,6 +16,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __ADC_MCU_H__
 #define __ADC_MCU_H__
 
+#include "adc.h"
+
 /*!
  * \brief Initializes the ADC object and MCU peripheral
  *

@@ -14,8 +14,10 @@ Maintainer: Miguel Luis, Gregory Cristian and Wael Guibene
 */
 #include <math.h>
 #include <string.h>
-#include "board.h"
+#include "utilities.h"
+#include "timer.h"
 #include "radio.h"
+#include "delay.h"
 #include "sx1276.h"
 #include "sx1276-board.h"
 

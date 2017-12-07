@@ -15,6 +15,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __MPL3115_H__
 #define __MPL3115_H__
 
+#include <stdint.h>
+
 /*
  * MPL3115A2 I2C address
  */

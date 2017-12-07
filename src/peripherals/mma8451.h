@@ -15,6 +15,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __MMA8451_H__
 #define __MMA8451_H__
 
+#include <stdint.h>
+
 /*
  * MMA8451 I2C address
  */ 

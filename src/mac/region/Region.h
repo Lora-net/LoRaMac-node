@@ -52,8 +52,9 @@
 #ifndef __REGION_H__
 #define __REGION_H__
 
-
-
+#include <stdint.h>
+#include <stdbool.h>
+#include "timer.h"
 
 /*!
  * Macro to compute bit of a channel index.

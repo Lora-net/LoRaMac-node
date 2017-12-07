@@ -12,7 +12,13 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
+#include "board-config.h"
 #include "board.h"
+#include "gpio.h"
+#include "gps.h"
+#include "uart.h"
+#include "rtc-board.h"
+#include "gps-board.h"
 
 /*!
  * FIFO buffers size

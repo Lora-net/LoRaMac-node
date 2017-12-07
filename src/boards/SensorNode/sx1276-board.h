@@ -15,6 +15,10 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __SX1276_ARCH_H__
 #define __SX1276_ARCH_H__
 
+#include <stdint.h>
+#include <stdbool.h>
+#include "sx1276/sx1276.h"
+
 /*!
  * \brief Radio hardware registers initialization definition
  *

@@ -15,6 +15,11 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __SX1272_H__
 #define __SX1272_H__
 
+#include <stdint.h>
+#include <stdbool.h>
+#include "gpio.h"
+#include "spi.h"
+#include "radio.h"
 #include "sx1272Regs-Fsk.h"
 #include "sx1272Regs-LoRa.h"
 

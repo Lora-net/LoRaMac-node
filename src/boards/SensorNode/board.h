@@ -15,38 +15,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __BOARD_H__
 #define __BOARD_H__
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <stdint.h>
-#include "stm32l1xx.h"
-#include "stm32l1xx_hal.h"
-#include "utilities.h"
-#include "timer.h"
-#include "delay.h"
-#include "gpio.h"
-#include "adc.h"
-#include "spi.h"
-#include "i2c.h"
-#include "uart.h"
-#include "radio.h"
-#include "sx1276/sx1276.h"
-#include "mag3110.h"
-#include "mma8451.h"
-#include "mpl3115.h"
-#include "sx9500.h"
-#include "gps.h"
-#include "gps-board.h"
-#include "rtc-board.h"
-#include "sx1276-board.h"
-#include "uart-board.h"
-
-#if defined( USE_USB_CDC )
-#include "uart-usb-board.h"
-#endif
-
-#include "board-config.h"
 
 /*!
  * Possible power sources

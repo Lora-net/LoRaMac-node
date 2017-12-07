@@ -14,7 +14,11 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 Maintainer: Miguel Luis and Gregory Cristian
 */
 #include <math.h>
+#include "stm32l0xx.h"
+#include "utilities.h"
 #include "board.h"
+#include "timer.h"
+#include "gpio.h"
 #include "rtc-board.h"
 
 /*!
@@ -245,7 +249,7 @@ TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout )
     }
 
     if( timeout > McuWakeUpTime )
-    {   // we don't go in Low Power mode for delay below 50ms (needed for LEDs)
+    {   // we don't go in low power mode for delay below 50ms (needed for LEDs)
         if( timeout < 50 ) // 50 ms
         {
             RtcTimerEventAllowsLowPower = false;
@@ -443,7 +447,7 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
     timeoutValue = timeCounter;
 
     milliseconds = PREDIV_S - now.CalendarTime.SubSeconds;
-    milliseconds += ( timeoutValue & PREDIV_S);
+    milliseconds += ( timeoutValue & PREDIV_S );
 
     /* convert timeout  to seconds */
     timeoutValue >>= N_PREDIV_S;  /* convert timeout  in seconds */

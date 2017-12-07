@@ -16,6 +16,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __BUTTONS_H__
 #define __BUTTONS_H__
 
+#include <stdbool.h>
+
 /*!
  * \brief Buttons ID enumeration
  */

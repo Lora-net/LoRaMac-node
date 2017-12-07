@@ -15,6 +15,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __SX9500_H__
 #define __SX9500_H__
 
+#include <stdint.h>
+
 #define SX9500_I2C_ADDRESS                          0x28
 
 #define SX9500_REG_IRQSRC                           0x00

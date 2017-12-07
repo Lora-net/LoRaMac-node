@@ -12,8 +12,8 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#include "board.h"
-
+#include "stm32l1xx.h"
+#include "utilities.h"
 #include "eeprom-board.h"
 
 uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )

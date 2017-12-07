@@ -13,7 +13,12 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#include "board.h"
+#include "board-config.h"
+#include "gpio.h"
+#include "gps.h"
+#include "pam7q.h"
+#include "rtc-board.h"
+#include "gps-board.h"
 
 #define NMEA_MAX_BUFFER_SIZE                        256
 /*!

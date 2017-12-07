@@ -17,14 +17,10 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jaeckle ( STACKFORCE )
 */
-#include "board.h"
-
+#include "utilities.h"
 #include "LoRaMac.h"
-#include "region/Region.h"
 #include "LoRaMacCrypto.h"
 #include "LoRaMacTest.h"
-
-
 
 /*!
  * Maximum PHY layer payload size

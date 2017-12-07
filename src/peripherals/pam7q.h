@@ -15,6 +15,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __PAM7Q_H__
 #define __PAM7Q_H__
 
+#include <stdbool.h>
+#include <stdint.h>
+
 void PAM7QInit( void );
 
 uint8_t PAM7QGetDeviceAddr( void );

@@ -21,6 +21,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __DISPLAY_BOARD_H__
 #define __DISPLAY_BOARD_H__
 
+#include <stdint.h>
+#include <stdbool.h>
+
 /*!
  * \brief Display colors enumeration
  */

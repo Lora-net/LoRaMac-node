@@ -12,8 +12,7 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#include "board.h"
-
+#include "utilities.h"
 #include "i2c-board.h"
 #include "eeprom-board.h"
 

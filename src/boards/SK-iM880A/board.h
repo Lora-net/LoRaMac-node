@@ -20,23 +20,6 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-#include "stm32l1xx.h"
-#include "stm32l1xx_hal.h"
-#include "utilities.h"
-#include "timer.h"
-#include "delay.h"
-#include "gpio.h"
-#include "adc.h"
-#include "spi.h"
-#include "i2c.h"
-#include "uart.h"
-#include "radio.h"
-#include "sx1272/sx1272.h"
-#include "adc-board.h"
-#include "rtc-board.h"
-#include "sx1272-board.h"
-
-#include "board-config.h"
 
 /*!
  * Possible power sources

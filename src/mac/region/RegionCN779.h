@@ -35,6 +35,8 @@
 #ifndef __REGION_CN779_H__
 #define __REGION_CN779_H__
 
+#include "LoRaMac.h"
+
 /*!
  * LoRaMac maximum number of channels
  */

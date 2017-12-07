@@ -16,6 +16,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __EEPROM_MCU_H__
 #define __EEPROM_MCU_H__
 
+#include <stdint.h>
+
 /*!
  * Writes the given buffer to the EEPROM at the specified address.
  *

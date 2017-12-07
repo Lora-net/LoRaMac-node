@@ -15,12 +15,12 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 /*! \file classC/LoRaMote/main.c */
 
-#include <string.h>
-#include <math.h>
+#include "utilities.h"
 #include "board.h"
-
+#include "gpio.h"
+#include "gps.h"
+#include "mpl3115.h"
 #include "LoRaMac.h"
-#include "Region.h"
 #include "Commissioning.h"
 
 /*!

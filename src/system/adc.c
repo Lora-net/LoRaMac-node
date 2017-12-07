@@ -12,7 +12,7 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#include "board.h"
+#include <stdbool.h>
 #include "adc-board.h"
 
 /*!

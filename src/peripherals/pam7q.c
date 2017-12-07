@@ -12,7 +12,8 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#include "board.h"
+#include "utilities.h"
+#include "i2c.h"
 #include "pam7q.h"
 
 extern I2c_t I2c;

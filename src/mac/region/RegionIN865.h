@@ -35,6 +35,8 @@
 #ifndef __REGION_IN865_H__
 #define __REGION_IN865_H__
 
+#include "LoRaMac.h"
+
 /*!
  * LoRaMac maximum number of channels
  */

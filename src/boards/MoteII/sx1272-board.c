@@ -13,9 +13,11 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#include "board.h"
+#include <stdlib.h>
+#include "utilities.h"
+#include "board-config.h"
+#include "delay.h"
 #include "radio.h"
-#include "sx1272/sx1272.h"
 #include "sx1272-board.h"
 
 /*!

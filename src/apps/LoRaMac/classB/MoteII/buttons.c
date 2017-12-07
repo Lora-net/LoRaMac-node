@@ -13,7 +13,9 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#include "board.h"
+#include "board-config.h"
+#include "gpio.h"
+#include "timer.h"
 #include "buttons.h"
 
 /*!

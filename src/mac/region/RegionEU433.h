@@ -35,6 +35,8 @@
 #ifndef __REGION_EU433_H__
 #define __REGION_EU433_H__
 
+#include "LoRaMac.h"
+
 /*!
  * LoRaMac maximum number of channels
  */

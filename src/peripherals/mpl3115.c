@@ -12,7 +12,10 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#include "board.h"
+#include <stdbool.h>
+#include "utilities.h"
+#include "delay.h"
+#include "i2c.h"
 #include "mpl3115.h"
 
 extern I2c_t I2c;

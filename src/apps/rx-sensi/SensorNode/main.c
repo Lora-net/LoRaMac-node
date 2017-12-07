@@ -16,8 +16,9 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#include <string.h>
 #include "board.h"
+#include "gpio.h"
+#include "timer.h"
 #include "radio.h"
 
 #if defined( REGION_AS923 )

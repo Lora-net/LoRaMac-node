@@ -15,6 +15,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __RADIO_H__
 #define __RADIO_H__
 
+#include <stdint.h>
+#include <stdbool.h>
+
 /*!
  * Radio driver supported modems
  */

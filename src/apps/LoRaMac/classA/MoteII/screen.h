@@ -16,6 +16,10 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __SCREEN_H__
 #define __SCREEN_H__
 
+#include <stdint.h>
+#include <stdbool.h>
+#include "LoRaMac.h"
+
 #define APP_FIRMWARE_VERSION_MAJOR                  0
 #define APP_FIRMWARE_VERSION_MINOR                  9
 #define APP_FIRMWARE_VERSION_REVISION               1 // 0: Official release, x: RCx releases candidates

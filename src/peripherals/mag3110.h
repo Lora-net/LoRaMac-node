@@ -15,6 +15,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __MAG3110_H__
 #define __MAG3110_H__
 
+#include <stdint.h>
+
 /*!
  * MAG3110 I2C address
  */

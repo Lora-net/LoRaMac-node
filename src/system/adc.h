@@ -15,6 +15,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __ADC_H__
 #define __ADC_H__
 
+#include <stdint.h>
+#include "gpio.h"
+
 /*!
  * ADC object type definition
  */
