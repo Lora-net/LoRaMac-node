@@ -206,7 +206,7 @@ static void PrepareTxFrame( uint8_t port )
             uint16_t vdd = 0;
 
             // Read the current potentiometer setting in percent
-            potiPercentage = BoardMeasurePotiLevel( );
+            potiPercentage = BoardGetPotiLevel( );
 
             // Read the current voltage level
             BoardGetBatteryLevel( ); // Updates the value returned by BoardGetBatteryVoltage( ) function.

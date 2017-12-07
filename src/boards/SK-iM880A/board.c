@@ -216,7 +216,7 @@ void BoardGetUniqueId( uint8_t *id )
 #define POTI_MAX_LEVEL 900
 #define POTI_MIN_LEVEL 10
 
-uint8_t BoardMeasurePotiLevel( void )
+uint8_t BoardGetPotiLevel( void )
 {
     uint8_t potiLevel = 0;
     uint16_t vpoti = 0;

@@ -66,11 +66,11 @@ void BoardInitPeriph( void );
 void BoardDeInitMcu( void );
 
 /*!
- * \brief Measure the Potentiometer level
+ * \brief Gets the current potentiometer level value
  *
  * \retval value  Potentiometer level ( value in percent )
  */
-uint8_t BoardMeasurePotiLevel( void );
+uint8_t BoardGetPotiLevel( void );
 
 /*!
  * \brief Measure the Battery voltage
