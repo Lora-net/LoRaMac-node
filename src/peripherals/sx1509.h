@@ -15,6 +15,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __SX1509_H__
 #define __SX1509_H__
 
+#include <stdint.h>
 
 #define SX1509_I2C_ADDRESS                          0x3E
 

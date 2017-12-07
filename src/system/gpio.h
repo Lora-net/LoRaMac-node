@@ -19,6 +19,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __GPIO_H__
 #define __GPIO_H__
 
+#include <stdint.h>
 #include "pinName-board.h"
 #include "pinName-ioe.h"
 

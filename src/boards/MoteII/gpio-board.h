@@ -16,6 +16,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __GPIO_MCU_H__
 #define __GPIO_MCU_H__
 
+#include "gpio.h"
+
 /*!
  * \brief Initializes the given GPIO object
  *

@@ -16,6 +16,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __RTC_BOARD_H__
 #define __RTC_BOARD_H__
 
+#include <stdint.h>
+#include <stdbool.h>
+
 /*!
  * \brief Timer time variable definition
  */

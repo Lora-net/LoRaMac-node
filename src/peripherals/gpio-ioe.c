@@ -12,7 +12,8 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#include "board.h"
+#include <stdlib.h>
+#include <stdbool.h>
 #include "gpio-ioe.h"
 #include "sx1509.h"
 
