@@ -15,12 +15,28 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __SPI_H__
 #define __SPI_H__
 
-#include "spi-board.h"
+#include "gpio.h"
+
+/*!
+ * SPI peripheral ID
+ */
+typedef enum
+{
+    SPI_1,
+    SPI_2,
+}SpiId_t;
 
 /*!
  * SPI object type definition
  */
-typedef struct Spi_s Spi_t;
+typedef struct Spi_s
+{
+    SpiId_t SpiId;
+    Gpio_t Mosi;
+    Gpio_t Miso;
+    Gpio_t Sclk;
+    Gpio_t Nss;
+}Spi_t;
 
 /*!
  * \brief Initializes the SPI object and MCU peripheral
@@ -34,7 +50,7 @@ typedef struct Spi_s Spi_t;
  * \param [IN] sclk SPI SCLK pin name to be used
  * \param [IN] nss  SPI NSS pin name to be used
  */
-void SpiInit( Spi_t *obj, PinNames mosi, PinNames miso, PinNames sclk, PinNames nss );
+void SpiInit( Spi_t *obj, SpiId_t spiId, PinNames mosi, PinNames miso, PinNames sclk, PinNames nss );
 
 /*!
  * \brief De-initializes the SPI object and MCU peripheral

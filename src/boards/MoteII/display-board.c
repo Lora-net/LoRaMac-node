@@ -411,7 +411,7 @@ void DisplayInit( void )
     GpioInit( &Display.Pins.Dc, OLED_DC, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
     GpioInit( &Display.Pins.NEnable, OLED_EN, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 
-    SpiInit( &Display.Pins.Spi, BLE_OLED_MOSI, BLE_OLED_MISO, BLE_OLED_SCK, NC );
+    SpiInit( &Display.Pins.Spi, SPI_1, BLE_OLED_MOSI, BLE_OLED_MISO, BLE_OLED_SCK, NC );
 
     DisplayReset( );
     DisplayControllerInit( );

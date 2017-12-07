@@ -193,7 +193,7 @@ void BoardInitMcu( void )
     I2cInit( &I2c, I2C_SCL, I2C_SDA );
     AdcInit( &Adc, BAT_LEVEL_PIN );
 
-    SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+    SpiInit( &SX1272.Spi, SPI_2, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX1272IoInit( );
 
     if( McuInitialized == false )

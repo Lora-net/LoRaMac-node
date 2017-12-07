@@ -15,16 +15,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __SPI_MCU_H__
 #define __SPI_MCU_H__
 
-/*!
- * SPI driver structure definition
- */
-struct Spi_s
-{
-    SPI_HandleTypeDef Spi;
-    Gpio_t Mosi;
-    Gpio_t Miso;
-    Gpio_t Sclk;
-    Gpio_t Nss;
-};
+#include "spi.h"
+
+// An Spi.c file has to be implmented under system directory.
 
 #endif  // __SPI_MCU_H__
