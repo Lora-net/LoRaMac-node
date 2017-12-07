@@ -593,7 +593,7 @@ void RegionUS915HybridComputeRxWindowParameters( int8_t datarate, uint8_t minRxS
 
     tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesUS915_HYBRID[rxConfigParams->Datarate], BandwidthsUS915_HYBRID[rxConfigParams->Datarate] );
 
-    RegionCommonComputeRxWindowParameters( tSymbol, minRxSymbols, rxError, RADIO_WAKEUP_TIME, &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
+    RegionCommonComputeRxWindowParameters( tSymbol, minRxSymbols, rxError, Radio.GetWakeupTime( ), &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
 }
 
 bool RegionUS915HybridRxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )

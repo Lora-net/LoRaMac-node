@@ -47,6 +47,11 @@ Maintainer: Miguel Luis and Gregory Cristian
 #endif
 
 /*!
+ * Defines the time required for the TCXO to wakeup [ms].
+ */
+#define BOARD_TCXO_WAKEUP_TIME                      0
+
+/*!
  * Define indicating if an external IO expander is to be used
  */
 #define BOARD_IOE_EXT

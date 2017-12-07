@@ -399,4 +399,11 @@ void SX1272SetMaxPayloadLength( RadioModems_t modem, uint8_t max );
  */
 void SX1272SetPublicNetwork( bool enable );
 
+/*!
+ * \brief Gets the time reuired for the board plus radio to get out of sleep.[ms]
+ *
+ * \retval time Radio plus board wakeup time in ms.
+ */
+uint32_t SX1272GetWakeupTime( void );
+
 #endif // __SX1272_H__

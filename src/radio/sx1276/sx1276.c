@@ -1304,6 +1304,11 @@ void SX1276SetPublicNetwork( bool enable )
     }
 }
 
+uint32_t SX1276GetWakeupTime( void )
+{
+    return SX1276GetBoardTcxoWakeupTime( ) + RADIO_WAKEUP_TIME;
+}
+
 void SX1276OnTimeoutIrq( void )
 {
     switch( SX1276.Settings.State )

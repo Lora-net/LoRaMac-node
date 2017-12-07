@@ -49,7 +49,8 @@ const struct Radio_s Radio =
     SX1276WriteBuffer,
     SX1276ReadBuffer,
     SX1276SetMaxPayloadLength,
-    SX1276SetPublicNetwork
+    SX1276SetPublicNetwork,
+    SX1276GetWakeupTime
 };
 
 /*!
@@ -90,6 +91,32 @@ void SX1276IoDeInit( void )
     GpioInit( &SX1276.DIO3, RADIO_DIO_3, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &SX1276.DIO4, RADIO_DIO_4, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &SX1276.DIO5, RADIO_DIO_5, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+}
+
+/*!
+ * \brief Enables/disables the TCXO if available on board design.
+ *
+ * \param [IN] state TCXO enabled when true and disabled when false.
+ */
+static void SX1276SetBoardTcxo( uint8_t state )
+{
+    // No TCXO component available on this board design.
+#if 0
+    if( state == true )
+    {
+        TCXO_ON( );
+        DelayMs( BOARD_TCXO_WAKEUP_TIME );
+    }
+    else
+    {
+        TCXO_OFF( );
+    }
+#endif
+}
+
+uint32_t SX1276GetBoardTcxoWakeupTime( void )
+{
+    return BOARD_TCXO_WAKEUP_TIME;
 }
 
 void SX1276Reset( void )
@@ -192,10 +219,12 @@ void SX1276SetAntSwLowPower( bool status )
 
         if( status == false )
         {
+            SX1276SetBoardTcxo( true );
             SX1276AntSwInit( );
         }
         else
         {
+            SX1276SetBoardTcxo( false );
             SX1276AntSwDeInit( );
         }
     }

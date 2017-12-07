@@ -322,6 +322,12 @@ struct Radio_s
      * \param [IN] enable if true, it enables a public network
      */
     void    ( *SetPublicNetwork )( bool enable );
+    /*!
+     * \brief Gets the time reuired for the board plus radio to get out of sleep.[ms]
+     *
+     * \retval time Radio plus board wakeup time in ms.
+     */
+    uint32_t  ( *GetWakeupTime )( void );
 };
 
 /*!

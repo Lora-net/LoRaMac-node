@@ -37,6 +37,11 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 #include "sx1272-board.h"
 
 /*!
+ * Defines the time required for the TCXO to wakeup [ms].
+ */
+#define BOARD_TCXO_WAKEUP_TIME                      0
+
+/*!
  * Generic definition
  */
 #ifndef SUCCESS

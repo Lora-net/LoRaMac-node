@@ -42,6 +42,11 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "uart-board.h"
 
 /*!
+ * Defines the time required for the TCXO to wakeup [ms].
+ */
+#define BOARD_TCXO_WAKEUP_TIME                      0
+
+/*!
  * Generic definition
  */
 #ifndef SUCCESS

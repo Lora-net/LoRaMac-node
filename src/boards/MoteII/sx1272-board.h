@@ -118,6 +118,13 @@ void SX1272SetAntSw( uint8_t opMode );
 bool SX1272CheckRfFrequency( uint32_t frequency );
 
 /*!
+ * \brief Gets the Defines the time required for the TCXO to wakeup [ms].
+ *
+ * \retval time Board TCXO wakeup time in ms.
+ */
+uint32_t SX1272GetBoardTcxoWakeupTime( void );
+
+/*!
  * Radio hardware and global parameters
  */
 extern SX1272_t SX1272;
