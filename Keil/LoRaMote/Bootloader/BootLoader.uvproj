@@ -374,7 +374,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER STM32L151xB USE_NO_TIMER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\src;..\..\..\src\boards\LoRaMote;..\..\..\src\boards\LoRaMote\cmsis;..\..\..\src\boards\LoRaMote\usb\dfu\inc;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Class\DFU\inc;..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Core\inc;..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\src\peripherals;..\..\..\src\radio;..\..\..\src\system</IncludePath>
+              <IncludePath>..\..\..\src;..\..\..\src\boards;..\..\..\src\boards\LoRaMote;..\..\..\src\boards\LoRaMote\cmsis;..\..\..\src\boards\LoRaMote\usb\dfu\inc;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Class\DFU\inc;..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Core\inc;..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\src\peripherals;..\..\..\src\radio;..\..\..\src\system</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>

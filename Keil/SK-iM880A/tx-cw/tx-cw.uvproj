@@ -374,7 +374,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER STM32L151xB REGION_EU868 USE_DEBUGGER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\src;..\..\..\src\boards\SK-iM880A;..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\src\mac;..\..\..\src\peripherals;..\..\..\src\radio;..\..\..\src\system;..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\src;..\..\..\src\boards;..\..\..\src\boards\SK-iM880A;..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\src\mac;..\..\..\src\peripherals;..\..\..\src\radio;..\..\..\src\system;..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -586,7 +586,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>

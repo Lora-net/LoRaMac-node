@@ -374,7 +374,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_EU868</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -591,7 +591,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1150,7 +1150,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_EU868 USE_BOOTLOADER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1367,7 +1367,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1926,7 +1926,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_US915</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -2143,7 +2143,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2702,7 +2702,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_US915 USE_BOOTLOADER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -2919,7 +2919,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3478,7 +3478,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_AS923 USE_BOOTLOADER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -3695,7 +3695,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -4254,7 +4254,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_AU915 USE_BOOTLOADER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -4471,7 +4471,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -5030,7 +5030,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_KR920 USE_BOOTLOADER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -5247,7 +5247,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -5806,7 +5806,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_IN865 USE_BOOTLOADER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -6023,7 +6023,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -6582,7 +6582,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_CN779 USE_BOOTLOADER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\LoRaMote;..\..\..\..\src\boards\LoRaMote\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -6799,7 +6799,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
