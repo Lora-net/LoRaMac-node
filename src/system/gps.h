@@ -15,6 +15,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __GPS_H__
 #define __GPS_H__
 
+#include <stdint.h>
+#include <stdbool.h>
+
 /* Structure to handle the GPS parsed data in ASCII */
 typedef struct
 {
@@ -35,9 +38,7 @@ typedef struct
     char NmeaSpeed[8];
     char NmeaDetectionAngle[8];
     char NmeaDate[8];
-}tNmeaGpsData;
-
-extern tNmeaGpsData NmeaGpsData;
+}NmeaGpsData_t;
 
 /*!
  * \brief Initializes the handling of the GPS receiver
