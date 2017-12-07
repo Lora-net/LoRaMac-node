@@ -15,6 +15,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 */
 #include "stm32l0xx.h"
 #include "utilities.h"
+#include "board-config.h"
 #include "rtc-board.h"
 #include "gpio-board.h"
 #if defined( BOARD_IOE_EXT )
@@ -219,6 +220,8 @@ void GpioMcuRemoveInterrupt( Gpio_t *obj )
         GPIO_InitStructure.Pin =  obj->pinIndex ;
         GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
         HAL_GPIO_Init( obj->port, &GPIO_InitStructure );
+
+        GpioIrq[( obj->pin ) & 0x0F] = NULL;
     }
     else
     {
@@ -273,7 +276,7 @@ void GpioMcuToggle( Gpio_t *obj )
     {
 #if defined( BOARD_IOE_EXT )
         // IOExt Pin
-        GpioIoeWrite( obj, GpioIoeRead( obj ) ^ 1 );
+        GpioIoeToggle( obj );
 #endif
     }
 }
