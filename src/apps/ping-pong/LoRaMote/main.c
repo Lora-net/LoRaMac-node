@@ -113,6 +113,12 @@ int8_t SnrValue = 0;
 static RadioEvents_t RadioEvents;
 
 /*!
+ * LED GPIO pins objects
+ */
+extern Gpio_t Led1;
+extern Gpio_t Led2;
+
+/*!
  * \brief Function to be executed on Radio Tx Done event
  */
 void OnTxDone( void );

@@ -90,6 +90,11 @@ Maintainer: Miguel Luis and Gregory Cristian
 static RadioEvents_t RadioEvents;
 
 /*!
+ * LED GPIO pins objects
+ */
+extern Gpio_t Led1;
+
+/*!
  * \brief Function to be executed on Radio Rx Done event
  */
 void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr );
@@ -99,7 +104,7 @@ void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr );
  */
 int main( void )
 {
-    // Target board initialisation
+    // Target board initialization
     BoardInitMcu( );
     BoardInitPeriph( );
 

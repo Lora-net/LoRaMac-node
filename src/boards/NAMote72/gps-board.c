@@ -37,6 +37,8 @@ Gpio_t GpsPowerEn;
 
 bool GpsPowerEnInverted = false;
 
+extern Uart_t Uart1;
+
 void GpsMcuOnPpsSignal( void )
 {
     bool parseData = false;

@@ -15,6 +15,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "board.h"
 #include "mpl3115.h"
 
+extern I2c_t I2c;
+
 /*!
  * I2C device address
  */

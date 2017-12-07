@@ -15,6 +15,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "board.h"
 #include "mag3110.h"
 
+extern I2c_t I2c;
+
 static uint8_t I2cDeviceAddr = 0;
 static bool MAG3110Initialized = false;
 

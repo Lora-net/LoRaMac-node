@@ -27,6 +27,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 USBD_HandleTypeDef hUsbDeviceFS;
 extern PCD_HandleTypeDef hpcd_USB_FS;
 
+extern Uart_t UartUsb;
+
 void UartUsbInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx )
 {
     obj->UartId = uartId;

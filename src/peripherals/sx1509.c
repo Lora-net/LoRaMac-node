@@ -15,6 +15,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "board.h"
 #include "sx1509.h"
 
+extern I2c_t I2c;
+
 static uint8_t I2cDeviceAddr = 0;
 
 static bool SX1509Initialized = false;
@@ -22,10 +24,10 @@ static bool SX1509Initialized = false;
 void SX1509Init( void )
 {
     if( SX1509Initialized == false )
-    {   
+    {
         SX1509SetDeviceAddr( SX1509_I2C_ADDRESS );
         SX1509Initialized = true;
-        
+
         SX1509Reset( );
     }
 }

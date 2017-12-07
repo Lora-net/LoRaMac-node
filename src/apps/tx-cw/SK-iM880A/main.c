@@ -72,6 +72,13 @@ volatile bool Led3TimerEvent = false;
 static RadioEvents_t RadioEvents;
 
 /*!
+ * LED GPIO pins objects
+ */
+extern Gpio_t Led4;
+extern Gpio_t Led2;
+extern Gpio_t Led3;
+
+/*!
  * \brief Function executed on Led 1 Timeout event
  */
 void OnLed4TimerEvent( void )

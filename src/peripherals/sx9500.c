@@ -15,6 +15,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "board.h"
 #include "sx9500.h"
 
+extern I2c_t I2c;
+
 static uint8_t I2cDeviceAddr = 0;
 
 static bool SX9500Initialized = false;
@@ -26,15 +28,15 @@ uint8_t SX9500Init( void )
     SX9500SetDeviceAddr( SX9500_I2C_ADDRESS );
 
     if( SX9500Initialized == false )
-    {   
+    {
         SX9500Initialized = true;
-        
+
         SX9500Read( SX9500_REG_PROXCTRL0, &regVal );
         if( regVal != 0x0F )
         {
             return FAIL;
         }
-    
+
         SX9500Reset( );
     }
     return SUCCESS;
@@ -97,9 +99,9 @@ void SX9500LockUntilDetection( void )
     SX9500Write( SX9500_REG_PROXCTRL7, 0x40 );
     SX9500Write( SX9500_REG_PROXCTRL8, 0x00 );
     SX9500Write( SX9500_REG_IRQMSK, 0x60 );
-           
+
     val = 0;
-                    
+
     while( ( val & 0xF0 ) == 0x00 )
     {
         SX9500Read( SX9500_REG_STAT, &val );

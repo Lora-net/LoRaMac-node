@@ -23,6 +23,8 @@ static uint8_t I2cDeviceAddr = DEVICE_I2C_ADDRESS;
 
 #define EE_PAGE_SIZE                                64
 
+extern I2c_t I2c;
+
 uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
 {
     uint8_t nbPage = 0;

@@ -201,6 +201,13 @@ struct ComplianceTest_s
 }ComplianceTest;
 
 /*!
+ * LED GPIO pins objects
+ */
+extern Gpio_t Led1;
+extern Gpio_t Led2;
+extern Gpio_t Led3;
+
+/*!
  * \brief   Prepares the payload of the frame
  */
 static void PrepareTxFrame( uint8_t port )

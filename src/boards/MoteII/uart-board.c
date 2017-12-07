@@ -21,6 +21,8 @@ UART_HandleTypeDef UartHandle;
 uint8_t RxData = 0;
 uint8_t TxData = 0;
 
+extern Uart_t Uart1;
+
 void UartMcuInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx )
 {
     obj->UartId = uartId;

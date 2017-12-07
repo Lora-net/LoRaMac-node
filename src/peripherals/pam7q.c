@@ -15,6 +15,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "board.h"
 #include "pam7q.h"
 
+extern I2c_t I2c;
+
 static uint8_t I2cDeviceAddr = 0;
 
 void PAM7QInit( void )

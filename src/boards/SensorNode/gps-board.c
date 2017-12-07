@@ -38,6 +38,8 @@ Gpio_t GpsPps;
 
 PpsTrigger_t PpsTrigger;
 
+extern Uart_t Uart1;
+
 void GpsMcuOnPpsSignal( void )
 {
     bool parseData = false;

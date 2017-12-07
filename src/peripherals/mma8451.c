@@ -15,6 +15,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "board.h"
 #include "mma8451.h"
 
+extern I2c_t I2c;
+
 static uint8_t I2cDeviceAddr = 0;
 
 static bool MMA8451Initialized = false;
@@ -139,7 +141,7 @@ uint8_t MMA8451GetDeviceAddr( void )
 uint8_t MMA8451GetOrientation( void )
 {
     uint8_t orientation = 0;
-    
+
     MMA8451Read( MMA8451_PL_STATUS, &orientation );
     return orientation;
 }

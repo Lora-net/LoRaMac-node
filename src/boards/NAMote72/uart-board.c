@@ -25,6 +25,9 @@ typedef struct
 
 UartContext_t UartContext[2];
 
+extern Uart_t Uart1;
+extern Uart_t Uart2;
+
 void UartMcuInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx )
 {
     obj->UartId = uartId;
