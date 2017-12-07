@@ -33,8 +33,6 @@
 #ifndef __BOARD_CONFIG_H__
 #define __BOARD_CONFIG_H__
 
-#include <stdint.h>
-
 /*!
  * Defines the time required for the TCXO to wakeup [ms].
  */
@@ -122,12 +120,5 @@
 #define Led1                                        LedRed
 #define Led2                                        LedYellow
 #define Led3                                        LedUsr
-
-/*!
- * \brief Generates Lower 32 bits of DEVEUI using 96 bits unique device ID
- *
- * \param [IN] id Pointer to an array that will contain the Unique ID
- */
-void BoardGetDevEUI( uint8_t *id );
 
 #endif // __BOARD_CONFIG_H__

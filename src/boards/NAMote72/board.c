@@ -255,16 +255,6 @@ void BoardGetUniqueId( uint8_t *id )
     id[0] = ( ( *( uint32_t* )ID2 ) );
 }
 
-void BoardGetDevEUI( uint8_t *id )
-{
-    uint32_t *pDevEuiHWord = ( uint32_t* )&id[4];
-
-    if( *pDevEuiHWord == 0 )
-    {
-        *pDevEuiHWord = BoardGetRandomSeed( );
-    }
-}
-
 /*!
  * Factory power supply
  */
