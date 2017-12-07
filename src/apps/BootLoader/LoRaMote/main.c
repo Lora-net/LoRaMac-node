@@ -12,7 +12,10 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#include "board.h"
+#include "board-config.h"
+#include "i2c.h"
+#include "gpio.h"
+#include "sx9500.h"
 #include "usbd_core.h"
 #include "usbd_desc.h"
 #include "usbd_dfu.h"
@@ -63,7 +66,7 @@ int main( void )
 
     SystemClockConfig( );
 
-    I2cInit( &I2c, I2C_SCL, I2C_SDA );
+    I2cInit( &I2c, I2C_1, I2C_SCL, I2C_SDA );
 
     GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
     GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
