@@ -1,17 +1,25 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Implements the generic I2C driver
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/*!
+ * \file      i2c.h
+ *
+ * \brief     I2C driver implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
 #ifndef __I2C_H__
 #define __I2C_H__
 
@@ -70,7 +78,7 @@ void I2cResetBus( I2c_t *obj );
 uint8_t I2cWrite( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t data );
 
 /*!
- * \brief Write several data to the I2C device
+ * \brief Write data buffer to the I2C device
  *
  * \param [IN] obj              I2C object
  * \param [IN] deviceAddr       device address
@@ -86,19 +94,19 @@ uint8_t I2cWriteBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t *
  * \param [IN] obj              I2C object
  * \param [IN] deviceAddr       device address
  * \param [IN] addr             data address
- * \param [OUT] data            variable used to store the data read
+ * \param [OUT] data            data to read
  */
 uint8_t I2cRead( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t *data );
 
 /*!
- * \brief Read several data byte from the I2C device
+ * \brief Read data buffer from the I2C device
  *
  * \param [IN] obj              I2C object
  * \param [IN] deviceAddr       device address
  * \param [IN] addr             data address
- * \param [OUT] buffer          data buffer used to store the data read
- * \param [IN] size             number of data byte to read
+ * \param [OUT] buffer          data buffer to read
+ * \param [IN] size             number of data bytes to read
  */
 uint8_t I2cReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t *buffer, uint16_t size );
 
-#endif  // __I2C_H__
+#endif // __I2C_H__

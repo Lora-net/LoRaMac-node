@@ -1,17 +1,25 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Implements the generic UART driver
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/*!
+ * \file      uart.h
+ *
+ * \brief     UART driver implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
 #ifndef __UART_H__
 #define __UART_H__
 
@@ -130,7 +138,7 @@ void UartInit( Uart_t *obj, UartId_t uartId, PinNames tx, PinNames rx );
 void UartConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_t wordLength, StopBits_t stopBits, Parity_t parity, FlowCtrl_t flowCtrl );
 
 /*!
- * \brief DeInitializes the UART object and MCU pin
+ * \brief DeInitializes the UART object and MCU pins
  *
  * \param [IN] obj  UART object
  */
@@ -146,15 +154,6 @@ void UartDeInit( Uart_t *obj );
 uint8_t UartPutChar( Uart_t *obj, uint8_t data );
 
 /*!
- * \brief Gets a character from the UART
- *
- * \param [IN] obj   UART object
- * \param [IN] data  Received character
- * \retval status    [0: OK, 1: Busy]
- */
-uint8_t UartGetChar( Uart_t *obj, uint8_t *data );
-
-/*!
  * \brief Sends a buffer to the UART
  *
  * \param [IN] obj    UART object
@@ -167,12 +166,21 @@ uint8_t UartPutBuffer( Uart_t *obj, uint8_t *buffer, uint16_t size );
 /*!
  * \brief Gets a character from the UART
  *
+ * \param [IN] obj   UART object
+ * \param [IN] data  Received character
+ * \retval status    [0: OK, 1: Busy]
+ */
+uint8_t UartGetChar( Uart_t *obj, uint8_t *data );
+
+/*!
+ * \brief Gets a character from the UART
+ *
  * \param [IN] obj          UART object
- * \param [IN] buffer       Buffer to be sent
- * \param [IN] size         Buffer size
+ * \param [IN] buffer       Received buffer
+ * \param [IN] size         Number of bytes to be received
  * \param [OUT] nbReadBytes Number of bytes really read
  * \retval status           [0: OK, 1: Busy]
  */
 uint8_t UartGetBuffer( Uart_t *obj, uint8_t *buffer, uint16_t size, uint16_t *nbReadBytes );
 
-#endif  // __UART_H__
+#endif // __UART_H__
