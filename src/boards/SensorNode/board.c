@@ -184,20 +184,32 @@ void BoardInitMcu( void )
 
         SystemClockConfig( );
 
-#if defined( USE_USB_CDC )
-        UartInit( &UartUsb, UART_USB_CDC, NC, NC );
-        UartConfig( &UartUsb, RX_TX, 115200, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
-
-        DelayMs( 1000 ); // 1000 ms for Usb initialization
-#endif
+        GpioInit( &UsbDetect, USB_ON, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 
         RtcInit( );
 
+#if defined( USE_USB_CDC )
+        {
+            Gpio_t ioPin;
+
+            GpioInit( &ioPin, USB_DM, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
+
+            if( GpioRead( &ioPin ) == 0 )
+            {
+                UartInit( &UartUsb, UART_USB_CDC, NC, NC );
+                UartConfig( &UartUsb, RX_TX, 115200, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
+
+                DelayMs( 1000 ); // 1000 ms for Usb initialization
+            }
+            else
+            {
+                GpioInit( &ioPin, USB_DM, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+            }
+        }
+#endif
         BoardUnusedIoInit( );
 
         I2cInit( &I2c, I2C_1, I2C_SCL, I2C_SDA );
-
-        GpioInit( &UsbDetect, USB_ON, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     }
     else
     {
@@ -486,11 +498,11 @@ uint8_t GetBoardPowerSource( void )
 #if defined( USE_USB_CDC )
     if( GpioRead( &UsbDetect ) == 1 )
     {
-        return BATTERY_POWER;
+        return USB_POWER;
     }
     else
     {
-        return USB_POWER;
+        return BATTERY_POWER;
     }
 #else
     return BATTERY_POWER;
