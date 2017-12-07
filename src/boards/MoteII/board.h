@@ -42,9 +42,14 @@ void BoardDisableIrq( void );
 void BoardEnableIrq( void );
 
 /*!
- * \brief Initializes the target board peripherals.
+ * \brief Initializes the mcu.
  */
 void BoardInitMcu( void );
+
+/*!
+ * \brief Resets the mcu.
+ */
+void BoardResetMcu( void );
 
 /*!
  * \brief Initializes the boards peripherals.

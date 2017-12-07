@@ -241,6 +241,15 @@ void BoardInitMcu( void )
     }
 }
 
+void BoardResetMcu( void )
+{
+    BoardDisableIrq( );
+
+    //Restart system
+    NVIC_SystemReset( );
+
+}
+
 void BoardDeInitMcu( void )
 {
     Gpio_t ioPin;

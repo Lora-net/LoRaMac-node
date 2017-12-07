@@ -61,6 +61,11 @@ void BoardEnableIrq( void );
 void BoardInitMcu( void );
 
 /*!
+ * \brief Resets the mcu.
+ */
+void BoardResetMcu( void );
+
+/*!
  * \brief Initializes the boards peripherals.
  */
 void BoardInitPeriph( void );

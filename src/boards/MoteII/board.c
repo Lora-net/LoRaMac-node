@@ -221,6 +221,15 @@ void BoardInitMcu( void )
     }
 }
 
+void BoardResetMcu( void )
+{
+    BoardDisableIrq( );
+
+    //Restart system
+    NVIC_SystemReset( );
+
+}
+
 void BoardDeInitMcu( void )
 {
     I2cDeInit( &I2c );
