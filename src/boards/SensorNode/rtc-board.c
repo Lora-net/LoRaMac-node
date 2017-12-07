@@ -102,13 +102,13 @@ typedef struct RtcCalendar_s
 RtcCalendar_t RtcCalendarContext;
 
 /*!
- * \brief Flag to indicate if the timestamps until the next event is long enough
+ * \brief Flag to indicate if the timestamp until the next event is long enough
  * to set the MCU into low power mode
  */
 static bool RtcTimerEventAllowsLowPower = false;
 
 /*!
- * \brief Flag to disable the low power mode even if the timestamps until the
+ * \brief Flag to disable the low power mode even if the timestamp until the
  * next event is long enough to allow low power mode
  */
 static bool LowPowerDisableDuringTask = false;
