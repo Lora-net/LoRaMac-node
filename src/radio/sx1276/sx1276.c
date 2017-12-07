@@ -55,11 +55,6 @@ typedef struct
 static void RxChainCalibration( void );
 
 /*!
- * \brief Resets the SX1276
- */
-void SX1276Reset( void );
-
-/*!
  * \brief Sets the SX1276 in transmission mode for the given time
  * \param [IN] timeout Transmission timeout [ms] [0: continuous, others timeout]
  */
@@ -1165,21 +1160,6 @@ int16_t SX1276ReadRssi( RadioModems_t modem )
         break;
     }
     return rssi;
-}
-
-void SX1276Reset( void )
-{
-    // Set RESET pin to 0
-    GpioInit( &SX1276.Reset, RADIO_RESET, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-
-    // Wait 1 ms
-    DelayMs( 1 );
-
-    // Configure RESET as input
-    GpioInit( &SX1276.Reset, RADIO_RESET, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-
-    // Wait 6 ms
-    DelayMs( 6 );
 }
 
 void SX1276SetOpMode( uint8_t opMode )

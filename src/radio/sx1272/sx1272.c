@@ -49,11 +49,6 @@ typedef struct
 
 
 /*!
- * \brief Resets the SX1272
- */
-void SX1272Reset( void );
-
-/*!
  * \brief Sets the SX1272 in transmission mode for the given time
  * \param [IN] timeout Transmission timeout [ms] [0: continuous, others timeout]
  */
@@ -1006,21 +1001,6 @@ int16_t SX1272ReadRssi( RadioModems_t modem )
         break;
     }
     return rssi;
-}
-
-void SX1272Reset( void )
-{
-    // Set RESET pin to 1
-    GpioInit( &SX1272.Reset, RADIO_RESET, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-
-    // Wait 1 ms
-    DelayMs( 1 );
-
-    // Configure RESET as input
-    GpioInit( &SX1272.Reset, RADIO_RESET, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-
-    // Wait 6 ms
-    DelayMs( 6 );
 }
 
 void SX1272SetOpMode( uint8_t opMode )

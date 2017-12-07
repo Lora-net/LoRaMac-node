@@ -56,9 +56,14 @@ void SX1272IoIrqInit( DioIrqHandler **irqHandlers );
 /*!
  * \brief De-initializes the radio I/Os pins interface.
  *
- * \remark Useful when going in MCU lowpower modes
+ * \remark Useful when going in MCU low power modes
  */
 void SX1272IoDeInit( void );
+
+/*!
+ * \brief Resets the radio
+ */
+void SX1272Reset( void );
 
 /*!
  * \brief Sets the radio output power.
@@ -76,7 +81,7 @@ void SX1272SetRfTxPower( int8_t power );
 uint8_t SX1272GetPaSelect( uint32_t channel );
 
 /*!
- * \brief Set the RF Switch I/Os pins in Low Power mode
+ * \brief Set the RF Switch I/Os pins in low power mode
  *
  * \param [IN] status enable or disable
  */
@@ -90,12 +95,12 @@ void SX1272AntSwInit( void );
 /*!
  * \brief De-initializes the RF Switch I/Os pins interface
  *
- * \remark Needed to decrease the power consumption in MCU lowpower modes
+ * \remark Needed to decrease the power consumption in MCU low power modes
  */
 void SX1272AntSwDeInit( void );
 
 /*!
- * \brief Controls the antena switch if necessary.
+ * \brief Controls the antenna switch if necessary.
  *
  * \remark see errata note
  *

@@ -61,6 +61,11 @@ void SX1272IoIrqInit( DioIrqHandler **irqHandlers );
 void SX1272IoDeInit( void );
 
 /*!
+ * \brief Resets the radio
+ */
+void SX1272Reset( void );
+
+/*!
  * \brief Sets the radio output power.
  *
  * \param [IN] power Sets the RF output power
@@ -76,7 +81,7 @@ void SX1272SetRfTxPower( int8_t power );
 uint8_t SX1272GetPaSelect( uint32_t channel );
 
 /*!
- * \brief Set the RF Switch I/Os pins in Low Power mode
+ * \brief Set the RF Switch I/Os pins in low power mode
  *
  * \param [IN] status enable or disable
  */

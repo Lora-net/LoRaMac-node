@@ -40,7 +40,7 @@ const struct Radio_s Radio =
     SX1272GetTimeOnAir,
     SX1272Send,
     SX1272SetSleep,
-    SX1272SetStby, 
+    SX1272SetStby,
     SX1272SetRx,
     SX1272StartCad,
     SX1272SetTxContinuousWave,
@@ -89,6 +89,24 @@ void SX1272IoDeInit( void )
     GpioInit( &SX1272.DIO1, RADIO_DIO_1, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &SX1272.DIO2, RADIO_DIO_2, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &SX1272.DIO3, RADIO_DIO_3, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+}
+
+void SX1272Reset( void )
+{
+    // Enables the TCXO if available on the board design
+    SX1272SetBoardTcxo( true );
+
+    // Set RESET pin to 1
+    GpioInit( &SX1272.Reset, RADIO_RESET, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+
+    // Wait 1 ms
+    DelayMs( 1 );
+
+    // Configure RESET as input
+    GpioInit( &SX1272.Reset, RADIO_RESET, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+
+    // Wait 6 ms
+    DelayMs( 6 );
 }
 
 void SX1272SetRfTxPower( int8_t power )
@@ -162,7 +180,7 @@ void SX1272SetAntSwLowPower( bool status )
     if( RadioIsActive != status )
     {
         RadioIsActive = status;
-    
+
         if( status == false )
         {
             SX1272AntSwInit( );

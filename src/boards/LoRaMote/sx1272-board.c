@@ -92,6 +92,24 @@ void SX1272IoDeInit( void )
     GpioInit( &SX1272.DIO5, RADIO_DIO_5, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 }
 
+void SX1272Reset( void )
+{
+    // Enables the TCXO if available on the board design
+    SX1272SetBoardTcxo( true );
+
+    // Set RESET pin to 1
+    GpioInit( &SX1272.Reset, RADIO_RESET, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+
+    // Wait 1 ms
+    DelayMs( 1 );
+
+    // Configure RESET as input
+    GpioInit( &SX1272.Reset, RADIO_RESET, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+
+    // Wait 6 ms
+    DelayMs( 6 );
+}
+
 void SX1272SetRfTxPower( int8_t power )
 {
     uint8_t paConfig = 0;
