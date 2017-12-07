@@ -49,17 +49,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "board-config.h"
 
 /*!
- * Generic definition
- */
-#ifndef SUCCESS
-#define SUCCESS                                     1
-#endif
-
-#ifndef FAIL
-#define FAIL                                        0
-#endif
-
-/*!
  * Possible power sources
  */
 enum BoardPowerSources

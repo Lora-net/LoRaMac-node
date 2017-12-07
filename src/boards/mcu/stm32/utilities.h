@@ -15,6 +15,19 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __UTILITIES_H__
 #define __UTILITIES_H__
 
+#include <stdint.h>
+
+/*!
+ * Generic definition
+ */
+#ifndef SUCCESS
+#define SUCCESS                                     1
+#endif
+
+#ifndef FAIL
+#define FAIL                                        0
+#endif
+
 /*!
  * \brief Returns the minimum value between a and b
  *
