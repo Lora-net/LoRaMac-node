@@ -27,13 +27,18 @@ enum BoardPowerSources
 };
 
 /*!
- * Board versions
+ * Board Version
  */
-typedef enum
+typedef union BoardVersion_u
 {
-    BOARD_VERSION_NONE = 0,
-    BOARD_VERSION_2,
-    BOARD_VERSION_3,
+    struct BoardVersion_s
+    {
+        uint8_t Rfu;
+        uint8_t Revision;
+        uint8_t Minor;
+        uint8_t Major;
+    }Fields;
+    uint32_t Value;
 }BoardVersion_t;
 
 /*!
@@ -51,7 +56,7 @@ void BoardDisableIrq( void );
 void BoardEnableIrq( void );
 
 /*!
- * \brief Initializes the target board peripherals.
+ * \brief Initializes the mcu.
  */
 void BoardInitMcu( void );
 
@@ -108,9 +113,7 @@ uint8_t GetBoardPowerSource( void );
 /*!
  * \brief Get the board version
  *
- * \retval value  Version [0: MOTE_VERSION_NONE,
- *                         1: MOTE_VERSION_2,
- *                         2: MOTE_VERSION_3]
+ * \retval value  Version
  */
 BoardVersion_t BoardGetVersion( void );
 

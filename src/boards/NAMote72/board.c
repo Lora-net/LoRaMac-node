@@ -34,7 +34,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * Unique Devices IDs register set ( STM32L152x )
  */
-
 #define         ID1                                 ( 0x1FF800D0 )
 #define         ID2                                 ( 0x1FF800D4 )
 #define         ID3                                 ( 0x1FF800E4 )
@@ -124,7 +123,10 @@ static void OnCalibrateSystemWakeupTimeTimerEvent( void )
  */
 static uint8_t IrqNestLevel = 0;
 
-static BoardVersion_t BoardVersion = BOARD_VERSION_NONE;
+/*!
+ * Holds the bord version.
+ */
+static BoardVersion_t BoardVersion = { 0 };
 
 void BoardDisableIrq( void )
 {
@@ -214,12 +216,12 @@ void BoardInitMcu( void )
     }
 
     BoardVersion = BoardGetVersion( );
-    switch( BoardVersion )
+    switch( BoardVersion.Fields.Major )
     {
-    case BOARD_VERSION_2:
+    case 2:
         AdcInit( &Adc, BAT_LEVEL_PIN_PA0 );
         break;
-    case BOARD_VERSION_3:
+    case 3:
         AdcInit( &Adc, BAT_LEVEL_PIN_PA1 );
         break;
     default:
@@ -303,12 +305,12 @@ uint16_t BoardBatteryMeasureVolage( void )
     uint16_t vdiv = 0;
     uint16_t batteryVoltage = 0;
 
-    switch( BoardVersion )
+    switch( BoardVersion.Fields.Major )
     {
-        case BOARD_VERSION_2:
+        case 2:
             vdiv = AdcReadChannel( &Adc, BAT_LEVEL_CHANNEL_PA0 );
             break;
-        case BOARD_VERSION_3:
+        case 3:
             vdiv = AdcReadChannel( &Adc, BAT_LEVEL_CHANNEL_PA1 );
             break;
         default:
@@ -390,17 +392,41 @@ static void BoardUnusedIoInit( void )
 
     GpioInit( &ioPin, BOOT_1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 
-    switch( BoardVersion )
+    switch( BoardVersion.Fields.Major )
     {
-        case BOARD_VERSION_2:
+        case 2:
             GpioInit( &ioPin, BAT_LEVEL_PIN_PA0, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
             break;
-        case BOARD_VERSION_3:
+        case 3:
             GpioInit( &ioPin, BAT_LEVEL_PIN_PA1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
             break;
         default:
             break;
     }
+}
+
+BoardVersion_t BoardGetVersion( void )
+{
+    Gpio_t pinPc1;
+    Gpio_t pinPc7;
+    BoardVersion_t boardVersion = { 0 };
+    boardVersion.Value = 0;
+
+    GpioInit( &pinPc1, BOARD_VERSION_PC1, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &pinPc7, BOARD_VERSION_PC7, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+
+    uint8_t first = GpioRead( &pinPc1 );
+    GpioWrite( &pinPc7, 0 );
+
+    if( first && !GpioRead( &pinPc1 ) )
+    {
+        boardVersion.Fields.Major = 2;
+    }
+    else
+    {
+        boardVersion.Fields.Major = 3;
+    }
+    return boardVersion;
 }
 
 void SystemClockConfig( void )
@@ -513,27 +539,6 @@ uint8_t GetBoardPowerSource( void )
     }
 }
 
-BoardVersion_t BoardGetVersion( void )
-{
-    Gpio_t pinPc1;
-    Gpio_t pinPc7;
-
-    GpioInit( &pinPc1, BOARD_VERSION_PC1, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &pinPc7, BOARD_VERSION_PC7, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-
-    uint8_t first = GpioRead( &pinPc1 );
-    GpioWrite( &pinPc7, 0 );
-
-    if( first && !GpioRead( &pinPc1 ) )
-    {
-        return BOARD_VERSION_2;
-    }
-    else
-    {
-        return BOARD_VERSION_3;
-    }
-}
-
 #ifdef USE_FULL_ASSERT
 /*
  * Function Name  : assert_failed
@@ -549,7 +554,7 @@ void assert_failed( uint8_t* file, uint32_t line )
     /* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %u\r\n", file, line) */
 
-    printf( "Wrong parameters value: file %s on line %u\r\n", ( const char* )file, line );
+    printf( "Wrong parameters value: file %s on line %lu\r\n", ( const char* )file, line );
     /* Infinite loop */
     while( 1 )
     {

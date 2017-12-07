@@ -69,12 +69,12 @@ void GpsMcuInit( void )
 
     NmeaStringSize = 0;
 
-    switch( BoardGetVersion( ) )
+    switch( BoardGetVersion( ).Fields.Major )
     {
-        case BOARD_VERSION_2:
+        case 2:
             GpsPowerEnInverted = true;
             break;
-        case BOARD_VERSION_3:
+        case 3:
             GpsPowerEnInverted = false;
             break;
         default:
