@@ -439,6 +439,11 @@
               <FilePath>..\..\..\..\src\boards\LoRaMote\board.c</FilePath>
             </File>
             <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\LoRaMote\delay-board.c</FilePath>
+            </File>
+            <File>
               <FileName>gpio-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\LoRaMote\gpio-board.c</FilePath>
@@ -1208,6 +1213,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\LoRaMote\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\LoRaMote\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -1981,6 +1991,11 @@
               <FilePath>..\..\..\..\src\boards\LoRaMote\board.c</FilePath>
             </File>
             <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\LoRaMote\delay-board.c</FilePath>
+            </File>
+            <File>
               <FileName>gpio-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\LoRaMote\gpio-board.c</FilePath>
@@ -2750,6 +2765,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\LoRaMote\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\LoRaMote\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -3523,6 +3543,11 @@
               <FilePath>..\..\..\..\src\boards\LoRaMote\board.c</FilePath>
             </File>
             <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\LoRaMote\delay-board.c</FilePath>
+            </File>
+            <File>
               <FileName>gpio-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\LoRaMote\gpio-board.c</FilePath>
@@ -4292,6 +4317,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\LoRaMote\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\LoRaMote\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -5065,6 +5095,11 @@
               <FilePath>..\..\..\..\src\boards\LoRaMote\board.c</FilePath>
             </File>
             <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\LoRaMote\delay-board.c</FilePath>
+            </File>
+            <File>
               <FileName>gpio-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\LoRaMote\gpio-board.c</FilePath>
@@ -5836,6 +5871,11 @@
               <FilePath>..\..\..\..\src\boards\LoRaMote\board.c</FilePath>
             </File>
             <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\LoRaMote\delay-board.c</FilePath>
+            </File>
+            <File>
               <FileName>gpio-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\LoRaMote\gpio-board.c</FilePath>
@@ -6605,6 +6645,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\LoRaMote\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\LoRaMote\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>

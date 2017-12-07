@@ -439,6 +439,11 @@
               <FilePath>..\..\..\..\src\boards\SK-iM880A\board.c</FilePath>
             </File>
             <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\SK-iM880A\delay-board.c</FilePath>
+            </File>
+            <File>
               <FileName>gpio-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\SK-iM880A\gpio-board.c</FilePath>
@@ -1163,6 +1168,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\SK-iM880A\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\SK-iM880A\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -1891,6 +1901,11 @@
               <FilePath>..\..\..\..\src\boards\SK-iM880A\board.c</FilePath>
             </File>
             <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\SK-iM880A\delay-board.c</FilePath>
+            </File>
+            <File>
               <FileName>gpio-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\SK-iM880A\gpio-board.c</FilePath>
@@ -2615,6 +2630,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\SK-iM880A\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\SK-iM880A\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -3343,6 +3363,11 @@
               <FilePath>..\..\..\..\src\boards\SK-iM880A\board.c</FilePath>
             </File>
             <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\SK-iM880A\delay-board.c</FilePath>
+            </File>
+            <File>
               <FileName>gpio-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\SK-iM880A\gpio-board.c</FilePath>
@@ -4067,6 +4092,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\SK-iM880A\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\SK-iM880A\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -4795,6 +4825,11 @@
               <FilePath>..\..\..\..\src\boards\SK-iM880A\board.c</FilePath>
             </File>
             <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\SK-iM880A\delay-board.c</FilePath>
+            </File>
+            <File>
               <FileName>gpio-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\SK-iM880A\gpio-board.c</FilePath>
@@ -5519,6 +5554,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\SK-iM880A\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\SK-iM880A\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>

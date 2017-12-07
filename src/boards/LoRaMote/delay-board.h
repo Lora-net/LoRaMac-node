@@ -6,21 +6,22 @@
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
     (C)2013 Semtech
 
-Description: Delay functions implementation
+Description: Target board delay implementation
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#include "delay-board.h"
-#include "delay.h"
+#ifndef __DELAY_MCU_H__
+#define __DELAY_MCU_H__
 
-void Delay( float s )
-{
-    DelayMs( s * 1000.0f );
-}
+#include <stdint.h>
 
-void DelayMs( uint32_t ms )
-{
-    DelayMsMcu( ms );
-}
+/*!
+ * \brief Blocking delay of "ms" milliseconds
+ *
+ * \param [IN] ms    delay in milliseconds
+ */
+void DelayMsMcu( uint32_t ms );
+
+#endif // __DELAY_MCU_H__

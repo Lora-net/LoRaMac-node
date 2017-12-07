@@ -439,6 +439,11 @@
               <FilePath>..\..\..\src\boards\SensorNode\board.c</FilePath>
             </File>
             <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\boards\SensorNode\delay-board.c</FilePath>
+            </File>
+            <File>
               <FileName>gpio-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\boards\SensorNode\gpio-board.c</FilePath>
@@ -1113,6 +1118,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\boards\SensorNode\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\boards\SensorNode\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -1791,6 +1801,11 @@
               <FilePath>..\..\..\src\boards\SensorNode\board.c</FilePath>
             </File>
             <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\boards\SensorNode\delay-board.c</FilePath>
+            </File>
+            <File>
               <FileName>gpio-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\boards\SensorNode\gpio-board.c</FilePath>
@@ -2465,6 +2480,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\boards\SensorNode\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\boards\SensorNode\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -3143,6 +3163,11 @@
               <FilePath>..\..\..\src\boards\SensorNode\board.c</FilePath>
             </File>
             <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\boards\SensorNode\delay-board.c</FilePath>
+            </File>
+            <File>
               <FileName>gpio-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\boards\SensorNode\gpio-board.c</FilePath>
@@ -3817,6 +3842,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\boards\SensorNode\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\boards\SensorNode\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -4495,6 +4525,11 @@
               <FilePath>..\..\..\src\boards\SensorNode\board.c</FilePath>
             </File>
             <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\boards\SensorNode\delay-board.c</FilePath>
+            </File>
+            <File>
               <FileName>gpio-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\boards\SensorNode\gpio-board.c</FilePath>
@@ -5169,6 +5204,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\boards\SensorNode\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\boards\SensorNode\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>

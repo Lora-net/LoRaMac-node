@@ -410,6 +410,11 @@
               <FilePath>..\..\..\..\src\boards\MoteII\board.c</FilePath>
             </File>
             <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\MoteII\delay-board.c</FilePath>
+            </File>
+            <File>
               <FileName>display-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\MoteII\display-board.c</FilePath>
@@ -1175,6 +1180,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\MoteII\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\MoteII\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>display-board.c</FileName>
@@ -1944,6 +1954,11 @@
               <FilePath>..\..\..\..\src\boards\MoteII\board.c</FilePath>
             </File>
             <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\MoteII\delay-board.c</FilePath>
+            </File>
+            <File>
               <FileName>display-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\MoteII\display-board.c</FilePath>
@@ -2709,6 +2724,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\MoteII\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\MoteII\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>display-board.c</FileName>
@@ -3478,6 +3498,11 @@
               <FilePath>..\..\..\..\src\boards\MoteII\board.c</FilePath>
             </File>
             <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\MoteII\delay-board.c</FilePath>
+            </File>
+            <File>
               <FileName>display-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\MoteII\display-board.c</FilePath>
@@ -4243,6 +4268,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\MoteII\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\MoteII\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>display-board.c</FileName>
@@ -5012,6 +5042,11 @@
               <FilePath>..\..\..\..\src\boards\MoteII\board.c</FilePath>
             </File>
             <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\MoteII\delay-board.c</FilePath>
+            </File>
+            <File>
               <FileName>display-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\MoteII\display-board.c</FilePath>
@@ -5777,6 +5812,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\MoteII\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\MoteII\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>display-board.c</FileName>
