@@ -17,7 +17,6 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jaeckle ( STACKFORCE )
 */
-#include <string.h>
 #include "utilities.h"
 
 #include "RegionCommon.h"
@@ -730,7 +729,7 @@ uint8_t RegionEU868LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
     if( status == 0x07 )
     {
         // Set the channels mask to a default value
-        memset( ChannelsMask, 0, sizeof( ChannelsMask ) );
+        memset1( ( uint8_t* )ChannelsMask, 0, sizeof( ChannelsMask ) );
         // Update the channels mask
         ChannelsMask[0] = chMask;
     }
@@ -1023,7 +1022,7 @@ LoRaMacStatus_t RegionEU868ChannelAdd( ChannelAddParams_t* channelAdd )
         return LORAMAC_STATUS_FREQUENCY_INVALID;
     }
 
-    memcpy( &(Channels[id]), channelAdd->NewChannel, sizeof( Channels[id] ) );
+    memcpy1( ( uint8_t* )( Channels + id ), ( uint8_t* )channelAdd->NewChannel, sizeof( Channels[id] ) );
     Channels[id].Band = band;
     ChannelsMask[0] |= ( 1 << id );
     return LORAMAC_STATUS_OK;
