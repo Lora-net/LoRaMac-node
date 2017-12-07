@@ -15,12 +15,23 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __I2C_H__
 #define __I2C_H__
 
+#include "gpio.h"
+
+/*!
+ * I2C peripheral ID
+ */
+typedef enum
+{
+    I2C_1,
+    I2C_2,
+}I2cId_t;
+
 /*!
  * I2C object type definition
  */
 typedef struct
 {
-    I2C_HandleTypeDef I2c;
+    I2cId_t I2cId;
     Gpio_t Scl;
     Gpio_t Sda;
 }I2c_t;
@@ -32,7 +43,7 @@ typedef struct
  * \param [IN] scl  I2C Scl pin name to be used
  * \param [IN] sda  I2C Sda pin name to be used
  */
-void I2cInit( I2c_t *obj, PinNames scl, PinNames sda );
+void I2cInit( I2c_t *obj, I2cId_t i2cId, PinNames scl, PinNames sda );
 
 /*!
  * \brief DeInitializes the I2C object and MCU peripheral

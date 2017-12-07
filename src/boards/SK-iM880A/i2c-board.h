@@ -15,6 +15,10 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __I2C_MCU_H__
 #define __I2C_MCU_H__
 
+#include <stdint.h>
+#include <stdbool.h>
+#include "i2c.h"
+
 /*!
  * Operation Mode for the I2C
  */
@@ -59,13 +63,13 @@ typedef enum
  * \param [IN] scl  I2C Scl pin name to be used
  * \param [IN] sda  I2C Sda pin name to be used
  */
-void I2cMcuInit( I2c_t *obj, PinNames scl, PinNames sda );
+void I2cMcuInit( I2c_t *obj, I2cId_t i2cId, PinNames scl, PinNames sda );
 
 /*!
  * \brief Initializes the I2C object and MCU peripheral
  *
  * \param [IN] obj              I2C object
- * \param [IN] mode             Mode of operation for the I2C Bus 
+ * \param [IN] mode             Mode of operation for the I2C Bus
  * \param [IN] dutyCycle        Signal duty cycle
  * \param [IN] I2cAckEnable     Enable or Disable to ack
  * \param [IN] AckAddrMode      7bit or 10 bit addressing
@@ -79,6 +83,13 @@ void I2cMcuFormat( I2c_t *obj, I2cMode mode, I2cDutyCycle dutyCycle, bool I2cAck
  * \param [IN] obj  I2C object
  */
 void I2cMcuDeInit( I2c_t *obj );
+
+/*!
+ * \brief Reset the I2C object and MCU peripheral
+ *
+ * \param [IN] obj  I2C object
+ */
+void I2cMcuResetBus( I2c_t *obj );
 
 /*!
  * \brief Write several data to the I2C device

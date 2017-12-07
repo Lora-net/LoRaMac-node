@@ -189,7 +189,7 @@ void BoardInitMcu( void )
 
         BoardUnusedIoInit( );
 
-        I2cInit( &I2c, I2C_SCL, I2C_SDA );
+        I2cInit( &I2c, I2C_1, I2C_SCL, I2C_SDA );
     }
     else
     {

@@ -190,7 +190,7 @@ void BoardInitMcu( void )
         SystemClockReConfig( );
     }
 
-    I2cInit( &I2c, I2C_SCL, I2C_SDA );
+    I2cInit( &I2c, I2C_1, I2C_SCL, I2C_SDA );
     AdcInit( &Adc, BAT_LEVEL_PIN );
 
     SpiInit( &SX1272.Spi, SPI_2, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
