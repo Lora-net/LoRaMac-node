@@ -13,8 +13,8 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#ifndef __UART_MCU_H__
-#define __UART_MCU_H__
+#ifndef __UART_BOARD_H__
+#define __UART_BOARD_H__
 
 #include <stdint.h>
 #include "uart.h"
@@ -87,4 +87,4 @@ uint8_t UartMcuGetChar( Uart_t *obj, uint8_t *data );
  */
 uint8_t UartMcuGetBuffer( Uart_t *obj, uint8_t *data, uint16_t size, uint16_t *nbReadBytes );
 
-#endif // __UART_MCU_H__
+#endif // __UART_BOARD_H__

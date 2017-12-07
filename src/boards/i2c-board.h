@@ -13,8 +13,8 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#ifndef __I2C_MCU_H__
-#define __I2C_MCU_H__
+#ifndef __I2C_BOARD_H__
+#define __I2C_BOARD_H__
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -130,4 +130,4 @@ uint8_t I2cMcuWaitStandbyState( I2c_t *obj, uint8_t deviceAddr );
  */
 void I2cSetAddrSize( I2c_t *obj, I2cAddrSize addrSize );
 
-#endif // __I2C_MCU_H__
+#endif // __I2C_BOARD_H__

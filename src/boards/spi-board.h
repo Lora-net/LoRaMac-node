@@ -13,11 +13,11 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#ifndef __SPI_MCU_H__
-#define __SPI_MCU_H__
+#ifndef __SPI_BOARD_H__
+#define __SPI_BOARD_H__
 
 #include "spi.h"
 
 // An Spi.c file has to be implmented under system directory.
 
-#endif  // __SPI_MCU_H__
+#endif  // __SPI_BOARD_H__

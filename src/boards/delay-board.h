@@ -12,8 +12,8 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#ifndef __DELAY_MCU_H__
-#define __DELAY_MCU_H__
+#ifndef __DELAY_BOARD_H__
+#define __DELAY_BOARD_H__
 
 #include <stdint.h>
 
@@ -24,4 +24,4 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 void DelayMsMcu( uint32_t ms );
 
-#endif // __DELAY_MCU_H__
+#endif // __DELAY_BOARD_H__

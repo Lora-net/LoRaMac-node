@@ -13,8 +13,8 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#ifndef __GPIO_MCU_H__
-#define __GPIO_MCU_H__
+#ifndef __GPIO_BOARD_H__
+#define __GPIO_BOARD_H__
 
 #include "gpio.h"
 
@@ -74,4 +74,4 @@ void GpioMcuToggle( Gpio_t *obj );
  */
 uint32_t GpioMcuRead( Gpio_t *obj );
 
-#endif // __GPIO_MCU_H__
+#endif // __GPIO_BOARD_H__

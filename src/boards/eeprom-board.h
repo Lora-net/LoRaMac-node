@@ -13,8 +13,8 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#ifndef __EEPROM_MCU_H__
-#define __EEPROM_MCU_H__
+#ifndef __EEPROM_BOARD_H__
+#define __EEPROM_BOARD_H__
 
 #include <stdint.h>
 
@@ -56,4 +56,4 @@ void EepromMcuSetDeviceAddr( uint8_t addr );
  */
 uint8_t EepromMcuGetDeviceAddr( void );
 
-#endif // __EEPROM_MCU_H__
+#endif // __EEPROM_BOARD_H__

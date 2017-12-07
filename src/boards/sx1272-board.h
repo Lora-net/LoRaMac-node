@@ -13,8 +13,8 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#ifndef __SX1272_ARCH_H__
-#define __SX1272_ARCH_H__
+#ifndef __SX1272_BOARD_H__
+#define __SX1272_BOARD_H__
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -133,4 +133,4 @@ uint32_t SX1272GetBoardTcxoWakeupTime( void );
  */
 extern SX1272_t SX1272;
 
-#endif // __SX1272_ARCH_H__
+#endif // __SX1272_BOARD_H__

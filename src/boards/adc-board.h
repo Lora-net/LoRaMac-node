@@ -13,8 +13,8 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis and Gregory Cristian
 */
-#ifndef __ADC_MCU_H__
-#define __ADC_MCU_H__
+#ifndef __ADC_BOARD_H__
+#define __ADC_BOARD_H__
 
 #include "adc.h"
 
@@ -39,4 +39,4 @@ void AdcMcuConfig( void );
  */
 uint16_t AdcMcuReadChannel( Adc_t *obj, uint32_t channel );
 
-#endif // __ADC_MCU_H__
+#endif // __ADC_BOARD_H__
