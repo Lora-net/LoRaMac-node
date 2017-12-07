@@ -6,7 +6,7 @@
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
     (C)2013 Semtech
 
-Description: Bleeper board UART driver implementation
+Description: Implments specific board UART over USB driver.
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 
@@ -15,6 +15,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __UART_USB_H__
 #define __UART_USB_H__
 
+#include <stdint.h>
+#include "uart.h"
+
 /*!
  * \brief Initializes the UART object and MCU peripheral
  *
@@ -22,7 +25,7 @@ Maintainer: Miguel Luis and Gregory Cristian
  * \param [IN] tx   UART Tx pin name to be used
  * \param [IN] rx   UART Rx pin name to be used
  */
-void UartUsbInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx );
+void UartUsbInit( Uart_t *obj, UartId_t uartId, PinNames tx, PinNames rx );
 
 /*!
  * \brief Initializes the UART object and USB peripheral

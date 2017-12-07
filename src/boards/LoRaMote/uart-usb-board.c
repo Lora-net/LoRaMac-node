@@ -13,21 +13,22 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 Maintainer: Miguel Luis and Gregory Cristian
 */
 #include "board.h"
-
+#include "uart.h"
+#include "uart-board.h"
+#include "board-config.h"
+#include "usbd_conf.h"
 #include "usbd_core.h"
 #include "usbd_desc.h"
 #include "usbd_cdc.h"
 #include "usbd_cdc_if.h"
 #include "uart-usb-board.h"
 
-/* USB handler declaration */
-/* Handle for USB Full Speed IP */
-//USBD_HandleTypeDef  *hUsbDevice_0;
-
+// USB Device Core handle declaration
 USBD_HandleTypeDef hUsbDeviceFS;
 extern PCD_HandleTypeDef hpcd_USB_FS;
+extern USBD_DescriptorsTypeDef FS_Desc;
 
-void UartUsbInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx )
+void UartUsbInit( Uart_t *obj, UartId_t uartId, PinNames tx, PinNames rx )
 {
     obj->UartId = uartId;
 

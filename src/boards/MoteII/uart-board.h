@@ -7,7 +7,7 @@
 (______/|_____)_|_|_| \__)_____)\____)_| |_|
     (C)2016 Semtech
 
-Description: Board UART driver implementation
+Description: Implments specific board UART driver
 
 License: Revised BSD License, see LICENSE.TXT file include in the project
 
@@ -16,15 +16,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __UART_MCU_H__
 #define __UART_MCU_H__
 
-/*!
- * UART peripheral ID
- */
-typedef enum
-{
-    UART_1,
-    UART_2,
-    UART_USB_CDC = 255,
-}UartId_t;
+#include <stdint.h>
+#include "uart.h"
 
 /*!
  * \brief Initializes the UART object and MCU peripheral
@@ -33,7 +26,7 @@ typedef enum
  * \param [IN] tx   UART Tx pin name to be used
  * \param [IN] rx   UART Rx pin name to be used
  */
-void UartMcuInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx );
+void UartMcuInit( Uart_t *obj, UartId_t uartId, PinNames tx, PinNames rx );
 
 /*!
  * \brief Initializes the UART object and MCU peripheral
@@ -89,8 +82,9 @@ uint8_t UartMcuGetChar( Uart_t *obj, uint8_t *data );
  * \param [IN] obj   UART object
  * \param [IN] data  Received character
  * \param [IN] size  number of characters to be received
+ * \param [OUT] nbReadBytes Number of bytes really read
  * \retval status    [0: OK, 1: Busy]
  */
-uint8_t UartMcuGetBuffer( Uart_t *obj, uint8_t *data, uint16_t size );
+uint8_t UartMcuGetBuffer( Uart_t *obj, uint8_t *data, uint16_t size, uint16_t *nbReadBytes );
 
 #endif // __UART_MCU_H__

@@ -16,6 +16,17 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define __UART_H__
 
 #include "fifo.h"
+#include "gpio.h"
+
+/*!
+ * UART peripheral ID
+ */
+typedef enum
+{
+    UART_1,
+    UART_2,
+    UART_USB_CDC = 255,
+}UartId_t;
 
 /*!
  * UART notification identifier
@@ -31,7 +42,7 @@ typedef enum
  */
 typedef struct
 {
-    uint8_t UartId;
+    UartId_t UartId;
     bool IsInitialized;
     Gpio_t Tx;
     Gpio_t Rx;
@@ -101,7 +112,7 @@ typedef enum
  * \param [IN] tx   UART Tx pin name to be used
  * \param [IN] rx   UART Rx pin name to be used
  */
-void UartInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx );
+void UartInit( Uart_t *obj, UartId_t uartId, PinNames tx, PinNames rx );
 
 /*!
  * \brief Configures the UART object and MCU peripheral
