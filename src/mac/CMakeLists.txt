@@ -53,6 +53,9 @@ foreach( REGION ${REGION_LIST} )
     endif()
 endforeach()
 
+# Add define if class B is supported
+target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<BOOL:${CLASSB_ENABLED}>:LORAMAC_CLASSB_ENABLED>)
+
 add_dependencies(${PROJECT_NAME} board)
 
 target_include_directories( ${PROJECT_NAME} PUBLIC

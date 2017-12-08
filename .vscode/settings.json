@@ -30,6 +30,9 @@
         // classA, classB or classC.
         "CLASS":"classA",
 
+        // Switch for Class B support of LoRaMac:
+        "CLASSB_ENABLED":"ON",
+
         // Select the active region for which the stack will be initialized.
         // You can choose between:
         // LORAMAC_REGION_EU868, LORAMAC_REGION_US915, ..

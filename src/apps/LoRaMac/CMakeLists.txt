@@ -35,6 +35,10 @@ set(ACTIVE_REGION_LIST   LORAMAC_REGION_EU868 LORAMAC_REGION_US915 LORAMAC_REGIO
 set(ACTIVE_REGION LORAMAC_REGION_EU868 CACHE STRING "Default active region is EU868")
 set_property(CACHE ACTIVE_REGION PROPERTY STRINGS ${ACTIVE_REGION_LIST})
 
+if((CLASS STREQUAL classB) AND NOT CLASSB_ENABLED )
+    message(FATAL_ERROR "Please turn on Class B support of LoRaMac ( CLASSB_ENABLED=ON ) to use Class B application")
+endif()
+
 #---------------------------------------------------------------------------------------
 # Target
 #---------------------------------------------------------------------------------------

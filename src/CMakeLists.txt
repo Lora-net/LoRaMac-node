@@ -41,6 +41,9 @@ option(USE_BOOTLOADER "Use Bootloader" OFF)
 # Switch for debugger support.
 option(USE_DEBUGGER "Use Debugger" ON)
 
+# Switch for Class B support of LoRaMac.
+option(CLASSB_ENABLED "Class B support of LoRaMac" OFF)
+
 #---------------------------------------------------------------------------------------
 # Target Boards
 #---------------------------------------------------------------------------------------
