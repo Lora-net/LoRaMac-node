@@ -1,17 +1,46 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Target board general functions implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/*!
+ * \file      board.c
+ *
+ * \brief     Target board general functions implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
+#include "stm32l1xx.h"
+#include "utilities.h"
+#include "delay.h"
+#include "gpio.h"
+#include "gpio-ioe.h"
+#include "adc.h"
+#include "spi.h"
+#include "i2c.h"
+#include "uart.h"
+#include "timer.h"
+#include "gps.h"
+#include "mpl3115.h"
+#include "mag3110.h"
+#include "mma8451.h"
+#include "sx9500.h"
+#include "board-config.h"
+#include "rtc-board.h"
+#include "sx1272-board.h"
+#if defined( USE_USB_CDC )
+#include "uart-usb-board.h"
+#endif
 #include "board.h"
 
 /*!
@@ -175,7 +204,7 @@ void BoardInitMcu( void )
 
         BoardUnusedIoInit( );
 
-        I2cInit( &I2c, I2C_SCL, I2C_SDA );
+        I2cInit( &I2c, I2C_1, I2C_SCL, I2C_SDA );
 
 #if defined( USE_DEBUG_PINS )
         GpioInit( &DbgPin1, CON_EXT_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
@@ -192,7 +221,7 @@ void BoardInitMcu( void )
 
     AdcInit( &Adc, BAT_LEVEL_PIN );
 
-    SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+    SpiInit( &SX1272.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX1272IoInit( );
 
     if( McuInitialized == false )
@@ -203,6 +232,15 @@ void BoardInitMcu( void )
             CalibrateSystemWakeupTime( );
         }
     }
+}
+
+void BoardResetMcu( void )
+{
+    BoardDisableIrq( );
+
+    //Restart system
+    NVIC_SystemReset( );
+
 }
 
 void BoardDeInitMcu( void )

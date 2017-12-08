@@ -333,9 +333,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L051xx REGION_EU868</Define>
+              <Define>USE_HAL_DRIVER STM32L051xx REGION_EU868 ACTIVE_REGION=LORAMAC_REGION_EU868</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -408,6 +408,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\MoteII\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\MoteII\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>display-board.c</FileName>
@@ -582,7 +587,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1110,9 +1115,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L051xx REGION_US915</Define>
+              <Define>USE_HAL_DRIVER STM32L051xx REGION_US915 ACTIVE_REGION=LORAMAC_REGION_US915</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1185,6 +1190,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\MoteII\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\MoteII\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>display-board.c</FileName>
@@ -1359,7 +1369,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1887,9 +1897,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L051xx REGION_US915_HYBRID</Define>
+              <Define>USE_HAL_DRIVER STM32L051xx REGION_US915_HYBRID ACTIVE_REGION=LORAMAC_REGION_US915_HYBRID</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1962,6 +1972,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\MoteII\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\MoteII\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>display-board.c</FileName>
@@ -2136,7 +2151,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2664,9 +2679,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L051xx REGION_AS923</Define>
+              <Define>USE_HAL_DRIVER STM32L051xx REGION_AS923 ACTIVE_REGION=LORAMAC_REGION_AS923</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -2739,6 +2754,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\MoteII\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\MoteII\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>display-board.c</FileName>
@@ -2913,7 +2933,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3441,9 +3461,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L051xx REGION_AU915</Define>
+              <Define>USE_HAL_DRIVER STM32L051xx REGION_AU915 ACTIVE_REGION=LORAMAC_REGION_AU915</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -3516,6 +3536,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\MoteII\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\MoteII\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>display-board.c</FileName>
@@ -3690,7 +3715,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -4218,9 +4243,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L051xx REGION_KR920</Define>
+              <Define>USE_HAL_DRIVER STM32L051xx REGION_KR920 ACTIVE_REGION=LORAMAC_REGION_KR920</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -4293,6 +4318,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\MoteII\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\MoteII\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>display-board.c</FileName>
@@ -4467,7 +4497,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -4995,9 +5025,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L051xx REGION_IN865</Define>
+              <Define>USE_HAL_DRIVER STM32L051xx REGION_IN865 ACTIVE_REGION=LORAMAC_REGION_IN865</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -5070,6 +5100,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\MoteII\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\MoteII\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>display-board.c</FileName>
@@ -5244,7 +5279,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -5772,9 +5807,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L051xx REGION_CN779</Define>
+              <Define>USE_HAL_DRIVER STM32L051xx REGION_CN779 ACTIVE_REGION=LORAMAC_REGION_CN779</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\MoteII;..\..\..\..\src\boards\MoteII\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -5847,6 +5882,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\MoteII\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\MoteII\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>display-board.c</FileName>
@@ -6021,7 +6061,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>

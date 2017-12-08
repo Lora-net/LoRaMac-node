@@ -17,9 +17,8 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jaeckle ( STACKFORCE )
 */
-#include "board.h"
+#include "utilities.h"
 #include "LoRaMac.h"
-#include "region/Region.h"
 #include "LoRaMacClassB.h"
 #include "LoRaMacCrypto.h"
 #include "LoRaMacConfirmQueue.h"
@@ -191,7 +190,7 @@ static void RxBeaconSetup( TimerTime_t rxTime, bool activateDefaultChannel )
 
         // Calculate downlink symbols
         RegionComputeRxWindowParameters( *LoRaMacClassBParams.LoRaMacRegion,
-                                        (int8_t) phyParam.Value, // datarate
+                                        ( int8_t )phyParam.Value, // datarate
                                         LoRaMacClassBParams.LoRaMacParams->MinRxSymbols,
                                         LoRaMacClassBParams.LoRaMacParams->SystemMaxRxError,
                                         &beaconRxConfig );
@@ -242,7 +241,7 @@ static bool CalcNextSlotTime( uint16_t slotOffset, uint16_t pingPeriod, TimerTim
         {
             // Calculate the relative ping slot time
             slotTime -= currentTime;
-            slotTime -= RADIO_WAKEUP_TIME;
+            slotTime -= Radio.GetWakeupTime( );
             slotTime = TimerTempCompensation( slotTime, BeaconCtx.Temperature );
             *timeOffset = slotTime;
             return true;
@@ -620,7 +619,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
         {
             activateTimer = true;
             GetTemperatureLevel( &LoRaMacClassBCallbacks, &BeaconCtx );
-            beaconEventTime = BeaconCtx.NextBeaconRx - RADIO_WAKEUP_TIME;
+            beaconEventTime = BeaconCtx.NextBeaconRx - Radio.GetWakeupTime( );
             currentTime = TimerGetCurrentTime( );
 
             if( beaconEventTime > currentTime )

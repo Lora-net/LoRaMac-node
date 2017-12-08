@@ -1,21 +1,31 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Generic SX1272 driver implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/*!
+ * \file      sx1272.c
+ *
+ * \brief     SX1272 driver implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
 #include <math.h>
 #include <string.h>
-#include "board.h"
+#include "utilities.h"
+#include "timer.h"
 #include "radio.h"
+#include "delay.h"
 #include "sx1272.h"
 #include "sx1272-board.h"
 
@@ -47,11 +57,6 @@ typedef struct
  * Private functions prototypes
  */
 
-
-/*!
- * \brief Resets the SX1272
- */
-void SX1272Reset( void );
 
 /*!
  * \brief Sets the SX1272 in transmission mode for the given time
@@ -1008,21 +1013,6 @@ int16_t SX1272ReadRssi( RadioModems_t modem )
     return rssi;
 }
 
-void SX1272Reset( void )
-{
-    // Set RESET pin to 1
-    GpioInit( &SX1272.Reset, RADIO_RESET, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-
-    // Wait 1 ms
-    DelayMs( 1 );
-
-    // Configure RESET as input
-    GpioInit( &SX1272.Reset, RADIO_RESET, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-
-    // Wait 6 ms
-    DelayMs( 6 );
-}
-
 void SX1272SetOpMode( uint8_t opMode )
 {
     if( opMode == RF_OPMODE_SLEEP )
@@ -1163,6 +1153,11 @@ void SX1272SetPublicNetwork( bool enable )
         // Change LoRa modem SyncWord
         SX1272Write( REG_LR_SYNCWORD, LORA_MAC_PRIVATE_SYNCWORD );
     }
+}
+
+uint32_t SX1272GetWakeupTime( void )
+{
+    return SX1272GetBoardTcxoWakeupTime( ) + RADIO_WAKEUP_TIME;
 }
 
 void SX1272OnTimeoutIrq( void )

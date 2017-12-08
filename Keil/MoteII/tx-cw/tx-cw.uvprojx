@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER STM32L051xx REGION_EU868</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\src;..\..\..\src\boards\MoteII;..\..\..\src\boards\MoteII\cmsis;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\src\mac;..\..\..\src\peripherals;..\..\..\src\radio;..\..\..\src\system;..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\src;..\..\..\src\boards;..\..\..\src\boards\MoteII;..\..\..\src\boards\MoteII\cmsis;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\src\mac;..\..\..\src\peripherals;..\..\..\src\radio;..\..\..\src\system;..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -398,6 +398,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\boards\MoteII\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\boards\MoteII\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -552,7 +557,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -977,7 +982,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER STM32L051xx REGION_US915</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\src;..\..\..\src\boards\MoteII;..\..\..\src\boards\MoteII\cmsis;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\src\mac;..\..\..\src\peripherals;..\..\..\src\peripherals\ble;..\..\..\src\peripherals\display;..\..\..\src\radio;..\..\..\src\system;..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\src;..\..\..\src\boards;..\..\..\src\boards\MoteII;..\..\..\src\boards\MoteII\cmsis;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\src\mac;..\..\..\src\peripherals;..\..\..\src\peripherals\ble;..\..\..\src\peripherals\display;..\..\..\src\radio;..\..\..\src\system;..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1040,6 +1045,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\boards\MoteII\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\boards\MoteII\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -1194,7 +1204,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>

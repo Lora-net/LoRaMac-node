@@ -372,9 +372,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_EU868 LORAMAC_CLASSB_ENABLED</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_EU868 ACTIVE_REGION=LORAMAC_REGION_EU868 LORAMAC_CLASSB_ENABLED</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -437,6 +437,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\SK-iM880A\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\SK-iM880A\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -581,7 +586,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1108,9 +1113,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_US915 LORAMAC_CLASSB_ENABLED</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_US915 ACTIVE_REGION=LORAMAC_REGION_US915 LORAMAC_CLASSB_ENABLED</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1173,6 +1178,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\SK-iM880A\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\SK-iM880A\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -1317,7 +1327,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1844,9 +1854,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_US915_HYBRID LORAMAC_CLASSB_ENABLED</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_US915_HYBRID ACTIVE_REGION=LORAMAC_REGION_US915_HYBRID LORAMAC_CLASSB_ENABLED</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1909,6 +1919,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\SK-iM880A\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\SK-iM880A\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -2053,7 +2068,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2580,9 +2595,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_CN779 LORAMAC_CLASSB_ENABLED</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_CN779 ACTIVE_REGION=LORAMAC_REGION_CN779 LORAMAC_CLASSB_ENABLED</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -2645,6 +2660,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\SK-iM880A\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\SK-iM880A\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -2789,7 +2809,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3316,9 +3336,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_AS923 LORAMAC_CLASSB_ENABLED</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_AS923 ACTIVE_REGION=LORAMAC_REGION_AS923 LORAMAC_CLASSB_ENABLED</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -3381,6 +3401,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\SK-iM880A\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\SK-iM880A\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -3525,7 +3550,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -4052,9 +4077,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_AU915 LORAMAC_CLASSB_ENABLED</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_AU915 ACTIVE_REGION=LORAMAC_REGION_AU915 LORAMAC_CLASSB_ENABLED</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -4117,6 +4142,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\SK-iM880A\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\SK-iM880A\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -4261,7 +4291,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -4788,9 +4818,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_KR920 LORAMAC_CLASSB_ENABLED</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_KR920 ACTIVE_REGION=LORAMAC_REGION_KR920 LORAMAC_CLASSB_ENABLED</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -4853,6 +4883,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\SK-iM880A\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\SK-iM880A\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -4997,7 +5032,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -5524,9 +5559,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_IN865 LORAMAC_CLASSB_ENABLED</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_IN865 ACTIVE_REGION=LORAMAC_REGION_IN865 LORAMAC_CLASSB_ENABLED</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -5589,6 +5624,11 @@
               <FileName>board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\SK-iM880A\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>delay-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\SK-iM880A\delay-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
@@ -5733,7 +5773,7 @@
             <File>
               <FileName>utilities.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\boards\mcu\stm32\utilities.c</FilePath>
+              <FilePath>..\..\..\..\src\boards\mcu\utilities.c</FilePath>
             </File>
           </Files>
         </Group>

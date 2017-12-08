@@ -1,19 +1,30 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Generic radio driver definition
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/*!
+ * \file      radio.h
+ *
+ * \brief     Radio driver API definition
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
 #ifndef __RADIO_H__
 #define __RADIO_H__
+
+#include <stdint.h>
+#include <stdbool.h>
 
 /*!
  * Radio driver supported modems
@@ -322,6 +333,12 @@ struct Radio_s
      * \param [IN] enable if true, it enables a public network
      */
     void    ( *SetPublicNetwork )( bool enable );
+    /*!
+     * \brief Gets the time reuired for the board plus radio to get out of sleep.[ms]
+     *
+     * \retval time Radio plus board wakeup time in ms.
+     */
+    uint32_t  ( *GetWakeupTime )( void );
 };
 
 /*!

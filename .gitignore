@@ -1,6 +1,10 @@
 lst/
 obj/
 bin/
+build/
+tmp/
+.kdev4
+*.log
 *.dep
 *.uvgui.*
 *.uvgui_*.bak
@@ -17,3 +21,6 @@ bin/
 *.pbxproj
 *.cogui
 *.comarker
+.directory
+launch.json
+.cmaketools.json

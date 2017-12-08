@@ -374,7 +374,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER STM32L151xB USE_NO_TIMER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\src;..\..\..\src\boards\SensorNode;..\..\..\src\boards\SensorNode\cmsis;..\..\..\src\boards\SensorNode\usb\dfu\inc;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Class\DFU\inc;..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Core\inc;..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\src\peripherals;..\..\..\src\radio;..\..\..\src\system</IncludePath>
+              <IncludePath>..\..\..\src;..\..\..\src\boards;..\..\..\src\boards\SensorNode;..\..\..\src\boards\SensorNode\cmsis;..\..\..\src\boards\SensorNode\usb\dfu\inc;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Class\DFU\inc;..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Core\inc;..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\src\peripherals;..\..\..\src\radio;..\..\..\src\system</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -622,11 +622,6 @@
               <FileName>sx1509.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\peripherals\sx1509.c</FilePath>
-            </File>
-            <File>
-              <FileName>sx9500.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\peripherals\sx9500.c</FilePath>
             </File>
           </Files>
         </Group>

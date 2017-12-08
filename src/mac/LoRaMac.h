@@ -12,7 +12,7 @@
  *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  *               _____) ) ____| | | || |_| ____( (___| | | |
  *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
- *              (C)2013 Semtech
+ *              (C)2013-2017 Semtech
  *
  *               ___ _____ _   ___ _  _____ ___  ___  ___ ___
  *              / __|_   _/_\ / __| |/ / __/ _ \| _ \/ __| __|
@@ -81,6 +81,11 @@
  */
 #ifndef __LORAMAC_H__
 #define __LORAMAC_H__
+
+#include <stdint.h>
+#include <stdbool.h>
+#include "timer.h"
+#include "radio.h"
 
 /*!
  * Check the Mac layer state every MAC_STATE_CHECK_TIMEOUT in ms
@@ -2320,6 +2325,12 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest );
  *          \ref LORAMAC_STATUS_DEVICE_OFF.
  */
 LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest );
+
+/*!
+ * Automatically add the Region.h file at the end of LoRaMac.h file.
+ * This is required because Region.h uses definitions from LoRaMac.h
+ */
+#include "region/Region.h"
 
 /*! \} defgroup LORAMAC */
 

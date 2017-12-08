@@ -1,19 +1,30 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Generic driver for the GPS receiver UP501
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/*!
+ * \file      gps.h
+ *
+ * \brief     GPS driver implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
 #ifndef __GPS_H__
 #define __GPS_H__
+
+#include <stdint.h>
+#include <stdbool.h>
 
 /* Structure to handle the GPS parsed data in ASCII */
 typedef struct
@@ -35,9 +46,7 @@ typedef struct
     char NmeaSpeed[8];
     char NmeaDetectionAngle[8];
     char NmeaDate[8];
-}tNmeaGpsData;
-
-extern tNmeaGpsData NmeaGpsData;
+}NmeaGpsData_t;
 
 /*!
  * \brief Initializes the handling of the GPS receiver
@@ -141,4 +150,4 @@ void GpsFormatGpsData( void );
  */
 void GpsResetPosition( void );
 
-#endif  // __GPS_H__
+#endif // __GPS_H__

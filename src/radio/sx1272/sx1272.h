@@ -1,20 +1,33 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Generic SX1272 driver implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/*!
+ * \file      sx1272.h
+ *
+ * \brief     SX1272 driver implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
 #ifndef __SX1272_H__
 #define __SX1272_H__
 
+#include <stdint.h>
+#include <stdbool.h>
+#include "gpio.h"
+#include "spi.h"
+#include "radio.h"
 #include "sx1272Regs-Fsk.h"
 #include "sx1272Regs-LoRa.h"
 
@@ -398,5 +411,12 @@ void SX1272SetMaxPayloadLength( RadioModems_t modem, uint8_t max );
  * \param [IN] enable if true, it enables a public network
  */
 void SX1272SetPublicNetwork( bool enable );
+
+/*!
+ * \brief Gets the time reuired for the board plus radio to get out of sleep.[ms]
+ *
+ * \retval time Radio plus board wakeup time in ms.
+ */
+uint32_t SX1272GetWakeupTime( void );
 
 #endif // __SX1272_H__

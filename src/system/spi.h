@@ -1,26 +1,50 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Implements the generic SPI driver
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/*!
+ * \file      spi-board.h
+ *
+ * \brief     SPI driver implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
 #ifndef __SPI_H__
 #define __SPI_H__
 
-#include "spi-board.h"
+#include "gpio.h"
+
+/*!
+ * SPI peripheral ID
+ */
+typedef enum
+{
+    SPI_1,
+    SPI_2,
+}SpiId_t;
 
 /*!
  * SPI object type definition
  */
-typedef struct Spi_s Spi_t;
+typedef struct Spi_s
+{
+    SpiId_t SpiId;
+    Gpio_t Mosi;
+    Gpio_t Miso;
+    Gpio_t Sclk;
+    Gpio_t Nss;
+}Spi_t;
 
 /*!
  * \brief Initializes the SPI object and MCU peripheral
@@ -34,7 +58,7 @@ typedef struct Spi_s Spi_t;
  * \param [IN] sclk SPI SCLK pin name to be used
  * \param [IN] nss  SPI NSS pin name to be used
  */
-void SpiInit( Spi_t *obj, PinNames mosi, PinNames miso, PinNames sclk, PinNames nss );
+void SpiInit( Spi_t *obj, SpiId_t spiId, PinNames mosi, PinNames miso, PinNames sclk, PinNames nss );
 
 /*!
  * \brief De-initializes the SPI object and MCU peripheral
@@ -73,4 +97,4 @@ void SpiFrequency( Spi_t *obj, uint32_t hz );
  */
 uint16_t SpiInOut( Spi_t *obj, uint16_t outData );
 
-#endif  // __SPI_H__
+#endif // __SPI_H__

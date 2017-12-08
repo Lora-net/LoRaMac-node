@@ -1,20 +1,30 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: SX1276 driver specific target board functions implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
-#include "board.h"
+/*!
+ * \file      sx1276-board.c
+ *
+ * \brief     Target board SX1276 driver implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
+#include <stdlib.h>
+#include "utilities.h"
+#include "board-config.h"
+#include "delay.h"
 #include "radio.h"
-#include "sx1276/sx1276.h"
 #include "sx1276-board.h"
 
 /*!
@@ -49,7 +59,8 @@ const struct Radio_s Radio =
     SX1276WriteBuffer,
     SX1276ReadBuffer,
     SX1276SetMaxPayloadLength,
-    SX1276SetPublicNetwork
+    SX1276SetPublicNetwork,
+    SX1276GetWakeupTime
 };
 
 /*!
@@ -90,6 +101,50 @@ void SX1276IoDeInit( void )
     GpioInit( &SX1276.DIO3, RADIO_DIO_3, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &SX1276.DIO4, RADIO_DIO_4, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &SX1276.DIO5, RADIO_DIO_5, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+}
+
+/*!
+ * \brief Enables/disables the TCXO if available on board design.
+ *
+ * \param [IN] state TCXO enabled when true and disabled when false.
+ */
+static void SX1276SetBoardTcxo( uint8_t state )
+{
+    // No TCXO component available on this board design.
+#if 0
+    if( state == true )
+    {
+        TCXO_ON( );
+        DelayMs( BOARD_TCXO_WAKEUP_TIME );
+    }
+    else
+    {
+        TCXO_OFF( );
+    }
+#endif
+}
+
+uint32_t SX1276GetBoardTcxoWakeupTime( void )
+{
+    return BOARD_TCXO_WAKEUP_TIME;
+}
+
+void SX1276Reset( void )
+{
+    // Enables the TCXO if available on the board design
+    SX1276SetBoardTcxo( true );
+
+    // Set RESET pin to 0
+    GpioInit( &SX1276.Reset, RADIO_RESET, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+
+    // Wait 1 ms
+    DelayMs( 1 );
+
+    // Configure RESET as input
+    GpioInit( &SX1276.Reset, RADIO_RESET, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+
+    // Wait 6 ms
+    DelayMs( 6 );
 }
 
 void SX1276SetRfTxPower( int8_t power )
@@ -174,10 +229,12 @@ void SX1276SetAntSwLowPower( bool status )
 
         if( status == false )
         {
+            SX1276SetBoardTcxo( true );
             SX1276AntSwInit( );
         }
         else
         {
+            SX1276SetBoardTcxo( false );
             SX1276AntSwDeInit( );
         }
     }
