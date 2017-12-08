@@ -372,7 +372,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_EU868</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_EU868 ACTIVE_REGION=LORAMAC_REGION_EU868</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -1103,7 +1103,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_US915</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_US915 ACTIVE_REGION=LORAMAC_REGION_US915</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -1834,7 +1834,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_US915_HYBRID</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_US915_HYBRID ACTIVE_REGION=LORAMAC_REGION_US915_HYBRID</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -2565,7 +2565,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_CN779</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_CN779 ACTIVE_REGION=LORAMAC_REGION_CN779</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -3296,7 +3296,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_AS923</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_AS923 ACTIVE_REGION=LORAMAC_REGION_AS923</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -4027,7 +4027,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_AU915</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_AU915 ACTIVE_REGION=LORAMAC_REGION_AU915</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -4758,7 +4758,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_KR920</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_KR920 ACTIVE_REGION=LORAMAC_REGION_KR920</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
@@ -5489,7 +5489,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_IN865</Define>
+              <Define>USE_HAL_DRIVER STM32L151xB USE_DEBUGGER REGION_IN865 ACTIVE_REGION=LORAMAC_REGION_IN865</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\mac\region;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
