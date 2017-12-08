@@ -73,20 +73,6 @@
  */
 #define LORAWAN_DUTYCYCLE_ON                        true
 
-#define USE_SEMTECH_DEFAULT_CHANNEL_LINEUP          1
-
-#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 )
-
-#define LC4                { 867100000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC5                { 867300000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC6                { 867500000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC7                { 867700000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC8                { 867900000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 }
-#define LC9                { 868800000, 0, { ( ( DR_7 << 4 ) | DR_7 ) }, 2 }
-#define LC10               { 868300000, 0, { ( ( DR_6 << 4 ) | DR_6 ) }, 1 }
-
-#endif
-
 #endif
 
 /*!
@@ -871,25 +857,6 @@ int main( void )
 
 #if defined( REGION_EU868 )
                 LoRaMacTestSetDutyCycleOn( AppSettings.DutyCycleOn );
-
-#if( USE_SEMTECH_DEFAULT_CHANNEL_LINEUP == 1 )
-                LoRaMacChannelAdd( 3, ( ChannelParams_t )LC4 );
-                LoRaMacChannelAdd( 4, ( ChannelParams_t )LC5 );
-                LoRaMacChannelAdd( 5, ( ChannelParams_t )LC6 );
-                LoRaMacChannelAdd( 6, ( ChannelParams_t )LC7 );
-                LoRaMacChannelAdd( 7, ( ChannelParams_t )LC8 );
-                LoRaMacChannelAdd( 8, ( ChannelParams_t )LC9 );
-                LoRaMacChannelAdd( 9, ( ChannelParams_t )LC10 );
-
-                mibReq.Type = MIB_RX2_DEFAULT_CHANNEL;
-                mibReq.Param.Rx2DefaultChannel = ( Rx2ChannelParams_t ){ 869525000, DR_3 };
-                LoRaMacMibSetRequestConfirm( &mibReq );
-
-                mibReq.Type = MIB_RX2_CHANNEL;
-                mibReq.Param.Rx2Channel = ( Rx2ChannelParams_t ){ 869525000, DR_3 };
-                LoRaMacMibSetRequestConfirm( &mibReq );
-#endif
-
 #endif
                 LoRaMacDownlinkStatus.DownlinkCounter = 0;
                 LoRaMacDownlinkStatus.Rssi = -130;
