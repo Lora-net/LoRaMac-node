@@ -498,6 +498,12 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
     // Check Port
     // Check Datarate
     // Check FramePending
+    if( mcpsIndication->FramePending == true )
+    {
+        // The server signals that it has pending data to be sent.
+        // We schedule an uplink as soon as possible to flush the server.
+        OnTxNextPacketTimerEvent( );
+    }
     // Check Buffer
     // Check BufferSize
     // Check Rssi
