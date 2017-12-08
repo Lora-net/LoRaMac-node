@@ -977,6 +977,7 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
                 BeaconCtx.Ctrl.BeaconAcquired = 1;
                 BeaconCtx.Ctrl.BeaconMode = 1;
                 BeaconCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
+                PingSlotCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
                 BeaconState = BEACON_STATE_LOCKED;
 
                 LoRaMacClassBBeaconTimerEvent( );
