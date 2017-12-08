@@ -85,23 +85,6 @@
  */
 #define LORAWAN_APP_PORT                            2
 
-/*!
- * User application data buffer size
- */
-#if defined( REGION_CN779 ) || defined( REGION_EU868 ) || defined( REGION_IN865 ) || defined( REGION_KR920 )
-
-#define LORAWAN_APP_DATA_SIZE                       16
-
-#elif defined( REGION_AS923 ) || defined( REGION_AU915 ) || defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
-
-#define LORAWAN_APP_DATA_SIZE                       11
-
-#else
-
-#error "Please define a region in the compiler options."
-
-#endif
-
 static uint8_t DevEui[] = LORAWAN_DEVICE_EUI;
 static uint8_t AppEui[] = LORAWAN_APPLICATION_EUI;
 static uint8_t AppKey[] = LORAWAN_APPLICATION_KEY;
@@ -126,8 +109,8 @@ static uint8_t AppPort = LORAWAN_APP_PORT;
 /*!
  * User application data size
  */
-static uint8_t AppDataSize = LORAWAN_APP_DATA_SIZE;
-
+static uint8_t AppDataSize = 16;
+static uint8_t AppDataSizeBackup = 16;
 /*!
  * User application data buffer size
  */
@@ -214,65 +197,84 @@ extern Gpio_t Led3;
  */
 static void PrepareTxFrame( uint8_t port )
 {
+    const LoRaMacRegion_t region = ACTIVE_REGION;
+
     switch( port )
     {
     case 2:
+        switch( region )
         {
-#if defined( REGION_CN779 ) || defined( REGION_EU868 ) || defined( REGION_IN865 ) || defined( REGION_KR920 )
-            uint16_t pressure = 0;
-            int16_t altitudeBar = 0;
-            int16_t temperature = 0;
-            int32_t latitude, longitude = 0;
-            int16_t altitudeGps = 0xFFFF;
-            uint8_t batteryLevel = 0;
+            case LORAMAC_REGION_CN779:
+            case LORAMAC_REGION_EU868:
+            case LORAMAC_REGION_IN865:
+            case LORAMAC_REGION_KR920:
+            {
+                uint16_t pressure = 0;
+                int16_t altitudeBar = 0;
+                int16_t temperature = 0;
+                int32_t latitude, longitude = 0;
+                int16_t altitudeGps = 0xFFFF;
+                uint8_t batteryLevel = 0;
 
-            pressure = ( uint16_t )( MPL3115ReadPressure( ) / 10 );             // in hPa / 10
-            temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
-            altitudeBar = ( int16_t )( MPL3115ReadAltitude( ) * 10 );           // in m * 10
-            batteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
-            GpsGetLatestGpsPositionBinary( &latitude, &longitude );
-            altitudeGps = GpsGetLatestGpsAltitude( );                           // in m
+                pressure = ( uint16_t )( MPL3115ReadPressure( ) / 10 );             // in hPa / 10
+                temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in Â°C * 100
+                altitudeBar = ( int16_t )( MPL3115ReadAltitude( ) * 10 );           // in m * 10
+                batteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
+                GpsGetLatestGpsPositionBinary( &latitude, &longitude );
+                altitudeGps = GpsGetLatestGpsAltitude( );                           // in m
 
-            AppData[0] = AppLedStateOn;
-            AppData[1] = ( pressure >> 8 ) & 0xFF;
-            AppData[2] = pressure & 0xFF;
-            AppData[3] = ( temperature >> 8 ) & 0xFF;
-            AppData[4] = temperature & 0xFF;
-            AppData[5] = ( altitudeBar >> 8 ) & 0xFF;
-            AppData[6] = altitudeBar & 0xFF;
-            AppData[7] = batteryLevel;
-            AppData[8] = ( latitude >> 16 ) & 0xFF;
-            AppData[9] = ( latitude >> 8 ) & 0xFF;
-            AppData[10] = latitude & 0xFF;
-            AppData[11] = ( longitude >> 16 ) & 0xFF;
-            AppData[12] = ( longitude >> 8 ) & 0xFF;
-            AppData[13] = longitude & 0xFF;
-            AppData[14] = ( altitudeGps >> 8 ) & 0xFF;
-            AppData[15] = altitudeGps & 0xFF;
-#elif defined( REGION_AS923 ) || defined( REGION_AU915 ) || defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
-            int16_t temperature = 0;
-            int32_t latitude, longitude = 0;
-            uint16_t altitudeGps = 0xFFFF;
-            uint8_t batteryLevel = 0;
+                AppDataSizeBackup = AppDataSize = 16;
+                AppData[0] = AppLedStateOn;
+                AppData[1] = ( pressure >> 8 ) & 0xFF;
+                AppData[2] = pressure & 0xFF;
+                AppData[3] = ( temperature >> 8 ) & 0xFF;
+                AppData[4] = temperature & 0xFF;
+                AppData[5] = ( altitudeBar >> 8 ) & 0xFF;
+                AppData[6] = altitudeBar & 0xFF;
+                AppData[7] = batteryLevel;
+                AppData[8] = ( latitude >> 16 ) & 0xFF;
+                AppData[9] = ( latitude >> 8 ) & 0xFF;
+                AppData[10] = latitude & 0xFF;
+                AppData[11] = ( longitude >> 16 ) & 0xFF;
+                AppData[12] = ( longitude >> 8 ) & 0xFF;
+                AppData[13] = longitude & 0xFF;
+                AppData[14] = ( altitudeGps >> 8 ) & 0xFF;
+                AppData[15] = altitudeGps & 0xFF;
+                break;
+            }
+            case LORAMAC_REGION_AS923:
+            case LORAMAC_REGION_AU915:
+            case LORAMAC_REGION_US915:
+            case LORAMAC_REGION_US915_HYBRID:
+            {
+                int16_t temperature = 0;
+                int32_t latitude, longitude = 0;
+                uint16_t altitudeGps = 0xFFFF;
+                uint8_t batteryLevel = 0;
 
-            temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
+                temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in Â°C * 100
 
-            batteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
-            GpsGetLatestGpsPositionBinary( &latitude, &longitude );
-            altitudeGps = GpsGetLatestGpsAltitude( );                           // in m
+                batteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
+                GpsGetLatestGpsPositionBinary( &latitude, &longitude );
+                altitudeGps = GpsGetLatestGpsAltitude( );                           // in m
 
-            AppData[0] = AppLedStateOn;
-            AppData[1] = temperature;                                           // Signed degrees celsius in half degree units. So,  +/-63 C
-            AppData[2] = batteryLevel;                                          // Per LoRaWAN spec; 0=Charging; 1...254 = level, 255 = N/A
-            AppData[3] = ( latitude >> 16 ) & 0xFF;
-            AppData[4] = ( latitude >> 8 ) & 0xFF;
-            AppData[5] = latitude & 0xFF;
-            AppData[6] = ( longitude >> 16 ) & 0xFF;
-            AppData[7] = ( longitude >> 8 ) & 0xFF;
-            AppData[8] = longitude & 0xFF;
-            AppData[9] = ( altitudeGps >> 8 ) & 0xFF;
-            AppData[10] = altitudeGps & 0xFF;
-#endif
+                AppDataSizeBackup = AppDataSize = 11;
+                AppData[0] = AppLedStateOn;
+                AppData[1] = temperature;                                           // Signed degrees celsius in half degree units. So,  +/-63 C
+                AppData[2] = batteryLevel;                                          // Per LoRaWAN spec; 0=Charging; 1...254 = level, 255 = N/A
+                AppData[3] = ( latitude >> 16 ) & 0xFF;
+                AppData[4] = ( latitude >> 8 ) & 0xFF;
+                AppData[5] = latitude & 0xFF;
+                AppData[6] = ( longitude >> 16 ) & 0xFF;
+                AppData[7] = ( longitude >> 8 ) & 0xFF;
+                AppData[8] = longitude & 0xFF;
+                AppData[9] = ( altitudeGps >> 8 ) & 0xFF;
+                AppData[10] = altitudeGps & 0xFF;
+                break;
+            }
+            default:
+                // Unsupported region.
+                break;
         }
         break;
     case 224:
@@ -513,6 +515,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                 {
                     IsTxConfirmed = false;
                     AppPort = 224;
+                    AppDataSizeBackup = AppDataSize;
                     AppDataSize = 2;
                     ComplianceTest.DownLinkCounter = 0;
                     ComplianceTest.LinkCheck = false;
@@ -540,7 +543,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                 case 0: // Check compliance test disable command (ii)
                     IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
                     AppPort = LORAWAN_APP_PORT;
-                    AppDataSize = LORAWAN_APP_DATA_SIZE;
+                    AppDataSize = AppDataSizeBackup;
                     ComplianceTest.DownLinkCounter = 0;
                     ComplianceTest.Running = false;
 
@@ -587,7 +590,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         // Disable TestMode and revert back to normal operation
                         IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
                         AppPort = LORAWAN_APP_PORT;
-                        AppDataSize = LORAWAN_APP_DATA_SIZE;
+                        AppDataSize = AppDataSizeBackup;
                         ComplianceTest.DownLinkCounter = 0;
                         ComplianceTest.Running = false;
 

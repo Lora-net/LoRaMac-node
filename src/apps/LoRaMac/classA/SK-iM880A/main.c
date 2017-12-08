@@ -85,11 +85,6 @@
  */
 #define LORAWAN_APP_PORT                            3
 
-/*!
- * User application data buffer size
- */
-#define LORAWAN_APP_DATA_SIZE                       4
-
 static uint8_t DevEui[] = LORAWAN_DEVICE_EUI;
 static uint8_t AppEui[] = LORAWAN_APPLICATION_EUI;
 static uint8_t AppKey[] = LORAWAN_APPLICATION_KEY;
@@ -114,8 +109,8 @@ static uint8_t AppPort = LORAWAN_APP_PORT;
 /*!
  * User application data size
  */
-static uint8_t AppDataSize = LORAWAN_APP_DATA_SIZE;
-
+static uint8_t AppDataSize = 4;
+static uint8_t AppDataSizeBackup = 4;
 /*!
  * User application data buffer size
  */
@@ -216,6 +211,7 @@ static void PrepareTxFrame( uint8_t port )
             BoardGetBatteryLevel( ); // Updates the value returned by BoardGetBatteryVoltage( ) function.
             vdd = BoardGetBatteryVoltage( );
 
+            AppDataSizeBackup = AppDataSize = 4;
             AppData[0] = AppLedStateOn;
             AppData[1] = potiPercentage;
             AppData[2] = ( vdd >> 8 ) & 0xFF;
@@ -460,6 +456,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                 {
                     IsTxConfirmed = false;
                     AppPort = 224;
+                    AppDataSizeBackup = AppDataSize;
                     AppDataSize = 2;
                     ComplianceTest.DownLinkCounter = 0;
                     ComplianceTest.LinkCheck = false;
@@ -486,7 +483,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                 case 0: // Check compliance test disable command (ii)
                     IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
                     AppPort = LORAWAN_APP_PORT;
-                    AppDataSize = LORAWAN_APP_DATA_SIZE;
+                    AppDataSize = AppDataSizeBackup;
                     ComplianceTest.DownLinkCounter = 0;
                     ComplianceTest.Running = false;
 
@@ -532,7 +529,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         // Disable TestMode and revert back to normal operation
                         IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
                         AppPort = LORAWAN_APP_PORT;
-                        AppDataSize = LORAWAN_APP_DATA_SIZE;
+                        AppDataSize = AppDataSizeBackup;
                         ComplianceTest.DownLinkCounter = 0;
                         ComplianceTest.Running = false;
 

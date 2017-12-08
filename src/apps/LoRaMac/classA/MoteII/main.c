@@ -88,23 +88,6 @@
  */
 #define LORAWAN_APP_PORT                            2
 
-/*!
- * User application data buffer size
- */
-#if defined( REGION_CN779 ) || defined( REGION_EU868 ) || defined( REGION_IN865 ) || defined( REGION_KR920 )
-
-#define LORAWAN_APP_DATA_SIZE                       16
-
-#elif defined( REGION_AS923 ) || defined( REGION_AU915 ) || defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
-
-#define LORAWAN_APP_DATA_SIZE                       11
-
-#else
-
-#error "Please define a region in the compiler options."
-
-#endif
-
 static uint8_t DevEui[] = LORAWAN_DEVICE_EUI;
 static uint8_t AppEui[] = LORAWAN_APPLICATION_EUI;
 static uint8_t AppKey[] = LORAWAN_APPLICATION_KEY;
@@ -124,8 +107,8 @@ static uint8_t AppPort = LORAWAN_APP_PORT;
 /*!
  * User application data size
  */
-static uint8_t AppDataSize = LORAWAN_APP_DATA_SIZE;
-
+static uint8_t AppDataSize = 16;
+static uint8_t AppDataSizeBackup = 16;
 /*!
  * User application data buffer size
  */
@@ -139,7 +122,7 @@ static uint8_t AppData[LORAWAN_APP_DATA_MAX_SIZE];
 /*!
  * Indicates if the node is sending confirmed or unconfirmed messages
  */
-static uint8_t IsTxConfirmed = false;
+static uint8_t IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
 
 /*!
  * Defines the application data transmission duty cycle
@@ -227,55 +210,73 @@ extern Gpio_t Led3;
  */
 static void PrepareTxFrame( uint8_t port )
 {
+    const LoRaMacRegion_t region = ACTIVE_REGION;
+
     switch( port )
     {
     case 2:
+        switch( region )
         {
-#if defined( REGION_CN779 ) || defined( REGION_EU868 ) || defined( REGION_IN865 ) || defined( REGION_KR920 )
-            LoRaMacUplinkStatus.Pressure = ( uint16_t )( MPL3115ReadPressure( ) / 10 );             // in hPa / 10
-            LoRaMacUplinkStatus.Temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
-            LoRaMacUplinkStatus.AltitudeBar = ( int16_t )( MPL3115ReadAltitude( ) * 10 );           // in m * 10
-            LoRaMacUplinkStatus.BatteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
-            GpsGetLatestGpsPositionBinary( &LoRaMacUplinkStatus.Latitude, &LoRaMacUplinkStatus.Longitude );
-            LoRaMacUplinkStatus.AltitudeGps = GpsGetLatestGpsAltitude( );                           // in m
-            LoRaMacUplinkStatus.GpsHaxFix = GpsHasFix( );
+            case LORAMAC_REGION_CN779:
+            case LORAMAC_REGION_EU868:
+            case LORAMAC_REGION_IN865:
+            case LORAMAC_REGION_KR920:
+            {
+                LoRaMacUplinkStatus.Pressure = ( uint16_t )( MPL3115ReadPressure( ) / 10 );             // in hPa / 10
+                LoRaMacUplinkStatus.Temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in Â°C * 100
+                LoRaMacUplinkStatus.AltitudeBar = ( int16_t )( MPL3115ReadAltitude( ) * 10 );           // in m * 10
+                LoRaMacUplinkStatus.BatteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
+                GpsGetLatestGpsPositionBinary( &LoRaMacUplinkStatus.Latitude, &LoRaMacUplinkStatus.Longitude );
+                LoRaMacUplinkStatus.AltitudeGps = GpsGetLatestGpsAltitude( );                           // in m
+                LoRaMacUplinkStatus.GpsHaxFix = GpsHasFix( );
 
-            AppData[0] = AppLedStateOn;
-            AppData[1] = ( LoRaMacUplinkStatus.Pressure >> 8 ) & 0xFF;
-            AppData[2] = LoRaMacUplinkStatus.Pressure & 0xFF;
-            AppData[3] = ( LoRaMacUplinkStatus.Temperature >> 8 ) & 0xFF;
-            AppData[4] = LoRaMacUplinkStatus.Temperature & 0xFF;
-            AppData[5] = ( LoRaMacUplinkStatus.AltitudeBar >> 8 ) & 0xFF;
-            AppData[6] = LoRaMacUplinkStatus.AltitudeBar & 0xFF;
-            AppData[7] = LoRaMacUplinkStatus.BatteryLevel;
-            AppData[8] = ( LoRaMacUplinkStatus.Latitude >> 16 ) & 0xFF;
-            AppData[9] = ( LoRaMacUplinkStatus.Latitude >> 8 ) & 0xFF;
-            AppData[10] = LoRaMacUplinkStatus.Latitude & 0xFF;
-            AppData[11] = ( LoRaMacUplinkStatus.Longitude >> 16 ) & 0xFF;
-            AppData[12] = ( LoRaMacUplinkStatus.Longitude >> 8 ) & 0xFF;
-            AppData[13] = LoRaMacUplinkStatus.Longitude & 0xFF;
-            AppData[14] = ( LoRaMacUplinkStatus.AltitudeGps >> 8 ) & 0xFF;
-            AppData[15] = LoRaMacUplinkStatus.AltitudeGps & 0xFF;
-#elif defined( REGION_AS923 ) || defined( REGION_AU915 ) || defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
-            LoRaMacUplinkStatus.Temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
+                AppDataSizeBackup = AppDataSize = 16;
+                AppData[0] = AppLedStateOn;
+                AppData[1] = ( LoRaMacUplinkStatus.Pressure >> 8 ) & 0xFF;
+                AppData[2] = LoRaMacUplinkStatus.Pressure & 0xFF;
+                AppData[3] = ( LoRaMacUplinkStatus.Temperature >> 8 ) & 0xFF;
+                AppData[4] = LoRaMacUplinkStatus.Temperature & 0xFF;
+                AppData[5] = ( LoRaMacUplinkStatus.AltitudeBar >> 8 ) & 0xFF;
+                AppData[6] = LoRaMacUplinkStatus.AltitudeBar & 0xFF;
+                AppData[7] = LoRaMacUplinkStatus.BatteryLevel;
+                AppData[8] = ( LoRaMacUplinkStatus.Latitude >> 16 ) & 0xFF;
+                AppData[9] = ( LoRaMacUplinkStatus.Latitude >> 8 ) & 0xFF;
+                AppData[10] = LoRaMacUplinkStatus.Latitude & 0xFF;
+                AppData[11] = ( LoRaMacUplinkStatus.Longitude >> 16 ) & 0xFF;
+                AppData[12] = ( LoRaMacUplinkStatus.Longitude >> 8 ) & 0xFF;
+                AppData[13] = LoRaMacUplinkStatus.Longitude & 0xFF;
+                AppData[14] = ( LoRaMacUplinkStatus.AltitudeGps >> 8 ) & 0xFF;
+                AppData[15] = LoRaMacUplinkStatus.AltitudeGps & 0xFF;
+                break;
+            }
+            case LORAMAC_REGION_AS923:
+            case LORAMAC_REGION_AU915:
+            case LORAMAC_REGION_US915:
+            case LORAMAC_REGION_US915_HYBRID:
+            {
+                LoRaMacUplinkStatus.Temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in Â°C * 100
+                LoRaMacUplinkStatus.BatteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
+                GpsGetLatestGpsPositionBinary( &LoRaMacUplinkStatus.Latitude, &LoRaMacUplinkStatus.Longitude );
+                LoRaMacUplinkStatus.AltitudeGps = GpsGetLatestGpsAltitude( );                           // in m
+                LoRaMacUplinkStatus.GpsHaxFix = GpsHasFix( );
 
-            LoRaMacUplinkStatus.BatteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
-            GpsGetLatestGpsPositionBinary( &LoRaMacUplinkStatus.Latitude, &LoRaMacUplinkStatus.Longitude );
-            LoRaMacUplinkStatus.AltitudeGps = GpsGetLatestGpsAltitude( );                           // in m
-            LoRaMacUplinkStatus.GpsHaxFix = GpsHasFix( );
-
-            AppData[0] = AppLedStateOn;
-            AppData[1] = LoRaMacUplinkStatus.Temperature;                                           // Signed degrees celsius in half degree units. So,  +/-63 C
-            AppData[2] = LoRaMacUplinkStatus.BatteryLevel;                                          // Per LoRaWAN spec; 0=Charging; 1...254 = level, 255 = N/A
-            AppData[3] = ( LoRaMacUplinkStatus.Latitude >> 16 ) & 0xFF;
-            AppData[4] = ( LoRaMacUplinkStatus.Latitude >> 8 ) & 0xFF;
-            AppData[5] = LoRaMacUplinkStatus.Latitude & 0xFF;
-            AppData[6] = ( LoRaMacUplinkStatus.Longitude >> 16 ) & 0xFF;
-            AppData[7] = ( LoRaMacUplinkStatus.Longitude >> 8 ) & 0xFF;
-            AppData[8] = LoRaMacUplinkStatus.Longitude & 0xFF;
-            AppData[9] = ( LoRaMacUplinkStatus.AltitudeGps >> 8 ) & 0xFF;
-            AppData[10] = LoRaMacUplinkStatus.AltitudeGps & 0xFF;
-#endif
+                AppDataSizeBackup = AppDataSize = 11;
+                AppData[0] = AppLedStateOn;
+                AppData[1] = LoRaMacUplinkStatus.Temperature;                                           // Signed degrees celsius in half degree units. So,  +/-63 C
+                AppData[2] = LoRaMacUplinkStatus.BatteryLevel;                                          // Per LoRaWAN spec; 0=Charging; 1...254 = level, 255 = N/A
+                AppData[3] = ( LoRaMacUplinkStatus.Latitude >> 16 ) & 0xFF;
+                AppData[4] = ( LoRaMacUplinkStatus.Latitude >> 8 ) & 0xFF;
+                AppData[5] = LoRaMacUplinkStatus.Latitude & 0xFF;
+                AppData[6] = ( LoRaMacUplinkStatus.Longitude >> 16 ) & 0xFF;
+                AppData[7] = ( LoRaMacUplinkStatus.Longitude >> 8 ) & 0xFF;
+                AppData[8] = LoRaMacUplinkStatus.Longitude & 0xFF;
+                AppData[9] = ( LoRaMacUplinkStatus.AltitudeGps >> 8 ) & 0xFF;
+                AppData[10] = LoRaMacUplinkStatus.AltitudeGps & 0xFF;
+                break;
+            }
+            default:
+                // Unsupported region.
+                break;
         }
         break;
     case 224:
@@ -564,6 +565,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                 {
                     IsTxConfirmed = false;
                     AppPort = 224;
+                    AppDataSizeBackup = AppDataSize;
                     AppDataSize = 2;
                     ComplianceTest.DownLinkCounter = 0;
                     ComplianceTest.LinkCheck = false;
@@ -591,7 +593,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                 case 0: // Check compliance test disable command (ii)
                     IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
                     AppPort = LORAWAN_APP_PORT;
-                    AppDataSize = LORAWAN_APP_DATA_SIZE;
+                    AppDataSize = AppDataSizeBackup;
                     ComplianceTest.DownLinkCounter = 0;
                     ComplianceTest.Running = false;
 
@@ -638,7 +640,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         // Disable TestMode and revert back to normal operation
                         IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
                         AppPort = LORAWAN_APP_PORT;
-                        AppDataSize = LORAWAN_APP_DATA_SIZE;
+                        AppDataSize = AppDataSizeBackup;
                         ComplianceTest.DownLinkCounter = 0;
                         ComplianceTest.Running = false;
 
