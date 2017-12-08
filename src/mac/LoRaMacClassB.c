@@ -689,7 +689,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
 void LoRaMacClassBPingSlotTimerEvent( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
-    RxConfigParams_t pingSlotRxConfig;
+    static RxConfigParams_t pingSlotRxConfig;
     TimerTime_t pingSlotTime = 0;
 
     TimerStop( &PingSlotTimer );
@@ -709,6 +709,23 @@ void LoRaMacClassBPingSlotTimerEvent( void )
         {
             if( CalcNextSlotTime( PingSlotCtx.PingOffset, PingSlotCtx.PingPeriod, &pingSlotTime ) == true )
             {
+                if( BeaconCtx.Ctrl.BeaconAcquired == 1 )
+                {
+                    // Compute the symbol timeout. Apply it only, if the beacon is acquired
+                    // Otherwise, take the enlargement of the symbols into account.
+                    RegionComputeRxWindowParameters( *LoRaMacClassBParams.LoRaMacRegion,
+                                                     PingSlotCtx.Datarate,
+                                                     LoRaMacClassBParams.LoRaMacParams->MinRxSymbols,
+                                                     LoRaMacClassBParams.LoRaMacParams->SystemMaxRxError,
+                                                     &pingSlotRxConfig );
+                    PingSlotCtx.SymbolTimeout = pingSlotRxConfig.WindowTimeout;
+
+                    if( ( int32_t )pingSlotTime > pingSlotRxConfig.WindowOffset )
+                    {// Apply the window offset
+                        pingSlotTime += pingSlotRxConfig.WindowOffset;
+                    }
+                }
+
                 // Start the timer if the ping slot time is in range
                 PingSlotState = PINGSLOT_STATE_IDLE;
                 TimerSetValue( &PingSlotTimer, pingSlotTime );
@@ -720,25 +737,17 @@ void LoRaMacClassBPingSlotTimerEvent( void )
         {
             uint32_t frequency = PingSlotCtx.Frequency;
 
+            // Apply a custom frequency if the following bit is set
             if( PingSlotCtx.Ctrl.CustomFreq == 0 )
             {
                 // Restore floor plan
                 frequency = CalcDownlinkChannelAndFrequency( *LoRaMacClassBParams.LoRaMacDevAddr, BeaconCtx.BeaconTime, BeaconCtx.Cfg.Interval );
             }
 
+            // Open the ping slot window only, if there is no multicast ping slot
+            // open. Multicast ping slots have always priority
             if( MulticastSlotState != PINGSLOT_STATE_RX )
             {
-                if( BeaconCtx.Ctrl.BeaconAcquired == 1 )
-                {
-                    // Compute the symbol timeout. Apply it only, if the beacon is acquired
-                    // Otherwise, take the enlargement of the symbols into account.
-                    RegionComputeRxWindowParameters( *LoRaMacClassBParams.LoRaMacRegion,
-                                                     PingSlotCtx.Datarate,
-                                                     LoRaMacClassBParams.LoRaMacParams->MinRxSymbols,
-                                                     LoRaMacClassBParams.LoRaMacParams->SystemMaxRxError,
-                                                     &pingSlotRxConfig );
-                    PingSlotCtx.SymbolTimeout = pingSlotRxConfig.WindowTimeout;
-                }
                 PingSlotState = PINGSLOT_STATE_RX;
 
                 pingSlotRxConfig.Datarate = PingSlotCtx.Datarate;
@@ -780,7 +789,7 @@ void LoRaMacClassBPingSlotTimerEvent( void )
 void LoRaMacClassBMulticastSlotTimerEvent( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
-    RxConfigParams_t multicastSlotRxConfig;
+    static RxConfigParams_t multicastSlotRxConfig;
     TimerTime_t multicastSlotTime = 0;
     TimerTime_t slotTime = 0;
     MulticastParams_t *cur = LoRaMacClassBParams.MulticastChannels;
@@ -796,6 +805,7 @@ void LoRaMacClassBMulticastSlotTimerEvent( void )
     {
         case PINGSLOT_STATE_CALC_PING_OFFSET:
         {
+            // Compute all offsets for every multicast slots
             while( cur != NULL )
             {
                 LoRaMacBeaconComputePingOffset( BeaconCtx.BeaconTime,
@@ -814,6 +824,7 @@ void LoRaMacClassBMulticastSlotTimerEvent( void )
 
             while( cur != NULL )
             {
+                // Calculate the next slot time for every multicast slot
                 if( CalcNextSlotTime( cur->PingOffset, PingSlotCtx.PingPeriod, &slotTime ) == true )
                 {
                     if( ( multicastSlotTime == 0 ) || ( multicastSlotTime > slotTime ) )
@@ -826,8 +837,24 @@ void LoRaMacClassBMulticastSlotTimerEvent( void )
                 cur = cur->Next;
             }
 
+            // Schedule the next multicast slot
             if( PingSlotCtx.NextMulticastChannel != NULL )
             {
+                if( BeaconCtx.Ctrl.BeaconAcquired == 1 )
+                {
+                    RegionComputeRxWindowParameters( *LoRaMacClassBParams.LoRaMacRegion,
+                                                    PingSlotCtx.Datarate,
+                                                    LoRaMacClassBParams.LoRaMacParams->MinRxSymbols,
+                                                    LoRaMacClassBParams.LoRaMacParams->SystemMaxRxError,
+                                                    &multicastSlotRxConfig );
+                    PingSlotCtx.SymbolTimeout = multicastSlotRxConfig.WindowTimeout;
+                }
+
+                if( ( int32_t )multicastSlotTime > multicastSlotRxConfig.WindowOffset )
+                {// Apply the window offset
+                    multicastSlotTime += multicastSlotRxConfig.WindowOffset;
+                }
+
                 // Start the timer if the ping slot time is in range
                 MulticastSlotState = PINGSLOT_STATE_IDLE;
                 TimerSetValue( &MulticastSlotTimer, multicastSlotTime );
@@ -839,6 +866,7 @@ void LoRaMacClassBMulticastSlotTimerEvent( void )
         {
             uint32_t frequency = PingSlotCtx.Frequency;
 
+            // Verify if the multicast channel is valid
             if( PingSlotCtx.NextMulticastChannel == NULL )
             {
                 MulticastSlotState = PINGSLOT_STATE_SET_TIMER;
@@ -847,21 +875,13 @@ void LoRaMacClassBMulticastSlotTimerEvent( void )
                 break;
             }
 
+            // Apply a custom frequency if the following bit is set
             if( PingSlotCtx.Ctrl.CustomFreq == 0 )
             {
                 // Restore floor plan
                 frequency = CalcDownlinkChannelAndFrequency( PingSlotCtx.NextMulticastChannel->Address, BeaconCtx.BeaconTime, BeaconCtx.Cfg.Interval );
             }
 
-            if( BeaconCtx.Ctrl.BeaconAcquired == 1 )
-            {
-                RegionComputeRxWindowParameters( *LoRaMacClassBParams.LoRaMacRegion,
-                                                 PingSlotCtx.Datarate,
-                                                 LoRaMacClassBParams.LoRaMacParams->MinRxSymbols,
-                                                 LoRaMacClassBParams.LoRaMacParams->SystemMaxRxError,
-                                                 &multicastSlotRxConfig );
-                PingSlotCtx.SymbolTimeout = multicastSlotRxConfig.WindowTimeout;
-            }
             MulticastSlotState = PINGSLOT_STATE_RX;
 
             multicastSlotRxConfig.Datarate = PingSlotCtx.Datarate;
