@@ -25,6 +25,7 @@
  *
  * \author    Gregory Cristian ( Semtech )
  */
+#include "board-config.h"
 #include "board.h"
 #include "gpio.h"
 #include "timer.h"
