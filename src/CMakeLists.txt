@@ -64,7 +64,7 @@ if(BOARD STREQUAL LoRaMote)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/LoRaMote)
 
     # Configure radio
-    set(RADIO sx1272)
+    set(RADIO sx1272 CACHE INTERNAL "Radio sx1272 selected")
 
 elseif(BOARD STREQUAL MoteII)
     # Configure toolchain for MoteII
@@ -75,7 +75,7 @@ elseif(BOARD STREQUAL MoteII)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/MoteII)
 
     # Configure radio
-    set(RADIO sx1272)
+    set(RADIO sx1272 CACHE INTERNAL "Radio sx1272 selected")
 
 elseif(BOARD STREQUAL SensorNode)
     # Configure toolchain for SensorNode
@@ -92,7 +92,7 @@ elseif(BOARD STREQUAL SensorNode)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/SensorNode)
 
     # Configure radio
-    set(RADIO sx1276)
+    set(RADIO sx1276 CACHE INTERNAL "Radio sx1276 selected")
 
 elseif(BOARD STREQUAL SK-iM880A)
     # Configure toolchain for LoRaMote
@@ -103,7 +103,7 @@ elseif(BOARD STREQUAL SK-iM880A)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/SK-iM880A)
 
     # Configure radio
-    set(RADIO sx1272)
+    set(RADIO sx1272 CACHE INTERNAL "Radio sx1272 selected")
 
 elseif(BOARD STREQUAL NAMote72)
     # Configure toolchain for LoRaMote
@@ -114,7 +114,7 @@ elseif(BOARD STREQUAL NAMote72)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/NAMote72)
 
     # Configure radio
-    set(RADIO sx1272)
+    set(RADIO sx1272 CACHE INTERNAL "Radio sx1272 selected")
 
 endif()
 
