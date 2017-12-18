@@ -2145,12 +2145,6 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
         fBufferSize = 0;
     }
 
-    // Filter fPorts
-    if( IsFPortAllowed( framePort ) == false )
-    {
-        return LORAMAC_STATUS_PARAMETER_INVALID;
-    }
-
     LoRaMacTxPayloadLen = fBufferSize;
 
     LoRaMacBuffer[pktHeaderLen++] = macHdr->Value;
@@ -3330,6 +3324,12 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
         }
         default:
             break;
+    }
+
+    // Filter fPorts
+    if( IsFPortAllowed( fPort ) == false )
+    {
+        return LORAMAC_STATUS_PARAMETER_INVALID;
     }
 
     // Get the minimum possible datarate
