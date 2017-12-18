@@ -265,7 +265,7 @@ typedef enum eLoRaMacRxSlot
     /*!
      * LoRaMAC receive window 2 for class c - continuous listening
      */
-    RX_SLOT_WIN_CLASS_C_2,
+    RX_SLOT_WIN_CLASS_C,
     /*!
      * LoRaMAC class b ping slot window
      */

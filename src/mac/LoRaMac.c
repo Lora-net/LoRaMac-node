@@ -2124,7 +2124,7 @@ static void OpenContinuousRx2Window( void )
 {
     OnRxWindow2TimerEvent( );
     // Setup continuous listening for class c
-    RxSlot = RX_SLOT_WIN_CLASS_C_2;
+    RxSlot = RX_SLOT_WIN_CLASS_C;
 }
 
 LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl, uint8_t fPort, void *fBuffer, uint16_t fBufferSize )
