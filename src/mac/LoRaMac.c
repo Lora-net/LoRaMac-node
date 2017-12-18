@@ -638,6 +638,12 @@ static void ResetMacParameters( void );
  */
 static bool IsFPortAllowed( uint8_t fPort );
 
+/*!
+ * \brief Opens up a continuous RX 2 window. This is used for
+ *        class c devices.
+ */
+static void OpenContinuousRx2Window( void );
+
 static void OnRadioTxDone( void )
 {
     GetPhyParams_t getPhy;
@@ -651,8 +657,7 @@ static void OnRadioTxDone( void )
     }
     else
     {
-        OnRxWindow2TimerEvent( );
-        RxSlot = RX_SLOT_WIN_CLASS_C_2;
+        OpenContinuousRx2Window( );
     }
 
     // Setup timers
@@ -1140,8 +1145,7 @@ static void OnRadioTxTimeout( void )
     }
     else
     {
-        OnRxWindow2TimerEvent( );
-        RxSlot = RX_SLOT_WIN_CLASS_C_2;
+        OpenContinuousRx2Window( );
     }
 
     McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT;
@@ -1157,8 +1161,7 @@ static void OnRadioRxError( void )
     }
     else
     {
-        OnRxWindow2TimerEvent( );
-        RxSlot = RX_SLOT_WIN_CLASS_C_2;
+        OpenContinuousRx2Window( );
     }
 
     if( RxSlot == RX_SLOT_WIN_1 )
@@ -1194,8 +1197,7 @@ static void OnRadioRxTimeout( void )
     }
     else
     {
-        OnRxWindow2TimerEvent( );
-        RxSlot = RX_SLOT_WIN_CLASS_C_2;
+        OpenContinuousRx2Window( );
     }
 
     if( RxSlot == RX_SLOT_WIN_1 )
@@ -1412,8 +1414,7 @@ static void OnMacStateCheckTimerEvent( void )
         LoRaMacFlags.Bits.McpsInd = 0;
         if( LoRaMacDeviceClass == CLASS_C )
         {// Activate RX2 window for Class C
-            OnRxWindow2TimerEvent( );
-            RxSlot = RX_SLOT_WIN_CLASS_C_2;
+            OpenContinuousRx2Window( );
         }
         if( LoRaMacFlags.Bits.McpsIndSkip == 0 )
         {
@@ -2117,6 +2118,13 @@ static bool IsFPortAllowed( uint8_t fPort )
         return false;
     }
     return true;
+}
+
+static void OpenContinuousRx2Window( void )
+{
+    OnRxWindow2TimerEvent( );
+    // Setup continuous listening for class c
+    RxSlot = RX_SLOT_WIN_CLASS_C_2;
 }
 
 LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl, uint8_t fPort, void *fBuffer, uint16_t fBufferSize )
