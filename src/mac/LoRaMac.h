@@ -1028,10 +1028,6 @@ typedef struct sMlmeReqJoin
      * LoRaWAN Specification V1.0.2, chapter 6.2.2
      */
     uint8_t *AppKey;
-    /*!
-     * Number of trials for the join request.
-     */
-    uint8_t NbTrials;
 }MlmeReqJoin_t;
 
 /*!
@@ -1105,10 +1101,6 @@ typedef struct sMlmeConfirm
      * Number of gateways which received the last LinkCheckReq
      */
     uint8_t NbGateways;
-    /*!
-     * Provides the number of retransmissions
-     */
-    uint8_t NbRetries;
 }MlmeConfirm_t;
 
 /*!

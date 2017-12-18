@@ -435,11 +435,11 @@ uint8_t RegionAS923DlChannelReq( DlChannelReqParams_t* dlChannelReq );
 /*!
  * \brief Alternates the datarate of the channel for the join request.
  *
- * \param [IN] alternateDr Pointer to the function parameters.
+ * \param [IN] currentDr Current datarate.
  *
  * \retval Datarate to apply.
  */
-int8_t RegionAS923AlternateDr( AlternateDrParams_t* alternateDr );
+int8_t RegionAS923AlternateDr( int8_t currentDr );
 
 /*!
  * \brief Calculates the back-off time.

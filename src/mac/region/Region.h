@@ -648,14 +648,6 @@ typedef enum ePhyAttribute
      */
     PHY_DEF_ANTENNA_GAIN,
     /*!
-     * Value for the number of join trials.
-     */
-    PHY_NB_JOIN_TRIALS,
-    /*!
-     * Default value for the number of join trials.
-     */
-    PHY_DEF_NB_JOIN_TRIALS,
-    /*!
      * Next lower datarate.
      */
     PHY_NEXT_LOWER_TX_DR
@@ -772,10 +764,6 @@ typedef union uVerifyParams
      * Set to true, if the duty cycle is enabled, otherwise false.
      */
     bool DutyCycle;
-    /*!
-     * The number of join trials.
-     */
-    uint8_t NbJoinTrials;
     /*!
      * Datarate to verify.
      */
@@ -1041,17 +1029,6 @@ typedef struct sDlChannelReqParams
      */
     uint32_t Rx1Frequency;
 }DlChannelReqParams_t;
-
-/*!
- * Parameter structure for the function RegionAlternateDr.
- */
-typedef struct sAlternateDrParams
-{
-    /*!
-     * Number of trials.
-     */
-    uint16_t NbTrials;
-}AlternateDrParams_t;
 
 /*!
  * Parameter structure for the function RegionCalcBackOff.
@@ -1413,11 +1390,11 @@ uint8_t RegionDlChannelReq( LoRaMacRegion_t region, DlChannelReqParams_t* dlChan
  *
  * \param [IN] region LoRaWAN region.
  *
- * \param [IN] alternateDr Pointer to the function parameters.
+ * \param [IN] currentDr Current datarate.
  *
  * \retval Datarate to apply.
  */
-int8_t RegionAlternateDr( LoRaMacRegion_t region, AlternateDrParams_t* alternateDr );
+int8_t RegionAlternateDr( LoRaMacRegion_t region, int8_t currentDr );
 
 /*!
  * \brief Calculates the back-off time.

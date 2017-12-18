@@ -278,12 +278,6 @@ PhyParam_t RegionUS915GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.fValue = 0;
             break;
         }
-        case PHY_NB_JOIN_TRIALS:
-        case PHY_DEF_NB_JOIN_TRIALS:
-        {
-            phyParam.Value = 2;
-            break;
-        }
         default:
         {
             break;
@@ -379,18 +373,9 @@ bool RegionUS915Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
         {
             return US915_DUTY_CYCLE_ENABLED;
         }
-        case PHY_NB_JOIN_TRIALS:
-        {
-            if( verify->NbJoinTrials < 2 )
-            {
-                return false;
-            }
-            break;
-        }
         default:
             return false;
     }
-    return true;
 }
 
 void RegionUS915ApplyCFList( ApplyCFListParams_t* applyCFList )
@@ -735,22 +720,23 @@ uint8_t RegionUS915DlChannelReq( DlChannelReqParams_t* dlChannelReq )
     return 0;
 }
 
-int8_t RegionUS915AlternateDr( AlternateDrParams_t* alternateDr )
+int8_t RegionUS915AlternateDr( int8_t currentDr )
 {
-    int8_t datarate = 0;
+    static int8_t trialsCount = 0;
 
     // Re-enable 500 kHz default channels
     ChannelsMask[4] = 0x00FF;
 
-    if( ( alternateDr->NbTrials & 0x01 ) == 0x01 )
+    if( ( trialsCount & 0x01 ) == 0x01 )
     {
-        datarate = DR_4;
+        currentDr = DR_4;
     }
     else
     {
-        datarate = DR_0;
+        currentDr = DR_0;
     }
-    return datarate;
+    trialsCount++;
+    return currentDr;
 }
 
 void RegionUS915CalcBackOff( CalcBackOffParams_t* calcBackOff )

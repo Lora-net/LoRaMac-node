@@ -271,12 +271,6 @@ PhyParam_t RegionAU915GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.fValue = AU915_DEFAULT_ANTENNA_GAIN;
             break;
         }
-        case PHY_NB_JOIN_TRIALS:
-        case PHY_DEF_NB_JOIN_TRIALS:
-        {
-            phyParam.Value = 2;
-            break;
-        }
         default:
         {
             break;
@@ -369,18 +363,9 @@ bool RegionAU915Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
         {
             return AU915_DUTY_CYCLE_ENABLED;
         }
-        case PHY_NB_JOIN_TRIALS:
-        {
-            if( verify->NbJoinTrials < 2 )
-            {
-                return false;
-            }
-            break;
-        }
         default:
             return false;
     }
-    return true;
 }
 
 void RegionAU915ApplyCFList( ApplyCFListParams_t* applyCFList )
@@ -727,22 +712,23 @@ uint8_t RegionAU915DlChannelReq( DlChannelReqParams_t* dlChannelReq )
     return 0;
 }
 
-int8_t RegionAU915AlternateDr( AlternateDrParams_t* alternateDr )
+int8_t RegionAU915AlternateDr( int8_t currentDr )
 {
-    int8_t datarate = 0;
+    static int8_t trialsCount = 0;
 
     // Re-enable 500 kHz default channels
     ChannelsMask[4] = 0x00FF;
 
-    if( ( alternateDr->NbTrials & 0x01 ) == 0x01 )
+    if( ( trialsCount & 0x01 ) == 0x01 )
     {
-        datarate = DR_6;
+        currentDr = DR_6;
     }
     else
     {
-        datarate = DR_0;
+        currentDr = DR_0;
     }
-    return datarate;
+    trialsCount++;
+    return currentDr;
 }
 
 void RegionAU915CalcBackOff( CalcBackOffParams_t* calcBackOff )
