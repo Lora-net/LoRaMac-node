@@ -393,7 +393,15 @@ static void OnTxNextPacketTimerEvent( void )
         }
         else
         {
-            DeviceState = DEVICE_STATE_JOIN;
+            // Network not joined yet. Try to join again
+            MlmeReq_t mlmeReq;
+            mlmeReq.Req.Join.DevEui = AppSettings.DevEui;
+            mlmeReq.Req.Join.AppEui = AppSettings.AppEui;
+            mlmeReq.Req.Join.AppKey = AppSettings.AppKey;
+            mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
+
+            LoRaMacMlmeRequest( &mlmeReq );
+            DeviceState = DEVICE_STATE_SLEEP;
         }
     }
 }
@@ -664,7 +672,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         mlmeReq.Req.Join.DevEui = AppSettings.DevEui;
                         mlmeReq.Req.Join.AppEui = AppSettings.AppEui;
                         mlmeReq.Req.Join.AppKey = AppSettings.AppKey;
-                        mlmeReq.Req.Join.NbTrials = 3;
+                        mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
 
                         LoRaMacMlmeRequest( &mlmeReq );
                         DeviceState = DEVICE_STATE_SLEEP;
@@ -728,7 +736,14 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             else
             {
                 // Join was not successful. Try to join again
-                DeviceState = DEVICE_STATE_JOIN;
+                MlmeReq_t mlmeReq;
+                mlmeReq.Req.Join.DevEui = DevEui;
+                mlmeReq.Req.Join.AppEui = AppEui;
+                mlmeReq.Req.Join.AppKey = AppKey;
+                mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
+
+                LoRaMacMlmeRequest( &mlmeReq );
+                DeviceState = DEVICE_STATE_SLEEP;
             }
             break;
         }
@@ -881,7 +896,7 @@ int main( void )
                 mlmeReq.Req.Join.DevEui = AppSettings.DevEui;
                 mlmeReq.Req.Join.AppEui = AppSettings.AppEui;
                 mlmeReq.Req.Join.AppKey = AppSettings.AppKey;
-                mlmeReq.Req.Join.NbTrials = 3;
+                mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
 
                 if( NextTx == true )
                 {
