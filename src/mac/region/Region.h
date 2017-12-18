@@ -891,9 +891,9 @@ typedef struct sRxConfigParams
      */
     bool RxContinuous;
     /*!
-     * Sets the RX window. 0: RX window 1, 1: RX window 2.
+     * Sets the RX window.
      */
-    bool Window;
+    LoRaMacRxSlot_t RxSlot;
 }RxConfigParams_t;
 
 /*!

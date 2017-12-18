@@ -1449,7 +1449,7 @@ static void OnRxWindow1TimerEvent( void )
     RxWindow1Config.DownlinkDwellTime = LoRaMacParams.DownlinkDwellTime;
     RxWindow1Config.RepeaterSupport = RepeaterSupport;
     RxWindow1Config.RxContinuous = false;
-    RxWindow1Config.Window = 0;
+    RxWindow1Config.RxSlot = RxSlot;
 
     if( LoRaMacDeviceClass == CLASS_C )
     {
@@ -1468,7 +1468,7 @@ static void OnRxWindow2TimerEvent( void )
     RxWindow2Config.Frequency = LoRaMacParams.Rx2Channel.Frequency;
     RxWindow2Config.DownlinkDwellTime = LoRaMacParams.DownlinkDwellTime;
     RxWindow2Config.RepeaterSupport = RepeaterSupport;
-    RxWindow2Config.Window = 1;
+    RxWindow2Config.RxSlot = RX_SLOT_WIN_2;
 
     if( LoRaMacDeviceClass != CLASS_C )
     {
