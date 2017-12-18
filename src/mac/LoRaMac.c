@@ -1367,14 +1367,14 @@ static void OnMacStateCheckTimerEvent( void )
     {
         if( LoRaMacFlags.Bits.McpsReq == 1 )
         {
-            LoRaMacPrimitives->MacMcpsConfirm( &McpsConfirm );
             LoRaMacFlags.Bits.McpsReq = 0;
+            LoRaMacPrimitives->MacMcpsConfirm( &McpsConfirm );
         }
 
         if( LoRaMacFlags.Bits.MlmeReq == 1 )
         {
-            LoRaMacPrimitives->MacMlmeConfirm( &MlmeConfirm );
             LoRaMacFlags.Bits.MlmeReq = 0;
+            LoRaMacPrimitives->MacMlmeConfirm( &MlmeConfirm );
         }
 
         // Verify if sticky MAC commands are pending or not
@@ -1396,6 +1396,7 @@ static void OnMacStateCheckTimerEvent( void )
     // Handle MCPS indication
     if( LoRaMacFlags.Bits.McpsInd == 1 )
     {
+        LoRaMacFlags.Bits.McpsInd = 0;
         if( LoRaMacDeviceClass == CLASS_C )
         {// Activate RX2 window for Class C
             OnRxWindow2TimerEvent( );
@@ -1405,14 +1406,13 @@ static void OnMacStateCheckTimerEvent( void )
             LoRaMacPrimitives->MacMcpsIndication( &McpsIndication );
         }
         LoRaMacFlags.Bits.McpsIndSkip = 0;
-        LoRaMacFlags.Bits.McpsInd = 0;
     }
 
     // Handle MLME indication
     if( LoRaMacFlags.Bits.MlmeInd == 1 )
     {
-        LoRaMacPrimitives->MacMlmeIndication( &MlmeIndication );
         LoRaMacFlags.Bits.MlmeInd = 0;
+        LoRaMacPrimitives->MacMlmeIndication( &MlmeIndication );
     }
 }
 
