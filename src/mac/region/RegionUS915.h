@@ -405,7 +405,7 @@ void RegionUS915CalcBackOff( CalcBackOffParams_t* calcBackOff );
  *
  * \retval Function status [1: OK, 0: Unable to find a channel on the current datarate]
  */
-bool RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff );
+LoRaMacStatus_t RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff );
 
 /*!
  * \brief Adds a channel.

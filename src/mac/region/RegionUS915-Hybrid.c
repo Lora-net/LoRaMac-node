@@ -426,6 +426,7 @@ void RegionUS915HybridInitDefaults( InitType_t type )
             { // Copy-And the channels mask
                 ChannelsMaskRemaining[i] &= ChannelsMask[i];
             }
+            break;
         }
         default:
         {
@@ -848,7 +849,7 @@ void RegionUS915HybridCalcBackOff( CalcBackOffParams_t* calcBackOff )
     RegionCommonCalcBackOff( &calcBackOffParams );
 }
 
-bool RegionUS915HybridNextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
+LoRaMacStatus_t RegionUS915HybridNextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
 {
     uint8_t nbEnabledChannels = 0;
     uint8_t delayTx = 0;
@@ -896,7 +897,7 @@ bool RegionUS915HybridNextChannel( NextChanParams_t* nextChanParams, uint8_t* ch
         RegionCommonChanDisable( ChannelsMaskRemaining, *channel, US915_HYBRID_MAX_NB_CHANNELS - 8 );
 
         *time = 0;
-        return true;
+        return LORAMAC_STATUS_OK;
     }
     else
     {
@@ -904,11 +905,11 @@ bool RegionUS915HybridNextChannel( NextChanParams_t* nextChanParams, uint8_t* ch
         {
             // Delay transmission due to AggregatedTimeOff or to a band time off
             *time = nextTxDelay;
-            return true;
+            return LORAMAC_STATUS_DUTYCYCLE_RESTRICTED;
         }
         // Datarate not supported by any channel
         *time = 0;
-        return false;
+        return LORAMAC_STATUS_NO_CHANNEL_FOUND;
     }
 }
 

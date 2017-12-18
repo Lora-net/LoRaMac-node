@@ -1950,6 +1950,7 @@ LoRaMacStatus_t Send( LoRaMacHeader_t *macHdr, uint8_t fPort, void *fBuffer, uin
 
 static LoRaMacStatus_t ScheduleTx( void )
 {
+    LoRaMacStatus_t status = LORAMAC_STATUS_PARAMETER_INVALID;
     TimerTime_t dutyCycleTimeOff = 0;
     NextChanParams_t nextChan;
 
@@ -1973,12 +1974,27 @@ static LoRaMacStatus_t ScheduleTx( void )
     nextChan.LastAggrTx = AggregatedLastTxDoneTime;
 
     // Select channel
-    while( RegionNextChannel( LoRaMacRegion, &nextChan, &Channel, &dutyCycleTimeOff, &AggregatedTimeOff ) == false )
+    status = RegionNextChannel( LoRaMacRegion, &nextChan, &Channel, &dutyCycleTimeOff, &AggregatedTimeOff );
+    switch( status )
     {
-        // Set the default datarate
-        LoRaMacParams.ChannelsDatarate = LoRaMacParamsDefaults.ChannelsDatarate;
-        // Update datarate in the function parameters
-        nextChan.Datarate = LoRaMacParams.ChannelsDatarate;
+    case LORAMAC_STATUS_NO_CHANNEL_FOUND:
+        return LORAMAC_STATUS_NO_CHANNEL_FOUND;
+
+    case LORAMAC_STATUS_NO_FREE_CHANNEL_FOUND:
+        return LORAMAC_STATUS_NO_FREE_CHANNEL_FOUND;
+
+    case LORAMAC_STATUS_DUTYCYCLE_RESTRICTED:
+        if( dutyCycleTimeOff != 0 )
+        {
+            // Send later - prepare timer
+            LoRaMacState |= LORAMAC_TX_DELAYED;
+            TimerSetValue( &TxDelayedTimer, dutyCycleTimeOff );
+            TimerStart( &TxDelayedTimer );
+        }
+        return LORAMAC_STATUS_OK;
+
+    default:
+        break;
     }
 
     // Compute Rx1 windows parameters
@@ -2009,21 +2025,8 @@ static LoRaMacStatus_t ScheduleTx( void )
         RxWindow2Delay = LoRaMacParams.ReceiveDelay2 + RxWindow2Config.WindowOffset;
     }
 
-    // Schedule transmission of frame
-    if( dutyCycleTimeOff == 0 )
-    {
-        // Try to send now
-        return SendFrameOnChannel( Channel );
-    }
-    else
-    {
-        // Send later - prepare timer
-        LoRaMacState |= LORAMAC_TX_DELAYED;
-        TimerSetValue( &TxDelayedTimer, dutyCycleTimeOff );
-        TimerStart( &TxDelayedTimer );
-
-        return LORAMAC_STATUS_OK;
-    }
+    // Try to send now
+    return SendFrameOnChannel( Channel );
 }
 
 static void CalculateBackOff( uint8_t channel )

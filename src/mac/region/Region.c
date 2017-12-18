@@ -930,7 +930,7 @@ void RegionCalcBackOff( LoRaMacRegion_t region, CalcBackOffParams_t* calcBackOff
     }
 }
 
-bool RegionNextChannel( LoRaMacRegion_t region, NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
+LoRaMacStatus_t RegionNextChannel( LoRaMacRegion_t region, NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
 {
     switch( region )
     {
@@ -946,7 +946,7 @@ bool RegionNextChannel( LoRaMacRegion_t region, NextChanParams_t* nextChanParams
         US915_HYBRID_NEXT_CHANNEL( );
         default:
         {
-            return false;
+            return LORAMAC_STATUS_REGION_NOT_SUPPORTED;
         }
     }
 }

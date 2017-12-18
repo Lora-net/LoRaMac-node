@@ -904,7 +904,7 @@ void RegionAS923CalcBackOff( CalcBackOffParams_t* calcBackOff )
     RegionCommonCalcBackOff( &calcBackOffParams );
 }
 
-bool RegionAS923NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
+LoRaMacStatus_t RegionAS923NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
 {
     uint8_t channelNext = 0;
     uint8_t nbEnabledChannels = 0;
@@ -950,10 +950,10 @@ bool RegionAS923NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
                 // Free channel found
                 *channel = channelNext;
                 *time = 0;
-                return true;
+                return LORAMAC_STATUS_OK;
             }
         }
-        return false;
+        return LORAMAC_STATUS_NO_FREE_CHANNEL_FOUND;
     }
     else
     {
@@ -961,12 +961,12 @@ bool RegionAS923NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
         {
             // Delay transmission due to AggregatedTimeOff or to a band time off
             *time = nextTxDelay;
-            return true;
+            return LORAMAC_STATUS_DUTYCYCLE_RESTRICTED;
         }
         // Datarate not supported by any channel, restore defaults
         ChannelsMask[0] |= LC( 1 ) + LC( 2 );
         *time = 0;
-        return false;
+        return LORAMAC_STATUS_NO_CHANNEL_FOUND;
     }
 }
 
