@@ -2794,8 +2794,15 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
                 {
                     // Set the NodeAckRequested indicator to default
                     NodeAckRequested = false;
-                    OnRxWindow2TimerEvent( );
-                    RxSlot = RX_SLOT_WIN_CLASS_C_2;
+                    // Set the radio into sleep mode in case we are still in RX mode
+                    Radio.Sleep( );
+                    // Compute Rx2 windows parameters in case the RX2 datarate has changed
+                    RegionComputeRxWindowParameters( LoRaMacRegion,
+                                                     LoRaMacParams.Rx2Channel.Datarate,
+                                                     LoRaMacParams.MinRxSymbols,
+                                                     LoRaMacParams.SystemMaxRxError,
+                                                     &RxWindow2Config );
+                    OpenContinuousRx2Window( );
                     break;
                 }
             }
@@ -2869,29 +2876,18 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
 
                 if( ( LoRaMacDeviceClass == CLASS_C ) && ( IsLoRaMacNetworkJoined == true ) )
                 {
+                    // We can only compute the RX window parameters directly, if we are already
+                    // in class c mode and joined. We cannot setup an RX window in case of any other
+                    // class type.
+                    // Set the radio into sleep mode in case we are still in RX mode
+                    Radio.Sleep( );
                     // Compute Rx2 windows parameters
                     RegionComputeRxWindowParameters( LoRaMacRegion,
                                                      LoRaMacParams.Rx2Channel.Datarate,
                                                      LoRaMacParams.MinRxSymbols,
                                                      LoRaMacParams.SystemMaxRxError,
                                                      &RxWindow2Config );
-
-                    RxWindow2Config.Channel = Channel;
-                    RxWindow2Config.Frequency = LoRaMacParams.Rx2Channel.Frequency;
-                    RxWindow2Config.DownlinkDwellTime = LoRaMacParams.DownlinkDwellTime;
-                    RxWindow2Config.RepeaterSupport = RepeaterSupport;
-                    RxWindow2Config.Window = 1;
-                    RxWindow2Config.RxContinuous = true;
-
-                    if( RegionRxConfig( LoRaMacRegion, &RxWindow2Config, ( int8_t* )&McpsIndication.RxDatarate ) == true )
-                    {
-                        RxWindowSetup( RxWindow2Config.RxContinuous, LoRaMacParams.MaxRxWindow );
-                        RxSlot = RX_SLOT_WIN_CLASS_C_2;
-                    }
-                    else
-                    {
-                        status = LORAMAC_STATUS_PARAMETER_INVALID;
-                    }
+                    OpenContinuousRx2Window( );
                 }
             }
             else
