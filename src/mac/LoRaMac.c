@@ -400,7 +400,7 @@ static MlmeConfirm_t MlmeConfirm;
 /*!
  * Holds the current rx window slot
  */
-static uint8_t RxSlot = 0;
+static LoRaMacRxSlot_t RxSlot;
 
 /*!
  * LoRaMac tx/rx operation state
@@ -629,6 +629,15 @@ LoRaMacStatus_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint
  */
 static void ResetMacParameters( void );
 
+/*!
+ * \brief Resets MAC specific parameters to default
+ *
+ * \param [IN] fPort     The fPort
+ *
+ * \retval [false: fPort not allowed, true: fPort allowed]
+ */
+static bool IsFPortAllowed( uint8_t fPort );
+
 static void OnRadioTxDone( void )
 {
     GetPhyParams_t getPhy;
@@ -643,6 +652,7 @@ static void OnRadioTxDone( void )
     else
     {
         OnRxWindow2TimerEvent( );
+        RxSlot = RX_SLOT_WIN_CLASS_C_2;
     }
 
     // Setup timers
@@ -1131,6 +1141,7 @@ static void OnRadioTxTimeout( void )
     else
     {
         OnRxWindow2TimerEvent( );
+        RxSlot = RX_SLOT_WIN_CLASS_C_2;
     }
 
     McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT;
@@ -1147,9 +1158,10 @@ static void OnRadioRxError( void )
     else
     {
         OnRxWindow2TimerEvent( );
+        RxSlot = RX_SLOT_WIN_CLASS_C_2;
     }
 
-    if( RxSlot == 0 )
+    if( RxSlot == RX_SLOT_WIN_1 )
     {
         if( NodeAckRequested == true )
         {
@@ -1183,9 +1195,10 @@ static void OnRadioRxTimeout( void )
     else
     {
         OnRxWindow2TimerEvent( );
+        RxSlot = RX_SLOT_WIN_CLASS_C_2;
     }
 
-    if( RxSlot == 0 )
+    if( RxSlot == RX_SLOT_WIN_1 )
     {
         if( NodeAckRequested == true )
         {
@@ -1400,6 +1413,7 @@ static void OnMacStateCheckTimerEvent( void )
         if( LoRaMacDeviceClass == CLASS_C )
         {// Activate RX2 window for Class C
             OnRxWindow2TimerEvent( );
+            RxSlot = RX_SLOT_WIN_CLASS_C_2;
         }
         if( LoRaMacFlags.Bits.McpsIndSkip == 0 )
         {
@@ -1427,14 +1441,14 @@ static void OnTxDelayedTimerEvent( void )
 static void OnRxWindow1TimerEvent( void )
 {
     TimerStop( &RxWindowTimer1 );
-    RxSlot = 0;
+    RxSlot = RX_SLOT_WIN_1;
 
     RxWindow1Config.Channel = Channel;
     RxWindow1Config.DrOffset = LoRaMacParams.Rx1DrOffset;
     RxWindow1Config.DownlinkDwellTime = LoRaMacParams.DownlinkDwellTime;
     RxWindow1Config.RepeaterSupport = RepeaterSupport;
     RxWindow1Config.RxContinuous = false;
-    RxWindow1Config.Window = RxSlot;
+    RxWindow1Config.Window = 0;
 
     if( LoRaMacDeviceClass == CLASS_C )
     {
@@ -1467,7 +1481,7 @@ static void OnRxWindow2TimerEvent( void )
     if( RegionRxConfig( LoRaMacRegion, &RxWindow2Config, ( int8_t* )&McpsIndication.RxDatarate ) == true )
     {
         RxWindowSetup( RxWindow2Config.RxContinuous, LoRaMacParams.MaxRxWindow );
-        RxSlot = RxWindow2Config.Window;
+        RxSlot = RX_SLOT_WIN_2;
     }
 }
 
@@ -2096,6 +2110,15 @@ static void ResetMacParameters( void )
     LastTxChannel = Channel;
 }
 
+static bool IsFPortAllowed( uint8_t fPort )
+{
+    if( ( fPort == 0 ) || ( fPort > 224 ) )
+    {
+        return false;
+    }
+    return true;
+}
+
 LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl, uint8_t fPort, void *fBuffer, uint16_t fBufferSize )
 {
     AdrNextParams_t adrNext;
@@ -2112,6 +2135,12 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
     if( fBuffer == NULL )
     {
         fBufferSize = 0;
+    }
+
+    // Filter fPorts
+    if( IsFPortAllowed( framePort ) == false )
+    {
+        return LORAMAC_STATUS_PARAMETER_INVALID;
     }
 
     LoRaMacTxPayloadLen = fBufferSize;
@@ -2758,6 +2787,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
                     // Set the NodeAckRequested indicator to default
                     NodeAckRequested = false;
                     OnRxWindow2TimerEvent( );
+                    RxSlot = RX_SLOT_WIN_CLASS_C_2;
                     break;
                 }
             }
@@ -2848,7 +2878,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
                     if( RegionRxConfig( LoRaMacRegion, &RxWindow2Config, ( int8_t* )&McpsIndication.RxDatarate ) == true )
                     {
                         RxWindowSetup( RxWindow2Config.RxContinuous, LoRaMacParams.MaxRxWindow );
-                        RxSlot = RxWindow2Config.Window;
+                        RxSlot = RX_SLOT_WIN_CLASS_C_2;
                     }
                     else
                     {
