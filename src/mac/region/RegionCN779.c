@@ -368,14 +368,14 @@ bool RegionCN779Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
         {
             if( verify->NbJoinTrials < 48 )
             {
-                return false;
+                return true;
             }
             break;
         }
         default:
-            return false;
+            break;
     }
-    return true;
+    return false;
 }
 
 void RegionCN779ApplyCFList( ApplyCFListParams_t* applyCFList )

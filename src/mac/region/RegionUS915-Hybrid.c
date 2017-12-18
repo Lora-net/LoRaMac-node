@@ -470,14 +470,14 @@ bool RegionUS915HybridVerify( VerifyParams_t* verify, PhyAttribute_t phyAttribut
         {
             if( verify->NbJoinTrials < 2 )
             {
-                return false;
+                return true;
             }
             break;
         }
         default:
-            return false;
+            break;
     }
-    return true;
+    return false;
 }
 
 void RegionUS915HybridApplyCFList( ApplyCFListParams_t* applyCFList )
