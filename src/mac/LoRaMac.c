@@ -1476,6 +1476,7 @@ static void OnRxWindow2TimerEvent( void )
     }
     else
     {
+        // Setup continuous listening for class c
         RxWindow2Config.RxContinuous = true;
     }
 
@@ -2123,7 +2124,6 @@ static bool IsFPortAllowed( uint8_t fPort )
 static void OpenContinuousRx2Window( void )
 {
     OnRxWindow2TimerEvent( );
-    // Setup continuous listening for class c
     RxSlot = RX_SLOT_WIN_CLASS_C;
 }
 
