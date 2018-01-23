@@ -342,7 +342,14 @@ bool RegionIN865Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
     {
         case PHY_TX_DR:
         {
-            return RegionCommonValueInRange( verify->DatarateParams.Datarate, IN865_TX_MIN_DATARATE, IN865_TX_MAX_DATARATE );
+            if( verify->DatarateParams.Datarate == DR_6 )
+            {// DR_6 is not supported by this region
+                return false;
+            }
+            else
+            {
+                return RegionCommonValueInRange( verify->DatarateParams.Datarate, IN865_TX_MIN_DATARATE, IN865_TX_MAX_DATARATE );
+            }
         }
         case PHY_DEF_TX_DR:
         {
@@ -350,7 +357,14 @@ bool RegionIN865Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
         }
         case PHY_RX_DR:
         {
-            return RegionCommonValueInRange( verify->DatarateParams.Datarate, IN865_RX_MIN_DATARATE, IN865_RX_MAX_DATARATE );
+            if( verify->DatarateParams.Datarate == DR_6 )
+            {// DR_6 is not supported by this region
+                return false;
+            }
+            else
+            {
+                return RegionCommonValueInRange( verify->DatarateParams.Datarate, IN865_RX_MIN_DATARATE, IN865_RX_MAX_DATARATE );
+            }
         }
         case PHY_DEF_TX_POWER:
         case PHY_TX_POWER:
