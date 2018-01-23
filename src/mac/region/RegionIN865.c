@@ -671,29 +671,36 @@ uint8_t RegionIN865LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
         }
     }
 
-    // Get the minimum possible datarate
-    getPhy.Attribute = PHY_MIN_TX_DR;
-    getPhy.UplinkDwellTime = linkAdrReq->UplinkDwellTime;
-    phyParam = RegionIN865GetPhyParam( &getPhy );
+    if( linkAdrParams.Datarate != DR_6 )
+    {
+        // Get the minimum possible datarate
+        getPhy.Attribute = PHY_MIN_TX_DR;
+        getPhy.UplinkDwellTime = linkAdrReq->UplinkDwellTime;
+        phyParam = RegionIN865GetPhyParam( &getPhy );
 
-    linkAdrVerifyParams.Status = status;
-    linkAdrVerifyParams.AdrEnabled = linkAdrReq->AdrEnabled;
-    linkAdrVerifyParams.Datarate = linkAdrParams.Datarate;
-    linkAdrVerifyParams.TxPower = linkAdrParams.TxPower;
-    linkAdrVerifyParams.NbRep = linkAdrParams.NbRep;
-    linkAdrVerifyParams.CurrentDatarate = linkAdrReq->CurrentDatarate;
-    linkAdrVerifyParams.CurrentTxPower = linkAdrReq->CurrentTxPower;
-    linkAdrVerifyParams.CurrentNbRep = linkAdrReq->CurrentNbRep;
-    linkAdrVerifyParams.NbChannels = IN865_MAX_NB_CHANNELS;
-    linkAdrVerifyParams.ChannelsMask = &chMask;
-    linkAdrVerifyParams.MinDatarate = ( int8_t )phyParam.Value;
-    linkAdrVerifyParams.MaxDatarate = IN865_TX_MAX_DATARATE;
-    linkAdrVerifyParams.Channels = Channels;
-    linkAdrVerifyParams.MinTxPower = IN865_MIN_TX_POWER;
-    linkAdrVerifyParams.MaxTxPower = IN865_MAX_TX_POWER;
+        linkAdrVerifyParams.Status = status;
+        linkAdrVerifyParams.AdrEnabled = linkAdrReq->AdrEnabled;
+        linkAdrVerifyParams.Datarate = linkAdrParams.Datarate;
+        linkAdrVerifyParams.TxPower = linkAdrParams.TxPower;
+        linkAdrVerifyParams.NbRep = linkAdrParams.NbRep;
+        linkAdrVerifyParams.CurrentDatarate = linkAdrReq->CurrentDatarate;
+        linkAdrVerifyParams.CurrentTxPower = linkAdrReq->CurrentTxPower;
+        linkAdrVerifyParams.CurrentNbRep = linkAdrReq->CurrentNbRep;
+        linkAdrVerifyParams.NbChannels = IN865_MAX_NB_CHANNELS;
+        linkAdrVerifyParams.ChannelsMask = &chMask;
+        linkAdrVerifyParams.MinDatarate = ( int8_t )phyParam.Value;
+        linkAdrVerifyParams.MaxDatarate = IN865_TX_MAX_DATARATE;
+        linkAdrVerifyParams.Channels = Channels;
+        linkAdrVerifyParams.MinTxPower = IN865_MIN_TX_POWER;
+        linkAdrVerifyParams.MaxTxPower = IN865_MAX_TX_POWER;
 
-    // Verify the parameters and update, if necessary
-    status = RegionCommonLinkAdrReqVerifyParams( &linkAdrVerifyParams, &linkAdrParams.Datarate, &linkAdrParams.TxPower, &linkAdrParams.NbRep );
+        // Verify the parameters and update, if necessary
+        status = RegionCommonLinkAdrReqVerifyParams( &linkAdrVerifyParams, &linkAdrParams.Datarate, &linkAdrParams.TxPower, &linkAdrParams.NbRep );
+    }
+    else
+    {// DR_6 is not supported by this region
+        status &= 0xFD; // Datarate KO
+    }
 
     // Update channelsMask if everything is correct
     if( status == 0x07 )
