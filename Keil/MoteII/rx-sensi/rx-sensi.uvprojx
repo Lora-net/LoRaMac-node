@@ -694,14 +694,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\obj\rx-sensi-eu868-lora\</OutputDirectory>
+          <OutputDirectory>.\obj\rx-sensi-eu868-fsk\</OutputDirectory>
           <OutputName>rx-sensi-eu868-fsk</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\lst\rx-sensi-eu868-lora\</ListingPath>
+          <ListingPath>.\lst\rx-sensi-eu868-fsk\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -1341,14 +1341,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\obj\rx-sensi-eu868-lora\</OutputDirectory>
+          <OutputDirectory>.\obj\rx-sensi-us915-lora\</OutputDirectory>
           <OutputName>rx-sensi-us915-lora</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\lst\rx-sensi-eu868-lora\</ListingPath>
+          <ListingPath>.\lst\rx-sensi-us915-lora\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -2276,7 +2276,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER STM32L051xx USE_DEBUGGER REGION_US915 USE_MODEM_FSK</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\src;..\..\..\src\boards;..\..\..\src\boards\MoteII;..\..\..\src\boards\MoteII\cmsis;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\src\mac;..\..\..\src\peripherals;..\..\..\src\peripherals\ble;..\..\..\src\peripherals\display;..\..\..\src\radio;..\..\..\src\system;..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\src;..\..\..\src\boards;..\..\..\src\boards\MoteII;..\..\..\src\boards\MoteII\cmsis;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\src\mac;..\..\..\src\peripherals;;..\..\..\src\radio;..\..\..\src\system;..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
