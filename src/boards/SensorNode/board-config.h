@@ -121,4 +121,8 @@
 
 #define PIN_NC                                      PB_5
 
+// Debug pins definition.
+#define RADIO_DBG_PIN_TX                            NC
+#define RADIO_DBG_PIN_RX                            NC
+
 #endif // __BOARD_CONFIG_H__

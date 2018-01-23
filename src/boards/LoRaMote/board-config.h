@@ -119,4 +119,8 @@
 #define PIN_PB6                                     PB_6
 #define WKUP1                                       PA_0
 
+// Debug pins definition.
+#define RADIO_DBG_PIN_TX                            CON_EXT_1
+#define RADIO_DBG_PIN_RX                            CON_EXT_3
+
 #endif // __BOARD_CONFIG_H__
