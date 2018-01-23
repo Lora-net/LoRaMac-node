@@ -479,6 +479,16 @@ uint8_t GetBoardPowerSource( void )
     }
 }
 
+#ifdef __GNUC__
+int __io_putchar( int c )
+#else /* __GNUC__ */
+int fputc( int c, FILE *stream )
+#endif
+{
+    while( UartPutChar( &Uart1, c ) != 0 );
+    return c;
+}
+
 #ifdef USE_FULL_ASSERT
 /*
  * Function Name  : assert_failed
