@@ -732,3 +732,8 @@ void RTC_IRQHandler( void )
     BlockLowPowerDuringTask( false );
     TimerIrqHandler( );
 }
+
+void RtcProcess( void )
+{
+    // Not used on this platform.
+}

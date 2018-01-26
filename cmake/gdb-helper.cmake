@@ -70,6 +70,11 @@ function(generate_vscode_launch_openocd TARGET)
     set(OPENOCD_TARGET stm32l1.cfg CACHE STRING "Default OPENOCD Target is stm32l1.cfg")
     set_property(CACHE OPENOCD_TARGET PROPERTY STRINGS ${OPENOCD_TARGET_LIST})
 
+    # Available OpenOCD targets
+    set(OPENOCD_BOARD_LIST atmel_saml21_xplained_pro.cfg )
+    set(OPENOCD_BOARD atmel_saml21_xplained_pro.cfg CACHE STRING "Default OPENOCD board is atmel_saml21_xplained_pro.cfg")
+    set_property(CACHE OPENOCD_BOARD PROPERTY STRINGS ${OPENOCD_BOARD_LIST})
+
     # Set the OPENOCD_TARGET and OPENOCD_INTERFACE variables according to BOARD
     if(BOARD STREQUAL LoRaMote OR  BOARD STREQUAL SensorNode OR BOARD STREQUAL SK-iM880A)
         set(OPENOCD_INTERFACE stlink-v2.cfg)
@@ -80,6 +85,9 @@ function(generate_vscode_launch_openocd TARGET)
     elseif(BOARD STREQUAL MoteII)
         set(OPENOCD_INTERFACE stlink-v2-1.cfg)
         set(OPENOCD_TARGET stm32l0.cfg)
+    elseif(BOARD STREQUAL SAML21)
+        set(OPENOCD_INTERFACE cmsis-dap.cfg)
+        set(OPENOCD_TARGET at91samdXX.cfg)
     endif()
 
 

@@ -411,3 +411,8 @@ void TimerLowPowerHandler( void )
         }
     }
 }
+
+void TimerProcess( void )
+{
+    RtcProcess( );
+}

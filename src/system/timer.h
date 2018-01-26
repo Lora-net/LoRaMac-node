@@ -119,4 +119,9 @@ TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture );
  */
 void TimerLowPowerHandler( void );
 
+/*!
+ * \brief Processes pending timer events
+ */
+void TimerProcess( void );
+
 #endif // __TIMER_H__

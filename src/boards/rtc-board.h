@@ -104,4 +104,9 @@ void RtcEnterLowPowerStopMode( void );
  */
 void RtcRecoverMcuStatus( void );
 
+/*!
+ * \brief Processes pending timer events
+ */
+void RtcProcess( void );
+
 #endif // __RTC_BOARD_H__

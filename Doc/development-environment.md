@@ -113,6 +113,7 @@ Alternatively one can use a graphical interface to configure CMake, drop down me
      * LoRaMote (Default)
      * MoteII
      * NAMote72
+     * SAML21
      * SensorNode
      * SK-iM880A
 * `REGION_EU868` - Enables support for the Region EU868 (Default ON)

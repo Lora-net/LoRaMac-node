@@ -3,6 +3,7 @@ obj/
 bin/
 build/
 tmp/
+*.bin
 .kdev4
 *.log
 *.dep

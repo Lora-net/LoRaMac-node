@@ -41,7 +41,7 @@
         "MODULATION":"LORA",
 
         // Target board, the following boards are supported:
-        // LoRaMote (Default), MoteII, NAMote72, SensorNode and SK-iM880A.
+        // LoRaMote (Default), MoteII, NAMote72, SAML21, SensorNode and SK-iM880A.
         "BOARD":"LoRaMote",
 
         // Region support activation, Select the ones you want to support.
