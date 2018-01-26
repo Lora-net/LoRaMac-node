@@ -2071,8 +2071,9 @@ static void CalculateBackOff( uint8_t channel )
     // Update regional back-off
     RegionCalcBackOff( LoRaMacRegion, &calcBackOff );
 
-    // Update aggregated time-off
-    AggregatedTimeOff = AggregatedTimeOff + ( TxTimeOnAir * AggregatedDCycle - TxTimeOnAir );
+    // Update aggregated time-off. This must be an assignment and no incremental
+    // update as we do only calculate the time-off based on the last transmission
+    AggregatedTimeOff = ( TxTimeOnAir * AggregatedDCycle - TxTimeOnAir );
 }
 
 static void ResetMacParameters( void )
