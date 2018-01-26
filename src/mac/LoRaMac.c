@@ -1157,6 +1157,8 @@ static void OnRadioTxTimeout( void )
 
 static void OnRadioRxError( void )
 {
+    LoRaMacRxSlot_t rxSlot = RxSlot;
+
     if( LoRaMacDeviceClass != CLASS_C )
     {
         Radio.Sleep( );
@@ -1166,7 +1168,7 @@ static void OnRadioRxError( void )
         OpenContinuousRx2Window( );
     }
 
-    if( RxSlot == RX_SLOT_WIN_1 )
+    if( rxSlot == RX_SLOT_WIN_1 )
     {
         if( NodeAckRequested == true )
         {
@@ -1197,6 +1199,8 @@ static void OnRadioRxError( void )
 
 static void OnRadioRxTimeout( void )
 {
+    LoRaMacRxSlot_t rxSlot = RxSlot;
+
     if( LoRaMacDeviceClass != CLASS_C )
     {
         Radio.Sleep( );
@@ -1206,7 +1210,7 @@ static void OnRadioRxTimeout( void )
         OpenContinuousRx2Window( );
     }
 
-    if( RxSlot == RX_SLOT_WIN_1 )
+    if( rxSlot == RX_SLOT_WIN_1 )
     {
         if( NodeAckRequested == true )
         {
