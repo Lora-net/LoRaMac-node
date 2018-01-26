@@ -580,9 +580,11 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl
 /*
  * \brief Schedules the frame according to the duty cycle
  *
+ * \param [IN] allowDelayedTx When set to true, the a frame will be delayed,
+ *                            the duty cycle restriction is active
  * \retval Status of the operation
  */
-static LoRaMacStatus_t ScheduleTx( void );
+static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx );
 
 /*
  * \brief Calculates the back-off time for the band of a channel.
@@ -1334,8 +1336,8 @@ static void OnMacStateCheckTimerEvent( void )
                     phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
                     LoRaMacParams.ChannelsDatarate = phyParam.Value;
                 }
-                // Try to send the frame again
-                if( ScheduleTx( ) == LORAMAC_STATUS_OK )
+                // Try to send the frame again. Allow delayed frame transmissions
+                if( ScheduleTx( true ) == LORAMAC_STATUS_OK )
                 {
                     LoRaMacFlags.Bits.MacDone = 0;
                 }
@@ -1436,7 +1438,8 @@ static void OnTxDelayedTimerEvent( void )
     TimerStop( &TxDelayedTimer );
     LoRaMacState &= ~LORAMAC_TX_DELAYED;
 
-    ScheduleTx( );
+    // Schedule frame, allow delayed frame transmissions
+    ScheduleTx( true );
 }
 
 static void OnRxWindow1TimerEvent( void )
@@ -1959,12 +1962,13 @@ LoRaMacStatus_t Send( LoRaMacHeader_t *macHdr, uint8_t fPort, void *fBuffer, uin
     McpsConfirm.AckReceived = false;
     McpsConfirm.UpLinkCounter = UpLinkCounter;
 
-    status = ScheduleTx( );
+    // Schedule frame, do not allow delayed transmissions
+    status = ScheduleTx( false );
 
     return status;
 }
 
-static LoRaMacStatus_t ScheduleTx( void )
+static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
 {
     LoRaMacStatus_t status = LORAMAC_STATUS_PARAMETER_INVALID;
     TimerTime_t dutyCycleTimeOff = 0;
@@ -1991,26 +1995,26 @@ static LoRaMacStatus_t ScheduleTx( void )
 
     // Select channel
     status = RegionNextChannel( LoRaMacRegion, &nextChan, &Channel, &dutyCycleTimeOff, &AggregatedTimeOff );
-    switch( status )
+
+    if( status != LORAMAC_STATUS_OK )
     {
-    case LORAMAC_STATUS_NO_CHANNEL_FOUND:
-        return LORAMAC_STATUS_NO_CHANNEL_FOUND;
-
-    case LORAMAC_STATUS_NO_FREE_CHANNEL_FOUND:
-        return LORAMAC_STATUS_NO_FREE_CHANNEL_FOUND;
-
-    case LORAMAC_STATUS_DUTYCYCLE_RESTRICTED:
-        if( dutyCycleTimeOff != 0 )
+        if( ( status == LORAMAC_STATUS_DUTYCYCLE_RESTRICTED ) && 
+            ( allowDelayedTx == true ) )
         {
-            // Send later - prepare timer
-            LoRaMacState |= LORAMAC_TX_DELAYED;
-            TimerSetValue( &TxDelayedTimer, dutyCycleTimeOff );
-            TimerStart( &TxDelayedTimer );
+            // Allow delayed transmissions. We have to allow it in case
+            // the MAC must retransmit a frame with the frame repetitions
+            if( dutyCycleTimeOff != 0 )
+            {// Send later - prepare timer
+                LoRaMacState |= LORAMAC_TX_DELAYED;
+                TimerSetValue( &TxDelayedTimer, dutyCycleTimeOff );
+                TimerStart( &TxDelayedTimer );
+            }
+            return LORAMAC_STATUS_OK;
         }
-        return LORAMAC_STATUS_OK;
-
-    default:
-        break;
+        else
+        {// State where the MAC cannot send a frame
+            return status;
+        }
     }
 
     // Compute Rx1 windows parameters
