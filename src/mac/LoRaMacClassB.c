@@ -291,32 +291,18 @@ static void GetTemperatureLevel( LoRaMacClassBCallback_t *callbacks, BeaconConte
     }
 }
 
-#endif // LORAMAC_CLASSB_ENABLED
-
-void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks )
+static void InitClassBDefaults( void )
 {
-#ifdef LORAMAC_CLASSB_ENABLED
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;
 
     // Init variables to default
-    memset1( ( uint8_t* ) &BeaconCtx, 0, sizeof( BeaconContext_t ) );
+    memset1( ( uint8_t* ) &BeaconCtx, 0, sizeof( BeaconCtx ) );
     memset1( ( uint8_t* ) &PingSlotCtx, 0, sizeof( PingSlotCtx ) );
-
-    // Store callbacks
-    LoRaMacClassBCallbacks = *callbacks;
-
-    // Store parameter pointers
-    LoRaMacClassBParams = *classBParams;
 
     // Setup default temperature
     BeaconCtx.Temperature = 25.0;
     GetTemperatureLevel( &LoRaMacClassBCallbacks, &BeaconCtx );
-
-    // Initialize timers
-    TimerInit( &BeaconTimer, LoRaMacClassBBeaconTimerEvent );
-    TimerInit( &PingSlotTimer, LoRaMacClassBPingSlotTimerEvent );
-    TimerInit( &MulticastSlotTimer, LoRaMacClassBMulticastSlotTimerEvent );
 
     // Setup default states
     BeaconState = BEACON_STATE_ACQUISITION;
@@ -375,6 +361,25 @@ void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallba
     getPhy.Attribute = PHY_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR;
     phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
     PingSlotCtx.Cfg.SymbolToExpansionFactor = phyParam.Value;
+}
+
+#endif // LORAMAC_CLASSB_ENABLED
+
+void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks )
+{
+#ifdef LORAMAC_CLASSB_ENABLED
+    // Store callbacks
+    LoRaMacClassBCallbacks = *callbacks;
+
+    // Store parameter pointers
+    LoRaMacClassBParams = *classBParams;
+
+    // Initialize timers
+    TimerInit( &BeaconTimer, LoRaMacClassBBeaconTimerEvent );
+    TimerInit( &PingSlotTimer, LoRaMacClassBPingSlotTimerEvent );
+    TimerInit( &MulticastSlotTimer, LoRaMacClassBMulticastSlotTimerEvent );
+
+    InitClassBDefaults( );
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -665,6 +670,9 @@ void LoRaMacClassBBeaconTimerEvent( void )
             BeaconCtx.Ctrl.BeaconMode = 0;
             BeaconCtx.Ctrl.AcquisitionPending = 0;
             BeaconCtx.Ctrl.AcquisitionTimerSet = 0;
+            // Initialize default state for class b
+            InitClassBDefaults( );
+
             LoRaMacClassBParams.LoRaMacFlags->Bits.MacDone = 1;
 
             TimerSetValue( LoRaMacClassBParams.MacStateCheckTimer, beaconEventTime );
