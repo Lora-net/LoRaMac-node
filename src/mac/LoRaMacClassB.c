@@ -667,6 +667,10 @@ void LoRaMacClassBBeaconTimerEvent( void )
             }
             BeaconState = BEACON_STATE_ACQUISITION;
 
+            // Stop slot timers
+            TimerStop( &PingSlotTimer );
+            TimerStop( &MulticastSlotTimer );
+
             BeaconCtx.Ctrl.BeaconMode = 0;
             BeaconCtx.Ctrl.AcquisitionPending = 0;
             BeaconCtx.Ctrl.AcquisitionTimerSet = 0;
