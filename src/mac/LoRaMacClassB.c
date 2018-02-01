@@ -769,7 +769,7 @@ void LoRaMacClassBPingSlotTimerEvent( void )
                 pingSlotRxConfig.RepeaterSupport = LoRaMacClassBParams.LoRaMacParams->RepeaterSupport;
                 pingSlotRxConfig.Frequency = frequency;
                 pingSlotRxConfig.RxContinuous = false;
-                pingSlotRxConfig.Window = 1;
+                pingSlotRxConfig.Window = RX_SLOT_WIN_PING_SLOT;
 
                 RegionRxConfig( *LoRaMacClassBParams.LoRaMacRegion, &pingSlotRxConfig, ( int8_t* )&LoRaMacClassBParams.McpsIndication->RxDatarate );
 
@@ -903,7 +903,7 @@ void LoRaMacClassBMulticastSlotTimerEvent( void )
             multicastSlotRxConfig.RepeaterSupport = LoRaMacClassBParams.LoRaMacParams->RepeaterSupport;
             multicastSlotRxConfig.Frequency = frequency;
             multicastSlotRxConfig.RxContinuous = false;
-            multicastSlotRxConfig.Window = 1;
+            multicastSlotRxConfig.Window = RX_SLOT_WIN_MULTICAST_SLOT;
 
             RegionRxConfig( *LoRaMacClassBParams.LoRaMacRegion, &multicastSlotRxConfig, ( int8_t* )&LoRaMacClassBParams.McpsIndication->RxDatarate );
 
