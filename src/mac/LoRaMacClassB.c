@@ -662,18 +662,13 @@ void LoRaMacClassBBeaconTimerEvent( void )
             {
                 LoRaMacClassBParams.MlmeIndication->MlmeIndication = MLME_BEACON_LOST;
                 LoRaMacClassBParams.MlmeIndication->Status = LORAMAC_EVENT_INFO_STATUS_OK;
-                PingSlotCtx.Ctrl.Assigned = 0;
                 LoRaMacClassBParams.LoRaMacFlags->Bits.MlmeInd = 1;
             }
-            BeaconState = BEACON_STATE_ACQUISITION;
 
             // Stop slot timers
             TimerStop( &PingSlotTimer );
             TimerStop( &MulticastSlotTimer );
 
-            BeaconCtx.Ctrl.BeaconMode = 0;
-            BeaconCtx.Ctrl.AcquisitionPending = 0;
-            BeaconCtx.Ctrl.AcquisitionTimerSet = 0;
             // Initialize default state for class b
             InitClassBDefaults( );
 
