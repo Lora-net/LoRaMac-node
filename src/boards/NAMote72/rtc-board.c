@@ -248,7 +248,7 @@ void RtcSetSystemTime( uint32_t seconds, uint32_t subSeconds )
     RTC_TimeTypeDef timeStruct;
 
     // Convert the time into a tm
-    timeinfo = localtime( &seconds );
+    timeinfo = localtime( ( time_t* )&seconds );
 
     // Fill RTC structures
     dateStruct.WeekDay        = timeinfo->tm_wday;
