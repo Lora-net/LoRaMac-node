@@ -248,6 +248,11 @@ void RtcInit( void )
     }
 }
 
+void RtcSetSystemTime( uint32_t seconds, uint32_t subSeconds )
+{
+    #warning "Functionality not supported by this platform MCU. For ClassB usage please use BeaconTimingReq instead of DeviceTimeReq."
+}
+
 void RtcSetTimeout( uint32_t timeout )
 {
     RtcStartWakeUpAlarm( timeout );

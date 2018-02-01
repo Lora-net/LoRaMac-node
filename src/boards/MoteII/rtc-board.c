@@ -21,8 +21,10 @@
  * \author    Gregory Cristian ( Semtech )
  */
 #include <math.h>
+#include <time.h>
 #include "stm32l0xx.h"
 #include "utilities.h"
+#include "delay-board.h"
 #include "board.h"
 #include "timer.h"
 #include "gpio.h"
@@ -237,6 +239,72 @@ void RtcInit( void )
         HAL_NVIC_EnableIRQ( RTC_IRQn );
         RtcInitialized = true;
     }
+}
+
+void RtcSetSystemTime( uint32_t seconds, uint32_t subSeconds )
+{
+    struct tm *timeinfo;
+    RTC_DateTypeDef dateStruct;
+    RTC_TimeTypeDef timeStruct;
+
+    // Convert the time into a tm
+    timeinfo = localtime( ( time_t* )&seconds );
+
+    // Fill RTC structures
+    dateStruct.WeekDay        = timeinfo->tm_wday;
+    dateStruct.Month          = timeinfo->tm_mon + 1;
+    dateStruct.Date           = timeinfo->tm_mday;
+    dateStruct.Year           = timeinfo->tm_year - 100;
+    timeStruct.Hours          = timeinfo->tm_hour;
+    timeStruct.Minutes        = timeinfo->tm_min;
+    timeStruct.Seconds        = timeinfo->tm_sec;
+    timeStruct.SubSeconds     = subSeconds;
+    timeStruct.TimeFormat     = RTC_HOURFORMAT_24;
+    timeStruct.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+    timeStruct.StoreOperation = RTC_STOREOPERATION_RESET;
+
+    // Wait 1000ms - subSeconds (ms) before syncing the date/time
+    uint32_t waitSync = 0;
+    waitSync = 1000 - subSeconds;
+    DelayMsMcu( waitSync );
+
+    // Update the RTC current date/time
+    HAL_RTC_SetDate( &RtcHandle, &dateStruct, FORMAT_BIN );
+    HAL_RTC_SetTime( &RtcHandle, &timeStruct, FORMAT_BIN );
+}
+
+uint32_t RtcGetSystemTime( uint32_t *subSeconds )
+{
+    uint32_t firstRead;
+    struct tm timeinfo;
+    RTC_DateTypeDef dateStruct;
+    RTC_TimeTypeDef timeStruct;
+
+    // Get Time and Date
+    HAL_RTC_GetTime( &RtcHandle, &timeStruct, RTC_FORMAT_BIN );
+
+    // Make sure it is correct due to asynchronous nature of RTC
+    do 
+    {
+        firstRead = timeStruct.SubSeconds;
+        HAL_RTC_GetDate( &RtcHandle, &dateStruct, RTC_FORMAT_BIN );
+        HAL_RTC_GetTime( &RtcHandle, &timeStruct, RTC_FORMAT_BIN );
+    }while( firstRead != timeStruct.SubSeconds );
+
+    // Setup a tm structure based on the RTC
+    timeinfo.tm_wday = dateStruct.WeekDay;
+    timeinfo.tm_mon  = dateStruct.Month - 1;
+    timeinfo.tm_mday = dateStruct.Date;
+    timeinfo.tm_year = dateStruct.Year + 100;
+    timeinfo.tm_hour = timeStruct.Hours;
+    timeinfo.tm_min  = timeStruct.Minutes;
+    timeinfo.tm_sec  = timeStruct.Seconds;
+    if( subSeconds != NULL )
+    {
+        *subSeconds = ( PREDIV_A - ( timeStruct.SubSeconds ) ) << ( N_PREDIV_S - 1 );
+    }
+    // Convert to timestamp
+    return mktime( &timeinfo );
 }
 
 void RtcSetTimeout( uint32_t timeout )
@@ -699,24 +767,20 @@ TimerTime_t RtcConvertTickToMs( TimerTime_t timeoutValue )
 
 static RtcCalendar_t RtcGetCalendar( void )
 {
-    uint32_t first_read = 0;
-    uint32_t second_read = 0;
+    uint32_t firstRead = 0;
     RtcCalendar_t now;
 
     // Get Time and Date
     HAL_RTC_GetTime( &RtcHandle, &now.CalendarTime, RTC_FORMAT_BIN );
-    first_read = now.CalendarTime.SubSeconds;
-    HAL_RTC_GetTime( &RtcHandle, &now.CalendarTime, RTC_FORMAT_BIN );
-    second_read = now.CalendarTime.SubSeconds;
 
-    // make sure it is correct due to asynchronous nature of RTC
-    while( first_read != second_read )
+    // Make sure it is correct due to asynchronous nature of RTC
+    do 
     {
-        first_read = second_read;
+        firstRead = now.CalendarTime.SubSeconds;
+        HAL_RTC_GetDate( &RtcHandle, &now.CalendarDate, RTC_FORMAT_BIN );
         HAL_RTC_GetTime( &RtcHandle, &now.CalendarTime, RTC_FORMAT_BIN );
-        second_read = now.CalendarTime.SubSeconds;
-    }
-    HAL_RTC_GetDate( &RtcHandle, &now.CalendarDate, RTC_FORMAT_BIN );
+    }while( firstRead != now.CalendarTime.SubSeconds );
+
     return( now );
 }
 
