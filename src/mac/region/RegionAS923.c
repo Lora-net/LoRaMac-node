@@ -327,12 +327,6 @@ PhyParam_t RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.fValue = AS923_DEFAULT_ANTENNA_GAIN;
             break;
         }
-        case PHY_NB_JOIN_TRIALS:
-        case PHY_DEF_NB_JOIN_TRIALS:
-        {
-            phyParam.Value = 1;
-            break;
-        }
         case PHY_BEACON_INTERVAL:
         {
             phyParam.Value = AS923_BEACON_INTERVAL;
@@ -497,10 +491,6 @@ bool RegionAS923Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
         case PHY_DUTY_CYCLE:
         {
             return AS923_DUTY_CYCLE_ENABLED;
-        }
-        case PHY_NB_JOIN_TRIALS:
-        {
-            return true;
         }
         default:
             return false;
@@ -683,7 +673,7 @@ bool RegionAS923RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
         return false;
     }
 
-    if( rxConfig->Window == 0 )
+    if( rxConfig->RxSlot == RX_SLOT_WIN_1 )
     {
         // Apply window 1 frequency
         frequency = Channels[rxConfig->Channel].Frequency;
@@ -974,7 +964,7 @@ uint8_t RegionAS923DlChannelReq( DlChannelReqParams_t* dlChannelReq )
     return status;
 }
 
-int8_t RegionAS923AlternateDr( AlternateDrParams_t* alternateDr )
+int8_t RegionAS923AlternateDr( int8_t currentDr )
 {
     // Only AS923_DWELL_LIMIT_DATARATE is supported
     return AS923_DWELL_LIMIT_DATARATE;
@@ -996,7 +986,7 @@ void RegionAS923CalcBackOff( CalcBackOffParams_t* calcBackOff )
     RegionCommonCalcBackOff( &calcBackOffParams );
 }
 
-bool RegionAS923NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
+LoRaMacStatus_t RegionAS923NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
 {
     uint8_t channelNext = 0;
     uint8_t nbEnabledChannels = 0;
@@ -1042,10 +1032,10 @@ bool RegionAS923NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
                 // Free channel found
                 *channel = channelNext;
                 *time = 0;
-                return true;
+                return LORAMAC_STATUS_OK;
             }
         }
-        return false;
+        return LORAMAC_STATUS_NO_FREE_CHANNEL_FOUND;
     }
     else
     {
@@ -1053,12 +1043,12 @@ bool RegionAS923NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
         {
             // Delay transmission due to AggregatedTimeOff or to a band time off
             *time = nextTxDelay;
-            return true;
+            return LORAMAC_STATUS_DUTYCYCLE_RESTRICTED;
         }
         // Datarate not supported by any channel, restore defaults
         ChannelsMask[0] |= LC( 1 ) + LC( 2 );
         *time = 0;
-        return false;
+        return LORAMAC_STATUS_NO_CHANNEL_FOUND;
     }
 }
 

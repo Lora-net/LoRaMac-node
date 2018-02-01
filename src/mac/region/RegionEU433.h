@@ -498,11 +498,11 @@ uint8_t RegionEU433DlChannelReq( DlChannelReqParams_t* dlChannelReq );
 /*!
  * \brief Alternates the datarate of the channel for the join request.
  *
- * \param [IN] alternateDr Pointer to the function parameters.
+ * \param [IN] currentDr Current datarate.
  *
  * \retval Datarate to apply.
  */
-int8_t RegionEU433AlternateDr( AlternateDrParams_t* alternateDr );
+int8_t RegionEU433AlternateDr( int8_t currentDr );
 
 /*!
  * \brief Calculates the back-off time.
@@ -523,7 +523,7 @@ void RegionEU433CalcBackOff( CalcBackOffParams_t* calcBackOff );
  *
  * \retval Function status [1: OK, 0: Unable to find a channel on the current datarate]
  */
-bool RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff );
+LoRaMacStatus_t RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff );
 
 /*!
  * \brief Adds a channel.

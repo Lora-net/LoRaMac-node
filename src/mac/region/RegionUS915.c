@@ -278,12 +278,6 @@ PhyParam_t RegionUS915GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.fValue = 0;
             break;
         }
-        case PHY_NB_JOIN_TRIALS:
-        case PHY_DEF_NB_JOIN_TRIALS:
-        {
-            phyParam.Value = 2;
-            break;
-        }
         case PHY_BEACON_INTERVAL:
         {
             phyParam.Value = US915_BEACON_INTERVAL;
@@ -471,18 +465,9 @@ bool RegionUS915Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
         {
             return US915_DUTY_CYCLE_ENABLED;
         }
-        case PHY_NB_JOIN_TRIALS:
-        {
-            if( verify->NbJoinTrials < 2 )
-            {
-                return false;
-            }
-            break;
-        }
         default:
             return false;
     }
-    return true;
 }
 
 void RegionUS915ApplyCFList( ApplyCFListParams_t* applyCFList )
@@ -614,7 +599,7 @@ bool RegionUS915RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
         return false;
     }
 
-    if( rxConfig->Window == 0 )
+    if( rxConfig->RxSlot == RX_SLOT_WIN_1 )
     {
         // Apply window 1 frequency
         frequency = US915_FIRST_RX1_CHANNEL + ( rxConfig->Channel % 8 ) * US915_STEPWIDTH_RX1_CHANNEL;
@@ -827,22 +812,23 @@ uint8_t RegionUS915DlChannelReq( DlChannelReqParams_t* dlChannelReq )
     return 0;
 }
 
-int8_t RegionUS915AlternateDr( AlternateDrParams_t* alternateDr )
+int8_t RegionUS915AlternateDr( int8_t currentDr )
 {
-    int8_t datarate = 0;
+    static int8_t trialsCount = 0;
 
     // Re-enable 500 kHz default channels
     ChannelsMask[4] = 0x00FF;
 
-    if( ( alternateDr->NbTrials & 0x01 ) == 0x01 )
+    if( ( trialsCount & 0x01 ) == 0x01 )
     {
-        datarate = DR_4;
+        currentDr = DR_4;
     }
     else
     {
-        datarate = DR_0;
+        currentDr = DR_0;
     }
-    return datarate;
+    trialsCount++;
+    return currentDr;
 }
 
 void RegionUS915CalcBackOff( CalcBackOffParams_t* calcBackOff )
@@ -861,7 +847,7 @@ void RegionUS915CalcBackOff( CalcBackOffParams_t* calcBackOff )
     RegionCommonCalcBackOff( &calcBackOffParams );
 }
 
-bool RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
+LoRaMacStatus_t RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
 {
     uint8_t nbEnabledChannels = 0;
     uint8_t delayTx = 0;
@@ -909,7 +895,7 @@ bool RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
         RegionCommonChanDisable( ChannelsMaskRemaining, *channel, US915_MAX_NB_CHANNELS - 8 );
 
         *time = 0;
-        return true;
+        return LORAMAC_STATUS_OK;
     }
     else
     {
@@ -917,11 +903,11 @@ bool RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
         {
             // Delay transmission due to AggregatedTimeOff or to a band time off
             *time = nextTxDelay;
-            return true;
+            return LORAMAC_STATUS_DUTYCYCLE_RESTRICTED;
         }
         // Datarate not supported by any channel
         *time = 0;
-        return false;
+        return LORAMAC_STATUS_NO_CHANNEL_FOUND;
     }
 }
 

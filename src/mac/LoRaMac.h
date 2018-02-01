@@ -255,6 +255,29 @@ typedef struct sRx2ChannelParams
 }Rx2ChannelParams_t;
 
 /*!
+ * LoRaMAC receive window enumeration
+ */
+typedef enum eLoRaMacRxSlot
+{
+    /*!
+     * LoRaMAC receive window 1
+     */
+    RX_SLOT_WIN_1,
+    /*!
+     * LoRaMAC receive window 2
+     */
+    RX_SLOT_WIN_2,
+    /*!
+     * LoRaMAC receive window 2 for class c - continuous listening
+     */
+    RX_SLOT_WIN_CLASS_C,
+    /*!
+     * LoRaMAC class b ping slot window
+     */
+    RX_SLOT_WIN_PING_SLOT
+}LoRaMacRxSlot_t;
+
+/*!
  * Global MAC layer parameters
  */
 typedef struct sLoRaMacParams
@@ -714,8 +737,9 @@ typedef enum eLoRaMacEventInfoStatus
      */
     LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL,
     /*!
-     * The downlink counter of the frame was equal to the local copy of the
-     * downlink counter of the node
+     * A frame with an invalid downlink counter was received. The
+     * downlink counter of the frame was equal to the local copy
+     * of the downlink counter of the node.
      */
     LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED,
     /*!
@@ -1053,10 +1077,8 @@ typedef struct sMcpsIndication
     uint8_t Snr;
     /*!
      * Receive window
-     *
-     * [0: Rx window 1, 1: Rx window 2]
      */
-    uint8_t RxSlot;
+    LoRaMacRxSlot_t RxSlot;
     /*!
      * Set if an acknowledgement was received
      */
@@ -1180,9 +1202,9 @@ typedef struct sMlmeReqJoin
      */
     uint8_t *AppKey;
     /*!
-     * Number of trials for the join request.
+     * Datarate used for join request.
      */
-    uint8_t NbTrials;
+    uint8_t Datarate;
 }MlmeReqJoin_t;
 
 /*!
@@ -1277,10 +1299,6 @@ typedef struct sMlmeConfirm
      * The channel of the next beacon
      */
     uint8_t BeaconTimingChannel;
-    /*!
-     * Provides the number of retransmissions
-     */
-    uint8_t NbRetries;
 }MlmeConfirm_t;
 
 /*!
@@ -1965,7 +1983,31 @@ typedef enum eLoRaMacStatus
      * Service not started - the specified region is not supported
      * or not activated with preprocessor definitions.
      */
-    LORAMAC_STATUS_REGION_NOT_SUPPORTED
+    LORAMAC_STATUS_REGION_NOT_SUPPORTED,
+    /*!
+     * ToDo
+     */
+    LORAMAC_STATUS_DUTYCYCLE_RESTRICTED,
+     /*!
+      * ToDo
+      */
+    LORAMAC_STATUS_NO_CHANNEL_FOUND,
+     /*!
+      * ToDo
+      */
+    LORAMAC_STATUS_NO_FREE_CHANNEL_FOUND,
+     /*!
+      * ToDo
+      */
+    LORAMAC_STATUS_BUSY_BEACON_RESERVED_TIME,
+     /*!
+      * ToDo
+      */
+    LORAMAC_STATUS_BUSY_PING_SLOT_WINDOW_TIME,
+     /*!
+      * ToDo
+      */
+    LORAMAC_STATUS_BUSY_UPLINK_COLISION
 }LoRaMacStatus_t;
 
 /*!

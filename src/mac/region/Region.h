@@ -652,17 +652,9 @@ typedef enum ePhyAttribute
      */
     PHY_DEF_ANTENNA_GAIN,
     /*!
-     * Value for the number of join trials.
-     */
-    PHY_NB_JOIN_TRIALS,
-    /*!
      * Next lower datarate.
      */
     PHY_NEXT_LOWER_TX_DR,
-    /*!
-     * Default value for the number of join trials.
-     */
-    PHY_DEF_NB_JOIN_TRIALS,
     /*!
      * Beacon interval in ms.
      */
@@ -876,10 +868,6 @@ typedef union uVerifyParams
      */
     bool DutyCycle;
     /*!
-     * The number of join trials.
-     */
-    uint8_t NbJoinTrials;
-    /*!
      * Datarate to verify.
      */
     struct sDatarateParams
@@ -1006,9 +994,9 @@ typedef struct sRxConfigParams
      */
     bool RxContinuous;
     /*!
-     * Sets the RX window. 0: RX window 1, 1: RX window 2.
+     * Sets the RX window.
      */
-    bool Window;
+    LoRaMacRxSlot_t RxSlot;
 }RxConfigParams_t;
 
 /*!
@@ -1144,17 +1132,6 @@ typedef struct sDlChannelReqParams
      */
     uint32_t Rx1Frequency;
 }DlChannelReqParams_t;
-
-/*!
- * Parameter structure for the function RegionAlternateDr.
- */
-typedef struct sAlternateDrParams
-{
-    /*!
-     * Number of trials.
-     */
-    uint16_t NbTrials;
-}AlternateDrParams_t;
 
 /*!
  * Parameter structure for the function RegionCalcBackOff.
@@ -1535,11 +1512,11 @@ uint8_t RegionDlChannelReq( LoRaMacRegion_t region, DlChannelReqParams_t* dlChan
  *
  * \param [IN] region LoRaWAN region.
  *
- * \param [IN] alternateDr Pointer to the function parameters.
+ * \param [IN] currentDr Current datarate.
  *
  * \retval Datarate to apply.
  */
-int8_t RegionAlternateDr( LoRaMacRegion_t region, AlternateDrParams_t* alternateDr );
+int8_t RegionAlternateDr( LoRaMacRegion_t region, int8_t currentDr );
 
 /*!
  * \brief Calculates the back-off time.
@@ -1564,7 +1541,7 @@ void RegionCalcBackOff( LoRaMacRegion_t region, CalcBackOffParams_t* calcBackOff
  *
  * \retval Function status [1: OK, 0: Unable to find a channel on the current datarate].
  */
-bool RegionNextChannel( LoRaMacRegion_t region, NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff );
+LoRaMacStatus_t RegionNextChannel( LoRaMacRegion_t region, NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff );
 
 /*!
  * \brief Adds a channel.

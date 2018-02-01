@@ -497,11 +497,11 @@ uint8_t RegionAU915DlChannelReq( DlChannelReqParams_t* dlChannelReq );
 /*!
  * \brief Alternates the datarate of the channel for the join request.
  *
- * \param [IN] alternateDr Pointer to the function parameters.
+ * \param [IN] currentDr Current datarate.
  *
  * \retval Datarate to apply.
  */
-int8_t RegionAU915AlternateDr( AlternateDrParams_t* alternateDr );
+int8_t RegionAU915AlternateDr( int8_t currentDr );
 
 /*!
  * \brief Calculates the back-off time.
@@ -522,7 +522,7 @@ void RegionAU915CalcBackOff( CalcBackOffParams_t* calcBackOff );
  *
  * \retval Function status [1: OK, 0: Unable to find a channel on the current datarate]
  */
-bool RegionAU915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff );
+LoRaMacStatus_t RegionAU915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff );
 
 /*!
  * \brief Adds a channel.

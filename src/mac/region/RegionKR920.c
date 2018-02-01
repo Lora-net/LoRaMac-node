@@ -311,12 +311,6 @@ PhyParam_t RegionKR920GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.fValue = KR920_DEFAULT_ANTENNA_GAIN;
             break;
         }
-        case PHY_NB_JOIN_TRIALS:
-        case PHY_DEF_NB_JOIN_TRIALS:
-        {
-            phyParam.Value = 48;
-            break;
-        }
         case PHY_BEACON_INTERVAL:
         {
             phyParam.Value = KR920_BEACON_INTERVAL;
@@ -469,18 +463,9 @@ bool RegionKR920Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
         {
             return KR920_DUTY_CYCLE_ENABLED;
         }
-        case PHY_NB_JOIN_TRIALS:
-        {
-            if( verify->NbJoinTrials < 48 )
-            {
-                return false;
-            }
-            break;
-        }
         default:
             return false;
     }
-    return true;
 }
 
 void RegionKR920ApplyCFList( ApplyCFListParams_t* applyCFList )
@@ -641,7 +626,7 @@ bool RegionKR920RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
         return false;
     }
 
-    if( rxConfig->Window == 0 )
+    if( rxConfig->RxSlot == RX_SLOT_WIN_1 )
     {
         // Apply window 1 frequency
         frequency = Channels[rxConfig->Channel].Frequency;
@@ -907,35 +892,9 @@ uint8_t RegionKR920DlChannelReq( DlChannelReqParams_t* dlChannelReq )
     return status;
 }
 
-int8_t RegionKR920AlternateDr( AlternateDrParams_t* alternateDr )
+int8_t RegionKR920AlternateDr( int8_t  currentDr )
 {
-    int8_t datarate = 0;
-
-    if( ( alternateDr->NbTrials % 48 ) == 0 )
-    {
-        datarate = DR_0;
-    }
-    else if( ( alternateDr->NbTrials % 32 ) == 0 )
-    {
-        datarate = DR_1;
-    }
-    else if( ( alternateDr->NbTrials % 24 ) == 0 )
-    {
-        datarate = DR_2;
-    }
-    else if( ( alternateDr->NbTrials % 16 ) == 0 )
-    {
-        datarate = DR_3;
-    }
-    else if( ( alternateDr->NbTrials % 8 ) == 0 )
-    {
-        datarate = DR_4;
-    }
-    else
-    {
-        datarate = DR_5;
-    }
-    return datarate;
+    return currentDr;
 }
 
 void RegionKR920CalcBackOff( CalcBackOffParams_t* calcBackOff )
@@ -954,7 +913,7 @@ void RegionKR920CalcBackOff( CalcBackOffParams_t* calcBackOff )
     RegionCommonCalcBackOff( &calcBackOffParams );
 }
 
-bool RegionKR920NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
+LoRaMacStatus_t RegionKR920NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
 {
     uint8_t channelNext = 0;
     uint8_t nbEnabledChannels = 0;
@@ -1000,10 +959,10 @@ bool RegionKR920NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
                 // Free channel found
                 *channel = channelNext;
                 *time = 0;
-                return true;
+                return LORAMAC_STATUS_OK;
             }
         }
-        return false;
+        return LORAMAC_STATUS_NO_FREE_CHANNEL_FOUND;
     }
     else
     {
@@ -1011,12 +970,12 @@ bool RegionKR920NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
         {
             // Delay transmission due to AggregatedTimeOff or to a band time off
             *time = nextTxDelay;
-            return true;
+            return LORAMAC_STATUS_DUTYCYCLE_RESTRICTED;
         }
         // Datarate not supported by any channel, restore defaults
         ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
         *time = 0;
-        return false;
+        return LORAMAC_STATUS_NO_CHANNEL_FOUND;
     }
 }
 
