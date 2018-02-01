@@ -1175,6 +1175,7 @@ typedef struct sMlmeIndication
  * \ref MIB_SYSTEM_MAX_RX_ERROR      | YES | YES
  * \ref MIB_MIN_RX_SYMBOLS           | YES | YES
  * \ref MIB_ANTENNA_GAIN             | YES | YES
+ * \ref MIB_DEFAULT_ANTENNA_GAIN     | YES | YES
  *
  * The following table provides links to the function implementations of the
  * related MIB primitives:
@@ -1381,7 +1382,14 @@ typedef enum eMib
      * The formula is:
      * radioTxPower = ( int8_t )floor( maxEirp - antennaGain )
      */
-    MIB_ANTENNA_GAIN
+    MIB_ANTENNA_GAIN,
+    /*!
+     * Default antenna gain of the node. Default value is region specific.
+     * The antenna gain is used to calculate the TX power of the node.
+     * The formula is:
+     * radioTxPower = ( int8_t )floor( maxEirp - antennaGain )
+     */
+    MIB_DEFAULT_ANTENNA_GAIN
 }Mib_t;
 
 /*!
@@ -1569,6 +1577,12 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_ANTENNA_GAIN
      */
     float AntennaGain;
+    /*!
+     * Default antenna gain
+     *
+     * Related MIB type: \ref MIB_DEFAULT_ANTENNA_GAIN
+     */
+    float DefaultAntennaGain;
 }MibParam_t;
 
 /*!

@@ -2757,6 +2757,11 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t *mibGet )
             mibGet->Param.AntennaGain = LoRaMacParams.AntennaGain;
             break;
         }
+        case MIB_DEFAULT_ANTENNA_GAIN:
+        {
+            mibGet->Param.DefaultAntennaGain = LoRaMacParamsDefaults.AntennaGain;
+            break;
+        }
         default:
             status = LORAMAC_STATUS_SERVICE_UNKNOWN;
             break;
@@ -3058,6 +3063,11 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet )
         case MIB_ANTENNA_GAIN:
         {
             LoRaMacParams.AntennaGain = mibSet->Param.AntennaGain;
+            break;
+        }
+        case MIB_DEFAULT_ANTENNA_GAIN:
+        {
+            LoRaMacParamsDefaults.AntennaGain = mibSet->Param.DefaultAntennaGain;
             break;
         }
         default:
