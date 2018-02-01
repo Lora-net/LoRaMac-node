@@ -362,7 +362,6 @@ static void InitClassBDefaults( void )
     phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
     PingSlotCtx.Cfg.SymbolToExpansionFactor = phyParam.Value;
 }
-
 #endif // LORAMAC_CLASSB_ENABLED
 
 void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks )
@@ -399,6 +398,13 @@ void LoRaMacClassBSetPingSlotState( PingSlotState_t pingSlotState )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     PingSlotState = pingSlotState;
+#endif // LORAMAC_CLASSB_ENABLED
+}
+
+void LoRaMacClassBSetMulticastSlotState( PingSlotState_t multicastSlotState )
+{
+#ifdef LORAMAC_CLASSB_ENABLED
+    MulticastSlotState = multicastSlotState;
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -1032,6 +1038,19 @@ bool LoRaMacClassBIsPingExpected( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     if( PingSlotState == PINGSLOT_STATE_RX )
+    {
+        return true;
+    }
+    return false;
+#else
+    return false;
+#endif // LORAMAC_CLASSB_ENABLED
+}
+
+bool LoRaMacClassBIsMulticastExpected( void )
+{
+#ifdef LORAMAC_CLASSB_ENABLED
+    if( MulticastSlotState == PINGSLOT_STATE_RX )
     {
         return true;
     }

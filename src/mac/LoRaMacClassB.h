@@ -378,6 +378,13 @@ void LoRaMacClassBSetBeaconState( BeaconState_t beaconState );
 void LoRaMacClassBSetPingSlotState( PingSlotState_t pingSlotState );
 
 /*!
+ * \brief Set the state of the multicast slot state machine
+ *
+ * \param [IN] pingSlotState multicast slot state.
+ */
+void LoRaMacClassBSetMulticastSlotState( PingSlotState_t multicastSlotState );
+
+/*!
  * \brief State machine of the Class B for beaconing
  */
 void LoRaMacClassBBeaconTimerEvent( void );
@@ -416,6 +423,14 @@ bool LoRaMacClassBIsBeaconExpected( void );
  * \retval [true, if the node expects a ping slot; false, if not]
  */
 bool LoRaMacClassBIsPingExpected( void );
+
+/*!
+ * \brief The function validates, if the node expects a multicast slot
+ *        at the current time.
+ *
+ * \retval [true, if the node expects a multicast slot; false, if not]
+ */
+bool LoRaMacClassBIsMulticastExpected( void );
 
 /*!
  * \brief Verifies if the acquisition pending bit is set
