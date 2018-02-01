@@ -158,7 +158,7 @@ static void RxBeaconSetup( TimerTime_t rxTime, bool activateDefaultChannel )
 
     if( activateDefaultChannel == true )
     {
-        // This is the default frequency in case o we don't know when the next
+        // This is the default frequency in case we don't know when the next
         // beacon will be transmitted. We select channel 0 as default.
         frequency = CalcDownlinkFrequency( 0 );
     }
