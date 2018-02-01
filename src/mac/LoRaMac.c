@@ -1473,11 +1473,12 @@ static void OnMacStateCheckTimerEvent( void )
 
         if( LoRaMacFlags.Bits.MlmeReq == 1 )
         {
+            LoRaMacFlags.Bits.MlmeReq = 0;
+            LoRaMacConfirmQueueHandleCb( &MlmeConfirm );
             if( LoRaMacConfirmQueueGetCnt( ) == 0 )
             {
                 LoRaMacFlags.Bits.MlmeReq = 0;
             }
-            LoRaMacConfirmQueueHandleCb( &MlmeConfirm );
         }
 
         // Handle MLME indication
