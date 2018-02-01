@@ -40,6 +40,8 @@
 
 #endif
 
+//#define USE_BEACON_TIMING
+
 /*!
  * Defines the application data transmission duty cycle. 5s, value in [ms].
  */
@@ -178,6 +180,7 @@ static enum eDeviceState
     DEVICE_STATE_INIT,
     DEVICE_STATE_JOIN,
     DEVICE_STATE_SEND,
+    DEVICE_STATE_REQ_DEVICE_TIME,
     DEVICE_STATE_REQ_PINGSLOT_ACK,
     DEVICE_STATE_REQ_BEACON_TIMING,
     DEVICE_STATE_BEACON_ACQUISITION,
@@ -701,7 +704,18 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         ComplianceTest.State = 1;
                     }
                     break;
-                case 8: // Switch end device Class
+                case 8: // Send DeviceTimeReq
+                    {
+                        MlmeReq_t mlmeReq;
+
+                        mlmeReq.Type = MLME_DEVICE_TIME;
+
+                        LoRaMacMlmeRequest( &mlmeReq );
+                        WakeUpState = DEVICE_STATE_SEND;
+                        DeviceState = DEVICE_STATE_SEND;
+                    }
+                    break;
+                case 9: // Switch end device Class
                     {
                         MibRequestConfirm_t mibReq;
 
@@ -713,7 +727,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         DeviceState = DEVICE_STATE_SEND;
                     }
                     break;
-                case 9: // Send PingSlotInfoReq
+                case 10: // Send PingSlotInfoReq
                     {
                         MlmeReq_t mlmeReq;
 
@@ -726,7 +740,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         DeviceState = DEVICE_STATE_SEND;
                     }
                     break;
-                case 10: // Send BeaconTimingReq
+                case 11: // Send BeaconTimingReq
                     {
                         MlmeReq_t mlmeReq;
 
@@ -769,7 +783,11 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
             {
                 // Status is OK, node has joined the network
+#if defined( USE_BEACON_TIMING )
                 DeviceState = DEVICE_STATE_REQ_BEACON_TIMING;
+#else
+                DeviceState = DEVICE_STATE_REQ_DEVICE_TIME;
+#endif
             }
             else
             {
@@ -801,9 +819,16 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             }
             break;
         }
+        case MLME_DEVICE_TIME:
+        {
+            WakeUpState = DEVICE_STATE_BEACON_ACQUISITION;
+            // Switch to the next state immediately
+            DeviceState = DEVICE_STATE_BEACON_ACQUISITION;
+            NextTx = true;
+            break;
+        }
         case MLME_BEACON_TIMING:
         {
-
             WakeUpState = DEVICE_STATE_BEACON_ACQUISITION;
             // Switch to the next state immediately
             DeviceState = DEVICE_STATE_BEACON_ACQUISITION;
@@ -863,8 +888,11 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
             LoRaMacMibSetRequestConfirm( &mibReq );
 
             // Switch to class A again
+#if defined( USE_BEACON_TIMING )
             WakeUpState = DEVICE_STATE_REQ_BEACON_TIMING;
-
+#else
+            WakeUpState = DEVICE_STATE_REQ_DEVICE_TIME;
+#endif
             TimerStop( &LedBeaconTimer );
             break;
         }
@@ -995,8 +1023,28 @@ int main( void )
                 mibReq.Param.IsNetworkJoined = true;
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
+#if defined( USE_BEACON_TIMING )
                 DeviceState = DEVICE_STATE_REQ_BEACON_TIMING;
+#else
+                DeviceState = DEVICE_STATE_REQ_DEVICE_TIME;
 #endif
+#endif
+                break;
+            }
+            case DEVICE_STATE_REQ_DEVICE_TIME:
+            {
+                MlmeReq_t mlmeReq;
+
+                if( NextTx == true )
+                {
+                    mlmeReq.Type = MLME_DEVICE_TIME;
+
+                    if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
+                    {
+                        WakeUpState = DEVICE_STATE_SEND;
+                    }
+                }
+                DeviceState = DEVICE_STATE_SEND;
                 break;
             }
             case DEVICE_STATE_REQ_BEACON_TIMING:

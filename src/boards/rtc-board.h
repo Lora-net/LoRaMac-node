@@ -61,6 +61,14 @@ typedef uint32_t TimerTime_t;
 void RtcInit( void );
 
 /*!
+ * \brief Sets the system time with the number of sconds elapsed since epoch
+ *
+ * \param [IN] seconds Number of seconds elapsed since epoch
+ * \param [IN] subSeconds Number of SubSeconds miliseconds elapsed since epoch
+ */
+void RtcSetSystemTime( uint32_t seconds, uint32_t subSeconds );
+
+/*!
  * \brief Start the RTC timer
  *
  * \remark The timer is based on the RTC Alarm running at 32.768KHz

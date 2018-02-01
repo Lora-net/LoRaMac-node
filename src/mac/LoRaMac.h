@@ -475,6 +475,10 @@ typedef enum eLoRaMacMoteCmd
      */
     MOTE_MAC_DL_CHANNEL_ANS          = 0x0A,
     /*!
+     * DeviceTimeReq
+     */
+    MOTE_MAC_DEVICE_TIME_REQ         = 0x0D,
+    /*!
      * PingSlotInfoReq
      */
     MOTE_MAC_PING_SLOT_INFO_REQ      = 0x10,
@@ -535,6 +539,10 @@ typedef enum eLoRaMacSrvCmd
      * DlChannelReq
      */
     SRV_MAC_DL_CHANNEL_REQ           = 0x0A,
+    /*!
+     * DeviceTimeAns
+     */
+    SRV_MAC_DEVICE_TIME_ANS          = 0x0D,
     /*!
      * PingSlotInfoAns
      */
@@ -1146,6 +1154,12 @@ typedef enum eMlme
      * soon as possible.
      */
     MLME_SCHEDULE_UPLINK,
+    /*!
+     * Initiates a DeviceTimeReq
+     *
+     * LoRaWAN end-device certification
+     */
+    MLME_DEVICE_TIME,
     /*!
      * The MAC uses this MLME primitive to indicate a beacon reception
      * status.

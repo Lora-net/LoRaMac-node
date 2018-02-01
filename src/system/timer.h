@@ -47,6 +47,14 @@ typedef uint32_t TimerTime_t;
 #endif
 
 /*!
+ * \brief Sets the system time with the number of sconds elapsed since epoch
+ *
+ * \param [IN] seconds Number of seconds elapsed since epoch
+ * \param [IN] subSecondsMs Number of SubSeconds miliseconds elapsed since epoch
+ */
+void TimerSetSystemTime( uint32_t seconds, uint32_t subSecondsMs );
+
+/*!
  * \brief Initializes the timer object
  *
  * \remark TimerSetValue function must be called before starting the timer.

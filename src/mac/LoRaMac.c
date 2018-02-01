@@ -1863,6 +1863,14 @@ static LoRaMacStatus_t AddMacCommand( uint8_t cmd, uint8_t p1, uint8_t p2 )
                 status = LORAMAC_STATUS_OK;
             }
             break;
+        case MOTE_MAC_DEVICE_TIME_REQ:
+            if( MacCommandsBufferIndex < LORA_MAC_COMMAND_MAX_LENGTH )
+            {
+                MacCommandsBuffer[MacCommandsBufferIndex++] = cmd;
+                // No payload for this answer
+               status = LORAMAC_STATUS_OK;
+            }
+            break;
         case MOTE_MAC_PING_SLOT_INFO_REQ:
             if( MacCommandsBufferIndex < ( LORA_MAC_COMMAND_MAX_LENGTH - 1 ) )
             {
@@ -2134,6 +2142,20 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     status = RegionDlChannelReq( LoRaMacRegion, &dlChannelReq );
 
                     AddMacCommand( MOTE_MAC_DL_CHANNEL_ANS, status, 0 );
+                }
+                break;
+            case SRV_MAC_DEVICE_TIME_ANS:
+                {
+                    uint32_t seconds = 0;
+                    uint8_t subSeconds = 0;
+
+                    seconds = ( uint32_t )payload[macIndex++];
+                    seconds |= ( uint32_t )payload[macIndex++] << 8;
+                    seconds |= ( uint32_t )payload[macIndex++] << 16;
+                    seconds |= ( uint32_t )payload[macIndex++] << 24;
+                    subSeconds = payload[macIndex++];
+
+                    LoRaMacClassBDeviceTimeAns( seconds, subSeconds );
                 }
                 break;
             case SRV_MAC_PING_SLOT_INFO_ANS:
@@ -3574,6 +3596,18 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             LoRaMacConfirmQueueAdd( &queueElement );
 
             status = SetTxContinuousWave1( mlmeRequest->Req.TxCw.Timeout, mlmeRequest->Req.TxCw.Frequency, mlmeRequest->Req.TxCw.Power );
+            break;
+        }
+        case MLME_DEVICE_TIME:
+        {
+            // Apply the request
+            LoRaMacFlags.Bits.MlmeReq = 1;
+            queueElement.Request = mlmeRequest->Type;
+            queueElement.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+            LoRaMacConfirmQueueAdd( &queueElement );
+
+            // LoRaMac will send this command piggy-pack
+            status = AddMacCommand( MOTE_MAC_DEVICE_TIME_REQ, 0, 0 );
             break;
         }
         case MLME_PING_SLOT_INFO:

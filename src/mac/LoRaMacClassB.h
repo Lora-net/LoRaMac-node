@@ -534,6 +534,14 @@ uint8_t LoRaMacClassBPingSlotChannelReq( uint8_t datarate, uint32_t frequency );
 void LoRaMacClassBBeaconTimingAns( uint16_t beaconTimingDelay, uint8_t beaconTimingChannel );
 
 /*!
+ * \brief This function handles the DEVICE_TIME_ANS
+ *
+ * \param [IN] seconds The beacon timing delay
+ * \param [IN] subSeconds The beacon timing channel
+ */
+void LoRaMacClassBDeviceTimeAns( uint32_t seconds, uint8_t subSeconds );
+
+/*!
  * \brief This function handles the BEACON_FREQ_REQ
  *
  * \param [IN] frequency Frequency to set

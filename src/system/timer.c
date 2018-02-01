@@ -79,6 +79,11 @@ static bool TimerExists( TimerEvent_t *obj );
  */
 TimerTime_t TimerGetValue( void );
 
+void TimerSetSystemTime( uint32_t seconds, uint32_t subSeconds )
+{
+    RtcSetSystemTime( seconds, subSeconds );
+}
+
 void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
 {
     obj->Timestamp = 0;

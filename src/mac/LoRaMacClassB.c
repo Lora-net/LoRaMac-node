@@ -17,6 +17,7 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jaeckle ( STACKFORCE )
 */
+#include <math.h>
 #include "utilities.h"
 #include "LoRaMac.h"
 #include "LoRaMacClassB.h"
@@ -1427,6 +1428,41 @@ void LoRaMacClassBBeaconTimingAns( uint16_t beaconTimingDelay, uint8_t beaconTim
 
         LoRaMacClassBParams.MlmeConfirm->BeaconTimingDelay = BeaconCtx.BeaconTimingDelay;
         LoRaMacClassBParams.MlmeConfirm->BeaconTimingChannel = BeaconCtx.BeaconTimingChannel;
+    }
+#endif // LORAMAC_CLASSB_ENABLED
+}
+
+void LoRaMacClassBDeviceTimeAns( uint32_t seconds, uint8_t subSeconds )
+{
+#ifdef LORAMAC_CLASSB_ENABLED
+    TimerTime_t currentTime = 0;
+    uint32_t subSecondsMs = subSeconds;
+
+    // Convert the fractional second received in ms
+    subSecondsMs *= round( pow( 0.5, 8.0 ) * 1000 );
+
+    // Apply the new system time.
+    TimerSetSystemTime( seconds, subSecondsMs );
+
+    currentTime = TimerGetCurrentTime( );
+    BeaconCtx.LastBeaconRx = currentTime - ( currentTime % BeaconCtx.Cfg.Interval );
+    //LOG( "BeaconCtx.LastBeaconRx: %u", BeaconCtx.LastBeaconRx );
+    BeaconCtx.NextBeaconRx = BeaconCtx.LastBeaconRx + BeaconCtx.Cfg.Interval;
+    //LOG( "BeaconCtx.NextBeaconRx: %u", BeaconCtx.NextBeaconRx );
+    
+    if( LoRaMacConfirmQueueIsCmdActive( MLME_DEVICE_TIME ) == true )
+    {
+        if( currentTime > BeaconCtx.NextBeaconRx )
+        {
+            // We missed the beacon already
+            BeaconCtx.LastBeaconRx = 0;
+            BeaconCtx.NextBeaconRx = 0;
+            LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_BEACON_NOT_FOUND, MLME_DEVICE_TIME );
+        }
+        else
+        {
+            LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_OK, MLME_DEVICE_TIME );
+        }
     }
 #endif // LORAMAC_CLASSB_ENABLED
 }
