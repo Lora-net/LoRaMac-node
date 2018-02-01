@@ -412,13 +412,20 @@ static void OnTxNextPacketTimerEvent( void )
         {
             // Network not joined yet. Try to join again
             MlmeReq_t mlmeReq;
+            mlmeReq.Type = MLME_JOIN;
             mlmeReq.Req.Join.DevEui = AppSettings.DevEui;
             mlmeReq.Req.Join.AppEui = AppSettings.AppEui;
             mlmeReq.Req.Join.AppKey = AppSettings.AppKey;
             mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
 
-            LoRaMacMlmeRequest( &mlmeReq );
-            DeviceState = DEVICE_STATE_SLEEP;
+            if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
+            {
+                DeviceState = DEVICE_STATE_SLEEP;
+            }
+            else
+            {
+                DeviceState = DEVICE_STATE_CYCLE;
+            }
         }
     }
 }
@@ -802,9 +809,10 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             {
                 // Join was not successful. Try to join again
                 MlmeReq_t mlmeReq;
-                mlmeReq.Req.Join.DevEui = DevEui;
-                mlmeReq.Req.Join.AppEui = AppEui;
-                mlmeReq.Req.Join.AppKey = AppKey;
+                mlmeReq.Type = MLME_JOIN;
+                mlmeReq.Req.Join.DevEui = AppSettings.DevEui;
+                mlmeReq.Req.Join.AppEui = AppSettings.AppEui;
+                mlmeReq.Req.Join.AppKey = AppSettings.AppKey;
                 mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
 
                 LoRaMacMlmeRequest( &mlmeReq );

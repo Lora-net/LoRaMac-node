@@ -313,14 +313,15 @@ TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime )
     {
         return 0;
     }
-
+    // first get the current value of the timer in tick
     elapsedTime = RtcConvertCalendarTickToTimerTime( NULL );
-
+    // convert into ms
     elapsedTime = RtcConvertTickToMs( elapsedTime );
 
-    if( elapsedTime < eventInTime )
-    { // roll over of the counter
-        return( elapsedTime + ( 0xFFFFFFFF - eventInTime ) );
+    // compare "eventInTime" with "elapsedTime" while watching for roll over due to 32-bit
+    if( elapsedTime < eventInTime ) // // roll over of the counter
+    {   // due to convertion tick to ms, roll over value is 0x7D000000 (0x7D000000 * 2.048 = 0xFFFFFFFF)
+        return( elapsedTime + ( 0x7D000000 - eventInTime ) );
     }
     else
     {
