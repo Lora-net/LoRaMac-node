@@ -297,8 +297,8 @@ static void InitClassBDefaults( void )
     PhyParam_t phyParam;
 
     // Init variables to default
-    memset1( ( uint8_t* ) &BeaconCtx, 0, sizeof( BeaconCtx_t ) );
-    memset1( ( uint8_t* ) &PingSlotCtx, 0, sizeof( PingSlotCtx_t ) );
+    memset1( ( uint8_t* ) &BeaconCtx, 0, sizeof( BeaconContext_t ) );
+    memset1( ( uint8_t* ) &PingSlotCtx, 0, sizeof( PingSlotContext_t ) );
 
     // Setup default temperature
     BeaconCtx.Temperature = 25.0;
