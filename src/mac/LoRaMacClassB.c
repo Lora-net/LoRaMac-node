@@ -440,9 +440,13 @@ void LoRaMacClassBBeaconTimerEvent( void )
                         }
                         else
                         {
+                            // Reset status provides by BeaconTimingAns
                             BeaconCtx.Ctrl.BeaconDelaySet = 0;
-                            BeaconCtx.Ctrl.AcquisitionPending = 1;
                             BeaconCtx.Ctrl.AcquisitionTimerSet = 0;
+                            BeaconCtx.Ctrl.BeaconChannelSet = 0;
+                            // Set the node into acquisition mode
+                            BeaconCtx.Ctrl.AcquisitionPending = 1;
+
                             beaconEventTime = BeaconCtx.Cfg.Interval;
 
                             // Use the default channel. We don't know on which
@@ -456,9 +460,11 @@ void LoRaMacClassBBeaconTimerEvent( void )
                     {
                         activateTimer = false;
 
+                        // Reset status provides by BeaconTimingAns
                         BeaconCtx.Ctrl.BeaconDelaySet = 0;
-                        BeaconCtx.Ctrl.AcquisitionPending = 1;
                         BeaconCtx.Ctrl.AcquisitionTimerSet = 0;
+                        // Set the node into acquisition mode
+                        BeaconCtx.Ctrl.AcquisitionPending = 1;
 
                         // Don't use the default channel. We know on which
                         // channel the next beacon will be transmitted
