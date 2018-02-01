@@ -553,8 +553,14 @@ static bool ValidatePayloadLength( uint8_t lenN, int8_t datarate, uint8_t fOptsL
 
 /*!
  * \brief Decodes MAC commands in the fOpts field and in the payload
+ *
+ * \param [IN] payload      A pointer to the payload
+ * \param [IN] macIndex     The index of the payload where the MAC commands start
+ * \param [IN] commandsSize The size of the MAC commands
+ * \param [IN] snr          The SNR value  of the frame
+ * \param [IN] rxSlot       The RX slot where the frame was received
  */
-static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t commandsSize, uint8_t snr );
+static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t commandsSize, uint8_t snr, LoRaMacRxSlot_t rxSlot );
 
 /*!
  * \brief LoRaMAC layer generic send frame
@@ -788,13 +794,20 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
     {
         return;
     }
-    // Check if we expect a ping slot.
+    // Check if we expect a ping or a multicast slot.
     if( LoRaMacDeviceClass == CLASS_B )
     {
         if( LoRaMacClassBIsPingExpected( ) == true )
         {
             LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_SET_TIMER );
             LoRaMacClassBPingSlotTimerEvent( );
+            McpsIndication.RxSlot = RX_SLOT_WIN_PING_SLOT;
+        }
+        else if( LoRaMacClassBIsMulticastExpected( ) == true )
+        {
+            LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_SET_TIMER );
+            LoRaMacClassBMulticastSlotTimerEvent( );
+            McpsIndication.RxSlot = RX_SLOT_WIN_MULTICAST_SLOT;
         }
     }
 
@@ -1081,7 +1094,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                                                        LoRaMacRxPayload );
 
                                 // Decode frame payload MAC commands
-                                ProcessMacCommands( LoRaMacRxPayload, 0, frameLen, snr );
+                                ProcessMacCommands( LoRaMacRxPayload, 0, frameLen, snr, McpsIndication.RxSlot );
                             }
                             else
                             {
@@ -1096,7 +1109,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                             if( ( fCtrl.Bits.FOptsLen > 0 ) && ( multicast == 0 ) )
                             {
                                 // Decode Options field MAC commands. Omit the fPort.
-                                ProcessMacCommands( payload, 8, appPayloadStartIndex - 1, snr );
+                                ProcessMacCommands( payload, 8, appPayloadStartIndex - 1, snr, McpsIndication.RxSlot );
                             }
 
                             LoRaMacPayloadDecrypt( payload + appPayloadStartIndex,
@@ -1117,7 +1130,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                         if( fCtrl.Bits.FOptsLen > 0 )
                         {
                             // Decode Options field MAC commands
-                            ProcessMacCommands( payload, 8, appPayloadStartIndex, snr );
+                            ProcessMacCommands( payload, 8, appPayloadStartIndex, snr, McpsIndication.RxSlot );
                         }
                     }
 
@@ -1948,7 +1961,7 @@ static uint8_t ParseMacCommandsToRepeat( uint8_t* cmdBufIn, uint8_t length, uint
     return cmdCount;
 }
 
-static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t commandsSize, uint8_t snr )
+static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t commandsSize, uint8_t snr, LoRaMacRxSlot_t rxSlot )
 {
     uint8_t status = 0;
 
@@ -2125,7 +2138,12 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 break;
             case SRV_MAC_PING_SLOT_INFO_ANS:
                 {
-                    LoRaMacClassBPingSlotInfoAns( );
+                    // According to the specification, it is not allowed to process this answer in
+                    // a ping or multicast slot
+                    if( ( rxSlot != RX_SLOT_WIN_PING_SLOT ) && ( rxSlot != RX_SLOT_WIN_MULTICAST_SLOT ) )
+                    {
+                        LoRaMacClassBPingSlotInfoAns( );
+                    }
                 }
                 break;
             case SRV_MAC_PING_SLOT_CHANNEL_REQ:
