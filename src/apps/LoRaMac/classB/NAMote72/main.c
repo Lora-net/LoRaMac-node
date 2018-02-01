@@ -870,6 +870,11 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
     }
 }
 
+/*!
+ * \brief   MLME-Indication event function
+ *
+ * \param   [IN] mlmeIndication - Pointer to the indication structure.
+ */
 static void MlmeIndication( MlmeIndication_t *mlmeIndication )
 {
     MibRequestConfirm_t mibReq;

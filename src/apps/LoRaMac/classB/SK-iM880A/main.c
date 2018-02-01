@@ -621,7 +621,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         ComplianceTest.State = 1;
                     }
                     break;
-                case 8: // Switch end device Class
+                case 9: // Switch end device Class
                     {
                         MibRequestConfirm_t mibReq;
 
@@ -633,7 +633,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         DeviceState = DEVICE_STATE_SEND;
                     }
                     break;
-                case 9: // Send PingSlotInfoReq
+                case 10: // Send PingSlotInfoReq
                     {
                         MlmeReq_t mlmeReq;
 
@@ -646,7 +646,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         DeviceState = DEVICE_STATE_SEND;
                     }
                     break;
-                case 10: // Send BeaconTimingReq
+                case 11: // Send BeaconTimingReq
                     {
                         MlmeReq_t mlmeReq;
 
@@ -723,7 +723,6 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
         }
         case MLME_BEACON_TIMING:
         {
-
             WakeUpState = DEVICE_STATE_BEACON_ACQUISITION;
             // Switch to the next state immediately
             DeviceState = DEVICE_STATE_BEACON_ACQUISITION;
@@ -765,6 +764,11 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
     }
 }
 
+/*!
+ * \brief   MLME-Indication event function
+ *
+ * \param   [IN] mlmeIndication - Pointer to the indication structure.
+ */
 static void MlmeIndication( MlmeIndication_t *mlmeIndication )
 {
     MibRequestConfirm_t mibReq;
