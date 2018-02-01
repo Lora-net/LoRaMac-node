@@ -1176,14 +1176,20 @@ static void OnRadioRxError( void )
         }
         MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX1_ERROR;
 
-        if( TimerGetElapsedTime( AggregatedLastTxDoneTime ) >= RxWindow2Delay )
+        if( LoRaMacDeviceClass != CLASS_C )
         {
-            TimerStop( &RxWindowTimer2 );
-            LoRaMacFlags.Bits.MacDone = 1;
+            if( TimerGetElapsedTime( AggregatedLastTxDoneTime ) >= RxWindow2Delay )
+            {
+                TimerStop( &RxWindowTimer2 );
+                LoRaMacFlags.Bits.MacDone = 1;
+            }
         }
     }
-    else
+    if( ( rxSlot == RX_SLOT_WIN_2 ) || ( LoRaMacDeviceClass == CLASS_C ) )
     {
+        // We need to process this case if the MAC is in class A or B for the 2nd RX window timeout.
+        // If the MAC is in class C, we need to process this part also for the 1st RX window timeout,
+        // as the 2nd window timer is not running.
         if( NodeAckRequested == true )
         {
             McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX2_ERROR;
@@ -1218,14 +1224,20 @@ static void OnRadioRxTimeout( void )
         }
         MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX1_TIMEOUT;
 
-        if( TimerGetElapsedTime( AggregatedLastTxDoneTime ) >= RxWindow2Delay )
+        if( LoRaMacDeviceClass != CLASS_C )
         {
-            TimerStop( &RxWindowTimer2 );
-            LoRaMacFlags.Bits.MacDone = 1;
+            if( TimerGetElapsedTime( AggregatedLastTxDoneTime ) >= RxWindow2Delay )
+            {
+                TimerStop( &RxWindowTimer2 );
+                LoRaMacFlags.Bits.MacDone = 1;
+            }
         }
     }
-    else
+    if( ( rxSlot == RX_SLOT_WIN_2 ) || ( LoRaMacDeviceClass == CLASS_C ) )
     {
+        // We need to process this case if the MAC is in class A or B for the 2nd RX window timeout.
+        // If the MAC is in class C, we need to process this part also for the 1st RX window timeout,
+        // as the 2nd window timer is not running.
         if( NodeAckRequested == true )
         {
             McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT;
