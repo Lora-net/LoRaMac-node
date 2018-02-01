@@ -129,6 +129,11 @@ void RtcEnterLowPowerStopMode( void )
 
 }
 
+TimerTime_t RtcTempCompensation( TimerTime_t period, float temperature )
+{
+    return period;
+}
+
 void RtcProcess( void )
 {
     if( RtcTimeoutPendingPolling == true )
