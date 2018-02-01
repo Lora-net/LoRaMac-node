@@ -23,7 +23,7 @@ cmake_minimum_required(VERSION 3.6)
 #---------------------------------------------------------------------------------------
 
 # Allow switching of target platform
-set(BOARD_LIST LoRaMote MoteII NAMote72 SensorNode SK-iM880A)
+set(BOARD_LIST LoRaMote MoteII NAMote72 SensorNode SK-iM880A SAML21)
 set(BOARD LoRaMote CACHE STRING "Default target platform is LoRaMote")
 set_property(CACHE BOARD PROPERTY STRINGS ${BOARD_LIST})
 
@@ -115,6 +115,17 @@ elseif(BOARD STREQUAL NAMote72)
 
     # Configure radio
     set(RADIO sx1272 CACHE INTERNAL "Radio sx1272 selected")
+
+elseif(BOARD STREQUAL SAML21)
+    # Configure toolchain for SAML21
+    set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/boards/mcu/saml21/saml21b/gcc/gcc/saml21j18b_flash.ld)
+    include(saml21)
+
+    # Build platform specific board implementation
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/SAML21)
+
+    # Configure radio
+    set(RADIO sx1276 CACHE INTERNAL "Radio sx1276 selected")
 
 endif()
 

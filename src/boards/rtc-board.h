@@ -143,4 +143,9 @@ void RtcRecoverMcuStatus( void );
  */
 TimerTime_t RtcTempCompensation( TimerTime_t period, float temperature );
 
+/*!
+ * \brief Processes pending timer events
+ */
+void RtcProcess( void );
+
 #endif // __RTC_BOARD_H__

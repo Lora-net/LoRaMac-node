@@ -57,14 +57,6 @@ Gpio_t Led1;
 Gpio_t Led2;
 Gpio_t Led3;
 
-#if defined( USE_DEBUG_PINS )
-Gpio_t DbgPin1;
-Gpio_t DbgPin2;
-Gpio_t DbgPin3;
-Gpio_t DbgPin4;
-Gpio_t DbgPin5;
-#endif
-
 /*
  * MCU objects
  */
@@ -205,14 +197,6 @@ void BoardInitMcu( void )
         BoardUnusedIoInit( );
 
         I2cInit( &I2c, I2C_1, I2C_SCL, I2C_SDA );
-
-#if defined( USE_DEBUG_PINS )
-        GpioInit( &DbgPin1, CON_EXT_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-        GpioInit( &DbgPin2, CON_EXT_3, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-        GpioInit( &DbgPin3, CON_EXT_7, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-        GpioInit( &DbgPin4, CON_EXT_8, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-        GpioInit( &DbgPin5, CON_EXT_9, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-#endif
     }
     else
     {
@@ -360,15 +344,6 @@ static void BoardUnusedIoInit( void )
 {
     Gpio_t ioPin;
 
-    /* External Connector J5 */
-#if !defined( USE_DEBUG_PINS )
-    GpioInit( &ioPin, CON_EXT_1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &ioPin, CON_EXT_3, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &ioPin, CON_EXT_7, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &ioPin, CON_EXT_8, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &ioPin, CON_EXT_9, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-#endif
-
     if( GetBoardPowerSource( ) == BATTERY_POWER )
     {
         GpioInit( &ioPin, USB_DM, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
@@ -514,6 +489,18 @@ uint8_t GetBoardPowerSource( void )
 #else
     return BATTERY_POWER;
 #endif
+}
+
+#ifdef __GNUC__
+int __io_putchar( int c )
+#else /* __GNUC__ */
+int fputc( int c, FILE *stream )
+#endif
+{
+#if defined( USE_USB_CDC )
+    while( UartPutChar( &UartUsb, c ) != 0 );
+#endif
+    return c;
 }
 
 #ifdef USE_FULL_ASSERT

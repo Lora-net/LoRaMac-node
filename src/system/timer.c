@@ -421,3 +421,8 @@ TimerTime_t TimerTempCompensation( TimerTime_t period, float temperature )
 {
     return RtcTempCompensation( period, temperature );
 }
+
+void TimerProcess( void )
+{
+    RtcProcess( );
+}

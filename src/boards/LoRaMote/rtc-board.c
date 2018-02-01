@@ -776,3 +776,8 @@ TimerTime_t RtcTempCompensation( TimerTime_t period, float temperature )
     // Calculate the resulting period
     return ( TimerTime_t ) interim;
 }
+
+void RtcProcess( void )
+{
+    // Not used on this platform.
+}

@@ -236,7 +236,7 @@ void BoardInitMcu( void )
         break;
     }
 
-    SpiInit( &SX1272.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+    SpiInit( &SX1272.Spi, SPI_2, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX1272IoInit( );
 
     if( McuInitialized == false )
@@ -554,6 +554,16 @@ uint8_t GetBoardPowerSource( void )
     {
         return USB_POWER;
     }
+}
+
+#ifdef __GNUC__
+int __io_putchar( int c )
+#else /* __GNUC__ */
+int fputc( int c, FILE *stream )
+#endif
+{
+    while( UartPutChar( &Uart2, c ) != 0 );
+    return c;
 }
 
 #ifdef USE_FULL_ASSERT

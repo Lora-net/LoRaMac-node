@@ -38,7 +38,7 @@
 #include "board.h"
 
 /*!
- * Unique Devices IDs register set ( STM32L1xxx )
+ * Unique Devices IDs register set ( STM32L0xxx )
  */
 #define         ID1                                 ( 0x1FF80050 )
 #define         ID2                                 ( 0x1FF80054 )
@@ -57,6 +57,11 @@ Gpio_t Led3;
 Adc_t Adc;
 I2c_t I2c;
 Uart_t Uart1;
+
+/*!
+ * Flag to indicate the Status of LED3
+ */
+volatile uint8_t Led3Status = 1;
 
 /*!
  * Initializes the unused GPIO to a know status
@@ -97,11 +102,6 @@ static bool UsbIsConnected = false;
  * Flag to indicate if the SystemWakeupTime is Calibrated
  */
 static bool SystemWakeupTimeCalibrated = false;
-
-/*!
- * Flag to indicate the Status of LED3
- */
-volatile uint8_t Led3Status = 1;
 
 /*!
  * Callback indicating the end of the system wake-up time calibration
@@ -477,6 +477,16 @@ uint8_t GetBoardPowerSource( void )
     {
         return USB_POWER;
     }
+}
+
+#ifdef __GNUC__
+int __io_putchar( int c )
+#else /* __GNUC__ */
+int fputc( int c, FILE *stream )
+#endif
+{
+    while( UartPutChar( &Uart1, c ) != 0 );
+    return c;
 }
 
 #ifdef USE_FULL_ASSERT

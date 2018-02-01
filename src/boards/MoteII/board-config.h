@@ -66,7 +66,6 @@
 /*!
  * Board MCU pins definitions
  */
-
 #define RADIO_RESET                                 PA_5
 
 #define RADIO_MOSI                                  PB_15
@@ -120,5 +119,9 @@
 #define IO_EXP_NINT                                 PC_13
 
 #define GPS_EN                                      PB_8
+
+// Debug pins definition.
+#define RADIO_DBG_PIN_TX                            NC
+#define RADIO_DBG_PIN_RX                            NC
 
 #endif // __BOARD_CONFIG_H__

@@ -517,6 +517,18 @@ uint8_t GetBoardPowerSource( void )
 #endif
 }
 
+#ifdef __GNUC__
+int __io_putchar( int c )
+#else /* __GNUC__ */
+int fputc( int c, FILE *stream )
+#endif
+{
+#if defined( USE_USB_CDC )
+    while( UartPutChar( &UartUsb, c ) != 0 );
+#endif
+    return c;
+}
+
 #ifdef USE_FULL_ASSERT
 /*
  * Function Name  : assert_failed

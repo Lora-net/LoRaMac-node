@@ -1386,7 +1386,8 @@ typedef struct sMlmeIndication
  * \ref MIB_BEACON_SYMBOL_TO_EXPANSION_FACTOR    | YES | YES
  * \ref MIB_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR | YES | YES
  * \ref MIB_MAX_BEACON_LESS_PERIOD               | YES | YES
- * \ref MIB_ANTENNA_GAIN             | YES | YES
+ * \ref MIB_ANTENNA_GAIN                         | YES | YES
+ * \ref MIB_DEFAULT_ANTENNA_GAIN                 | YES | YES
  *
  * The following table provides links to the function implementations of the
  * related MIB primitives:
@@ -1594,6 +1595,13 @@ typedef enum eMib
      * radioTxPower = ( int8_t )floor( maxEirp - antennaGain )
      */
     MIB_ANTENNA_GAIN,
+    /*!
+     * Default antenna gain of the node. Default value is region specific.
+     * The antenna gain is used to calculate the TX power of the node.
+     * The formula is:
+     * radioTxPower = ( int8_t )floor( maxEirp - antennaGain )
+     */
+    MIB_DEFAULT_ANTENNA_GAIN,
     /*!
      * Beacon interval in ms
      */
@@ -1839,6 +1847,12 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_ANTENNA_GAIN
      */
     float AntennaGain;
+    /*!
+     * Default antenna gain
+     *
+     * Related MIB type: \ref MIB_DEFAULT_ANTENNA_GAIN
+     */
+    float DefaultAntennaGain;
     /*!
      * Beacon interval in ms
      *

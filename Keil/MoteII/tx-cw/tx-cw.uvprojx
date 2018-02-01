@@ -982,7 +982,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER STM32L051xx REGION_US915</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\src;..\..\..\src\boards;..\..\..\src\boards\MoteII;..\..\..\src\boards\MoteII\cmsis;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\src\mac;..\..\..\src\peripherals;..\..\..\src\peripherals\ble;..\..\..\src\peripherals\display;..\..\..\src\radio;..\..\..\src\system;..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\src;..\..\..\src\boards;..\..\..\src\boards\MoteII;..\..\..\src\boards\MoteII\cmsis;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\boards\mcu\stm32\STM32L0xx_HAL_Driver\inc;..\..\..\src\mac;..\..\..\src\peripherals;..\..\..\src\radio;..\..\..\src\system;..\..\..\src\system\crypto</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
