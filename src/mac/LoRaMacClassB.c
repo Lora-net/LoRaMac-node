@@ -657,6 +657,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
         }
         case BEACON_STATE_LOST:
         {
+            // Handle events
             if( LoRaMacClassBParams.LoRaMacFlags->Bits.MlmeReq == 1 )
             {
                 if( LoRaMacConfirmQueueIsCmdActive( MLME_BEACON_ACQUISITION ) == true )
