@@ -43,15 +43,15 @@
 //#define USE_BEACON_TIMING
 
 /*!
- * Defines the application data transmission duty cycle. 5s, value in [ms].
+ * Defines the application data transmission duty cycle. 30s, value in [ms].
  */
-#define APP_TX_DUTYCYCLE                            5000
+#define APP_TX_DUTYCYCLE                            30000
 
 /*!
- * Defines a random delay for application data transmission duty cycle. 1s,
+ * Defines a random delay for application data transmission duty cycle. 5s,
  * value in [ms].
  */
-#define APP_TX_DUTYCYCLE_RND                        1000
+#define APP_TX_DUTYCYCLE_RND                        5000
 
 /*!
  * Default datarate
@@ -843,7 +843,11 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             }
             else
             {
+#if defined( USE_BEACON_TIMING )
                 WakeUpState = DEVICE_STATE_REQ_BEACON_TIMING;
+#else
+                WakeUpState = DEVICE_STATE_REQ_DEVICE_TIME;
+#endif
             }
             break;
         }
