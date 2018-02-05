@@ -47,12 +47,73 @@ typedef uint32_t TimerTime_t;
 #endif
 
 /*!
+ * \brief Structure holding the system time in seconds and miliseconds.
+ */
+typedef struct TimerSysTime_s
+{
+    uint32_t Seconds;
+    int16_t SubSeconds;
+}TimerSysTime_t;
+
+/*!
+ * Adds 2 TimerSysTime_t values
+ *
+ * \param a Value
+ * \param b Value to added
+ *
+ * \retval result Addition result (TimerSysTime_t value)
+ */
+inline TimerSysTime_t TimerAddSysTime( TimerSysTime_t a, TimerSysTime_t b )
+{
+    TimerSysTime_t c = { 0 };
+
+    c.Seconds = a.Seconds + b.Seconds;
+    c.SubSeconds = a.SubSeconds + b.SubSeconds;
+    if( c.SubSeconds >= 1000 )
+    {
+        c.Seconds++;
+        c.SubSeconds -= 1000;
+    }
+    return c;
+}
+
+/*!
+ * Subtracts 2 TimerSysTime_t values
+ *
+ * \param a Value
+ * \param b Value to be subtracted
+ *
+ * \retval result Subtraction result (TimerSysTime_t value)
+ */
+inline TimerSysTime_t TimerSubSysTime( TimerSysTime_t a, TimerSysTime_t b )
+{
+    TimerSysTime_t c = { 0 };
+
+    c.Seconds = a.Seconds - b.Seconds;
+    c.SubSeconds = a.SubSeconds - b.SubSeconds;
+    if( c.SubSeconds < 0 )
+    {
+        c.Seconds--;
+        c.SubSeconds += 1000;
+    }
+    return c;
+}
+
+/*!
  * \brief Sets the system time with the number of sconds elapsed since epoch
  *
- * \param [IN] seconds Number of seconds elapsed since epoch
- * \param [IN] subSecondsMs Number of SubSeconds miliseconds elapsed since epoch
- */
-void TimerSetSysTime( uint32_t seconds, uint32_t subSecondsMs );
+ * \param [IN] sysTime Structure provideing the number of seconds and 
+ *                     subseconds elapsed since epoch
+  */
+void TimerSetSysTime( TimerSysTime_t sysTime );
+
+/*!
+ * \brief Gets the current system number of sconds elapsed since epoch
+ *
+ * \retval sysTime Structure provideing the number of seconds and 
+ *                 subseconds elapsed since epoch
+  */
+TimerSysTime_t TimerGetSysTime( void );
 
 /*!
  * \brief Initializes the timer object

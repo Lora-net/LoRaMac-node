@@ -1436,13 +1436,14 @@ void LoRaMacClassBDeviceTimeAns( uint32_t seconds, uint8_t subSeconds )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     TimerTime_t currentTime = 0;
-    uint32_t subSecondsMs = subSeconds;
+    TimerSysTime_t sysTime = { 0 };
 
+    sysTime.Seconds = seconds
     // Convert the fractional second received in ms
-    subSecondsMs *= round( pow( 0.5, 8.0 ) * 1000 );
+    sysTime.SubSeconds *= round( pow( 0.5, 8.0 ) * 1000 );
 
     // Apply the new system time.
-    TimerSetSysTime( seconds, subSecondsMs );
+    TimerSetSysTime( sysTime );
 
     currentTime = TimerGetCurrentTime( );
     BeaconCtx.LastBeaconRx = currentTime - ( currentTime % BeaconCtx.Cfg.Interval );

@@ -79,9 +79,18 @@ static bool TimerExists( TimerEvent_t *obj );
  */
 TimerTime_t TimerGetValue( void );
 
-void TimerSetSysTime( uint32_t seconds, uint32_t subSeconds )
+void TimerSetSysTime( TimerSysTime_t sysTime )
 {
-    RtcSetSysTime( seconds, subSeconds );
+    RtcSetSysTime( sysTime.Seconds, sysTime.SubSeconds );
+}
+
+TimerSysTime_t TimerGetSysTime( void )
+{
+    TimerSysTime_t sysTime = { 0 };
+
+    sysTime.Seconds = RtcGetSysTime( ( uint16_t* )&sysTime.SubSeconds );
+
+    return sysTime;
 }
 
 void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
