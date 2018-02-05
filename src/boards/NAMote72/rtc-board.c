@@ -24,7 +24,7 @@
 #include <time.h>
 #include "stm32l1xx.h"
 #include "utilities.h"
-#include "delay-board.h"
+#include "delay.h"
 #include "board.h"
 #include "timer.h"
 #include "gpio.h"
@@ -266,7 +266,7 @@ void RtcSetSystemTime( uint32_t seconds, uint32_t subSeconds )
     // Wait 1000ms - subSeconds (ms) before syncing the date/time
     uint32_t waitSync = 0;
     waitSync = 1000 - subSeconds;
-    DelayMsMcu( waitSync );
+    DelayMs( waitSync );
 
     // Update the RTC current date/time
     HAL_RTC_SetDate( &RtcHandle, &dateStruct, FORMAT_BIN );
