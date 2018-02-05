@@ -80,8 +80,8 @@
 #define RADIO_DIO_4                                 PB_1
 #define RADIO_DIO_5                                 PB_10
 
-#define RADIO_ANT_SWITCH_RX                         PA_2
-#define RADIO_ANT_SWITCH_TX                         PA_4
+#define RADIO_ANT_SWITCH_TX                         PA_2
+#define RADIO_ANT_SWITCH_RX                         PA_4
 
 #define OSC_LSE_IN                                  PC_14
 #define OSC_LSE_OUT                                 PC_15

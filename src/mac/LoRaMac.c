@@ -2434,7 +2434,7 @@ static void ResetMacParameters( void )
 
 static bool IsFPortAllowed( uint8_t fPort )
 {
-    if( ( fPort == 0 ) || ( fPort > 224 ) )
+    if( fPort > 224 )
     {
         return false;
     }
