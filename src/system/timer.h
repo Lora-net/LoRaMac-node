@@ -47,6 +47,11 @@ typedef uint32_t TimerTime_t;
 #endif
 
 /*!
+ * \brief Number of seconds elapsed between Unix and GPS epoch
+ */
+#define UNIX_GPS_EPOCH_OFFSET                       315964800
+
+/*!
  * \brief Structure holding the system time in seconds and miliseconds.
  */
 typedef struct TimerSysTime_s
