@@ -1452,7 +1452,7 @@ void LoRaMacClassBDeviceTimeAns( TimerTime_t currentTime )
         {
             BeaconCtx.Ctrl.BeaconDelaySet = 1;
             BeaconCtx.BeaconTimingDelay = BeaconCtx.NextBeaconRx - currentTime;
-            BeaconCtx.BeaconTime = BeaconCtx.NextBeaconRx;
+            BeaconCtx.BeaconTime = BeaconCtx.NextBeaconRx / 1000;
             LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_OK, MLME_DEVICE_TIME );
         }
     }
