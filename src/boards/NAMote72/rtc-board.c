@@ -197,6 +197,91 @@ static RtcCalendar_t RtcComputeTimerTimeToAlarmTick( TimerTime_t timeCounter, Rt
  */
 static RtcCalendar_t RtcGetCalendar( void );
 
+/*
+ * ============================================================================
+ * BEGIN of mktime and localtime functions implmentation
+ *
+ * These functions implementation is based on mbed os mbed_mktime.h and
+ * mbed_mktime.c files.
+ *
+ * mbed Microcontroller Library
+ * Copyright (c) 2017-2017 ARM Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * ============================================================================
+ */
+
+/*!
+ * Convert a calendar time into time since UNIX epoch as a time_t.
+ *
+ * This function is a thread safe (partial) replacement for mktime. It is
+ * tailored around RTC peripherals needs and is not by any mean a complete
+ * replacement of mktime.
+ *
+ * \param calendar_time The calendar time to convert into a time_t since epoch.
+ * The fields from tm used for the computation are:
+ *   - tm_sec
+ *   - tm_min
+ *   - tm_hour
+ *   - tm_mday
+ *   - tm_mon
+ *   - tm_year
+ * Other fields are ignored and won't be renormalized by a call to this function.
+ * A valid calendar time is comprised between the 1st january of 1970 at
+ * 00:00:00 and the 19th of january 2038 at 03:14:07.
+ *
+ * \return The calendar time as seconds since UNIX epoch if the input is in the
+ * valid range. Otherwise ((time_t) -1).
+ *
+ * \note Leap seconds are not supported.
+ * \note Values in output range from 0 to INT_MAX.
+ * \note - For use by the HAL only
+ */
+static time_t _rtc_mktime( const struct tm* time );
+
+/*!
+ * Convert a given time in seconds since epoch into calendar time.
+ *
+ * This function is a thread safe (partial) replacement for localtime. It is
+ * tailored around RTC peripherals specification and is not by any means a
+ * complete of localtime.
+ *
+ * \param timestamp The time (in seconds) to convert into calendar time. Valid
+ * input are in the range [0 : INT32_MAX].
+ * \param calendar_time Pointer to the object which will contain the result of
+ * the conversion. The tm fields filled by this function are:
+ *   - tm_sec
+ *   - tm_min
+ *   - tm_hour
+ *   - tm_mday
+ *   - tm_mon
+ *   - tm_year
+ *   - tm_wday
+ *   - tm_yday
+ * The object remains untouched if the time in input is invalid.
+ * \return true if the conversion was successful, false otherwise.
+ *
+ * \note - For use by the HAL only
+ */
+static bool _rtc_localtime( time_t timestamp, struct tm* time_info );
+
+/*
+ * ============================================================================
+ * END of mktime and localtime functions implmentation
+ * ============================================================================
+ */
+
 void RtcInit( void )
 {
     RtcCalendar_t rtcInit;
@@ -243,28 +328,41 @@ void RtcInit( void )
 
 void RtcSetSysTime( uint32_t seconds, uint16_t subSeconds )
 {
-    struct tm *timeinfo;
+    struct tm timeinfo;
     RTC_DateTypeDef dateStruct;
     RTC_TimeTypeDef timeStruct;
 
+    // Add 1 to the seconds in order to compensate the synchronization wait function.
+    seconds += 1;
+
     // Convert the time into a tm
-    timeinfo = localtime( ( time_t* )&seconds );
+    if( _rtc_localtime( ( time_t )seconds, &timeinfo ) == false )
+    {
+        return;
+    }
 
     // Fill RTC structures
-    dateStruct.WeekDay        = timeinfo->tm_wday;
-    dateStruct.Month          = timeinfo->tm_mon + 1;
-    dateStruct.Date           = timeinfo->tm_mday;
-    dateStruct.Year           = timeinfo->tm_year - 100;
-    timeStruct.Hours          = timeinfo->tm_hour;
-    timeStruct.Minutes        = timeinfo->tm_min;
-    timeStruct.Seconds        = timeinfo->tm_sec;
-    timeStruct.SubSeconds     = subSeconds;
+    if( timeinfo.tm_wday == 0 )
+    {
+        dateStruct.WeekDay    = 7;
+    }
+    else
+    {
+        dateStruct.WeekDay    = timeinfo.tm_wday;
+    }
+    dateStruct.Month          = timeinfo.tm_mon + 1;
+    dateStruct.Date           = timeinfo.tm_mday;
+    dateStruct.Year           = ( timeinfo.tm_year >= 100 ) ? timeinfo.tm_year - 100 : timeinfo.tm_year;
+    timeStruct.Hours          = timeinfo.tm_hour;
+    timeStruct.Minutes        = timeinfo.tm_min;
+    timeStruct.Seconds        = timeinfo.tm_sec;
+    timeStruct.SubSeconds     = 0;
     timeStruct.TimeFormat     = RTC_HOURFORMAT_24;
     timeStruct.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
     timeStruct.StoreOperation = RTC_STOREOPERATION_RESET;
 
     // Wait 1000ms - subSeconds (ms) before syncing the date/time
-    uint32_t waitSync = 0;
+    uint16_t waitSync = 0;
     waitSync = 1000 - subSeconds;
     DelayMs( waitSync );
 
@@ -292,7 +390,7 @@ uint32_t RtcGetSysTime( uint16_t *subSeconds )
     }while( firstRead != timeStruct.SubSeconds );
 
     // Setup a tm structure based on the RTC
-    timeinfo.tm_wday = dateStruct.WeekDay;
+    // tm_wday information is ignored by mktime;
     timeinfo.tm_mon  = dateStruct.Month - 1;
     timeinfo.tm_mday = dateStruct.Date;
     timeinfo.tm_year = dateStruct.Year + 100;
@@ -301,10 +399,10 @@ uint32_t RtcGetSysTime( uint16_t *subSeconds )
     timeinfo.tm_sec  = timeStruct.Seconds;
     if( subSeconds != NULL )
     {
-        *subSeconds = ( PREDIV_A - ( timeStruct.SubSeconds ) ) << ( N_PREDIV_S - 1 );
+        *subSeconds = ( timeStruct.SecondFraction * 1000 - timeStruct.SubSeconds * 1000 ) / ( timeStruct.SecondFraction + 1 );
     }
     // Convert to timestamp
-    return mktime( &timeinfo );
+    return _rtc_mktime( &timeinfo );
 }
 
 void RtcSetTimeout( uint32_t timeout )
@@ -797,6 +895,11 @@ void RTC_Alarm_IRQHandler( void )
     TimerIrqHandler( );
 }
 
+void RtcProcess( void )
+{
+    // Not used on this platform.
+}
+
 TimerTime_t RtcTempCompensation( TimerTime_t period, float temperature )
 {
     float k = RTC_TEMP_COEFFICIENT;
@@ -832,7 +935,183 @@ TimerTime_t RtcTempCompensation( TimerTime_t period, float temperature )
     return ( TimerTime_t ) interim;
 }
 
-void RtcProcess( void )
-{
-    // Not used on this platform.
+/*
+ * ============================================================================
+ * BEGIN of mktime and localtime functions implmentation
+ *
+ * These functions implementation is based on mbed os mbed_mktime.h and
+ * mbed_mktime.c files.
+ *
+ * mbed Microcontroller Library
+ * Copyright (c) 2017-2017 ARM Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * ============================================================================
+ */
+
+/*!
+ * time constants 
+ */
+#define SECONDS_BY_MINUTES 60
+#define MINUTES_BY_HOUR 60
+#define SECONDS_BY_HOUR (SECONDS_BY_MINUTES * MINUTES_BY_HOUR)
+#define HOURS_BY_DAY 24 
+#define SECONDS_BY_DAY (SECONDS_BY_HOUR * HOURS_BY_DAY)
+
+/*!
+ * 2 dimensional array containing the number of seconds elapsed before a given 
+ * month.
+ * The second index map to the month while the first map to the type of year:
+ *   - 0: non leap year 
+ *   - 1: leap year
+ */
+static const uint32_t seconds_before_month[2][12] = {
+    {
+        0,
+        31 * SECONDS_BY_DAY,
+        (31 + 28) * SECONDS_BY_DAY,
+        (31 + 28 + 31) * SECONDS_BY_DAY,
+        (31 + 28 + 31 + 30) * SECONDS_BY_DAY,
+        (31 + 28 + 31 + 30 + 31) * SECONDS_BY_DAY,
+        (31 + 28 + 31 + 30 + 31 + 30) * SECONDS_BY_DAY,
+        (31 + 28 + 31 + 30 + 31 + 30 + 31) * SECONDS_BY_DAY,
+        (31 + 28 + 31 + 30 + 31 + 30 + 31 + 31) * SECONDS_BY_DAY,
+        (31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30) * SECONDS_BY_DAY,
+        (31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31) * SECONDS_BY_DAY,
+        (31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31 + 30) * SECONDS_BY_DAY,
+    },
+    {
+        0,
+        31 * SECONDS_BY_DAY,
+        (31 + 29) * SECONDS_BY_DAY,
+        (31 + 29 + 31) * SECONDS_BY_DAY,
+        (31 + 29 + 31 + 30) * SECONDS_BY_DAY,
+        (31 + 29 + 31 + 30 + 31) * SECONDS_BY_DAY,
+        (31 + 29 + 31 + 30 + 31 + 30) * SECONDS_BY_DAY,
+        (31 + 29 + 31 + 30 + 31 + 30 + 31) * SECONDS_BY_DAY,
+        (31 + 29 + 31 + 30 + 31 + 30 + 31 + 31) * SECONDS_BY_DAY,
+        (31 + 29 + 31 + 30 + 31 + 30 + 31 + 31 + 30) * SECONDS_BY_DAY,
+        (31 + 29 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31) * SECONDS_BY_DAY,
+        (31 + 29 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31 + 30) * SECONDS_BY_DAY,
+    }
+};
+
+/*!
+ * Compute if a year is a leap year or not.
+ *
+ * \param year The year to test it shall be in the range [70:138]. Year 0 is
+ * translated into year 1900 CE.
+ * \return true if the year in input is a leap year and false otherwise.
+ * \note - For use by the HAL only
+ */
+static bool _rtc_is_leap_year(int year) {
+    /* 
+     * since in practice, the value manipulated by this algorithm lie in the 
+     * range [70 : 138], the algorith can be reduced to: year % 4.
+     * The algorithm valid over the full range of value is: 
+
+        year = 1900 + year;
+        if (year % 4) {
+            return false;
+        } else if (year % 100) {
+            return true;
+        } else if (year % 400) {
+            return false;
+        }
+        return true;
+
+     */ 
+    return (year) % 4 ? false : true;
+}
+
+static time_t _rtc_mktime(const struct tm* time) {
+    // partial check for the upper bound of the range
+    // normalization might happen at the end of the function 
+    // this solution is faster than checking if the input is after the 19th of 
+    // january 2038 at 03:14:07.  
+    if ((time->tm_year < 70) || (time->tm_year > 138)) { 
+        return ((time_t) -1);
+    }
+
+    uint32_t result = time->tm_sec;
+    result += time->tm_min * SECONDS_BY_MINUTES;
+    result += time->tm_hour * SECONDS_BY_HOUR;
+    result += (time->tm_mday - 1) * SECONDS_BY_DAY;
+    result += seconds_before_month[_rtc_is_leap_year(time->tm_year)][time->tm_mon];
+
+    if (time->tm_year > 70) { 
+        // valid in the range [70:138] 
+        uint32_t count_of_leap_days = ((time->tm_year - 1) / 4) - (70 / 4);
+        result += (((time->tm_year - 70) * 365) + count_of_leap_days) * SECONDS_BY_DAY;
+    }
+
+    if (result > INT32_MAX) { 
+        return (time_t) -1;
+    }
+
+    return result;
+}
+
+static bool _rtc_localtime(time_t timestamp, struct tm* time_info) {
+    if (((int32_t) timestamp) < 0) { 
+        return false;
+    } 
+
+    time_info->tm_sec = timestamp % 60;
+    timestamp = timestamp / 60;   // timestamp in minutes
+    time_info->tm_min = timestamp % 60;
+    timestamp = timestamp / 60;  // timestamp in hours
+    time_info->tm_hour = timestamp % 24;
+    timestamp = timestamp / 24;  // timestamp in days;
+
+    // compute the weekday
+    // The 1st of January 1970 was a Thursday which is equal to 4 in the weekday
+    // representation ranging from [0:6]
+    time_info->tm_wday = (timestamp + 4) % 7;
+
+    // years start at 70
+    time_info->tm_year = 70;
+    while (true) { 
+        if (_rtc_is_leap_year(time_info->tm_year) && timestamp >= 366) {
+            ++time_info->tm_year;
+            timestamp -= 366;
+        } else if (!_rtc_is_leap_year(time_info->tm_year) && timestamp >= 365) {
+            ++time_info->tm_year;
+            timestamp -= 365;
+        } else {
+            // the remaining days are less than a years
+            break;
+        }
+    }
+
+    time_info->tm_yday = timestamp;
+
+    // convert days into seconds and find the current month
+    timestamp *= SECONDS_BY_DAY;
+    time_info->tm_mon = 11;
+    bool leap = _rtc_is_leap_year(time_info->tm_year);
+    for (uint32_t i = 0; i < 12; ++i) {
+        if ((uint32_t) timestamp < seconds_before_month[leap][i]) {
+            time_info->tm_mon = i - 1;
+            break;
+        }
+    }
+
+    // remove month from timestamp and compute the number of days.
+    // note: unlike other fields, days are not 0 indexed.
+    timestamp -= seconds_before_month[leap][time_info->tm_mon];
+    time_info->tm_mday = (timestamp / SECONDS_BY_DAY) + 1;
+
+    return true;
 }
