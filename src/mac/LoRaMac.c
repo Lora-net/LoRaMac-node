@@ -283,6 +283,8 @@ static bool LastTxIsJoinRequest;
  */
 static TimerTime_t LoRaMacInitializationTime = 0;
 
+static TimerSysTime_t LastTxSysTime = { 0 };
+
 /*!
  * LoRaMac internal states
  */
@@ -661,6 +663,7 @@ static void OnRadioTxDone( void )
     PhyParam_t phyParam;
     SetBandTxDoneParams_t txDone;
     TimerTime_t curTime = TimerGetCurrentTime( );
+    LastTxSysTime = TimerGetSysTime( );
 
     if( LoRaMacDeviceClass != CLASS_C )
     {
@@ -2168,16 +2171,34 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 break;
             case SRV_MAC_DEVICE_TIME_ANS:
                 {
-                    uint32_t seconds = 0;
-                    uint8_t subSeconds = 0;
+                    TimerTime_t currentTime = 0;
+                    TimerSysTime_t sysTimeAns = { 0 };
+                    TimerSysTime_t sysTime = { 0 };
+                    TimerSysTime_t sysTimeCurrent = { 0 };
 
-                    seconds = ( uint32_t )payload[macIndex++];
-                    seconds |= ( uint32_t )payload[macIndex++] << 8;
-                    seconds |= ( uint32_t )payload[macIndex++] << 16;
-                    seconds |= ( uint32_t )payload[macIndex++] << 24;
-                    subSeconds = payload[macIndex++];
+                    sysTimeAns.Seconds = ( uint32_t )payload[macIndex++];
+                    sysTimeAns.Seconds |= ( uint32_t )payload[macIndex++] << 8;
+                    sysTimeAns.Seconds |= ( uint32_t )payload[macIndex++] << 16;
+                    sysTimeAns.Seconds |= ( uint32_t )payload[macIndex++] << 24;
+                    sysTimeAns.SubSeconds = payload[macIndex++];
 
-                    LoRaMacClassBDeviceTimeAns( seconds, subSeconds );
+                    // Convert the fractional second received in ms
+                    // round( pow( 0.5, 8.0 ) * 1000 ) = 3.90625
+                    sysTimeAns.SubSeconds = sysTimeAns.SubSeconds * 3.90625;
+
+                    // Add Unix to Gps epcoh offset. The system time is based on Unix time.
+                    sysTimeAns.Seconds += UNIX_GPS_EPOCH_OFFSET;
+
+                    // Compensate time difference between Tx Done time and now
+                    sysTimeCurrent = TimerGetSysTime( );
+
+                    sysTime = TimerAddSysTime( sysTimeCurrent, TimerSubSysTime( sysTimeAns, LastTxSysTime ) );
+
+                    // Apply the new system time.
+                    TimerSetSysTime( sysTime );
+                    currentTime = TimerGetCurrentTime( );
+
+                    LoRaMacClassBDeviceTimeAns( currentTime );
                 }
                 break;
             case SRV_MAC_PING_SLOT_INFO_ANS:

@@ -1432,25 +1432,13 @@ void LoRaMacClassBBeaconTimingAns( uint16_t beaconTimingDelay, uint8_t beaconTim
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
-void LoRaMacClassBDeviceTimeAns( uint32_t seconds, uint8_t subSeconds )
+void LoRaMacClassBDeviceTimeAns( TimerTime_t currentTime )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
-    TimerTime_t currentTime = 0;
-    TimerSysTime_t sysTime = { 0 };
 
-    sysTime.Seconds = seconds
-    // Convert the fractional second received in ms
-    sysTime.SubSeconds *= round( pow( 0.5, 8.0 ) * 1000 );
-
-    // Apply the new system time.
-    TimerSetSysTime( sysTime );
-
-    currentTime = TimerGetCurrentTime( );
     BeaconCtx.LastBeaconRx = currentTime - ( currentTime % BeaconCtx.Cfg.Interval );
-    //LOG( "BeaconCtx.LastBeaconRx: %u", BeaconCtx.LastBeaconRx );
     BeaconCtx.NextBeaconRx = BeaconCtx.LastBeaconRx + BeaconCtx.Cfg.Interval;
-    //LOG( "BeaconCtx.NextBeaconRx: %u", BeaconCtx.NextBeaconRx );
-    
+
     if( LoRaMacConfirmQueueIsCmdActive( MLME_DEVICE_TIME ) == true )
     {
         if( currentTime > BeaconCtx.NextBeaconRx )
