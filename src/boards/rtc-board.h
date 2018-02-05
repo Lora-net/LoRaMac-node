@@ -66,7 +66,15 @@ void RtcInit( void );
  * \param [IN] seconds Number of seconds elapsed since epoch
  * \param [IN] subSeconds Number of SubSeconds miliseconds elapsed since epoch
  */
-void RtcSetSystemTime( uint32_t seconds, uint32_t subSeconds );
+void RtcSetSysTime( uint32_t seconds, uint16_t subSeconds );
+
+/*!
+ * \brief Gets the system time with the number of sconds elapsed since epoch
+ *
+ * \param [OUT] subSeconds Number of SubSeconds miliseconds elapsed since epoch
+ * \retval seconds Number of seconds elapsed since epoch
+ */
+uint32_t RtcGetSysTime( uint16_t *subSeconds );
 
 /*!
  * \brief Start the RTC timer

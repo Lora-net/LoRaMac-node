@@ -241,7 +241,7 @@ void RtcInit( void )
     }
 }
 
-void RtcSetSystemTime( uint32_t seconds, uint32_t subSeconds )
+void RtcSetSysTime( uint32_t seconds, uint16_t subSeconds )
 {
     struct tm *timeinfo;
     RTC_DateTypeDef dateStruct;
@@ -273,7 +273,7 @@ void RtcSetSystemTime( uint32_t seconds, uint32_t subSeconds )
     HAL_RTC_SetTime( &RtcHandle, &timeStruct, FORMAT_BIN );
 }
 
-uint32_t RtcGetSystemTime( uint32_t *subSeconds )
+uint32_t RtcGetSysTime( uint16_t *subSeconds )
 {
     uint32_t firstRead;
     struct tm timeinfo;

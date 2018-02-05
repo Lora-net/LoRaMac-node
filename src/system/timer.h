@@ -52,7 +52,7 @@ typedef uint32_t TimerTime_t;
  * \param [IN] seconds Number of seconds elapsed since epoch
  * \param [IN] subSecondsMs Number of SubSeconds miliseconds elapsed since epoch
  */
-void TimerSetSystemTime( uint32_t seconds, uint32_t subSecondsMs );
+void TimerSetSysTime( uint32_t seconds, uint32_t subSecondsMs );
 
 /*!
  * \brief Initializes the timer object
