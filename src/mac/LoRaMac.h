@@ -1033,9 +1033,9 @@ typedef struct sMcpsConfirm
      */
     uint32_t UpLinkCounter;
     /*!
-     * The uplink frequency related to the frame
+     * The uplink channel related to the frame
      */
-    uint32_t UpLinkFrequency;
+    uint32_t Channel;
 }McpsConfirm_t;
 
 /*!
