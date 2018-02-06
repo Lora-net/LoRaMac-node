@@ -294,9 +294,9 @@ void TimerStop( TimerEvent_t *obj )
 
             remainingTime = obj->Timestamp - elapsedTime;
 
+            TimerListHead->IsRunning = false;
             if( TimerListHead->Next != NULL )
             {
-                TimerListHead->IsRunning = false;
                 TimerListHead = TimerListHead->Next;
                 TimerListHead->Timestamp += remainingTime;
                 TimerListHead->IsRunning = true;
