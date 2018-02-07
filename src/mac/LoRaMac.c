@@ -1157,18 +1157,12 @@ static void OnRadioTxTimeout( void )
 
 static void OnRadioRxError( void )
 {
-    LoRaMacRxSlot_t rxSlot = RxSlot;
-
     if( LoRaMacDeviceClass != CLASS_C )
     {
         Radio.Sleep( );
     }
-    else
-    {
-        OpenContinuousRx2Window( );
-    }
 
-    if( rxSlot == RX_SLOT_WIN_1 )
+    if( RxSlot == RX_SLOT_WIN_1 )
     {
         if( NodeAckRequested == true )
         {
@@ -1185,11 +1179,8 @@ static void OnRadioRxError( void )
             }
         }
     }
-    if( ( rxSlot == RX_SLOT_WIN_2 ) || ( LoRaMacDeviceClass == CLASS_C ) )
+    else
     {
-        // We need to process this case if the MAC is in class A or B for the 2nd RX window timeout.
-        // If the MAC is in class C, we need to process this part also for the 1st RX window timeout,
-        // as the 2nd window timer is not running.
         if( NodeAckRequested == true )
         {
             McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX2_ERROR;
@@ -1201,22 +1192,21 @@ static void OnRadioRxError( void )
             LoRaMacFlags.Bits.MacDone = 1;
         }
     }
+
+    if( LoRaMacDeviceClass == CLASS_C )
+    {
+        OpenContinuousRx2Window( );
+    }
 }
 
 static void OnRadioRxTimeout( void )
 {
-    LoRaMacRxSlot_t rxSlot = RxSlot;
-
     if( LoRaMacDeviceClass != CLASS_C )
     {
         Radio.Sleep( );
     }
-    else
-    {
-        OpenContinuousRx2Window( );
-    }
 
-    if( rxSlot == RX_SLOT_WIN_1 )
+    if( RxSlot == RX_SLOT_WIN_1 )
     {
         if( NodeAckRequested == true )
         {
@@ -1233,11 +1223,8 @@ static void OnRadioRxTimeout( void )
             }
         }
     }
-    if( ( rxSlot == RX_SLOT_WIN_2 ) || ( LoRaMacDeviceClass == CLASS_C ) )
+    else
     {
-        // We need to process this case if the MAC is in class A or B for the 2nd RX window timeout.
-        // If the MAC is in class C, we need to process this part also for the 1st RX window timeout,
-        // as the 2nd window timer is not running.
         if( NodeAckRequested == true )
         {
             McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT;
@@ -1248,6 +1235,11 @@ static void OnRadioRxTimeout( void )
         {
             LoRaMacFlags.Bits.MacDone = 1;
         }
+    }
+
+    if( LoRaMacDeviceClass == CLASS_C )
+    {
+        OpenContinuousRx2Window( );
     }
 }
 
