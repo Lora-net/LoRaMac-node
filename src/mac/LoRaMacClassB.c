@@ -988,7 +988,6 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
                 // The GwSpecific field contains 1 byte InfoDesc and 6 bytes Info
                 LoRaMacClassBParams.MlmeIndication->BeaconInfo.GwSpecific.InfoDesc = payload[phyParam.BeaconFormat.Rfu1Size + 4 + 2];
                 memcpy1( LoRaMacClassBParams.MlmeIndication->BeaconInfo.GwSpecific.Info, &payload[phyParam.BeaconFormat.Rfu1Size + 4 + 2 + 1], 6 );
-                beaconReceived = true;
             }
 
             // Reset beacon variables, if one of the crc is valid
