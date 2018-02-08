@@ -169,7 +169,7 @@ static bool ValidateChannelsMask( uint16_t* channelsMask )
         block1 = channelsMaskCpy[i] & 0x00FF;
         block2 = channelsMaskCpy[i] & 0xFF00;
 
-        if( CountBits( block1, 16 ) > 5 )
+        if( CountBits( block1, 16 ) > 1 )
         {
             channelsMaskCpy[i] &= block1;
             channelsMaskCpy[4] = 1 << ( i * 2 );
@@ -177,7 +177,7 @@ static bool ValidateChannelsMask( uint16_t* channelsMask )
             index = i;
             break;
         }
-        else if( CountBits( block2, 16 ) > 5 )
+        else if( CountBits( block2, 16 ) > 1 )
         {
             channelsMaskCpy[i] &= block2;
             channelsMaskCpy[4] = 1 << ( i * 2 + 1 );
