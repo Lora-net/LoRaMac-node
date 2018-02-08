@@ -152,6 +152,9 @@ Alternatively one can use a graphical interface to configure CMake, drop down me
     * LoRaMote + JLink:  
     `openocd -f interface/jlink.cfg -c "transport select swd"  -f target/stm32l1.cfg`
 
+    * SAML21 Xplained Pro (On board debugger, tested with openocd 0.10, did not work with 0.9):
+    `openocd -f interface/cmsis-dap.cfg -f target/at91samdXX.cfg`
+
 2. GDB  
     The below GDB usage example shows how to start a debug session, writing the program to the flash and run.
    * Run ARM-GNU GDB with:  
