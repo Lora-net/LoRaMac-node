@@ -159,25 +159,25 @@ const RadioRegisters_t RadioRegsInit[] = RADIO_INIT_REGISTERS_VALUE;
  */
 const FskBandwidth_t FskBandwidths[] =
 {
-    { 2600  , 0x17 },
+    { 2604  , 0x17 },
     { 3100  , 0x0F },
-    { 3900  , 0x07 },
-    { 5200  , 0x16 },
+    { 3906  , 0x07 },
+    { 5208  , 0x16 },
     { 6300  , 0x0E },
-    { 7800  , 0x06 },
-    { 10400 , 0x15 },
+    { 7812  , 0x06 },
+    { 10417 , 0x15 },
     { 12500 , 0x0D },
-    { 15600 , 0x05 },
-    { 20800 , 0x14 },
+    { 15625 , 0x05 },
+    { 20833 , 0x14 },
     { 25000 , 0x0C },
-    { 31300 , 0x04 },
-    { 41700 , 0x13 },
+    { 31250 , 0x04 },
+    { 41667 , 0x13 },
     { 50000 , 0x0B },
     { 62500 , 0x03 },
     { 83333 , 0x12 },
     { 100000, 0x0A },
     { 125000, 0x02 },
-    { 166700, 0x11 },
+    { 166667, 0x11 },
     { 200000, 0x09 },
     { 250000, 0x01 },
     { 300000, 0x00 }, // Invalid Bandwidth
@@ -728,26 +728,26 @@ uint32_t SX1276GetTimeOnAir( RadioModems_t modem, uint8_t pktLen )
     case MODEM_LORA:
         {
             double bw = 0.0;
-            // REMARK: When using LoRa modem only bandwidths 125, 250 and 500 kHz are supported
+            // REMARK: When using LoRaWAN only bandwidths 125, 250 and 500 kHz are supported
             switch( SX1276.Settings.LoRa.Bandwidth )
             {
             //case 0: // 7.8 kHz
-            //    bw = 7800;
+            //    bw = 7812;
             //    break;
             //case 1: // 10.4 kHz
-            //    bw = 10400;
+            //    bw = 10417;
             //    break;
             //case 2: // 15.6 kHz
-            //    bw = 15600;
+            //    bw = 15625;
             //    break;
             //case 3: // 20.8 kHz
-            //    bw = 20800;
+            //    bw = 20833;
             //    break;
             //case 4: // 31.2 kHz
-            //    bw = 31200;
+            //    bw = 31250;
             //    break;
             //case 5: // 41.4 kHz
-            //    bw = 41400;
+            //    bw = 41667;
             //    break;
             //case 6: // 62.5 kHz
             //    bw = 62500;
@@ -939,19 +939,19 @@ void SX1276SetRx( uint32_t timeout )
                 {
                 case 0: // 7.8 kHz
                     SX1276Write( REG_LR_TEST2F, 0x48 );
-                    SX1276SetChannel(SX1276.Settings.Channel + 7810 );
+                    SX1276SetChannel(SX1276.Settings.Channel + 7812 );
                     break;
                 case 1: // 10.4 kHz
                     SX1276Write( REG_LR_TEST2F, 0x44 );
-                    SX1276SetChannel(SX1276.Settings.Channel + 10420 );
+                    SX1276SetChannel(SX1276.Settings.Channel + 10417 );
                     break;
                 case 2: // 15.6 kHz
                     SX1276Write( REG_LR_TEST2F, 0x44 );
-                    SX1276SetChannel(SX1276.Settings.Channel + 15620 );
+                    SX1276SetChannel(SX1276.Settings.Channel + 15625 );
                     break;
                 case 3: // 20.8 kHz
                     SX1276Write( REG_LR_TEST2F, 0x44 );
-                    SX1276SetChannel(SX1276.Settings.Channel + 20830 );
+                    SX1276SetChannel(SX1276.Settings.Channel + 20833 );
                     break;
                 case 4: // 31.2 kHz
                     SX1276Write( REG_LR_TEST2F, 0x44 );
@@ -959,7 +959,7 @@ void SX1276SetRx( uint32_t timeout )
                     break;
                 case 5: // 41.4 kHz
                     SX1276Write( REG_LR_TEST2F, 0x44 );
-                    SX1276SetChannel(SX1276.Settings.Channel + 41670 );
+                    SX1276SetChannel(SX1276.Settings.Channel + 41667 );
                     break;
                 case 6: // 62.5 kHz
                     SX1276Write( REG_LR_TEST2F, 0x40 );
