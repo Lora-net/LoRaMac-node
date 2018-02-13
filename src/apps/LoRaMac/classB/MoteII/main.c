@@ -711,8 +711,14 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         mlmeReq.Req.Join.AppKey = AppSettings.AppKey;
                         mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
 
-                        LoRaMacMlmeRequest( &mlmeReq );
-                        DeviceState = DEVICE_STATE_SLEEP;
+                        if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
+                        {
+                            DeviceState = DEVICE_STATE_SLEEP;
+                        }
+                        else
+                        {
+                            DeviceState = DEVICE_STATE_CYCLE;
+                        }
                     }
                     break;
                 case 7: // (x)
@@ -833,8 +839,14 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                 mlmeReq.Req.Join.AppKey = AppSettings.AppKey;
                 mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
 
-                LoRaMacMlmeRequest( &mlmeReq );
-                DeviceState = DEVICE_STATE_SLEEP;
+                if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
+                {
+                    DeviceState = DEVICE_STATE_SLEEP;
+                }
+                else
+                {
+                    DeviceState = DEVICE_STATE_CYCLE;
+                }
             }
             break;
         }
@@ -1070,11 +1082,14 @@ int main( void )
                 mlmeReq.Req.Join.AppKey = AppSettings.AppKey;
                 mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
 
-                if( NextTx == true )
+                if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
                 {
-                    LoRaMacMlmeRequest( &mlmeReq );
+                    DeviceState = DEVICE_STATE_SLEEP;
                 }
-                DeviceState = DEVICE_STATE_SLEEP;
+                else
+                {
+                    DeviceState = DEVICE_STATE_CYCLE;
+                }
 #else
                 // Choose a random device address if not already defined in Commissioning.h
                 if( AppSettings.DevAddr == 0 )
