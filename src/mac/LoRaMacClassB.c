@@ -348,6 +348,21 @@ static TimerTime_t CalcNextBeaconRx( TimerTime_t currentTime, TimerTime_t lastBe
     return currentTime + nextBeaconRxTime;
 }
 
+static void IndicateBeaconStatus( LoRaMacEventInfoStatus_t status )
+{
+    if( BeaconCtx.Ctrl.ResumeBeaconing == 0 )
+    {
+        LoRaMacClassBParams.MlmeIndication->MlmeIndication = MLME_BEACON;
+        LoRaMacClassBParams.MlmeIndication->Status = status;
+        LoRaMacClassBParams.LoRaMacFlags->Bits.MlmeInd = 1;
+
+        TimerSetValue( LoRaMacClassBParams.MacStateCheckTimer, 1 );
+        TimerStart( LoRaMacClassBParams.MacStateCheckTimer );
+        LoRaMacClassBParams.LoRaMacFlags->Bits.MacDone = 1;
+    }
+    BeaconCtx.Ctrl.ResumeBeaconing = 0;
+}
+
 #endif // LORAMAC_CLASSB_ENABLED
 
 void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks )
@@ -570,17 +585,10 @@ void LoRaMacClassBBeaconTimerEvent( void )
             }
             BeaconCtx.Ctrl.BeaconAcquired = 0;
 
-            if( BeaconCtx.Ctrl.ResumeBeaconing == 0 )
-            {
-                LoRaMacClassBParams.MlmeIndication->MlmeIndication = MLME_BEACON;
-                LoRaMacClassBParams.MlmeIndication->Status = LORAMAC_EVENT_INFO_STATUS_BEACON_LOST;
-                LoRaMacClassBParams.LoRaMacFlags->Bits.MlmeInd = 1;
 
-                TimerSetValue( LoRaMacClassBParams.MacStateCheckTimer, 1 );
-                TimerStart( LoRaMacClassBParams.MacStateCheckTimer );
-                LoRaMacClassBParams.LoRaMacFlags->Bits.MacDone = 1;
+                // Setup an MLME_BEACON indication to inform the upper layer
+                IndicateBeaconStatus( LORAMAC_EVENT_INFO_STATUS_BEACON_LOST );
             }
-            BeaconCtx.Ctrl.ResumeBeaconing = 0;
             break;
         }
         case BEACON_STATE_LOCKED:
@@ -604,6 +612,8 @@ void LoRaMacClassBBeaconTimerEvent( void )
                 BeaconState = BEACON_STATE_GUARD;
             }
 
+            // Setup an MLME_BEACON indication to inform the upper layer
+            IndicateBeaconStatus( LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED );
             if( LoRaMacClassBParams.LoRaMacFlags->Bits.MlmeReq == 1 )
             {
                 if( LoRaMacConfirmQueueIsCmdActive( MLME_BEACON_ACQUISITION ) == true )
@@ -619,17 +629,6 @@ void LoRaMacClassBBeaconTimerEvent( void )
             }
             BeaconCtx.Ctrl.AcquisitionPending = 0;
 
-            if( BeaconCtx.Ctrl.ResumeBeaconing == 0 )
-            {
-                LoRaMacClassBParams.MlmeIndication->MlmeIndication = MLME_BEACON;
-                LoRaMacClassBParams.MlmeIndication->Status = LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED;
-                LoRaMacClassBParams.LoRaMacFlags->Bits.MlmeInd = 1;
-
-                TimerSetValue( LoRaMacClassBParams.MacStateCheckTimer, 1 );
-                TimerStart( LoRaMacClassBParams.MacStateCheckTimer );
-                LoRaMacClassBParams.LoRaMacFlags->Bits.MacDone = 1;
-            }
-            BeaconCtx.Ctrl.ResumeBeaconing = 0;
             break;
         }
         case BEACON_STATE_IDLE:
