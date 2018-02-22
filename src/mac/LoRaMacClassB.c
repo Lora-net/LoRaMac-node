@@ -414,9 +414,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
             else
             {
                 // Default symbol timeouts
-                BeaconCtx.SymbolTimeout = CLASSB_BEACON_SYMBOL_TO_DEFAULT;
-                PingSlotCtx.SymbolTimeout = CLASSB_BEACON_SYMBOL_TO_DEFAULT;
-                BeaconCtx.BeaconWindowMovement  = CLASSB_WINDOW_MOVE_DEFAULT;
+                ResetWindowTimeout( );
 
                 if( BeaconCtx.Ctrl.BeaconDelaySet == 1 )
                 {
@@ -471,9 +469,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
             else
             {
                 // Default symbol timeouts
-                BeaconCtx.SymbolTimeout = CLASSB_BEACON_SYMBOL_TO_DEFAULT;
-                PingSlotCtx.SymbolTimeout = CLASSB_BEACON_SYMBOL_TO_DEFAULT;
-                BeaconCtx.BeaconWindowMovement  = CLASSB_WINDOW_MOVE_DEFAULT;
+                ResetWindowTimeout( );
 
                 BeaconCtx.Ctrl.AcquisitionPending = 1;
                 beaconEventTime = CLASSB_BEACON_INTERVAL;
@@ -980,9 +976,7 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
                 BeaconCtx.LastBeaconRx = TimerGetCurrentTime( ) - Radio.TimeOnAir( MODEM_LORA, size );
                 BeaconCtx.Ctrl.BeaconAcquired = 1;
                 BeaconCtx.Ctrl.BeaconMode = 1;
-                BeaconCtx.SymbolTimeout = CLASSB_BEACON_SYMBOL_TO_DEFAULT;
-                PingSlotCtx.SymbolTimeout = CLASSB_BEACON_SYMBOL_TO_DEFAULT;
-                BeaconCtx.BeaconWindowMovement  = CLASSB_WINDOW_MOVE_DEFAULT;
+                ResetWindowTimeout( );
                 BeaconState = BEACON_STATE_LOCKED;
 
                 LoRaMacClassBBeaconTimerEvent( );
