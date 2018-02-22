@@ -402,7 +402,11 @@ void LoRaMacClassBSetBeaconState( BeaconState_t beaconState )
     }
     else
     {
-        BeaconState = beaconState;
+        if( ( BeaconState != BEACON_STATE_ACQUISITION ) &&
+            ( BeaconState != BEACON_STATE_ACQUISITION_BY_TIME ) )
+        {
+            BeaconState = beaconState;
+        }
     }
 #endif // LORAMAC_CLASSB_ENABLED
 }
@@ -418,6 +422,25 @@ void LoRaMacClassBSetMulticastSlotState( PingSlotState_t multicastSlotState )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     MulticastSlotState = multicastSlotState;
+#endif // LORAMAC_CLASSB_ENABLED
+}
+
+bool LoRaMacClassBIsAcquisitionInProgress( void )
+{
+#ifdef LORAMAC_CLASSB_ENABLED
+    if( BeaconState == BEACON_STATE_ACQUISITION_BY_TIME )
+    {
+        // In this case the acquisition is in progress, as the MAC has
+        // a time reference for the next beacon RX.
+        return true;
+    }
+    if( LoRaMacClassBIsAcquisitionPending( ) == true )
+    {
+        // In this case the acquisition is in progress, as the MAC
+        // searches for a beacon.
+        return true;
+    }
+    return false;
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -462,9 +485,8 @@ void LoRaMacClassBBeaconTimerEvent( void )
                             // Reset status provides by BeaconTimingAns
                             BeaconCtx.Ctrl.BeaconDelaySet = 0;
                             BeaconCtx.Ctrl.BeaconChannelSet = 0;
-                            BeaconState = BEACON_STATE_ACQUISITION;;
+                            BeaconState = BEACON_STATE_ACQUISITION;
                         }
-                        BeaconCtx.NextBeaconRx = 0;
                         BeaconCtx.BeaconTimingDelay = 0;
                     }
                     else
@@ -525,9 +547,6 @@ void LoRaMacClassBBeaconTimerEvent( void )
             BeaconCtx.BeaconTime += ( BeaconCtx.Cfg.Interval / 1000 );
 
             // Update beacon movement
-            // The computation of the window movement is currently implemented as a
-            // workaround. In the future, the goal is to use the time-on-air. However,
-            // the radio driver can only calculate it when it is configured with the TX config.
             BeaconCtx.BeaconWindowMovement *= BEACON_WINDOW_MOVE_EXPANSION_FACTOR;
             if( BeaconCtx.BeaconWindowMovement > BEACON_WINDOW_MOVE_EXPANSION_MAX )
             {
@@ -957,7 +976,7 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
 #ifdef LORAMAC_CLASSB_ENABLED
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;
-    bool beaconReceived = false;
+    bool beaconProcessed = false;
     uint16_t crc0 = 0;
     uint16_t crc1 = 0;
     uint16_t beaconCrc0 = 0;
@@ -992,7 +1011,7 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
                 BeaconCtx.BeaconTime |= ( ( uint32_t )( payload[phyParam.BeaconFormat.Rfu1Size + 2] << 16 ) ) & 0x00FF0000;
                 BeaconCtx.BeaconTime |= ( ( uint32_t )( payload[phyParam.BeaconFormat.Rfu1Size + 3] << 24 ) ) & 0xFF000000;
                 LoRaMacClassBParams.MlmeIndication->BeaconInfo.Time = BeaconCtx.BeaconTime;
-                beaconReceived = true;
+                beaconProcessed = true;
             }
 
             // Read CRC2 field from the frame
@@ -1010,7 +1029,7 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
             }
 
             // Reset beacon variables, if one of the crc is valid
-            if( beaconReceived == true )
+            if( beaconProcessed == true )
             {
                 BeaconCtx.LastBeaconRx = TimerGetCurrentTime( ) - Radio.TimeOnAir( MODEM_LORA, size );
                 BeaconCtx.Ctrl.BeaconAcquired = 1;
@@ -1036,7 +1055,7 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
         // 2. a beacon with a crc fail
         // the MAC shall ignore the frame completely. Thus, the function must always return true, even if no
         // valid beacon has been received.
-        beaconReceived = true;
+        beaconProcessed = true;
     }
 
     return beaconReceived;
@@ -1101,7 +1120,8 @@ bool LoRaMacClassBIsAcquisitionPending( void )
 bool LoRaMacClassBIsBeaconModeActive( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
-    if( BeaconCtx.Ctrl.BeaconMode == 1 )
+    if( ( BeaconCtx.Ctrl.BeaconMode == 1 ) ||
+        ( BeaconState == BEACON_STATE_ACQUISITION_BY_TIME ) )
     {
         return true;
     }
@@ -1122,7 +1142,7 @@ void LoRaMacClassBSetPingSlotInfo( uint8_t periodicity )
 void LoRaMacClassBHaltBeaconing( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
-    if( LoRaMacClassBIsBeaconModeActive( ) == true )
+    if( BeaconCtx.Ctrl.BeaconMode == 1 )
     {
         if( ( BeaconState == BEACON_STATE_TIMEOUT ) ||
             ( BeaconState == BEACON_STATE_LOST ) )
@@ -1490,24 +1510,6 @@ bool LoRaMacClassBBeaconFreqReq( uint32_t frequency )
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
-TimerTime_t LoRaMacClassBGetBeaconReservedTime( void )
-{
-#ifdef LORAMAC_CLASSB_ENABLED
-    return BeaconCtx.Cfg.Reserved;
-#else
-    return 0;
-#endif // LORAMAC_CLASSB_ENABLED
-}
-
-TimerTime_t LoRaMacClassBGetPingSlotWinTime( void )
-{
-#ifdef LORAMAC_CLASSB_ENABLED
-    return PingSlotCtx.Cfg.PingSlotWindow;
-#else
-    return 0;
-#endif // LORAMAC_CLASSB_ENABLED
-}
-
 TimerTime_t LoRaMacClassBIsUplinkCollision( TimerTime_t txTimeOnAir )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
@@ -1533,12 +1535,15 @@ TimerTime_t LoRaMacClassBIsUplinkCollision( TimerTime_t txTimeOnAir )
 
 void LoRaMacClassBStopRxSlots( void )
 {
+#ifdef LORAMAC_CLASSB_ENABLED
     TimerStop( &PingSlotTimer );
     TimerStop( &MulticastSlotTimer );
+#endif // LORAMAC_CLASSB_ENABLED
 }
 
 void LoRaMacClassBStartRxSlots( void )
 {
+#ifdef LORAMAC_CLASSB_ENABLED
     PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
     TimerSetValue( &PingSlotTimer, 1 );
     TimerStart( &PingSlotTimer );
@@ -1546,4 +1551,5 @@ void LoRaMacClassBStartRxSlots( void )
     MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
     TimerSetValue( &MulticastSlotTimer, 1 );
     TimerStart( &MulticastSlotTimer );
+#endif // LORAMAC_CLASSB_ENABLED
 }

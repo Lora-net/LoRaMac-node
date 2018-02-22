@@ -225,10 +225,6 @@ typedef struct sBeaconContext
          */
         uint8_t AcquisitionPending  : 1;
         /*!
-         * Set if beacon timer is set to acquire a beacon
-         */
-        uint8_t AcquisitionTimerSet  : 1;
-        /*!
          * Set if the beacon state machine will be resumed
          */
         uint8_t ResumeBeaconing      : 1;
@@ -410,6 +406,13 @@ void LoRaMacClassBSetPingSlotState( PingSlotState_t pingSlotState );
 void LoRaMacClassBSetMulticastSlotState( PingSlotState_t multicastSlotState );
 
 /*!
+ * \brief Verifies if an acquisition procedure is in progress
+ *
+ * \retval [true, if the acquisition is in progress; false, if not]
+ */
+bool LoRaMacClassBIsAcquisitionInProgress( void );
+
+/*!
  * \brief State machine of the Class B for beaconing
  */
 void LoRaMacClassBBeaconTimerEvent( void );
@@ -568,20 +571,6 @@ void LoRaMacClassBDeviceTimeAns( TimerTime_t currentTime );
 bool LoRaMacClassBBeaconFreqReq( uint32_t frequency );
 
 /*!
- * \brief Queries the beacon reserved time
- *
- * \retval Beacon reserved time
- */
-TimerTime_t LoRaMacClassBGetBeaconReservedTime( void );
-
-/*!
- * \brief Queries the ping slot window time
- *
- * \retval Ping slot window time
- */
-TimerTime_t LoRaMacClassBGetPingSlotWinTime( void );
-
-/*!
  * \brief Queries the ping slot window time
  *
  * \param [IN] txTimeOnAir TX time on air for the next uplink
@@ -590,8 +579,16 @@ TimerTime_t LoRaMacClassBGetPingSlotWinTime( void );
  */
 TimerTime_t LoRaMacClassBIsUplinkCollision( TimerTime_t txTimeOnAir );
 
+/*!
+ * \brief Stops the timers for the RX slots. This includes the
+ *        timers for ping and multicast slots.
+ */
 void LoRaMacClassBStopRxSlots( void );
 
+/*!
+ * \brief Starts the timers for the RX slots. This includes the
+ *        timers for ping and multicast slots.
+ */
 void LoRaMacClassBStartRxSlots( void );
 
 #endif // __LORAMACCLASSB_H__
