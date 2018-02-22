@@ -1502,9 +1502,9 @@ static void OnMacStateCheckTimerEvent( void )
         {
             LoRaMacFlags.Bits.MlmeReq = 0;
             LoRaMacConfirmQueueHandleCb( &MlmeConfirm );
-            if( LoRaMacConfirmQueueGetCnt( ) == 0 )
+            if( LoRaMacConfirmQueueGetCnt( ) > 0 )
             {
-                LoRaMacFlags.Bits.MlmeReq = 0;
+                LoRaMacFlags.Bits.MlmeReq = 1;
             }
         }
 
@@ -2669,7 +2669,7 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
     McpsConfirm.TxTimeOnAir = TxTimeOnAir;
     MlmeConfirm.TxTimeOnAir = TxTimeOnAir;
 
-    if(LoRaMacClassBIsBeaconModeActive( ) == true )
+    if( LoRaMacClassBIsBeaconModeActive( ) == true )
     {
         // Currently, the Time-On-Air can only be computed when the radion is configured with
         // the TX configuration
@@ -3606,6 +3606,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             LoRaMacParams.ChannelsDatarate = RegionAlternateDr( LoRaMacRegion, mlmeRequest->Req.Join.Datarate );;
 
             queueElement.Status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
+            queueElement.RestrictCommonReadyToHandle = false;
             LoRaMacConfirmQueueAdd( &queueElement );
 
             // Setup header information
@@ -3621,6 +3622,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             LoRaMacFlags.Bits.MlmeReq = 1;
             queueElement.Request = mlmeRequest->Type;
             queueElement.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+            queueElement.RestrictCommonReadyToHandle = false;
             LoRaMacConfirmQueueAdd( &queueElement );
 
             // LoRaMac will send this command piggy-pack
@@ -3633,6 +3635,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             LoRaMacFlags.Bits.MlmeReq = 1;
             queueElement.Request = mlmeRequest->Type;
             queueElement.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+            queueElement.RestrictCommonReadyToHandle = false;
             LoRaMacConfirmQueueAdd( &queueElement );
 
             status = SetTxContinuousWave( mlmeRequest->Req.TxCw.Timeout );
@@ -3644,6 +3647,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             LoRaMacFlags.Bits.MlmeReq = 1;
             queueElement.Request = mlmeRequest->Type;
             queueElement.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+            queueElement.RestrictCommonReadyToHandle = false;
             LoRaMacConfirmQueueAdd( &queueElement );
 
             status = SetTxContinuousWave1( mlmeRequest->Req.TxCw.Timeout, mlmeRequest->Req.TxCw.Frequency, mlmeRequest->Req.TxCw.Power );
@@ -3655,6 +3659,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             LoRaMacFlags.Bits.MlmeReq = 1;
             queueElement.Request = mlmeRequest->Type;
             queueElement.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+            queueElement.RestrictCommonReadyToHandle = false;
             LoRaMacConfirmQueueAdd( &queueElement );
 
             // LoRaMac will send this command piggy-pack
@@ -3669,6 +3674,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             LoRaMacFlags.Bits.MlmeReq = 1;
             queueElement.Request = mlmeRequest->Type;
             queueElement.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+            queueElement.RestrictCommonReadyToHandle = false;
             LoRaMacConfirmQueueAdd( &queueElement );
 
             // LoRaMac will send this command piggy-pack
@@ -3683,6 +3689,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             LoRaMacFlags.Bits.MlmeReq = 1;
             queueElement.Request = mlmeRequest->Type;
             queueElement.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+            queueElement.RestrictCommonReadyToHandle = false;
             LoRaMacConfirmQueueAdd( &queueElement );
 
             // LoRaMac will send this command piggy-pack
@@ -3695,9 +3702,10 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             LoRaMacFlags.Bits.MlmeReq = 1;
             queueElement.Request = mlmeRequest->Type;
             queueElement.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+            queueElement.RestrictCommonReadyToHandle = true;
             LoRaMacConfirmQueueAdd( &queueElement );
 
-            if( LoRaMacClassBIsAcquisitionPending( ) == false )
+            if( LoRaMacClassBIsAcquisitionInProgress( ) == false )
             {
                 // Start class B algorithm
                 LoRaMacClassBSetBeaconState( BEACON_STATE_ACQUISITION );
