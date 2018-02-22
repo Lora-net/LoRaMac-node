@@ -568,14 +568,14 @@ void LoRaMacClassBBeaconTimerEvent( void )
         }
         case BEACON_STATE_REACQUISITION:
         {
+            activateTimer = true;
+
             if( ( currentTime - BeaconCtx.LastBeaconRx ) > CLASSB_MAX_BEACON_LESS_PERIOD )
             {
-                activateTimer = true;
                 BeaconState = BEACON_STATE_LOST;
             }
             else
             {
-                activateTimer = true;
                 // Calculate the next beacon RX time
                 BeaconCtx.NextBeaconRx = CalcNextBeaconRx( currentTime, BeaconCtx.LastBeaconRx );
 
