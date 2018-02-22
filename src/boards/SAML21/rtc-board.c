@@ -72,6 +72,17 @@ void RtcInit( void )
     }
 }
 
+void RtcSetSysTime( uint32_t seconds, uint16_t subSeconds )
+{
+    #warning "Functionality not yet implemented for this platform MCU. For ClassB usage please use BeaconTimingReq instead of DeviceTimeReq."
+}
+
+uint32_t RtcGetSysTime( uint16_t *subSeconds )
+{
+    #warning "Functionality not yet implemented for this platform MCU. For ClassB usage please use BeaconTimingReq instead of DeviceTimeReq."
+    return 0;
+}
+
 void RtcSetTimeout( uint32_t timeout )
 {
     TimeoutStart = HwTimerGetTime( );

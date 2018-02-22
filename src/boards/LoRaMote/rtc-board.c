@@ -217,7 +217,6 @@ void RtcInit( void )
 
         RtcHandle.Instance = RTC;
         RtcHandle.Init.HourFormat = RTC_HOURFORMAT_24;
-
         RtcHandle.Init.AsynchPrediv = 3;
         RtcHandle.Init.SynchPrediv = 3;
 
@@ -248,9 +247,15 @@ void RtcInit( void )
     }
 }
 
-void RtcSetSystemTime( uint32_t seconds, uint32_t subSeconds )
+void RtcSetSysTime( uint32_t seconds, uint16_t subSeconds )
 {
     #warning "Functionality not supported by this platform MCU. For ClassB usage please use BeaconTimingReq instead of DeviceTimeReq."
+}
+
+uint32_t RtcGetSysTime( uint16_t *subSeconds )
+{
+    #warning "Functionality not supported by this platform MCU. For ClassB usage please use BeaconTimingReq instead of DeviceTimeReq."
+    return 0;
 }
 
 void RtcSetTimeout( uint32_t timeout )

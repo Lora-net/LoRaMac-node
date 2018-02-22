@@ -326,7 +326,7 @@ void RtcInit( void )
     }
 }
 
-void RtcSetSysTime( uint32_t seconds, uint32_t subSeconds )
+void RtcSetSysTime( uint32_t seconds, uint16_t subSeconds )
 {
     struct tm timeinfo;
     RTC_DateTypeDef dateStruct;
@@ -382,7 +382,7 @@ uint32_t RtcGetSysTime( uint16_t *subSeconds )
     HAL_RTC_GetTime( &RtcHandle, &timeStruct, RTC_FORMAT_BIN );
 
     // Make sure it is correct due to asynchronous nature of RTC
-    do 
+    do
     {
         firstRead = timeStruct.SubSeconds;
         HAL_RTC_GetDate( &RtcHandle, &dateStruct, RTC_FORMAT_BIN );
@@ -872,7 +872,7 @@ static RtcCalendar_t RtcGetCalendar( void )
     HAL_RTC_GetTime( &RtcHandle, &now.CalendarTime, RTC_FORMAT_BIN );
 
     // Make sure it is correct due to asynchronous nature of RTC
-    do 
+    do
     {
         firstRead = now.CalendarTime.SubSeconds;
         HAL_RTC_GetDate( &RtcHandle, &now.CalendarDate, RTC_FORMAT_BIN );
