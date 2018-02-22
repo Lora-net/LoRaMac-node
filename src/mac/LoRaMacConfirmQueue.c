@@ -133,6 +133,8 @@ bool LoRaMacConfirmQueueAdd( MlmeConfirmQueue_t* mlmeConfirm )
     // Add the element to the ring buffer
     BufferEnd->Request = mlmeConfirm->Request;
     BufferEnd->Status = mlmeConfirm->Status;
+    BufferEnd->RestrictCommonReadyToHandle = mlmeConfirm->RestrictCommonReadyToHandle;
+    BufferEnd->ReadyToHandle = false;
     // Increase counter
     MlmeConfirmQueueCnt++;
     // Update end pointer
@@ -181,6 +183,7 @@ void LoRaMacConfirmQueueSetStatus( LoRaMacEventInfoStatus_t status, Mlme_t reque
         if( element != NULL )
         {
             element->Status = status;
+            element->ReadyToHandle = true;
         }
     }
 }
@@ -211,6 +214,12 @@ void LoRaMacConfirmQueueSetStatusCmn( LoRaMacEventInfoStatus_t status )
         do
         {
             element->Status = status;
+            // Set the status if it is allowed to set it with a call to
+            // LoRaMacConfirmQueueSetStatusCmn.
+            if( element->RestrictCommonReadyToHandle == false )
+            {
+                element->ReadyToHandle = true;
+            }
             element = IncreaseBufferPointer( element );
         }while( element != BufferEnd );
     }
@@ -233,16 +242,35 @@ bool LoRaMacConfirmQueueIsCmdActive( Mlme_t request )
 void LoRaMacConfirmQueueHandleCb( MlmeConfirm_t* mlmeConfirm )
 {
     uint8_t nbElements = MlmeConfirmQueueCnt;
+    bool readyToHandle = false;
+    MlmeConfirmQueue_t mlmeConfirmToStore;
 
     for( uint8_t i = 0; i < nbElements; i++ )
     {
         mlmeConfirm->MlmeRequest = BufferStart->Request;
         mlmeConfirm->Status = BufferStart->Status;
+        readyToHandle = BufferStart->ReadyToHandle;
 
-        Primitives->MacMlmeConfirm( mlmeConfirm );
+        if( readyToHandle == true )
+        {
+            Primitives->MacMlmeConfirm( mlmeConfirm );
+        }
+        else
+        {
+            // The request is not processed yet. Store the state.
+            mlmeConfirmToStore.Request = BufferStart->Request;
+            mlmeConfirmToStore.Status = BufferStart->Status;
+            mlmeConfirmToStore.RestrictCommonReadyToHandle = BufferStart->RestrictCommonReadyToHandle;
+        }
 
         // Increase the pointer afterwards to prevent overwrites
         LoRaMacConfirmQueueRemoveFirst( );
+
+        if( readyToHandle == false )
+        {
+            // Add a request which has not been finished again to the queue
+            LoRaMacConfirmQueueAdd( &mlmeConfirmToStore );
+        }
     }
 }
 

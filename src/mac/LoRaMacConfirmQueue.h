@@ -58,6 +58,15 @@ typedef struct sMlmeConfirmQueue
      * Status of the operation
      */
     LoRaMacEventInfoStatus_t Status;
+    /*!
+     * Set to true, if the request is ready to be handled
+     */
+    bool ReadyToHandle;
+    /*!
+     * Set to true, if it is not permitted to set the ReadyToHandle variable
+     * with a function call to LoRaMacConfirmQueueSetStatusCmn.
+     */
+    bool RestrictCommonReadyToHandle;
 }MlmeConfirmQueue_t;
 
 /*!
