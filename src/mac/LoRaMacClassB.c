@@ -309,6 +309,35 @@ static void InitClassBDefaults( void )
     PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
     MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
 }
+
+static void EnlargeWindowTimeout( void )
+{
+    // Update beacon movement
+    BeaconCtx.BeaconWindowMovement *= CLASSB_WINDOW_MOVE_EXPANSION_FACTOR;
+    if( BeaconCtx.BeaconWindowMovement > CLASSB_WINDOW_MOVE_EXPANSION_MAX )
+    {
+        BeaconCtx.BeaconWindowMovement = CLASSB_WINDOW_MOVE_EXPANSION_MAX;
+    }
+    // Update symbol timeout
+    BeaconCtx.SymbolTimeout *= CLASSB_BEACON_SYMBOL_TO_EXPANSION_FACTOR;
+    if( BeaconCtx.SymbolTimeout > CLASSB_BEACON_SYMBOL_TO_EXPANSION_MAX )
+    {
+        BeaconCtx.SymbolTimeout = CLASSB_BEACON_SYMBOL_TO_EXPANSION_MAX;
+    }
+    PingSlotCtx.SymbolTimeout *= CLASSB_BEACON_SYMBOL_TO_EXPANSION_FACTOR;
+    if( PingSlotCtx.SymbolTimeout > CLASSB_PING_SLOT_SYMBOL_TO_EXPANSION_MAX )
+    {
+        PingSlotCtx.SymbolTimeout = CLASSB_PING_SLOT_SYMBOL_TO_EXPANSION_MAX;
+    }
+}
+
+static void ResetWindowTimeout( void )
+{
+    BeaconCtx.SymbolTimeout = CLASSB_BEACON_SYMBOL_TO_DEFAULT;
+    PingSlotCtx.SymbolTimeout = CLASSB_BEACON_SYMBOL_TO_DEFAULT;
+    BeaconCtx.BeaconWindowMovement  = CLASSB_WINDOW_MOVE_DEFAULT;
+}
+
 #endif // LORAMAC_CLASSB_ENABLED
 
 void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks )
@@ -488,23 +517,9 @@ void LoRaMacClassBBeaconTimerEvent( void )
             // We have to update the beacon time, since we missed a beacon
             BeaconCtx.BeaconTime += ( CLASSB_BEACON_INTERVAL / 1000 );
 
-            // Update beacon movement
-            BeaconCtx.BeaconWindowMovement *= CLASSB_WINDOW_MOVE_EXPANSION_FACTOR;
-            if( BeaconCtx.BeaconWindowMovement > CLASSB_WINDOW_MOVE_EXPANSION_MAX )
-            {
-                BeaconCtx.BeaconWindowMovement = CLASSB_WINDOW_MOVE_EXPANSION_MAX;
-            }
-            // Update symbol timeout
-            BeaconCtx.SymbolTimeout *= CLASSB_BEACON_SYMBOL_TO_EXPANSION_FACTOR;
-            if( BeaconCtx.SymbolTimeout > CLASSB_BEACON_SYMBOL_TO_EXPANSION_MAX )
-            {
-                BeaconCtx.SymbolTimeout = CLASSB_BEACON_SYMBOL_TO_EXPANSION_MAX;
-            }
-            PingSlotCtx.SymbolTimeout *= CLASSB_BEACON_SYMBOL_TO_EXPANSION_FACTOR;
-            if( PingSlotCtx.SymbolTimeout > CLASSB_PING_SLOT_SYMBOL_TO_EXPANSION_MAX )
-            {
-                PingSlotCtx.SymbolTimeout = CLASSB_PING_SLOT_SYMBOL_TO_EXPANSION_MAX;
-            }
+            // Enlarge window timeouts to increase the chance to receive the next beacon
+            EnlargeWindowTimeout( );
+
             // Setup next state
             BeaconState = BEACON_STATE_REACQUISITION;
             // no break here
