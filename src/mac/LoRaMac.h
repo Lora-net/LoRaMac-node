@@ -2039,7 +2039,7 @@ typedef enum eLoRaMacStatus
      /*!
       * ToDo
       */
-    LORAMAC_STATUS_BUSY_UPLINK_COLISION
+    LORAMAC_STATUS_BUSY_UPLINK_COLLISION
 }LoRaMacStatus_t;
 
 /*!

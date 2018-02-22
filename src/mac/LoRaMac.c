@@ -2670,7 +2670,7 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
 
         if( collisionTime > 0 )
         {
-            return LORAMAC_STATUS_BUSY_UPLINK_COLISION;
+            return LORAMAC_STATUS_BUSY_UPLINK_COLLISION;
         }
     }
 
