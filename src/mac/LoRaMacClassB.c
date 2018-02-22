@@ -1058,7 +1058,7 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
         beaconProcessed = true;
     }
 
-    return beaconReceived;
+    return beaconProcessed;
 #else
     return false;
 #endif // LORAMAC_CLASSB_ENABLED
