@@ -205,6 +205,9 @@ static void RxBeaconSetup( TimerTime_t rxTime, bool activateDefaultChannel )
     rxBeaconSetup.Frequency = frequency;
 
     RegionRxBeaconSetup( *LoRaMacClassBParams.LoRaMacRegion, &rxBeaconSetup, &LoRaMacClassBParams.McpsIndication->RxDatarate );
+
+    LoRaMacClassBParams.MlmeIndication->BeaconInfo.Frequency = frequency;
+    LoRaMacClassBParams.MlmeIndication->BeaconInfo.Datarate = LoRaMacClassBParams.McpsIndication->RxDatarate;
 }
 
 /*!
@@ -457,6 +460,8 @@ bool LoRaMacClassBIsAcquisitionInProgress( void )
         // searches for a beacon.
         return true;
     }
+    return false;
+#else
     return false;
 #endif // LORAMAC_CLASSB_ENABLED
 }

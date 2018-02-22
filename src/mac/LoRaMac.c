@@ -797,6 +797,8 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
     // This function must be called even if we are not in class b mode yet.
     if( LoRaMacClassBRxBeacon( payload, size ) == true )
     {
+        MlmeIndication.BeaconInfo.Rssi = rssi;
+        MlmeIndication.BeaconInfo.Snr = snr;
         return;
     }
     // Check if we expect a ping or a multicast slot.

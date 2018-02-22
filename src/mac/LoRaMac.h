@@ -695,6 +695,22 @@ typedef struct sBeaconInfo
      */
     uint32_t Time;
     /*!
+     * Frequency
+     */
+    uint32_t Frequency;
+    /*!
+     * Datarate
+     */
+    uint8_t Datarate;
+    /*!
+     * RSSI
+     */
+    int16_t Rssi;
+    /*!
+     * SNR
+     */
+    uint8_t Snr;
+    /*!
      * Data structure for the gateway specific part. The
      * content of the values may differ for each gateway
      */
