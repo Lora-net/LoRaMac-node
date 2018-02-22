@@ -604,6 +604,9 @@ void LoRaMacClassBBeaconTimerEvent( void )
         {
             activateTimer = true;
 
+            // We have received a beacon. Acquisition is no longer pending.
+            BeaconCtx.Ctrl.AcquisitionPending = 0;
+
             // Calculate the next beacon RX time
             BeaconCtx.NextBeaconRx = CalcNextBeaconRx( currentTime, BeaconCtx.LastBeaconRx );
             // Take temperature compenstation into account
@@ -629,7 +632,6 @@ void LoRaMacClassBBeaconTimerEvent( void )
                 }
             }
 
-            BeaconCtx.Ctrl.AcquisitionPending = 0;
             break;
         }
         case BEACON_STATE_IDLE:
