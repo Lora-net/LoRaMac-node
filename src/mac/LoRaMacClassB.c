@@ -573,6 +573,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
             // The beacon is no longer acquired
             BeaconCtx.Ctrl.BeaconAcquired = 0;
 
+            // Verify if the maximum beacon less period has been elapsed
             if( ( currentTime - BeaconCtx.LastBeaconRx ) > CLASSB_MAX_BEACON_LESS_PERIOD )
             {
                 BeaconState = BEACON_STATE_LOST;
@@ -609,6 +610,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
 
             // Calculate the next beacon RX time
             BeaconCtx.NextBeaconRx = CalcNextBeaconRx( currentTime, BeaconCtx.LastBeaconRx );
+
             // Take temperature compenstation into account
             beaconEventTime = TimerTempCompensation( beaconEventTime, BeaconCtx.Temperature );
             BeaconCtx.NextBeaconRxAdjusted = currentTime + beaconEventTime;
@@ -623,6 +625,8 @@ void LoRaMacClassBBeaconTimerEvent( void )
 
             // Setup an MLME_BEACON indication to inform the upper layer
             IndicateBeaconStatus( LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED );
+
+            // Setup the MLME confirm for the MLME_BEACON_ACQUISITION
             if( LoRaMacClassBParams.LoRaMacFlags->Bits.MlmeReq == 1 )
             {
                 if( LoRaMacConfirmQueueIsCmdActive( MLME_BEACON_ACQUISITION ) == true )
