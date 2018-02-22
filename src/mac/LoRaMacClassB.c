@@ -365,21 +365,45 @@ static void IndicateBeaconStatus( LoRaMacEventInfoStatus_t status )
     BeaconCtx.Ctrl.ResumeBeaconing = 0;
 }
 
-static TimerTime_t SetupTimeAndStateAfterExpectedBeaconRx( TimerTime_t beaconEventTime,
-                                                           TimerTime_t currentTime,
-                                                           TimerTime_t nextBeaconRxAdjusted )
+static TimerTime_t ApplyGuardTime( TimerTime_t beaconEventTime )
 {
-    // Make sure to transit to the correct state
-    if( ( currentTime + CLASSB_BEACON_GUARD ) < nextBeaconRxAdjusted )
+    TimerTime_t timeGuard = beaconEventTime;
+
+    if( timeGuard > CLASSB_BEACON_GUARD )
     {
-        BeaconState = BEACON_STATE_IDLE;
-        return ( beaconEventTime - CLASSB_BEACON_GUARD );
+        timeGuard -= CLASSB_BEACON_GUARD;
     }
-    else
+    return timeGuard;
+}
+
+static TimerTime_t UpdateBeaconState( LoRaMacEventInfoStatus_t status,
+                                      TimerTime_t windowMovement, TimerTime_t currentTime )
+
+{
+    TimerTime_t beaconEventTime = 0;
+
+    // Calculate the next beacon RX time
+    beaconEventTime = CalcDelayForNextBeacon( currentTime, BeaconCtx.LastBeaconRx );
+    BeaconCtx.NextBeaconRx = currentTime + beaconEventTime;
+
+    // Take temperature compensation into account
+    beaconEventTime = TimerTempCompensation( beaconEventTime, BeaconCtx.Temperature );
+
+    // Move the window
+    if( beaconEventTime > windowMovement )
     {
-        BeaconState = BEACON_STATE_GUARD;
-        return beaconEventTime;
+        beaconEventTime -= windowMovement;
     }
+    BeaconCtx.NextBeaconRxAdjusted = currentTime + beaconEventTime;
+
+    // Start the RX slot state machine for ping and multicast slots
+    LoRaMacClassBStartRxSlots( );
+
+    // Setup an MLME_BEACON indication to inform the upper layer
+    IndicateBeaconStatus( status );
+
+    // Apply guard time
+    return ApplyGuardTime( beaconEventTime );
 }
 
 #endif // LORAMAC_CLASSB_ENABLED
@@ -584,25 +608,12 @@ void LoRaMacClassBBeaconTimerEvent( void )
             }
             else
             {
-                // Calculate the next beacon RX time
-                beaconEventTime = CalcDelayForNextBeacon( currentTime, BeaconCtx.LastBeaconRx );
-                BeaconCtx.NextBeaconRx = currentTime + beaconEventTime;
+                // Handle beacon miss
+                beaconEventTime = UpdateBeaconState( LORAMAC_EVENT_INFO_STATUS_BEACON_LOST,
+                                                     BeaconCtx.BeaconWindowMovement, currentTime );
 
-                // Take window enlargement and temperature compenstation into account
-                beaconEventTime = TimerTempCompensation( beaconEventTime, BeaconCtx.Temperature );
-                BeaconCtx.NextBeaconRxAdjusted -= BeaconCtx.BeaconWindowMovement;
-                BeaconCtx.NextBeaconRxAdjusted = currentTime + beaconEventTime;
-
-                // Make sure to transit to the correct state
-                beaconEventTime = SetupTimeAndStateAfterExpectedBeaconRx( beaconEventTime,
-                                                                          currentTime,
-                                                                          BeaconCtx.NextBeaconRxAdjusted );
-
-                // Start the RX slot state machine for ping and multicast slots
-                LoRaMacClassBStartRxSlots( );
-
-                // Setup an MLME_BEACON indication to inform the upper layer
-                IndicateBeaconStatus( LORAMAC_EVENT_INFO_STATUS_BEACON_LOST );
+                // Setup next state
+                BeaconState = BEACON_STATE_IDLE;
             }
             break;
         }
@@ -613,24 +624,9 @@ void LoRaMacClassBBeaconTimerEvent( void )
             // We have received a beacon. Acquisition is no longer pending.
             BeaconCtx.Ctrl.AcquisitionPending = 0;
 
-            // Calculate the next beacon RX time
-            beaconEventTime = CalcDelayForNextBeacon( currentTime, BeaconCtx.LastBeaconRx );
-            BeaconCtx.NextBeaconRx = currentTime + beaconEventTime;
-
-            // Take temperature compenstation into account
-            beaconEventTime = TimerTempCompensation( beaconEventTime, BeaconCtx.Temperature );
-            BeaconCtx.NextBeaconRxAdjusted = currentTime + beaconEventTime;
-
-            // Make sure to transit to the correct state
-            beaconEventTime = SetupTimeAndStateAfterExpectedBeaconRx( beaconEventTime,
-                                                                      currentTime,
-                                                                      BeaconCtx.NextBeaconRxAdjusted );
-
-            // Start the RX slot state machine for ping and multicast slots
-            LoRaMacClassBStartRxSlots( );
-
-            // Setup an MLME_BEACON indication to inform the upper layer
-            IndicateBeaconStatus( LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED );
+            // Handle beacon reception
+            beaconEventTime = UpdateBeaconState( LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED,
+                                                 0, currentTime );
 
             // Setup the MLME confirm for the MLME_BEACON_ACQUISITION
             if( LoRaMacClassBParams.LoRaMacFlags->Bits.MlmeReq == 1 )
@@ -642,6 +638,8 @@ void LoRaMacClassBBeaconTimerEvent( void )
                 }
             }
 
+            // Setup next state
+            BeaconState = BEACON_STATE_IDLE;
             break;
         }
         case BEACON_STATE_IDLE:
