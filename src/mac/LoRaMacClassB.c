@@ -363,6 +363,23 @@ static void IndicateBeaconStatus( LoRaMacEventInfoStatus_t status )
     BeaconCtx.Ctrl.ResumeBeaconing = 0;
 }
 
+static TimerTime_t SetupTimeAndStateAfterExpectedBeaconRx( TimerTime_t beaconEventTime,
+                                                           TimerTime_t currentTime,
+                                                           TimerTime_t nextBeaconRxAdjusted )
+{
+    // Make sure to transit to the correct state
+    if( ( currentTime + CLASSB_BEACON_GUARD ) < nextBeaconRxAdjusted )
+    {
+        BeaconState = BEACON_STATE_IDLE;
+        return ( beaconEventTime - CLASSB_BEACON_GUARD );
+    }
+    else
+    {
+        BeaconState = BEACON_STATE_GUARD;
+        return beaconEventTime;
+    }
+}
+
 #endif // LORAMAC_CLASSB_ENABLED
 
 void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks )
@@ -568,15 +585,9 @@ void LoRaMacClassBBeaconTimerEvent( void )
                 BeaconCtx.NextBeaconRxAdjusted = currentTime + beaconEventTime;
 
                 // Make sure to transit to the correct state
-                if( ( currentTime + CLASSB_BEACON_GUARD ) < BeaconCtx.NextBeaconRxAdjusted )
-                {
-                    beaconEventTime -= CLASSB_BEACON_GUARD;
-                    BeaconState = BEACON_STATE_IDLE;
-                }
-                else
-                {
-                    BeaconState = BEACON_STATE_GUARD;
-                }
+                beaconEventTime = SetupTimeAndStateAfterExpectedBeaconRx( beaconEventTime,
+                                                                          currentTime,
+                                                                          BeaconCtx.NextBeaconRxAdjusted );
 
                 if( PingSlotCtx.Ctrl.Assigned == 1 )
                 {
@@ -602,15 +613,9 @@ void LoRaMacClassBBeaconTimerEvent( void )
             BeaconCtx.NextBeaconRxAdjusted = currentTime + beaconEventTime;
 
             // Make sure to transit to the correct state
-            if( ( currentTime + CLASSB_BEACON_GUARD ) < BeaconCtx.NextBeaconRxAdjusted )
-            {
-                beaconEventTime -= CLASSB_BEACON_GUARD;
-                BeaconState = BEACON_STATE_IDLE;
-            }
-            else
-            {
-                BeaconState = BEACON_STATE_GUARD;
-            }
+            beaconEventTime = SetupTimeAndStateAfterExpectedBeaconRx( beaconEventTime,
+                                                                      currentTime,
+                                                                      BeaconCtx.NextBeaconRxAdjusted );
 
             // Setup an MLME_BEACON indication to inform the upper layer
             IndicateBeaconStatus( LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED );
