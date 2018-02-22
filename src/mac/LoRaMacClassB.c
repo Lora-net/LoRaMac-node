@@ -570,6 +570,9 @@ void LoRaMacClassBBeaconTimerEvent( void )
         {
             activateTimer = true;
 
+            // The beacon is no longer acquired
+            BeaconCtx.Ctrl.BeaconAcquired = 0;
+
             if( ( currentTime - BeaconCtx.LastBeaconRx ) > CLASSB_MAX_BEACON_LESS_PERIOD )
             {
                 BeaconState = BEACON_STATE_LOST;
@@ -591,8 +594,6 @@ void LoRaMacClassBBeaconTimerEvent( void )
 
                 // Start the RX slot state machine for ping and multicast slots
                 LoRaMacClassBStartRxSlots( );
-            BeaconCtx.Ctrl.BeaconAcquired = 0;
-
 
                 // Setup an MLME_BEACON indication to inform the upper layer
                 IndicateBeaconStatus( LORAMAC_EVENT_INFO_STATUS_BEACON_LOST );
