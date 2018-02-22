@@ -326,7 +326,7 @@ void RtcInit( void )
     }
 }
 
-void RtcSetSysTime( uint32_t seconds, uint16_t subSeconds )
+void RtcSetSysTime( uint32_t seconds, uint32_t subSeconds )
 {
     struct tm timeinfo;
     RTC_DateTypeDef dateStruct;
