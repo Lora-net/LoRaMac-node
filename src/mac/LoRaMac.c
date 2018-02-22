@@ -1488,11 +1488,8 @@ static void OnMacStateCheckTimerEvent( void )
             }
         }
     }
-    // Handle reception for Class B and Class C
-    if( ( LoRaMacState & LORAMAC_RX ) == LORAMAC_RX )
-    {
-        LoRaMacState &= ~LORAMAC_RX;
-    }
+
+    // Handle events
     if( LoRaMacState == LORAMAC_IDLE )
     {
         if( LoRaMacFlags.Bits.McpsReq == 1 )
@@ -2651,6 +2648,14 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
         {
             return LORAMAC_STATUS_BUSY_PING_SLOT_WINDOW_TIME;
         }
+        else if( LoRaMacClassBIsMulticastExpected( ) == true )
+        {
+            return LORAMAC_STATUS_BUSY_PING_SLOT_WINDOW_TIME;
+        }
+        else
+        {
+            LoRaMacClassBStopRxSlots( );
+        }
     }
     RegionTxConfig( LoRaMacRegion, &txConfig, &txPower, &TxTimeOnAir );
 
@@ -2666,6 +2671,8 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
 
     if(LoRaMacClassBIsBeaconModeActive( ) == true )
     {
+        // Currently, the Time-On-Air can only be computed when the radion is configured with
+        // the TX configuration
         TimerTime_t collisionTime = LoRaMacClassBIsUplinkCollision( TxTimeOnAir );
 
         if( collisionTime > 0 )
@@ -3693,7 +3700,6 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
             if( LoRaMacClassBIsAcquisitionPending( ) == false )
             {
                 // Start class B algorithm
-                LoRaMacState |= LORAMAC_RX;
                 LoRaMacClassBSetBeaconState( BEACON_STATE_ACQUISITION );
                 LoRaMacClassBBeaconTimerEvent( );
 
