@@ -341,14 +341,13 @@ static void ResetWindowTimeout( void )
     BeaconCtx.BeaconWindowMovement  = CLASSB_WINDOW_MOVE_DEFAULT;
 }
 
-static TimerTime_t CalcNextBeaconRx( TimerTime_t currentTime, TimerTime_t lastBeaconRx )
+static TimerTime_t CalcDelayForNextBeacon( TimerTime_t currentTime, TimerTime_t lastBeaconRx )
 {
     TimerTime_t nextBeaconRxTime = 0;
 
     // Calculate the point in time of the next beacon
     nextBeaconRxTime = ( ( currentTime - lastBeaconRx ) % CLASSB_BEACON_INTERVAL );
-    nextBeaconRxTime = CLASSB_BEACON_INTERVAL - nextBeaconRxTime;
-    return currentTime + nextBeaconRxTime;
+    return ( CLASSB_BEACON_INTERVAL - nextBeaconRxTime );
 }
 
 static void IndicateBeaconStatus( LoRaMacEventInfoStatus_t status )
@@ -586,7 +585,8 @@ void LoRaMacClassBBeaconTimerEvent( void )
             else
             {
                 // Calculate the next beacon RX time
-                BeaconCtx.NextBeaconRx = CalcNextBeaconRx( currentTime, BeaconCtx.LastBeaconRx );
+                beaconEventTime = CalcDelayForNextBeacon( currentTime, BeaconCtx.LastBeaconRx );
+                BeaconCtx.NextBeaconRx = currentTime + beaconEventTime;
 
                 // Take window enlargement and temperature compenstation into account
                 beaconEventTime = TimerTempCompensation( beaconEventTime, BeaconCtx.Temperature );
@@ -614,7 +614,8 @@ void LoRaMacClassBBeaconTimerEvent( void )
             BeaconCtx.Ctrl.AcquisitionPending = 0;
 
             // Calculate the next beacon RX time
-            BeaconCtx.NextBeaconRx = CalcNextBeaconRx( currentTime, BeaconCtx.LastBeaconRx );
+            beaconEventTime = CalcDelayForNextBeacon( currentTime, BeaconCtx.LastBeaconRx );
+            BeaconCtx.NextBeaconRx = currentTime + beaconEventTime;
 
             // Take temperature compenstation into account
             beaconEventTime = TimerTempCompensation( beaconEventTime, BeaconCtx.Temperature );
