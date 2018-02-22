@@ -110,8 +110,8 @@
 #define BOARD_VERSION_PC7                           PC_7
 
 // Debug pins definition.
-#define RADIO_DBG_PIN_TX                            NC
-#define RADIO_DBG_PIN_RX                            NC
+#define RADIO_DBG_PIN_TX                            PA_6
+#define RADIO_DBG_PIN_RX                            PA_7
 
 /*!
  * Low battery threshold definition.
