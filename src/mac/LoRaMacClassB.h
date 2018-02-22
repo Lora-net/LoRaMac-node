@@ -37,15 +37,34 @@
 #ifndef __LORAMACCLASSB_H__
 #define __LORAMACCLASSB_H__
 
- /*!
-  * States of the class B beacon acquisition and tracking
-  */
+/*!
+ * Defines the default window movement time
+ */
+#define BEACON_WINDOW_MOVE_DEFAULT                2
+
+/*!
+ * Defines the maximum time for the beacon movement
+ */
+#define BEACON_WINDOW_MOVE_EXPANSION_MAX          256
+
+/*!
+ * Defines the expansion factor for the beacon movement
+ */
+#define BEACON_WINDOW_MOVE_EXPANSION_FACTOR       2
+
+/*!
+ * States of the class B beacon acquisition and tracking
+ */
 typedef enum eBeaconState
 {
     /*!
      * Initial state to acquire the beacon
      */
     BEACON_STATE_ACQUISITION,
+    /*!
+     * Beacon acquisition state when a time reference is available
+     */
+    BEACON_STATE_ACQUISITION_BY_TIME,
     /*!
      * Handles the state when the beacon reception fails
      */
@@ -281,14 +300,20 @@ typedef struct sBeaconContext
      */
     TimerTime_t NextBeaconRx;
     /*!
+     * This is the time where the RX window will be opened.
+     * Its base is NextBeaconRx with temperature compensations
+     * and RX window movement.
+     */
+    TimerTime_t NextBeaconRxAdjusted;
+    /*!
      * Current symbol timeout. The node enlarges this variable in case of beacon
      * loss.
      */
     uint16_t SymbolTimeout;
     /*!
-     * Listen time for the beacon in case of reception timeout
+     * Specifies how much time the beacon window will be moved.
      */
-    TimerTime_t ListenTime;
+    TimerTime_t BeaconWindowMovement;
     /*!
      * Beacon timing channel for next beacon
      */
@@ -440,13 +465,6 @@ bool LoRaMacClassBIsMulticastExpected( void );
 bool LoRaMacClassBIsAcquisitionPending( void );
 
 /*!
- * \brief Verifies if the acquisition timer bit is set
- *
- * \retval [true, if the bit is set; false, if not]
- */
-bool LoRaMacClassBIsAcquisitionTimerSet( void );
-
-/*!
  * \brief Verifies if the beacon mode active bit is set
  *
  * \retval [true, if the bit is set; false, if not]
@@ -571,5 +589,9 @@ TimerTime_t LoRaMacClassBGetPingSlotWinTime( void );
  * \retval Returns the time the uplink should be delayed
  */
 TimerTime_t LoRaMacClassBIsUplinkCollision( TimerTime_t txTimeOnAir );
+
+void LoRaMacClassBStopRxSlots( void );
+
+void LoRaMacClassBStartRxSlots( void );
 
 #endif // __LORAMACCLASSB_H__

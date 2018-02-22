@@ -386,10 +386,22 @@ void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallba
 void LoRaMacClassBSetBeaconState( BeaconState_t beaconState )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
-    if( BeaconState != BEACON_STATE_ACQUISITION )
+    if( beaconState == BEACON_STATE_ACQUISITION )
     {
-        // Do only apply a new state if the current state
-        // is not BEACON_STATE_ACQUISITION
+        // If the MAC has received a time reference for the beacon,
+        // apply the state BEACON_STATE_ACQUISITION_BY_TIME.
+        if( ( BeaconCtx.Ctrl.BeaconDelaySet == 1 ) &&
+            ( LoRaMacClassBIsAcquisitionPending( ) == false ) )
+        {
+            BeaconState = BEACON_STATE_ACQUISITION_BY_TIME;
+        }
+        else
+        {
+           BeaconState = beaconState;
+        }
+    }
+    else
+    {
         BeaconState = beaconState;
     }
 #endif // LORAMAC_CLASSB_ENABLED
@@ -421,6 +433,64 @@ void LoRaMacClassBBeaconTimerEvent( void )
     // Beacon state machine
     switch( BeaconState )
     {
+        case BEACON_STATE_ACQUISITION_BY_TIME:
+        {
+            activateTimer = true;
+
+            if( BeaconCtx.Ctrl.AcquisitionPending == 1 )
+            {
+                Radio.Sleep();
+                BeaconState = BEACON_STATE_LOST;
+            }
+            else
+            {
+                // Default symbol timeouts
+                BeaconCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
+                PingSlotCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
+                BeaconCtx.BeaconWindowMovement  = BEACON_WINDOW_MOVE_DEFAULT;
+
+                if( BeaconCtx.Ctrl.BeaconDelaySet == 1 )
+                {
+                    if( BeaconCtx.BeaconTimingDelay > 0 )
+                    {
+                        if( BeaconCtx.NextBeaconRx > currentTime )
+                        {
+                            beaconEventTime = TimerTempCompensation( BeaconCtx.NextBeaconRx - currentTime, BeaconCtx.Temperature );
+                        }
+                        else
+                        {
+                            // Reset status provides by BeaconTimingAns
+                            BeaconCtx.Ctrl.BeaconDelaySet = 0;
+                            BeaconCtx.Ctrl.BeaconChannelSet = 0;
+                            BeaconState = BEACON_STATE_ACQUISITION;;
+                        }
+                        BeaconCtx.NextBeaconRx = 0;
+                        BeaconCtx.BeaconTimingDelay = 0;
+                    }
+                    else
+                    {
+                        activateTimer = false;
+
+                        // Reset status provides by BeaconTimingAns
+                        BeaconCtx.Ctrl.BeaconDelaySet = 0;
+                        // Set the node into acquisition mode
+                        BeaconCtx.Ctrl.AcquisitionPending = 1;
+
+                        // Don't use the default channel. We know on which
+                        // channel the next beacon will be transmitted
+                        RxBeaconSetup( BeaconCtx.Cfg.Reserved, false );
+                    }
+                }
+                else
+                {
+                    BeaconCtx.NextBeaconRx = 0;
+                    BeaconCtx.BeaconTimingDelay = 0;
+
+                    BeaconState = BEACON_STATE_ACQUISITION;
+                }
+            }
+            break;
+        }
         case BEACON_STATE_ACQUISITION:
         {
             activateTimer = true;
@@ -435,80 +505,34 @@ void LoRaMacClassBBeaconTimerEvent( void )
                 // Default symbol timeouts
                 BeaconCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
                 PingSlotCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
+                BeaconCtx.BeaconWindowMovement  = BEACON_WINDOW_MOVE_DEFAULT;
 
-                if( BeaconCtx.Ctrl.BeaconDelaySet == 1 )
-                {
-                    if( BeaconCtx.BeaconTimingDelay > 0 )
-                    {
-                        if( BeaconCtx.NextBeaconRx > currentTime )
-                        {
-                            BeaconCtx.Ctrl.AcquisitionTimerSet = 1;
-                            beaconEventTime = TimerTempCompensation( BeaconCtx.NextBeaconRx - currentTime, BeaconCtx.Temperature );
-                        }
-                        else
-                        {
-                            // Reset status provides by BeaconTimingAns
-                            BeaconCtx.Ctrl.BeaconDelaySet = 0;
-                            BeaconCtx.Ctrl.AcquisitionTimerSet = 0;
-                            BeaconCtx.Ctrl.BeaconChannelSet = 0;
-                            // Set the node into acquisition mode
-                            BeaconCtx.Ctrl.AcquisitionPending = 1;
+                BeaconCtx.Ctrl.AcquisitionPending = 1;
+                beaconEventTime = BeaconCtx.Cfg.Interval;
 
-                            beaconEventTime = BeaconCtx.Cfg.Interval;
-
-                            // Use the default channel. We don't know on which
-                            // channel the next beacon will be transmitted
-                            RxBeaconSetup( 0, true );
-                        }
-                        BeaconCtx.NextBeaconRx = 0;
-                        BeaconCtx.BeaconTimingDelay = 0;
-                    }
-                    else
-                    {
-                        activateTimer = false;
-
-                        // Reset status provides by BeaconTimingAns
-                        BeaconCtx.Ctrl.BeaconDelaySet = 0;
-                        BeaconCtx.Ctrl.AcquisitionTimerSet = 0;
-                        // Set the node into acquisition mode
-                        BeaconCtx.Ctrl.AcquisitionPending = 1;
-
-                        // Don't use the default channel. We know on which
-                        // channel the next beacon will be transmitted
-                        RxBeaconSetup( BeaconCtx.Cfg.Reserved, false );
-                    }
-                }
-                else
-                {
-                    BeaconCtx.Ctrl.AcquisitionPending = 1;
-                    beaconEventTime = BeaconCtx.Cfg.Interval;
-                    if( BeaconCtx.Ctrl.AcquisitionTimerSet == 0 )
-                    {
-                        // Start the beacon acquisition. When the MAC has received a beacon in function
-                        // RxBeacon successfully, the next state is BEACON_STATE_LOCKED. If the MAC does not
-                        // find a beacon, the state machine will stay in state BEACON_STATE_ACQUISITION.
-                        // This state detects that a acquisition was pending previously and will change the next
-                        // state to BEACON_STATE_LOST.
-                        RxBeaconSetup( 0, true );
-                    }
-                    BeaconCtx.Ctrl.AcquisitionTimerSet = 0;
-                }
+                // Start the beacon acquisition. When the MAC has received a beacon in function
+                // RxBeacon successfully, the next state is BEACON_STATE_LOCKED. If the MAC does not
+                // find a beacon, the state machine will stay in state BEACON_STATE_ACQUISITION.
+                // This state detects that a acquisition was pending previously and will change the next
+                // state to BEACON_STATE_LOST.
+                RxBeaconSetup( 0, true );
             }
             break;
         }
         case BEACON_STATE_TIMEOUT:
         {
-            // Store listen time
-            BeaconCtx.ListenTime = currentTime - BeaconCtx.NextBeaconRx;
-            // Setup next state
-            BeaconState = BEACON_STATE_BEACON_MISSED;
-            // no break here
-        }
-        case BEACON_STATE_BEACON_MISSED:
-        {
             // We have to update the beacon time, since we missed a beacon
             BeaconCtx.BeaconTime += ( BeaconCtx.Cfg.Interval / 1000 );
 
+            // Update beacon movement
+            // The computation of the window movement is currently implemented as a
+            // workaround. In the future, the goal is to use the time-on-air. However,
+            // the radio driver can only calculate it when it is configured with the TX config.
+            BeaconCtx.BeaconWindowMovement *= BEACON_WINDOW_MOVE_EXPANSION_FACTOR;
+            if( BeaconCtx.BeaconWindowMovement > BEACON_WINDOW_MOVE_EXPANSION_MAX )
+            {
+                BeaconCtx.BeaconWindowMovement = BEACON_WINDOW_MOVE_EXPANSION_MAX;
+            }
             // Update symbol timeout
             BeaconCtx.SymbolTimeout *= BeaconCtx.Cfg.SymbolToExpansionFactor;
             if( BeaconCtx.SymbolTimeout > BeaconCtx.Cfg.SymbolToExpansionMax )
@@ -537,13 +561,15 @@ void LoRaMacClassBBeaconTimerEvent( void )
                 // Calculate the point in time of the next beacon
                 beaconEventTime = ( ( currentTime - BeaconCtx.LastBeaconRx ) % BeaconCtx.Cfg.Interval );
                 beaconEventTime = BeaconCtx.Cfg.Interval - beaconEventTime;
-                // Take window enlargement into account
-                beaconEventTime -= ( ( BeaconCtx.ListenTime * BeaconCtx.Cfg.SymbolToExpansionFactor ) >> 1 );
-                beaconEventTime = TimerTempCompensation( beaconEventTime, BeaconCtx.Temperature );
                 BeaconCtx.NextBeaconRx = currentTime + beaconEventTime;
 
+                // Take window enlargement and temperature compenstation into account
+                beaconEventTime = TimerTempCompensation( beaconEventTime, BeaconCtx.Temperature );
+                BeaconCtx.NextBeaconRxAdjusted -= BeaconCtx.BeaconWindowMovement;
+                BeaconCtx.NextBeaconRxAdjusted = currentTime + beaconEventTime;
+
                 // Make sure to transit to the correct state
-                if( ( currentTime + BeaconCtx.Cfg.Guard ) < BeaconCtx.NextBeaconRx )
+                if( ( currentTime + BeaconCtx.Cfg.Guard ) < BeaconCtx.NextBeaconRxAdjusted )
                 {
                     beaconEventTime -= BeaconCtx.Cfg.Guard;
                     BeaconState = BEACON_STATE_IDLE;
@@ -555,13 +581,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
 
                 if( PingSlotCtx.Ctrl.Assigned == 1 )
                 {
-                    PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
-                    TimerSetValue( &PingSlotTimer, 1 );
-                    TimerStart( &PingSlotTimer );
-
-                    MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
-                    TimerSetValue( &MulticastSlotTimer, 1 );
-                    TimerStart( &MulticastSlotTimer );
+                    LoRaMacClassBStartRxSlots( );
                 }
             }
             BeaconCtx.Ctrl.BeaconAcquired = 0;
@@ -585,11 +605,14 @@ void LoRaMacClassBBeaconTimerEvent( void )
             // Calculate the point in time of the next beacon
             beaconEventTime = ( ( currentTime - BeaconCtx.LastBeaconRx ) % BeaconCtx.Cfg.Interval );
             beaconEventTime = BeaconCtx.Cfg.Interval - beaconEventTime;
-            beaconEventTime = TimerTempCompensation( beaconEventTime, BeaconCtx.Temperature );
             BeaconCtx.NextBeaconRx = currentTime + beaconEventTime;
 
+            // Take temperature compenstation into account
+            beaconEventTime = TimerTempCompensation( beaconEventTime, BeaconCtx.Temperature );
+            BeaconCtx.NextBeaconRxAdjusted = currentTime + beaconEventTime;
+
             // Make sure to transit to the correct state
-            if( ( currentTime + BeaconCtx.Cfg.Guard ) < BeaconCtx.NextBeaconRx )
+            if( ( currentTime + BeaconCtx.Cfg.Guard ) < BeaconCtx.NextBeaconRxAdjusted )
             {
                 beaconEventTime -= BeaconCtx.Cfg.Guard;
                 BeaconState = BEACON_STATE_IDLE;
@@ -610,13 +633,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
 
             if( PingSlotCtx.Ctrl.Assigned == 1 )
             {
-                PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
-                TimerSetValue( &PingSlotTimer, 1 );
-                TimerStart( &PingSlotTimer );
-
-                MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
-                TimerSetValue( &MulticastSlotTimer, 1 );
-                TimerStart( &MulticastSlotTimer );
+                LoRaMacClassBStartRxSlots( );
             }
             BeaconCtx.Ctrl.AcquisitionPending = 0;
 
@@ -637,7 +654,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
         {
             activateTimer = true;
             GetTemperatureLevel( &LoRaMacClassBCallbacks, &BeaconCtx );
-            beaconEventTime = BeaconCtx.NextBeaconRx - Radio.GetWakeupTime( );
+            beaconEventTime = BeaconCtx.NextBeaconRxAdjusted - Radio.GetWakeupTime( );
             currentTime = TimerGetCurrentTime( );
 
             if( beaconEventTime > currentTime )
@@ -656,6 +673,9 @@ void LoRaMacClassBBeaconTimerEvent( void )
         case BEACON_STATE_GUARD:
         {
             BeaconState = BEACON_STATE_RX;
+
+            // Stop slot timers
+            LoRaMacClassBStopRxSlots( );
 
             // Don't use the default channel. We know on which
             // channel the next beacon will be transmitted
@@ -680,8 +700,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
             }
 
             // Stop slot timers
-            TimerStop( &PingSlotTimer );
-            TimerStop( &MulticastSlotTimer );
+            LoRaMacClassBStopRxSlots( );
 
             // Initialize default state for class b
             InitClassBDefaults( );
@@ -792,7 +811,7 @@ void LoRaMacClassBPingSlotTimerEvent( void )
             else
             {
                 // Multicast slots have priority. Skip Rx
-                PingSlotState = PINGSLOT_STATE_SET_TIMER;
+                PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
                 TimerSetValue( &PingSlotTimer, PingSlotCtx.Cfg.PingSlotWindow );
                 TimerStart( &PingSlotTimer );
             }
@@ -800,7 +819,7 @@ void LoRaMacClassBPingSlotTimerEvent( void )
         }
         default:
         {
-            PingSlotState = PINGSLOT_STATE_SET_TIMER;
+            PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
             break;
         }
     }
@@ -890,7 +909,7 @@ void LoRaMacClassBMulticastSlotTimerEvent( void )
             // Verify if the multicast channel is valid
             if( PingSlotCtx.NextMulticastChannel == NULL )
             {
-                MulticastSlotState = PINGSLOT_STATE_SET_TIMER;
+                MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
                 TimerSetValue( &MulticastSlotTimer, 1 );
                 TimerStart( &MulticastSlotTimer );
                 break;
@@ -926,7 +945,7 @@ void LoRaMacClassBMulticastSlotTimerEvent( void )
         }
         default:
         {
-            MulticastSlotState = PINGSLOT_STATE_SET_TIMER;
+            MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
             break;
         }
     }
@@ -998,6 +1017,7 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
                 BeaconCtx.Ctrl.BeaconMode = 1;
                 BeaconCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
                 PingSlotCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
+                BeaconCtx.BeaconWindowMovement  = BEACON_WINDOW_MOVE_DEFAULT;
                 BeaconState = BEACON_STATE_LOCKED;
 
                 LoRaMacClassBBeaconTimerEvent( );
@@ -1009,7 +1029,13 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
             BeaconState = BEACON_STATE_TIMEOUT;
             LoRaMacClassBBeaconTimerEvent( );
         }
-        // Return always true, when we expect a beacon.
+        // When the MAC listens for a beacon, it is not allowed to process any other
+        // downlink except the beacon frame itself. The reason for this is that no valid downlink window is open.
+        // If it receives a frame which is
+        // 1. not a beacon or
+        // 2. a beacon with a crc fail
+        // the MAC shall ignore the frame completely. Thus, the function must always return true, even if no
+        // valid beacon has been received.
         beaconReceived = true;
     }
 
@@ -1023,7 +1049,6 @@ bool LoRaMacClassBIsBeaconExpected( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     if( ( BeaconCtx.Ctrl.AcquisitionPending == 1 ) ||
-        ( BeaconCtx.Ctrl.AcquisitionTimerSet == 1 ) ||
         ( BeaconState == BEACON_STATE_RX ) )
     {
         return true;
@@ -1073,19 +1098,6 @@ bool LoRaMacClassBIsAcquisitionPending( void )
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
-bool LoRaMacClassBIsAcquisitionTimerSet( void )
-{
-#ifdef LORAMAC_CLASSB_ENABLED
-    if( BeaconCtx.Ctrl.AcquisitionTimerSet == 1 )
-    {
-        return true;
-    }
-    return false;
-#else
-    return false;
-#endif // LORAMAC_CLASSB_ENABLED
-}
-
 bool LoRaMacClassBIsBeaconModeActive( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
@@ -1125,11 +1137,8 @@ void LoRaMacClassBHaltBeaconing( void )
         // Halt ping slot state machine
         TimerStop( &BeaconTimer );
 
-        // Halt ping slot state machine
-        TimerStop( &PingSlotTimer );
-
-        // Halt multicast ping slot state machine
-        TimerStop( &MulticastSlotTimer );
+        // Halt ping and multicast slot state machines
+        LoRaMacClassBStopRxSlots( );
     }
 #endif // LORAMAC_CLASSB_ENABLED
 }
@@ -1520,4 +1529,21 @@ TimerTime_t LoRaMacClassBIsUplinkCollision( TimerTime_t txTimeOnAir )
 #else
     return 0;
 #endif // LORAMAC_CLASSB_ENABLED
+}
+
+void LoRaMacClassBStopRxSlots( void )
+{
+    TimerStop( &PingSlotTimer );
+    TimerStop( &MulticastSlotTimer );
+}
+
+void LoRaMacClassBStartRxSlots( void )
+{
+    PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+    TimerSetValue( &PingSlotTimer, 1 );
+    TimerStart( &PingSlotTimer );
+
+    MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+    TimerSetValue( &MulticastSlotTimer, 1 );
+    TimerStart( &MulticastSlotTimer );
 }
