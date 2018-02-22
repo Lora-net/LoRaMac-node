@@ -338,6 +338,16 @@ static void ResetWindowTimeout( void )
     BeaconCtx.BeaconWindowMovement  = CLASSB_WINDOW_MOVE_DEFAULT;
 }
 
+static TimerTime_t CalcNextBeaconRx( TimerTime_t currentTime, TimerTime_t lastBeaconRx )
+{
+    TimerTime_t nextBeaconRxTime = 0;
+
+    // Calculate the point in time of the next beacon
+    nextBeaconRxTime = ( ( currentTime - lastBeaconRx ) % CLASSB_BEACON_INTERVAL );
+    nextBeaconRxTime = CLASSB_BEACON_INTERVAL - nextBeaconRxTime;
+    return currentTime + nextBeaconRxTime;
+}
+
 #endif // LORAMAC_CLASSB_ENABLED
 
 void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks )
@@ -534,10 +544,8 @@ void LoRaMacClassBBeaconTimerEvent( void )
             else
             {
                 activateTimer = true;
-                // Calculate the point in time of the next beacon
-                beaconEventTime = ( ( currentTime - BeaconCtx.LastBeaconRx ) % CLASSB_BEACON_INTERVAL );
-                beaconEventTime = CLASSB_BEACON_INTERVAL - beaconEventTime;
-                BeaconCtx.NextBeaconRx = currentTime + beaconEventTime;
+                // Calculate the next beacon RX time
+                BeaconCtx.NextBeaconRx = CalcNextBeaconRx( currentTime, BeaconCtx.LastBeaconRx );
 
                 // Take window enlargement and temperature compenstation into account
                 beaconEventTime = TimerTempCompensation( beaconEventTime, BeaconCtx.Temperature );
@@ -578,11 +586,9 @@ void LoRaMacClassBBeaconTimerEvent( void )
         case BEACON_STATE_LOCKED:
         {
             activateTimer = true;
-            // Calculate the point in time of the next beacon
-            beaconEventTime = ( ( currentTime - BeaconCtx.LastBeaconRx ) % CLASSB_BEACON_INTERVAL );
-            beaconEventTime = CLASSB_BEACON_INTERVAL - beaconEventTime;
-            BeaconCtx.NextBeaconRx = currentTime + beaconEventTime;
 
+            // Calculate the next beacon RX time
+            BeaconCtx.NextBeaconRx = CalcNextBeaconRx( currentTime, BeaconCtx.LastBeaconRx );
             // Take temperature compenstation into account
             beaconEventTime = TimerTempCompensation( beaconEventTime, BeaconCtx.Temperature );
             BeaconCtx.NextBeaconRxAdjusted = currentTime + beaconEventTime;
