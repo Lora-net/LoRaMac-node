@@ -171,90 +171,23 @@
  * CLASS B
  */
 /*!
- * Beacon interval in ms
+ * Beacon frequency
  */
- #define US915_HYBRID_BEACON_INTERVAL               128000
-
- /*!
-  * Beacon reserved time in ms
-  */
- #define US915_HYBRID_BEACON_RESERVED               2120
-
- /*!
-  * Beacon guard time in ms
-  */
- #define US915_HYBRID_BEACON_GUARD                  3000
-
- /*!
-  * Beacon window time in ms
-  */
- #define US915_HYBRID_BEACON_WINDOW                 122880
-
- /*!
-  * Beacon window time in numer of slots
-  */
- #define US915_HYBRID_BEACON_WINDOW_SLOTS           4096
-
- /*!
-  * Ping slot length time in ms
-  */
- #define US915_HYBRID_PING_SLOT_WINDOW              30
-
- /*!
-  * Default symbol timeout for beacons and ping slot windows
-  */
- #define US915_HYBRID_BEACON_SYMBOL_TO_DEFAULT      8
-
- /*!
-  * Maximum symbol timeout for beacons
-  */
- #define US915_HYBRID_BEACON_SYMBOL_TO_EXPANSION_MAX            255
-
- /*!
-  * Maximum symbol timeout for ping slots
-  */
- #define US915_HYBRID_PING_SLOT_SYMBOL_TO_EXPANSION_MAX         30
-
- /*!
-  * Symbol expansion value for beacon windows in case of beacon
-  * loss in symbols
-  */
- #define US915_HYBRID_BEACON_SYMBOL_TO_EXPANSION_FACTOR         2
-
- /*!
-  * Symbol expansion value for ping slot windows in case of beacon
-  * loss in symbols
-  */
- #define US915_HYBRID_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR      2
-
- /*!
-  * Maximum allowed beacon less time in ms
-  */
- #define US915_HYBRID_MAX_BEACON_LESS_PERIOD        7200000
-
- /*!
-  * Delay time for the BeaconTimingAns in ms
-  */
- #define US915_HYBRID_BEACON_DELAY_BEACON_TIMING_ANS        30
-
- /*!
-  * Beacon frequency
-  */
  #define US915_HYBRID_BEACON_CHANNEL_FREQ           923300000
 
- /*!
-  * Beacon frequency channel stepwidth
-  */
+/*!
+ * Beacon frequency channel stepwidth
+ */
  #define US915_HYBRID_BEACON_CHANNEL_STEPWIDTH      600000
 
- /*!
-  * Number of possible beacon channels
-  */
+/*!
+ * Number of possible beacon channels
+ */
  #define US915_HYBRID_BEACON_NB_CHANNELS            8
 
- /*!
-  * Payload size of a beacon frame
-  */
+/*!
+ * Payload size of a beacon frame
+ */
  #define US915_HYBRID_BEACON_SIZE                   23
 
 /*!
@@ -267,14 +200,14 @@
  */
 #define US915_HYBRID_RFU2_SIZE                      3
 
- /*!
-  * Datarate of the beacon channel
-  */
+/*!
+ * Datarate of the beacon channel
+ */
  #define US915_HYBRID_BEACON_CHANNEL_DR             DR_8
 
- /*!
-  * Bandwith of the beacon channel
-  */
+/*!
+ * Bandwith of the beacon channel
+ */
  #define US915_HYBRID_BEACON_CHANNEL_BW             2
 
 /*!

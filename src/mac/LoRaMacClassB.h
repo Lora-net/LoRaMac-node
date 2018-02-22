@@ -38,21 +38,6 @@
 #define __LORAMACCLASSB_H__
 
 /*!
- * Defines the default window movement time
- */
-#define BEACON_WINDOW_MOVE_DEFAULT                2
-
-/*!
- * Defines the maximum time for the beacon movement
- */
-#define BEACON_WINDOW_MOVE_EXPANSION_MAX          256
-
-/*!
- * Defines the expansion factor for the beacon movement
- */
-#define BEACON_WINDOW_MOVE_EXPANSION_FACTOR       2
-
-/*!
  * States of the class B beacon acquisition and tracking
  */
 typedef enum eBeaconState
@@ -145,22 +130,10 @@ typedef struct sPingSlotContext
         uint8_t CustomFreq       : 1;
     }Ctrl;
 
-    struct sPingSlotCfg
-    {
-        /*!
-         * Ping slot length time in ms
-         */
-        uint32_t PingSlotWindow;
-        /*!
-         * Maximum symbol timeout for ping slots
-         */
-        uint32_t SymbolToExpansionMax;
-        /*!
-         * Symbol expansion value for ping slot windows in case of beacon
-         * loss in symbols
-         */
-        uint32_t SymbolToExpansionFactor;
-    }Cfg;
+    /*!
+     * Ping slot length time in ms
+     */
+    uint32_t PingSlotWindow;
     /*!
      * Number of ping slots
      */
@@ -229,52 +202,6 @@ typedef struct sBeaconContext
          */
         uint8_t ResumeBeaconing      : 1;
     }Ctrl;
-
-    struct sBeaconCfg
-    {
-        /*!
-         * Beacon interval in ms
-         */
-        uint32_t Interval;
-        /*!
-         * Beacon reserved time in ms
-         */
-        uint32_t Reserved;
-        /*!
-         * Beacon guard time in ms
-         */
-        uint32_t Guard;
-        /*!
-         * Beacon window time in ms
-         */
-        uint32_t Window;
-        /*!
-         * Beacon window time in numer of slots
-         */
-        uint32_t WindowSlots;
-        /*!
-         * Default symbol timeout for beacons and ping slot windows
-         */
-        uint32_t SymbolToDefault;
-        /*!
-         * Maximum symbol timeout for beacons
-         */
-        uint32_t SymbolToExpansionMax;
-        /*!
-         * Symbol expansion value for beacon windows in case of beacon
-         * loss in symbols
-         */
-        uint32_t SymbolToExpansionFactor;
-        /*!
-         * Symbol expansion value for ping slot windows in case of beacon
-         * loss in symbols
-         */
-        uint32_t MaxBeaconLessPeriod;
-        /*!
-         * Delay time for the BeaconTimingAns in ms
-         */
-        uint32_t DelayBeaconTimingAns;
-    }Cfg;
     /*!
      * Beacon reception frequency
      */

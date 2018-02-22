@@ -21,6 +21,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include "utilities.h"
 #include "LoRaMac.h"
 #include "LoRaMacClassB.h"
+#include "LoRaMacClassBConfig.h"
 #include "LoRaMacCrypto.h"
 #include "LoRaMacConfirmQueue.h"
 
@@ -165,7 +166,8 @@ static void RxBeaconSetup( TimerTime_t rxTime, bool activateDefaultChannel )
     else
     {
         // This is the frequency according to the channel plan
-        frequency = CalcDownlinkChannelAndFrequency( 0, BeaconCtx.BeaconTime + ( BeaconCtx.Cfg.Interval / 1000 ), BeaconCtx.Cfg.Interval );
+        frequency = CalcDownlinkChannelAndFrequency( 0, BeaconCtx.BeaconTime + ( CLASSB_BEACON_INTERVAL / 1000 ),
+                                                     CLASSB_BEACON_INTERVAL );
     }
 
     if( BeaconCtx.Ctrl.CustomFreq == 1 )
@@ -221,24 +223,24 @@ static bool CalcNextSlotTime( uint16_t slotOffset, uint16_t pingPeriod, TimerTim
     TimerTime_t currentTime = TimerGetCurrentTime( );
 
     // Calculate the point in time of the last beacon even if we missed it
-    slotTime = ( ( currentTime - BeaconCtx.LastBeaconRx ) % BeaconCtx.Cfg.Interval );
+    slotTime = ( ( currentTime - BeaconCtx.LastBeaconRx ) % CLASSB_BEACON_INTERVAL );
     slotTime = currentTime - slotTime;
 
     // Add the reserved time and the ping offset
-    slotTime += BeaconCtx.Cfg.Reserved;
-    slotTime += slotOffset * PingSlotCtx.Cfg.PingSlotWindow;
+    slotTime += CLASSB_BEACON_RESERVED;
+    slotTime += slotOffset * CLASSB_PING_SLOT_WINDOW;
 
     if( slotTime < currentTime )
     {
         currentPingSlot = ( ( currentTime - slotTime ) /
-                          ( pingPeriod * PingSlotCtx.Cfg.PingSlotWindow ) ) + 1;
+                          ( pingPeriod * CLASSB_PING_SLOT_WINDOW ) ) + 1;
         slotTime += ( ( TimerTime_t )( currentPingSlot * pingPeriod ) *
-                    PingSlotCtx.Cfg.PingSlotWindow );
+                    CLASSB_PING_SLOT_WINDOW );
     }
 
     if( currentPingSlot < PingSlotCtx.PingNb )
     {
-        if( slotTime <= ( BeaconCtx.NextBeaconRx - BeaconCtx.Cfg.Guard - PingSlotCtx.Cfg.PingSlotWindow ) )
+        if( slotTime <= ( BeaconCtx.NextBeaconRx - CLASSB_BEACON_GUARD - CLASSB_PING_SLOT_WINDOW ) )
         {
             // Calculate the relative ping slot time
             slotTime -= currentTime;
@@ -294,9 +296,6 @@ static void GetTemperatureLevel( LoRaMacClassBCallback_t *callbacks, BeaconConte
 
 static void InitClassBDefaults( void )
 {
-    GetPhyParams_t getPhy;
-    PhyParam_t phyParam;
-
     // Init variables to default
     memset1( ( uint8_t* ) &BeaconCtx, 0, sizeof( BeaconContext_t ) );
     memset1( ( uint8_t* ) &PingSlotCtx, 0, sizeof( PingSlotContext_t ) );
@@ -309,59 +308,6 @@ static void InitClassBDefaults( void )
     BeaconState = BEACON_STATE_ACQUISITION;
     PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
     MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
-
-    // Get phy parameters
-    getPhy.Attribute = PHY_BEACON_INTERVAL;
-    phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    BeaconCtx.Cfg.Interval = phyParam.Value;
-
-    getPhy.Attribute = PHY_BEACON_RESERVED;
-    phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    BeaconCtx.Cfg.Reserved = phyParam.Value;
-
-    getPhy.Attribute = PHY_BEACON_GUARD;
-    phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    BeaconCtx.Cfg.Guard = phyParam.Value;
-
-    getPhy.Attribute = PHY_BEACON_WINDOW;
-    phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    BeaconCtx.Cfg.Window = phyParam.Value;
-
-    getPhy.Attribute = PHY_BEACON_WINDOW_SLOTS;
-    phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    BeaconCtx.Cfg.WindowSlots = phyParam.Value;
-
-    getPhy.Attribute = PHY_BEACON_SYMBOL_TO_DEFAULT;
-    phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    BeaconCtx.Cfg.SymbolToDefault = phyParam.Value;
-
-    getPhy.Attribute = PHY_BEACON_SYMBOL_TO_EXPANSION_MAX;
-    phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    BeaconCtx.Cfg.SymbolToExpansionMax = phyParam.Value;
-
-    getPhy.Attribute = PHY_BEACON_SYMBOL_TO_EXPANSION_FACTOR;
-    phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    BeaconCtx.Cfg.SymbolToExpansionFactor = phyParam.Value;
-
-    getPhy.Attribute = PHY_MAX_BEACON_LESS_PERIOD;
-    phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    BeaconCtx.Cfg.MaxBeaconLessPeriod = phyParam.Value;
-
-    getPhy.Attribute = PHY_BEACON_DELAY_BEACON_TIMING_ANS;
-    phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    BeaconCtx.Cfg.DelayBeaconTimingAns = phyParam.Value;
-
-    getPhy.Attribute = PHY_PING_SLOT_WINDOW;
-    phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    PingSlotCtx.Cfg.PingSlotWindow = phyParam.Value;
-
-    getPhy.Attribute = PHY_PING_SLOT_SYMBOL_TO_EXPANSION_MAX;
-    phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    PingSlotCtx.Cfg.SymbolToExpansionMax = phyParam.Value;
-
-    getPhy.Attribute = PHY_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR;
-    phyParam = RegionGetPhyParam( *LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    PingSlotCtx.Cfg.SymbolToExpansionFactor = phyParam.Value;
 }
 #endif // LORAMAC_CLASSB_ENABLED
 
@@ -468,9 +414,9 @@ void LoRaMacClassBBeaconTimerEvent( void )
             else
             {
                 // Default symbol timeouts
-                BeaconCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
-                PingSlotCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
-                BeaconCtx.BeaconWindowMovement  = BEACON_WINDOW_MOVE_DEFAULT;
+                BeaconCtx.SymbolTimeout = CLASSB_BEACON_SYMBOL_TO_DEFAULT;
+                PingSlotCtx.SymbolTimeout = CLASSB_BEACON_SYMBOL_TO_DEFAULT;
+                BeaconCtx.BeaconWindowMovement  = CLASSB_WINDOW_MOVE_DEFAULT;
 
                 if( BeaconCtx.Ctrl.BeaconDelaySet == 1 )
                 {
@@ -500,7 +446,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
 
                         // Don't use the default channel. We know on which
                         // channel the next beacon will be transmitted
-                        RxBeaconSetup( BeaconCtx.Cfg.Reserved, false );
+                        RxBeaconSetup( CLASSB_BEACON_RESERVED, false );
                     }
                 }
                 else
@@ -525,12 +471,12 @@ void LoRaMacClassBBeaconTimerEvent( void )
             else
             {
                 // Default symbol timeouts
-                BeaconCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
-                PingSlotCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
-                BeaconCtx.BeaconWindowMovement  = BEACON_WINDOW_MOVE_DEFAULT;
+                BeaconCtx.SymbolTimeout = CLASSB_BEACON_SYMBOL_TO_DEFAULT;
+                PingSlotCtx.SymbolTimeout = CLASSB_BEACON_SYMBOL_TO_DEFAULT;
+                BeaconCtx.BeaconWindowMovement  = CLASSB_WINDOW_MOVE_DEFAULT;
 
                 BeaconCtx.Ctrl.AcquisitionPending = 1;
-                beaconEventTime = BeaconCtx.Cfg.Interval;
+                beaconEventTime = CLASSB_BEACON_INTERVAL;
 
                 // Start the beacon acquisition. When the MAC has received a beacon in function
                 // RxBeacon successfully, the next state is BEACON_STATE_LOCKED. If the MAC does not
@@ -544,24 +490,24 @@ void LoRaMacClassBBeaconTimerEvent( void )
         case BEACON_STATE_TIMEOUT:
         {
             // We have to update the beacon time, since we missed a beacon
-            BeaconCtx.BeaconTime += ( BeaconCtx.Cfg.Interval / 1000 );
+            BeaconCtx.BeaconTime += ( CLASSB_BEACON_INTERVAL / 1000 );
 
             // Update beacon movement
-            BeaconCtx.BeaconWindowMovement *= BEACON_WINDOW_MOVE_EXPANSION_FACTOR;
-            if( BeaconCtx.BeaconWindowMovement > BEACON_WINDOW_MOVE_EXPANSION_MAX )
+            BeaconCtx.BeaconWindowMovement *= CLASSB_WINDOW_MOVE_EXPANSION_FACTOR;
+            if( BeaconCtx.BeaconWindowMovement > CLASSB_WINDOW_MOVE_EXPANSION_MAX )
             {
-                BeaconCtx.BeaconWindowMovement = BEACON_WINDOW_MOVE_EXPANSION_MAX;
+                BeaconCtx.BeaconWindowMovement = CLASSB_WINDOW_MOVE_EXPANSION_MAX;
             }
             // Update symbol timeout
-            BeaconCtx.SymbolTimeout *= BeaconCtx.Cfg.SymbolToExpansionFactor;
-            if( BeaconCtx.SymbolTimeout > BeaconCtx.Cfg.SymbolToExpansionMax )
+            BeaconCtx.SymbolTimeout *= CLASSB_BEACON_SYMBOL_TO_EXPANSION_FACTOR;
+            if( BeaconCtx.SymbolTimeout > CLASSB_BEACON_SYMBOL_TO_EXPANSION_MAX )
             {
-                BeaconCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToExpansionMax;
+                BeaconCtx.SymbolTimeout = CLASSB_BEACON_SYMBOL_TO_EXPANSION_MAX;
             }
-            PingSlotCtx.SymbolTimeout *= PingSlotCtx.Cfg.SymbolToExpansionFactor;
-            if( PingSlotCtx.SymbolTimeout > PingSlotCtx.Cfg.SymbolToExpansionMax )
+            PingSlotCtx.SymbolTimeout *= CLASSB_BEACON_SYMBOL_TO_EXPANSION_FACTOR;
+            if( PingSlotCtx.SymbolTimeout > CLASSB_PING_SLOT_SYMBOL_TO_EXPANSION_MAX )
             {
-                PingSlotCtx.SymbolTimeout = PingSlotCtx.Cfg.SymbolToExpansionMax;
+                PingSlotCtx.SymbolTimeout = CLASSB_PING_SLOT_SYMBOL_TO_EXPANSION_MAX;
             }
             // Setup next state
             BeaconState = BEACON_STATE_REACQUISITION;
@@ -569,7 +515,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
         }
         case BEACON_STATE_REACQUISITION:
         {
-            if( ( currentTime - BeaconCtx.LastBeaconRx ) > BeaconCtx.Cfg.MaxBeaconLessPeriod )
+            if( ( currentTime - BeaconCtx.LastBeaconRx ) > CLASSB_MAX_BEACON_LESS_PERIOD )
             {
                 activateTimer = true;
                 BeaconState = BEACON_STATE_LOST;
@@ -578,8 +524,8 @@ void LoRaMacClassBBeaconTimerEvent( void )
             {
                 activateTimer = true;
                 // Calculate the point in time of the next beacon
-                beaconEventTime = ( ( currentTime - BeaconCtx.LastBeaconRx ) % BeaconCtx.Cfg.Interval );
-                beaconEventTime = BeaconCtx.Cfg.Interval - beaconEventTime;
+                beaconEventTime = ( ( currentTime - BeaconCtx.LastBeaconRx ) % CLASSB_BEACON_INTERVAL );
+                beaconEventTime = CLASSB_BEACON_INTERVAL - beaconEventTime;
                 BeaconCtx.NextBeaconRx = currentTime + beaconEventTime;
 
                 // Take window enlargement and temperature compenstation into account
@@ -588,9 +534,9 @@ void LoRaMacClassBBeaconTimerEvent( void )
                 BeaconCtx.NextBeaconRxAdjusted = currentTime + beaconEventTime;
 
                 // Make sure to transit to the correct state
-                if( ( currentTime + BeaconCtx.Cfg.Guard ) < BeaconCtx.NextBeaconRxAdjusted )
+                if( ( currentTime + CLASSB_BEACON_GUARD ) < BeaconCtx.NextBeaconRxAdjusted )
                 {
-                    beaconEventTime -= BeaconCtx.Cfg.Guard;
+                    beaconEventTime -= CLASSB_BEACON_GUARD;
                     BeaconState = BEACON_STATE_IDLE;
                 }
                 else
@@ -622,8 +568,8 @@ void LoRaMacClassBBeaconTimerEvent( void )
         {
             activateTimer = true;
             // Calculate the point in time of the next beacon
-            beaconEventTime = ( ( currentTime - BeaconCtx.LastBeaconRx ) % BeaconCtx.Cfg.Interval );
-            beaconEventTime = BeaconCtx.Cfg.Interval - beaconEventTime;
+            beaconEventTime = ( ( currentTime - BeaconCtx.LastBeaconRx ) % CLASSB_BEACON_INTERVAL );
+            beaconEventTime = CLASSB_BEACON_INTERVAL - beaconEventTime;
             BeaconCtx.NextBeaconRx = currentTime + beaconEventTime;
 
             // Take temperature compenstation into account
@@ -631,9 +577,9 @@ void LoRaMacClassBBeaconTimerEvent( void )
             BeaconCtx.NextBeaconRxAdjusted = currentTime + beaconEventTime;
 
             // Make sure to transit to the correct state
-            if( ( currentTime + BeaconCtx.Cfg.Guard ) < BeaconCtx.NextBeaconRxAdjusted )
+            if( ( currentTime + CLASSB_BEACON_GUARD ) < BeaconCtx.NextBeaconRxAdjusted )
             {
-                beaconEventTime -= BeaconCtx.Cfg.Guard;
+                beaconEventTime -= CLASSB_BEACON_GUARD;
                 BeaconState = BEACON_STATE_IDLE;
             }
             else
@@ -698,7 +644,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
 
             // Don't use the default channel. We know on which
             // channel the next beacon will be transmitted
-            RxBeaconSetup( BeaconCtx.Cfg.Reserved, false );
+            RxBeaconSetup( CLASSB_BEACON_RESERVED, false );
             break;
         }
         case BEACON_STATE_LOST:
@@ -800,7 +746,7 @@ void LoRaMacClassBPingSlotTimerEvent( void )
             if( PingSlotCtx.Ctrl.CustomFreq == 0 )
             {
                 // Restore floor plan
-                frequency = CalcDownlinkChannelAndFrequency( *LoRaMacClassBParams.LoRaMacDevAddr, BeaconCtx.BeaconTime, BeaconCtx.Cfg.Interval );
+                frequency = CalcDownlinkChannelAndFrequency( *LoRaMacClassBParams.LoRaMacDevAddr, BeaconCtx.BeaconTime, CLASSB_BEACON_INTERVAL );
             }
 
             // Open the ping slot window only, if there is no multicast ping slot
@@ -831,7 +777,7 @@ void LoRaMacClassBPingSlotTimerEvent( void )
             {
                 // Multicast slots have priority. Skip Rx
                 PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
-                TimerSetValue( &PingSlotTimer, PingSlotCtx.Cfg.PingSlotWindow );
+                TimerSetValue( &PingSlotTimer, CLASSB_PING_SLOT_WINDOW );
                 TimerStart( &PingSlotTimer );
             }
             break;
@@ -938,7 +884,7 @@ void LoRaMacClassBMulticastSlotTimerEvent( void )
             if( PingSlotCtx.Ctrl.CustomFreq == 0 )
             {
                 // Restore floor plan
-                frequency = CalcDownlinkChannelAndFrequency( PingSlotCtx.NextMulticastChannel->Address, BeaconCtx.BeaconTime, BeaconCtx.Cfg.Interval );
+                frequency = CalcDownlinkChannelAndFrequency( PingSlotCtx.NextMulticastChannel->Address, BeaconCtx.BeaconTime, CLASSB_BEACON_INTERVAL );
             }
 
             MulticastSlotState = PINGSLOT_STATE_RX;
@@ -1034,9 +980,9 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
                 BeaconCtx.LastBeaconRx = TimerGetCurrentTime( ) - Radio.TimeOnAir( MODEM_LORA, size );
                 BeaconCtx.Ctrl.BeaconAcquired = 1;
                 BeaconCtx.Ctrl.BeaconMode = 1;
-                BeaconCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
-                PingSlotCtx.SymbolTimeout = BeaconCtx.Cfg.SymbolToDefault;
-                BeaconCtx.BeaconWindowMovement  = BEACON_WINDOW_MOVE_DEFAULT;
+                BeaconCtx.SymbolTimeout = CLASSB_BEACON_SYMBOL_TO_DEFAULT;
+                PingSlotCtx.SymbolTimeout = CLASSB_BEACON_SYMBOL_TO_DEFAULT;
+                BeaconCtx.BeaconWindowMovement  = CLASSB_WINDOW_MOVE_DEFAULT;
                 BeaconState = BEACON_STATE_LOCKED;
 
                 LoRaMacClassBBeaconTimerEvent( );
@@ -1135,7 +1081,7 @@ void LoRaMacClassBSetPingSlotInfo( uint8_t periodicity )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     PingSlotCtx.PingNb = 128 / ( 1 << periodicity );
-    PingSlotCtx.PingPeriod = BeaconCtx.Cfg.WindowSlots / PingSlotCtx.PingNb;
+    PingSlotCtx.PingPeriod = CLASSB_BEACON_WINDOW_SLOTS / PingSlotCtx.PingNb;
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -1212,66 +1158,6 @@ LoRaMacStatus_t LoRaMacClassBMibGetRequestConfirm( MibRequestConfirm_t *mibGet )
 
     switch( mibGet->Type )
     {
-        case MIB_BEACON_INTERVAL:
-        {
-            mibGet->Param.BeaconInterval = BeaconCtx.Cfg.Interval;
-            break;
-        }
-        case MIB_BEACON_RESERVED:
-        {
-            mibGet->Param.BeaconReserved = BeaconCtx.Cfg.Reserved;
-            break;
-        }
-        case MIB_BEACON_GUARD:
-        {
-            mibGet->Param.BeaconGuard = BeaconCtx.Cfg.Guard;
-            break;
-        }
-        case MIB_BEACON_WINDOW:
-        {
-            mibGet->Param.BeaconWindow = BeaconCtx.Cfg.Window;
-            break;
-        }
-        case MIB_BEACON_WINDOW_SLOTS:
-        {
-            mibGet->Param.BeaconWindowSlots = BeaconCtx.Cfg.WindowSlots;
-            break;
-        }
-        case MIB_PING_SLOT_WINDOW:
-        {
-            mibGet->Param.PingSlotWindow = PingSlotCtx.Cfg.PingSlotWindow;
-            break;
-        }
-        case MIB_BEACON_SYMBOL_TO_DEFAULT:
-        {
-            mibGet->Param.BeaconSymbolToDefault = BeaconCtx.Cfg.SymbolToDefault;
-            break;
-        }
-        case MIB_BEACON_SYMBOL_TO_EXPANSION_MAX:
-        {
-            mibGet->Param.BeaconSymbolToExpansionMax = BeaconCtx.Cfg.SymbolToExpansionMax;
-            break;
-        }
-        case MIB_PING_SLOT_SYMBOL_TO_EXPANSION_MAX:
-        {
-            mibGet->Param.PingSlotSymbolToExpansionMax = PingSlotCtx.Cfg.SymbolToExpansionMax;
-            break;
-        }
-        case MIB_BEACON_SYMBOL_TO_EXPANSION_FACTOR:
-        {
-            mibGet->Param.BeaconSymbolToExpansionFactor = BeaconCtx.Cfg.SymbolToExpansionFactor;
-            break;
-        }
-        case MIB_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR:
-        {
-            mibGet->Param.PingSlotSymbolToExpansionFactor = PingSlotCtx.Cfg.SymbolToExpansionFactor;
-            break;
-        }
-        case MIB_MAX_BEACON_LESS_PERIOD:
-        {
-            mibGet->Param.MaxBeaconLessPeriod = BeaconCtx.Cfg.MaxBeaconLessPeriod;
-            break;
-        }
         case MIB_PING_SLOT_DATARATE:
         {
             mibGet->Param.PingSlotDatarate = PingSlotCtx.Datarate;
@@ -1296,66 +1182,6 @@ LoRaMacStatus_t LoRaMacMibClassBSetRequestConfirm( MibRequestConfirm_t *mibSet )
 
     switch( mibSet->Type )
     {
-        case MIB_BEACON_INTERVAL:
-        {
-            BeaconCtx.Cfg.Interval = mibSet->Param.BeaconInterval;
-            break;
-        }
-        case MIB_BEACON_RESERVED:
-        {
-            BeaconCtx.Cfg.Reserved = mibSet->Param.BeaconReserved;
-            break;
-        }
-        case MIB_BEACON_GUARD:
-        {
-            BeaconCtx.Cfg.Guard = mibSet->Param.BeaconGuard;
-            break;
-        }
-        case MIB_BEACON_WINDOW:
-        {
-            BeaconCtx.Cfg.Window = mibSet->Param.BeaconWindow;
-            break;
-        }
-        case MIB_BEACON_WINDOW_SLOTS:
-        {
-            BeaconCtx.Cfg.WindowSlots = mibSet->Param.BeaconWindowSlots;
-            break;
-        }
-        case MIB_PING_SLOT_WINDOW:
-        {
-            PingSlotCtx.Cfg.PingSlotWindow = mibSet->Param.PingSlotWindow;
-            break;
-        }
-        case MIB_BEACON_SYMBOL_TO_DEFAULT:
-        {
-            BeaconCtx.Cfg.SymbolToDefault = mibSet->Param.BeaconSymbolToDefault;
-            break;
-        }
-        case MIB_BEACON_SYMBOL_TO_EXPANSION_MAX:
-        {
-            BeaconCtx.Cfg.SymbolToExpansionMax = mibSet->Param.BeaconSymbolToExpansionMax;
-            break;
-        }
-        case MIB_PING_SLOT_SYMBOL_TO_EXPANSION_MAX:
-        {
-            PingSlotCtx.Cfg.SymbolToExpansionMax = mibSet->Param.PingSlotSymbolToExpansionMax;
-            break;
-        }
-        case MIB_BEACON_SYMBOL_TO_EXPANSION_FACTOR:
-        {
-            BeaconCtx.Cfg.SymbolToExpansionFactor = mibSet->Param.BeaconSymbolToExpansionFactor;
-            break;
-        }
-        case MIB_PING_SLOT_SYMBOL_TO_EXPANSION_FACTOR:
-        {
-            PingSlotCtx.Cfg.SymbolToExpansionFactor = mibSet->Param.PingSlotSymbolToExpansionFactor;
-            break;
-        }
-        case MIB_MAX_BEACON_LESS_PERIOD:
-        {
-            BeaconCtx.Cfg.MaxBeaconLessPeriod = mibSet->Param.MaxBeaconLessPeriod;
-            break;
-        }
         case MIB_PING_SLOT_DATARATE:
         {
             PingSlotCtx.Datarate = mibSet->Param.PingSlotDatarate;
@@ -1434,12 +1260,12 @@ void LoRaMacClassBBeaconTimingAns( uint16_t beaconTimingDelay, uint8_t beaconTim
 #ifdef LORAMAC_CLASSB_ENABLED
     TimerTime_t currentTime = TimerGetCurrentTime( );
 
-    BeaconCtx.BeaconTimingDelay = ( BeaconCtx.Cfg.DelayBeaconTimingAns * beaconTimingDelay );
+    BeaconCtx.BeaconTimingDelay = ( CLASSB_BEACON_DELAY_BEACON_TIMING_ANS * beaconTimingDelay );
     BeaconCtx.BeaconTimingChannel = beaconTimingChannel;
 
     if( LoRaMacConfirmQueueIsCmdActive( MLME_BEACON_TIMING ) == true )
     {
-        if( BeaconCtx.BeaconTimingDelay > BeaconCtx.Cfg.Interval )
+        if( BeaconCtx.BeaconTimingDelay > CLASSB_BEACON_INTERVAL )
         {
             // We missed the beacon already
             BeaconCtx.BeaconTimingDelay = 0;
@@ -1464,8 +1290,8 @@ void LoRaMacClassBDeviceTimeAns( TimerTime_t currentTime )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
 
-    BeaconCtx.LastBeaconRx = currentTime - ( currentTime % BeaconCtx.Cfg.Interval );
-    BeaconCtx.NextBeaconRx = BeaconCtx.LastBeaconRx + BeaconCtx.Cfg.Interval;
+    BeaconCtx.LastBeaconRx = currentTime - ( currentTime % CLASSB_BEACON_INTERVAL );
+    BeaconCtx.NextBeaconRx = BeaconCtx.LastBeaconRx + CLASSB_BEACON_INTERVAL;
 
     if( LoRaMacConfirmQueueIsCmdActive( MLME_DEVICE_TIME ) == true )
     {
@@ -1517,15 +1343,15 @@ TimerTime_t LoRaMacClassBIsUplinkCollision( TimerTime_t txTimeOnAir )
     TimerTime_t beaconReserved = 0;
 
     beaconReserved = BeaconCtx.NextBeaconRx -
-                     BeaconCtx.Cfg.Guard -
+                     CLASSB_BEACON_GUARD -
                      LoRaMacClassBParams.LoRaMacParams->ReceiveDelay1 -
                      LoRaMacClassBParams.LoRaMacParams->ReceiveDelay2 -
                      txTimeOnAir;
 
     // Check if the next beacon will be received during the next uplink.
-    if( ( currentTime >= beaconReserved ) && ( currentTime < ( BeaconCtx.NextBeaconRx + BeaconCtx.Cfg.Reserved ) ) )
+    if( ( currentTime >= beaconReserved ) && ( currentTime < ( BeaconCtx.NextBeaconRx + CLASSB_BEACON_RESERVED ) ) )
     {// Next beacon will be sent during the next uplink.
-        return BeaconCtx.Cfg.Reserved;
+        return CLASSB_BEACON_RESERVED;
     }
     return 0;
 #else
