@@ -833,7 +833,9 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
         }
         case MLME_DEVICE_TIME:
         {
-            WakeUpState = DEVICE_STATE_BEACON_ACQUISITION;
+            // Setup the WakeUpState to DEVICE_STATE_SEND. This allows the
+            // application to initiate MCPS requests during a beacon acquisition
+            WakeUpState = DEVICE_STATE_SEND;
             // Switch to the next state immediately
             DeviceState = DEVICE_STATE_BEACON_ACQUISITION;
             NextTx = true;
@@ -930,7 +932,6 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
                 TimerStop( &LedBeaconTimer );
             }
             break;
-
         }
         default:
             break;

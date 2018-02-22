@@ -40,15 +40,15 @@
 #endif
 
 /*!
- * Defines the application data transmission duty cycle. 5s, value in [ms].
+ * Defines the application data transmission duty cycle. 30s, value in [ms].
  */
-#define APP_TX_DUTYCYCLE                            5000
+#define APP_TX_DUTYCYCLE                            30000
 
 /*!
- * Defines a random delay for application data transmission duty cycle. 1s,
+ * Defines a random delay for application data transmission duty cycle. 5s,
  * value in [ms].
  */
-#define APP_TX_DUTYCYCLE_RND                        1000
+#define APP_TX_DUTYCYCLE_RND                        5000
 
 /*!
  * Default datarate
@@ -817,16 +817,10 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
                 TimerStop( &LedBeaconTimer );
             }
             break;
-
         }
         default:
             break;
     }
-}
-
-static float GetTemperatureLevel( void )
-{
-    return 25.0;
 }
 
 /**
@@ -855,7 +849,7 @@ int main( void )
                 LoRaMacPrimitives.MacMlmeConfirm = MlmeConfirm;
                 LoRaMacPrimitives.MacMlmeIndication = MlmeIndication;
                 LoRaMacCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
-                LoRaMacCallbacks.GetTemperatureLevel = GetTemperatureLevel;
+                LoRaMacCallbacks.GetTemperatureLevel = NULL;
                 LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, ACTIVE_REGION );
 
                 TimerInit( &TxNextPacketTimer, OnTxNextPacketTimerEvent );
