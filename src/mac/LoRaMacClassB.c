@@ -589,11 +589,8 @@ void LoRaMacClassBBeaconTimerEvent( void )
                                                                           currentTime,
                                                                           BeaconCtx.NextBeaconRxAdjusted );
 
-                if( PingSlotCtx.Ctrl.Assigned == 1 )
-                {
-                    LoRaMacClassBStartRxSlots( );
-                }
-            }
+                // Start the RX slot state machine for ping and multicast slots
+                LoRaMacClassBStartRxSlots( );
             BeaconCtx.Ctrl.BeaconAcquired = 0;
 
 
@@ -617,6 +614,9 @@ void LoRaMacClassBBeaconTimerEvent( void )
                                                                       currentTime,
                                                                       BeaconCtx.NextBeaconRxAdjusted );
 
+            // Start the RX slot state machine for ping and multicast slots
+            LoRaMacClassBStartRxSlots( );
+
             // Setup an MLME_BEACON indication to inform the upper layer
             IndicateBeaconStatus( LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED );
             if( LoRaMacClassBParams.LoRaMacFlags->Bits.MlmeReq == 1 )
@@ -628,12 +628,7 @@ void LoRaMacClassBBeaconTimerEvent( void )
                 }
             }
 
-            if( PingSlotCtx.Ctrl.Assigned == 1 )
-            {
-                LoRaMacClassBStartRxSlots( );
-            }
             BeaconCtx.Ctrl.AcquisitionPending = 0;
-
             break;
         }
         case BEACON_STATE_IDLE:
@@ -1389,12 +1384,15 @@ void LoRaMacClassBStopRxSlots( void )
 void LoRaMacClassBStartRxSlots( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
-    PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
-    TimerSetValue( &PingSlotTimer, 1 );
-    TimerStart( &PingSlotTimer );
+    if( PingSlotCtx.Ctrl.Assigned == 1 )
+    {
+        PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+        TimerSetValue( &PingSlotTimer, 1 );
+        TimerStart( &PingSlotTimer );
 
-    MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
-    TimerSetValue( &MulticastSlotTimer, 1 );
-    TimerStart( &MulticastSlotTimer );
+        MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+        TimerSetValue( &MulticastSlotTimer, 1 );
+        TimerStart( &MulticastSlotTimer );
+    }
 #endif // LORAMAC_CLASSB_ENABLED
 }
