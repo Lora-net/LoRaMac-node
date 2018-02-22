@@ -307,8 +307,8 @@ static void InitClassBDefaults( void )
 
     // Setup default states
     BeaconState = BEACON_STATE_ACQUISITION;
-    PingSlotState = PINGSLOT_STATE_SET_TIMER;
-    MulticastSlotState = PINGSLOT_STATE_SET_TIMER;
+    PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+    MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
 
     // Get phy parameters
     getPhy.Attribute = PHY_BEACON_INTERVAL;

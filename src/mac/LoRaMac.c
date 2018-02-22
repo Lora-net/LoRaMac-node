@@ -804,13 +804,13 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
     {
         if( LoRaMacClassBIsPingExpected( ) == true )
         {
-            LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_SET_TIMER );
+            LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
             LoRaMacClassBPingSlotTimerEvent( );
             McpsIndication.RxSlot = RX_SLOT_WIN_PING_SLOT;
         }
         else if( LoRaMacClassBIsMulticastExpected( ) == true )
         {
-            LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_SET_TIMER );
+            LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
             LoRaMacClassBMulticastSlotTimerEvent( );
             McpsIndication.RxSlot = RX_SLOT_WIN_MULTICAST_SLOT;
         }
@@ -1219,7 +1219,7 @@ static void OnRadioRxError( void )
     {
         if( LoRaMacClassBIsPingExpected( ) == true )
         {
-            LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_SET_TIMER );
+            LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
             LoRaMacClassBPingSlotTimerEvent( );
             classBRx = true;
         }
@@ -1284,7 +1284,7 @@ static void OnRadioRxTimeout( void )
     {
         if( LoRaMacClassBIsPingExpected( ) == true )
         {
-            LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_SET_TIMER );
+            LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
             LoRaMacClassBPingSlotTimerEvent( );
             classBRx = true;
         }
