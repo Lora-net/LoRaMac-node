@@ -313,6 +313,12 @@ void RegionCN470InitDefaults( InitType_t type )
             RegionCommonChanMaskCopy( ChannelsMask, ChannelsDefaultMask, 6 );
             break;
         }
+        case INIT_TYPE_APP_DEFAULTS:
+        {
+            // Update the channels mask defaults
+            RegionCommonChanMaskCopy( ChannelsMask, ChannelsDefaultMask, 6 );
+            break;
+        }
         default:
         {
             break;
