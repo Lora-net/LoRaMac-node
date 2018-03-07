@@ -23,9 +23,14 @@ cmake_minimum_required(VERSION 3.6)
 #---------------------------------------------------------------------------------------
 
 # Allow switching of target platform
-set(BOARD_LIST LoRaMote MoteII NAMote72 SensorNode SK-iM880A SAML21)
+set(BOARD_LIST LoRaMote MoteII NAMote72 SensorNode SK-iM880A NucleoL073 NucleoL152 SAML21)
 set(BOARD LoRaMote CACHE STRING "Default target platform is LoRaMote")
 set_property(CACHE BOARD PROPERTY STRINGS ${BOARD_LIST})
+
+# Allow switching of MBED shields
+set(MBED_RADIO_SHIELD_LIST SX1272MB2DAS SX1276MB1LAS SX1276MB1MAS SX1261DVK1BAS SX1262DVK1CAS SX1262DVK1DAS )
+set(MBED_RADIO_SHIELD SX1261DVK1BAS CACHE STRING "Default MBED radio shield is SX1261DVK1BAS")
+set_property(CACHE MBED_RADIO_SHIELD PROPERTY STRINGS ${MBED_RADIO_SHIELD_LIST})
 
 # Allow switching of Applications
 set(APPLICATION_LIST LoRaMac ping-pong rx-sensi tx-cw BootLoader)
@@ -115,6 +120,44 @@ elseif(BOARD STREQUAL NAMote72)
 
     # Configure radio
     set(RADIO sx1272 CACHE INTERNAL "Radio sx1272 selected")
+
+elseif(BOARD STREQUAL NucleoL073)
+    # Configure toolchain for NucleoL073
+    set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/boards/NucleoL073/cmsis/arm-gcc/stm32l073xx_flash.ld)
+    include(stm32l0)
+
+    # Build platform specific board implementation
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/NucleoL073)
+
+    # Configure radio
+    if(MBED_RADIO_SHIELD STREQUAL SX1272MB2DAS)
+        set(RADIO sx1272 CACHE INTERNAL "Radio sx1272 selected")
+    elseif(MBED_RADIO_SHIELD STREQUAL SX1276MB1LAS OR MBED_RADIO_SHIELD STREQUAL SX1276MB1MAS)
+        set(RADIO sx1276 CACHE INTERNAL "Radio sx1276 selected")
+    elseif(MBED_RADIO_SHIELD STREQUAL SX1261DVK1BAS OR MBED_RADIO_SHIELD STREQUAL SX1262DVK1CAS OR MBED_RADIO_SHIELD STREQUAL SX1262DVK1DAS)
+        set(RADIO sx126x CACHE INTERNAL "Radio sx126x selected")
+    else()
+        message(STATUS "Please specify the MBED_RADIO_SHIELD!\nPossible values are: SX1272MB2DAS, SX1276MB1LAS, SX1276MB1MAS, SX1261DVK1BAS, SX1262DVK1CAS and SX1262DVK1DAS.")
+    endif()
+
+elseif(BOARD STREQUAL NucleoL152)
+    # Configure toolchain for NucleoL152
+    set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/boards/NucleoL152/cmsis/arm-gcc/stm32l152xe_flash.ld)
+    include(stm32l1)
+
+    # Build platform specific board implementation
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/NucleoL152)
+
+    # Configure radio
+    if(MBED_RADIO_SHIELD STREQUAL SX1272MB2DAS)
+        set(RADIO sx1272 CACHE INTERNAL "Radio sx1272 selected")
+    elseif(MBED_RADIO_SHIELD STREQUAL SX1276MB1LAS OR MBED_RADIO_SHIELD STREQUAL SX1276MB1MAS)
+        set(RADIO sx1276 CACHE INTERNAL "Radio sx1276 selected")
+    elseif(MBED_RADIO_SHIELD STREQUAL SX1261DVK1BAS OR MBED_RADIO_SHIELD STREQUAL SX1262DVK1CAS OR MBED_RADIO_SHIELD STREQUAL SX1262DVK1DAS)
+        set(RADIO sx126x CACHE INTERNAL "Radio sx126x selected")
+    else()
+        message(STATUS "Please specify the MBED_RADIO_SHIELD!\nPossible values are: SX1272MB2DAS, SX1276MB1LAS, SX1276MB1MAS, SX1261DVK1BAS, SX1262DVK1CAS and SX1262DVK1DAS.")
+    endif()
 
 elseif(BOARD STREQUAL SAML21)
     # Configure toolchain for SAML21

@@ -368,6 +368,15 @@ void RegionUS915InitDefaults( InitType_t type )
             }
             break;
         }
+        case INIT_TYPE_APP_DEFAULTS:
+        {
+            // Copy channels default mask
+            RegionCommonChanMaskCopy( ChannelsMask, ChannelsDefaultMask, 6 );
+
+            // Copy into channels mask remaining
+            RegionCommonChanMaskCopy( ChannelsMaskRemaining, ChannelsMask, 6 );
+            break;
+        }
         default:
         {
             break;

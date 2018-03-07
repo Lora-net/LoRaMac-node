@@ -294,14 +294,14 @@ struct Radio_s
      * \param [IN]: addr Register address
      * \param [IN]: data New register value
      */
-    void    ( *Write )( uint8_t addr, uint8_t data );
+    void    ( *Write )( uint16_t addr, uint8_t data );
     /*!
      * \brief Reads the radio register at the specified address
      *
      * \param [IN]: addr Register address
      * \retval data Register value
      */
-    uint8_t ( *Read )( uint8_t addr );
+    uint8_t ( *Read )( uint16_t addr );
     /*!
      * \brief Writes multiple radio registers starting at address
      *
@@ -309,7 +309,7 @@ struct Radio_s
      * \param [IN] buffer Buffer containing the new register's values
      * \param [IN] size   Number of registers to be written
      */
-    void    ( *WriteBuffer )( uint8_t addr, uint8_t *buffer, uint8_t size );
+    void    ( *WriteBuffer )( uint16_t addr, uint8_t *buffer, uint8_t size );
     /*!
      * \brief Reads multiple radio registers starting at address
      *
@@ -317,7 +317,7 @@ struct Radio_s
      * \param [OUT] buffer Buffer where to copy the registers data
      * \param [IN] size Number of registers to be read
      */
-    void    ( *ReadBuffer )( uint8_t addr, uint8_t *buffer, uint8_t size );
+    void    ( *ReadBuffer )( uint16_t addr, uint8_t *buffer, uint8_t size );
     /*!
      * \brief Sets the maximum payload length.
      *
@@ -334,11 +334,36 @@ struct Radio_s
      */
     void    ( *SetPublicNetwork )( bool enable );
     /*!
-     * \brief Gets the time reuired for the board plus radio to get out of sleep.[ms]
+     * \brief Gets the time required for the board plus radio to get out of sleep.[ms]
      *
      * \retval time Radio plus board wakeup time in ms.
      */
     uint32_t  ( *GetWakeupTime )( void );
+    /*!
+     * \brief Process radio irq
+     */
+    void ( *IrqProcess )( void );
+    /*
+     * The next functions are available only on SX126x radios.
+     */
+    /*!
+     * \brief Sets the radio in reception mode with Max LNA gain for the given time
+     *
+     * \remark Available on SX126x radios only.
+     *
+     * \param [IN] timeout Reception timeout [ms]
+     *                     [0: continuous, others timeout]
+     */
+    void    ( *RxBoosted )( uint32_t timeout );
+    /*!
+     * \brief Sets the Rx duty cycle management parameters
+     *
+     * \remark Available on SX126x radios only.
+     *
+     * \param [in]  rxTime        Structure describing reception timeout value
+     * \param [in]  sleepTime     Structure describing sleep timeout value
+     */
+    void ( *SetRxDutyCycle ) ( uint32_t rxTime, uint32_t sleepTime );
 };
 
 /*!

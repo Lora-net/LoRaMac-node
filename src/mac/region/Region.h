@@ -737,13 +737,19 @@ typedef enum ePhyAttribute
 typedef enum eInitType
 {
     /*!
-     * Performs an initialization and overwrites all existing data.
+     * Initializes the region specific data to defaults, according to the
+     * LoRaWAN specification.
      */
     INIT_TYPE_INIT,
     /*!
-     * Restores default channels only.
+     * Restores default channels defined by the LoRaWAN specification only.
      */
-    INIT_TYPE_RESTORE
+    INIT_TYPE_RESTORE,
+    /*!
+     * Initializes the region specific data to the defaults which were set by
+     * the application.
+     */
+    INIT_TYPE_APP_DEFAULTS
 }InitType_t;
 
 typedef enum eChannelsMask

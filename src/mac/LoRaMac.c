@@ -2428,6 +2428,9 @@ static void ResetMacParameters( void )
     LoRaMacParams.MaxEirp = LoRaMacParamsDefaults.MaxEirp;
     LoRaMacParams.AntennaGain = LoRaMacParamsDefaults.AntennaGain;
 
+    // Reset to application defaults
+    RegionInitDefaults( LoRaMacRegion, INIT_TYPE_APP_DEFAULTS );
+
     NodeAckRequested = false;
     SrvAckRequested = false;
     MacCommandsInNextTx = false;

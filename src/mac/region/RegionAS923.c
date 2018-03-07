@@ -380,6 +380,12 @@ void RegionAS923InitDefaults( InitType_t type )
             ChannelsMask[0] |= ChannelsDefaultMask[0];
             break;
         }
+        case INIT_TYPE_APP_DEFAULTS:
+        {
+            // Update the channels mask defaults
+            RegionCommonChanMaskCopy( ChannelsMask, ChannelsDefaultMask, 1 );
+            break;
+        }
         default:
         {
             break;
