@@ -1260,9 +1260,9 @@ bool RegionRxConfig( LoRaMacRegion_t region, RxConfigParams_t* rxConfig, int8_t*
  * Rx window precise timing
  *
  * For more details please consult the following document, chapter 3.1.2.
- * http://www.semtech.com/images/datasheet/SX1272_settings_for_LoRaWAN_v2.0.pdf
+ * https://www.semtech.com/uploads/documents/SX1272_settings_for_LoRaWAN_v2.0.pdf
  * or
- * http://www.semtech.com/images/datasheet/SX1276_settings_for_LoRaWAN_v2.0.pdf
+ * https://www.semtech.com/uploads/documents/SX1276_settings_for_LoRaWAN_v2.0.pdf
  *
  *                 Downlink start: T = Tx + 1s (+/- 20 us)
  *                            |
