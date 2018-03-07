@@ -1,21 +1,36 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Generic SX1276 driver implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis, Gregory Cristian and Wael Guibene
-*/
+/*!
+ * \file      sx1276.c
+ *
+ * \brief     SX1276 driver implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ *
+ * \author    Wael Guibene ( Semtech )
+ */
 #include <math.h>
 #include <string.h>
-#include "board.h"
+#if defined( USE_RADIO_DEBUG )
+#include "board-config.h"
+#endif
+#include "utilities.h"
+#include "timer.h"
 #include "radio.h"
+#include "delay.h"
 #include "sx1276.h"
 #include "sx1276-board.h"
 
@@ -53,11 +68,6 @@ typedef struct
  *         default values
  */
 static void RxChainCalibration( void );
-
-/*!
- * \brief Resets the SX1276
- */
-void SX1276Reset( void );
 
 /*!
  * \brief Sets the SX1276 in transmission mode for the given time
@@ -210,6 +220,11 @@ TimerEvent_t TxTimeoutTimer;
 TimerEvent_t RxTimeoutTimer;
 TimerEvent_t RxTimeoutSyncWord;
 
+#if defined( USE_RADIO_DEBUG )
+Gpio_t DbgPinTx;
+Gpio_t DbgPinRx;
+#endif
+
 /*
  * Radio driver functions implementation
  */
@@ -219,6 +234,11 @@ void SX1276Init( RadioEvents_t *events )
     uint8_t i;
 
     RadioEvents = events;
+
+#if defined( USE_RADIO_DEBUG )
+    GpioInit( &DbgPinTx, RADIO_DBG_PIN_TX, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &DbgPinRx, RADIO_DBG_PIN_RX, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+#endif
 
     // Initialize driver timeout timers
     TimerInit( &TxTimeoutTimer, SX1276OnTimeoutIrq );
@@ -1167,23 +1187,24 @@ int16_t SX1276ReadRssi( RadioModems_t modem )
     return rssi;
 }
 
-void SX1276Reset( void )
-{
-    // Set RESET pin to 0
-    GpioInit( &SX1276.Reset, RADIO_RESET, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-
-    // Wait 1 ms
-    DelayMs( 1 );
-
-    // Configure RESET as input
-    GpioInit( &SX1276.Reset, RADIO_RESET, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-
-    // Wait 6 ms
-    DelayMs( 6 );
-}
-
 void SX1276SetOpMode( uint8_t opMode )
 {
+#if defined( USE_RADIO_DEBUG )
+    switch( opMode )
+    {
+        case RF_OPMODE_TRANSMITTER:
+            GpioWrite( &DbgPinTx, 1 );
+            break;
+        case RF_OPMODE_RECEIVER:
+        case RFLR_OPMODE_RECEIVER_SINGLE:
+            GpioWrite( &DbgPinRx, 1 );
+            break;
+        default:
+            GpioWrite( &DbgPinTx, 0 );
+            GpioWrite( &DbgPinRx, 0 );
+            break;
+    }
+#endif
     if( opMode == RF_OPMODE_SLEEP )
     {
         SX1276SetAntSwLowPower( true );
@@ -1233,19 +1254,19 @@ void SX1276SetModem( RadioModems_t modem )
     }
 }
 
-void SX1276Write( uint8_t addr, uint8_t data )
+void SX1276Write( uint16_t addr, uint8_t data )
 {
     SX1276WriteBuffer( addr, &data, 1 );
 }
 
-uint8_t SX1276Read( uint8_t addr )
+uint8_t SX1276Read( uint16_t addr )
 {
     uint8_t data;
     SX1276ReadBuffer( addr, &data, 1 );
     return data;
 }
 
-void SX1276WriteBuffer( uint8_t addr, uint8_t *buffer, uint8_t size )
+void SX1276WriteBuffer( uint16_t addr, uint8_t *buffer, uint8_t size )
 {
     uint8_t i;
 
@@ -1262,7 +1283,7 @@ void SX1276WriteBuffer( uint8_t addr, uint8_t *buffer, uint8_t size )
     GpioWrite( &SX1276.Spi.Nss, 1 );
 }
 
-void SX1276ReadBuffer( uint8_t addr, uint8_t *buffer, uint8_t size )
+void SX1276ReadBuffer( uint16_t addr, uint8_t *buffer, uint8_t size )
 {
     uint8_t i;
 
@@ -1322,6 +1343,11 @@ void SX1276SetPublicNetwork( bool enable )
         // Change LoRa modem SyncWord
         SX1276Write( REG_LR_SYNCWORD, LORA_MAC_PRIVATE_SYNCWORD );
     }
+}
+
+uint32_t SX1276GetWakeupTime( void )
+{
+    return SX1276GetBoardTcxoWakeupTime( ) + RADIO_WAKEUP_TIME;
 }
 
 void SX1276OnTimeoutIrq( void )

@@ -1,18 +1,32 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Generic low level driver for GPS receiver
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/*!
+ * \file      gps-board.c
+ *
+ * \brief     Target board GPS driver implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
+#include "board-config.h"
 #include "board.h"
+#include "gpio.h"
+#include "gps.h"
+#include "uart.h"
+#include "rtc-board.h"
+#include "gps-board.h"
 
 /*!
  * FIFO buffers size
@@ -36,6 +50,8 @@ uint8_t NmeaStringSize = 0;
 Gpio_t GpsPowerEn;
 
 bool GpsPowerEnInverted = false;
+
+extern Uart_t Uart1;
 
 void GpsMcuOnPpsSignal( void )
 {
@@ -61,12 +77,12 @@ void GpsMcuInit( void )
 
     NmeaStringSize = 0;
 
-    switch( BoardGetVersion( ) )
+    switch( BoardGetVersion( ).Fields.Major )
     {
-        case BOARD_VERSION_2:
+        case 2:
             GpsPowerEnInverted = true;
             break;
-        case BOARD_VERSION_3:
+        case 3:
             GpsPowerEnInverted = false;
             break;
         default:

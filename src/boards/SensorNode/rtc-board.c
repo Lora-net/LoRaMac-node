@@ -1,19 +1,31 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: MCU RTC timer and low power modes management
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/*!
+ * \file      rtc-board.c
+ *
+ * \brief     Target board RTC timer and low power modes management
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
 #include <math.h>
+#include "stm32l1xx.h"
+#include "utilities.h"
 #include "board.h"
+#include "timer.h"
+#include "gpio.h"
 #include "rtc-board.h"
 
 /*!
@@ -23,9 +35,9 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RTC_ALARM_TICK_PER_MS                       2.048           // 1/2.048 = tick duration in ms
 
 /*!
- * Maximum number of days that can be handled by the RTC alarm counter before overflow.
+ * Maximum number of days (with some margin) that can be handled by the RTC alarm counter before overflow.
  */
-#define RTC_ALARM_MAX_NUMBER_OF_DAYS                28
+#define RTC_ALARM_MAX_NUMBER_OF_DAYS                27
 
 /*!
  * Number of seconds in a minute
@@ -73,6 +85,11 @@ static const uint8_t DaysInMonthLeapYear[] = { 31, 29, 31, 30, 31, 30, 31, 31, 3
 static uint16_t Century = 0;
 
 /*!
+ * Holds the previous century for centruy wrapping
+ */
+static uint16_t PreviousCentury = 0;
+
+/*!
  * Flag used to indicates a Calendar Roll Over is about to happen
  */
 static bool CalendarRollOverReady = false;
@@ -98,14 +115,14 @@ typedef struct RtcCalendar_s
 RtcCalendar_t RtcCalendarContext;
 
 /*!
- * \brief Flag to indicate if the timestamps until the next event is long enough
+ * \brief Flag to indicate if the timestamp until the next event is long enough
  * to set the MCU into low power mode
  */
 static bool RtcTimerEventAllowsLowPower = false;
 
 /*!
- * \brief Flag to disable the LowPower Mode even if the timestamps until the
- * next event is long enough to allow Low Power mode
+ * \brief Flag to disable the low power mode even if the timestamp until the
+ * next event is long enough to allow low power mode
  */
 static bool LowPowerDisableDuringTask = false;
 
@@ -248,7 +265,7 @@ TimerTime_t RtcGetAdjustedTimeoutValue( uint32_t timeout )
     }
 
     if( timeout > McuWakeUpTime )
-    {   // we don't go in Low Power mode for delay below 50ms (needed for LEDs)
+    {   // we don't go in low power mode for delay below 50ms (needed for LEDs)
         if( timeout < 50 ) // 50 ms
         {
             RtcTimerEventAllowsLowPower = false;
@@ -684,12 +701,13 @@ static TimerTime_t RtcConvertCalendarTickToTimerTime( RtcCalendar_t *calendar )
 
 static void RtcCheckCalendarRollOver( uint8_t year )
 {
-    if( year == 99 )
+    if( year > 0 )
     {
         CalendarRollOverReady = true;
+        PreviousCentury = Century;
     }
 
-    if( ( CalendarRollOverReady == true ) && ( ( year + Century ) == Century ) )
+    if( ( CalendarRollOverReady == true ) && ( ( year + Century ) <= PreviousCentury ) )
     {   // Indicate a roll-over of the calendar
         CalendarRollOverReady = false;
         Century = Century + 100;
@@ -717,4 +735,9 @@ void RTC_Alarm_IRQHandler( void )
     RtcComputeWakeUpTime( );
     BlockLowPowerDuringTask( false );
     TimerIrqHandler( );
+}
+
+void RtcProcess( void )
+{
+    // Not used on this platform.
 }

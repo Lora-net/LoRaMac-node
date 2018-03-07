@@ -1,33 +1,42 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Bleeper board UART driver implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/*!
+ * \file      uart-usb-board.c
+ *
+ * \brief     Target board UART over USB driver implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
 #include "board.h"
-
+#include "uart.h"
+#include "uart-board.h"
+#include "board-config.h"
+#include "usbd_conf.h"
 #include "usbd_core.h"
 #include "usbd_desc.h"
 #include "usbd_cdc.h"
 #include "usbd_cdc_if.h"
 #include "uart-usb-board.h"
 
-/* USB handler declaration */
-/* Handle for USB Full Speed IP */
-//USBD_HandleTypeDef  *hUsbDevice_0;
-
+// USB Device Core handle declaration
 USBD_HandleTypeDef hUsbDeviceFS;
 extern PCD_HandleTypeDef hpcd_USB_FS;
+extern USBD_DescriptorsTypeDef FS_Desc;
 
-void UartUsbInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx )
+void UartUsbInit( Uart_t *obj, UartId_t uartId, PinNames tx, PinNames rx )
 {
     obj->UartId = uartId;
 

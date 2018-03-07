@@ -1,23 +1,47 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Target board general functions implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/*!
+ * \file      board.c
+ *
+ * \brief     Target board general functions implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
+#include "stm32l1xx.h"
+#include "utilities.h"
+#include "delay.h"
+#include "gpio.h"
+#include "adc.h"
+#include "spi.h"
+#include "i2c.h"
+#include "uart.h"
+#include "timer.h"
+#include "gps.h"
+#include "mpl3115.h"
+#include "mag3110.h"
+#include "mma8451.h"
+#include "sx9500.h"
+#include "board-config.h"
+#include "rtc-board.h"
+#include "sx1272-board.h"
 #include "board.h"
 
 /*!
  * Unique Devices IDs register set ( STM32L152x )
  */
-
 #define         ID1                                 ( 0x1FF800D0 )
 #define         ID2                                 ( 0x1FF800D4 )
 #define         ID3                                 ( 0x1FF800E4 )
@@ -107,7 +131,10 @@ static void OnCalibrateSystemWakeupTimeTimerEvent( void )
  */
 static uint8_t IrqNestLevel = 0;
 
-static BoardVersion_t BoardVersion = BOARD_VERSION_NONE;
+/*!
+ * Holds the bord version.
+ */
+static BoardVersion_t BoardVersion = { 0 };
 
 void BoardDisableIrq( void )
 {
@@ -189,7 +216,7 @@ void BoardInitMcu( void )
 
         BoardUnusedIoInit( );
 
-        I2cInit( &I2c, I2C_SCL, I2C_SDA );
+        I2cInit( &I2c, I2C_1, I2C_SCL, I2C_SDA );
     }
     else
     {
@@ -197,19 +224,19 @@ void BoardInitMcu( void )
     }
 
     BoardVersion = BoardGetVersion( );
-    switch( BoardVersion )
+    switch( BoardVersion.Fields.Major )
     {
-    case BOARD_VERSION_2:
+    case 2:
         AdcInit( &Adc, BAT_LEVEL_PIN_PA0 );
         break;
-    case BOARD_VERSION_3:
+    case 3:
         AdcInit( &Adc, BAT_LEVEL_PIN_PA1 );
         break;
     default:
         break;
     }
 
-    SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+    SpiInit( &SX1272.Spi, SPI_2, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX1272IoInit( );
 
     if( McuInitialized == false )
@@ -220,6 +247,15 @@ void BoardInitMcu( void )
             CalibrateSystemWakeupTime( );
         }
     }
+}
+
+void BoardResetMcu( void )
+{
+    BoardDisableIrq( );
+
+    //Restart system
+    NVIC_SystemReset( );
+
 }
 
 void BoardDeInitMcu( void )
@@ -255,16 +291,6 @@ void BoardGetUniqueId( uint8_t *id )
     id[0] = ( ( *( uint32_t* )ID2 ) );
 }
 
-void BoardGetDevEUI( uint8_t *id )
-{
-    uint32_t *pDevEuiHWord = ( uint32_t* )&id[4];
-
-    if( *pDevEuiHWord == 0 )
-    {
-        *pDevEuiHWord = BoardGetRandomSeed( );
-    }
-}
-
 /*!
  * Factory power supply
  */
@@ -296,12 +322,12 @@ uint16_t BoardBatteryMeasureVolage( void )
     uint16_t vdiv = 0;
     uint16_t batteryVoltage = 0;
 
-    switch( BoardVersion )
+    switch( BoardVersion.Fields.Major )
     {
-        case BOARD_VERSION_2:
+        case 2:
             vdiv = AdcReadChannel( &Adc, BAT_LEVEL_CHANNEL_PA0 );
             break;
-        case BOARD_VERSION_3:
+        case 3:
             vdiv = AdcReadChannel( &Adc, BAT_LEVEL_CHANNEL_PA1 );
             break;
         default:
@@ -383,17 +409,41 @@ static void BoardUnusedIoInit( void )
 
     GpioInit( &ioPin, BOOT_1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 
-    switch( BoardVersion )
+    switch( BoardVersion.Fields.Major )
     {
-        case BOARD_VERSION_2:
+        case 2:
             GpioInit( &ioPin, BAT_LEVEL_PIN_PA0, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
             break;
-        case BOARD_VERSION_3:
+        case 3:
             GpioInit( &ioPin, BAT_LEVEL_PIN_PA1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
             break;
         default:
             break;
     }
+}
+
+BoardVersion_t BoardGetVersion( void )
+{
+    Gpio_t pinPc1;
+    Gpio_t pinPc7;
+    BoardVersion_t boardVersion = { 0 };
+    boardVersion.Value = 0;
+
+    GpioInit( &pinPc1, BOARD_VERSION_PC1, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &pinPc7, BOARD_VERSION_PC7, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+
+    uint8_t first = GpioRead( &pinPc1 );
+    GpioWrite( &pinPc7, 0 );
+
+    if( first && !GpioRead( &pinPc1 ) )
+    {
+        boardVersion.Fields.Major = 2;
+    }
+    else
+    {
+        boardVersion.Fields.Major = 3;
+    }
+    return boardVersion;
 }
 
 void SystemClockConfig( void )
@@ -506,25 +556,14 @@ uint8_t GetBoardPowerSource( void )
     }
 }
 
-BoardVersion_t BoardGetVersion( void )
+#ifdef __GNUC__
+int __io_putchar( int c )
+#else /* __GNUC__ */
+int fputc( int c, FILE *stream )
+#endif
 {
-    Gpio_t pinPc1;
-    Gpio_t pinPc7;
-
-    GpioInit( &pinPc1, BOARD_VERSION_PC1, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &pinPc7, BOARD_VERSION_PC7, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-
-    uint8_t first = GpioRead( &pinPc1 );
-    GpioWrite( &pinPc7, 0 );
-
-    if( first && !GpioRead( &pinPc1 ) )
-    {
-        return BOARD_VERSION_2;
-    }
-    else
-    {
-        return BOARD_VERSION_3;
-    }
+    while( UartPutChar( &Uart2, c ) != 0 );
+    return c;
 }
 
 #ifdef USE_FULL_ASSERT
@@ -540,9 +579,9 @@ BoardVersion_t BoardGetVersion( void )
 void assert_failed( uint8_t* file, uint32_t line )
 {
     /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %u\r\n", file, line) */
+     ex: printf("Wrong parameters value: file %s on line %lu\r\n", file, line) */
 
-    printf( "Wrong parameters value: file %s on line %u\r\n", ( const char* )file, line );
+    printf( "Wrong parameters value: file %s on line %lu\r\n", ( const char* )file, line );
     /* Infinite loop */
     while( 1 )
     {

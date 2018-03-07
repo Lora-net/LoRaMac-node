@@ -1,19 +1,30 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2016 Semtech
-
-Description: Driver for the SX1509 IO expander
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/*!
+ * \file      pam7q.h
+ *
+ * \brief     PAM7Q GPS receiver driver implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
 #ifndef __PAM7Q_H__
 #define __PAM7Q_H__
+
+#include <stdbool.h>
+#include <stdint.h>
 
 void PAM7QInit( void );
 
@@ -44,5 +55,5 @@ void GpsMcuOnPpsSignal( void );
 #define PAYLOAD                                 0xFF
 
 
-#endif  // __PAM7Q_H__
+#endif // __PAM7Q_H__
 

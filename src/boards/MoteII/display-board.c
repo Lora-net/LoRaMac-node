@@ -1,25 +1,38 @@
-/*
-  ______                              _
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2016 Semtech
-
-Description: Driver for the low level handling of OLED display.
-
-\remarks     Some snippets of these drivers are based on the Adafruit_GFX library.
-             https://github.com/adafruit/Adafruit-GFX-Library
-             Please take a look at their LICENSE.TXT file.
-             Copyright (c) 2012 Adafruit Industries. All rights reserved.
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/*!
+ * \file      display-board.c
+ *
+ * \brief     Target board OLED low level driver implementation
+ *
+ * \remarks   Some snippets of these drivers are based on the Adafruit_GFX library.
+ *            https://github.com/adafruit/Adafruit-GFX-Library
+ *            Please take a look at their LICENSE.TXT file.
+ *            Copyright (c) 2012 Adafruit Industries. All rights reserved.
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
+#include <stdlib.h>
+#include <stdio.h>
 #include <stdarg.h>
-#include "board.h"
+#include "utilities.h"
+#include "board-config.h"
+#include "gpio.h"
+#include "spi.h"
+#include "delay.h"
 #include "display-board.h"
 
 /*!
@@ -411,7 +424,7 @@ void DisplayInit( void )
     GpioInit( &Display.Pins.Dc, OLED_DC, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
     GpioInit( &Display.Pins.NEnable, OLED_EN, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 
-    SpiInit( &Display.Pins.Spi, BLE_OLED_MOSI, BLE_OLED_MISO, BLE_OLED_SCK, NC );
+    SpiInit( &Display.Pins.Spi, SPI_1, BLE_OLED_MOSI, BLE_OLED_MISO, BLE_OLED_SCK, NC );
 
     DisplayReset( );
     DisplayControllerInit( );

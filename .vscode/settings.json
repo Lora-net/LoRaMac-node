@@ -1,0 +1,65 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "cmake.configureSettings": {
+
+        // In case your GNU ARM-Toolchain is not installed under the default
+        // path:
+        //     Windows : No default path. Specify the path where the
+        //               toolchain is installed. i.e:
+        //               "C:/PROGRA~2/GNUTOO~1/62017-~2".
+        //     Linux   : /usr
+        //     OSX     : /usr/local
+        // It is required to uncomment and to fill the following line.
+        //"TOOLCHAIN_PREFIX":"/path/to/toolchain",
+
+        // In case your OpenOCD is not installed under the default path:
+        //     Windows : C:/openocd/bin/openocd.exe
+        //     Linux   : /usr/bin/openocd
+        //     OSX     : /usr/local/bin/openocd
+        // Please uncomment the following line and fill it accordingly.
+        //"OPENOCD_BIN":"C:/openocd/bin/openocd.exe",
+
+        // Specifies the path to the CMAKE toolchain file.
+        "CMAKE_TOOLCHAIN_FILE":"cmake/toolchain-arm-none-eabi.cmake",
+
+        // Determines the application. You can choose between:
+        // LoRaMac (Default), ping-pong, rx-sensi, tx-cw and BootLoader.
+        "APPLICATION":"LoRaMac",
+
+        // Select LoRaMac sub project. You can choose between:
+        // classA, classB or classC.
+        "CLASS":"classA",
+
+        // Select the active region for which the stack will be initialized.
+        // You can choose between:
+        // LORAMAC_REGION_EU868, LORAMAC_REGION_US915, ..
+        "ACTIVE_REGION":"LORAMAC_REGION_EU868",
+
+        // Select the type of modulation, applicable to the ping-pong or
+        // rx-sensi applications. You can choose between:
+        // LORA or FSK
+        "MODULATION":"LORA",
+
+        // Target board, the following boards are supported:
+        // LoRaMote (Default), MoteII, NAMote72, NucleoL073, NucleoL152, SAML21, SensorNode and SK-iM880A.
+        "BOARD":"LoRaMote",
+
+        // MBED Radio shield selection. (Applies only to Nucleo platforms)
+        // The following shields are supported:
+        // SX1272MB2DAS, SX1276MB1LAS, SX1276MB1MAS, SX1261DVK1BAS(Default), SX1262DVK1CAS, SX1262DVK1DAS.
+        "MBED_RADIO_SHIELD":"SX1261DVK1BAS",
+
+        // Region support activation, Select the ones you want to support.
+        // By default only REGION_EU868 support is enabled.
+        "REGION_EU868":"ON",
+        "REGION_US915":"OFF",
+        "REGION_CN779":"OFF",
+        "REGION_EU433":"OFF",
+        "REGION_AU915":"OFF",
+        "REGION_AS923":"OFF",
+        "REGION_CN470":"OFF",
+        "REGION_KR920":"OFF",
+        "REGION_IN865":"OFF",
+        "REGION_US915_HYBRID":"OFF"
+    }
+}

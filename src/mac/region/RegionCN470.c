@@ -1,33 +1,35 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
- ___ _____ _   ___ _  _____ ___  ___  ___ ___
-/ __|_   _/_\ / __| |/ / __/ _ \| _ \/ __| __|
-\__ \ | |/ _ \ (__| ' <| _| (_) |   / (__| _|
-|___/ |_/_/ \_\___|_|\_\_| \___/|_|_\\___|___|
-embedded.connectivity.solutions===============
-
-Description: LoRa MAC region CN470 implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jaeckle ( STACKFORCE )
+/*!
+ * \file      RegionCN470.c
+ *
+ * \brief     Region implementation for CN470
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ *               ___ _____ _   ___ _  _____ ___  ___  ___ ___
+ *              / __|_   _/_\ / __| |/ / __/ _ \| _ \/ __| __|
+ *              \__ \ | |/ _ \ (__| ' <| _| (_) |   / (__| _|
+ *              |___/ |_/_/ \_\___|_|\_\_| \___/|_|_\\___|___|
+ *              embedded.connectivity.solutions===============
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ *
+ * \author    Daniel Jaeckle ( STACKFORCE )
 */
-#include <stdbool.h>
-#include <string.h>
-#include <stdint.h>
-#include <math.h>
-
-#include "board.h"
-#include "LoRaMac.h"
-
 #include "utilities.h"
 
-#include "Region.h"
 #include "RegionCommon.h"
 #include "RegionCN470.h"
 
@@ -264,12 +266,6 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.fValue = CN470_DEFAULT_ANTENNA_GAIN;
             break;
         }
-        case PHY_NB_JOIN_TRIALS:
-        case PHY_DEF_NB_JOIN_TRIALS:
-        {
-            phyParam.Value = 48;
-            break;
-        }
         default:
         {
             break;
@@ -317,6 +313,12 @@ void RegionCN470InitDefaults( InitType_t type )
             RegionCommonChanMaskCopy( ChannelsMask, ChannelsDefaultMask, 6 );
             break;
         }
+        case INIT_TYPE_APP_DEFAULTS:
+        {
+            // Update the channels mask defaults
+            RegionCommonChanMaskCopy( ChannelsMask, ChannelsDefaultMask, 6 );
+            break;
+        }
         default:
         {
             break;
@@ -347,18 +349,9 @@ bool RegionCN470Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
         {
             return CN470_DUTY_CYCLE_ENABLED;
         }
-        case PHY_NB_JOIN_TRIALS:
-        {
-            if( verify->NbJoinTrials < 48 )
-            {
-                return false;
-            }
-            break;
-        }
         default:
             return false;
     }
-    return true;
 }
 
 void RegionCN470ApplyCFList( ApplyCFListParams_t* applyCFList )
@@ -461,7 +454,7 @@ void RegionCN470ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
 
     tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesCN470[rxConfigParams->Datarate], BandwidthsCN470[rxConfigParams->Datarate] );
 
-    RegionCommonComputeRxWindowParameters( tSymbol, minRxSymbols, rxError, RADIO_WAKEUP_TIME, &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
+    RegionCommonComputeRxWindowParameters( tSymbol, minRxSymbols, rxError, Radio.GetWakeupTime( ), &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
 }
 
 bool RegionCN470RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
@@ -476,7 +469,7 @@ bool RegionCN470RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
         return false;
     }
 
-    if( rxConfig->Window == 0 )
+    if( rxConfig->RxSlot == RX_SLOT_WIN_1 )
     {
         // Apply window 1 frequency
         frequency = CN470_FIRST_RX1_CHANNEL + ( rxConfig->Channel % 48 ) * CN470_STEPWIDTH_RX1_CHANNEL;
@@ -667,35 +660,9 @@ uint8_t RegionCN470DlChannelReq( DlChannelReqParams_t* dlChannelReq )
     return 0;
 }
 
-int8_t RegionCN470AlternateDr( AlternateDrParams_t* alternateDr )
+int8_t RegionCN470AlternateDr( int8_t currentDr )
 {
-    int8_t datarate = 0;
-
-    if( ( alternateDr->NbTrials % 48 ) == 0 )
-    {
-        datarate = DR_0;
-    }
-    else if( ( alternateDr->NbTrials % 32 ) == 0 )
-    {
-        datarate = DR_1;
-    }
-    else if( ( alternateDr->NbTrials % 24 ) == 0 )
-    {
-        datarate = DR_2;
-    }
-    else if( ( alternateDr->NbTrials % 16 ) == 0 )
-    {
-        datarate = DR_3;
-    }
-    else if( ( alternateDr->NbTrials % 8 ) == 0 )
-    {
-        datarate = DR_4;
-    }
-    else
-    {
-        datarate = DR_5;
-    }
-    return datarate;
+    return currentDr;
 }
 
 void RegionCN470CalcBackOff( CalcBackOffParams_t* calcBackOff )
@@ -714,7 +681,7 @@ void RegionCN470CalcBackOff( CalcBackOffParams_t* calcBackOff )
     RegionCommonCalcBackOff( &calcBackOffParams );
 }
 
-bool RegionCN470NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
+LoRaMacStatus_t RegionCN470NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
 {
     uint8_t nbEnabledChannels = 0;
     uint8_t delayTx = 0;
@@ -757,7 +724,7 @@ bool RegionCN470NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
         *channel = enabledChannels[randr( 0, nbEnabledChannels - 1 )];
 
         *time = 0;
-        return true;
+        return LORAMAC_STATUS_OK;
     }
     else
     {
@@ -765,11 +732,11 @@ bool RegionCN470NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
         {
             // Delay transmission due to AggregatedTimeOff or to a band time off
             *time = nextTxDelay;
-            return true;
+            return LORAMAC_STATUS_DUTYCYCLE_RESTRICTED;
         }
         // Datarate not supported by any channel
         *time = 0;
-        return false;
+        return LORAMAC_STATUS_NO_CHANNEL_FOUND;
     }
 }
 

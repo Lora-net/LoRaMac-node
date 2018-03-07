@@ -1,19 +1,28 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Tx Continuous Wave implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
-#include <string.h>
+/*!
+ * \file      main.c
+ *
+ * \brief     Tx Continuous Wave implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
 #include "board.h"
+#include "gpio.h"
+#include "timer.h"
 #include "radio.h"
 
 #if defined( REGION_AS923 )
@@ -70,6 +79,13 @@ volatile bool Led3TimerEvent = false;
  * Radio events function pointer
  */
 static RadioEvents_t RadioEvents;
+
+/*!
+ * LED GPIO pins objects
+ */
+extern Gpio_t Led4;
+extern Gpio_t Led2;
+extern Gpio_t Led3;
 
 /*!
  * \brief Function executed on Led 1 Timeout event

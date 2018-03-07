@@ -1,19 +1,31 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Driver for the SX9500 proximity sensor
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
-#include "board.h"
+/*!
+ * \file      sx9500.c
+ *
+ * \brief     SX9500 proximity sensor driver implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
+#include <stdbool.h>
+#include "utilities.h"
+#include "i2c.h"
 #include "sx9500.h"
+
+extern I2c_t I2c;
 
 static uint8_t I2cDeviceAddr = 0;
 
@@ -26,15 +38,15 @@ uint8_t SX9500Init( void )
     SX9500SetDeviceAddr( SX9500_I2C_ADDRESS );
 
     if( SX9500Initialized == false )
-    {   
+    {
         SX9500Initialized = true;
-        
+
         SX9500Read( SX9500_REG_PROXCTRL0, &regVal );
         if( regVal != 0x0F )
         {
             return FAIL;
         }
-    
+
         SX9500Reset( );
     }
     return SUCCESS;
@@ -97,9 +109,9 @@ void SX9500LockUntilDetection( void )
     SX9500Write( SX9500_REG_PROXCTRL7, 0x40 );
     SX9500Write( SX9500_REG_PROXCTRL8, 0x00 );
     SX9500Write( SX9500_REG_IRQMSK, 0x60 );
-           
+
     val = 0;
-                    
+
     while( ( val & 0xF0 ) == 0x00 )
     {
         SX9500Read( SX9500_REG_STAT, &val );

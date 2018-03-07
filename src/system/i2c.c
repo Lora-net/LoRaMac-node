@@ -1,18 +1,27 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Implements the generic I2C driver
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
-#include "board.h"
+/*!
+ * \file      i2c.c
+ *
+ * \brief     I2C driver implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
+#include <stdbool.h>
+#include "utilities.h"
 #include "i2c-board.h"
 
 /*!
@@ -20,13 +29,13 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 static bool I2cInitialized = false;
 
-void I2cInit( I2c_t *obj, PinNames scl, PinNames sda )
+void I2cInit( I2c_t *obj, I2cId_t i2cId, PinNames scl, PinNames sda )
 {
     if( I2cInitialized == false )
     {
         I2cInitialized = true;
 
-        I2cMcuInit( obj, scl, sda );
+        I2cMcuInit( obj, i2cId, scl, sda );
         I2cMcuFormat( obj, MODE_I2C, I2C_DUTY_CYCLE_2, true, I2C_ACK_ADD_7_BIT, 400000 );
     }
 }
@@ -39,8 +48,7 @@ void I2cDeInit( I2c_t *obj )
 
 void I2cResetBus( I2c_t *obj )
 {
-    I2cInitialized = false;
-    I2cInit( obj, I2C_SCL, I2C_SDA );
+    I2cMcuResetBus( obj );
 }
 
 uint8_t I2cWrite( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t data )

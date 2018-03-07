@@ -1,33 +1,35 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
- ___ _____ _   ___ _  _____ ___  ___  ___ ___
-/ __|_   _/_\ / __| |/ / __/ _ \| _ \/ __| __|
-\__ \ | |/ _ \ (__| ' <| _| (_) |   / (__| _|
-|___/ |_/_/ \_\___|_|\_\_| \___/|_|_\\___|___|
-embedded.connectivity.solutions===============
-
-Description: LoRa MAC region IN865 implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jaeckle ( STACKFORCE )
+/*!
+ * \file      RegionIN865.c
+ *
+ * \brief     Region implementation for IN865
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ *               ___ _____ _   ___ _  _____ ___  ___  ___ ___
+ *              / __|_   _/_\ / __| |/ / __/ _ \| _ \/ __| __|
+ *              \__ \ | |/ _ \ (__| ' <| _| (_) |   / (__| _|
+ *              |___/ |_/_/ \_\___|_|\_\_| \___/|_|_\\___|___|
+ *              embedded.connectivity.solutions===============
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ *
+ * \author    Daniel Jaeckle ( STACKFORCE )
 */
-#include <stdbool.h>
-#include <string.h>
-#include <stdint.h>
-#include <math.h>
-
-#include "board.h"
-#include "LoRaMac.h"
-
 #include "utilities.h"
 
-#include "Region.h"
 #include "RegionCommon.h"
 #include "RegionIN865.h"
 
@@ -290,12 +292,6 @@ PhyParam_t RegionIN865GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.fValue = IN865_DEFAULT_ANTENNA_GAIN;
             break;
         }
-        case PHY_NB_JOIN_TRIALS:
-        case PHY_DEF_NB_JOIN_TRIALS:
-        {
-            phyParam.Value = 48;
-            break;
-        }
         default:
         {
             break;
@@ -333,6 +329,12 @@ void RegionIN865InitDefaults( InitType_t type )
             ChannelsMask[0] |= ChannelsDefaultMask[0];
             break;
         }
+        case INIT_TYPE_APP_DEFAULTS:
+        {
+            // Update the channels mask defaults
+            RegionCommonChanMaskCopy( ChannelsMask, ChannelsDefaultMask, 1 );
+            break;
+        }
         default:
         {
             break;
@@ -346,7 +348,14 @@ bool RegionIN865Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
     {
         case PHY_TX_DR:
         {
-            return RegionCommonValueInRange( verify->DatarateParams.Datarate, IN865_TX_MIN_DATARATE, IN865_TX_MAX_DATARATE );
+            if( verify->DatarateParams.Datarate == DR_6 )
+            {// DR_6 is not supported by this region
+                return false;
+            }
+            else
+            {
+                return RegionCommonValueInRange( verify->DatarateParams.Datarate, IN865_TX_MIN_DATARATE, IN865_TX_MAX_DATARATE );
+            }
         }
         case PHY_DEF_TX_DR:
         {
@@ -354,7 +363,14 @@ bool RegionIN865Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
         }
         case PHY_RX_DR:
         {
-            return RegionCommonValueInRange( verify->DatarateParams.Datarate, IN865_RX_MIN_DATARATE, IN865_RX_MAX_DATARATE );
+            if( verify->DatarateParams.Datarate == DR_6 )
+            {// DR_6 is not supported by this region
+                return false;
+            }
+            else
+            {
+                return RegionCommonValueInRange( verify->DatarateParams.Datarate, IN865_RX_MIN_DATARATE, IN865_RX_MAX_DATARATE );
+            }
         }
         case PHY_DEF_TX_POWER:
         case PHY_TX_POWER:
@@ -366,18 +382,9 @@ bool RegionIN865Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
         {
             return IN865_DUTY_CYCLE_ENABLED;
         }
-        case PHY_NB_JOIN_TRIALS:
-        {
-            if( verify->NbJoinTrials < 48 )
-            {
-                return false;
-            }
-            break;
-        }
         default:
             return false;
     }
-    return true;
 }
 
 void RegionIN865ApplyCFList( ApplyCFListParams_t* applyCFList )
@@ -530,7 +537,7 @@ void RegionIN865ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
         tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesIN865[rxConfigParams->Datarate], BandwidthsIN865[rxConfigParams->Datarate] );
     }
 
-    RegionCommonComputeRxWindowParameters( tSymbol, minRxSymbols, rxError, RADIO_WAKEUP_TIME, &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
+    RegionCommonComputeRxWindowParameters( tSymbol, minRxSymbols, rxError, Radio.GetWakeupTime( ), &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
 }
 
 bool RegionIN865RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
@@ -546,7 +553,7 @@ bool RegionIN865RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
         return false;
     }
 
-    if( rxConfig->Window == 0 )
+    if( rxConfig->RxSlot == RX_SLOT_WIN_1 )
     {
         // Apply window 1 frequency
         frequency = Channels[rxConfig->Channel].Frequency;
@@ -684,35 +691,42 @@ uint8_t RegionIN865LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
         }
     }
 
-    // Get the minimum possible datarate
-    getPhy.Attribute = PHY_MIN_TX_DR;
-    getPhy.UplinkDwellTime = linkAdrReq->UplinkDwellTime;
-    phyParam = RegionIN865GetPhyParam( &getPhy );
+    if( linkAdrParams.Datarate != DR_6 )
+    {
+        // Get the minimum possible datarate
+        getPhy.Attribute = PHY_MIN_TX_DR;
+        getPhy.UplinkDwellTime = linkAdrReq->UplinkDwellTime;
+        phyParam = RegionIN865GetPhyParam( &getPhy );
 
-    linkAdrVerifyParams.Status = status;
-    linkAdrVerifyParams.AdrEnabled = linkAdrReq->AdrEnabled;
-    linkAdrVerifyParams.Datarate = linkAdrParams.Datarate;
-    linkAdrVerifyParams.TxPower = linkAdrParams.TxPower;
-    linkAdrVerifyParams.NbRep = linkAdrParams.NbRep;
-    linkAdrVerifyParams.CurrentDatarate = linkAdrReq->CurrentDatarate;
-    linkAdrVerifyParams.CurrentTxPower = linkAdrReq->CurrentTxPower;
-    linkAdrVerifyParams.CurrentNbRep = linkAdrReq->CurrentNbRep;
-    linkAdrVerifyParams.NbChannels = IN865_MAX_NB_CHANNELS;
-    linkAdrVerifyParams.ChannelsMask = &chMask;
-    linkAdrVerifyParams.MinDatarate = ( int8_t )phyParam.Value;
-    linkAdrVerifyParams.MaxDatarate = IN865_TX_MAX_DATARATE;
-    linkAdrVerifyParams.Channels = Channels;
-    linkAdrVerifyParams.MinTxPower = IN865_MIN_TX_POWER;
-    linkAdrVerifyParams.MaxTxPower = IN865_MAX_TX_POWER;
+        linkAdrVerifyParams.Status = status;
+        linkAdrVerifyParams.AdrEnabled = linkAdrReq->AdrEnabled;
+        linkAdrVerifyParams.Datarate = linkAdrParams.Datarate;
+        linkAdrVerifyParams.TxPower = linkAdrParams.TxPower;
+        linkAdrVerifyParams.NbRep = linkAdrParams.NbRep;
+        linkAdrVerifyParams.CurrentDatarate = linkAdrReq->CurrentDatarate;
+        linkAdrVerifyParams.CurrentTxPower = linkAdrReq->CurrentTxPower;
+        linkAdrVerifyParams.CurrentNbRep = linkAdrReq->CurrentNbRep;
+        linkAdrVerifyParams.NbChannels = IN865_MAX_NB_CHANNELS;
+        linkAdrVerifyParams.ChannelsMask = &chMask;
+        linkAdrVerifyParams.MinDatarate = ( int8_t )phyParam.Value;
+        linkAdrVerifyParams.MaxDatarate = IN865_TX_MAX_DATARATE;
+        linkAdrVerifyParams.Channels = Channels;
+        linkAdrVerifyParams.MinTxPower = IN865_MIN_TX_POWER;
+        linkAdrVerifyParams.MaxTxPower = IN865_MAX_TX_POWER;
 
-    // Verify the parameters and update, if necessary
-    status = RegionCommonLinkAdrReqVerifyParams( &linkAdrVerifyParams, &linkAdrParams.Datarate, &linkAdrParams.TxPower, &linkAdrParams.NbRep );
+        // Verify the parameters and update, if necessary
+        status = RegionCommonLinkAdrReqVerifyParams( &linkAdrVerifyParams, &linkAdrParams.Datarate, &linkAdrParams.TxPower, &linkAdrParams.NbRep );
+    }
+    else
+    {// DR_6 is not supported by this region
+        status &= 0xFD; // Datarate KO
+    }
 
     // Update channelsMask if everything is correct
     if( status == 0x07 )
     {
         // Set the channels mask to a default value
-        memset( ChannelsMask, 0, sizeof( ChannelsMask ) );
+        memset1( ( uint8_t* )ChannelsMask, 0, sizeof( ChannelsMask ) );
         // Update the channels mask
         ChannelsMask[0] = chMask;
     }
@@ -835,35 +849,9 @@ uint8_t RegionIN865DlChannelReq( DlChannelReqParams_t* dlChannelReq )
     return status;
 }
 
-int8_t RegionIN865AlternateDr( AlternateDrParams_t* alternateDr )
+int8_t RegionIN865AlternateDr( int8_t currentDr )
 {
-    int8_t datarate = 0;
-
-    if( ( alternateDr->NbTrials % 48 ) == 0 )
-    {
-        datarate = DR_0;
-    }
-    else if( ( alternateDr->NbTrials % 32 ) == 0 )
-    {
-        datarate = DR_1;
-    }
-    else if( ( alternateDr->NbTrials % 24 ) == 0 )
-    {
-        datarate = DR_2;
-    }
-    else if( ( alternateDr->NbTrials % 16 ) == 0 )
-    {
-        datarate = DR_3;
-    }
-    else if( ( alternateDr->NbTrials % 8 ) == 0 )
-    {
-        datarate = DR_4;
-    }
-    else
-    {
-        datarate = DR_5;
-    }
-    return datarate;
+    return currentDr;
 }
 
 void RegionIN865CalcBackOff( CalcBackOffParams_t* calcBackOff )
@@ -882,7 +870,7 @@ void RegionIN865CalcBackOff( CalcBackOffParams_t* calcBackOff )
     RegionCommonCalcBackOff( &calcBackOffParams );
 }
 
-bool RegionIN865NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
+LoRaMacStatus_t RegionIN865NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
 {
     uint8_t nbEnabledChannels = 0;
     uint8_t delayTx = 0;
@@ -919,7 +907,7 @@ bool RegionIN865NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
         *channel = enabledChannels[randr( 0, nbEnabledChannels - 1 )];
 
         *time = 0;
-        return true;
+        return LORAMAC_STATUS_OK;
     }
     else
     {
@@ -927,12 +915,12 @@ bool RegionIN865NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
         {
             // Delay transmission due to AggregatedTimeOff or to a band time off
             *time = nextTxDelay;
-            return true;
+            return LORAMAC_STATUS_DUTYCYCLE_RESTRICTED;
         }
         // Datarate not supported by any channel, restore defaults
         ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
         *time = 0;
-        return false;
+        return LORAMAC_STATUS_NO_CHANNEL_FOUND;
     }
 }
 
@@ -1005,7 +993,7 @@ LoRaMacStatus_t RegionIN865ChannelAdd( ChannelAddParams_t* channelAdd )
         return LORAMAC_STATUS_FREQUENCY_INVALID;
     }
 
-    memcpy( &(Channels[id]), channelAdd->NewChannel, sizeof( Channels[id] ) );
+    memcpy1( ( uint8_t* )( Channels + id ), ( uint8_t* )channelAdd->NewChannel, sizeof( Channels[id] ) );
     Channels[id].Band = band;
     ChannelsMask[0] |= ( 1 << id );
     return LORAMAC_STATUS_OK;

@@ -1,20 +1,33 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Generic SX1272 driver implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/*!
+ * \file      sx1272.h
+ *
+ * \brief     SX1272 driver implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
 #ifndef __SX1272_H__
 #define __SX1272_H__
 
+#include <stdint.h>
+#include <stdbool.h>
+#include "gpio.h"
+#include "spi.h"
+#include "radio.h"
 #include "sx1272Regs-Fsk.h"
 #include "sx1272Regs-LoRa.h"
 
@@ -354,7 +367,7 @@ int16_t SX1272ReadRssi( RadioModems_t modem );
  * \param [IN]: addr Register address
  * \param [IN]: data New register value
  */
-void SX1272Write( uint8_t addr, uint8_t data );
+void SX1272Write( uint16_t addr, uint8_t data );
 
 /*!
  * \brief Reads the radio register at the specified address
@@ -362,7 +375,7 @@ void SX1272Write( uint8_t addr, uint8_t data );
  * \param [IN]: addr Register address
  * \retval data Register value
  */
-uint8_t SX1272Read( uint8_t addr );
+uint8_t SX1272Read( uint16_t addr );
 
 /*!
  * \brief Writes multiple radio registers starting at address
@@ -371,7 +384,7 @@ uint8_t SX1272Read( uint8_t addr );
  * \param [IN] buffer Buffer containing the new register's values
  * \param [IN] size   Number of registers to be written
  */
-void SX1272WriteBuffer( uint8_t addr, uint8_t *buffer, uint8_t size );
+void SX1272WriteBuffer( uint16_t addr, uint8_t *buffer, uint8_t size );
 
 /*!
  * \brief Reads multiple radio registers starting at address
@@ -380,7 +393,7 @@ void SX1272WriteBuffer( uint8_t addr, uint8_t *buffer, uint8_t size );
  * \param [OUT] buffer Buffer where to copy the registers data
  * \param [IN] size Number of registers to be read
  */
-void SX1272ReadBuffer( uint8_t addr, uint8_t *buffer, uint8_t size );
+void SX1272ReadBuffer( uint16_t addr, uint8_t *buffer, uint8_t size );
 
 /*!
  * \brief Sets the maximum payload length.
@@ -398,5 +411,12 @@ void SX1272SetMaxPayloadLength( RadioModems_t modem, uint8_t max );
  * \param [IN] enable if true, it enables a public network
  */
 void SX1272SetPublicNetwork( bool enable );
+
+/*!
+ * \brief Gets the time required for the board plus radio to get out of sleep.[ms]
+ *
+ * \retval time Radio plus board wakeup time in ms.
+ */
+uint32_t SX1272GetWakeupTime( void );
 
 #endif // __SX1272_H__

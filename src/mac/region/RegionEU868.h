@@ -12,7 +12,7 @@
  *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
  *               _____) ) ____| | | || |_| ____( (___| | | |
  *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
- *              (C)2013 Semtech
+ *              (C)2013-2017 Semtech
  *
  *               ___ _____ _   ___ _  _____ ___  ___  ___ ___
  *              / __|_   _/_\ / __| |/ / __/ _ \| _ \/ __| __|
@@ -34,6 +34,8 @@
  */
 #ifndef __REGION_EU868_H__
 #define __REGION_EU868_H__
+
+#include "LoRaMac.h"
 
 /*!
  * LoRaMac maximum number of channels
@@ -191,33 +193,33 @@
 
 /*!
  * Band 0 definition
- * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
+ * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-#define EU868_BAND0                                 { 100 , EU868_MAX_TX_POWER, 0,  0 } //  1.0 %
+#define EU868_BAND0                                 { 100 , EU868_MAX_TX_POWER, 0, 0, 0 } //  1.0 %
 
 /*!
  * Band 1 definition
- * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
+ * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-#define EU868_BAND1                                 { 100 , EU868_MAX_TX_POWER, 0,  0 } //  1.0 %
+#define EU868_BAND1                                 { 100 , EU868_MAX_TX_POWER, 0, 0, 0 } //  1.0 %
 
 /*!
  * Band 2 definition
- * Band = { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
+ * Band = { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-#define EU868_BAND2                                 { 1000, EU868_MAX_TX_POWER, 0,  0 } //  0.1 %
+#define EU868_BAND2                                 { 1000, EU868_MAX_TX_POWER, 0, 0, 0 } //  0.1 %
 
 /*!
- * Band 2 definition
- * Band = { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
+ * Band 3 definition
+ * Band = { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-#define EU868_BAND3                                 { 10  , EU868_MAX_TX_POWER, 0,  0 } // 10.0 %
+#define EU868_BAND3                                 { 10  , EU868_MAX_TX_POWER, 0, 0, 0 } // 10.0 %
 
 /*!
- * Band 2 definition
- * Band = { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
+ * Band 4 definition
+ * Band = { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-#define EU868_BAND4                                 { 100 , EU868_MAX_TX_POWER, 0,  0 } //  1.0 %
+#define EU868_BAND4                                 { 100 , EU868_MAX_TX_POWER, 0, 0, 0 } //  1.0 %
 
 /*!
  * LoRaMac default channel 1
@@ -417,11 +419,11 @@ uint8_t RegionEU868DlChannelReq( DlChannelReqParams_t* dlChannelReq );
 /*!
  * \brief Alternates the datarate of the channel for the join request.
  *
- * \param [IN] alternateDr Pointer to the function parameters.
+ * \param [IN] currentDr Current datarate.
  *
  * \retval Datarate to apply.
  */
-int8_t RegionEU868AlternateDr( AlternateDrParams_t* alternateDr );
+int8_t RegionEU868AlternateDr( int8_t currentDr );
 
 /*!
  * \brief Calculates the back-off time.
@@ -442,7 +444,7 @@ void RegionEU868CalcBackOff( CalcBackOffParams_t* calcBackOff );
  *
  * \retval Function status [1: OK, 0: Unable to find a channel on the current datarate]
  */
-bool RegionEU868NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff );
+LoRaMacStatus_t RegionEU868NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff );
 
 /*!
  * \brief Adds a channel.

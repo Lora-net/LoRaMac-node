@@ -1,33 +1,35 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
- ___ _____ _   ___ _  _____ ___  ___  ___ ___
-/ __|_   _/_\ / __| |/ / __/ _ \| _ \/ __| __|
-\__ \ | |/ _ \ (__| ' <| _| (_) |   / (__| _|
-|___/ |_/_/ \_\___|_|\_\_| \___/|_|_\\___|___|
-embedded.connectivity.solutions===============
-
-Description: LoRa MAC region EU433 implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jaeckle ( STACKFORCE )
+/*!
+ * \file      RegionEU433.c
+ *
+ * \brief     Region implementation for EU433
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ *               ___ _____ _   ___ _  _____ ___  ___  ___ ___
+ *              / __|_   _/_\ / __| |/ / __/ _ \| _ \/ __| __|
+ *              \__ \ | |/ _ \ (__| ' <| _| (_) |   / (__| _|
+ *              |___/ |_/_/ \_\___|_|\_\_| \___/|_|_\\___|___|
+ *              embedded.connectivity.solutions===============
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ *
+ * \author    Daniel Jaeckle ( STACKFORCE )
 */
-#include <stdbool.h>
-#include <string.h>
-#include <stdint.h>
-#include <math.h>
-
-#include "board.h"
-#include "LoRaMac.h"
-
 #include "utilities.h"
 
-#include "Region.h"
 #include "RegionCommon.h"
 #include "RegionEU433.h"
 
@@ -286,12 +288,6 @@ PhyParam_t RegionEU433GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.fValue = EU433_DEFAULT_ANTENNA_GAIN;
             break;
         }
-        case PHY_NB_JOIN_TRIALS:
-        case PHY_DEF_NB_JOIN_TRIALS:
-        {
-            phyParam.Value = 48;
-            break;
-        }
         default:
         {
             break;
@@ -329,6 +325,12 @@ void RegionEU433InitDefaults( InitType_t type )
             ChannelsMask[0] |= ChannelsDefaultMask[0];
             break;
         }
+        case INIT_TYPE_APP_DEFAULTS:
+        {
+            // Update the channels mask defaults
+            RegionCommonChanMaskCopy( ChannelsMask, ChannelsDefaultMask, 1 );
+            break;
+        }
         default:
         {
             break;
@@ -362,18 +364,9 @@ bool RegionEU433Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
         {
             return EU433_DUTY_CYCLE_ENABLED;
         }
-        case PHY_NB_JOIN_TRIALS:
-        {
-            if( verify->NbJoinTrials < 48 )
-            {
-                return false;
-            }
-            break;
-        }
         default:
             return false;
     }
-    return true;
 }
 
 void RegionEU433ApplyCFList( ApplyCFListParams_t* applyCFList )
@@ -526,7 +519,7 @@ void RegionEU433ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
         tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesEU433[rxConfigParams->Datarate], BandwidthsEU433[rxConfigParams->Datarate] );
     }
 
-    RegionCommonComputeRxWindowParameters( tSymbol, minRxSymbols, rxError, RADIO_WAKEUP_TIME, &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
+    RegionCommonComputeRxWindowParameters( tSymbol, minRxSymbols, rxError, Radio.GetWakeupTime( ), &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
 }
 
 bool RegionEU433RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
@@ -542,7 +535,7 @@ bool RegionEU433RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
         return false;
     }
 
-    if( rxConfig->Window == 0 )
+    if( rxConfig->RxSlot == RX_SLOT_WIN_1 )
     {
         // Apply window 1 frequency
         frequency = Channels[rxConfig->Channel].Frequency;
@@ -708,7 +701,7 @@ uint8_t RegionEU433LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
     if( status == 0x07 )
     {
         // Set the channels mask to a default value
-        memset( ChannelsMask, 0, sizeof( ChannelsMask ) );
+        memset1( ( uint8_t* )ChannelsMask, 0, sizeof( ChannelsMask ) );
         // Update the channels mask
         ChannelsMask[0] = chMask;
     }
@@ -830,35 +823,9 @@ uint8_t RegionEU433DlChannelReq( DlChannelReqParams_t* dlChannelReq )
     return status;
 }
 
-int8_t RegionEU433AlternateDr( AlternateDrParams_t* alternateDr )
+int8_t RegionEU433AlternateDr( int8_t currentDr )
 {
-    int8_t datarate = 0;
-
-    if( ( alternateDr->NbTrials % 48 ) == 0 )
-    {
-        datarate = DR_0;
-    }
-    else if( ( alternateDr->NbTrials % 32 ) == 0 )
-    {
-        datarate = DR_1;
-    }
-    else if( ( alternateDr->NbTrials % 24 ) == 0 )
-    {
-        datarate = DR_2;
-    }
-    else if( ( alternateDr->NbTrials % 16 ) == 0 )
-    {
-        datarate = DR_3;
-    }
-    else if( ( alternateDr->NbTrials % 8 ) == 0 )
-    {
-        datarate = DR_4;
-    }
-    else
-    {
-        datarate = DR_5;
-    }
-    return datarate;
+    return currentDr;
 }
 
 void RegionEU433CalcBackOff( CalcBackOffParams_t* calcBackOff )
@@ -877,7 +844,7 @@ void RegionEU433CalcBackOff( CalcBackOffParams_t* calcBackOff )
     RegionCommonCalcBackOff( &calcBackOffParams );
 }
 
-bool RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
+LoRaMacStatus_t RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
 {
     uint8_t nbEnabledChannels = 0;
     uint8_t delayTx = 0;
@@ -914,7 +881,7 @@ bool RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
         *channel = enabledChannels[randr( 0, nbEnabledChannels - 1 )];
 
         *time = 0;
-        return true;
+        return LORAMAC_STATUS_OK;
     }
     else
     {
@@ -922,12 +889,12 @@ bool RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel,
         {
             // Delay transmission due to AggregatedTimeOff or to a band time off
             *time = nextTxDelay;
-            return true;
+            return LORAMAC_STATUS_DUTYCYCLE_RESTRICTED;
         }
         // Datarate not supported by any channel, restore defaults
         ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
         *time = 0;
-        return false;
+        return LORAMAC_STATUS_NO_CHANNEL_FOUND;
     }
 }
 
@@ -1000,7 +967,7 @@ LoRaMacStatus_t RegionEU433ChannelAdd( ChannelAddParams_t* channelAdd )
         return LORAMAC_STATUS_FREQUENCY_INVALID;
     }
 
-    memcpy( &(Channels[id]), channelAdd->NewChannel, sizeof( Channels[id] ) );
+    memcpy1( ( uint8_t* )( Channels + id ), ( uint8_t* )channelAdd->NewChannel, sizeof( Channels[id] ) );
     Channels[id].Band = band;
     ChannelsMask[0] |= ( 1 << id );
     return LORAMAC_STATUS_OK;

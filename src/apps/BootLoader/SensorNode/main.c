@@ -1,18 +1,28 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: SensorNode board USB DFU bootloader
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
-#include "board.h"
+/*!
+ * \file      main.c
+ *
+ * \brief     SensorNode board USB DFU bootloader
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
+#include "board-config.h"
+#include "i2c.h"
+#include "gpio.h"
 #include "usbd_core.h"
 #include "usbd_desc.h"
 #include "usbd_dfu.h"
@@ -65,7 +75,7 @@ int main( void )
 
     SystemClockConfig( );
 
-    I2cInit( &I2c, I2C_SCL, I2C_SDA );
+    I2cInit( &I2c, I2C_1, I2C_SCL, I2C_SDA );
 
     GpioInit( &UsbDetect, USB_ON, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &DcDcEnable, DC_DC_EN, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
