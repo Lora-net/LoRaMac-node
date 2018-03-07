@@ -21,7 +21,7 @@
  * \author    Gregory Cristian ( Semtech )
  */
 
-/*! \file classA/NucleoL053/main.c */
+/*! \file classA/NucleoL152/main.c */
 
 #include "utilities.h"
 #include "board.h"
