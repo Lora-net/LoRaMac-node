@@ -824,7 +824,7 @@ void LoRaMacClassBMulticastSlotTimerEvent( void )
     static RxConfigParams_t multicastSlotRxConfig;
     TimerTime_t multicastSlotTime = 0;
     TimerTime_t slotTime = 0;
-    MulticastParams_t *cur = LoRaMacClassBParams.MulticastChannels;
+    MulticastParams_t *cur = *LoRaMacClassBParams.MulticastChannels;
 
     TimerStop( &MulticastSlotTimer );
 
@@ -851,7 +851,7 @@ void LoRaMacClassBMulticastSlotTimerEvent( void )
         }
         case PINGSLOT_STATE_SET_TIMER:
         {
-            cur = LoRaMacClassBParams.MulticastChannels;
+            cur = *LoRaMacClassBParams.MulticastChannels;
             PingSlotCtx.NextMulticastChannel = NULL;
 
             while( cur != NULL )

@@ -300,7 +300,7 @@ typedef struct sLoRaMacClassBParams
     /*!
      * Pointer to the multicast channel list
      */
-    MulticastParams_t *MulticastChannels;
+    MulticastParams_t **MulticastChannels;
 }LoRaMacClassBParams_t;
 
 /*!

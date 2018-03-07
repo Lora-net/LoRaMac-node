@@ -2915,7 +2915,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacC
     classBParams.LoRaMacRegion = &LoRaMacRegion;
     classBParams.MacStateCheckTimer = &MacStateCheckTimer;
     classBParams.LoRaMacParams = &LoRaMacParams;
-    classBParams.MulticastChannels = MulticastChannels;
+    classBParams.MulticastChannels = &MulticastChannels;
 
     LoRaMacClassBInit( &classBParams, &classBCallbacks );
 
