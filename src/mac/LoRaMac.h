@@ -381,7 +381,28 @@ typedef struct sMulticastParams
      */
     uint32_t DownLinkCounter;
     /*!
-     * Ping offset of the muilticast channel for Class B
+     * Reception frequency of the ping slot windows
+     */
+    uint32_t Frequency;
+    /*!
+     * Datarate of the ping slot
+     */
+    int8_t Datarate;
+    /*!
+     * Number of multicast slots. The variable can be
+     * calculated as follows:
+     * PingNb = 128 / ( 1 << periodicity ), where
+     * 0 <= periodicity <= 7
+     */
+    uint8_t PingNb;
+    /*!
+     * Period of the multicast slots. The variable can be
+     * calculated as follows:
+     * PingPeriod = 4096 / PingNb
+     */
+    uint16_t PingPeriod;
+    /*!
+     * Ping offset of the multicast channel for Class B
      */
     uint16_t PingOffset;
     /*!
