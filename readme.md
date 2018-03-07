@@ -133,30 +133,33 @@ Further information can be found in [Development environment](Doc/development-en
 
 ## Changelog
 
-### 2018-XX-XX, V4.4.1
+### 2018-03-07, V4.4.1
 
 * General
-    1. Added Microchip/Atmel SAML21 Xplained Pro hardware platform support.
-    2. Added CMAKE build system support
-    3. Removed CoIDE projects support
-    4. Removed Keil projects support
+    1. Release based on "LoRaWAN specification 1.0.2" and "LoRaWAN Regional Parameters v1.0.2rB"
+    2. Added SX126x radio support.
+    3. Added NucleoL073 and NucleoL152 board platforms support.
+    4. Added Microchip/Atmel SAML21 Xplained Pro hardware platform support.
+    5. Added CMAKE build system support
+    6. Removed CoIDE projects support
+    7. Removed Keil projects support
 
 * LoRaWAN
-    1. GitHub reported issues corrections.
+    1. GitHub reported issues corrections. Please refer to [Release Version 4.4.1](https://github.com/Lora-net/LoRaMac-node/milestone/1)
 
 **LoRaWAN certification results**
 
 | Region        | Verdict       | # Test houses | Comments      |
 | ------------- |:-------------:|:-------------:|:--------------|
-| EU868         | <font color='green'>Not tested yet</font> | 0 | - |
-| US915         | <font color='green'>Not tested yet</font> | 0 | - |
-| CN779         | <font color='green'>Not tested yet</font> | 0 | No certification specification - tests based on EU868 certification |
-| EU433         | <font color='green'>Not tested yet</font> | 0 | No certification specification - tests based on EU868 certification |
-| AU915         | <font color='orange'>Not tested yet</font> | 0 | No certification specification |
-| CN470         | <font color='orange'>Not tested yet</font> | 0 | No certification specification |
-| AS923         | <font color='green'>Not tested yet</font> | 0 | - |
-| KR920         | <font color='green'>Not tested yet</font> | 0 | - |
-| IN865         | <font color='green'>Not tested yet</font> | 0 | - |
+| EU868         | <font color='green'>PASS</font> | 0 | - |
+| US915         | <font color='green'>PASS</font> | 0 | - |
+| CN779         | <font color='green'>PASS</font> | 0 | No certification specification - tests based on EU868 certification |
+| EU433         | <font color='orange'>Not tested</font> | 0 | No certification specification - tests based on EU868 certification |
+| AU915         | <font color='green'>PASS</font> | 0 | No certification specification - tests based on US915 certification |
+| CN470         | <font color='orange'>Not tested</font> | 0 | No certification specification |
+| AS923         | <font color='green'>PASS</font> | 0 | - |
+| KR920         | <font color='green'>PASS</font> | 0 | - |
+| IN865         | <font color='green'>PASS</font> | 0 | - |
 
 ### 2017-09-08, V4.4.0
 
