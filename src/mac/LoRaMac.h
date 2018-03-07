@@ -61,6 +61,24 @@
  * \example   classC/NAMote72/main.c
  *            LoRaWAN class C application example for the NAMote72.
  *
+ * \example   classA/NucleoL073/main.c
+ *            LoRaWAN class A application example for the NucleoL073.
+ *
+ * \example   classB/NucleoL073/main.c
+ *            LoRaWAN class B application example for the NucleoL073.
+ *
+ * \example   classC/NucleoL073/main.c
+ *            LoRaWAN class C application example for the NucleoL073.
+ *
+ * \example   classA/NucleoL152/main.c
+ *            LoRaWAN class A application example for the NucleoL152.
+ *
+ * \example   classB/NucleoL152/main.c
+ *            LoRaWAN class B application example for the NucleoL152.
+ *
+ * \example   classC/NucleoL152/main.c
+ *            LoRaWAN class C application example for the NucleoL152.
+ *
  * \example   classA/SensorNode/main.c
  *            LoRaWAN class A application example for the SensorNode.
  *
