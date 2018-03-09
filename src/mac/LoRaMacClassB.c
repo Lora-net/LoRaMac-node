@@ -843,6 +843,12 @@ void LoRaMacClassBMulticastSlotTimerEvent( void )
         return;
     }
 
+    if( MulticastSlotState == PINGSLOT_STATE_RX )
+    {
+        // A multicast slot is already open
+        return;
+    }
+
     switch( MulticastSlotState )
     {
         case PINGSLOT_STATE_CALC_PING_OFFSET:
@@ -937,6 +943,15 @@ void LoRaMacClassBMulticastSlotTimerEvent( void )
             multicastSlotRxConfig.RxSlot = RX_SLOT_WIN_MULTICAST_SLOT;
 
             RegionRxConfig( *LoRaMacClassBParams.LoRaMacRegion, &multicastSlotRxConfig, ( int8_t* )&LoRaMacClassBParams.McpsIndication->RxDatarate );
+
+            if( PingSlotState == PINGSLOT_STATE_RX )
+            {
+                // Close ping slot window, if necessary. Multicast slots have priority
+                Radio.Standby( );
+                PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+                TimerSetValue( &PingSlotTimer, CLASSB_PING_SLOT_WINDOW );
+                TimerStart( &PingSlotTimer );
+            }
 
             if( multicastSlotRxConfig.RxContinuous == false )
             {
