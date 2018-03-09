@@ -874,7 +874,10 @@ int main( void )
                 // Wake up through events
                 TimerLowPowerHandler( );
                 // Process Radio IRQ
-                Radio.IrqProcess( );
+                if( Radio.IrqProcess != NULL )
+                {
+                    Radio.IrqProcess( );
+                }
                 break;
             }
             default:
