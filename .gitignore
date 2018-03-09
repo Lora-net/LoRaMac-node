@@ -17,3 +17,6 @@ bin/
 *.pbxproj
 *.cogui
 *.comarker
+GPATH
+GRTAGS
+GTAGS
