@@ -68,7 +68,7 @@ void GpioMcuRemoveInterrupt( Gpio_t *obj )
 void GpioMcuWrite( Gpio_t *obj, uint32_t value )
 {
 
-    if( ( obj == NULL ) /*|| ( obj->port == NULL )*/ )
+    if( obj == NULL )
     {
         //assert_param( FAIL );
         while( 1 );
@@ -83,7 +83,7 @@ void GpioMcuWrite( Gpio_t *obj, uint32_t value )
 
 void GpioMcuToggle( Gpio_t *obj )
 {
-    if( ( obj == NULL ) /*|| ( obj->port == NULL )*/ )
+    if( obj == NULL )
     {
         //assert_param( FAIL );
         while( 1 );

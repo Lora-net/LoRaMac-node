@@ -152,6 +152,11 @@ int main( void )
     // Blink LEDs just to show some activity
     while( 1 )
     {
+        // Process Radio IRQ
+        if( Radio.IrqProcess != NULL )
+        {
+            Radio.IrqProcess( );
+        }
         if( Led1TimerEvent == true )
         {
             Led1TimerEvent = false;

@@ -327,7 +327,10 @@ int main( void )
 
         TimerLowPowerHandler( );
         // Process Radio IRQ
-        Radio.IrqProcess( );
+        if( Radio.IrqProcess != NULL )
+        {
+            Radio.IrqProcess( );
+        }
     }
 }
 

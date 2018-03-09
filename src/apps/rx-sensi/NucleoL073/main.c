@@ -156,6 +156,11 @@ int main( void )
     while( 1 )
     {
         TimerLowPowerHandler( );
+        // Process Radio IRQ
+        if( Radio.IrqProcess != NULL )
+        {
+            Radio.IrqProcess( );
+        }
     }
 }
 
