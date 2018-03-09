@@ -406,6 +406,16 @@ static TimerTime_t UpdateBeaconState( LoRaMacEventInfoStatus_t status,
     return ApplyGuardTime( beaconEventTime );
 }
 
+static uint8_t CalcPingNb( uint16_t periodicity )
+{
+    return 128 / ( 1 << periodicity );
+}
+
+static uint16_t CalcPingPeriod( uint8_t pingNb )
+{
+    return CLASSB_BEACON_WINDOW_SLOTS / pingNb;
+}
+
 #endif // LORAMAC_CLASSB_ENABLED
 
 void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks )
@@ -1108,8 +1118,8 @@ bool LoRaMacClassBIsBeaconModeActive( void )
 void LoRaMacClassBSetPingSlotInfo( uint8_t periodicity )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
-    PingSlotCtx.PingNb = 128 / ( 1 << periodicity );
-    PingSlotCtx.PingPeriod = CLASSB_BEACON_WINDOW_SLOTS / PingSlotCtx.PingNb;
+    PingSlotCtx.PingNb = CalcPingNb( periodicity );
+    PingSlotCtx.PingPeriod = CalcPingPeriod( PingSlotCtx.PingNb );
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
