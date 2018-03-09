@@ -243,7 +243,7 @@ void GpioMcuWrite( Gpio_t *obj, uint32_t value )
 {
     if( obj->pin < IOE_0 )
     {
-        if( ( obj == NULL ) || ( obj->port == NULL ) )
+        if( obj == NULL )
         {
             assert_param( FAIL );
         }
@@ -267,7 +267,7 @@ void GpioMcuToggle( Gpio_t *obj )
 {
     if( obj->pin < IOE_0 )
     {
-        if( ( obj == NULL ) || ( obj->port == NULL ) )
+        if( obj == NULL )
         {
             assert_param( FAIL );
         }
