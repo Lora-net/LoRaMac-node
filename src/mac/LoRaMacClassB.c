@@ -1420,3 +1420,14 @@ void LoRaMacClassBStartRxSlots( void )
     }
 #endif // LORAMAC_CLASSB_ENABLED
 }
+
+void LoRaMacClassBSetMulticastPeriodicity( MulticastParams_t* multicastChannel )
+{
+#ifdef LORAMAC_CLASSB_ENABLED
+    if( multicastChannel != NULL )
+    {
+        multicastChannel->PingNb = CalcPingNb( multicastChannel->Periodicity );
+        multicastChannel->PingPeriod = CalcPingPeriod( multicastChannel->PingNb );
+    }
+#endif // LORAMAC_CLASSB_ENABLED
+}

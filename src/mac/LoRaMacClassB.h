@@ -518,4 +518,14 @@ void LoRaMacClassBStopRxSlots( void );
  */
 void LoRaMacClassBStartRxSlots( void );
 
+/*!
+ * \brief Starts the timers for the RX slots. This includes the
+ *        timers for ping and multicast slots.
+ *
+ * \param [IN] periodicity Downlink periodicity
+ *
+ * \param [IN] multicastChannel Related multicast channel
+ */
+void LoRaMacClassBSetMulticastPeriodicity( MulticastParams_t* multicastChannel );
+
 #endif // __LORAMACCLASSB_H__
