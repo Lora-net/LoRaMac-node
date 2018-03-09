@@ -407,24 +407,33 @@ typedef struct sMulticastParams
      */
     int8_t Datarate;
     /*!
+     * This parameter is necessary for class b operation. It defines the
+     * periodicity of the multicast downlink slots
+     */
+    uint16_t Periodicity;
+    /*!
      * Number of multicast slots. The variable can be
      * calculated as follows:
      * PingNb = 128 / ( 1 << periodicity ), where
      * 0 <= periodicity <= 7
+     * This parameter will be calculated automatically.
      */
     uint8_t PingNb;
     /*!
      * Period of the multicast slots. The variable can be
      * calculated as follows:
      * PingPeriod = 4096 / PingNb
+     * This parameter will be calculated automatically.
      */
     uint16_t PingPeriod;
     /*!
      * Ping offset of the multicast channel for Class B
+     * This parameter will be calculated automatically.
      */
     uint16_t PingOffset;
     /*!
      * Reference pointer to the next multicast channel parameters in the list
+     * This parameter will be calculated automatically.
      */
     struct sMulticastParams *Next;
 }MulticastParams_t;

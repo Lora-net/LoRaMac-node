@@ -3517,6 +3517,9 @@ LoRaMacStatus_t LoRaMacMulticastChannelLink( MulticastParams_t *channelParam )
         return LORAMAC_STATUS_BUSY;
     }
 
+    // Calculate class b parameters
+    LoRaMacClassBSetMulticastPeriodicity( channelParam );
+
     // Reset downlink counter
     channelParam->DownLinkCounter = 0;
     channelParam->Next = NULL;
