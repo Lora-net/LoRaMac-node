@@ -98,14 +98,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define BAT_LEVEL_CHANNEL                           ADC_CHANNEL_6
 
 /*!
- * LED GPIO pins objects
- */
-
-extern Gpio_t rgbRed;
-extern Gpio_t rgbGreen;
-extern Gpio_t rgbBlue;
-
-/*!
  * MCU objects
  */
 extern I2c_t I2c;

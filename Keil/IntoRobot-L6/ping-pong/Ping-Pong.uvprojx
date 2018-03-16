@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32L151xB,USE_MODEM_LORA,REGION_EU433,USE_USB_CDC</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\src\boards\IntoRobot-Ant\cmsis\arm-std;..\..\..\src\boards\IntoRobot-Ant\usb\cdc\inc;..\..\..\src\boards\IntoRobot-Ant;..\..\..\src\boards\IntoRobot-Ant\cmsis;..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Inc;..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Inc\Legacy;..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Class\CDC\Inc;..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Core\Inc;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\radio;..\..\..\src\radio\sx1276;..\..\..\src\system</IncludePath>
+              <IncludePath>..\..\..\src\boards\IntoRobot-L6\cmsis\arm-std;..\..\..\src\boards\IntoRobot-L6\usb\cdc\inc;..\..\..\src\boards\IntoRobot-L6;..\..\..\src\boards\IntoRobot-L6\cmsis;..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Inc;..\..\..\src\boards\mcu\stm32\STM32L1xx_HAL_Driver\Inc\Legacy;..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Class\CDC\Inc;..\..\..\src\boards\mcu\stm32\STM32_USB_Device_Library\Core\Inc;..\..\..\src\boards\mcu\stm32;..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\src\radio;..\..\..\src\radio\sx1276;..\..\..\src\system</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -377,12 +377,12 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>apps\ping-pong\IntoRobot-Ant</GroupName>
+          <GroupName>apps</GroupName>
           <Files>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\apps\ping-pong\IntoRobot-Ant\main.c</FilePath>
+              <FilePath>..\..\..\src\apps\ping-pong\IntoRobot-L6\main.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -392,52 +392,52 @@
             <File>
               <FileName>adc-board.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\IntoRobot-Ant\adc-board.c</FilePath>
+              <FilePath>..\..\..\src\boards\IntoRobot-L6\adc-board.c</FilePath>
             </File>
             <File>
               <FileName>board.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\IntoRobot-Ant\board.c</FilePath>
+              <FilePath>..\..\..\src\boards\IntoRobot-L6\board.c</FilePath>
             </File>
             <File>
               <FileName>eeprom-board.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\IntoRobot-Ant\eeprom-board.c</FilePath>
+              <FilePath>..\..\..\src\boards\IntoRobot-L6\eeprom-board.c</FilePath>
             </File>
             <File>
               <FileName>gpio-board.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\IntoRobot-Ant\gpio-board.c</FilePath>
+              <FilePath>..\..\..\src\boards\IntoRobot-L6\gpio-board.c</FilePath>
             </File>
             <File>
               <FileName>i2c-board.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\IntoRobot-Ant\i2c-board.c</FilePath>
+              <FilePath>..\..\..\src\boards\IntoRobot-L6\i2c-board.c</FilePath>
             </File>
             <File>
               <FileName>rtc-board.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\IntoRobot-Ant\rtc-board.c</FilePath>
+              <FilePath>..\..\..\src\boards\IntoRobot-L6\rtc-board.c</FilePath>
             </File>
             <File>
               <FileName>spi-board.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\IntoRobot-Ant\spi-board.c</FilePath>
+              <FilePath>..\..\..\src\boards\IntoRobot-L6\spi-board.c</FilePath>
             </File>
             <File>
               <FileName>sx1276-board.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\IntoRobot-Ant\sx1276-board.c</FilePath>
+              <FilePath>..\..\..\src\boards\IntoRobot-L6\sx1276-board.c</FilePath>
             </File>
             <File>
               <FileName>uart-board.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\IntoRobot-Ant\uart-board.c</FilePath>
+              <FilePath>..\..\..\src\boards\IntoRobot-L6\uart-board.c</FilePath>
             </File>
             <File>
               <FileName>uart-usb-board.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\IntoRobot-Ant\uart-usb-board.c</FilePath>
+              <FilePath>..\..\..\src\boards\IntoRobot-L6\uart-usb-board.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -447,12 +447,12 @@
             <File>
               <FileName>startup_stm32l151xb.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\..\src\boards\IntoRobot-Ant\cmsis\arm-std\startup_stm32l151xb.s</FilePath>
+              <FilePath>..\..\..\src\boards\IntoRobot-L6\cmsis\arm-std\startup_stm32l151xb.s</FilePath>
             </File>
             <File>
               <FileName>system_stm32l1xx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\IntoRobot-Ant\cmsis\system_stm32l1xx.c</FilePath>
+              <FilePath>..\..\..\src\boards\IntoRobot-L6\cmsis\system_stm32l1xx.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -462,17 +462,17 @@
             <File>
               <FileName>usbd_cdc_if.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\IntoRobot-Ant\usb\cdc\src\usbd_cdc_if.c</FilePath>
+              <FilePath>..\..\..\src\boards\IntoRobot-L6\usb\cdc\src\usbd_cdc_if.c</FilePath>
             </File>
             <File>
               <FileName>usbd_conf.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\IntoRobot-Ant\usb\cdc\src\usbd_conf.c</FilePath>
+              <FilePath>..\..\..\src\boards\IntoRobot-L6\usb\cdc\src\usbd_conf.c</FilePath>
             </File>
             <File>
               <FileName>usbd_desc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\src\boards\IntoRobot-Ant\usb\cdc\src\usbd_desc.c</FilePath>
+              <FilePath>..\..\..\src\boards\IntoRobot-L6\usb\cdc\src\usbd_desc.c</FilePath>
             </File>
           </Files>
         </Group>

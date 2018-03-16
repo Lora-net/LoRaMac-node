@@ -21,9 +21,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define         ID2                                 ( 0x1FF80054 )
 #define         ID3                                 ( 0x1FF80064 )
 
-/*!
- * LED GPIO pins objects
- */
 
 Gpio_t UsbDetect;
 
