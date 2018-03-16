@@ -1,6 +1,9 @@
 lst/
 obj/
 bin/
+Listings/
+Objects/
+RTE/
 *.dep
 *.uvgui.*
 *.uvgui_*.bak
