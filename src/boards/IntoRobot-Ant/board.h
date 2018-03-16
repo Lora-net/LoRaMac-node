@@ -32,12 +32,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "uart.h"
 #include "radio.h"
 #include "sx1276/sx1276.h"
-// #include "mag3110.h"
-// #include "mma8451.h"
-// #include "mpl3115.h"
-// #include "sx9500.h"
-// #include "gps.h"
-// #include "gps-board.h"
 #include "rtc-board.h"
 #include "sx1276-board.h"
 #include "uart-board.h"
@@ -69,19 +63,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 /*!
  * Board IO Extender pins definitions
  */
-// #define IRQ_MPL3115                                 IOE_0
-// #define IRQ_MAG3110                                 IOE_1
-// #define GPS_POWER_ON                                IOE_2
-// #define RADIO_PUSH_BUTTON                           IOE_3
-// #define BOARD_POWER_DOWN                            IOE_4
-// #define SPARE_IO_EXT_5                              IOE_5
-// #define SPARE_IO_EXT_6                              IOE_6
-// #define SPARE_IO_EXT_7                              IOE_7
-// #define N_IRQ_SX9500                                IOE_8
-// #define IRQ_1_MMA8451                               IOE_9
-// #define IRQ_2_MMA8451                               IOE_10
-// #define TX_EN_SX9500                                IOE_11
-
 #define RGB_R_LED                                      PA_0
 #define RGB_G_LED                                      PA_1
 #define RGB_B_LED                                      PB_12
@@ -104,15 +85,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define RADIO_DIO_4                                 PB_7
 #define RADIO_DIO_5                                 PB_8
 
-// #define RADIO_ANT_SWITCH_HF                         PA_0
-// #define RADIO_ANT_SWITCH_LF                         PA_1
 #define RADIO_ANT_SWITCH                            PA_8 //高收低发
-
-// #define OSC_LSE_IN                                  PC_14
-// #define OSC_LSE_OUT                                 PC_15
-
-// #define OSC_HSE_IN                                  PH_0
-// #define OSC_HSE_OUT                                 PH_1
 
 #define USB_DM                                      PA_11
 #define USB_DP                                      PA_12
@@ -120,31 +93,12 @@ Maintainer: Miguel Luis and Gregory Cristian
 #define I2C_SCL                                     PB_10
 #define I2C_SDA                                     PB_11
 
-// #define BOOT_1                                      PB_2
 
-// #define GPS_PPS                                     PB_1
 #define UART_TX                                     PA_9
 #define UART_RX                                     PA_10
 
-// #define DC_DC_EN                                    PB_8
 #define BAT_LEVEL_PIN                               PA_3
 #define BAT_LEVEL_CHANNEL                           ADC_CHANNEL_6
-
-// #define WKUP1                                       PA_8
-// #define USB_ON                                      PA_2
-
-// #define RF_RXTX                                     PA_3
-// #define RF_RXTX                                     PA_8
-
-// #define SWDIO                                       PA_13
-// #define SWCLK                                       PA_14
-
-// #define TEST_POINT1                                 PB_12
-// #define TEST_POINT2                                 PB_13
-// #define TEST_POINT3                                 PB_14
-// #define TEST_POINT4                                 PB_15
-
-// #define PIN_NC                                      PB_5
 
 /*!
  * LED GPIO pins objects
@@ -153,10 +107,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 extern Gpio_t rgbRed;
 extern Gpio_t rgbGreen;
 extern Gpio_t rgbBlue;
-
-// extern Gpio_t Led2;
-// extern Gpio_t Led3;
-// extern Gpio_t Led4;
 
 /*!
  * MCU objects
