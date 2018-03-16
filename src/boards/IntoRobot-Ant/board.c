@@ -41,8 +41,8 @@ Uart_t Uart1;
 Uart_t UartUsb;
 #endif
 
-static uint8_t uartTxBuffer[UART_FIFO_TX_SIZE];
-static uint8_t uartRxBuffer[UART_FIFO_RX_SIZE];
+/* static uint8_t uartTxBuffer[UART_FIFO_TX_SIZE]; */
+/* static uint8_t uartRxBuffer[UART_FIFO_RX_SIZE]; */
 
 
 /*!

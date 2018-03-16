@@ -55,8 +55,6 @@ const struct Radio_s Radio =
 /*!
  * Antenna switch GPIO pins objects
  */
-Gpio_t AntSwitchLf;
-Gpio_t AntSwitchHf;
 Gpio_t AntSwitch;
 
 void SX1276IoInit( void )
@@ -186,19 +184,14 @@ void SX1276SetAntSwLowPower( bool status )
 
 void SX1276AntSwInit( void )
 {
-    /* GpioInit( &AntSwitch, RADIO_ANT_SWITCH, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 ); */
     GpioInit( &AntSwitch, RADIO_ANT_SWITCH, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
     GpioWrite( &AntSwitch, 1 );
-    /* GpioInit( &AntSwitchLf, RADIO_ANT_SWITCH_LF, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 ); */
-    /* GpioInit( &AntSwitchHf, RADIO_ANT_SWITCH_HF, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 ); */
 }
 
 void SX1276AntSwDeInit( void )
 {
     GpioInit( &AntSwitch, RADIO_ANT_SWITCH, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioWrite( &AntSwitch, 0 );
-    /* GpioInit( &AntSwitchLf, RADIO_ANT_SWITCH_LF, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 ); */
-    /* GpioInit( &AntSwitchHf, RADIO_ANT_SWITCH_HF, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 ); */
 }
 
 void SX1276SetAntSw( uint8_t opMode )
@@ -207,16 +200,12 @@ void SX1276SetAntSw( uint8_t opMode )
     {
     case RFLR_OPMODE_TRANSMITTER:
         GpioWrite( &AntSwitch, 0 );
-        /* GpioWrite( &AntSwitchLf, 0 ); */
-        /* GpioWrite( &AntSwitchHf, 1 ); */
         break;
     case RFLR_OPMODE_RECEIVER:
     case RFLR_OPMODE_RECEIVER_SINGLE:
     case RFLR_OPMODE_CAD:
     default:
         GpioWrite( &AntSwitch, 1 );
-        /* GpioWrite( &AntSwitchLf, 1 ); */
-        /* GpioWrite( &AntSwitchHf, 0 ); */
         break;
     }
 }
