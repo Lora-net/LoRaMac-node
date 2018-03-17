@@ -1,6 +1,9 @@
 lst/
 obj/
 bin/
+Listings/
+Objects/
+RTE/
 build/
 tmp/
 *.bin
@@ -22,6 +25,9 @@ tmp/
 *.pbxproj
 *.cogui
 *.comarker
+GPATH
+GRTAGS
+GTAGS
 .directory
 launch.json
 .cmaketools.json

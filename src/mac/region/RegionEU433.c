@@ -134,13 +134,23 @@ static uint8_t CountNbOfEnabledChannels( bool joined, uint8_t datarate, uint16_t
                 {
                     if( ( EU433_JOIN_CHANNELS & ( 1 << j ) ) == 0 )
                     {
+                        //lz-modify
+                        #ifdef USE_STANDARD_LORAWAN
+                        USBD_UsrLog("region eu433 use default channel join\r");
                         continue;
+                        #endif
+                        //end===
                     }
                 }
                 if( RegionCommonValueInRange( datarate, channels[i + j].DrRange.Fields.Min,
                                               channels[i + j].DrRange.Fields.Max ) == false )
                 { // Check if the current channel selection supports the given datarate
+                    //lz-modify
+                    #ifdef USE_STANDARD_LORAWAN
+                    USBD_UsrLog("region eu433 datarate is not supported\r");
                     continue;
+                    #endif
+                    //end===
                 }
                 if( bands[channels[i + j].Band].TimeOff > 0 )
                 { // Check if the band is available for transmission
@@ -551,6 +561,12 @@ bool RegionEU433RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
 
     Radio.SetChannel( frequency );
 
+    #if  0 
+    USBD_UsrLog("rx freq=%d\r",frequency);
+    USBD_UsrLog("bandwidth = %d\r",rxConfig->Bandwidth);
+    USBD_UsrLog("datarate = %d\r",phyDr);
+    USBD_UsrLog("rxContinuous = %d\r",rxConfig->RxContinuous);
+    #endif
     // Radio configuration
     if( dr == DR_7 )
     {
@@ -590,6 +606,13 @@ bool RegionEU433TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
 
     // Setup the radio frequency
     Radio.SetChannel( Channels[txConfig->Channel].Frequency );
+
+    #if 1
+    USBD_UsrLog("loramac tx frequency = %d\r",Channels[txConfig->Channel].Frequency);
+    USBD_UsrLog("tx power=%d\r",phyTxPower);
+    USBD_UsrLog("bandwidth=%d\r",bandwidth);
+    USBD_UsrLog("datarate=%d\r",phyDr);
+    #endif
 
     if( txConfig->Datarate == DR_7 )
     { // High Speed FSK channel
@@ -879,6 +902,12 @@ LoRaMacStatus_t RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_
     {
         // We found a valid channel
         *channel = enabledChannels[randr( 0, nbEnabledChannels - 1 )];
+        //lz-modify add
+        #ifndef USE_STANDARD_LORAWAN
+        USBD_UsrLog("region eu433 select datarate\r");
+        LoRaMacParams.ChannelsDatarate = randr( Channels[*channel].DrRange.Fields.Min, Channels[*channel].DrRange.Fields.Max );
+        #endif
+        //======
 
         *time = 0;
         return LORAMAC_STATUS_OK;
@@ -930,17 +959,23 @@ LoRaMacStatus_t RegionEU433ChannelAdd( ChannelAddParams_t* channelAdd )
         // Validate the datarate range for min: must be DR_0
         if( channelAdd->NewChannel->DrRange.Fields.Min > DR_0 )
         {
+            #ifdef USE_STANDARD_LORAWAN
             drInvalid = true;
+            #endif
         }
         // Validate the datarate range for max: must be DR_5 <= Max <= TX_MAX_DATARATE
         if( RegionCommonValueInRange( channelAdd->NewChannel->DrRange.Fields.Max, DR_5, EU433_TX_MAX_DATARATE ) == false )
         {
+            #ifdef USE_STANDARD_LORAWAN
             drInvalid = true;
+            #endif
         }
         // We are not allowed to change the frequency
         if( channelAdd->NewChannel->Frequency != Channels[id].Frequency )
         {
+            #ifdef USE_STANDARD_LORAWAN
             freqInvalid = true;
+            #endif
         }
     }
 
