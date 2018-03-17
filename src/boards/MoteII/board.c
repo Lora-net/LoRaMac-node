@@ -1,22 +1,44 @@
-/*
-  ______                              _
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Target board general functions implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/*!
+ * \file      board.c
+ *
+ * \brief     Target board general functions implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
+#include "stm32l0xx.h"
+#include "utilities.h"
+#include "gpio.h"
+#include "gpio-ioe.h"
+#include "adc.h"
+#include "spi.h"
+#include "i2c.h"
+#include "uart.h"
+#include "timer.h"
+#include "gps.h"
+#include "mpl3115.h"
+#include "mma8451.h"
+#include "board-config.h"
+#include "rtc-board.h"
+#include "sx1272-board.h"
 #include "board.h"
 
 /*!
- * Unique Devices IDs register set ( STM32L1xxx )
+ * Unique Devices IDs register set ( STM32L0xxx )
  */
 #define         ID1                                 ( 0x1FF80050 )
 #define         ID2                                 ( 0x1FF80054 )
@@ -35,6 +57,11 @@ Gpio_t Led3;
 Adc_t Adc;
 I2c_t I2c;
 Uart_t Uart1;
+
+/*!
+ * Flag to indicate the Status of LED3
+ */
+volatile uint8_t Led3Status = 1;
 
 /*!
  * Initializes the unused GPIO to a know status
@@ -75,11 +102,6 @@ static bool UsbIsConnected = false;
  * Flag to indicate if the SystemWakeupTime is Calibrated
  */
 static bool SystemWakeupTimeCalibrated = false;
-
-/*!
- * Flag to indicate the Status of LED3
- */
-volatile uint8_t Led3Status = 1;
 
 /*!
  * Callback indicating the end of the system wake-up time calibration
@@ -190,10 +212,10 @@ void BoardInitMcu( void )
         SystemClockReConfig( );
     }
 
-    I2cInit( &I2c, I2C_SCL, I2C_SDA );
+    I2cInit( &I2c, I2C_1, I2C_SCL, I2C_SDA );
     AdcInit( &Adc, BAT_LEVEL_PIN );
 
-    SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+    SpiInit( &SX1272.Spi, SPI_2, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX1272IoInit( );
 
     if( McuInitialized == false )
@@ -204,6 +226,15 @@ void BoardInitMcu( void )
             CalibrateSystemWakeupTime( );
         }
     }
+}
+
+void BoardResetMcu( void )
+{
+    BoardDisableIrq( );
+
+    //Restart system
+    NVIC_SystemReset( );
+
 }
 
 void BoardDeInitMcu( void )
@@ -448,6 +479,16 @@ uint8_t GetBoardPowerSource( void )
     }
 }
 
+#ifdef __GNUC__
+int __io_putchar( int c )
+#else /* __GNUC__ */
+int fputc( int c, FILE *stream )
+#endif
+{
+    while( UartPutChar( &Uart1, c ) != 0 );
+    return c;
+}
+
 #ifdef USE_FULL_ASSERT
 /*
  * Function Name  : assert_failed
@@ -461,9 +502,9 @@ uint8_t GetBoardPowerSource( void )
 void assert_failed( uint8_t* file, uint32_t line )
 {
     /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %u\r\n", file, line) */
+     ex: printf("Wrong parameters value: file %s on line %lu\r\n", file, line) */
 
-    printf( "Wrong parameters value: file %s on line %u\r\n", ( const char* )file, line );
+    printf( "Wrong parameters value: file %s on line %lu\r\n", ( const char* )file, line );
     /* Infinite loop */
     while( 1 )
     {

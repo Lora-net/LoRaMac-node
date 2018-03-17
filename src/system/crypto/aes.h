@@ -31,6 +31,8 @@
 #ifndef AES_H
 #define AES_H
 
+#include <stdint.h>
+
 #if 1
 #  define AES_ENC_PREKEYED  /* AES encryption with a precomputed key schedule  */
 #endif

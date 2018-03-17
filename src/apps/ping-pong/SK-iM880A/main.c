@@ -1,19 +1,30 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Ping-Pong implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/*!
+ * \file      main.c
+ *
+ * \brief     Ping-Pong implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
 #include <string.h>
 #include "board.h"
+#include "gpio.h"
+#include "delay.h"
+#include "timer.h"
 #include "radio.h"
 
 #if defined( REGION_AS923 )
@@ -111,6 +122,12 @@ int8_t SnrValue = 0;
  * Radio events function pointer
  */
 static RadioEvents_t RadioEvents;
+
+/*!
+ * LED GPIO pins objects
+ */
+extern Gpio_t Led3;
+extern Gpio_t Led4;
 
 /*!
  * \brief Function to be executed on Radio Tx Done event

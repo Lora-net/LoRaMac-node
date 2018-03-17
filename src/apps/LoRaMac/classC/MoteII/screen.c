@@ -1,21 +1,28 @@
-/*
-  ______                              _
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2016 Semtech
-
-Description: Screen management.
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
-#include "board.h"
-
-#include "LoRaMac.h"
+/*!
+ * \file      screen.c
+ *
+ * \brief     Screen management
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
+#include "delay.h"
+#include "gps.h"
+#include "display-board.h"
 
 #include "buttons.h"
 #include "screen.h"
@@ -27,6 +34,7 @@ const uint8_t RxSlotGlyph[][8] =
 {
     { 0x00, 0x08, 0x38, 0x08, 0x08, 0x08, 0x08, 0x3E }, // 1
     { 0x00, 0x18, 0x24, 0x04, 0x0C, 0x18, 0x30, 0x7E }, // 2
+    { 0x00, 0x33, 0x4B, 0x08, 0x18, 0x30, 0x60, 0xFC }, // 2+
     { 0x00, 0x7C, 0x22, 0x22, 0x3C, 0x20, 0x20, 0x78 }, // P
 };
 

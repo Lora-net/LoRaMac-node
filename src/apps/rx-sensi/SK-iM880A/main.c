@@ -1,23 +1,33 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Radio sensitivity test.
-             When LED1 stops blinking LoRa packets aren't received any more and
-             the sensitivity level has been reached.
-             By reading the RF generator output power we can estimate the board
-             sensitivity.
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
-#include <string.h>
+/*!
+ * \file      main.c
+ *
+ * \brief     Radio sensitivity test
+ *
+ * \remark    When LED1 stops blinking LoRa packets aren't received any more and
+ *            the sensitivity level has been reached.
+ *            By reading the RF generator output power we can estimate the board
+ *            sensitivity
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ */
 #include "board.h"
+#include "gpio.h"
+#include "timer.h"
 #include "radio.h"
 
 #if defined( REGION_AS923 )
@@ -88,6 +98,11 @@ Maintainer: Miguel Luis and Gregory Cristian
  * Radio events function pointer
  */
 static RadioEvents_t RadioEvents;
+
+/*!
+ * LED GPIO pins objects
+ */
+extern Gpio_t Led4;
 
 /*!
  * \brief Function to be executed on Radio Rx Done event

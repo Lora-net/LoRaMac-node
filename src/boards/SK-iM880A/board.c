@@ -1,17 +1,40 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Target board general functions implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
-*/
+/*!
+ * \file      board.c
+ *
+ * \brief     Target board general functions implementation
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2017 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ *
+ * \author    Gregory Cristian ( Semtech )
+ *
+ * \author    Andreas Pella ( IMST GmbH )
+ */
+#include "stm32l1xx.h"
+#include "utilities.h"
+#include "delay.h"
+#include "gpio.h"
+#include "adc.h"
+#include "spi.h"
+#include "i2c.h"
+#include "uart.h"
+#include "timer.h"
+#include "gps.h"
+#include "board-config.h"
+#include "rtc-board.h"
+#include "sx1272-board.h"
 #include "board.h"
 
 /*!
@@ -142,7 +165,7 @@ void BoardInitMcu( void )
 
     AdcInit( &Adc, POTI );
 
-    SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+    SpiInit( &SX1272.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX1272IoInit( );
 
     if( McuInitialized == false )
@@ -153,6 +176,15 @@ void BoardInitMcu( void )
             CalibrateSystemWakeupTime( );
         }
     }
+}
+
+void BoardResetMcu( void )
+{
+    BoardDisableIrq( );
+
+    //Restart system
+    NVIC_SystemReset( );
+
 }
 
 void BoardDeInitMcu( void )
@@ -194,13 +226,13 @@ void BoardGetUniqueId( uint8_t *id )
 #define POTI_MAX_LEVEL 900
 #define POTI_MIN_LEVEL 10
 
-uint8_t BoardMeasurePotiLevel( void )
+uint8_t BoardGetPotiLevel( void )
 {
     uint8_t potiLevel = 0;
     uint16_t vpoti = 0;
 
     // Read the current potentiometer setting
-    vpoti = AdcMcuReadChannel( &Adc , ADC_CHANNEL_3 );
+    vpoti = AdcReadChannel( &Adc , ADC_CHANNEL_3 );
 
     // check the limits
     if( vpoti >= POTI_MAX_LEVEL )
@@ -254,7 +286,7 @@ uint16_t BoardBatteryMeasureVolage( void )
     uint32_t batteryVoltage = 0;
 
     // Read the current Voltage
-    vref = AdcMcuReadChannel( &Adc , ADC_CHANNEL_17 );
+    vref = AdcReadChannel( &Adc , ADC_CHANNEL_17 );
 
     // We don't use the VREF from calibValues here.
     // calculate the Voltage in millivolt
@@ -434,6 +466,16 @@ uint8_t GetBoardPowerSource( void )
     return BATTERY_POWER;
 }
 
+#ifdef __GNUC__
+int __io_putchar( int c )
+#else /* __GNUC__ */
+int fputc( int c, FILE *stream )
+#endif
+{
+    while( UartPutChar( &Uart1, c ) != 0 );
+    return c;
+}
+
 #ifdef USE_FULL_ASSERT
 /*
  * Function Name  : assert_failed
@@ -447,9 +489,9 @@ uint8_t GetBoardPowerSource( void )
 void assert_failed( uint8_t* file, uint32_t line )
 {
     /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %u\r\n", file, line) */
+     ex: printf("Wrong parameters value: file %s on line %lu\r\n", file, line) */
 
-    printf( "Wrong parameters value: file %s on line %u\r\n", ( const char* )file, line );
+    printf( "Wrong parameters value: file %s on line %lu\r\n", ( const char* )file, line );
     /* Infinite loop */
     while( 1 )
     {

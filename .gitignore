@@ -4,6 +4,11 @@ bin/
 Listings/
 Objects/
 RTE/
+build/
+tmp/
+*.bin
+.kdev4
+*.log
 *.dep
 *.uvgui.*
 *.uvgui_*.bak
@@ -23,3 +28,6 @@ RTE/
 GPATH
 GRTAGS
 GTAGS
+.directory
+launch.json
+.cmaketools.json
