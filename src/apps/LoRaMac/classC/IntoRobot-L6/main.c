@@ -302,10 +302,10 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
     {
         AppDataSize = mcpsIndication->BufferSize; //保存数据大小
         memcpy1(AppData,mcpsIndication->Buffer,mcpsIndication->BufferSize);
-        USBD_UsrLog("receive data:");
+        USBD_UsrLog("receive data:\r");
         for(uint8_t i = 0; i < AppDataSize; i++)
         {
-            USBD_UsrLog("0x%x ",AppData[i]);
+            USBD_UsrLog("0x%x \r",AppData[i]);
         }
     }
 }

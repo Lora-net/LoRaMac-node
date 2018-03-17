@@ -17,7 +17,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "radio.h"
 
 //注释掉为接收模式
-#define RADIO_TX_ENABLED
+/* #define RADIO_TX_ENABLED */
 
 #define RF_FREQUENCY                                433000000 // Hz
 
@@ -55,7 +55,7 @@ const uint8_t PingMsg[] = "PING";
 const uint8_t PongMsg[] = "PONG";
 
 uint16_t BufferSize = BUFFER_SIZE;
-uint8_t Buffer[BUFFER_SIZE];
+uint8_t Buffer[BUFFER_SIZE] = {1,2,3,4,5,6,7,8};
 
 States_t State = LOWPOWER;
 
@@ -122,22 +122,25 @@ int main( void )
                                    LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
                                    0, true, 0, 0, LORA_IQ_INVERSION_ON, true );
 
-    #ifndef RADIO_TX_ENABLED
     Radio.Rx( 0 );
-    #endif
 
     USBD_UsrLog("version=0x%x\r\n", Radio.Read(0x42));
     USBD_UsrLog("sync word=0x%x\r\n", Radio.Read(0x39));
+    USBD_UsrLog("mode=0x%x\r\n", Radio.Read(0x1));
 
 
     while( 1 )
     {
         #ifdef RADIO_TX_ENABLED
-        Buffer[0] = 'P';
-        Buffer[1] = 'I';
-        Buffer[2] = 'N';
-        Buffer[3] = 'G';
-        Radio.Send(Buffer, 4);
+        if(Buffer[0] != 255)
+        {
+            Buffer[0]++;
+        }
+        else
+        {
+            Buffer[0] = 0;
+        }
+        Radio.Send(Buffer, 8);
         DelayMs(1000);
         #endif
     }
@@ -158,12 +161,13 @@ void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
     RssiValue = rssi;
     SnrValue = snr;
     State = RX;
+    USBD_UsrLog("rssi = %d\r", RssiValue);
+    USBD_UsrLog("snr = %d\r", SnrValue);
     USBD_UsrLog("radio rx done\r");
-    if( strncmp( ( const char* )Buffer, ( const char* )PingMsg, 4 ) == 0 )
+    for (uint8_t i = 0; i < BufferSize; i++)
     {
-        USBD_UsrLog("rx data is Ping\r");
+        USBD_UsrLog("0x%x \r", Buffer[i]);
     }
-
     Radio.Rx(0);
 }
 
