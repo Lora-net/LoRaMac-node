@@ -397,8 +397,7 @@ bool RegionUS915ChanMaskSet( ChanMaskSetParams_t* chanMaskSet )
     uint8_t nbChannels = RegionCommonCountChannels( chanMaskSet->ChannelsMaskIn, 0, 4 );
 
     // Check the number of active channels
-    if( ( nbChannels < 2 ) &&
-        ( nbChannels > 0 ) )
+    if( nbChannels == 1 )
     {
         return false;
     }
