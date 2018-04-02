@@ -1019,6 +1019,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
                     // will be handled in function OnMacStateCheckTimerEvent.
                     if( McpsConfirm.McpsRequest == MCPS_CONFIRMED )
                     {
+                        McpsIndication.McpsIndication = MCPS_CONFIRMED;
                         if( fCtrl.Bits.Ack == 1 )
                         {// Reset MacCommandsBufferIndex when we have received an ACK.
                             MacCommandsBufferIndex = 0;
