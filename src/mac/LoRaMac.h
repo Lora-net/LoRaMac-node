@@ -987,6 +987,10 @@ typedef struct sMcpsIndication
      * The downlink counter value for the received frame
      */
     uint32_t DownLinkCounter;
+    /*!
+     * The devAddr value for the received frame
+     */
+    uint32_t DevAddr;
 }McpsIndication_t;
 
 /*!
