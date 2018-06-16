@@ -53,11 +53,10 @@
 /*!
  * LED GPIO pins objects
  */
-Gpio_t Led_rgb_r;
-Gpio_t Led_rgb_g;
-Gpio_t Led_rgb_b;
-
-Gpio_t UsbDetect;
+Gpio_t Led1;
+Gpio_t Led2;
+Gpio_t Led3;
+Gpio_t Led4;
 
 /*
  * MCU objects
@@ -139,14 +138,17 @@ void BoardInitPeriph( void )
     Gpio_t ioPin;
 
     // Init the GPIO pins
-    GpioInit( &Led_rgb_r, LED_RGB_R, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &Led_rgb_g, LED_RGB_G, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &Led_rgb_b, LED_RGB_B, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &ioPin, RADIO_PUSH_BUTTON, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &Led3, LED_3, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &Led4, LED_4, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 
     // Switch LED 1, 2, 3, 4 OFF
-    GpioWrite( &Led_rgb_r, 1 );
-    GpioWrite( &Led_rgb_g, 1 );
-    GpioWrite( &Led_rgb_b, 1 );
+    GpioWrite( &Led1, 1 );
+    GpioWrite( &Led2, 1 );
+    GpioWrite( &Led3, 1 );
+    GpioWrite( &Led4, 1 );
 }
 
 void BoardInitMcu( void )
@@ -221,6 +223,12 @@ void BoardDeInitMcu( void )
 
     SpiDeInit( &SX1276.Spi );
     SX1276IoDeInit( );
+
+    GpioInit( &ioPin, OSC_HSE_IN, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &ioPin, OSC_HSE_OUT, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+
+    GpioInit( &ioPin, OSC_LSE_IN, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &ioPin, OSC_LSE_OUT, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 }
 
 uint32_t BoardGetRandomSeed( void )
@@ -332,14 +340,6 @@ static void BoardUnusedIoInit( void )
         GpioInit( &ioPin, USB_DP, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     }
 
-    GpioInit( &ioPin, TEST_POINT1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &ioPin, TEST_POINT2, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &ioPin, TEST_POINT3, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &ioPin, TEST_POINT4, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-
-    GpioInit( &ioPin, PIN_NC, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-
-    GpioInit( &ioPin, RF_RXTX, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &ioPin, WKUP1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 
 #if defined( USE_DEBUGGER )

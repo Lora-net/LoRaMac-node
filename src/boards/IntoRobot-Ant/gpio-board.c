@@ -30,49 +30,47 @@ static GpioIrqHandler *GpioIrq[16];
 
 void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, PinTypes type, uint32_t value )
 {
-    if( pin < IOE_0 )
-    {
-        GPIO_InitTypeDef GPIO_InitStructure;
-
-        obj->pin = pin;
-
+    GPIO_InitTypeDef GPIO_InitStructure;
+    
+    obj->pin = pin;
+    
         if( pin == NC )
         {
             return;
         }
-
+    
         obj->pinIndex = ( 0x01 << ( obj->pin & 0x0F ) );
-
+        
         if( ( obj->pin & 0xF0 ) == 0x00 )
         {
             obj->port = GPIOA;
-            __HAL_RCC_GPIOA_CLK_ENABLE( );
+                __HAL_RCC_GPIOA_CLK_ENABLE( );
         }
         else if( ( obj->pin & 0xF0 ) == 0x10 )
         {
             obj->port = GPIOB;
-            __HAL_RCC_GPIOB_CLK_ENABLE( );
+                __HAL_RCC_GPIOB_CLK_ENABLE( );
         }
         else if( ( obj->pin & 0xF0 ) == 0x20 )
         {
             obj->port = GPIOC;
-            __HAL_RCC_GPIOC_CLK_ENABLE( );
+                __HAL_RCC_GPIOC_CLK_ENABLE( );
         }
         else if( ( obj->pin & 0xF0 ) == 0x30 )
         {
             obj->port = GPIOD;
-            __HAL_RCC_GPIOD_CLK_ENABLE( );
+                __HAL_RCC_GPIOD_CLK_ENABLE( );
         }
         else
         {
             obj->port = GPIOH;
-            __HAL_RCC_GPIOH_CLK_ENABLE( );
+                __HAL_RCC_GPIOH_CLK_ENABLE( );
         }
-
+    
         GPIO_InitStructure.Pin =  obj->pinIndex ;
         GPIO_InitStructure.Pull = obj->pull = type;
         GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-
+        
         if( mode == PIN_INPUT )
         {
             GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
@@ -104,21 +102,18 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
                 GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
             }
         }
-
+    
         // Sets initial output value
         if( mode == PIN_OUTPUT )
         {
             GpioMcuWrite( obj, value );
         }
-
+    
         HAL_GPIO_Init( obj->port, &GPIO_InitStructure );
-    }
 }
 
 void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriority, GpioIrqHandler *irqHandler )
 {
-    if( obj->pin < IOE_0 )
-    {
         uint32_t priority = 0;
 
         IRQn_Type IRQnb = EXTI0_IRQn;
@@ -207,13 +202,10 @@ void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriori
 
         HAL_NVIC_SetPriority( IRQnb , priority, 0 );
         HAL_NVIC_EnableIRQ( IRQnb );
-    }
 }
 
 void GpioMcuRemoveInterrupt( Gpio_t *obj )
 {
-    if( obj->pin < IOE_0 )
-    {
         GPIO_InitTypeDef   GPIO_InitStructure;
 
         GPIO_InitStructure.Pin =  obj->pinIndex ;
@@ -221,14 +213,11 @@ void GpioMcuRemoveInterrupt( Gpio_t *obj )
         HAL_GPIO_Init( obj->port, &GPIO_InitStructure );
 
         GpioIrq[( obj->pin ) & 0x0F] = NULL;
-    }
 }
 
 void GpioMcuWrite( Gpio_t *obj, uint32_t value )
 {
-    if( obj->pin < IOE_0 )
-    {
-        if( ( obj == NULL ) || ( obj->port == NULL ) )
+        if( obj == NULL )
         {
             assert_param( FAIL );
         }
@@ -238,14 +227,11 @@ void GpioMcuWrite( Gpio_t *obj, uint32_t value )
             return;
         }
         HAL_GPIO_WritePin( obj->port, obj->pinIndex , ( GPIO_PinState )value );
-    }
 }
 
 void GpioMcuToggle( Gpio_t *obj )
 {
-    if( obj->pin < IOE_0 )
-    {
-        if( ( obj == NULL ) || ( obj->port == NULL ) )
+        if( obj == NULL )
         {
             assert_param( FAIL );
         }
@@ -256,13 +242,10 @@ void GpioMcuToggle( Gpio_t *obj )
             return;
         }
         HAL_GPIO_TogglePin( obj->port, obj->pinIndex );
-    }
 }
 
 uint32_t GpioMcuRead( Gpio_t *obj )
 {
-    if( obj->pin < IOE_0 )
-    {
         if( obj == NULL )
         {
             assert_param( FAIL );
@@ -273,7 +256,6 @@ uint32_t GpioMcuRead( Gpio_t *obj )
             return 0;
         }
         return HAL_GPIO_ReadPin( obj->port, obj->pinIndex );
-    }
 }
 
 void EXTI0_IRQHandler( void )

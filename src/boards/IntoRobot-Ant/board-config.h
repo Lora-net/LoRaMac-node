@@ -58,9 +58,16 @@
 
 #define RF_RXTX                                     PA_8
 
-#define LED_RGB_R                                   PA_8
-#define LED_RGB_G                                   PA_8
-#define LED_RGB_B                                   PA_8
+#define OSC_LSE_IN                                  PC_14
+#define OSC_LSE_OUT                                 PC_15
+
+#define OSC_HSE_IN                                  PH_0
+#define OSC_HSE_OUT                                 PH_1
+
+#define LED_1                                       PA_2
+#define LED_2                                       PA_3
+#define LED_3                                       PA_7
+#define LED_4                                       PA_6
 
 #define RADIO_PUSH_BUTTON                           PB_2
 

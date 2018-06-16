@@ -31,9 +31,9 @@
 
 #ifndef ACTIVE_REGION
 
-#warning "No active region defined, LORAMAC_REGION_EU868 will be used as default."
+#warning "No active region defined, LORAMAC_REGION_EU433 will be used as default."
 
-#define ACTIVE_REGION LORAMAC_REGION_EU868
+#define ACTIVE_REGION LORAMAC_REGION_EU433
 
 #endif
 
@@ -64,19 +64,6 @@
  * \remark Please note that when ADR is enabled the end-device should be static
  */
 #define LORAWAN_ADR_ON                              1
-
-#if defined( REGION_EU868 )
-
-#include "LoRaMacTest.h"
-
-/*!
- * LoRaWAN ETSI duty cycle control enable/disable
- *
- * \remark Please note that ETSI mandates duty cycled transmissions. Use only for test purposes
- */
-#define LORAWAN_DUTYCYCLE_ON                        true
-
-#endif
 
 /*!
  * LoRaWAN application port
@@ -209,25 +196,14 @@ static void PrepareTxFrame( uint8_t port )
         switch( region )
         {
             case LORAMAC_REGION_CN470:
-            case LORAMAC_REGION_CN779:
             case LORAMAC_REGION_EU433:
-            case LORAMAC_REGION_EU868:
-            case LORAMAC_REGION_IN865:
-            case LORAMAC_REGION_KR920:
             {
                 uint16_t pressure = 0;
                 int16_t altitudeBar = 0;
                 int16_t temperature = 0;
-                int32_t latitude, longitude = 0;
+                int32_t latitude = 0, longitude = 0;
                 int16_t altitudeGps = 0xFFFF;
                 uint8_t batteryLevel = 0;
-
-                pressure = ( uint16_t )( MPL3115ReadPressure( ) / 10 );             // in hPa / 10
-                temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
-                altitudeBar = ( int16_t )( MPL3115ReadAltitude( ) * 10 );           // in m * 10
-                batteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
-                GpsGetLatestGpsPositionBinary( &latitude, &longitude );
-                altitudeGps = GpsGetLatestGpsAltitude( );                           // in m
 
                 AppDataSizeBackup = AppDataSize = 16;
                 AppData[0] = AppLedStateOn;
@@ -246,36 +222,6 @@ static void PrepareTxFrame( uint8_t port )
                 AppData[13] = longitude & 0xFF;
                 AppData[14] = ( altitudeGps >> 8 ) & 0xFF;
                 AppData[15] = altitudeGps & 0xFF;
-                break;
-            }
-            case LORAMAC_REGION_AS923:
-            case LORAMAC_REGION_AU915:
-            case LORAMAC_REGION_US915:
-            case LORAMAC_REGION_US915_HYBRID:
-            {
-                int16_t temperature = 0;
-                int32_t latitude, longitude = 0;
-                uint16_t altitudeGps = 0xFFFF;
-                uint8_t batteryLevel = 0;
-
-                temperature = ( int16_t )( MPL3115ReadTemperature( ) * 100 );       // in °C * 100
-
-                batteryLevel = BoardGetBatteryLevel( );                             // 1 (very low) to 254 (fully charged)
-                GpsGetLatestGpsPositionBinary( &latitude, &longitude );
-                altitudeGps = GpsGetLatestGpsAltitude( );                           // in m
-
-                AppDataSizeBackup = AppDataSize = 11;
-                AppData[0] = AppLedStateOn;
-                AppData[1] = temperature;                                           // Signed degrees celsius in half degree units. So,  +/-63 C
-                AppData[2] = batteryLevel;                                          // Per LoRaWAN spec; 0=Charging; 1...254 = level, 255 = N/A
-                AppData[3] = ( latitude >> 16 ) & 0xFF;
-                AppData[4] = ( latitude >> 8 ) & 0xFF;
-                AppData[5] = latitude & 0xFF;
-                AppData[6] = ( longitude >> 16 ) & 0xFF;
-                AppData[7] = ( longitude >> 8 ) & 0xFF;
-                AppData[8] = longitude & 0xFF;
-                AppData[9] = ( altitudeGps >> 8 ) & 0xFF;
-                AppData[10] = altitudeGps & 0xFF;
                 break;
             }
             default:
@@ -566,10 +512,6 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     mibReq.Param.AdrEnable = true;
                     LoRaMacMibSetRequestConfirm( &mibReq );
 
-#if defined( REGION_EU868 )
-                    LoRaMacTestSetDutyCycleOn( false );
-#endif
-                    GpsStop( );
                 }
             }
             else
@@ -588,10 +530,6 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     mibReq.Type = MIB_ADR;
                     mibReq.Param.AdrEnable = LORAWAN_ADR_ON;
                     LoRaMacMibSetRequestConfirm( &mibReq );
-#if defined( REGION_EU868 )
-                    LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
-#endif
-                    GpsStart( );
                     break;
                 case 1: // (iii, iv)
                     AppDataSize = 2;
@@ -635,10 +573,6 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         mibReq.Type = MIB_ADR;
                         mibReq.Param.AdrEnable = LORAWAN_ADR_ON;
                         LoRaMacMibSetRequestConfirm( &mibReq );
-#if defined( REGION_EU868 )
-                        LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
-#endif
-                        GpsStart( );
 
                         mlmeReq.Type = MLME_JOIN;
 
@@ -817,9 +751,6 @@ int main( void )
                 mibReq.Param.EnablePublicNetwork = LORAWAN_PUBLIC_NETWORK;
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
-#if defined( REGION_EU868 )
-                LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
-#endif
                 DeviceState = DEVICE_STATE_JOIN;
                 break;
             }
@@ -922,12 +853,6 @@ int main( void )
                 DeviceState = DEVICE_STATE_INIT;
                 break;
             }
-        }
-        if( GpsGetPpsDetectedState( ) == true )
-        {
-            // Switch LED 4 ON
-            GpioWrite( &Led4, 0 );
-            TimerStart( &Led4Timer );
         }
     }
 }

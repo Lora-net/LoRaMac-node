@@ -38,9 +38,10 @@ uint32_t JumpAddress;
  */
 Gpio_t RadioPushButton;
 
-Gpio_t Led_rgb_r;
-Gpio_t Led_rgb_g;
-Gpio_t Led_rgb_b;
+Gpio_t Led1;
+Gpio_t Led2;
+Gpio_t Led3;
+Gpio_t Led4;
 
 void SystemClockConfig( void );
 
@@ -70,9 +71,10 @@ int main( void )
 
     GpioInit( &RadioPushButton, RADIO_PUSH_BUTTON, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
 
-    GpioInit( &Led_rgb_r, LED_RGB_R, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &Led_rgb_g, LED_RGB_G, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &Led_rgb_b, LED_RGB_B, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &Led3, LED_3, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &Led4, LED_4, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
 
     if( GpioRead( &RadioPushButton ) == 0 )
     { /* Test if user code is programmed starting from address 0x08007000 */
@@ -103,13 +105,15 @@ int main( void )
     /* Main loop */
     while( 1 )
     {
-        GpioWrite( &Led_rgb_r, 0 );
-        GpioWrite( &Led_rgb_g, 0 );
-        GpioWrite( &Led_rgb_g, 0 );
+        GpioWrite( &Led1, 0 );
+        GpioWrite( &Led2, 0 );
+        GpioWrite( &Led3, 0 );
+        GpioWrite( &Led4, 0 );
         DelayLoop( 500 );
-        GpioWrite( &Led_rgb_r, 1 );
-        GpioWrite( &Led_rgb_g, 1 );
-        GpioWrite( &Led_rgb_b, 1 );
+        GpioWrite( &Led1, 1 );
+        GpioWrite( &Led2, 1 );
+        GpioWrite( &Led3, 1 );
+        GpioWrite( &Led4, 1 );
         DelayLoop( 500 );
     }
 }

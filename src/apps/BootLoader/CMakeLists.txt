@@ -29,7 +29,6 @@ file(GLOB ${PROJECT_NAME}_SOURCES
 
 list(APPEND ${PROJECT_NAME}_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/../../boards/${BOARD}/gpio-board.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../boards/${BOARD}/i2c-board.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_cortex.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../boards/mcu/stm32/STM32L1xx_HAL_Driver/Src/stm32l1xx_hal_flash.c"
@@ -51,9 +50,19 @@ list(APPEND ${PROJECT_NAME}_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/../../boards/${BOARD}/usb/dfu/src/usbd_dfu_flash.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../boards/mcu/stm32/STM32_USB_Device_Library/Class/DFU/Src/usbd_dfu.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../boards/mcu/stm32/sysIrqHandlers.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../boards/${BOARD}/cmsis/arm-gcc/startup_stm32l151xb.s"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../boards/${BOARD}/cmsis/system_stm32l1xx.c"
 )
+
+if(BOARD STREQUAL IntoRobot-Ant)
+list(APPEND ${PROJECT_NAME}_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../boards/${BOARD}/cmsis/arm-gcc/startup_stm32l151xba.s"
+)
+else()
+list(APPEND ${PROJECT_NAME}_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../boards/${BOARD}/i2c-board.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../boards/${BOARD}/cmsis/arm-gcc/startup_stm32l151xb.s"
+)
+endif()
 
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCES}
                             $<TARGET_OBJECTS:system>
