@@ -125,6 +125,21 @@ platforms are:
   * **EXTENSION HEADER** : Yes, all IMST iM880A module pins
   * **REMARK**  : None
 
+* IntoRobot-Ant
+    * **MCU**     : STM32L151CBU6A - 128K FLASH, 32K RAM, Timers, SPI, I2C,
+                            USART,
+                            USB 2.0 full-speed device/host/OTG controller,
+                            DAC, ADC, DMA
+    * **RADIO**   : SX1278
+    * **ANTENNA** : Connector for external antenna
+    * **BUTTONS** : Power ON/OFF, General purpose button
+    * **LEDS**    : 2
+    * **SENSORS** : Light Sensor
+    * **GPS**     : No
+    * **EXTENSION**: No
+    * **REMARK**  : None
+
+
 ## Usage
 
 A CMAKE building system is used in order to generate the right set of files to compile and debug the different projects.

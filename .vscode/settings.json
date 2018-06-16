@@ -42,7 +42,7 @@
 
         // Target board, the following boards are supported:
         // LoRaMote (Default), MoteII, NAMote72, NucleoL073, NucleoL152, SAML21, SensorNode and SK-iM880A.
-        "BOARD":"LoRaMote",
+        "BOARD":"IntoRobot-Ant",
 
         // MBED Radio shield selection. (Applies only to Nucleo platforms)
         // The following shields are supported:

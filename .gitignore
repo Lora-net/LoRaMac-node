@@ -25,3 +25,9 @@ tmp/
 .directory
 launch.json
 .cmaketools.json
+.DS_Store
+GPATH
+GRTAGS
+GTAGS
+GTAGS
+
