@@ -82,21 +82,6 @@ platforms are:
 * SAML21
   * [SAML21 platform documentation](Doc/SAML21-platform.md)
 
-* SK-iM880A ( IMST starter kit )
-  * **MCU**     : STM32L151CB - 128K FLASH, 10K RAM, Timers, SPI, I2C,
-                          USART,
-                          USB 2.0 full-speed device/host/OTG controller,
-                          DAC, ADC, DMA
-  * **RADIO**   : SX1272
-  * **ANTENNA** : Connector for external antenna
-  * **BUTTONS** : 1 Reset, 3 buttons + 2 DIP-Switch
-  * **LEDS**    : 3
-  * **SENSORS** : Potentiometer
-  * **GPS**     : Possible through pin header GPS module connection
-  * **SDCARD**  : No
-  * **EXTENSION HEADER** : Yes, all IMST iM880A module pins
-  * **REMARK**  : None
-
 ## Usage
 
 A CMAKE building system is used in order to generate the right set of files to compile and debug the different projects.

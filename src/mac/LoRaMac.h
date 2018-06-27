@@ -70,14 +70,6 @@
  * \example   classC/NucleoL152/main.c
  *            LoRaWAN class C application example for the NucleoL152.
  *
- * \example   classA/SK-iM880A/main.c
- *            LoRaWAN class A application example for the SK-iM880A.
- *
- * \example   classB/SK-iM880A/main.c
- *            LoRaWAN class B application example for the SK-iM880A.
- *
- * \example   classC/SK-iM880A/main.c
- *            LoRaWAN class C application example for the SK-iM880A.
  */
 #ifndef __LORAMAC_H__
 #define __LORAMAC_H__
