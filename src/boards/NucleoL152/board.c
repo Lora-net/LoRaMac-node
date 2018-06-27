@@ -20,6 +20,7 @@
  *
  * \author    Gregory Cristian ( Semtech )
  */
+#include "stdio.h"
 #include "stm32l1xx.h"
 #include "utilities.h"
 #include "gpio.h"
@@ -374,6 +375,16 @@ int fputc( int c, FILE *stream )
     while( UartPutChar( &Uart2, c ) != 0 );
     return c;
 }
+
+int _write(int fd, char *pBuffer, int size)// for gcc 
+{
+    //HAL_UART_Transmit(&Uart2, pBuffer, size, 0xff);
+    for (int i = 0; i < size; i++){
+        while( UartPutChar( &Uart2, pBuffer[i] ) != 0 );
+    }
+    return size;
+}
+
 
 #ifdef USE_FULL_ASSERT
 /*
