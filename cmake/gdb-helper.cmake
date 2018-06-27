@@ -76,7 +76,7 @@ function(generate_vscode_launch_openocd TARGET)
     set_property(CACHE OPENOCD_BOARD PROPERTY STRINGS ${OPENOCD_BOARD_LIST})
 
     # Set the OPENOCD_TARGET and OPENOCD_INTERFACE variables according to BOARD
-    if(BOARD STREQUAL LoRaMote OR  BOARD STREQUAL SensorNode OR BOARD STREQUAL SK-iM880A)
+    if(BOARD STREQUAL SensorNode OR BOARD STREQUAL SK-iM880A)
         set(OPENOCD_INTERFACE stlink-v2.cfg)
         set(OPENOCD_TARGET stm32l1.cfg)
     elseif(BOARD STREQUAL NAMote72 OR BOARD STREQUAL NucleoL152)

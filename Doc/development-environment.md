@@ -13,7 +13,7 @@ It allows to build the project either by using a command line terminal or by usi
     * Linux Arch: `pacman -S cmake`
   * Windows:
     * [CMake Download](https://cmake.org/download/)  
-     **Note**: Please ensure that CMake path is added to the system PATH variable.
+     **Note**: Please use the latest full release and ensure that CMake path is added to the system path variable. (On Windows 10 search for _Environment Variables_ at start menu and add your CMake installation path e.g. `C:\Program Files\CMake\bin` to `Path` variable )
   * OSX:
     * Homebrew: `brew install cmake`
 * GNU ARM-Toolchain
@@ -22,8 +22,12 @@ It allows to build the project either by using a command line terminal or by usi
     * Linux Arch: `pacman -S arm-none-eabi-gcc arm-none-eabi-newlib`
   * Windows:
     * [GNU Arm Embedded Toolchain](https://developer.arm.com/open-source/gnu-toolchain/gnu-rm)
-    * The Make utility is also required, one can use e.g. [MSYS2](http://www.msys2.org)  
-    **Note**: Please ensure that both paths are added to the system PATH variable.
+    * The Make utility is also required, one can use e.g. [MSYS2](http://www.msys2.org) or [MinGW](http://mingw.org/)
+        * With MSYS2:
+            * Follow the installation instructions provided by them.
+            * Install MinGW Make with `pacman -S mingw-w64-x86_64-make`.
+
+     **Note**: Please ensure that both paths are added to the system PATH variable. Add for example: `C:\msys64\mingw64\bin` and `C:\Program Files (x86)\GNU Tools ARM Embedded\6 2017-q2-update\bin` to `Path` variable.
   * OSX:
     * Homebrew: `brew tap ARMmbed/homebrew-formulae && brew install arm-none-eabi-gcc`
 * OpenOCD
@@ -110,9 +114,10 @@ Alternatively one can use a graphical interface to configure CMake, drop down me
 * `USE_DEBUGGER`- Enables debugger support. (Default ON)
 * `BOARD` - Target board choice.  
    The possible choices are:  
-     * LoRaMote (Default)
      * MoteII
      * NAMote72
+     * NucleoL073 (default)
+     * NucleoL152
      * SAML21
      * SensorNode
      * SK-iM880A
@@ -143,14 +148,8 @@ Alternatively one can use a graphical interface to configure CMake, drop down me
 1. OpenOCD  
     OpenOCD has to be started with parameters that depend on the used debugger device and target board.  
     Some examples are shown below:
-    * LoRaMote + STLinkV2:  
-    `openocd -f interface/stlink-v2.cfg  -f target/stm32l1.cfg`
-
     * MoteII + STLinkV2-1 (On board debugger):  
     `openocd -f interface/stlink-v2-1.cfg  -f target/stm32l0.cfg`
-
-    * LoRaMote + JLink:  
-    `openocd -f interface/jlink.cfg -c "transport select swd"  -f target/stm32l1.cfg`
 
     * SAML21 Xplained Pro (On board debugger, tested with openocd 0.10, did not work with 0.9):
     `openocd -f interface/cmsis-dap.cfg -f target/at91samdXX.cfg`
