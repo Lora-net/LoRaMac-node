@@ -10,7 +10,7 @@
         //     Linux   : /usr
         //     OSX     : /usr/local
         // It is required to uncomment and to fill the following line.
-        "TOOLCHAIN_PREFIX":"C:/PROGRA~2/GNUTOO~1/72017-~1",
+        //"TOOLCHAIN_PREFIX":"/path/to/toolchain",
 
         // In case your OpenOCD is not installed under the default path:
         //     Windows : C:/openocd/bin/openocd.exe
@@ -28,10 +28,10 @@
 
         // Select LoRaMac sub project. You can choose between:
         // classA, classB or classC.
-        "CLASS":"classB",
+        "CLASS":"classA",
 
         // Switch for Class B support of LoRaMac:
-        "CLASSB_ENABLED":"ON",
+        "CLASSB_ENABLED":"OFF",
 
         // Select the active region for which the stack will be initialized.
         // You can choose between:
@@ -44,7 +44,7 @@
         "MODULATION":"LORA",
 
         // Target board, the following boards are supported:
-        // MoteII, NAMote72, NucleoL073 (Default), NucleoL152, SAML21, SensorNode and SK-iM880A.
+        // MoteII, NAMote72, NucleoL073 (Default), NucleoL152, SAML21 and SK-iM880A.
         "BOARD":"NucleoL073",
 
         // MBED Radio shield selection. (Applies only to Nucleo platforms)

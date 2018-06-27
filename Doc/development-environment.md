@@ -107,10 +107,6 @@ Alternatively one can use a graphical interface to configure CMake, drop down me
    The possible choices are:
      * LORA
      * FSK
-* `USE_BOOTLOADER` - Enables Bootloader support. (Default OFF)  
-   **Note**: Only applicable to LoRaMote or SensorNode `BOARD` choice.
-* `USE_USB_CDC` - Enables USB-Uart support. (Default OFF)  
-   **Note**: Only applicable to LoRaMote or SensorNode `BOARD` choice.
 * `USE_DEBUGGER`- Enables debugger support. (Default ON)
 * `BOARD` - Target board choice.  
    The possible choices are:  
@@ -119,7 +115,6 @@ Alternatively one can use a graphical interface to configure CMake, drop down me
      * NucleoL073 (default)
      * NucleoL152
      * SAML21
-     * SensorNode
      * SK-iM880A
 * `REGION_EU868` - Enables support for the Region EU868 (Default ON)
 * `REGION_US915` - Enables support for the Region US915 (Default OFF)

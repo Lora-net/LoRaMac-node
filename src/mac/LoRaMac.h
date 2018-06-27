@@ -70,15 +70,6 @@
  * \example   classC/NucleoL152/main.c
  *            LoRaWAN class C application example for the NucleoL152.
  *
- * \example   classA/SensorNode/main.c
- *            LoRaWAN class A application example for the SensorNode.
- *
- * \example   classB/SensorNode/main.c
- *            LoRaWAN class B application example for the SensorNode.
- *
- * \example   classC/SensorNode/main.c
- *            LoRaWAN class C application example for the SensorNode.
- *
  * \example   classA/SK-iM880A/main.c
  *            LoRaWAN class A application example for the SK-iM880A.
  *

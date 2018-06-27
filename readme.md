@@ -82,20 +82,6 @@ platforms are:
 * SAML21
   * [SAML21 platform documentation](Doc/SAML21-platform.md)
 
-* SensorNode
-    * **MCU**     : STM32L151CBU6 - 128K FLASH, 16K RAM, Timers, SPI, I2C,
-                            USART,
-                            USB 2.0 full-speed device/host/OTG controller,
-                            DAC, ADC, DMA
-    * **RADIO**   : SX1276
-    * **ANTENNA** : Printed circuit antenna
-    * **BUTTONS** : Power ON/OFF, General purpose button
-    * **LEDS**    : 3
-    * **SENSORS** : Proximity, Magnetic, 3 axis Accelerometer, Pressure, Temperature
-    * **GPS**     : Yes, SIM39EA module
-    * **EXTENSION**: No
-    * **REMARK**  : None
-
 * SK-iM880A ( IMST starter kit )
   * **MCU**     : STM32L151CB - 128K FLASH, 10K RAM, Timers, SPI, I2C,
                           USART,

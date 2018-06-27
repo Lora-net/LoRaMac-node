@@ -23,7 +23,7 @@ cmake_minimum_required(VERSION 3.6)
 #---------------------------------------------------------------------------------------
 
 # Allow switching of target platform
-set(BOARD_LIST MoteII NAMote72 SensorNode SK-iM880A NucleoL073 NucleoL152 SAML21)
+set(BOARD_LIST MoteII NAMote72 SK-iM880A NucleoL073 NucleoL152 SAML21)
 set(BOARD NucleoL073 CACHE STRING "Default target platform is NucleoL073")
 set_property(CACHE BOARD PROPERTY STRINGS ${BOARD_LIST})
 
@@ -63,23 +63,6 @@ if(BOARD STREQUAL MoteII)
 
     # Configure radio
     set(RADIO sx1272 CACHE INTERNAL "Radio sx1272 selected")
-
-elseif(BOARD STREQUAL SensorNode)
-    # Configure toolchain for SensorNode
-    if(APPLICATION STREQUAL BootLoader)
-        set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/boards/SensorNode/cmsis/arm-gcc/stm32l151xb_flash_bootloader.ld)
-    elseif(USE_BOOTLOADER)
-        set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/boards/SensorNode/cmsis/arm-gcc/stm32l151xb_flash_offset.ld)
-    else()
-        set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/boards/SensorNode/cmsis/arm-gcc/stm32l151xb_flash.ld)
-    endif()
-    include(stm32l1)
-
-    # Build platform specific board implementation
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/SensorNode)
-
-    # Configure radio
-    set(RADIO sx1276 CACHE INTERNAL "Radio sx1276 selected")
 
 elseif(BOARD STREQUAL SK-iM880A)
     # Configure toolchain for LoRaMote
