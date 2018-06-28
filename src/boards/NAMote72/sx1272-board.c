@@ -209,11 +209,6 @@ void SX1272SetRfTxPower( int8_t power )
     Radio.Write( REG_PADAC, paDac );
 }
 
-uint8_t SX1272GetPaSelect( uint32_t channel )
-{
-    return RF_PACONFIG_PASELECT_RFO;
-}
-
 void SX1272SetAntSwLowPower( bool status )
 {
     if( RadioIsActive != status )

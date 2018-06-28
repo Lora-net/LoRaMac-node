@@ -28,6 +28,14 @@
 #include "sx1272-board.h"
 
 /*!
+ * \brief Gets the board PA selection configuration
+ *
+ * \param [IN] channel Channel frequency in Hz
+ * \retval PaSelect RegPaConfig PaSelect value
+ */
+static uint8_t SX1272GetPaSelect( uint32_t channel );
+
+/*!
  * Flag used to set the RF switch control pins in low power mode when the radio is not active.
  */
 static bool RadioIsActive = false;
@@ -218,7 +226,7 @@ void SX1272SetRfTxPower( int8_t power )
     SX1272Write( REG_PADAC, paDac );
 }
 
-uint8_t SX1272GetPaSelect( uint32_t channel )
+static uint8_t SX1272GetPaSelect( uint32_t channel )
 {
     return RF_PACONFIG_PASELECT_RFO;
 }

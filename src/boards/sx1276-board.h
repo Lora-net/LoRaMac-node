@@ -86,14 +86,6 @@ void SX1276Reset( void );
 void SX1276SetRfTxPower( int8_t power );
 
 /*!
- * \brief Gets the board PA selection configuration
- *
- * \param [IN] channel Channel frequency in Hz
- * \retval PaSelect RegPaConfig PaSelect value
- */
-uint8_t SX1276GetPaSelect( uint32_t channel );
-
-/*!
  * \brief Set the RF Switch I/Os pins in low power mode
  *
  * \param [IN] status enable or disable

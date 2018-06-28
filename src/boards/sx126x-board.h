@@ -104,12 +104,11 @@ uint8_t SX126xReadRegister( uint16_t address );
 void SX126xSetRfTxPower( int8_t power );
 
 /*!
- * \brief Gets the board PA selection configuration
+ * \brief Gets the device ID
  *
- * \param [IN] channel Channel frequency in Hz
- * \retval PaSelect RegPaConfig PaSelect value
+ * \retval id Connected device ID
  */
-uint8_t SX126xGetPaSelect( uint32_t channel );
+uint8_t SX126xGetDeviceId( void );
 
 /*!
  * \brief Initializes the RF Switch I/Os pins interface

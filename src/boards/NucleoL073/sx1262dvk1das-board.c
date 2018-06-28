@@ -233,7 +233,7 @@ void SX126xSetRfTxPower( int8_t power )
     SX126xSetTxParams( power, RADIO_RAMP_40_US );
 }
 
-uint8_t SX126xGetPaSelect( uint32_t channel )
+uint8_t SX126xGetDeviceId( void )
 {
     if( GpioRead( &DeviceSel ) == 1 )
     {
