@@ -27,6 +27,7 @@ enable_language(ASM)
 list(APPEND ${PROJECT_NAME}_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/board.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/delay-board.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/eeprom-board.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/gpio-board.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/rtc-board.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/spi-board.c"
@@ -77,9 +78,10 @@ set(CMAKE_C_FLAGS_DEBUG -DDEBUG)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../mcu
+    ${CMAKE_CURRENT_SOURCE_DIR}/../mcu/saml21
     ${CMAKE_CURRENT_SOURCE_DIR}/../mcu/saml21/saml21b/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../mcu/saml21/cmsis
-    ${CMAKE_CURRENT_SOURCE_DIR}/../mcu/saml21
     ${CMAKE_CURRENT_SOURCE_DIR}/../mcu/saml21/config
     ${CMAKE_CURRENT_SOURCE_DIR}/../mcu/saml21/Device_Startup
     ${CMAKE_CURRENT_SOURCE_DIR}/../mcu/saml21/hal/include
