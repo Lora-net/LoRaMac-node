@@ -166,17 +166,6 @@ static uint32_t UpLinkCounter = 0;
 static uint32_t DownLinkCounter = 0;
 
 /*!
- * IsPacketCounterFixed enables the MIC field tests by fixing the
- * UpLinkCounter value
- */
-static bool IsUpLinkCounterFixed = false;
-
-/*!
- * Used for test purposes. Disables the opening of the reception windows.
- */
-static bool IsRxWindowsEnabled = true;
-
-/*!
  * Indicates if the MAC layer has already joined a network.
  */
 static bool IsLoRaMacNetworkJoined = false;
@@ -677,33 +666,19 @@ static void OnRadioTxDone( void )
     }
 
     // Setup timers
-    if( IsRxWindowsEnabled == true )
+    TimerSetValue( &RxWindowTimer1, RxWindow1Delay );
+    TimerStart( &RxWindowTimer1 );
+    if( LoRaMacDeviceClass != CLASS_C )
     {
-        TimerSetValue( &RxWindowTimer1, RxWindow1Delay );
-        TimerStart( &RxWindowTimer1 );
-        if( LoRaMacDeviceClass != CLASS_C )
-        {
-            TimerSetValue( &RxWindowTimer2, RxWindow2Delay );
-            TimerStart( &RxWindowTimer2 );
-        }
-        if( ( LoRaMacDeviceClass == CLASS_C ) || ( NodeAckRequested == true ) )
-        {
-            getPhy.Attribute = PHY_ACK_TIMEOUT;
-            phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
-            TimerSetValue( &AckTimeoutTimer, RxWindow2Delay + phyParam.Value );
-            TimerStart( &AckTimeoutTimer );
-        }
+        TimerSetValue( &RxWindowTimer2, RxWindow2Delay );
+        TimerStart( &RxWindowTimer2 );
     }
-    else
+    if( ( LoRaMacDeviceClass == CLASS_C ) || ( NodeAckRequested == true ) )
     {
-        McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
-        LoRaMacConfirmQueueSetStatusCmn( LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT );
-
-        if( LoRaMacFlags.Value == 0 )
-        {
-            LoRaMacFlags.Bits.McpsReq = 1;
-        }
-        LoRaMacFlags.Bits.MacDone = 1;
+        getPhy.Attribute = PHY_ACK_TIMEOUT;
+        phyParam = RegionGetPhyParam( LoRaMacRegion, &getPhy );
+        TimerSetValue( &AckTimeoutTimer, RxWindow2Delay + phyParam.Value );
+        TimerStart( &AckTimeoutTimer );
     }
 
     // Verify if the last uplink was a join request
@@ -1417,12 +1392,7 @@ static void OnMacStateCheckTimerEvent( void )
                         }
 
                         ChannelsNbRepCounter = 0;
-
-                        if( IsUpLinkCounterFixed == false )
-                        {
-                            UpLinkCounter++;
-                        }
-
+                        UpLinkCounter++;
                         LoRaMacState &= ~LORAMAC_TX_RUNNING;
                     }
                     else
@@ -1441,10 +1411,7 @@ static void OnMacStateCheckTimerEvent( void )
             {
                 AckTimeoutRetry = false;
                 NodeAckRequested = false;
-                if( IsUpLinkCounterFixed == false )
-                {
-                    UpLinkCounter++;
-                }
+                UpLinkCounter++;
                 McpsConfirm.NbRetries = AckTimeoutRetriesCounter;
 
                 LoRaMacState &= ~LORAMAC_TX_RUNNING;
@@ -1482,10 +1449,7 @@ static void OnMacStateCheckTimerEvent( void )
                     McpsConfirm.AckReceived = false;
                     McpsConfirm.NbRetries = AckTimeoutRetriesCounter;
                     McpsConfirm.Datarate = LoRaMacParams.ChannelsDatarate;
-                    if( IsUpLinkCounterFixed == false )
-                    {
-                        UpLinkCounter++;
-                    }
+                    UpLinkCounter++;
                 }
             }
             else
@@ -1498,10 +1462,7 @@ static void OnMacStateCheckTimerEvent( void )
                 NodeAckRequested = false;
                 McpsConfirm.AckReceived = false;
                 McpsConfirm.NbRetries = AckTimeoutRetriesCounter;
-                if( IsUpLinkCounterFixed == false )
-                {
-                    UpLinkCounter++;
-                }
+                UpLinkCounter++;
             }
         }
     }
@@ -2429,8 +2390,6 @@ static void ResetMacParameters( void )
 
     MacCommandsBufferIndex = 0;
     MacCommandsBufferToRepeatIndex = 0;
-
-    IsRxWindowsEnabled = true;
 
     LoRaMacParams.ChannelsTxPower = LoRaMacParamsDefaults.ChannelsTxPower;
     LoRaMacParams.ChannelsDatarate = LoRaMacParamsDefaults.ChannelsDatarate;
@@ -3873,17 +3832,6 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
     return status;
 }
 
-void LoRaMacTestRxWindowsOn( bool enable )
-{
-    IsRxWindowsEnabled = enable;
-}
-
-void LoRaMacTestSetMic( uint16_t txPacketCounter )
-{
-    UpLinkCounter = txPacketCounter;
-    IsUpLinkCounterFixed = true;
-}
-
 void LoRaMacTestSetDutyCycleOn( bool enable )
 {
     VerifyParams_t verify;
@@ -3894,9 +3842,4 @@ void LoRaMacTestSetDutyCycleOn( bool enable )
     {
         DutyCycleOn = enable;
     }
-}
-
-void LoRaMacTestSetChannel( uint8_t channel )
-{
-    Channel = channel;
 }
