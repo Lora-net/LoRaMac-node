@@ -113,6 +113,7 @@ static bool SystemWakeupTimeCalibrated = false;
  */
 static void OnCalibrateSystemWakeupTimeTimerEvent( void )
 {
+    RtcSetMcuWakeUpTime( );
     SystemWakeupTimeCalibrated = true;
 }
 

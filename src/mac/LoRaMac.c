@@ -283,7 +283,9 @@ static bool LastTxIsJoinRequest;
  */
 static TimerTime_t LoRaMacInitializationTime = 0;
 
-static TimerSysTime_t LastTxSysTime = { 0 };
+static SysTime_t LastTxSysTime = { 0 };
+
+static TimerTime_t LastRxDoneMs = 0;
 
 /*!
  * LoRaMac internal states
@@ -663,7 +665,7 @@ static void OnRadioTxDone( void )
     PhyParam_t phyParam;
     SetBandTxDoneParams_t txDone;
     TimerTime_t curTime = TimerGetCurrentTime( );
-    LastTxSysTime = TimerGetSysTime( );
+    LastTxSysTime = SysTimeGet( );
 
     if( LoRaMacDeviceClass != CLASS_C )
     {
@@ -775,6 +777,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
 
     uint8_t multicast = 0;
 
+    LastRxDoneMs = TimerGetCurrentTime( );
     bool isMicOk = false;
 
     McpsConfirm.AckReceived = false;
@@ -2174,37 +2177,35 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 }
                 break;
             case SRV_MAC_DEVICE_TIME_ANS:
-                {
-                    TimerTime_t currentTime = 0;
-                    TimerSysTime_t sysTimeAns = { 0 };
-                    TimerSysTime_t sysTime = { 0 };
-                    TimerSysTime_t sysTimeCurrent = { 0 };
+            {
+                SysTime_t gpsEpochTime = { 0 };
+                SysTime_t sysTime = { 0 };
+                SysTime_t sysTimeCurrent = { 0 };
 
-                    sysTimeAns.Seconds = ( uint32_t )payload[macIndex++];
-                    sysTimeAns.Seconds |= ( uint32_t )payload[macIndex++] << 8;
-                    sysTimeAns.Seconds |= ( uint32_t )payload[macIndex++] << 16;
-                    sysTimeAns.Seconds |= ( uint32_t )payload[macIndex++] << 24;
-                    sysTimeAns.SubSeconds = payload[macIndex++];
+                gpsEpochTime.Seconds = ( uint32_t )payload[macIndex++];
+                gpsEpochTime.Seconds |= ( uint32_t )payload[macIndex++] << 8;
+                gpsEpochTime.Seconds |= ( uint32_t )payload[macIndex++] << 16;
+                gpsEpochTime.Seconds |= ( uint32_t )payload[macIndex++] << 24;
+                gpsEpochTime.SubSeconds = payload[macIndex++];
 
-                    // Convert the fractional second received in ms
-                    // round( pow( 0.5, 8.0 ) * 1000 ) = 3.90625
-                    sysTimeAns.SubSeconds = sysTimeAns.SubSeconds * 3.90625;
+                // Convert the fractional second received in ms
+                // round( pow( 0.5, 8.0 ) * 1000 ) = 3.90625
+                gpsEpochTime.SubSeconds = ( int16_t )( ( ( int32_t )gpsEpochTime.SubSeconds * 1000 ) >> 8 );
 
-                    // Add Unix to Gps epcoh offset. The system time is based on Unix time.
-                    sysTimeAns.Seconds += UNIX_GPS_EPOCH_OFFSET;
+                // Copy received GPS Epoch time into system time
+                sysTime = gpsEpochTime;
+                // Add Unix to Gps epcoh offset. The system time is based on Unix time.
+                sysTime.Seconds += UNIX_GPS_EPOCH_OFFSET;
 
-                    // Compensate time difference between Tx Done time and now
-                    sysTimeCurrent = TimerGetSysTime( );
+                // Compensate time difference between Tx Done time and now
+                sysTimeCurrent = SysTimeGet( );
+                sysTime = SysTimeAdd( sysTimeCurrent, SysTimeSub( sysTime, LastTxSysTime ) );
 
-                    sysTime = TimerAddSysTime( sysTimeCurrent, TimerSubSysTime( sysTimeAns, LastTxSysTime ) );
-
-                    // Apply the new system time.
-                    TimerSetSysTime( sysTime );
-                    currentTime = TimerGetCurrentTime( );
-
-                    LoRaMacClassBDeviceTimeAns( currentTime );
-                }
+                // Apply the new system time.
+                SysTimeSet( sysTime );
+                LoRaMacClassBDeviceTimeAns( );
                 break;
+            }
             case SRV_MAC_PING_SLOT_INFO_ANS:
                 {
                     // According to the specification, it is not allowed to process this answer in
@@ -2240,7 +2241,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     beaconTimingDelay |= ( uint16_t )payload[macIndex++] << 8;
                     beaconTimingChannel = payload[macIndex++];
 
-                    LoRaMacClassBBeaconTimingAns( beaconTimingDelay, beaconTimingChannel );
+                    LoRaMacClassBBeaconTimingAns( beaconTimingDelay, beaconTimingChannel, LastRxDoneMs );
                 }
                 break;
             case SRV_MAC_BEACON_FREQ_REQ:

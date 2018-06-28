@@ -55,16 +55,9 @@ extern "C" {
 
 /**************************************** MACROS******************************/
 
-#define TIMER_CORRECTION_TICKS          0U //32
-
-/* RTC_CLOCK_SELECTION_XOSC32K   1.024KHz from 32.768KHz external crystal oscillator */
-#define MS_TO_TICKS(n)                                  ((n) * 1.024)
-#define TICKS_TO_MS(n)                                  ((n) / 1.024)
-
-
 /**************************************** TYPES*****************************/
 
-typedef void (*hwTImerCallback_t) (void);
+typedef void (*HwTimerCallback_t) (void);
 
 /***************************************PROTOTYPES**************************/
 
@@ -78,8 +71,14 @@ void HwTimerInit(void);
 * expires.
 * \param callback Callback to be registered
 */
-void HwTimerSetCallback(hwTImerCallback_t newCallback);
+void HwTimerAlarmSetCallback(HwTimerCallback_t callback);
 
+/**
+* \brief This function is used to set the callback when the hw timer
+* overflows.
+* \param callback Callback to be registered
+*/
+void HwTimerOverflowSetCallback(HwTimerCallback_t callback);
 
 /**
 * \brief Loads the absolute timeout in terms of ticks into the hardware

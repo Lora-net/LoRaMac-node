@@ -37,6 +37,7 @@
 #ifndef __LORAMACCLASSB_H__
 #define __LORAMACCLASSB_H__
 
+#include "systime.h"
 /*!
  * States of the class B beacon acquisition and tracking
  */
@@ -478,15 +479,14 @@ uint8_t LoRaMacClassBPingSlotChannelReq( uint8_t datarate, uint32_t frequency );
  *
  * \param [IN] beaconTimingDelay The beacon timing delay
  * \param [IN] beaconTimingChannel The beacon timing channel
+ * \param [IN] lastRxDone The time of the last frame reception
  */
-void LoRaMacClassBBeaconTimingAns( uint16_t beaconTimingDelay, uint8_t beaconTimingChannel );
+void LoRaMacClassBBeaconTimingAns( uint16_t beaconTimingDelay, uint8_t beaconTimingChannel, TimerTime_t lastRxDone );
 
 /*!
  * \brief This function handles the ClassB DEVICE_TIME_ANS
- *
- * \param [IN] currentTime The current time base in ms
  */
-void LoRaMacClassBDeviceTimeAns( TimerTime_t currentTime );
+void LoRaMacClassBDeviceTimeAns( void );
 
 /*!
  * \brief This function handles the BEACON_FREQ_REQ

@@ -20,15 +20,26 @@
  *
  * \author    Gregory Cristian ( Semtech )
  */
+#include "utilities.h"
 #include "board.h"
 #include "rtc-board.h"
 #include "timer.h"
 
 /*!
- * This flag is used to loop through the main several times in order to be sure
- * that all pending events have been processed.
+ * Safely execute call back
  */
-volatile uint8_t HasLoopedThroughMain = 0;
+#define ExecuteCallBack( _callback_ ) \
+    do                                \
+    {                                 \
+        if( _callback_ == NULL )      \
+        {                             \
+            while( 1 );               \
+        }                             \
+        else                          \
+        {                             \
+            _callback_( );            \
+        }                             \
+    }while( 0 );
 
 /*!
  * Timers list head pointer
@@ -44,7 +55,7 @@ static TimerEvent_t *TimerListHead = NULL;
  * \param [IN]  obj Timer object to be become the new head
  * \param [IN]  remainingTime Remaining time of the previous head to be replaced
  */
-static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime );
+static void TimerInsertNewHeadTimer( TimerEvent_t *obj );
 
 /*!
  * \brief Adds a timer to the list.
@@ -55,7 +66,7 @@ static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime )
  * \param [IN]  obj Timer object to be added to the list
  * \param [IN]  remainingTime Remaining time of the running head after which the object may be added
  */
-static void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime );
+static void TimerInsertTimer( TimerEvent_t *obj );
 
 /*!
  * \brief Sets a timeout with the duration "timestamp"
@@ -72,27 +83,6 @@ static void TimerSetTimeout( TimerEvent_t *obj );
  */
 static bool TimerExists( TimerEvent_t *obj );
 
-/*!
- * \brief Read the timer value of the currently running timer
- *
- * \retval value current timer value
- */
-TimerTime_t TimerGetValue( void );
-
-void TimerSetSysTime( TimerSysTime_t sysTime )
-{
-    RtcSetSysTime( sysTime.Seconds, sysTime.SubSeconds );
-}
-
-TimerSysTime_t TimerGetSysTime( void )
-{
-    TimerSysTime_t sysTime = { 0 };
-
-    sysTime.Seconds = RtcGetSysTime( ( uint16_t* )&sysTime.SubSeconds );
-
-    return sysTime;
-}
-
 void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
 {
     obj->Timestamp = 0;
@@ -105,7 +95,6 @@ void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
 void TimerStart( TimerEvent_t *obj )
 {
     uint32_t elapsedTime = 0;
-    uint32_t remainingTime = 0;
 
     CRITICAL_SECTION_BEGIN( );
 
@@ -120,148 +109,111 @@ void TimerStart( TimerEvent_t *obj )
 
     if( TimerListHead == NULL )
     {
-        TimerInsertNewHeadTimer( obj, obj->Timestamp );
+        RtcSetTimerContext( );
+        // Inserts a timer at time now + obj->Timestamp
+        TimerInsertNewHeadTimer( obj );
     }
     else
     {
-        if( TimerListHead->IsRunning == true )
+        elapsedTime = RtcGetTimerElapsedTime( );
+        obj->Timestamp += elapsedTime;
+      
+        if( obj->Timestamp < TimerListHead->Timestamp )
         {
-            elapsedTime = TimerGetValue( );
-            if( elapsedTime > TimerListHead->Timestamp )
-            {
-                elapsedTime = TimerListHead->Timestamp; // security but should never occur
-            }
-            remainingTime = TimerListHead->Timestamp - elapsedTime;
+            TimerInsertNewHeadTimer( obj );
         }
         else
         {
-            remainingTime = TimerListHead->Timestamp;
-        }
-
-        if( obj->Timestamp < remainingTime )
-        {
-            TimerInsertNewHeadTimer( obj, remainingTime );
-        }
-        else
-        {
-             TimerInsertTimer( obj, remainingTime );
+            TimerInsertTimer( obj );
         }
     }
     CRITICAL_SECTION_END( );
 }
 
-static void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime )
+static void TimerInsertTimer( TimerEvent_t *obj )
 {
-    uint32_t aggregatedTimestamp = 0;      // hold the sum of timestamps
-    uint32_t aggregatedTimestampNext = 0;  // hold the sum of timestamps up to the next event
+    TimerEvent_t* cur = TimerListHead;
+    TimerEvent_t* next = TimerListHead->Next;
 
-    TimerEvent_t* prev = TimerListHead;
-    TimerEvent_t* cur = TimerListHead->Next;
-
-    if( cur == NULL )
-    { // obj comes just after the head
-        obj->Timestamp -= remainingTime;
-        prev->Next = obj;
-        obj->Next = NULL;
-    }
-    else
-    {
-        aggregatedTimestamp = remainingTime;
-        aggregatedTimestampNext = remainingTime + cur->Timestamp;
-
-        while( prev != NULL )
+    while( cur->Next != NULL )
+    {  
+        if( obj->Timestamp > next->Timestamp )
         {
-            if( aggregatedTimestampNext > obj->Timestamp )
-            {
-                obj->Timestamp -= aggregatedTimestamp;
-                if( cur != NULL )
-                {
-                    cur->Timestamp -= obj->Timestamp;
-                }
-                prev->Next = obj;
-                obj->Next = cur;
-                break;
-            }
-            else
-            {
-                prev = cur;
-                cur = cur->Next;
-                if( cur == NULL )
-                { // obj comes at the end of the list
-                    aggregatedTimestamp = aggregatedTimestampNext;
-                    obj->Timestamp -= aggregatedTimestamp;
-                    prev->Next = obj;
-                    obj->Next = NULL;
-                    break;
-                }
-                else
-                {
-                    aggregatedTimestamp = aggregatedTimestampNext;
-                    aggregatedTimestampNext = aggregatedTimestampNext + cur->Timestamp;
-                }
-            }
+            cur = next;
+            next = next->Next;
+        }
+        else
+        {
+            cur->Next = obj;
+            obj->Next = next;
+            return;
         }
     }
+    cur->Next = obj;
+    obj->Next = NULL;
 }
 
-static void TimerInsertNewHeadTimer( TimerEvent_t *obj, uint32_t remainingTime )
+static void TimerInsertNewHeadTimer( TimerEvent_t *obj )
 {
     TimerEvent_t* cur = TimerListHead;
 
     if( cur != NULL )
     {
-        cur->Timestamp = remainingTime - obj->Timestamp;
         cur->IsRunning = false;
     }
 
     obj->Next = cur;
-    obj->IsRunning = true;
     TimerListHead = obj;
     TimerSetTimeout( TimerListHead );
 }
 
 void TimerIrqHandler( void )
 {
-    uint32_t elapsedTime = 0;
+    TimerEvent_t* cur;
+    TimerEvent_t* next;
 
-    // Early out when TimerListHead is null to prevent null pointer
-    if ( TimerListHead == NULL )
-    {
-        return;
-    }
+    uint32_t old =  RtcGetTimerContext( );
+    uint32_t now =  RtcSetTimerContext( );
+    uint32_t deltaContext = now - old; // intentional wrap around
 
-    elapsedTime = TimerGetValue( );
-
-    if( elapsedTime >= TimerListHead->Timestamp )
-    {
-        TimerListHead->Timestamp = 0;
-    }
-    else
-    {
-        TimerListHead->Timestamp -= elapsedTime;
-    }
-
-    TimerListHead->IsRunning = false;
-
-    while( ( TimerListHead != NULL ) && ( TimerListHead->Timestamp == 0 ) )
-    {
-        TimerEvent_t* elapsedTimer = TimerListHead;
-        TimerListHead = TimerListHead->Next;
-
-        if( elapsedTimer->Callback != NULL )
-        {
-            elapsedTimer->Callback( );
-        }
-    }
-
-    // start the next TimerListHead if it exists
+    // Update timeStamp based upon new Time Reference
+    // because delta context should never exceed 2^32
     if( TimerListHead != NULL )
     {
-        if( TimerListHead->IsRunning != true )
+        for( cur = TimerListHead; cur->Next != NULL; cur = cur->Next )
         {
-            TimerListHead->IsRunning = true;
-            TimerSetTimeout( TimerListHead );
+            next = cur->Next;
+            if( next->Timestamp > deltaContext )
+            {
+                next->Timestamp -= deltaContext;
+            }
+            else
+            {
+                next->Timestamp = 0;
+            }
         }
+    }
+
+    // Execute immediately the alarm callback
+    if ( TimerListHead != NULL )
+    {
+        cur = TimerListHead;
+        TimerListHead = TimerListHead->Next;
+        ExecuteCallBack( cur->Callback );
+    }
+
+    // Remove all the expired object from the list
+    while( ( TimerListHead != NULL ) && ( TimerListHead->Timestamp < RtcGetTimerElapsedTime( ) ) )
+    {
+        cur = TimerListHead;
+        TimerListHead = TimerListHead->Next;
+        ExecuteCallBack( cur->Callback );
+    }
+
+    // Start the next TimerListHead if it exists AND NOT running
+    if( ( TimerListHead != NULL ) && ( TimerListHead->IsRunning == false ) )
+    {
+        TimerSetTimeout( TimerListHead );
     }
 }
 
@@ -269,13 +221,10 @@ void TimerStop( TimerEvent_t *obj )
 {
     CRITICAL_SECTION_BEGIN( );
 
-    uint32_t elapsedTime = 0;
-    uint32_t remainingTime = 0;
-
     TimerEvent_t* prev = TimerListHead;
     TimerEvent_t* cur = TimerListHead;
 
-    // List is empty or the Obj to stop does not exist
+    // List is empty or the obj to stop does not exist 
     if( ( TimerListHead == NULL ) || ( obj == NULL ) )
     {
         CRITICAL_SECTION_END( );
@@ -284,36 +233,25 @@ void TimerStop( TimerEvent_t *obj )
 
     if( TimerListHead == obj ) // Stop the Head
     {
-        if( TimerListHead->IsRunning == true ) // The head is already running
+        if( TimerListHead->IsRunning == true ) // The head is already running 
         {
-            elapsedTime = TimerGetValue( );
-            if( elapsedTime > obj->Timestamp )
-            {
-                elapsedTime = obj->Timestamp;
-            }
-
-            remainingTime = obj->Timestamp - elapsedTime;
-
             TimerListHead->IsRunning = false;
             if( TimerListHead->Next != NULL )
             {
                 TimerListHead = TimerListHead->Next;
-                TimerListHead->Timestamp += remainingTime;
-                TimerListHead->IsRunning = true;
                 TimerSetTimeout( TimerListHead );
             }
             else
             {
+                RtcStopAlarm( );
                 TimerListHead = NULL;
             }
         }
         else // Stop the head before it is started
-        {
+        {   
             if( TimerListHead->Next != NULL )
             {
-                remainingTime = obj->Timestamp;
                 TimerListHead = TimerListHead->Next;
-                TimerListHead->Timestamp += remainingTime;
             }
             else
             {
@@ -323,8 +261,6 @@ void TimerStop( TimerEvent_t *obj )
     }
     else // Stop an object within the list
     {
-        remainingTime = obj->Timestamp;
-
         while( cur != NULL )
         {
             if( cur == obj )
@@ -333,7 +269,6 @@ void TimerStop( TimerEvent_t *obj )
                 {
                     cur = cur->Next;
                     prev->Next = cur;
-                    cur->Timestamp += remainingTime;
                 }
                 else
                 {
@@ -375,36 +310,48 @@ void TimerReset( TimerEvent_t *obj )
 
 void TimerSetValue( TimerEvent_t *obj, uint32_t value )
 {
-    TimerStop( obj );
-    obj->Timestamp = value;
-    obj->ReloadValue = value;
-}
+    uint32_t minValue = 0;
+    uint32_t ticks = RtcMs2Tick( value );
 
-TimerTime_t TimerGetValue( void )
-{
-    return RtcGetElapsedAlarmTime( );
+    TimerStop( obj );
+
+    minValue = RtcGetMinimumTimeout( );
+
+    if( ticks < minValue )
+    {
+        ticks = minValue;
+    }
+
+    obj->Timestamp = ticks;
+    obj->ReloadValue = ticks;
 }
 
 TimerTime_t TimerGetCurrentTime( void )
 {
-    return RtcGetTimerValue( );
+    uint32_t now = RtcGetTimerValue( );
+    return  RtcTick2Ms( now );
 }
 
-TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime )
+TimerTime_t TimerGetElapsedTime( TimerTime_t past )
 {
-    return RtcComputeElapsedTime( savedTime );
-}
+    uint32_t nowInTicks = RtcGetTimerValue( );
+    uint32_t pastInTicks = RtcMs2Tick( past );
 
-TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture )
-{
-    return RtcComputeFutureEventTime( eventInFuture );
+    // Intentional wrap around. Works Ok if tick duration below 1ms
+    return RtcTick2Ms( nowInTicks - pastInTicks );
 }
 
 static void TimerSetTimeout( TimerEvent_t *obj )
 {
-    HasLoopedThroughMain = 0;
-    obj->Timestamp = RtcGetAdjustedTimeoutValue( obj->Timestamp );
-    RtcSetTimeout( obj->Timestamp );
+    int32_t minTicks= RtcGetMinimumTimeout( );
+    obj->IsRunning = true; 
+
+    //in case deadline too soon
+    if(obj->Timestamp  < ( RtcGetTimerElapsedTime( ) + minTicks) )
+    {
+        obj->Timestamp = RtcGetTimerElapsedTime( ) + minTicks;
+    }
+    RtcSetAlarm( obj->Timestamp );
 }
 
 TimerTime_t TimerTempCompensation( TimerTime_t period, float temperature )

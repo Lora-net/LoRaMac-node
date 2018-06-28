@@ -56,17 +56,14 @@
 
 
 /**************************************** MACROS*****************************/
+//#define USE_HWTMR_DEBUG
 
-#define COMPARE_COUNT_MAX_VALUE 0xFFFFFFFF
-
-/*TODO Remove after the fix for LORA_DEV-104*/
-#define RTC_COMPARE_MATCH_COUNT_ERROR   4 //TICKS
+#define COMPARE_COUNT_MAX_VALUE ( uint32_t )( -1 )
 
 /**************************************** GLOBALS*****************************/
 
-static bool callback_enabled = false;
-hwTImerCallback_t callback = NULL;
-static volatile uint32_t ticksPrevious=0,ticksCurrent = 0;
+HwTimerCallback_t HwTimerAlarmCallback = NULL;
+HwTimerCallback_t HwTimerOverflowCallback = NULL;
 
 #if defined( USE_HWTMR_DEBUG )
 Gpio_t DbgHwTmrPin;
@@ -90,8 +87,7 @@ void HwTimerInit(void)
     hri_rtcmode0_write_CTRLA_reg(RTC, RTC_MODE0_CTRLA_PRESCALER(0) |
                                  RTC_MODE0_CTRLA_COUNTSYNC);
     hri_rtcmode0_write_EVCTRL_reg(RTC, RTC_MODE0_EVCTRL_CMPEO0);
-    hri_rtcmode0_write_COMP_reg(RTC, 0, COMPARE_COUNT_MAX_VALUE);
-    hri_rtcmode0_write_COMP_reg(RTC, 1, COMPARE_COUNT_MAX_VALUE);
+    hri_rtcmode0_write_COMP_reg(RTC, 0, ( uint32_t )COMPARE_COUNT_MAX_VALUE);
     hri_rtcmode0_set_INTEN_CMP0_bit(RTC);
 
     NVIC_EnableIRQ(RTC_IRQn);
@@ -105,9 +101,19 @@ void HwTimerInit(void)
 * expires.
 * \param callback Callback to be registered
 */
-void HwTimerSetCallback(hwTImerCallback_t newCallback)
+void HwTimerAlarmSetCallback(HwTimerCallback_t callback)
 {
-    callback = newCallback;
+    HwTimerAlarmCallback = callback;
+}
+
+/**
+* \brief This function is used to set the callback when the hw timer
+* overflows.
+* \param callback Callback to be registered
+*/
+void HwTimerOverflowSetCallback(HwTimerCallback_t callback)
+{
+    HwTimerOverflowCallback = callback;
 }
 
 /**
@@ -120,7 +126,6 @@ bool HwTimerLoadAbsoluteTicks(uint32_t ticks)
     GpioWrite( &DbgHwTmrPin, 1 );
 #endif
 
-    callback_enabled = true;
     RTC_CRITICAL_SECTION_ENTER();
     hri_rtcmode0_write_COMP_reg(RTC, 0, ticks);
     hri_rtcmode0_wait_for_sync(RTC, RTC_MODE0_SYNCBUSY_MASK);
@@ -145,9 +150,7 @@ bool HwTimerLoadAbsoluteTicks(uint32_t ticks)
 uint32_t HwTimerGetTime(void)
 {
     hri_rtcmode0_wait_for_sync(RTC, RTC_MODE0_SYNCBUSY_COUNT);
-    ticksCurrent = hri_rtcmode0_read_COUNT_reg(RTC);
-
-    return ticksCurrent;
+    return hri_rtcmode0_read_COUNT_reg(RTC);
 }
 
 /**
@@ -155,7 +158,7 @@ uint32_t HwTimerGetTime(void)
 */
 void HwTimerDisable(void)
 {
-    callback_enabled = false;
+
 }
 
 /**
@@ -171,11 +174,18 @@ void RTC_Handler(void)
         GpioWrite( &DbgHwTmrPin, 0 );
 #endif
         hri_rtcmode0_clear_interrupt_CMP0_bit(RTC);
-        if (callback) {
-            callback();
+        if (HwTimerAlarmCallback != NULL) {
+            HwTimerAlarmCallback();
         }
         /* Clear interrupt flag */
     }
+    else if ( flag & RTC_MODE0_INTFLAG_OVF) {
+        hri_rtcmode0_clear_interrupt_OVF_bit(RTC);
+        if (HwTimerOverflowCallback != NULL) {
+            HwTimerOverflowCallback();
+        }
+    }
+
 }
 
 /* eof hw_timer.c */
