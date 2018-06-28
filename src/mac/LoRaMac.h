@@ -34,15 +34,6 @@
  *            layer and the supported features.
  * \{
  *
- * \example   classA/MoteII/main.c
- *            LoRaWAN class A application example for the MoteII.
- *
- * \example   classB/MoteII/main.c
- *            LoRaWAN class B application example for the MoteII.
- *
- * \example   classC/MoteII/main.c
- *            LoRaWAN class C application example for the MoteII.
- *
  * \example   classA/NAMote72/main.c
  *            LoRaWAN class A application example for the NAMote72.
  *

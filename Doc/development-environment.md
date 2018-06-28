@@ -110,7 +110,6 @@ Alternatively one can use a graphical interface to configure CMake, drop down me
 * `USE_DEBUGGER`- Enables debugger support. (Default ON)
 * `BOARD` - Target board choice.  
    The possible choices are:  
-     * MoteII
      * NAMote72
      * NucleoL073 (default)
      * NucleoL152
@@ -142,7 +141,7 @@ Alternatively one can use a graphical interface to configure CMake, drop down me
 1. OpenOCD  
     OpenOCD has to be started with parameters that depend on the used debugger device and target board.  
     Some examples are shown below:
-    * MoteII + STLinkV2-1 (On board debugger):  
+    * NucleoL073 + STLinkV2-1 (On board debugger):  
     `openocd -f interface/stlink-v2-1.cfg  -f target/stm32l0.cfg`
 
     * SAML21 Xplained Pro (On board debugger, tested with openocd 0.10, did not work with 0.9):
