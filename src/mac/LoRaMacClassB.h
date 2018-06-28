@@ -246,6 +246,7 @@ typedef struct sBeaconContext
      * Delay for next beacon in ms
      */
     TimerTime_t BeaconTimingDelay;
+    TimerTime_t TimeStamp;
 }BeaconContext_t;
 
 /*!
@@ -290,10 +291,6 @@ typedef struct sLoRaMacClassBParams
      * Pointer to the LoRaMac region definition
      */
     LoRaMacRegion_t *LoRaMacRegion;
-    /*!
-     * Pointer to the MacStateCheckTimer timer
-     */
-    TimerEvent_t *MacStateCheckTimer;
     /*!
      * Pointer to the LoRaMacParams structure
      */
@@ -527,5 +524,7 @@ void LoRaMacClassBStartRxSlots( void );
  * \param [IN] multicastChannel Related multicast channel
  */
 void LoRaMacClassBSetMulticastPeriodicity( MulticastParams_t* multicastChannel );
+
+void LoRaMacClassBProcess( void );
 
 #endif // __LORAMACCLASSB_H__

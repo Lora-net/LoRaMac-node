@@ -926,6 +926,8 @@ int main( void )
     {
         // Tick the RTC to execute callback in context of the main loop (in stead of the IRQ)
         TimerProcess( );
+        // Processes the LoRaMac events
+        LoRaMacProcess( );
 
         switch( DeviceState )
         {

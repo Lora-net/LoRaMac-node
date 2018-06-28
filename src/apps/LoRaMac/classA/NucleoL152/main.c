@@ -924,6 +924,9 @@ int main( void )
         {
             Radio.IrqProcess( );
         }
+        // Processes the LoRaMac events
+        LoRaMacProcess( );
+
         switch( DeviceState )
         {
             case DEVICE_STATE_INIT:

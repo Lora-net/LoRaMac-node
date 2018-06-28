@@ -1214,6 +1214,9 @@ int main( void )
 
     while( 1 )
     {
+        // Processes the LoRaMac events
+        LoRaMacProcess( );
+
         switch( DeviceState )
         {
             case DEVICE_STATE_INIT:

@@ -73,11 +73,6 @@
 #include "radio.h"
 
 /*!
- * Check the Mac layer state every MAC_STATE_CHECK_TIMEOUT in ms
- */
-#define MAC_STATE_CHECK_TIMEOUT                     1000
-
-/*!
  * Maximum number of times the MAC layer tries to get an acknowledge.
  */
 #define MAX_ACK_RETRIES                             8
@@ -2200,6 +2195,13 @@ static const uint8_t LoRaMacMaxEirpTable[] = { 8, 10, 12, 13, 14, 16, 18, 20, 21
  *          \ref LORAMAC_STATUS_REGION_NOT_SUPPORTED.
  */
 LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks, LoRaMacRegion_t region );
+
+/*!
+ * Processes the LoRaMac events.
+ *
+ * \remark This function must be called in the main loop.
+ */
+void LoRaMacProcess( void );
 
 /*!
  * \brief   Queries the LoRaMAC if it is possible to send the next frame with
