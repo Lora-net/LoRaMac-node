@@ -508,26 +508,26 @@ void SystemClockReConfig( void )
     __HAL_RCC_PWR_CLK_ENABLE( );
     __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE1 );
 
-    /* Enable HSE */
+    // Enable HSE
     __HAL_RCC_HSE_CONFIG( RCC_HSE_ON );
 
-    /* Wait till HSE is ready */
+    // Wait till HSE is ready
     while( __HAL_RCC_GET_FLAG( RCC_FLAG_HSERDY ) == RESET )
     {
     }
 
-    /* Enable PLL */
+    // Enable PLL
     __HAL_RCC_PLL_ENABLE( );
 
-    /* Wait till PLL is ready */
+    // Wait till PLL is ready
     while( __HAL_RCC_GET_FLAG( RCC_FLAG_PLLRDY ) == RESET )
     {
     }
 
-    /* Select PLL as system clock source */
+    // Select PLL as system clock source
     __HAL_RCC_SYSCLK_CONFIG ( RCC_SYSCLKSOURCE_PLLCLK );
 
-    /* Wait till PLL is used as system clock source */
+    // Wait till PLL is used as system clock source
     while( __HAL_RCC_GET_SYSCLK_SOURCE( ) != RCC_SYSCLKSOURCE_STATUS_PLLCLK )
     {
     }
