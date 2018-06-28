@@ -22,12 +22,15 @@
  */
 
 /*! \file classC/NucleoL152/main.c */
+#include <stdio.h>
 
 #include "utilities.h"
 #include "board.h"
 #include "gpio.h"
 #include "LoRaMac.h"
 #include "Commissioning.h"
+
+#define ACTIVE_REGION LORAMAC_REGION_AS923
 
 #ifndef ACTIVE_REGION
 
@@ -63,7 +66,7 @@
  *
  * \remark Please note that when ADR is enabled the end-device should be static
  */
-#define LORAWAN_ADR_ON                              1
+#define LORAWAN_ADR_ON                              0
 
 #if defined( REGION_EU868 )
 
@@ -835,6 +838,9 @@ int main( void )
                 mibReq.Param.IsNetworkJoined = true;
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
+                printf("ABP MODE, ");
+                printf("DevAddr=%08X\r\n",DevAddr);
+
                 DeviceState = DEVICE_STATE_SEND;
 #endif
                 break;
@@ -843,6 +849,7 @@ int main( void )
             {
                 if( NextTx == true )
                 {
+                    printf("---------SendFrame--------\r\n");
                     PrepareTxFrame( AppPort );
 
                     NextTx = SendFrame( );

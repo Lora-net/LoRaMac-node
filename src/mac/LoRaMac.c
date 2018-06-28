@@ -2143,6 +2143,7 @@ static bool IsFPortAllowed( uint8_t fPort )
 
 static void OpenContinuousRx2Window( void )
 {
+    RxWindow2Config.WindowTimeout = 0;
     OnRxWindow2TimerEvent( );
     RxSlot = RX_SLOT_WIN_CLASS_C;
 }
