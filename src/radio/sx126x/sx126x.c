@@ -40,7 +40,9 @@ typedef struct
 /*!
  * \brief Holds the internal operating mode of the radio
  */
-static RadioOperatingModes_t OperatingMode;
+//static RadioOperatingModes_t OperatingMode;
+RadioOperatingModes_t OperatingMode;
+
 
 /*!
  * \brief Stores the current packet type set in the radio
@@ -261,6 +263,8 @@ void SX126xSetTx( uint32_t timeout )
 void SX126xSetRx( uint32_t timeout )
 {
     uint8_t buf[3];
+
+    printf("SX126xSetRx()\r\n");
 
     OperatingMode = MODE_RX;
 

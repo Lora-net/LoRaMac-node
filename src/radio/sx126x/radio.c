@@ -29,6 +29,8 @@
 #include "sx126x-board.h"
 #include "board.h"
 
+extern RadioOperatingModes_t OperatingMode;
+
 /*!
  * \brief Initializes the radio
  *
@@ -1078,6 +1080,7 @@ void RadioIrqProcess( void )
 
         if( ( irqRegs & IRQ_TX_DONE ) == IRQ_TX_DONE )
         {
+            OperatingMode = MODE_STDBY_RC;
             TimerStop( &TxTimeoutTimer );
             if( ( RadioEvents != NULL ) && ( RadioEvents->TxDone != NULL ) )
             {
@@ -1089,6 +1092,11 @@ void RadioIrqProcess( void )
         {
             uint8_t size;
 
+            if( RxContinuous == false )
+            {
+                OperatingMode = MODE_STDBY_RC;
+            }
+            
             TimerStop( &RxTimeoutTimer );
             SX126xGetPayload( RadioRxPayload, &size , 255 );
             SX126xGetPacketStatus( &RadioPktStatus );
@@ -1100,6 +1108,10 @@ void RadioIrqProcess( void )
 
         if( ( irqRegs & IRQ_CRC_ERROR ) == IRQ_CRC_ERROR )
         {
+            if( RxContinuous == false )
+            {
+                OperatingMode = MODE_STDBY_RC;
+            }
             if( ( RadioEvents != NULL ) && ( RadioEvents->RxError ) )
             {
                 RadioEvents->RxError( );
@@ -1108,6 +1120,7 @@ void RadioIrqProcess( void )
 
         if( ( irqRegs & IRQ_CAD_DONE ) == IRQ_CAD_DONE )
         {
+            OperatingMode = MODE_STDBY_RC;
             if( ( RadioEvents != NULL ) && ( RadioEvents->CadDone != NULL ) )
             {
                 RadioEvents->CadDone( ( ( irqRegs & IRQ_CAD_ACTIVITY_DETECTED ) == IRQ_CAD_ACTIVITY_DETECTED ) );
@@ -1118,17 +1131,21 @@ void RadioIrqProcess( void )
         {
             if( SX126xGetOperatingMode( ) == MODE_TX )
             {
+                OperatingMode = MODE_STDBY_RC;
                 TimerStop( &TxTimeoutTimer );
                 if( ( RadioEvents != NULL ) && ( RadioEvents->TxTimeout != NULL ) )
                 {
+                    printf("HW--MODE_TX--IRQ_RX_TX_TIMEOUT\r\n");
                     RadioEvents->TxTimeout( );
                 }
             }
             else if( SX126xGetOperatingMode( ) == MODE_RX )
             {
+                OperatingMode = MODE_STDBY_RC;
                 TimerStop( &RxTimeoutTimer );
                 if( ( RadioEvents != NULL ) && ( RadioEvents->RxTimeout != NULL ) )
                 {
+                    printf("HW--IRQ_RX_TX_TIMEOUT\r\n");
                     RadioEvents->RxTimeout( );
                 }
             }
@@ -1154,8 +1171,10 @@ void RadioIrqProcess( void )
             TimerStop( &RxTimeoutTimer );
             if( ( RadioEvents != NULL ) && ( RadioEvents->RxTimeout != NULL ) )
             {
+                printf("HW--IRQ_HEADER_ERROR\r\n");
                 RadioEvents->RxTimeout( );
             }
         }
     }
 }
+

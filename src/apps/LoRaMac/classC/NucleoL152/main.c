@@ -849,6 +849,7 @@ int main( void )
             {
                 if( NextTx == true )
                 {
+                    printf("---------SendFrame--------\r\n");
                     PrepareTxFrame( AppPort );
 
                     NextTx = SendFrame( );
