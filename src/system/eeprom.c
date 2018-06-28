@@ -25,11 +25,21 @@
 
 uint8_t EepromWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
 {
+    // Boundary check
+    if( size > ( 0xFFFF - addr ) )
+    {
+        return 0;
+    }
     return EepromMcuWriteBuffer( addr, buffer, size );
 }
 
 uint8_t EepromReadBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
 {
+    // Boundary check
+    if( size > ( 0xFFFF - addr ) )
+    {
+        return 0;
+    }
     return EepromMcuReadBuffer( addr, buffer, size );
 }
 
