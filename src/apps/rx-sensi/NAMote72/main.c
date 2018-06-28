@@ -148,7 +148,7 @@ int main( void )
 
     while( 1 )
     {
-        TimerLowPowerHandler( );
+        BoardLowPowerHandler( );
     }
 }
 

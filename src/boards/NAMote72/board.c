@@ -35,6 +35,7 @@
 #include "mma8451.h"
 #include "sx9500.h"
 #include "board-config.h"
+#include "lpm-board.h"
 #include "rtc-board.h"
 #include "sx1272-board.h"
 #include "board.h"
@@ -206,6 +207,11 @@ void BoardInitMcu( void )
         BoardUnusedIoInit( );
 
         I2cInit( &I2c, I2C_1, I2C_SCL, I2C_SDA );
+        if( GetBoardPowerSource( ) == BATTERY_POWER )
+        {
+            // Disables OFF mode - Enables lowest power mode (STOP)
+            LpmSetOffMode( LPM_APPLI_ID, LPM_DISABLE );
+        }
     }
     else
     {
@@ -492,7 +498,7 @@ void CalibrateSystemWakeupTime( void )
         TimerStart( &CalibrateSystemWakeupTimeTimer );
         while( SystemWakeupTimeCalibrated == false )
         {
-            TimerLowPowerHandler( );
+
         }
     }
 }
@@ -543,6 +549,72 @@ uint8_t GetBoardPowerSource( void )
     {
         return USB_POWER;
     }
+}
+
+/**
+  * \brief Enters Low Power Stop Mode
+  *
+  * \note ARM exists the function when waking up
+  */
+void LpmEnterStopMode( void)
+{
+    CRITICAL_SECTION_BEGIN( );
+
+    BoardDeInitMcu( );
+
+    // Disable the Power Voltage Detector
+    HAL_PWR_DisablePVD( );
+
+    // Clear wake up flag
+    SET_BIT( PWR->CR, PWR_CR_CWUF );
+
+    // Enable Ultra low power mode
+    HAL_PWREx_EnableUltraLowPower( );
+
+    // Enable the fast wake up from Ultra low power mode
+    HAL_PWREx_EnableFastWakeUp( );
+
+    CRITICAL_SECTION_END( );
+
+    // Enter Stop Mode
+    HAL_PWR_EnterSTOPMode( PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI );
+}
+
+/*!
+ * \brief Exists Low Power Stop Mode
+ */
+void LpmExitStopMode( void )
+{
+    // Disable IRQ while the MCU is not running on HSI
+    CRITICAL_SECTION_BEGIN( );
+
+    // Initilizes the peripherals
+    BoardInitMcu( );
+
+    CRITICAL_SECTION_END( );
+}
+
+/*!
+ * \brief Enters Low Power Sleep Mode
+ *
+ * \note ARM exits the function when waking up
+ */
+void LpmEnterSleepMode( void)
+{
+    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+}
+
+void BoardLowPowerHandler( void )
+{
+    __disable_irq( );
+    /*!
+     * If an interrupt has occurred after __disable_irq( ), it is kept pending 
+     * and cortex will not enter low power anyway
+     */
+
+    LpmEnterLowPower( );
+
+    __enable_irq( );
 }
 
 #ifdef __GNUC__

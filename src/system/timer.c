@@ -407,25 +407,6 @@ static void TimerSetTimeout( TimerEvent_t *obj )
     RtcSetTimeout( obj->Timestamp );
 }
 
-void TimerLowPowerHandler( void )
-{
-    if( ( TimerListHead != NULL ) && ( TimerListHead->IsRunning == true ) )
-    {
-        if( HasLoopedThroughMain < 5 )
-        {
-            HasLoopedThroughMain++;
-        }
-        else
-        {
-            HasLoopedThroughMain = 0;
-            if( GetBoardPowerSource( ) == BATTERY_POWER )
-            {
-                RtcEnterLowPowerStopMode( );
-            }
-        }
-    }
-}
-
 TimerTime_t TimerTempCompensation( TimerTime_t period, float temperature )
 {
     return RtcTempCompensation( period, temperature );

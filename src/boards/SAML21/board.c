@@ -122,6 +122,19 @@ uint8_t GetBoardPowerSource( void )
     return USB_POWER;
 }
 
+void BoardLowPowerHandler( void )
+{
+    __disable_irq( );
+    /*!
+     * If an interrupt has occurred after __disable_irq( ), it is kept pending 
+     * and cortex will not enter low power anyway
+     */
+
+    // Call low power handling function.
+
+    __enable_irq( );
+}
+
 extern struct usart_sync_descriptor Usart0;
 
 /*

@@ -28,6 +28,7 @@
 #include "board.h"
 #include "timer.h"
 #include "gpio.h"
+#include "lpm-board.h"
 #include "rtc-board.h"
 
 /*!
@@ -495,15 +496,6 @@ TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime )
     }
 }
 
-void BlockLowPowerDuringTask ( bool status )
-{
-    if( status == true )
-    {
-        RtcRecoverMcuStatus( );
-    }
-    LowPowerDisableDuringTask = status;
-}
-
 void RtcEnterLowPowerStopMode( void )
 {
     if( ( LowPowerDisableDuringTask == false ) && ( RtcTimerEventAllowsLowPower == true ) )
@@ -891,7 +883,8 @@ void RTC_IRQHandler( void )
     HAL_RTC_DeactivateAlarm( &RtcHandle, RTC_ALARM_A );
     RtcRecoverMcuStatus( );
     RtcComputeWakeUpTime( );
-    BlockLowPowerDuringTask( false );
+    // Enable low power at irq
+    LpmSetStopMode( LPM_RTC_ID, LPM_ENABLE );
     TimerIrqHandler( );
 }
 

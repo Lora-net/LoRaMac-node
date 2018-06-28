@@ -155,7 +155,7 @@ int main( void )
 
     while( 1 )
     {
-        TimerLowPowerHandler( );
+        BoardLowPowerHandler( );
         // Process Radio IRQ
         if( Radio.IrqProcess != NULL )
         {

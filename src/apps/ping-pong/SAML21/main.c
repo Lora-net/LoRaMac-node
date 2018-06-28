@@ -319,7 +319,7 @@ int main( void )
             break;
         }
 
-        TimerLowPowerHandler( );
+        BoardLowPowerHandler( );
 
     }
 }

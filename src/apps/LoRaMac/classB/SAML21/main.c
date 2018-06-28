@@ -1007,7 +1007,7 @@ int main( void )
             case DEVICE_STATE_SLEEP:
             {
                 // Wake up through events
-                TimerLowPowerHandler( );
+                BoardLowPowerHandler( );
                 break;
             }
             default:

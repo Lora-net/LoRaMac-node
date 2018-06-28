@@ -124,23 +124,6 @@ TimerTime_t RtcComputeFutureEventTime( TimerTime_t futureEventInTime );
 TimerTime_t RtcComputeElapsedTime( TimerTime_t eventInTime );
 
 /*!
- * \brief This function blocks the MCU from going into low power mode
- *
- * \param [IN] status [true: Enable, false: Disable
- */
-void BlockLowPowerDuringTask ( bool status );
-
-/*!
- * \brief Sets the MCU into low power STOP mode
- */
-void RtcEnterLowPowerStopMode( void );
-
-/*!
- * \brief Restore the MCU to its normal operation mode
- */
-void RtcRecoverMcuStatus( void );
-
-/*!
  * \brief Computes the temperature compensation for a period of time on a
  *        specific temperature.
  *

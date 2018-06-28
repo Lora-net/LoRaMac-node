@@ -110,6 +110,11 @@ uint32_t BoardGetRandomSeed( void );
 void BoardGetUniqueId( uint8_t *id );
 
 /*!
+ * \brief Manages the entry into ARM cortex deep-sleep mode
+ */
+void BoardLowPowerHandler( void );
+
+/*!
  * \brief Get the board power source
  *
  * \retval value  power source [0: USB_POWER, 1: BATTERY_POWER]

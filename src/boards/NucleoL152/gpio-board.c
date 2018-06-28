@@ -325,49 +325,31 @@ uint32_t GpioMcuRead( Gpio_t *obj )
 
 void EXTI0_IRQHandler( void )
 {
-#if !defined( USE_NO_TIMER )
-    RtcRecoverMcuStatus( );
-#endif
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_0 );
 }
 
 void EXTI1_IRQHandler( void )
 {
-#if !defined( USE_NO_TIMER )
-    RtcRecoverMcuStatus( );
-#endif
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_1 );
 }
 
 void EXTI2_IRQHandler( void )
 {
-#if !defined( USE_NO_TIMER )
-    RtcRecoverMcuStatus( );
-#endif
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_2 );
 }
 
 void EXTI3_IRQHandler( void )
 {
-#if !defined( USE_NO_TIMER )
-    RtcRecoverMcuStatus( );
-#endif
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_3 );
 }
 
 void EXTI4_IRQHandler( void )
 {
-#if !defined( USE_NO_TIMER )
-    RtcRecoverMcuStatus( );
-#endif
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_4 );
 }
 
 void EXTI9_5_IRQHandler( void )
 {
-#if !defined( USE_NO_TIMER )
-    RtcRecoverMcuStatus( );
-#endif
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_5 );
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_6 );
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_7 );
@@ -377,9 +359,6 @@ void EXTI9_5_IRQHandler( void )
 
 void EXTI15_10_IRQHandler( void )
 {
-#if !defined( USE_NO_TIMER )
-    RtcRecoverMcuStatus( );
-#endif
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_10 );
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_11 );
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_12 );

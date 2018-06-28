@@ -25,6 +25,7 @@
 #include "gpio.h"
 #include "gps.h"
 #include "uart.h"
+#include "lpm-board.h"
 #include "rtc-board.h"
 #include "gps-board.h"
 
@@ -61,6 +62,9 @@ void GpsMcuOnPpsSignal( void )
 
     if( parseData == true )
     {
+        // Disables lowest power modes
+        LpmSetStopMode( LPM_GPS_ID , LPM_DISABLE );
+
         UartInit( &Uart1, UART_1, GPS_UART_TX, GPS_UART_RX );
         UartConfig( &Uart1, RX_ONLY, 9600, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
     }
@@ -147,7 +151,8 @@ void GpsMcuIrqNotify( UartNotifyId_t id )
                 NmeaString[NmeaStringSize++] = '\0';
                 GpsParseGpsData( ( int8_t* )NmeaString, NmeaStringSize );
                 UartDeInit( &Uart1 );
-                BlockLowPowerDuringTask ( false );
+                // Enables lowest power modes
+                LpmSetStopMode( LPM_GPS_ID , LPM_ENABLE );
             }
         }
     }

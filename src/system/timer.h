@@ -189,11 +189,6 @@ TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime );
 TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture );
 
 /*!
- * \brief Manages the entry into ARM cortex deep-sleep mode
- */
-void TimerLowPowerHandler( void );
-
-/*!
  * \brief Computes the temperature compensation for a period of time on a
  *        specific temperature.
  *

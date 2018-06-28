@@ -69,7 +69,6 @@ void GpsPpsHandler( bool *parseData )
     if( PpsCnt >= TRIGGER_GPS_CNT )
     {
         PpsCnt = 0;
-        BlockLowPowerDuringTask ( true );
         *parseData = true;
     }
 }

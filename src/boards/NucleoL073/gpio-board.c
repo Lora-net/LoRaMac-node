@@ -316,21 +316,18 @@ uint32_t GpioMcuRead( Gpio_t *obj )
 
 void EXTI0_1_IRQHandler( void )
 {
-    RtcRecoverMcuStatus( );
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_0 );
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_1 );
 }
 
 void EXTI2_3_IRQHandler( void )
 {
-    RtcRecoverMcuStatus( );
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_2 );
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_3 );
 }
 
 void EXTI4_15_IRQHandler( void )
 {
-    RtcRecoverMcuStatus( );
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_4 );
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_5 );
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_6 );

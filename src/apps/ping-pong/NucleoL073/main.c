@@ -325,7 +325,7 @@ int main( void )
             break;
         }
 
-        TimerLowPowerHandler( );
+        BoardLowPowerHandler( );
         // Process Radio IRQ
         if( Radio.IrqProcess != NULL )
         {
