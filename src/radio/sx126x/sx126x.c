@@ -81,7 +81,6 @@ void SX126xSetInterruptMode( void );
  */
 void SX126xProcessIrqs( void );
 
-
 void SX126xInit( DioIrqHandler dioIrq )
 {
     SX126xReset( );
@@ -225,6 +224,10 @@ void SX126xSetSleep( SleepParams_t sleepConfig )
 
     SX126xWriteCommand( RADIO_SET_SLEEP, &sleepConfig.Value, 1 );
     OperatingMode = MODE_SLEEP;
+#if defined( USE_RADIO_DEBUG )
+    SX126xDbgPinTxWrite( 0 );
+    SX126xDbgPinRxWrite( 0 );
+#endif
 }
 
 void SX126xSetStandby( RadioStandbyModes_t standbyConfig )
@@ -238,12 +241,20 @@ void SX126xSetStandby( RadioStandbyModes_t standbyConfig )
     {
         OperatingMode = MODE_STDBY_XOSC;
     }
+#if defined( USE_RADIO_DEBUG )
+    SX126xDbgPinTxWrite( 0 );
+    SX126xDbgPinRxWrite( 0 );
+#endif
 }
 
 void SX126xSetFs( void )
 {
     SX126xWriteCommand( RADIO_SET_FS, 0, 0 );
     OperatingMode = MODE_FS;
+#if defined( USE_RADIO_DEBUG )
+    SX126xDbgPinTxWrite( 0 );
+    SX126xDbgPinRxWrite( 0 );
+#endif
 }
 
 void SX126xSetTx( uint32_t timeout )
@@ -256,6 +267,9 @@ void SX126xSetTx( uint32_t timeout )
     buf[1] = ( uint8_t )( ( timeout >> 8 ) & 0xFF );
     buf[2] = ( uint8_t )( timeout & 0xFF );
     SX126xWriteCommand( RADIO_SET_TX, buf, 3 );
+#if defined( USE_RADIO_DEBUG )
+    SX126xDbgPinTxWrite( 1 );
+#endif
 }
 
 void SX126xSetRx( uint32_t timeout )
@@ -268,6 +282,9 @@ void SX126xSetRx( uint32_t timeout )
     buf[1] = ( uint8_t )( ( timeout >> 8 ) & 0xFF );
     buf[2] = ( uint8_t )( timeout & 0xFF );
     SX126xWriteCommand( RADIO_SET_RX, buf, 3 );
+#if defined( USE_RADIO_DEBUG )
+    SX126xDbgPinRxWrite( 1 );
+#endif
 }
 
 void SX126xSetRxBoosted( uint32_t timeout )
@@ -282,6 +299,9 @@ void SX126xSetRxBoosted( uint32_t timeout )
     buf[1] = ( uint8_t )( ( timeout >> 8 ) & 0xFF );
     buf[2] = ( uint8_t )( timeout & 0xFF );
     SX126xWriteCommand( RADIO_SET_RX, buf, 3 );
+#if defined( USE_RADIO_DEBUG )
+    SX126xDbgPinRxWrite( 1 );
+#endif
 }
 
 void SX126xSetRxDutyCycle( uint32_t rxTime, uint32_t sleepTime )

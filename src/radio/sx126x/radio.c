@@ -22,6 +22,7 @@
  */
 #include <math.h>
 #include <string.h>
+#include "utilities.h"
 #include "timer.h"
 #include "delay.h"
 #include "radio.h"

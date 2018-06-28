@@ -136,6 +136,20 @@ bool SX1272CheckRfFrequency( uint32_t frequency );
 uint32_t SX1272GetBoardTcxoWakeupTime( void );
 
 /*!
+ * \brief Writes new Tx debug pin state
+ *
+ * \param [IN] state Debug pin state
+ */
+void SX1272DbgPinTxWrite( uint8_t state );
+
+/*!
+ * \brief Writes new Rx debug pin state
+ *
+ * \param [IN] state Debug pin state
+ */
+void SX1272DbgPinRxWrite( uint8_t state );
+
+/*!
  * Radio hardware and global parameters
  */
 extern SX1272_t SX1272;

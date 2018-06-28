@@ -67,10 +67,12 @@ const struct Radio_s Radio =
 };
 
 /*!
- * Antenna switch GPIO pins objects
+ * Debug GPIO pins objects
  */
-Gpio_t AntRx;
-Gpio_t AntTx;
+#if defined( USE_RADIO_DEBUG )
+Gpio_t DbgPinTx;
+Gpio_t DbgPinRx;
+#endif
 
 void SX1276IoInit( void )
 {
@@ -90,6 +92,11 @@ void SX1276IoInit( void )
     gpio_set_pin_function( RADIO_DIO_4, PINMUX_PB14A_EIC_EXTINT14 );
     GpioInit( &SX1276.DIO5, RADIO_DIO_5, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     gpio_set_pin_function( RADIO_DIO_5, PINMUX_PB15A_EIC_EXTINT15 );
+
+#if defined( USE_RADIO_DEBUG )
+    GpioInit( &DbgPinTx, RADIO_DBG_PIN_TX, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &DbgPinRx, RADIO_DBG_PIN_RX, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+#endif
 }
 
 void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
@@ -262,3 +269,15 @@ bool SX1276CheckRfFrequency( uint32_t frequency )
     // Implement check. Currently all frequencies are supported
     return true;
 }
+
+#if defined( USE_RADIO_DEBUG )
+void SX1276DbgPinTxWrite( uint8_t state )
+{
+    GpioWrite( &DbgPinTx, state );
+}
+
+void SX1276DbgPinRxWrite( uint8_t state )
+{
+    GpioWrite( &DbgPinRx, state );
+}
+#endif

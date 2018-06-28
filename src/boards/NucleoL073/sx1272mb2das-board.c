@@ -68,6 +68,14 @@ const struct Radio_s Radio =
  */
 Gpio_t AntSwitch;
 
+/*!
+ * Debug GPIO pins objects
+ */
+#if defined( USE_RADIO_DEBUG )
+Gpio_t DbgPinTx;
+Gpio_t DbgPinRx;
+#endif
+
 void SX1272IoInit( void )
 {
     GpioInit( &SX1272.Spi.Nss, RADIO_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
@@ -80,6 +88,11 @@ void SX1272IoInit( void )
     // Initialize Gpio_t port to NULL.
     SX1272.DIO4.port = NULL;
     SX1272.DIO5.port = NULL;
+
+#if defined( USE_RADIO_DEBUG )
+    GpioInit( &DbgPinTx, RADIO_DBG_PIN_TX, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &DbgPinRx, RADIO_DBG_PIN_RX, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+#endif
 }
 
 void SX1272IoIrqInit( DioIrqHandler **irqHandlers )
@@ -260,3 +273,15 @@ bool SX1272CheckRfFrequency( uint32_t frequency )
     // Implement check. Currently all frequencies are supported
     return true;
 }
+
+#if defined( USE_RADIO_DEBUG )
+void SX1272DbgPinTxWrite( uint8_t state )
+{
+    GpioWrite( &DbgPinTx, state );
+}
+
+void SX1272DbgPinRxWrite( uint8_t state )
+{
+    GpioWrite( &DbgPinRx, state );
+}
+#endif

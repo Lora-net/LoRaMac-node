@@ -99,7 +99,7 @@
 #define UART_RX                                     PA_3
 
 // Debug pins definition.
-#define RADIO_DBG_PIN_TX                            NC
-#define RADIO_DBG_PIN_RX                            NC
+#define RADIO_DBG_PIN_TX                            PB_6
+#define RADIO_DBG_PIN_RX                            PC_7
 
 #endif // __BOARD_CONFIG_H__

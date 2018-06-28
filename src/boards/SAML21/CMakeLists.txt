@@ -69,6 +69,9 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC -D__SAML21J18B__)
 # Add define if debbuger support is enabled
 target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<BOOL:${USE_DEBUGGER}>:USE_DEBUGGER>)
 
+# Add define if radio debug pins support is enabled
+target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<BOOL:${USE_RADIO_DEBUG}>:USE_RADIO_DEBUG>)
+
 # For debug builds set the symbol DEBUG
 set(CMAKE_C_FLAGS_DEBUG -DDEBUG)
 
