@@ -99,10 +99,10 @@ bool GpsGetPpsDetectedState( void )
 {
     bool state = false;
 
-    BoardDisableIrq( );
+    CRITICAL_SECTION_BEGIN( );
     state = PpsDetected;
     PpsDetected = false;
-    BoardEnableIrq( );
+    CRITICAL_SECTION_END( );
     return state;
 }
 
@@ -205,7 +205,7 @@ uint8_t GpsGetLatestGpsPositionBinary( int32_t *latiBin, int32_t *longiBin )
 {
     uint8_t status = FAIL;
 
-    BoardDisableIrq( );
+    CRITICAL_SECTION_BEGIN( );
     if( HasFix == true )
     {
         status = SUCCESS;
@@ -216,13 +216,13 @@ uint8_t GpsGetLatestGpsPositionBinary( int32_t *latiBin, int32_t *longiBin )
     }
     *latiBin = LatitudeBinary;
     *longiBin = LongitudeBinary;
-    BoardEnableIrq( );
+    CRITICAL_SECTION_END( );
     return status;
 }
 
 int16_t GpsGetLatestGpsAltitude( void )
 {
-    BoardDisableIrq( );
+    CRITICAL_SECTION_BEGIN( );
     if( HasFix == true )
     {
         Altitude = atoi( NmeaGpsData.NmeaAltitude );
@@ -231,7 +231,7 @@ int16_t GpsGetLatestGpsAltitude( void )
     {
         Altitude = 0xFFFF;
     }
-    BoardEnableIrq( );
+    CRITICAL_SECTION_END( );
 
     return Altitude;
 }

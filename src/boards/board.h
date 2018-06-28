@@ -24,7 +24,7 @@
 #define __BOARD_H__
 
 #include <stdint.h>
-
+#include "utilities.h"
 /*!
  * Possible power sources
  */
@@ -48,20 +48,6 @@ typedef union BoardVersion_u
     }Fields;
     uint32_t Value;
 }BoardVersion_t;
-
-/*!
- * \brief Disable interrupts
- *
- * \remark IRQ nesting is managed
- */
-void BoardDisableIrq( void );
-
-/*!
- * \brief Enable interrupts
- *
- * \remark IRQ nesting is managed
- */
-void BoardEnableIrq( void );
 
 /*!
  * \brief Initializes the mcu.

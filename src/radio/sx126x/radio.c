@@ -1069,9 +1069,9 @@ void RadioIrqProcess( void )
 {
     if( IrqFired == true )
     {
-        BoardDisableIrq( );
+        CRITICAL_SECTION_BEGIN( );
         IrqFired = false;
-        BoardEnableIrq( );
+        CRITICAL_SECTION_END( );
 
         uint16_t irqRegs = SX126xGetIrqStatus( );
         SX126xClearIrqStatus( IRQ_RADIO_ALL );

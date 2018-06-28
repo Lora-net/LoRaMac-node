@@ -75,7 +75,7 @@ void SX126xWaitOnBusy( void )
 
 void SX126xWakeup( void )
 {
-    BoardDisableIrq( );
+    CRITICAL_SECTION_BEGIN( );
 
     GpioWrite( &SX126x.Spi.Nss, 0 );
 
@@ -87,7 +87,7 @@ void SX126xWakeup( void )
     // Wait for chip to be ready.
     SX126xWaitOnBusy( );
 
-    BoardEnableIrq( );
+    CRITICAL_SECTION_END( );
 }
 
 void SX126xWriteCommand( RadioCommands_t command, uint8_t *buffer, uint16_t size )

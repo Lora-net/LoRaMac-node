@@ -107,11 +107,11 @@ void TimerStart( TimerEvent_t *obj )
     uint32_t elapsedTime = 0;
     uint32_t remainingTime = 0;
 
-    BoardDisableIrq( );
+    CRITICAL_SECTION_BEGIN( );
 
     if( ( obj == NULL ) || ( TimerExists( obj ) == true ) )
     {
-        BoardEnableIrq( );
+        CRITICAL_SECTION_END( );
         return;
     }
 
@@ -147,7 +147,7 @@ void TimerStart( TimerEvent_t *obj )
              TimerInsertTimer( obj, remainingTime );
         }
     }
-    BoardEnableIrq( );
+    CRITICAL_SECTION_END( );
 }
 
 static void TimerInsertTimer( TimerEvent_t *obj, uint32_t remainingTime )
@@ -267,7 +267,7 @@ void TimerIrqHandler( void )
 
 void TimerStop( TimerEvent_t *obj )
 {
-    BoardDisableIrq( );
+    CRITICAL_SECTION_BEGIN( );
 
     uint32_t elapsedTime = 0;
     uint32_t remainingTime = 0;
@@ -278,7 +278,7 @@ void TimerStop( TimerEvent_t *obj )
     // List is empty or the Obj to stop does not exist
     if( ( TimerListHead == NULL ) || ( obj == NULL ) )
     {
-        BoardEnableIrq( );
+        CRITICAL_SECTION_END( );
         return;
     }
 
@@ -349,7 +349,7 @@ void TimerStop( TimerEvent_t *obj )
             }
         }
     }
-    BoardEnableIrq( );
+    CRITICAL_SECTION_END( );
 }
 
 static bool TimerExists( TimerEvent_t *obj )

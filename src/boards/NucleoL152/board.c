@@ -115,26 +115,15 @@ static void OnCalibrateSystemWakeupTimeTimerEvent( void )
     SystemWakeupTimeCalibrated = true;
 }
 
-/*!
- * Nested interrupt counter.
- *
- * \remark Interrupt should only be fully disabled once the value is 0
- */
-static uint8_t IrqNestLevel = 0;
-
-void BoardDisableIrq( void )
+void BoardCriticalSectionBegin( uint32_t *mask )
 {
+    *mask = __get_PRIMASK( );
     __disable_irq( );
-    IrqNestLevel++;
 }
 
-void BoardEnableIrq( void )
+void BoardCriticalSectionEnd( uint32_t *mask )
 {
-    IrqNestLevel--;
-    if( IrqNestLevel == 0 )
-    {
-        __enable_irq( );
-    }
+    __set_PRIMASK( *mask );
 }
 
 void BoardInitPeriph( void )
@@ -194,7 +183,7 @@ void BoardInitMcu( void )
 
 void BoardResetMcu( void )
 {
-    BoardDisableIrq( );
+    CRITICAL_SECTION_BEGIN( );
 
     //Restart system
     NVIC_SystemReset( );

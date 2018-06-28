@@ -196,7 +196,7 @@ uint8_t UartMcuPutChar( Uart_t *obj, uint8_t data )
     }
     else
     {
-        BoardDisableIrq( );
+        CRITICAL_SECTION_BEGIN( );
         TxData = data;
 
         if( IsFifoFull( &obj->FifoTx ) == false )
@@ -206,10 +206,10 @@ uint8_t UartMcuPutChar( Uart_t *obj, uint8_t data )
             // Trig UART Tx interrupt to start sending the FIFO contents.
             __HAL_UART_ENABLE_IT( &UartHandle, UART_IT_TC );
 
-            BoardEnableIrq( );
+            CRITICAL_SECTION_END( );
             return 0; // OK
         }
-        BoardEnableIrq( );
+        CRITICAL_SECTION_END( );
         return 1; // Busy
     }
 }
@@ -226,15 +226,15 @@ uint8_t UartMcuGetChar( Uart_t *obj, uint8_t *data )
     }
     else
     {
-        BoardDisableIrq( );
+        CRITICAL_SECTION_BEGIN( );
 
         if( IsFifoEmpty( &obj->FifoRx ) == false )
         {
             *data = FifoPop( &obj->FifoRx );
-            BoardEnableIrq( );
+            CRITICAL_SECTION_END( );
             return 0;
         }
-        BoardEnableIrq( );
+        CRITICAL_SECTION_END( );
         return 1;
     }
 }
