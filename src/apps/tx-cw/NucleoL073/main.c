@@ -70,11 +70,6 @@
 #define RF_FREQUENCY                                915000000 // Hz
 #define TX_OUTPUT_POWER                             14        // 14 dBm
 
-#elif defined( REGION_US915_HYBRID )
-
-#define RF_FREQUENCY                                915000000 // Hz
-#define TX_OUTPUT_POWER                             14        // 14 dBm
-
 #else
 
     #error "Please define a frequency band in the compiler options."

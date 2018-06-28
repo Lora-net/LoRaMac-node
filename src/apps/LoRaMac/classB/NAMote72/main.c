@@ -337,7 +337,7 @@ static void PrepareTxFrame( uint8_t port )
 {
     const LoRaMacRegion_t region = ACTIVE_REGION;
 
-#if defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
+#if defined( REGION_US915 )
     MibRequestConfirm_t mibReq;
 
     if( BoardGetBatteryVoltage( ) < LOW_BAT_THRESHOLD )
@@ -400,7 +400,6 @@ static void PrepareTxFrame( uint8_t port )
             case LORAMAC_REGION_AS923:
             case LORAMAC_REGION_AU915:
             case LORAMAC_REGION_US915:
-            case LORAMAC_REGION_US915_HYBRID:
             {
                 int16_t temperature = 0;
                 int32_t latitude, longitude = 0;
@@ -669,7 +668,7 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
 
         for( uint8_t i = 0; i < 1; i++)
 
-#elif defined( REGION_AU915 ) || defined( REGION_US915 ) || defined( REGION_US915_HYBRID )
+#elif defined( REGION_AU915 ) || defined( REGION_US915 )
 
         for( uint8_t i = 0; i < 5; i++)
 #else

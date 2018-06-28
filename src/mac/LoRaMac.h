@@ -2112,10 +2112,6 @@ typedef enum eLoRaMacRegion_t
      * North american band on 915MHz
      */
     LORAMAC_REGION_US915,
-    /*!
-     * North american band on 915MHz with a maximum of 16 channels
-     */
-    LORAMAC_REGION_US915_HYBRID,
 }LoRaMacRegion_t;
 
 /*!

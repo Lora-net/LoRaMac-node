@@ -62,7 +62,6 @@
         "REGION_AS923":"OFF",
         "REGION_CN470":"OFF",
         "REGION_KR920":"OFF",
-        "REGION_IN865":"OFF",
-        "REGION_US915_HYBRID":"OFF"
+        "REGION_IN865":"OFF"
     }
 }

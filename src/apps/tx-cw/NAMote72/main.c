@@ -54,10 +54,6 @@
 
 #define RF_FREQUENCY                                915000000 // Hz
 
-#elif defined( REGION_US915_HYBRID )
-
-#define RF_FREQUENCY                                915000000 // Hz
-
 #else
 
     #error "Please define a frequency band in the compiler options."

@@ -101,7 +101,6 @@ Alternatively one can use a graphical interface to configure CMake, drop down me
      * LORAMAC_REGION_CN470
      * LORAMAC_REGION_KR920
      * LORAMAC_REGION_IN865
-     * LORAMAC_REGION_US915_HYBRID
 * `MODULATION` - Type of modulation choice.  
    **Note**: Only applicable to ping-pong or rx-sensi `APPLICATION` choice.  
    The possible choices are:
@@ -123,7 +122,6 @@ Alternatively one can use a graphical interface to configure CMake, drop down me
 * `REGION_CN470` - Enables support for the Region CN470 (Default OFF)
 * `REGION_KR920` - Enables support for the Region IN865 (Default OFF)
 * `REGION_IN865` - Enables support for the Region AS923 (Default OFF)
-* `REGION_US915_HYBRID` - Enables support for the Region US915 HYBRID (Default OFF)
 
 ### Options that are automatically set
 
