@@ -35,21 +35,6 @@ enum BoardPowerSources
 };
 
 /*!
- * Board Version
- */
-typedef union BoardVersion_u
-{
-    struct BoardVersion_s
-    {
-        uint8_t Rfu;
-        uint8_t Revision;
-        uint8_t Minor;
-        uint8_t Major;
-    }Fields;
-    uint32_t Value;
-}BoardVersion_t;
-
-/*!
  * \brief Initializes the mcu.
  */
 void BoardInitMcu( void );
@@ -126,6 +111,6 @@ uint8_t GetBoardPowerSource( void );
  *
  * \retval value  Version
  */
-BoardVersion_t BoardGetVersion( void );
+Version_t BoardGetVersion( void );
 
 #endif // __BOARD_H__

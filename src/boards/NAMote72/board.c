@@ -128,7 +128,7 @@ static void OnCalibrateSystemWakeupTimeTimerEvent( void )
 /*!
  * Holds the bord version.
  */
-static BoardVersion_t BoardVersion = { 0 };
+static Version_t BoardVersion = { 0 };
 
 void BoardCriticalSectionBegin( uint32_t *mask )
 {
@@ -417,11 +417,11 @@ static void BoardUnusedIoInit( void )
     }
 }
 
-BoardVersion_t BoardGetVersion( void )
+Version_t BoardGetVersion( void )
 {
     Gpio_t pinPc1;
     Gpio_t pinPc7;
-    BoardVersion_t boardVersion = { 0 };
+    Version_t boardVersion = { 0 };
     boardVersion.Value = 0;
 
     GpioInit( &pinPc1, BOARD_VERSION_PC1, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
