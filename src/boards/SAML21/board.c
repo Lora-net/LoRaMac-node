@@ -81,6 +81,7 @@ void BoardInitMcu( void )
     RtcInit( );
 
     UartInit( &Uart1, UART_1, UART_TX, UART_RX );
+    UartConfig( &Uart1, RX_TX, 921600, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
 
     SpiInit( &SX1276.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX1276IoInit( );
@@ -135,14 +136,15 @@ void BoardLowPowerHandler( void )
     __enable_irq( );
 }
 
-extern struct usart_sync_descriptor Usart0;
+#if !defined ( __CC_ARM )
 
 /*
  * Function to be used by stdout for printf etc
  */
 int _write( int fd, const void *buf, size_t count )
 {
-   return  io_write( &Usart0.io, buf, count );
+    while( UartPutBuffer( &Uart1, ( uint8_t* )buf, ( uint16_t )count ) != 0 ){ };
+    return count;
 }
 
 /*
@@ -150,8 +152,32 @@ int _write( int fd, const void *buf, size_t count )
  */
 int _read( int fd, const void *buf, size_t count )
 {
-    return io_read( &Usart0.io, ( uint8_t* const )buf, count );
+    size_t bytesRead = 0;
+    while( UartGetBuffer( &Uart1, ( uint8_t* )buf, count, ( uint16_t* )&bytesRead ) != 0 ){ };
+    // Echo back the character
+    while( UartPutBuffer( &Uart1, ( uint8_t* )buf, ( uint16_t )bytesRead ) != 0 ){ };
+    return bytesRead;
 }
+
+#else
+
+// Keil compiler
+int fputc( int c, FILE *stream )
+{
+    while( UartPutChar( &Uart1, ( uint8_t )c ) != 0 );
+    return c;
+}
+
+int fgetc( FILE *stream )
+{
+    uint8_t c = 0;
+    while( UartGetChar( &Uart1, &c ) != 0 );
+    // Echo back the character
+    while( UartPutChar( &Uart1, c ) != 0 );
+    return ( int )c;
+}
+
+#endif
 
 #ifdef USE_FULL_ASSERT
 /*

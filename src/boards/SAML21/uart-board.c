@@ -52,7 +52,7 @@ void UartMcuInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx )
 
 void UartMcuConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_t wordLength, StopBits_t stopBits, Parity_t parity, FlowCtrl_t flowCtrl )
 {
-
+    usart_sync_set_baud_rate( &Usart0, baudrate );
 }
 
 void UartMcuDeInit( Uart_t *obj )

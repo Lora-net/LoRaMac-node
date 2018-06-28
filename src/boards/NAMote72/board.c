@@ -106,8 +106,8 @@ static bool UsbIsConnected = false;
 /*!
  * UART2 FIFO buffers size
  */
-#define UART2_FIFO_TX_SIZE                                1056
-#define UART2_FIFO_RX_SIZE                                1056
+#define UART2_FIFO_TX_SIZE                                2048
+#define UART2_FIFO_RX_SIZE                                2048
 
 uint8_t Uart2TxBuffer[UART2_FIFO_TX_SIZE];
 uint8_t Uart2RxBuffer[UART2_FIFO_RX_SIZE];
@@ -194,7 +194,7 @@ void BoardInitMcu( void )
             FifoInit( &Uart2.FifoRx, Uart2RxBuffer, UART2_FIFO_RX_SIZE );
             // Configure your terminal for 8 Bits data (7 data bit + 1 parity bit), no parity and no flow ctrl
             UartInit( &Uart2, UART_2, UART_TX, UART_RX );
-            UartConfig( &Uart2, RX_TX, 115200, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
+            UartConfig( &Uart2, RX_TX, 921600, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
         }
         else
         {
@@ -617,15 +617,48 @@ void BoardLowPowerHandler( void )
     __enable_irq( );
 }
 
-#ifdef __GNUC__
-int __io_putchar( int c )
-#else /* __GNUC__ */
-int fputc( int c, FILE *stream )
-#endif
+#if !defined ( __CC_ARM )
+
+/*
+ * Function to be used by stdout for printf etc
+ */
+int _write( int fd, const void *buf, size_t count )
 {
-    while( UartPutChar( &Uart2, c ) != 0 );
+    while( UartPutBuffer( &Uart2, ( uint8_t* )buf, ( uint16_t )count ) != 0 ){ };
+    return count;
+}
+
+/*
+ * Function to be used by stdin for scanf etc
+ */
+int _read( int fd, const void *buf, size_t count )
+{
+    size_t bytesRead = 0;
+    while( UartGetBuffer( &Uart2, ( uint8_t* )buf, count, ( uint16_t* )&bytesRead ) != 0 ){ };
+    // Echo back the character
+    while( UartPutBuffer( &Uart2, ( uint8_t* )buf, ( uint16_t )bytesRead ) != 0 ){ };
+    return bytesRead;
+}
+
+#else
+
+// Keil compiler
+int fputc( int c, FILE *stream )
+{
+    while( UartPutChar( &Uart2, ( uint8_t )c ) != 0 );
     return c;
 }
+
+int fgetc( FILE *stream )
+{
+    uint8_t c = 0;
+    while( UartGetChar( &Uart2, &c ) != 0 );
+    // Echo back the character
+    while( UartPutChar( &Uart2, c ) != 0 );
+    return ( int )c;
+}
+
+#endif
 
 #ifdef USE_FULL_ASSERT
 /*
