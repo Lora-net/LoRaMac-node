@@ -36,33 +36,33 @@
 // Definitions
 #define CHANNELS_MASK_SIZE              1
 
-// Global attributes
 /*!
- * LoRaMAC channels
+ * Region specific context
  */
-static ChannelParams_t Channels[EU868_MAX_NB_CHANNELS];
-
-/*!
- * LoRaMac bands
- */
-static Band_t Bands[EU868_MAX_NB_BANDS] =
+typedef struct sRegionEU868NvmCtx
 {
-    EU868_BAND0,
-    EU868_BAND1,
-    EU868_BAND2,
-    EU868_BAND3,
-    EU868_BAND4,
-};
+    /*!
+     * LoRaMAC channels
+     */
+    ChannelParams_t Channels[ EU868_MAX_NB_CHANNELS ];
+    /*!
+     * LoRaMac bands
+     */
+    Band_t Bands[ EU868_MAX_NB_BANDS ];
+    /*!
+     * LoRaMac channels mask
+     */
+    uint16_t ChannelsMask[ CHANNELS_MASK_SIZE ];
+    /*!
+     * LoRaMac channels default mask
+     */
+    uint16_t ChannelsDefaultMask[ CHANNELS_MASK_SIZE ];
+}RegionEU868NvmCtx_t;
 
-/*!
- * LoRaMac channels mask
+/*
+ * Non-volatile module context.
  */
-static uint16_t ChannelsMask[CHANNELS_MASK_SIZE];
-
-/*!
- * LoRaMac channels default mask
- */
-static uint16_t ChannelsDefaultMask[CHANNELS_MASK_SIZE];
+static RegionEU868NvmCtx_t NvmCtx;
 
 // Static functions
 static int8_t GetNextLowerTxDr( int8_t dr, int8_t minDr )
@@ -298,12 +298,12 @@ PhyParam_t RegionEU868GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_CHANNELS_MASK:
         {
-            phyParam.ChannelsMask = ChannelsMask;
+            phyParam.ChannelsMask = NvmCtx.ChannelsMask;
             break;
         }
         case PHY_CHANNELS_DEFAULT_MASK:
         {
-            phyParam.ChannelsMask = ChannelsDefaultMask;
+            phyParam.ChannelsMask = NvmCtx.ChannelsDefaultMask;
             break;
         }
         case PHY_MAX_NB_CHANNELS:
@@ -313,7 +313,7 @@ PhyParam_t RegionEU868GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_CHANNELS:
         {
-            phyParam.Channels = Channels;
+            phyParam.Channels = NvmCtx.Channels;
             break;
         }
         case PHY_DEF_UPLINK_DWELL_TIME:
@@ -360,36 +360,56 @@ PhyParam_t RegionEU868GetPhyParam( GetPhyParams_t* getPhy )
 
 void RegionEU868SetBandTxDone( SetBandTxDoneParams_t* txDone )
 {
-    RegionCommonSetBandTxDone( txDone->Joined, &Bands[Channels[txDone->Channel].Band], txDone->LastTxDoneTime );
+    RegionCommonSetBandTxDone( txDone->Joined, &NvmCtx.Bands[NvmCtx.Channels[txDone->Channel].Band], txDone->LastTxDoneTime );
 }
 
-void RegionEU868InitDefaults( InitType_t type )
+void RegionEU868InitDefaults( InitDefaultsParams_t* params )
 {
-    switch( type )
+    Band_t bands[EU868_MAX_NB_BANDS] =
+    {
+        EU868_BAND0,
+        EU868_BAND1,
+        EU868_BAND2,
+        EU868_BAND3,
+        EU868_BAND4,
+    };
+
+    switch( params->Type )
     {
         case INIT_TYPE_INIT:
         {
+            // Initialize bands
+            memcpy1( ( uint8_t* )NvmCtx.Bands, ( uint8_t* )bands, sizeof( Band_t ) * EU868_MAX_NB_BANDS );
+
             // Channels
-            Channels[0] = ( ChannelParams_t ) EU868_LC1;
-            Channels[1] = ( ChannelParams_t ) EU868_LC2;
-            Channels[2] = ( ChannelParams_t ) EU868_LC3;
+            NvmCtx.Channels[0] = ( ChannelParams_t ) EU868_LC1;
+            NvmCtx.Channels[1] = ( ChannelParams_t ) EU868_LC2;
+            NvmCtx.Channels[2] = ( ChannelParams_t ) EU868_LC3;
 
             // Initialize the channels default mask
-            ChannelsDefaultMask[0] = LC( 1 ) + LC( 2 ) + LC( 3 );
+            NvmCtx.ChannelsDefaultMask[0] = LC( 1 ) + LC( 2 ) + LC( 3 );
             // Update the channels mask
-            RegionCommonChanMaskCopy( ChannelsMask, ChannelsDefaultMask, 1 );
+            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 1 );
             break;
         }
-        case INIT_TYPE_RESTORE:
+        case INIT_TYPE_RESTORE_CTX:
+        {
+            if( params->NvmCtx != 0 )
+            {
+                memcpy1( (uint8_t*) &NvmCtx, (uint8_t*) params->NvmCtx, sizeof( NvmCtx ) );
+            }
+            break;
+        }
+        case INIT_TYPE_RESTORE_DEFAULT_CHANNELS:
         {
             // Restore channels default mask
-            ChannelsMask[0] |= ChannelsDefaultMask[0];
+            NvmCtx.ChannelsMask[0] |= NvmCtx.ChannelsDefaultMask[0];
             break;
         }
         case INIT_TYPE_APP_DEFAULTS:
         {
             // Update the channels mask defaults
-            RegionCommonChanMaskCopy( ChannelsMask, ChannelsDefaultMask, 1 );
+            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 1 );
             break;
         }
         default:
@@ -397,6 +417,12 @@ void RegionEU868InitDefaults( InitType_t type )
             break;
         }
     }
+}
+
+void* RegionEU868GetNvmCtx( GetNvmCtxParams_t* params )
+{
+    params->nvmCtxSize = sizeof( RegionEU868NvmCtx_t );
+    return &NvmCtx;
 }
 
 bool RegionEU868Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
@@ -445,6 +471,12 @@ void RegionEU868ApplyCFList( ApplyCFListParams_t* applyCFList )
         return;
     }
 
+    // Last byte CFListType must be 0 to indicate the CFList contains a list of frequencies
+    if( applyCFList->Payload[15] != 0 )
+    {
+        return;
+    }
+
     // Last byte is RFU, don't take it into account
     for( uint8_t i = 0, chanIdx = EU868_NUMB_DEFAULT_CHANNELS; chanIdx < EU868_MAX_NB_CHANNELS; i+=3, chanIdx++ )
     {
@@ -489,12 +521,12 @@ bool RegionEU868ChanMaskSet( ChanMaskSetParams_t* chanMaskSet )
     {
         case CHANNELS_MASK:
         {
-            RegionCommonChanMaskCopy( ChannelsMask, chanMaskSet->ChannelsMaskIn, 1 );
+            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, chanMaskSet->ChannelsMaskIn, 1 );
             break;
         }
         case CHANNELS_DEFAULT_MASK:
         {
-            RegionCommonChanMaskCopy( ChannelsDefaultMask, chanMaskSet->ChannelsMaskIn, 1 );
+            RegionCommonChanMaskCopy( NvmCtx.ChannelsDefaultMask, chanMaskSet->ChannelsMaskIn, 1 );
             break;
         }
         default:
@@ -539,11 +571,11 @@ bool RegionEU868RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
     if( rxConfig->RxSlot == RX_SLOT_WIN_1 )
     {
         // Apply window 1 frequency
-        frequency = Channels[rxConfig->Channel].Frequency;
+        frequency = NvmCtx.Channels[rxConfig->Channel].Frequency;
         // Apply the alternative RX 1 window frequency, if it is available
-        if( Channels[rxConfig->Channel].Rx1Frequency != 0 )
+        if( NvmCtx.Channels[rxConfig->Channel].Rx1Frequency != 0 )
         {
-            frequency = Channels[rxConfig->Channel].Rx1Frequency;
+            frequency = NvmCtx.Channels[rxConfig->Channel].Rx1Frequency;
         }
     }
 
@@ -583,7 +615,7 @@ bool RegionEU868TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
 {
     RadioModems_t modem;
     int8_t phyDr = DataratesEU868[txConfig->Datarate];
-    int8_t txPowerLimited = LimitTxPower( txConfig->TxPower, Bands[Channels[txConfig->Channel].Band].TxMaxPower, txConfig->Datarate, ChannelsMask );
+    int8_t txPowerLimited = LimitTxPower( txConfig->TxPower, NvmCtx.Bands[NvmCtx.Channels[txConfig->Channel].Band].TxMaxPower, txConfig->Datarate, NvmCtx.ChannelsMask );
     uint32_t bandwidth = GetBandwidth( txConfig->Datarate );
     int8_t phyTxPower = 0;
 
@@ -591,7 +623,7 @@ bool RegionEU868TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
     phyTxPower = RegionCommonComputeTxPower( txPowerLimited, txConfig->MaxEirp, txConfig->AntennaGain );
 
     // Setup the radio frequency
-    Radio.SetChannel( Channels[txConfig->Channel].Frequency );
+    Radio.SetChannel( NvmCtx.Channels[txConfig->Channel].Frequency );
 
     if( txConfig->Datarate == DR_7 )
     { // High Speed FSK channel
@@ -658,7 +690,7 @@ uint8_t RegionEU868LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
             {
                 if( linkAdrParams.ChMaskCtrl == 6 )
                 {
-                    if( Channels[i].Frequency != 0 )
+                    if( NvmCtx.Channels[i].Frequency != 0 )
                     {
                         chMask |= 1 << i;
                     }
@@ -666,7 +698,7 @@ uint8_t RegionEU868LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
                 else
                 {
                     if( ( ( chMask & ( 1 << i ) ) != 0 ) &&
-                        ( Channels[i].Frequency == 0 ) )
+                        ( NvmCtx.Channels[i].Frequency == 0 ) )
                     {// Trying to enable an undefined channel
                         status &= 0xFE; // Channel mask KO
                     }
@@ -692,9 +724,10 @@ uint8_t RegionEU868LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
     linkAdrVerifyParams.ChannelsMask = &chMask;
     linkAdrVerifyParams.MinDatarate = ( int8_t )phyParam.Value;
     linkAdrVerifyParams.MaxDatarate = EU868_TX_MAX_DATARATE;
-    linkAdrVerifyParams.Channels = Channels;
+    linkAdrVerifyParams.Channels = NvmCtx.Channels;
     linkAdrVerifyParams.MinTxPower = EU868_MIN_TX_POWER;
     linkAdrVerifyParams.MaxTxPower = EU868_MAX_TX_POWER;
+    linkAdrVerifyParams.Version = linkAdrReq->Version;
 
     // Verify the parameters and update, if necessary
     status = RegionCommonLinkAdrReqVerifyParams( &linkAdrVerifyParams, &linkAdrParams.Datarate, &linkAdrParams.TxPower, &linkAdrParams.NbRep );
@@ -703,9 +736,9 @@ uint8_t RegionEU868LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
     if( status == 0x07 )
     {
         // Set the channels mask to a default value
-        memset1( ( uint8_t* )ChannelsMask, 0, sizeof( ChannelsMask ) );
+        memset1( ( uint8_t* ) NvmCtx.ChannelsMask, 0, sizeof( NvmCtx.ChannelsMask ) );
         // Update the channels mask
-        ChannelsMask[0] = chMask;
+        NvmCtx.ChannelsMask[0] = chMask;
     }
 
     // Update status variables
@@ -812,7 +845,7 @@ uint8_t RegionEU868DlChannelReq( DlChannelReqParams_t* dlChannelReq )
     }
 
     // Verify if an uplink frequency exists
-    if( Channels[dlChannelReq->ChannelId].Frequency == 0 )
+    if( NvmCtx.Channels[dlChannelReq->ChannelId].Frequency == 0 )
     {
         status &= 0xFD;
     }
@@ -820,7 +853,7 @@ uint8_t RegionEU868DlChannelReq( DlChannelReqParams_t* dlChannelReq )
     // Apply Rx1 frequency, if the status is OK
     if( status == 0x03 )
     {
-        Channels[dlChannelReq->ChannelId].Rx1Frequency = dlChannelReq->Rx1Frequency;
+        NvmCtx.Channels[dlChannelReq->ChannelId].Rx1Frequency = dlChannelReq->Rx1Frequency;
     }
 
     return status;
@@ -835,8 +868,8 @@ void RegionEU868CalcBackOff( CalcBackOffParams_t* calcBackOff )
 {
     RegionCommonCalcBackOffParams_t calcBackOffParams;
 
-    calcBackOffParams.Channels = Channels;
-    calcBackOffParams.Bands = Bands;
+    calcBackOffParams.Channels = NvmCtx.Channels;
+    calcBackOffParams.Bands = NvmCtx.Bands;
     calcBackOffParams.LastTxIsJoinRequest = calcBackOff->LastTxIsJoinRequest;
     calcBackOffParams.Joined = calcBackOff->Joined;
     calcBackOffParams.DutyCycleEnabled = calcBackOff->DutyCycleEnabled;
@@ -854,9 +887,9 @@ LoRaMacStatus_t RegionEU868NextChannel( NextChanParams_t* nextChanParams, uint8_
     uint8_t enabledChannels[EU868_MAX_NB_CHANNELS] = { 0 };
     TimerTime_t nextTxDelay = 0;
 
-    if( RegionCommonCountChannels( ChannelsMask, 0, 1 ) == 0 )
+    if( RegionCommonCountChannels( NvmCtx.ChannelsMask, 0, 1 ) == 0 )
     { // Reactivate default channels
-        ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
+        NvmCtx.ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
     }
 
     if( nextChanParams->AggrTimeOff <= TimerGetElapsedTime( nextChanParams->LastAggrTx ) )
@@ -865,12 +898,12 @@ LoRaMacStatus_t RegionEU868NextChannel( NextChanParams_t* nextChanParams, uint8_
         *aggregatedTimeOff = 0;
 
         // Update bands Time OFF
-        nextTxDelay = RegionCommonUpdateBandTimeOff( nextChanParams->Joined, nextChanParams->DutyCycleEnabled, Bands, EU868_MAX_NB_BANDS );
+        nextTxDelay = RegionCommonUpdateBandTimeOff( nextChanParams->Joined, nextChanParams->DutyCycleEnabled, NvmCtx.Bands, EU868_MAX_NB_BANDS );
 
         // Search how many channels are enabled
         nbEnabledChannels = CountNbOfEnabledChannels( nextChanParams->Joined, nextChanParams->Datarate,
-                                                      ChannelsMask, Channels,
-                                                      Bands, enabledChannels, &delayTx );
+                                                      NvmCtx.ChannelsMask, NvmCtx.Channels,
+                                                      NvmCtx.Bands, enabledChannels, &delayTx );
     }
     else
     {
@@ -895,7 +928,7 @@ LoRaMacStatus_t RegionEU868NextChannel( NextChanParams_t* nextChanParams, uint8_
             return LORAMAC_STATUS_DUTYCYCLE_RESTRICTED;
         }
         // Datarate not supported by any channel, restore defaults
-        ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
+        NvmCtx.ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
         *time = 0;
         return LORAMAC_STATUS_NO_CHANNEL_FOUND;
     }
@@ -941,7 +974,7 @@ LoRaMacStatus_t RegionEU868ChannelAdd( ChannelAddParams_t* channelAdd )
             drInvalid = true;
         }
         // We are not allowed to change the frequency
-        if( channelAdd->NewChannel->Frequency != Channels[id].Frequency )
+        if( channelAdd->NewChannel->Frequency != NvmCtx.Channels[id].Frequency )
         {
             freqInvalid = true;
         }
@@ -970,9 +1003,9 @@ LoRaMacStatus_t RegionEU868ChannelAdd( ChannelAddParams_t* channelAdd )
         return LORAMAC_STATUS_FREQUENCY_INVALID;
     }
 
-    memcpy1( ( uint8_t* )( Channels + id ), ( uint8_t* )channelAdd->NewChannel, sizeof( Channels[id] ) );
-    Channels[id].Band = band;
-    ChannelsMask[0] |= ( 1 << id );
+    memcpy1( ( uint8_t* ) &(NvmCtx.Channels[id]), ( uint8_t* ) channelAdd->NewChannel, sizeof( NvmCtx.Channels[id] ) );
+    NvmCtx.Channels[id].Band = band;
+    NvmCtx.ChannelsMask[0] |= ( 1 << id );
     return LORAMAC_STATUS_OK;
 }
 
@@ -986,16 +1019,16 @@ bool RegionEU868ChannelsRemove( ChannelRemoveParams_t* channelRemove  )
     }
 
     // Remove the channel from the list of channels
-    Channels[id] = ( ChannelParams_t ){ 0, 0, { 0 }, 0 };
+    NvmCtx.Channels[id] = ( ChannelParams_t ){ 0, 0, { 0 }, 0 };
 
-    return RegionCommonChanDisable( ChannelsMask, id, EU868_MAX_NB_CHANNELS );
+    return RegionCommonChanDisable( NvmCtx.ChannelsMask, id, EU868_MAX_NB_CHANNELS );
 }
 
 void RegionEU868SetContinuousWave( ContinuousWaveParams_t* continuousWave )
 {
-    int8_t txPowerLimited = LimitTxPower( continuousWave->TxPower, Bands[Channels[continuousWave->Channel].Band].TxMaxPower, continuousWave->Datarate, ChannelsMask );
+    int8_t txPowerLimited = LimitTxPower( continuousWave->TxPower, NvmCtx.Bands[NvmCtx.Channels[continuousWave->Channel].Band].TxMaxPower, continuousWave->Datarate, NvmCtx.ChannelsMask );
     int8_t phyTxPower = 0;
-    uint32_t frequency = Channels[continuousWave->Channel].Frequency;
+    uint32_t frequency = NvmCtx.Channels[continuousWave->Channel].Frequency;
 
     // Calculate physical TX power
     phyTxPower = RegionCommonComputeTxPower( txPowerLimited, continuousWave->MaxEirp, continuousWave->AntennaGain );

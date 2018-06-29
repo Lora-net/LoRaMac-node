@@ -730,12 +730,16 @@ typedef enum eInitType
     /*!
      * Restores default channels defined by the LoRaWAN specification only.
      */
-    INIT_TYPE_RESTORE,
+    INIT_TYPE_RESTORE_DEFAULT_CHANNELS,
     /*!
      * Initializes the region specific data to the defaults which were set by
      * the application.
      */
-    INIT_TYPE_APP_DEFAULTS
+    INIT_TYPE_APP_DEFAULTS,
+    /*!
+     * Restores internal context from passed pointer.
+     */
+    INIT_TYPE_RESTORE_CTX
 }InitType_t;
 
 typedef enum eChannelsMask
@@ -845,6 +849,33 @@ typedef struct sSetBandTxDoneParams
      */
     TimerTime_t LastTxDoneTime;
 }SetBandTxDoneParams_t;
+
+/*!
+ * Parameter structure for the function RegionInitDefaults.
+ */
+typedef struct sInitDefaultsParams
+{
+    /*!
+     * Pointer to region module context to be restored.
+     */
+    void* NvmCtx;
+    /*!
+     * Sets the initialization type.
+     */
+     InitType_t Type;
+}InitDefaultsParams_t;
+
+/*!
+ * Parameter structure for the function RegionGetNvmCtx.
+ */
+typedef struct sGetNvmCtxParams
+{
+    /*!
+     * Size of module context.
+     */
+     size_t nvmCtxSize;
+}GetNvmCtxParams_t;
+
 
 /*!
  * Parameter structure for the function RegionVerify.
@@ -1269,9 +1300,20 @@ void RegionSetBandTxDone( LoRaMacRegion_t region, SetBandTxDoneParams_t* txDone 
  *
  * \param [IN] region LoRaWAN region.
  *
- * \param [IN] type Sets the initialization type.
+ * \param [IN] params Pointer to the function parameters.
  */
-void RegionInitDefaults( LoRaMacRegion_t region, InitType_t type );
+void RegionInitDefaults( LoRaMacRegion_t region, InitDefaultsParams_t* params );
+
+/*!
+ * \brief Returns a pointer to the internal context and its size.
+ *
+ * \param [IN] region LoRaWAN region.
+ *
+ * \param [IN] params Pointer to the function parameters.
+ *
+ * \retval     Points to a structure where the module store its non-volatile context.
+ */
+void* RegionGetNvmCtx( LoRaMacRegion_t region, GetNvmCtxParams_t* params );
 
 /*!
  * \brief Verifies a parameter.

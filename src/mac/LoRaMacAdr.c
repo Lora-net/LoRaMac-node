@@ -90,7 +90,9 @@ static bool CalcNextV10X( CalcNextAdrParams_t* adrNext, int8_t* drOut, int8_t* t
                         adrAckReq = false;
                         if( adrNext->UpdateChanMask == true )
                         {
-                            RegionInitDefaults( adrNext->Region, INIT_TYPE_RESTORE );
+                            InitDefaultsParams_t params;
+                            params.Type = INIT_TYPE_RESTORE_DEFAULT_CHANNELS;
+                            RegionInitDefaults( adrNext->Region, &params );
                         }
                     }
                 }

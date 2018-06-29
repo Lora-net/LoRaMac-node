@@ -2358,7 +2358,10 @@ static void ResetMacParameters( void )
     MacCtx.NvmCtx->SrvAckRequested = false;
 
     // Reset to application defaults
-    RegionInitDefaults( MacCtx.NvmCtx->Region, INIT_TYPE_APP_DEFAULTS );
+    InitDefaultsParams_t params;
+    params.Type = INIT_TYPE_APP_DEFAULTS;
+    params.NvmCtx = NULL;
+    RegionInitDefaults( MacCtx.NvmCtx->Region, &params );
 
     // Initialize channel index.
     MacCtx.NvmCtx->Channel = 0;
@@ -2729,7 +2732,10 @@ static void AckTimeoutRetriesFinalize( void )
 {
     if( MacCtx.McpsConfirm.AckReceived == false )
     {
-        RegionInitDefaults( MacCtx.NvmCtx->Region, INIT_TYPE_RESTORE );
+        InitDefaultsParams_t params;
+        params.Type = INIT_TYPE_RESTORE_DEFAULT_CHANNELS;
+        params.NvmCtx = NULL;
+        RegionInitDefaults( MacCtx.NvmCtx->Region, &params );
 
         MacCtx.NvmCtx->NodeAckRequested = false;
         MacCtx.McpsConfirm.AckReceived = false;
@@ -2907,7 +2913,11 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     MacCtx.RadioEvents.RxTimeout = OnRadioRxTimeout;
     Radio.Init( &MacCtx.RadioEvents );
 
-    RegionInitDefaults( MacCtx.NvmCtx->Region, INIT_TYPE_INIT );
+    InitDefaultsParams_t params;
+    params.Type = INIT_TYPE_INIT;
+    params.NvmCtx = NULL;
+    RegionInitDefaults( MacCtx.NvmCtx->Region, &params );
+
 
     // Set multicast downlink counter reference
     LoRaMacFCntHandlerSetMulticastReference( MacCtx.NvmCtx->MulticastChannelList );

@@ -37,7 +37,8 @@
 #define AS923_IS_ACTIVE( )                         AS923_CASE { return true; }
 #define AS923_GET_PHY_PARAM( )                     AS923_CASE { return RegionAS923GetPhyParam( getPhy ); }
 #define AS923_SET_BAND_TX_DONE( )                  AS923_CASE { RegionAS923SetBandTxDone( txDone ); break; }
-#define AS923_INIT_DEFAULTS( )                     AS923_CASE { RegionAS923InitDefaults( type ); break; }
+#define AS923_INIT_DEFAULTS( )                     AS923_CASE { RegionAS923InitDefaults( params ); break; }
+#define AS923_GET_NVM_CTX( )                       AS923_CASE { return RegionAS923GetNvmCtx( params ); }
 #define AS923_VERIFY( )                            AS923_CASE { return RegionAS923Verify( verify, phyAttribute ); }
 #define AS923_APPLY_CF_LIST( )                     AS923_CASE { RegionAS923ApplyCFList( applyCFList ); break; }
 #define AS923_CHAN_MASK_SET( )                     AS923_CASE { return RegionAS923ChanMaskSet( chanMaskSet ); }
@@ -62,6 +63,7 @@
 #define AS923_GET_PHY_PARAM( )
 #define AS923_SET_BAND_TX_DONE( )
 #define AS923_INIT_DEFAULTS( )
+#define AS923_GET_NVM_CTX( )
 #define AS923_VERIFY( )
 #define AS923_APPLY_CF_LIST( )
 #define AS923_CHAN_MASK_SET( )
@@ -89,7 +91,8 @@
 #define AU915_IS_ACTIVE( )                         AU915_CASE { return true; }
 #define AU915_GET_PHY_PARAM( )                     AU915_CASE { return RegionAU915GetPhyParam( getPhy ); }
 #define AU915_SET_BAND_TX_DONE( )                  AU915_CASE { RegionAU915SetBandTxDone( txDone ); break; }
-#define AU915_INIT_DEFAULTS( )                     AU915_CASE { RegionAU915InitDefaults( type ); break; }
+#define AU915_INIT_DEFAULTS( )                     AU915_CASE { RegionAU915InitDefaults( params ); break; }
+#define AU915_GET_NVM_CTX( )                       AU915_CASE { return RegionAU915GetNvmCtx( params ); }
 #define AU915_VERIFY( )                            AU915_CASE { return RegionAU915Verify( verify, phyAttribute ); }
 #define AU915_APPLY_CF_LIST( )                     AU915_CASE { RegionAU915ApplyCFList( applyCFList ); break; }
 #define AU915_CHAN_MASK_SET( )                     AU915_CASE { return RegionAU915ChanMaskSet( chanMaskSet ); }
@@ -114,6 +117,7 @@
 #define AU915_GET_PHY_PARAM( )
 #define AU915_SET_BAND_TX_DONE( )
 #define AU915_INIT_DEFAULTS( )
+#define AU915_GET_NVM_CTX( )
 #define AU915_VERIFY( )
 #define AU915_APPLY_CF_LIST( )
 #define AU915_CHAN_MASK_SET( )
@@ -141,7 +145,8 @@
 #define CN470_IS_ACTIVE( )                         CN470_CASE { return true; }
 #define CN470_GET_PHY_PARAM( )                     CN470_CASE { return RegionCN470GetPhyParam( getPhy ); }
 #define CN470_SET_BAND_TX_DONE( )                  CN470_CASE { RegionCN470SetBandTxDone( txDone ); break; }
-#define CN470_INIT_DEFAULTS( )                     CN470_CASE { RegionCN470InitDefaults( type ); break; }
+#define CN470_INIT_DEFAULTS( )                     CN470_CASE { RegionCN470InitDefaults( params ); break; }
+#define CN470_GET_NVM_CTX( )                       CN470_CASE { return RegionCN470GetNvmCtx( params ); }
 #define CN470_VERIFY( )                            CN470_CASE { return RegionCN470Verify( verify, phyAttribute ); }
 #define CN470_APPLY_CF_LIST( )                     CN470_CASE { RegionCN470ApplyCFList( applyCFList ); break; }
 #define CN470_CHAN_MASK_SET( )                     CN470_CASE { return RegionCN470ChanMaskSet( chanMaskSet ); }
@@ -166,6 +171,7 @@
 #define CN470_GET_PHY_PARAM( )
 #define CN470_SET_BAND_TX_DONE( )
 #define CN470_INIT_DEFAULTS( )
+#define CN470_GET_NVM_CTX( )
 #define CN470_VERIFY( )
 #define CN470_APPLY_CF_LIST( )
 #define CN470_CHAN_MASK_SET( )
@@ -193,7 +199,8 @@
 #define CN779_IS_ACTIVE( )                         CN779_CASE { return true; }
 #define CN779_GET_PHY_PARAM( )                     CN779_CASE { return RegionCN779GetPhyParam( getPhy ); }
 #define CN779_SET_BAND_TX_DONE( )                  CN779_CASE { RegionCN779SetBandTxDone( txDone ); break; }
-#define CN779_INIT_DEFAULTS( )                     CN779_CASE { RegionCN779InitDefaults( type ); break; }
+#define CN779_INIT_DEFAULTS( )                     CN779_CASE { RegionCN779InitDefaults( params ); break; }
+#define CN779_GET_NVM_CTX( )                       CN779_CASE { return RegionCN779GetNvmCtx( params ); }
 #define CN779_VERIFY( )                            CN779_CASE { return RegionCN779Verify( verify, phyAttribute ); }
 #define CN779_APPLY_CF_LIST( )                     CN779_CASE { RegionCN779ApplyCFList( applyCFList ); break; }
 #define CN779_CHAN_MASK_SET( )                     CN779_CASE { return RegionCN779ChanMaskSet( chanMaskSet ); }
@@ -218,6 +225,7 @@
 #define CN779_GET_PHY_PARAM( )
 #define CN779_SET_BAND_TX_DONE( )
 #define CN779_INIT_DEFAULTS( )
+#define CN779_GET_NVM_CTX( )
 #define CN779_VERIFY( )
 #define CN779_APPLY_CF_LIST( )
 #define CN779_CHAN_MASK_SET( )
@@ -245,7 +253,8 @@
 #define EU433_IS_ACTIVE( )                         EU433_CASE { return true; }
 #define EU433_GET_PHY_PARAM( )                     EU433_CASE { return RegionEU433GetPhyParam( getPhy ); }
 #define EU433_SET_BAND_TX_DONE( )                  EU433_CASE { RegionEU433SetBandTxDone( txDone ); break; }
-#define EU433_INIT_DEFAULTS( )                     EU433_CASE { RegionEU433InitDefaults( type ); break; }
+#define EU433_INIT_DEFAULTS( )                     EU433_CASE { RegionEU433InitDefaults( params ); break; }
+#define EU433_GET_NVM_CTX( )                       EU433_CASE { return RegionEU433GetNvmCtx( params ); }
 #define EU433_VERIFY( )                            EU433_CASE { return RegionEU433Verify( verify, phyAttribute ); }
 #define EU433_APPLY_CF_LIST( )                     EU433_CASE { RegionEU433ApplyCFList( applyCFList ); break; }
 #define EU433_CHAN_MASK_SET( )                     EU433_CASE { return RegionEU433ChanMaskSet( chanMaskSet ); }
@@ -270,6 +279,7 @@
 #define EU433_GET_PHY_PARAM( )
 #define EU433_SET_BAND_TX_DONE( )
 #define EU433_INIT_DEFAULTS( )
+#define EU433_GET_NVM_CTX( )
 #define EU433_VERIFY( )
 #define EU433_APPLY_CF_LIST( )
 #define EU433_CHAN_MASK_SET( )
@@ -297,7 +307,8 @@
 #define EU868_IS_ACTIVE( )                         EU868_CASE { return true; }
 #define EU868_GET_PHY_PARAM( )                     EU868_CASE { return RegionEU868GetPhyParam( getPhy ); }
 #define EU868_SET_BAND_TX_DONE( )                  EU868_CASE { RegionEU868SetBandTxDone( txDone ); break; }
-#define EU868_INIT_DEFAULTS( )                     EU868_CASE { RegionEU868InitDefaults( type ); break; }
+#define EU868_INIT_DEFAULTS( )                     EU868_CASE { RegionEU868InitDefaults( params ); break; }
+#define EU868_GET_NVM_CTX( )                       EU868_CASE { return RegionEU868GetNvmCtx( params ); }
 #define EU868_VERIFY( )                            EU868_CASE { return RegionEU868Verify( verify, phyAttribute ); }
 #define EU868_APPLY_CF_LIST( )                     EU868_CASE { RegionEU868ApplyCFList( applyCFList ); break; }
 #define EU868_CHAN_MASK_SET( )                     EU868_CASE { return RegionEU868ChanMaskSet( chanMaskSet ); }
@@ -322,6 +333,7 @@
 #define EU868_GET_PHY_PARAM( )
 #define EU868_SET_BAND_TX_DONE( )
 #define EU868_INIT_DEFAULTS( )
+#define EU868_GET_NVM_CTX( )
 #define EU868_VERIFY( )
 #define EU868_APPLY_CF_LIST( )
 #define EU868_CHAN_MASK_SET( )
@@ -349,7 +361,8 @@
 #define KR920_IS_ACTIVE( )                         KR920_CASE { return true; }
 #define KR920_GET_PHY_PARAM( )                     KR920_CASE { return RegionKR920GetPhyParam( getPhy ); }
 #define KR920_SET_BAND_TX_DONE( )                  KR920_CASE { RegionKR920SetBandTxDone( txDone ); break; }
-#define KR920_INIT_DEFAULTS( )                     KR920_CASE { RegionKR920InitDefaults( type ); break; }
+#define KR920_INIT_DEFAULTS( )                     KR920_CASE { RegionKR920InitDefaults( params ); break; }
+#define KR920_GET_NVM_CTX( )                       KR920_CASE { return RegionKR920GetNvmCtx( params ); }
 #define KR920_VERIFY( )                            KR920_CASE { return RegionKR920Verify( verify, phyAttribute ); }
 #define KR920_APPLY_CF_LIST( )                     KR920_CASE { RegionKR920ApplyCFList( applyCFList ); break; }
 #define KR920_CHAN_MASK_SET( )                     KR920_CASE { return RegionKR920ChanMaskSet( chanMaskSet ); }
@@ -374,6 +387,7 @@
 #define KR920_GET_PHY_PARAM( )
 #define KR920_SET_BAND_TX_DONE( )
 #define KR920_INIT_DEFAULTS( )
+#define KR920_GET_NVM_CTX( )
 #define KR920_VERIFY( )
 #define KR920_APPLY_CF_LIST( )
 #define KR920_CHAN_MASK_SET( )
@@ -401,7 +415,8 @@
 #define IN865_IS_ACTIVE( )                         IN865_CASE { return true; }
 #define IN865_GET_PHY_PARAM( )                     IN865_CASE { return RegionIN865GetPhyParam( getPhy ); }
 #define IN865_SET_BAND_TX_DONE( )                  IN865_CASE { RegionIN865SetBandTxDone( txDone ); break; }
-#define IN865_INIT_DEFAULTS( )                     IN865_CASE { RegionIN865InitDefaults( type ); break; }
+#define IN865_INIT_DEFAULTS( )                     IN865_CASE { RegionIN865InitDefaults( params ); break; }
+#define IN865_GET_NVM_CTX( )                       IN865_CASE { return RegionIN865GetNvmCtx( params ); }
 #define IN865_VERIFY( )                            IN865_CASE { return RegionIN865Verify( verify, phyAttribute ); }
 #define IN865_APPLY_CF_LIST( )                     IN865_CASE { RegionIN865ApplyCFList( applyCFList ); break; }
 #define IN865_CHAN_MASK_SET( )                     IN865_CASE { return RegionIN865ChanMaskSet( chanMaskSet ); }
@@ -426,6 +441,7 @@
 #define IN865_GET_PHY_PARAM( )
 #define IN865_SET_BAND_TX_DONE( )
 #define IN865_INIT_DEFAULTS( )
+#define IN865_GET_NVM_CTX( )
 #define IN865_VERIFY( )
 #define IN865_APPLY_CF_LIST( )
 #define IN865_CHAN_MASK_SET( )
@@ -453,7 +469,8 @@
 #define US915_IS_ACTIVE( )                         US915_CASE { return true; }
 #define US915_GET_PHY_PARAM( )                     US915_CASE { return RegionUS915GetPhyParam( getPhy ); }
 #define US915_SET_BAND_TX_DONE( )                  US915_CASE { RegionUS915SetBandTxDone( txDone ); break; }
-#define US915_INIT_DEFAULTS( )                     US915_CASE { RegionUS915InitDefaults( type ); break; }
+#define US915_INIT_DEFAULTS( )                     US915_CASE { RegionUS915InitDefaults( params ); break; }
+#define US915_GET_NVM_CTX( )                       US915_CASE { return RegionUS915GetNvmCtx( params ); }
 #define US915_VERIFY( )                            US915_CASE { return RegionUS915Verify( verify, phyAttribute ); }
 #define US915_APPLY_CF_LIST( )                     US915_CASE { RegionUS915ApplyCFList( applyCFList ); break; }
 #define US915_CHAN_MASK_SET( )                     US915_CASE { return RegionUS915ChanMaskSet( chanMaskSet ); }
@@ -478,6 +495,7 @@
 #define US915_GET_PHY_PARAM( )
 #define US915_SET_BAND_TX_DONE( )
 #define US915_INIT_DEFAULTS( )
+#define US915_GET_NVM_CTX( )
 #define US915_VERIFY( )
 #define US915_APPLY_CF_LIST( )
 #define US915_CHAN_MASK_SET( )
@@ -560,7 +578,7 @@ void RegionSetBandTxDone( LoRaMacRegion_t region, SetBandTxDoneParams_t* txDone 
     }
 }
 
-void RegionInitDefaults( LoRaMacRegion_t region, InitType_t type )
+void RegionInitDefaults( LoRaMacRegion_t region, InitDefaultsParams_t* params )
 {
     switch( region )
     {
@@ -576,6 +594,26 @@ void RegionInitDefaults( LoRaMacRegion_t region, InitType_t type )
         default:
         {
             break;
+        }
+    }
+}
+
+void* RegionGetNvmCtx( LoRaMacRegion_t region, GetNvmCtxParams_t* params )
+{
+    switch( region )
+    {
+        AS923_GET_NVM_CTX( );
+        AU915_GET_NVM_CTX( );
+        CN470_GET_NVM_CTX( );
+        CN779_GET_NVM_CTX( );
+        EU433_GET_NVM_CTX( );
+        EU868_GET_NVM_CTX( );
+        KR920_GET_NVM_CTX( );
+        IN865_GET_NVM_CTX( );
+        US915_GET_NVM_CTX( );
+        default:
+        {
+           return 0;
         }
     }
 }
