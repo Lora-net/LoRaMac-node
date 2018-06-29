@@ -1955,13 +1955,14 @@ typedef struct eMibRequestConfirm
 typedef struct sLoRaMacTxInfo
 {
     /*!
-     * Defines the size of the applicative payload which can be processed
+     * Size of the application data payload which can be transmitted.
      */
-    uint8_t MaxPossiblePayload;
+    uint8_t MaxPossibleApplicationDataSize;
     /*!
-     * The current payload size, dependent on the current datarate
+     * The current maximum possible payload size without MAC commands
+     * which is dependent on the current datarate.
      */
-    uint8_t CurrentPayloadSize;
+    uint8_t CurrentPossiblePayloadSize;
 }LoRaMacTxInfo_t;
 
 /*!
