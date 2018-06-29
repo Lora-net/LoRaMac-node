@@ -919,286 +919,282 @@ static void ProcessRadioRxDone( void )
             break;
         case FRAME_TYPE_DATA_CONFIRMED_DOWN:
         case FRAME_TYPE_DATA_UNCONFIRMED_DOWN:
+            // Check if the received payload size is valid
+            getPhy.UplinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
+            getPhy.Datarate = MacCtx.McpsIndication.RxDatarate;
+            getPhy.Attribute = PHY_MAX_PAYLOAD;
+
+            // Get the maximum payload length
+            if( MacCtx.NvmCtx->RepeaterSupport == true )
             {
-                // Check if the received payload size is valid
-                getPhy.UplinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
-                getPhy.Datarate = MacCtx.McpsIndication.RxDatarate;
-                getPhy.Attribute = PHY_MAX_PAYLOAD;
+                getPhy.Attribute = PHY_MAX_PAYLOAD_REPEATER;
+            }
+            phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
+            if( MAX( 0, ( int16_t )( ( int16_t )size - ( int16_t )LORA_MAC_FRMPAYLOAD_OVERHEAD ) ) > phyParam.Value )
+            {
+                MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+                PrepareRxDoneAbort( );
+                return;
+            }
 
-                // Get the maximum payload length
-                if( MacCtx.NvmCtx->RepeaterSupport == true )
+            address = payload[pktHeaderLen++];
+            address |= ( (uint32_t)payload[pktHeaderLen++] << 8 );
+            address |= ( (uint32_t)payload[pktHeaderLen++] << 16 );
+            address |= ( (uint32_t)payload[pktHeaderLen++] << 24 );
+
+            fCtrl.Value = payload[pktHeaderLen++];
+
+            if( address != MacCtx.NvmCtx->DevAddr )
+            {
+                curMulticastParams = MacCtx.NvmCtx->MulticastChannelList;
+                while( curMulticastParams != NULL )
                 {
-                    getPhy.Attribute = PHY_MAX_PAYLOAD_REPEATER;
+                    if( address == curMulticastParams->Address )
+                    {
+                        multicast = 1;
+                        nwkSKey = curMulticastParams->NwkSKey;
+                        appSKey = curMulticastParams->AppSKey;
+                        downLinkCounter = curMulticastParams->DownLinkCounter;
+                        break;
+                    }
+                    curMulticastParams = curMulticastParams->Next;
                 }
-                phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
-                if( MAX( 0, ( int16_t )( ( int16_t )size - ( int16_t )LORA_MAC_FRMPAYLOAD_OVERHEAD ) ) > phyParam.Value )
+                if( multicast == 0 )
                 {
-                    MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+                    // We are not the destination of this frame.
+                    MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
                     PrepareRxDoneAbort( );
                     return;
                 }
-
-                address = payload[pktHeaderLen++];
-                address |= ( (uint32_t)payload[pktHeaderLen++] << 8 );
-                address |= ( (uint32_t)payload[pktHeaderLen++] << 16 );
-                address |= ( (uint32_t)payload[pktHeaderLen++] << 24 );
-
-                fCtrl.Value = payload[pktHeaderLen++];
-
-                if( address != MacCtx.NvmCtx->DevAddr )
+                if( ( macHdr.Bits.MType != FRAME_TYPE_DATA_UNCONFIRMED_DOWN ) ||
+                    ( fCtrl.Bits.Ack == 1 ) ||
+                    ( fCtrl.Bits.AdrAckReq == 1 ) )
                 {
-                    curMulticastParams = MacCtx.NvmCtx->MulticastChannelList;
-                    while( curMulticastParams != NULL )
+                    // Wrong multicast message format. Refer to chapter 11.2.2 of the specification
+                    MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_MULTICAST_FAIL;
+                    PrepareRxDoneAbort( );
+                    return;
+                }
+            }
+            else
+            {
+                multicast = 0;
+                nwkSKey = LoRaMacNwkSKey;
+                appSKey = LoRaMacAppSKey;
+                downLinkCounter = DownLinkCounter;
+            }
+
+            sequenceCounter = ( uint16_t )payload[pktHeaderLen++];
+            sequenceCounter |= ( uint16_t )payload[pktHeaderLen++] << 8;
+
+            appPayloadStartIndex = 8 + fCtrl.Bits.FOptsLen;
+
+            micRx |= ( uint32_t )payload[size - LORAMAC_MFR_LEN];
+            micRx |= ( ( uint32_t )payload[size - LORAMAC_MFR_LEN + 1] << 8 );
+            micRx |= ( ( uint32_t )payload[size - LORAMAC_MFR_LEN + 2] << 16 );
+            micRx |= ( ( uint32_t )payload[size - LORAMAC_MFR_LEN + 3] << 24 );
+
+            sequenceCounterPrev = ( uint16_t )downLinkCounter;
+            sequenceCounterDiff = ( sequenceCounter - sequenceCounterPrev );
+
+            if( sequenceCounterDiff < ( 1 << 15 ) )
+            {
+                downLinkCounter += sequenceCounterDiff;
+                LoRaMacComputeMic( payload, size - LORAMAC_MFR_LEN, nwkSKey, address, DOWN_LINK, downLinkCounter, &mic );
+                if( micRx == mic )
+                {
+                    isMicOk = true;
+                }
+            }
+            else
+            {
+                // check for sequence roll-over
+                uint32_t  downLinkCounterTmp = downLinkCounter + 0x10000 + ( int16_t )sequenceCounterDiff;
+                LoRaMacComputeMic( payload, size - LORAMAC_MFR_LEN, nwkSKey, address, DOWN_LINK, downLinkCounterTmp, &mic );
+                if( micRx == mic )
+                {
+                    isMicOk = true;
+                    downLinkCounter = downLinkCounterTmp;
+                }
+            }
+
+            // Check for a the maximum allowed counter difference
+            getPhy.Attribute = PHY_MAX_FCNT_GAP;
+            phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
+            if( sequenceCounterDiff >= phyParam.Value )
+            {
+                MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS;
+                MacCtx.McpsIndication.DownLinkCounter = downLinkCounter;
+                PrepareRxDoneAbort( );
+                return;
+            }
+
+            if( isMicOk == true )
+            {
+                MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_OK;
+                MacCtx.McpsIndication.Multicast = multicast;
+                MacCtx.McpsIndication.FramePending = fCtrl.Bits.FPending;
+                MacCtx.McpsIndication.Buffer = NULL;
+                MacCtx.McpsIndication.BufferSize = 0;
+                MacCtx.McpsIndication.DownLinkCounter = downLinkCounter;
+
+                MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
+
+                MacCtx.NvmCtx->AdrAckCounter = 0;
+                MacCommandsBufferToRepeatIndex = 0;
+
+                // Update 32 bits downlink counter
+                if( multicast == 1 )
+                {
+                    MacCtx.McpsIndication.McpsIndication = MCPS_MULTICAST;
+
+                    if( ( curMulticastParams->DownLinkCounter == downLinkCounter ) &&
+                        ( curMulticastParams->DownLinkCounter != 0 ) )
                     {
-                        if( address == curMulticastParams->Address )
+                        MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
+                        MacCtx.McpsIndication.DownLinkCounter = downLinkCounter;
+                        PrepareRxDoneAbort( );
+                        return;
+                    }
+                    curMulticastParams->DownLinkCounter = downLinkCounter;
+                }
+                else
+                {
+                    if( macHdr.Bits.MType == FRAME_TYPE_DATA_CONFIRMED_DOWN )
+                    {
+                        MacCtx.NvmCtx->SrvAckRequested = true;
+                        MacCtx.McpsIndication.McpsIndication = MCPS_CONFIRMED;
+
+                        if( ( DownLinkCounter == downLinkCounter ) &&
+                            ( DownLinkCounter != 0 ) )
                         {
-                            multicast = 1;
-                            nwkSKey = curMulticastParams->NwkSKey;
-                            appSKey = curMulticastParams->AppSKey;
-                            downLinkCounter = curMulticastParams->DownLinkCounter;
-                            break;
+                            // Duplicated confirmed downlink. Skip indication.
+                            // In this case, the MAC layer shall accept the MAC commands
+                            // which are included in the downlink retransmission.
+                            // It should not provide the same frame to the application
+                            // layer again. The MAC layer accepts the acknowledgement.
+                            MacCtx.MacFlags.Bits.McpsIndSkip = 1;
                         }
-                        curMulticastParams = curMulticastParams->Next;
                     }
-                    if( multicast == 0 )
+                    else
                     {
-                        // We are not the destination of this frame.
-                        MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
-                        PrepareRxDoneAbort( );
-                        return;
-                    }
-                    if( ( macHdr.Bits.MType != FRAME_TYPE_DATA_UNCONFIRMED_DOWN ) ||
-                        ( fCtrl.Bits.Ack == 1 ) ||
-                        ( fCtrl.Bits.AdrAckReq == 1 ) )
-                    {
-                        // Wrong multicast message format. Refer to chapter 11.2.2 of the specification
-                        MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_MULTICAST_FAIL;
-                        PrepareRxDoneAbort( );
-                        return;
-                    }
-                }
-                else
-                {
-                    multicast = 0;
-                    nwkSKey = LoRaMacNwkSKey;
-                    appSKey = LoRaMacAppSKey;
-                    downLinkCounter = DownLinkCounter;
-                }
+                        MacCtx.NvmCtx->SrvAckRequested = false;
+                        MacCtx.McpsIndication.McpsIndication = MCPS_UNCONFIRMED;
 
-                sequenceCounter = ( uint16_t )payload[pktHeaderLen++];
-                sequenceCounter |= ( uint16_t )payload[pktHeaderLen++] << 8;
-
-                appPayloadStartIndex = 8 + fCtrl.Bits.FOptsLen;
-
-                micRx |= ( uint32_t )payload[size - LORAMAC_MFR_LEN];
-                micRx |= ( ( uint32_t )payload[size - LORAMAC_MFR_LEN + 1] << 8 );
-                micRx |= ( ( uint32_t )payload[size - LORAMAC_MFR_LEN + 2] << 16 );
-                micRx |= ( ( uint32_t )payload[size - LORAMAC_MFR_LEN + 3] << 24 );
-
-                sequenceCounterPrev = ( uint16_t )downLinkCounter;
-                sequenceCounterDiff = ( sequenceCounter - sequenceCounterPrev );
-
-                if( sequenceCounterDiff < ( 1 << 15 ) )
-                {
-                    downLinkCounter += sequenceCounterDiff;
-                    LoRaMacComputeMic( payload, size - LORAMAC_MFR_LEN, nwkSKey, address, DOWN_LINK, downLinkCounter, &mic );
-                    if( micRx == mic )
-                    {
-                        isMicOk = true;
-                    }
-                }
-                else
-                {
-                    // check for sequence roll-over
-                    uint32_t  downLinkCounterTmp = downLinkCounter + 0x10000 + ( int16_t )sequenceCounterDiff;
-                    LoRaMacComputeMic( payload, size - LORAMAC_MFR_LEN, nwkSKey, address, DOWN_LINK, downLinkCounterTmp, &mic );
-                    if( micRx == mic )
-                    {
-                        isMicOk = true;
-                        downLinkCounter = downLinkCounterTmp;
-                    }
-                }
-
-                // Check for a the maximum allowed counter difference
-                getPhy.Attribute = PHY_MAX_FCNT_GAP;
-                phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
-                if( sequenceCounterDiff >= phyParam.Value )
-                {
-                    MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS;
-                    MacCtx.McpsIndication.DownLinkCounter = downLinkCounter;
-                    PrepareRxDoneAbort( );
-                    return;
-                }
-
-                if( isMicOk == true )
-                {
-                    MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_OK;
-                    MacCtx.McpsIndication.Multicast = multicast;
-                    MacCtx.McpsIndication.FramePending = fCtrl.Bits.FPending;
-                    MacCtx.McpsIndication.Buffer = NULL;
-                    MacCtx.McpsIndication.BufferSize = 0;
-                    MacCtx.McpsIndication.DownLinkCounter = downLinkCounter;
-
-                    MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
-
-                    MacCtx.NvmCtx->AdrAckCounter = 0;
-                    MacCommandsBufferToRepeatIndex = 0;
-
-                    // Update 32 bits downlink counter
-                    if( multicast == 1 )
-                    {
-                        MacCtx.McpsIndication.McpsIndication = MCPS_MULTICAST;
-
-                        if( ( curMulticastParams->DownLinkCounter == downLinkCounter ) &&
-                            ( curMulticastParams->DownLinkCounter != 0 ) )
+                        if( ( DownLinkCounter == downLinkCounter ) &&
+                            ( DownLinkCounter != 0 ) )
                         {
                             MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
                             MacCtx.McpsIndication.DownLinkCounter = downLinkCounter;
                             PrepareRxDoneAbort( );
                             return;
                         }
-                        curMulticastParams->DownLinkCounter = downLinkCounter;
                     }
-                    else
-                    {
-                        if( macHdr.Bits.MType == FRAME_TYPE_DATA_CONFIRMED_DOWN )
-                        {
-                            MacCtx.NvmCtx->SrvAckRequested = true;
-                            MacCtx.McpsIndication.McpsIndication = MCPS_CONFIRMED;
+                    DownLinkCounter = downLinkCounter;
+                }
 
-                            if( ( DownLinkCounter == downLinkCounter ) &&
-                                ( DownLinkCounter != 0 ) )
-                            {
-                                // Duplicated confirmed downlink. Skip indication.
-                                // In this case, the MAC layer shall accept the MAC commands
-                                // which are included in the downlink retransmission.
-                                // It should not provide the same frame to the application
-                                // layer again. The MAC layer accepts the acknowledgement.
-                                MacCtx.MacFlags.Bits.McpsIndSkip = 1;
-                            }
-                        }
-                        else
-                        {
-                            MacCtx.NvmCtx->SrvAckRequested = false;
-                            MacCtx.McpsIndication.McpsIndication = MCPS_UNCONFIRMED;
-
-                            if( ( DownLinkCounter == downLinkCounter ) &&
-                                ( DownLinkCounter != 0 ) )
-                            {
-                                MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
-                                MacCtx.McpsIndication.DownLinkCounter = downLinkCounter;
-                                PrepareRxDoneAbort( );
-                                return;
-                            }
-                        }
-                        DownLinkCounter = downLinkCounter;
-                    }
-
-                    // This must be done before parsing the payload and the MAC commands.
-                    // We need to reset the MacCommandsBufferIndex here, since we need
-                    // to take retransmissions and repetitions into account. Error cases
-                    // will be handled in function LoRaMacProcess.
-                    if( MacCtx.McpsConfirm.McpsRequest == MCPS_CONFIRMED )
-                    {
-                        if( fCtrl.Bits.Ack == 1 )
-                        {// Reset MacCommandsBufferIndex when we have received an ACK.
-                            MacCommandsBufferIndex = 0;
-                            // Update acknowledgement information
-                            MacCtx.McpsConfirm.AckReceived = fCtrl.Bits.Ack;
-                            MacCtx.McpsIndication.AckReceived = fCtrl.Bits.Ack;
-                        }
-                    }
-                    else
-                    {// Reset the variable if we have received any valid frame.
+                // This must be done before parsing the payload and the MAC commands.
+                // We need to reset the MacCommandsBufferIndex here, since we need
+                // to take retransmissions and repetitions into account. Error cases
+                // will be handled in function LoRaMacProcess.
+                if( MacCtx.McpsConfirm.McpsRequest == MCPS_CONFIRMED )
+                {
+                    if( fCtrl.Bits.Ack == 1 )
+                    {// Reset MacCommandsBufferIndex when we have received an ACK.
                         MacCommandsBufferIndex = 0;
+                        // Update acknowledgement information
+                        MacCtx.McpsConfirm.AckReceived = fCtrl.Bits.Ack;
+                        MacCtx.McpsIndication.AckReceived = fCtrl.Bits.Ack;
                     }
+                }
+                else
+                {// Reset the variable if we have received any valid frame.
+                    MacCommandsBufferIndex = 0;
+                }
 
-                    // Process payload and MAC commands
-                    if( ( ( size - 4 ) - appPayloadStartIndex ) > 0 )
+                // Process payload and MAC commands
+                if( ( ( size - 4 ) - appPayloadStartIndex ) > 0 )
+                {
+                    port = payload[appPayloadStartIndex++];
+                    frameLen = ( size - 4 ) - appPayloadStartIndex;
+
+                    MacCtx.McpsIndication.Port = port;
+
+                    if( port == 0 )
                     {
-                        port = payload[appPayloadStartIndex++];
-                        frameLen = ( size - 4 ) - appPayloadStartIndex;
-
-                        MacCtx.McpsIndication.Port = port;
-
-                        if( port == 0 )
+                        if( ( fCtrl.Bits.FOptsLen == 0 ) && ( multicast == 0 ) )
                         {
-                            if( ( fCtrl.Bits.FOptsLen == 0 ) && ( multicast == 0 ) )
-                            {
-                                LoRaMacPayloadDecrypt( payload + appPayloadStartIndex,
-                                                       frameLen,
-                                                       nwkSKey,
-                                                       address,
-                                                       DOWN_LINK,
-                                                       downLinkCounter,
-                                                       MacCtx.RxPayload );
-
-                                // Decode frame payload MAC commands
-                                ProcessMacCommands( MacCtx.RxPayload, 0, frameLen, snr, MacCtx.McpsIndication.RxSlot );
-                            }
-                            else
-                            {
-                                MacCtx.MacFlags.Bits.McpsIndSkip = 1;
-                                // This is not a valid frame. Drop it and reset the ACK bits
-                                MacCtx.McpsConfirm.AckReceived = false;
-                                MacCtx.McpsIndication.AckReceived = false;
-                            }
-                        }
-                        else
-                        {
-                            if( ( fCtrl.Bits.FOptsLen > 0 ) && ( multicast == 0 ) )
-                            {
-                                // Decode Options field MAC commands. Omit the fPort.
-                                ProcessMacCommands( payload, 8, appPayloadStartIndex - 1, snr, MacCtx.McpsIndication.RxSlot );
-                            }
-
                             LoRaMacPayloadDecrypt( payload + appPayloadStartIndex,
                                                    frameLen,
-                                                   appSKey,
+                                                   nwkSKey,
                                                    address,
                                                    DOWN_LINK,
                                                    downLinkCounter,
                                                    MacCtx.RxPayload );
 
-                            MacCtx.McpsIndication.Buffer = MacCtx.RxPayload;
-                            MacCtx.McpsIndication.BufferSize = frameLen;
-                            MacCtx.McpsIndication.RxData = true;
+                            // Decode frame payload MAC commands
+                            ProcessMacCommands( MacCtx.RxPayload, 0, frameLen, snr, MacCtx.McpsIndication.RxSlot );
+                        }
+                        else
+                        {
+                            MacCtx.MacFlags.Bits.McpsIndSkip = 1;
+                            // This is not a valid frame. Drop it and reset the ACK bits
+                            MacCtx.McpsConfirm.AckReceived = false;
+                            MacCtx.McpsIndication.AckReceived = false;
                         }
                     }
                     else
                     {
-                        if( fCtrl.Bits.FOptsLen > 0 )
+                        if( ( fCtrl.Bits.FOptsLen > 0 ) && ( multicast == 0 ) )
                         {
-                            // Decode Options field MAC commands
-                            ProcessMacCommands( payload, 8, appPayloadStartIndex, snr, MacCtx.McpsIndication.RxSlot );
+                            // Decode Options field MAC commands. Omit the fPort.
+                            ProcessMacCommands( payload, 8, appPayloadStartIndex - 1, snr, MacCtx.McpsIndication.RxSlot );
                         }
-                    }
 
-                    // Provide always an indication, skip the callback to the user application,
-                    // in case of a confirmed downlink retransmission.
-                    MacCtx.MacFlags.Bits.McpsInd = 1;
+                        LoRaMacPayloadDecrypt( payload + appPayloadStartIndex,
+                                               frameLen,
+                                               appSKey,
+                                               address,
+                                               DOWN_LINK,
+                                               downLinkCounter,
+                                               MacCtx.RxPayload );
+
+                        MacCtx.McpsIndication.Buffer = MacCtx.RxPayload;
+                        MacCtx.McpsIndication.BufferSize = frameLen;
+                        MacCtx.McpsIndication.RxData = true;
+                    }
                 }
                 else
                 {
-                    MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
-
-                    PrepareRxDoneAbort( );
-                    return;
+                    if( fCtrl.Bits.FOptsLen > 0 )
+                    {
+                        // Decode Options field MAC commands
+                        ProcessMacCommands( payload, 8, appPayloadStartIndex, snr, MacCtx.McpsIndication.RxSlot );
+                    }
                 }
+
+                // Provide always an indication, skip the callback to the user application,
+                // in case of a confirmed downlink retransmission.
+                MacCtx.MacFlags.Bits.McpsInd = 1;
+            }
+            else
+            {
+                MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
+
+                PrepareRxDoneAbort( );
+                return;
             }
             break;
         case FRAME_TYPE_PROPRIETARY:
-            {
-                memcpy1( MacCtx.RxPayload, &payload[pktHeaderLen], size );
+            memcpy1( MacCtx.RxPayload, &payload[pktHeaderLen], size );
 
-                MacCtx.McpsIndication.McpsIndication = MCPS_PROPRIETARY;
-                MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_OK;
-                MacCtx.McpsIndication.Buffer = MacCtx.RxPayload;
-                MacCtx.McpsIndication.BufferSize = size - pktHeaderLen;
+            MacCtx.McpsIndication.McpsIndication = MCPS_PROPRIETARY;
+            MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_OK;
+            MacCtx.McpsIndication.Buffer = MacCtx.RxPayload;
+            MacCtx.McpsIndication.BufferSize = size - pktHeaderLen;
 
-                MacCtx.MacFlags.Bits.McpsInd = 1;
-                break;
-            }
+            MacCtx.MacFlags.Bits.McpsInd = 1;
+            break;
         default:
             MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
             PrepareRxDoneAbort( );
