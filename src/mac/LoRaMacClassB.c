@@ -19,6 +19,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 */
 #include <math.h>
 #include "utilities.h"
+#include "secure-element.h"
 #include "LoRaMac.h"
 #include "LoRaMacClassB.h"
 #include "LoRaMacClassBConfig.h"
@@ -111,6 +112,48 @@ static LoRaMacClassBNvmCtx_t NvmCtx;
  * Module context.
  */
 static LoRaMacClassBCtx_t Ctx;
+
+/*!
+ * Computes the Ping Offset
+ *
+ * \param [IN]  beaconTime      - Time of the recent received beacon
+ * \param [IN]  address         - Frame address
+ * \param [IN]  pingPeriod      - Ping period of the node
+ * \param [OUT] pingOffset      - Pseudo random ping offset
+ */
+static void ComputePingOffset( uint64_t beaconTime, uint32_t address, uint16_t pingPeriod, uint16_t *pingOffset )
+{
+    uint8_t zeroKey[16];
+    uint8_t buffer[16];
+    uint8_t cipher[16];
+    uint32_t result = 0;
+    /* Refer to chapter 15.2 of the LoRaWAN specification v1.1. The beacon time
+     * GPS time in seconds modulo 2^32
+     */
+    uint32_t time = ( beaconTime % ( ( ( uint64_t ) 1 ) << 32 ) );
+
+    memset1( zeroKey, 0, 16 );
+    memset1( buffer, 0, 16 );
+    memset1( cipher, 0, 16 );
+
+    buffer[0] = ( time ) & 0xFF;
+    buffer[1] = ( time >> 8 ) & 0xFF;
+    buffer[2] = ( time >> 16 ) & 0xFF;
+    buffer[3] = ( time >> 24 ) & 0xFF;
+
+    buffer[4] = ( address ) & 0xFF;
+    buffer[5] = ( address >> 8 ) & 0xFF;
+    buffer[6] = ( address >> 16 ) & 0xFF;
+    buffer[7] = ( address >> 24 ) & 0xFF;
+
+    SecureElementSetKey( SLOT_RAND_ZERO_KEY, zeroKey );
+
+    SecureElementAesEncrypt( buffer, 16, SLOT_RAND_ZERO_KEY, cipher );
+
+    result = ( ( ( uint32_t ) cipher[0] ) + ( ( ( uint32_t ) cipher[1] ) * 256 ) );
+
+    *pingOffset = ( uint16_t )( result % pingPeriod );
+}
 
 /*!
  * \brief Calculates the downlink frequency for a given channel.
@@ -792,7 +835,7 @@ static void LoRaMacClassBProcessPingSlot( void )
     {
         case PINGSLOT_STATE_CALC_PING_OFFSET:
         {
-            LoRaMacBeaconComputePingOffset( Ctx.NvmCtx->BeaconCtx.BeaconTime,
+            ComputePingOffset( Ctx.NvmCtx->BeaconCtx.BeaconTime,
                                             *Ctx.LoRaMacClassBParams.LoRaMacDevAddr,
                                             Ctx.NvmCtx->PingSlotCtx.PingPeriod,
                                             &( Ctx.NvmCtx->PingSlotCtx.PingOffset ) );
@@ -893,7 +936,7 @@ static void LoRaMacClassBProcessMulticastSlot( void )
     static RxConfigParams_t multicastSlotRxConfig;
     TimerTime_t multicastSlotTime = 0;
     TimerTime_t slotTime = 0;
-    MulticastParams_t *cur = *Ctx.LoRaMacClassBParams.MulticastChannels;
+    MulticastCtx_t *cur = Ctx.LoRaMacClassBParams.MulticastChannels;
 
 
     if( cur == NULL )
@@ -912,23 +955,23 @@ static void LoRaMacClassBProcessMulticastSlot( void )
         case PINGSLOT_STATE_CALC_PING_OFFSET:
         {
             // Compute all offsets for every multicast slots
-            while( cur != NULL )
+            for( uint8_t i = 0; i < 4; i++ )
             {
-                LoRaMacBeaconComputePingOffset( Ctx.NvmCtx->BeaconCtx.BeaconTime,
+                ComputePingOffset( Ctx.NvmCtx->BeaconCtx.BeaconTime,
                                                 cur->Address,
                                                 cur->PingPeriod,
                                                 &( cur->PingOffset ) );
-                cur = cur->Next;
+                cur++;
             }
             Ctx.NvmCtx->MulticastSlotState = PINGSLOT_STATE_SET_TIMER;
             // no break
         }
         case PINGSLOT_STATE_SET_TIMER:
         {
-            cur = *Ctx.LoRaMacClassBParams.MulticastChannels;
+            cur = Ctx.LoRaMacClassBParams.MulticastChannels;
             Ctx.NvmCtx->PingSlotCtx.NextMulticastChannel = NULL;
 
-            while( cur != NULL )
+            for( uint8_t i = 0; i < 4; i++ )
             {
                 // Calculate the next slot time for every multicast slot
                 if( CalcNextSlotTime( cur->PingOffset, cur->PingPeriod, cur->PingNb, &slotTime ) == true )
@@ -940,7 +983,7 @@ static void LoRaMacClassBProcessMulticastSlot( void )
                         Ctx.NvmCtx->PingSlotCtx.NextMulticastChannel = cur;
                     }
                 }
-                cur = cur->Next;
+                cur++;
             }
 
             // Schedule the next multicast slot
@@ -1521,7 +1564,7 @@ void LoRaMacClassBStartRxSlots( void )
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
-void LoRaMacClassBSetMulticastPeriodicity( MulticastParams_t* multicastChannel )
+void LoRaMacClassBSetMulticastPeriodicity( MulticastCtx_t* multicastChannel )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     if( multicastChannel != NULL )

@@ -53,6 +53,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "utilities.h"
+#include "LoRaMac.h"
 #include "timer.h"
 
 /*!

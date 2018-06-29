@@ -28,6 +28,8 @@
  *
  * \author    Daniel Jaeckle ( STACKFORCE )
  *
+ * \author    Johannes Bruder ( STACKFORCE )
+ *
  * \defgroup  LORAMAC LoRa MAC layer implementation
  *            This module specifies the API implementation of the LoRaMAC layer.
  *            This is a placeholder for a detailed description of the LoRaMac
@@ -71,6 +73,7 @@
 #include "timer.h"
 #include "systime.h"
 #include "radio.h"
+#include "LoRaMacTypes.h"
 
 /*!
  * Maximum number of times the MAC layer tries to get an acknowledge.
@@ -111,6 +114,11 @@
 #define   LORAMAC_MAX_MC_CTX       4
 
 /*!
+ * Start value for multicast keys enumeration
+ */
+#define LORAMAC_CRYPTO_MULITCAST_KEYS   127
+
+/*!
  * LoRaWAN devices classes definition
  *
  * LoRaWAN Specification V1.0.2, chapter 2.1
@@ -122,19 +130,19 @@ typedef enum eDeviceClass
      *
      * LoRaWAN Specification V1.0.2, chapter 3
      */
-    CLASS_A,
+    CLASS_A = 0x00,
     /*!
      * LoRaWAN device class B
      *
      * LoRaWAN Specification V1.0.2, chapter 8
      */
-    CLASS_B,
+    CLASS_B = 0x01,
     /*!
      * LoRaWAN device class C
      *
      * LoRaWAN Specification V1.0.2, chapter 17
      */
-    CLASS_C,
+    CLASS_C = 0x02,
 }DeviceClass_t;
 
 /*!
@@ -151,7 +159,7 @@ typedef union uDrRange
      */
     struct sFields
     {
-         /*!
+        /*!
          * Minimum data rate
          *
          * LoRaWAN Regional Parameters V1.0.2rB
@@ -169,33 +177,6 @@ typedef union uDrRange
         int8_t Max : 4;
     }Fields;
 }DrRange_t;
-
-/*!
- * LoRaMAC band parameters definition
- */
-typedef struct sBand
-{
-    /*!
-     * Duty cycle
-     */
-    uint16_t DCycle;
-    /*!
-     * Maximum Tx power
-     */
-    int8_t TxMaxPower;
-    /*!
-     * Time stamp of the last JoinReq Tx frame.
-     */
-    TimerTime_t LastJoinTxDoneTime;
-    /*!
-     * Time stamp of the last Tx frame
-     */
-    TimerTime_t LastTxDoneTime;
-    /*!
-     * Holds the time where the device is off
-     */
-    TimerTime_t TimeOff;
-}Band_t;
 
 /*!
  * LoRaMAC channel definition
@@ -345,26 +326,22 @@ typedef struct sLoRaMacParams
 }LoRaMacParams_t;
 
 /*!
- * LoRaMAC multicast channel parameter
+ * Multicast channel
  */
-typedef struct sMulticastParams
+typedef struct sMulticastChannel
 {
+    /*
+     * Address identifier
+     */
+    AddressIdentifier_t AddrID;
     /*!
      * Address
      */
     uint32_t Address;
     /*!
-     * Network session key
+     * True if the entry is active
      */
-    uint8_t NwkSKey[16];
-    /*!
-     * Application session key
-     */
-    uint8_t AppSKey[16];
-    /*!
-     * Downlink counter
-     */
-    uint32_t DownLinkCounter;
+    bool IsEnabled;
     /*!
      * Reception frequency of the ping slot windows
      */
@@ -378,296 +355,7 @@ typedef struct sMulticastParams
      * periodicity of the multicast downlink slots
      */
     uint16_t Periodicity;
-    /*!
-     * Number of multicast slots. The variable can be
-     * calculated as follows:
-     * PingNb = 128 / ( 1 << periodicity ), where
-     * 0 <= periodicity <= 7
-     * This parameter will be calculated automatically.
-     */
-    uint8_t PingNb;
-    /*!
-     * Period of the multicast slots. The variable can be
-     * calculated as follows:
-     * PingPeriod = 4096 / PingNb
-     * This parameter will be calculated automatically.
-     */
-    uint16_t PingPeriod;
-    /*!
-     * Ping offset of the multicast channel for Class B
-     * This parameter will be calculated automatically.
-     */
-    uint16_t PingOffset;
-    /*!
-     * Reference pointer to the next multicast channel parameters in the list
-     * This parameter will be calculated automatically.
-     */
-    struct sMulticastParams *Next;
-}MulticastParams_t;
-
-/*!
- * LoRaMAC frame types
- *
- * LoRaWAN Specification V1.0.2, chapter 4.2.1, table 1
- */
-typedef enum eLoRaMacFrameType
-{
-    /*!
-     * LoRaMAC join request frame
-     */
-    FRAME_TYPE_JOIN_REQ              = 0x00,
-    /*!
-     * LoRaMAC join accept frame
-     */
-    FRAME_TYPE_JOIN_ACCEPT           = 0x01,
-    /*!
-     * LoRaMAC unconfirmed up-link frame
-     */
-    FRAME_TYPE_DATA_UNCONFIRMED_UP   = 0x02,
-    /*!
-     * LoRaMAC unconfirmed down-link frame
-     */
-    FRAME_TYPE_DATA_UNCONFIRMED_DOWN = 0x03,
-    /*!
-     * LoRaMAC confirmed up-link frame
-     */
-    FRAME_TYPE_DATA_CONFIRMED_UP     = 0x04,
-    /*!
-     * LoRaMAC confirmed down-link frame
-     */
-    FRAME_TYPE_DATA_CONFIRMED_DOWN   = 0x05,
-    /*!
-     * LoRaMAC RFU frame
-     */
-    FRAME_TYPE_RFU                   = 0x06,
-    /*!
-     * LoRaMAC proprietary frame
-     */
-    FRAME_TYPE_PROPRIETARY           = 0x07,
-}LoRaMacFrameType_t;
-
-/*!
- * LoRaMAC mote MAC commands
- *
- * LoRaWAN Specification V1.0.2, chapter 5, table 4
- */
-typedef enum eLoRaMacMoteCmd
-{
-    /*!
-     * LinkCheckReq
-     */
-    MOTE_MAC_LINK_CHECK_REQ          = 0x02,
-    /*!
-     * LinkADRAns
-     */
-    MOTE_MAC_LINK_ADR_ANS            = 0x03,
-    /*!
-     * DutyCycleAns
-     */
-    MOTE_MAC_DUTY_CYCLE_ANS          = 0x04,
-    /*!
-     * RXParamSetupAns
-     */
-    MOTE_MAC_RX_PARAM_SETUP_ANS      = 0x05,
-    /*!
-     * DevStatusAns
-     */
-    MOTE_MAC_DEV_STATUS_ANS          = 0x06,
-    /*!
-     * NewChannelAns
-     */
-    MOTE_MAC_NEW_CHANNEL_ANS         = 0x07,
-    /*!
-     * RXTimingSetupAns
-     */
-    MOTE_MAC_RX_TIMING_SETUP_ANS     = 0x08,
-    /*!
-     * TXParamSetupAns
-     */
-    MOTE_MAC_TX_PARAM_SETUP_ANS      = 0x09,
-    /*!
-     * DlChannelAns
-     */
-    MOTE_MAC_DL_CHANNEL_ANS          = 0x0A,
-    /*!
-     * DeviceTimeReq
-     */
-    MOTE_MAC_DEVICE_TIME_REQ         = 0x0D,
-    /*!
-     * PingSlotInfoReq
-     */
-    MOTE_MAC_PING_SLOT_INFO_REQ      = 0x10,
-    /*!
-     * PingSlotFreqAns
-     */
-    MOTE_MAC_PING_SLOT_FREQ_ANS      = 0x11,
-    /*!
-     * BeaconTimingReq
-     */
-    MOTE_MAC_BEACON_TIMING_REQ       = 0x12,
-    /*!
-     * BeaconFreqAns
-     */
-    MOTE_MAC_BEACON_FREQ_ANS         = 0x13,
-}LoRaMacMoteCmd_t;
-
-/*!
- * LoRaMAC server MAC commands
- *
- * LoRaWAN Specification V1.0.2 chapter 5, table 4
- */
-typedef enum eLoRaMacSrvCmd
-{
-    /*!
-     * LinkCheckAns
-     */
-    SRV_MAC_LINK_CHECK_ANS           = 0x02,
-    /*!
-     * LinkADRReq
-     */
-    SRV_MAC_LINK_ADR_REQ             = 0x03,
-    /*!
-     * DutyCycleReq
-     */
-    SRV_MAC_DUTY_CYCLE_REQ           = 0x04,
-    /*!
-     * RXParamSetupReq
-     */
-    SRV_MAC_RX_PARAM_SETUP_REQ       = 0x05,
-    /*!
-     * DevStatusReq
-     */
-    SRV_MAC_DEV_STATUS_REQ           = 0x06,
-    /*!
-     * NewChannelReq
-     */
-    SRV_MAC_NEW_CHANNEL_REQ          = 0x07,
-    /*!
-     * RXTimingSetupReq
-     */
-    SRV_MAC_RX_TIMING_SETUP_REQ      = 0x08,
-    /*!
-     * NewChannelReq
-     */
-    SRV_MAC_TX_PARAM_SETUP_REQ       = 0x09,
-    /*!
-     * DlChannelReq
-     */
-    SRV_MAC_DL_CHANNEL_REQ           = 0x0A,
-    /*!
-     * DeviceTimeAns
-     */
-    SRV_MAC_DEVICE_TIME_ANS          = 0x0D,
-    /*!
-     * PingSlotInfoAns
-     */
-    SRV_MAC_PING_SLOT_INFO_ANS       = 0x10,
-    /*!
-     * PingSlotChannelReq
-     */
-    SRV_MAC_PING_SLOT_CHANNEL_REQ    = 0x11,
-    /*!
-     * BeaconTimingAns
-     */
-    SRV_MAC_BEACON_TIMING_ANS        = 0x12,
-    /*!
-     * BeaconFreqReq
-     */
-    SRV_MAC_BEACON_FREQ_REQ          = 0x13,
-}LoRaMacSrvCmd_t;
-
-/*!
- * LoRaMAC Battery level indicator
- */
-typedef enum eLoRaMacBatteryLevel
-{
-    /*!
-     * External power source
-     */
-    BAT_LEVEL_EXT_SRC                = 0x00,
-    /*!
-     * Battery level empty
-     */
-    BAT_LEVEL_EMPTY                  = 0x01,
-    /*!
-     * Battery level full
-     */
-    BAT_LEVEL_FULL                   = 0xFE,
-    /*!
-     * Battery level - no measurement available
-     */
-    BAT_LEVEL_NO_MEASURE             = 0xFF,
-}LoRaMacBatteryLevel_t;
-
-/*!
- * LoRaMAC header field definition (MHDR field)
- *
- * LoRaWAN Specification V1.0.2, chapter 4.2
- */
-typedef union uLoRaMacHeader
-{
-    /*!
-     * Byte-access to the bits
-     */
-    uint8_t Value;
-    /*!
-     * Structure containing single access to header bits
-     */
-    struct sHdrBits
-    {
-        /*!
-         * Major version
-         */
-        uint8_t Major           : 2;
-        /*!
-         * RFU
-         */
-        uint8_t RFU             : 3;
-        /*!
-         * Message type
-         */
-        uint8_t MType           : 3;
-    }Bits;
-}LoRaMacHeader_t;
-
-/*!
- * LoRaMAC frame control field definition (FCtrl)
- *
- * LoRaWAN Specification V1.0.2, chapter 4.3.1
- */
-typedef union uLoRaMacFrameCtrl
-{
-    /*!
-     * Byte-access to the bits
-     */
-    uint8_t Value;
-    /*!
-     * Structure containing single access to bits
-     */
-    struct sCtrlBits
-    {
-        /*!
-         * Frame options length
-         */
-        uint8_t FOptsLen        : 4;
-        /*!
-         * Frame pending bit
-         */
-        uint8_t FPending        : 1;
-        /*!
-         * Message acknowledge bit
-         */
-        uint8_t Ack             : 1;
-        /*!
-         * ADR acknowledgment request bit
-         */
-        uint8_t AdrAckReq       : 1;
-        /*!
-         * ADR control in frame header
-         */
-        uint8_t Adr             : 1;
-    }Bits;
-}LoRaMacFrameCtrl_t;
+}MulticastChannel_t;
 
 /*!
  * LoRaMAC data structure for a PingSlotInfoReq \ref MLME_PING_SLOT_INFO
@@ -843,10 +531,6 @@ typedef union eLoRaMacFlags_t
          */
         uint8_t McpsInd         : 1;
         /*!
-         * MCPS-Ind pending. Skip indication to the application layer
-         */
-        uint8_t McpsIndSkip     : 1;
-        /*!
          * MLME-Req pending
          */
         uint8_t MlmeReq         : 1;
@@ -919,7 +603,7 @@ typedef struct sMcpsReqUnconfirmed
     /*!
      * Pointer to the buffer of the frame payload
      */
-    void *fBuffer;
+    void* fBuffer;
     /*!
      * Size of the frame payload
      */
@@ -945,7 +629,7 @@ typedef struct sMcpsReqConfirmed
     /*!
      * Pointer to the buffer of the frame payload
      */
-    void *fBuffer;
+    void* fBuffer;
     /*!
      * Size of the frame payload
      */
@@ -985,7 +669,7 @@ typedef struct sMcpsReqProprietary
     /*!
      * Pointer to the buffer of the frame payload
      */
-    void *fBuffer;
+    void* fBuffer;
     /*!
      * Size of the frame payload
      */
@@ -1101,7 +785,7 @@ typedef struct sMcpsIndication
     /*!
      * Pointer to the received data stream
      */
-    uint8_t *Buffer;
+    uint8_t* Buffer;
     /*!
      * Size of the received data stream
      */
@@ -1144,6 +828,8 @@ typedef struct sMcpsIndication
  * \ref MLME_LINK_CHECK         | YES     | NO         | NO       | YES
  * \ref MLME_TXCW               | YES     | NO         | NO       | YES
  * \ref MLME_SCHEDULE_UPLINK    | NO      | YES        | NO       | NO
+ * \ref MLME_DERIVE_MC_KE_KEY   | YES     | NO         | NO       | YES
+ * \ref MLME_DERIVE_MC_KEY_PAIR | YES     | NO         | NO       | YES
  *
  * The following table provides links to the function implementations of the
  * related MLME primitives.
@@ -1162,6 +848,18 @@ typedef enum eMlme
      * LoRaWAN Specification V1.0.2, chapter 6.2
      */
     MLME_JOIN,
+    /*!
+     * Initiates sending a ReJoin-request type 0
+     *
+     * LoRaWAN Specification V1.1.0, chapter 6.2.4.1
+     */
+    MLME_REJOIN_0,
+    /*!
+     * Initiates sending a ReJoin-request type 1
+     *
+     * LoRaWAN Specification V1.1.0, chapter 6.2.4.2
+     */
+    MLME_REJOIN_1,
     /*!
      * LinkCheckReq - Connectivity validation
      *
@@ -1185,6 +883,14 @@ typedef enum eMlme
      * soon as possible.
      */
     MLME_SCHEDULE_UPLINK,
+    /*!
+     * Derives the McKEKey from the AppKey or NwkKey.
+     */
+    MLME_DERIVE_MC_KE_KEY,
+    /*!
+     * Derives a Multicast group key pair ( McAppSKey, McNwkSKey ) from McKey
+     */
+    MLME_DERIVE_MC_KEY_PAIR,
     /*!
      * Initiates a DeviceTimeReq
      *
@@ -1235,34 +941,20 @@ typedef struct sMlmeReqJoin
     /*!
      * Globally unique end-device identifier
      *
-     * LoRaWAN Specification V1.0.2, chapter 6.2.1
+     * LoRaWAN Specification V1.1.0, chapter 6.1.1.2
      */
-    uint8_t *DevEui;
+    uint8_t* DevEui;
     /*!
-     * Application identifier
+     * Join Sever identifier
      *
-     * LoRaWAN Specification V1.0.2, chapter 6.1.2
+     * LoRaWAN Specification V1.1.0, chapter 6.1.1.1
      */
-    uint8_t *AppEui;
-    /*!
-     * AES-128 application key
-     *
-     * LoRaWAN Specification V1.0.2, chapter 6.2.2
-     */
-    uint8_t *AppKey;
+    uint8_t* JoinEui;
     /*!
      * Datarate used for join request.
      */
     uint8_t Datarate;
 }MlmeReqJoin_t;
-
-/*!
- * LoRaMAC MLME-Request for the ping slot info service
- */
-typedef struct sMlmeReqPingSlotInfo
-{
-    PingSlotInfo_t PingSlot;
-}MlmeReqPingSlotInfo_t;
 
 /*!
  * LoRaMAC MLME-Request for Tx continuous wave mode
@@ -1284,6 +976,44 @@ typedef struct sMlmeReqTxCw
 }MlmeReqTxCw_t;
 
 /*!
+ * LoRaMAC MLME-Request for the ping slot info service
+ */
+typedef struct sMlmeReqPingSlotInfo
+{
+    PingSlotInfo_t PingSlot;
+}MlmeReqPingSlotInfo_t;
+
+/*!
+ * LoRaMAC MLME-Request to derive the McKEKey from the AppKey or NwkKey
+ */
+typedef struct sMlmeReqDeriveMcKEKey
+{
+    /*!
+     *  Key identifier of the root key to use to perform the derivation ( NwkKey or AppKey )
+     */
+    KeyIdentifier_t KeyID;
+    /*!
+     * Nonce value ( nonce <= 15)
+     */
+    uint16_t Nonce;
+    /*!
+     * DevEUI Value
+     */
+    uint8_t* DevEUI;
+}MlmeReqDeriveMcKEKey_t;
+
+/*!
+ * LoRaMAC MLME-Request to derive a Multicast group key pair ( McAppSKey, McNwkSKey ) from McKey
+ */
+typedef struct sMlmeReqDeriveMcSessionKeyPair
+{
+    /*!
+     *  Address identifier to select the multicast group
+     */
+    AddressIdentifier_t AddrID;
+}MlmeReqDeriveMcSessionKeyPair_t;
+
+/*!
  * LoRaMAC MLME-Request structure
  */
 typedef struct sMlmeReq
@@ -1303,13 +1033,21 @@ typedef struct sMlmeReq
          */
         MlmeReqJoin_t Join;
         /*!
+         * MLME-Request parameters for Tx continuous mode request
+         */
+        MlmeReqTxCw_t TxCw;
+        /*!
          * MLME-Request parameters for a ping slot info request
          */
         MlmeReqPingSlotInfo_t PingSlotInfo;
         /*!
-         * MLME-Request parameters for Tx continuous mode request
+         * MLME-Request to derive the McKEKey from the AppKey or NwkKey
          */
-        MlmeReqTxCw_t TxCw;
+        MlmeReqDeriveMcKEKey_t DeriveMcKEKey;
+        /*!
+         * MLME-Request to derive a Multicast group key pair ( McAppSKey, McNwkSKey ) from McKey
+         */
+        MlmeReqDeriveMcSessionKeyPair_t DeriveMcSessionKeyPair;
     }Req;
 }MlmeReq_t;
 
@@ -1340,6 +1078,10 @@ typedef struct sMlmeConfirm
      */
     uint8_t NbGateways;
     /*!
+     * Provides the number of retransmissions
+     */
+    uint8_t NbRetries;
+    /*!
      * The delay which we have received through the
      * BeaconTimingAns
      */
@@ -1356,7 +1098,7 @@ typedef struct sMlmeConfirm
 typedef struct sMlmeIndication
 {
     /*!
-     * Holds the previously performed MLME-Request
+     * MLME-Indication type
      */
     Mlme_t MlmeIndication;
     /*!
@@ -1382,8 +1124,27 @@ typedef struct sMlmeIndication
  * \ref MIB_ADR                                  | YES | YES
  * \ref MIB_NET_ID                               | YES | YES
  * \ref MIB_DEV_ADDR                             | YES | YES
- * \ref MIB_NWK_SKEY                             | YES | YES
- * \ref MIB_APP_SKEY                             | YES | YES
+ * \ref MIB_APP_KEY                              | NO  | YES
+ * \ref MIB_NWK_KEY                              | NO  | YES
+ * \ref MIB_J_S_INT_KEY                          | NO  | YES
+ * \ref MIB_J_S_ENC_KEY                          | NO  | YES
+ * \ref MIB_F_NWK_S_INT_KEY                      | NO  | YES
+ * \ref MIB_S_NWK_S_INT_KEY                      | NO  | YES
+ * \ref MIB_NWK_S_ENC_KEY                        | NO  | YES
+ * \ref MIB_APP_S_KEY                            | NO  | YES
+ * \ref MIB_MC_KE_KEY                            | NO  | YES
+ * \ref MIB_MC_KEY_0                             | NO  | YES
+ * \ref MIB_MC_APP_S_KEY_0                       | NO  | YES
+ * \ref MIB_MC_NWK_S_KEY_0                       | NO  | YES
+ * \ref MIB_MC_KEY_1                             | NO  | YES
+ * \ref MIB_MC_APP_S_KEY_1                       | NO  | YES
+ * \ref MIB_MC_NWK_S_KEY_1                       | NO  | YES
+ * \ref MIB_MC_KEY_2                             | NO  | YES
+ * \ref MIB_MC_APP_S_KEY_2                       | NO  | YES
+ * \ref MIB_MC_NWK_S_KEY_2                       | NO  | YES
+ * \ref MIB_MC_KEY_3                             | NO  | YES
+ * \ref MIB_MC_APP_S_KEY_3                       | NO  | YES
+ * \ref MIB_MC_NWK_S_KEY_3                       | NO  | YES
  * \ref MIB_PUBLIC_NETWORK                       | YES | YES
  * \ref MIB_REPEATER_SUPPORT                     | YES | YES
  * \ref MIB_CHANNELS                             | YES | NO
@@ -1400,9 +1161,6 @@ typedef struct sMlmeIndication
  * \ref MIB_CHANNELS_DEFAULT_DATARATE            | YES | YES
  * \ref MIB_CHANNELS_TX_POWER                    | YES | YES
  * \ref MIB_CHANNELS_DEFAULT_TX_POWER            | YES | YES
- * \ref MIB_UPLINK_COUNTER                       | YES | YES
- * \ref MIB_DOWNLINK_COUNTER                     | YES | YES
- * \ref MIB_MULTICAST_CHANNEL                    | YES | NO
  * \ref MIB_SYSTEM_MAX_RX_ERROR                  | YES | YES
  * \ref MIB_MIN_RX_SYMBOLS                       | YES | YES
  * \ref MIB_BEACON_INTERVAL                      | YES | YES
@@ -1419,6 +1177,7 @@ typedef struct sMlmeIndication
  * \ref MIB_MAX_BEACON_LESS_PERIOD               | YES | YES
  * \ref MIB_ANTENNA_GAIN                         | YES | YES
  * \ref MIB_DEFAULT_ANTENNA_GAIN                 | YES | YES
+ * \ref MIB_ABP_LORAWAN_VERSION                  | YES | YES
  *
  * The following table provides links to the function implementations of the
  * related MIB primitives:
@@ -1463,17 +1222,131 @@ typedef enum eMib
      */
     MIB_DEV_ADDR,
     /*!
-     * Network session key
+     * Application root key
      *
-     * LoRaWAN Specification V1.0.2, chapter 6.1.3
+     * LoRaWAN Specification V1.1.0, chapter 6.1.1.3
      */
-    MIB_NWK_SKEY,
+    MIB_APP_KEY,
+    /*!
+     * Network root key
+     *
+     * LoRaWAN Specification V1.1.0, chapter 6.1.1.3
+     */
+    MIB_NWK_KEY,
+    /*!
+     * Join session integrity key
+     *
+     * LoRaWAN Specification V1.1.0, chapter 6.1.1.4
+     */
+    MIB_J_S_INT_KEY,
+    /*!
+     * Join session encryption key
+     *
+     * LoRaWAN Specification V1.1.0, chapter 6.1.1.4
+     */
+    MIB_J_S_ENC_KEY,
+    /*!
+     * Forwarding Network session integrity key
+     *
+     * LoRaWAN Specification V1.1.0, chapter 6.1.2.2
+     */
+    MIB_F_NWK_S_INT_KEY,
+    /*!
+     * Serving Network session integrity key
+     *
+     * LoRaWAN Specification V1.1.0, chapter 6.1.2.3
+     */
+    MIB_S_NWK_S_INT_KEY,
+    /*!
+     * Network session encryption key
+     *
+     * LoRaWAN Specification V1.1.0, chapter 6.1.2.4
+     */
+    MIB_NWK_S_ENC_KEY,
     /*!
      * Application session key
      *
-     * LoRaWAN Specification V1.0.2, chapter 6.1.4
+     * LoRaWAN Specification V1.1.0, chapter 6.1.1.3
      */
-    MIB_APP_SKEY,
+    MIB_APP_S_KEY,
+    /*!
+     * Multicast key encryption key
+     *
+     * LoRaWAN - Secure element specification v1
+     */
+    MIB_MC_KE_KEY,
+    /*!
+     * Multicast root key index 0
+     *
+     * LoRaWAN - Secure element specification v1
+     */
+    MIB_MC_KEY_0,
+    /*!
+     * Multicast Application session key index 0
+     *
+     * LoRaWAN - Secure element specification v1
+     */
+    MIB_MC_APP_S_KEY_0,
+    /*!
+     * Multicast Network session key index 0
+     *
+     * LoRaWAN - Secure element specification v1
+     */
+    MIB_MC_NWK_S_KEY_0,
+    /*!
+     * Multicast root key index 1
+     *
+     * LoRaWAN - Secure element specification v1
+     */
+    MIB_MC_KEY_1,
+    /*!
+     * Multicast Application session key index 1
+     *
+     * LoRaWAN - Secure element specification v1
+     */
+    MIB_MC_APP_S_KEY_1,
+    /*!
+     * Multicast Network session key index 1
+     *
+     * LoRaWAN - Secure element specification v1
+     */
+    MIB_MC_NWK_S_KEY_1,
+    /*!
+     * Multicast root key index 2
+     *
+     * LoRaWAN - Secure element specification v1
+     */
+    MIB_MC_KEY_2,
+    /*!
+     * Multicast Application session key index 2
+     *
+     * LoRaWAN - Secure element specification v1
+     */
+    MIB_MC_APP_S_KEY_2,
+    /*!
+     * Multicast Network session key index 2
+     *
+     * LoRaWAN - Secure element specification v1
+     */
+    MIB_MC_NWK_S_KEY_2,
+    /*!
+     * Multicast root key index 3
+     *
+     * LoRaWAN - Secure element specification v1
+     */
+    MIB_MC_KEY_3,
+    /*!
+     * Multicast Application session key index 3
+     *
+     * LoRaWAN - Secure element specification v1
+     */
+    MIB_MC_APP_S_KEY_3,
+    /*!
+     * Multicast Network session key index 3
+     *
+     * LoRaWAN - Secure element specification v1
+     */
+    MIB_MC_NWK_S_KEY_3,
     /*!
      * Set the network type to public or private
      *
@@ -1591,24 +1464,6 @@ typedef enum eMib
      */
     MIB_CHANNELS_DEFAULT_TX_POWER,
     /*!
-     * LoRaWAN Up-link counter
-     *
-     * LoRaWAN Specification V1.0.2, chapter 4.3.1.5
-     */
-    MIB_UPLINK_COUNTER,
-    /*!
-     * LoRaWAN Down-link counter
-     *
-     * LoRaWAN Specification V1.0.2, chapter 4.3.1.5
-     */
-    MIB_DOWNLINK_COUNTER,
-    /*!
-     * Multicast channels. A get request will return a pointer to the first
-     * entry of the multicast channel linked list. If the pointer is equal to
-     * NULL, the list is empty.
-     */
-    MIB_MULTICAST_CHANNEL,
-    /*!
      * System overall timing error in milliseconds.
      * [-SystemMaxRxError : +SystemMaxRxError]
      * Default: +/-10 ms
@@ -1633,6 +1488,10 @@ typedef enum eMib
      * radioTxPower = ( int8_t )floor( maxEirp - antennaGain )
      */
     MIB_DEFAULT_ANTENNA_GAIN,
+    /*!
+     * LoRaWAN MAC layer operating version when activated by ABP.
+     */
+    MIB_ABP_LORAWAN_VERSION,
     /*!
      * Beacon interval in ms
      */
@@ -1729,17 +1588,131 @@ typedef union uMibParam
      */
     uint32_t DevAddr;
     /*!
-     * Network session key
+     * Application root key
      *
-     * Related MIB type: \ref MIB_NWK_SKEY
+     * Related MIB type: \ref MIB_APP_KEY
      */
-    uint8_t *NwkSKey;
+    uint8_t* AppKey;
+    /*!
+     * Network root key
+     *
+     * Related MIB type: \ref MIB_NWK_KEY
+     */
+    uint8_t* NwkKey;
+    /*!
+     * Join session integrity key
+     *
+     * Related MIB type: \ref MIB_J_S_INT_KEY
+     */
+    uint8_t* JSIntKey;
+    /*!
+     * Join session encryption key
+     *
+     * Related MIB type: \ref MIB_J_S_ENC_KEY
+     */
+    uint8_t* JSEncKey;
+    /*!
+     * Forwarding Network session integrity key
+     *
+     * Related MIB type: \ref MIB_F_NWK_S_INT_KEY
+     */
+    uint8_t* FNwkSIntKey;
+    /*!
+     * Serving Network session integrity key
+     *
+     * Related MIB type: \ref MIB_S_NWK_S_INT_KEY
+     */
+    uint8_t* SNwkSIntKey;
+    /*!
+     * Network session encryption key
+     *
+     * Related MIB type: \ref MIB_NWK_S_ENC_KEY
+     */
+    uint8_t* NwkSEncKey;
     /*!
      * Application session key
      *
-     * Related MIB type: \ref MIB_APP_SKEY
+     * Related MIB type: \ref MIB_APP_S_KEY
      */
-    uint8_t *AppSKey;
+    uint8_t* AppSKey;
+    /*!
+     * Multicast key encryption key
+     *
+     * Related MIB type: \ref MIB_MC_KE_KEY
+     */
+    uint8_t* McKEKey;
+    /*!
+     * Multicast root key index 0
+     *
+     * Related MIB type: \ref MIB_MC_KEY_0
+     */
+    uint8_t* McKey0;
+    /*!
+     * Multicast Application session key index 0
+     *
+     * Related MIB type: \ref MIB_MC_APP_S_KEY_0
+     */
+    uint8_t* McAppSKey0;
+    /*!
+     * Multicast Network session key index 0
+     *
+     * Related MIB type: \ref MIB_MC_NWK_S_KEY_0
+     */
+    uint8_t* McNwkSKey0;
+    /*!
+     * Multicast root key index 0
+     *
+     * Related MIB type: \ref MIB_MC_KEY_0
+     */
+    uint8_t* McKey1;
+    /*!
+     * Multicast Application session key index 1
+     *
+     * Related MIB type: \ref MIB_MC_APP_S_KEY_1
+     */
+    uint8_t* McAppSKey1;
+    /*!
+     * Multicast Network session key index 1
+     *
+     * Related MIB type: \ref MIB_MC_NWK_S_KEY_1
+     */
+    uint8_t* McNwkSKey1;
+    /*!
+     * Multicast root key index 2
+     *
+     * Related MIB type: \ref MIB_MC_KEY_2
+     */
+    uint8_t* McKey2;
+    /*!
+     * Multicast Application session key index 2
+     *
+     * Related MIB type: \ref MIB_MC_APP_S_KEY_2
+     */
+    uint8_t* McAppSKey2;
+    /*!
+     * Multicast Network session key index 2
+     *
+     * Related MIB type: \ref MIB_MC_NWK_S_KEY_2
+     */
+    uint8_t* McNwkSKey2;
+    /*!
+     * Multicast root key index 2
+     *
+     * Related MIB type: \ref MIB_MC_KEY_2
+     */
+    uint8_t* McKey3;
+    /*!
+     * Multicast Application session key index 2
+     *
+     * Related MIB type: \ref MIB_MC_APP_S_KEY_2
+     */
+    uint8_t* McAppSKey3;
+    /*!
+     * Multicast Network session key index 2
+     *
+     * Related MIB type: \ref MIB_MC_NWK_S_KEY_2
+     */
+    uint8_t* McNwkSKey3;
     /*!
      * Enable or disable a public network
      *
@@ -1758,13 +1731,13 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_CHANNELS
      */
     ChannelParams_t* ChannelList;
-     /*!
+    /*!
      * Channel for the receive window 2
      *
      * Related MIB type: \ref MIB_RX2_CHANNEL
      */
     Rx2ChannelParams_t Rx2Channel;
-     /*!
+    /*!
      * Channel for the receive window 2
      *
      * Related MIB type: \ref MIB_RX2_DEFAULT_CHANNEL
@@ -1843,23 +1816,11 @@ typedef union uMibParam
      */
     int8_t ChannelsTxPower;
     /*!
-     * LoRaWAN Up-link counter
-     *
-     * Related MIB type: \ref MIB_UPLINK_COUNTER
-     */
-    uint32_t UpLinkCounter;
-    /*!
-     * LoRaWAN Down-link counter
-     *
-     * Related MIB type: \ref MIB_DOWNLINK_COUNTER
-     */
-    uint32_t DownLinkCounter;
-    /*!
-     * Multicast channel
+     * Multicast channels
      *
      * Related MIB type: \ref MIB_MULTICAST_CHANNEL
      */
-    MulticastParams_t* MulticastList;
+    MulticastChannel_t MulticastChannel;
     /*!
      * System overall timing error in milliseconds.
      *
@@ -1884,6 +1845,12 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_DEFAULT_ANTENNA_GAIN
      */
     float DefaultAntennaGain;
+    /*
+     * LoRaWAN MAC layer operating version when activated by ABP.
+     *
+     * Related MIB type: \ref MIB_ABP_LORAWAN_VERSION
+     */
+    Version_t AbpLrWanVersion;
     /*!
      * Beacon interval in ms
      *
@@ -2048,16 +2015,21 @@ typedef enum eLoRaMacStatus
      */
     LORAMAC_STATUS_REGION_NOT_SUPPORTED,
     /*!
+     * The application data was not transmitted
+     * because prioritized pending MAC commands had to be sent.
+     */
+    LORAMAC_STATUS_SKIPPED_APP_DATA,
+    /*!
      * ToDo
      */
     LORAMAC_STATUS_DUTYCYCLE_RESTRICTED,
-     /*!
-      * ToDo
-      */
+    /*!
+     *
+     */
     LORAMAC_STATUS_NO_CHANNEL_FOUND,
-     /*!
-      * ToDo
-      */
+    /*!
+     *
+     */
     LORAMAC_STATUS_NO_FREE_CHANNEL_FOUND,
      /*!
       * ToDo
@@ -2070,7 +2042,31 @@ typedef enum eLoRaMacStatus
      /*!
       * ToDo
       */
-    LORAMAC_STATUS_BUSY_UPLINK_COLLISION
+    LORAMAC_STATUS_BUSY_UPLINK_COLLISION,
+    /*!
+     * An error in the cryptographic module is occurred
+     */
+    LORAMAC_STATUS_CRYPTO_ERROR,
+    /*!
+     * An error in the frame counter handler module is occurred
+     */
+    LORAMAC_STATUS_FCNT_HANDLER_ERROR,
+    /*!
+     * An error in the MAC command module is occurred
+     */
+    LORAMAC_STATUS_MAC_COMMAD_ERROR,
+    /*!
+     * An error in the Class B module is occurred
+     */
+    LORAMAC_STATUS_CLASS_B_ERROR,
+    /*!
+     * An error in the Confirm Queue module is occurred
+     */
+    LORAMAC_STATUS_CONFIRM_QUEUE_ERROR,
+    /*!
+     * Undefined error occured
+     */
+    LORAMAC_STATUS_ERROR
 }LoRaMacStatus_t;
 
 /*!
@@ -2127,25 +2123,25 @@ typedef struct sLoRaMacPrimitives
      *
      * \param   [OUT] MCPS-Confirm parameters
      */
-    void ( *MacMcpsConfirm )( McpsConfirm_t *McpsConfirm );
+    void ( *MacMcpsConfirm )( McpsConfirm_t* McpsConfirm );
     /*!
      * \brief   MCPS-Indication primitive
      *
      * \param   [OUT] MCPS-Indication parameters
      */
-    void ( *MacMcpsIndication )( McpsIndication_t *McpsIndication );
+    void ( *MacMcpsIndication )( McpsIndication_t* McpsIndication );
     /*!
      * \brief   MLME-Confirm primitive
      *
      * \param   [OUT] MLME-Confirm parameters
      */
-    void ( *MacMlmeConfirm )( MlmeConfirm_t *MlmeConfirm );
+    void ( *MacMlmeConfirm )( MlmeConfirm_t* MlmeConfirm );
     /*!
      * \brief   MLME-Indication primitive
      *
      * \param   [OUT] MLME-Indication parameters
      */
-    void ( *MacMlmeIndication )( MlmeIndication_t *MlmeIndication );
+    void ( *MacMlmeIndication )( MlmeIndication_t* MlmeIndication );
 }LoRaMacPrimitives_t;
 
 /*!
@@ -2170,12 +2166,11 @@ typedef struct sLoRaMacCallback
     float ( *GetTemperatureLevel )( void );
 }LoRaMacCallback_t;
 
+
 /*!
  * LoRaMAC Max EIRP (dBm) table
  */
 static const uint8_t LoRaMacMaxEirpTable[] = { 8, 10, 12, 13, 14, 16, 18, 20, 21, 24, 26, 27, 29, 30, 33, 36 };
-
-
 
 /*!
  * \brief   LoRaMAC layer initialization
@@ -2188,10 +2183,10 @@ static const uint8_t LoRaMacMaxEirpTable[] = { 8, 10, 12, 13, 14, 16, 18, 20, 21
  * \param   [IN] primitives - Pointer to a structure defining the LoRaMAC
  *                            event functions. Refer to \ref LoRaMacPrimitives_t.
  *
- * \param   [IN] events - Pointer to a structure defining the LoRaMAC
- *                        callback functions. Refer to \ref LoRaMacCallback_t.
+ * \param   [IN] callbacks  - Pointer to a structure defining the LoRaMAC
+ *                            callback functions. Refer to \ref LoRaMacCallback_t.
  *
- * \param   [IN] region - The region to start.
+ * \param   [IN] region     - The region to start.
  *
  * \retval  LoRaMacStatus_t Status of the operation. Possible returns are:
  *          returns are:
@@ -2199,7 +2194,8 @@ static const uint8_t LoRaMacMaxEirpTable[] = { 8, 10, 12, 13, 14, 16, 18, 20, 21
  *          \ref LORAMAC_STATUS_PARAMETER_INVALID,
  *          \ref LORAMAC_STATUS_REGION_NOT_SUPPORTED.
  */
-LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks, LoRaMacRegion_t region );
+LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacCallback_t* callbacks, LoRaMacRegion_t region );
+
 
 /*!
  * Processes the LoRaMac events.
@@ -2210,10 +2206,10 @@ void LoRaMacProcess( void );
 
 /*!
  * \brief   Queries the LoRaMAC if it is possible to send the next frame with
- *          a given payload size. The LoRaMAC takes scheduled MAC commands into
- *          account and reports, when the frame can be send or not.
+ *          a given application data payload size. The LoRaMAC takes scheduled
+ *          MAC commands into account and reports, when the frame can be send or not.
  *
- * \param   [IN] size - Size of applicative payload to be send next
+ * \param   [IN] size - Size of application data payload to be send next
  *
  * \param   [OUT] txInfo - The structure \ref LoRaMacTxInfo_t contains
  *                         information about the actual maximum payload possible
@@ -2223,11 +2219,13 @@ void LoRaMacProcess( void );
  *
  * \retval  LoRaMacStatus_t Status of the operation. When the parameters are
  *          not valid, the function returns \ref LORAMAC_STATUS_PARAMETER_INVALID.
- *          In case of a length error caused by the applicative payload in combination
+ *          In case of a length error caused by the application data payload in combination
  *          with the MAC commands, the function returns \ref LORAMAC_STATUS_LENGTH_ERROR.
- *          Please note that if the size of the MAC commands which are in the queue do
- *          not fit into the payload size on the related datarate, the LoRaMAC will
- *          omit the MAC commands.
+ *          In this case its recommended to send a frame without application data to flush
+ *          the MAC commands. Otherwise the LoRaMAC will prioritize the MAC commands and
+ *          if needed it will skip the application data. Please note that if MAC commands do
+ *          not fit at all into the payload size on the related datarate, the LoRaMAC will
+ *          automatically clip the MAC commands.
  *          In case the query is valid, and the LoRaMAC is able to send the frame,
  *          the function returns \ref LORAMAC_STATUS_OK.
  */
@@ -2266,32 +2264,18 @@ LoRaMacStatus_t LoRaMacChannelAdd( uint8_t id, ChannelParams_t params );
 LoRaMacStatus_t LoRaMacChannelRemove( uint8_t id );
 
 /*!
- * \brief   LoRaMAC multicast channel link service
+ * \brief   LoRaMAC multicast channel setting service
  *
- * \details Links a multicast channel into the linked list.
+ * \details Sets a multicast channel.
  *
- * \param   [IN] channelParam - Multicast channel parameters to link.
- *
- * \retval  LoRaMacStatus_t Status of the operation. Possible returns are:
- *          \ref LORAMAC_STATUS_OK,
- *          \ref LORAMAC_STATUS_BUSY,
- *          \ref LORAMAC_STATUS_PARAMETER_INVALID.
- */
-LoRaMacStatus_t LoRaMacMulticastChannelLink( MulticastParams_t *channelParam );
-
-/*!
- * \brief   LoRaMAC multicast channel unlink service
- *
- * \details Unlinks a multicast channel from the linked list.
- *
- * \param   [IN] channelParam - Multicast channel parameters to unlink.
+ * \param   [IN] channel - Multicast channel to set.
  *
  * \retval  LoRaMacStatus_t Status of the operation. Possible returns are:
  *          \ref LORAMAC_STATUS_OK,
  *          \ref LORAMAC_STATUS_BUSY,
  *          \ref LORAMAC_STATUS_PARAMETER_INVALID.
  */
-LoRaMacStatus_t LoRaMacMulticastChannelUnlink( MulticastParams_t *channelParam );
+LoRaMacStatus_t LoRaMacMulticastChannelSet( MulticastChannel_t channel );
 
 /*!
  * \brief   LoRaMAC MIB-Get
@@ -2319,7 +2303,7 @@ LoRaMacStatus_t LoRaMacMulticastChannelUnlink( MulticastParams_t *channelParam )
  *          \ref LORAMAC_STATUS_SERVICE_UNKNOWN,
  *          \ref LORAMAC_STATUS_PARAMETER_INVALID.
  */
-LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t *mibGet );
+LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t* mibGet );
 
 /*!
  * \brief   LoRaMAC MIB-Set
@@ -2350,7 +2334,7 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t *mibGet );
  *          \ref LORAMAC_STATUS_SERVICE_UNKNOWN,
  *          \ref LORAMAC_STATUS_PARAMETER_INVALID.
  */
-LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet );
+LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet );
 
 /*!
  * \brief   LoRaMAC MLME-Request
@@ -2364,9 +2348,14 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet );
  * {
  *   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
  * };
- * static uint8_t AppEui[] =
+ * static uint8_t JoinEui[] =
  * {
  *   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+ * };
+ * static uint8_t NwkKey[] =
+ * {
+ *   0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6,
+ *   0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, 0x3C
  * };
  * static uint8_t AppKey[] =
  * {
@@ -2377,8 +2366,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet );
  * MlmeReq_t mlmeReq;
  * mlmeReq.Type = MLME_JOIN;
  * mlmeReq.Req.Join.DevEui = DevEui;
- * mlmeReq.Req.Join.AppEui = AppEui;
- * mlmeReq.Req.Join.AppKey = AppKey;
+ * mlmeReq.Req.Join.JoinEui = JoinEui;
  *
  * if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
  * {
@@ -2397,7 +2385,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet );
  *          \ref LORAMAC_STATUS_LENGTH_ERROR,
  *          \ref LORAMAC_STATUS_DEVICE_OFF.
  */
-LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest );
+LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest );
 
 /*!
  * \brief   LoRaMAC MCPS-Request
@@ -2432,7 +2420,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest );
  *          \ref LORAMAC_STATUS_LENGTH_ERROR,
  *          \ref LORAMAC_STATUS_DEVICE_OFF.
  */
-LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest );
+LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest );
 
 /*!
  * Automatically add the Region.h file at the end of LoRaMac.h file.

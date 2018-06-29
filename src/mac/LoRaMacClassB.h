@@ -38,6 +38,8 @@
 #define __LORAMACCLASSB_H__
 
 #include "systime.h"
+#include "LoRaMacTypes.h"
+
 /*!
  * States of the class B beacon acquisition and tracking
  */
@@ -163,7 +165,7 @@ typedef struct sPingSlotContext
     /*!
      * The multicast channel which will be enabled next.
      */
-    MulticastParams_t *NextMulticastChannel;
+    MulticastCtx_t *NextMulticastChannel;
 }PingSlotContext_t;
 
 
@@ -298,7 +300,7 @@ typedef struct sLoRaMacClassBParams
     /*!
      * Pointer to the multicast channel list
      */
-    MulticastParams_t **MulticastChannels;
+    MulticastCtx_t *MulticastChannels;
 }LoRaMacClassBParams_t;
 
 /*!
@@ -523,7 +525,7 @@ void LoRaMacClassBStartRxSlots( void );
  *
  * \param [IN] multicastChannel Related multicast channel
  */
-void LoRaMacClassBSetMulticastPeriodicity( MulticastParams_t* multicastChannel );
+void LoRaMacClassBSetMulticastPeriodicity( MulticastCtx_t* multicastChannel );
 
 void LoRaMacClassBProcess( void );
 

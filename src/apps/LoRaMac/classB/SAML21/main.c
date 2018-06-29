@@ -105,13 +105,16 @@
 #define LORAWAN_APP_PORT                            2
 
 static uint8_t DevEui[] = LORAWAN_DEVICE_EUI;
-static uint8_t AppEui[] = LORAWAN_APPLICATION_EUI;
-static uint8_t AppKey[] = LORAWAN_APPLICATION_KEY;
+static uint8_t JoinEui[] = LORAWAN_JOIN_EUI;
+static uint8_t AppKey[] = LORAWAN_APP_KEY;
+static uint8_t NwkKey[] = LORAWAN_NWK_KEY;
 
 #if( OVER_THE_AIR_ACTIVATION == 0 )
 
-static uint8_t NwkSKey[] = LORAWAN_NWKSKEY;
-static uint8_t AppSKey[] = LORAWAN_APPSKEY;
+static uint8_t FNwkSIntKey[] = LORAWAN_F_NWK_S_INT_KEY;
+static uint8_t SNwkSIntKey[] = LORAWAN_S_NWK_S_INT_KEY;
+static uint8_t NwkSEncKey[] = LORAWAN_NWK_S_ENC_KEY;
+static uint8_t AppSKey[] = LORAWAN_APP_S_KEY;
 
 /*!
  * Device address
@@ -312,8 +315,7 @@ static void JoinNetwork( void )
     MlmeReq_t mlmeReq;
     mlmeReq.Type = MLME_JOIN;
     mlmeReq.Req.Join.DevEui = DevEui;
-    mlmeReq.Req.Join.AppEui = AppEui;
-    mlmeReq.Req.Join.AppKey = AppKey;
+    mlmeReq.Req.Join.JoinEui = JoinEui;
     mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
 
     // Starts the join procedure
@@ -454,7 +456,7 @@ static void OnTxNextPacketTimerEvent( void )
         }
         else
         {
-            DeviceState = DEVICE_STATE_SEND;
+            DeviceState = WakeUpState;
             NextTx = true;
         }
     }
@@ -1133,6 +1135,14 @@ int main( void )
         {
             case DEVICE_STATE_INIT:
             {
+                    mibReq.Type = MIB_APP_KEY;
+                    mibReq.Param.AppKey = AppKey;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+
+                    mibReq.Type = MIB_NWK_KEY;
+                    mibReq.Param.NwkKey = NwkKey;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+
                     // Initialize LoRaMac device unique ID if not already defined in Commissioning.h
                     if( ( DevEui[0] == 0 ) && ( DevEui[1] == 0 ) &&
                         ( DevEui[2] == 0 ) && ( DevEui[3] == 0 ) &&
@@ -1161,11 +1171,19 @@ int main( void )
                     mibReq.Param.DevAddr = DevAddr;
                     LoRaMacMibSetRequestConfirm( &mibReq );
 
-                    mibReq.Type = MIB_NWK_SKEY;
-                    mibReq.Param.NwkSKey = NwkSKey;
+                    mibReq.Type = MIB_F_NWK_S_INT_KEY;
+                    mibReq.Param.FNwkSIntKey = FNwkSIntKey;
                     LoRaMacMibSetRequestConfirm( &mibReq );
 
-                    mibReq.Type = MIB_APP_SKEY;
+                    mibReq.Type = MIB_S_NWK_S_INT_KEY;
+                    mibReq.Param.SNwkSIntKey = SNwkSIntKey;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+
+                    mibReq.Type = MIB_NWK_S_ENC_KEY;
+                    mibReq.Param.NwkSEncKey = NwkSEncKey;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+
+                    mibReq.Type = MIB_APP_S_KEY;
                     mibReq.Param.AppSKey = AppSKey;
                     LoRaMacMibSetRequestConfirm( &mibReq );
 #endif
@@ -1237,26 +1255,26 @@ int main( void )
                     printf( "-%02X", DevEui[i] );
                 }
                 printf( "\r\n" );
-                printf( "AppEui      : %02X", AppEui[0] );
+                printf( "AppEui      : %02X", JoinEui[0] );
                 for( int i = 1; i < 8; i++ )
                 {
-                    printf( "-%02X", AppEui[i] );
+                    printf( "-%02X", JoinEui[i] );
                 }
                 printf( "\r\n" );
-                printf( "AppKey      : %02X", AppKey[0] );
+                printf( "AppKey      : %02X", NwkKey[0] );
                 for( int i = 1; i < 16; i++ )
                 {
-                    printf( " %02X", AppKey[i] );
+                    printf( " %02X", NwkKey[i] );
                 }
                 printf( "\n\r\n" );
 #if( OVER_THE_AIR_ACTIVATION == 0 )
                 printf( "###### ===== JOINED ==== ######\r\n" );
                 printf( "\r\nABP\r\n\r\n" );
                 printf( "DevAddr     : %08lX\r\n", DevAddr );
-                printf( "NwkSKey     : %02X", NwkSKey[0] );
+                printf( "NwkSKey     : %02X", FNwkSIntKey[0] );
                 for( int i = 1; i < 16; i++ )
                 {
-                    printf( " %02X", NwkSKey[i] );
+                    printf( " %02X", FNwkSIntKey[i] );
                 }
                 printf( "\r\n" );
                 printf( "AppSKey     : %02X", AppSKey[0] );
@@ -1265,6 +1283,11 @@ int main( void )
                     printf( " %02X", AppSKey[i] );
                 }
                 printf( "\n\r\n" );
+
+                // Tell the MAC layer which network server version are we connecting too.
+                mibReq.Type = MIB_ABP_LORAWAN_VERSION;
+                mibReq.Param.AbpLrWanVersion.Value = ABP_ACTIVATION_LRWAN_VERSION;
+                LoRaMacMibSetRequestConfirm( &mibReq );
 
                 mibReq.Type = MIB_NETWORK_JOINED;
                 mibReq.Param.IsNetworkJoined = true;
