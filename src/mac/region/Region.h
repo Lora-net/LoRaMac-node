@@ -533,6 +533,10 @@ typedef enum ePhyAttribute
      */
     PHY_RX_DR,
     /*!
+     * Maximum TX power.
+     */
+    PHY_MAX_TX_POWER,
+    /*!
      * TX power. It is available
      * to perform a verification with RegionVerify().
      */
@@ -541,6 +545,14 @@ typedef enum ePhyAttribute
      * Default TX power.
      */
     PHY_DEF_TX_POWER,
+    /*!
+     * Default ADR_ACK_LIMIT value.
+     */
+    PHY_DEF_ADR_ACK_LIMIT,
+    /*!
+     * Default ADR_ACK_DELAY value.
+     */
+    PHY_DEF_ADR_ACK_DELAY,
     /*!
      * Maximum payload possible.
      */
@@ -898,37 +910,6 @@ typedef struct sChanMaskSetParams
 }ChanMaskSetParams_t;
 
 /*!
- * Parameter structure for the function RegionAdrNext.
- */
-typedef struct sAdrNextParams
-{
-    /*!
-     * Set to true, if the function should update the channels mask.
-     */
-    bool UpdateChanMask;
-    /*!
-     * Set to true, if ADR is enabled.
-     */
-    bool AdrEnabled;
-    /*!
-     * ADR ack counter.
-     */
-    uint32_t AdrAckCounter;
-    /*!
-     * Datarate used currently.
-     */
-    int8_t Datarate;
-    /*!
-     * TX power used currently.
-     */
-    int8_t TxPower;
-    /*!
-     * UplinkDwellTime
-     */
-    uint8_t UplinkDwellTime;
-}AdrNextParams_t;
-
-/*!
  * Parameter structure for the function RegionRxConfig.
  */
 typedef struct sRxConfigParams
@@ -1015,6 +996,10 @@ typedef struct sTxConfigParams
  */
 typedef struct sLinkAdrReqParams
 {
+    /*!
+     * Current LoRaWAN Version
+     */
+    Version_t Version;
     /*!
      * Pointer to the payload which contains the MAC commands.
      */
@@ -1321,23 +1306,6 @@ void RegionApplyCFList( LoRaMacRegion_t region, ApplyCFListParams_t* applyCFList
  * \retval Returns true, if the channels mask could be set.
  */
 bool RegionChanMaskSet( LoRaMacRegion_t region, ChanMaskSetParams_t* chanMaskSet );
-
-/*!
- * \brief Calculates the next datarate to set, when ADR is on or off.
- *
- * \param [IN] region LoRaWAN region.
- *
- * \param [IN] adrNext Pointer to the function parameters.
- *
- * \param [OUT] drOut The calculated datarate for the next TX.
- *
- * \param [OUT] txPowOut The TX power for the next TX.
- *
- * \param [OUT] adrAckCounter The calculated ADR acknowledgement counter.
- *
- * \retval Returns true, if an ADR request should be performed.
- */
-bool RegionAdrNext( LoRaMacRegion_t region, AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowOut, uint32_t* adrAckCounter );
 
 /*!
  * \brief Configuration of the RX windows.

@@ -43,6 +43,7 @@
 #include "LoRaMacParser.h"
 #include "LoRaMacFCntHandler.h"
 #include "LoRaMacCommands.h"
+#include "LoRaMacAdr.h"
 
 #include "LoRaMac.h"
 
@@ -130,6 +131,15 @@ typedef struct sLoRaMacNvmCtx
      * Counts the number of missed ADR acknowledgements
      */
     uint32_t AdrAckCounter;
+    /*
+     * Limit of uplinks without any donwlink response before the ADRACKReq bit will be set.
+     */
+    uint16_t AdrAckLimit;
+    /*
+     * Limit of uplinks without any donwlink response after a the first frame with set ADRACKReq bit
+     * before the trying to regain the connectivity.
+     */
+    uint16_t AdrAckDelay;
     /*
      * LoRaMac parameters
      */
@@ -1760,6 +1770,7 @@ static void SetMlmeScheduleUplinkIndication( void )
 static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t commandsSize, uint8_t snr, LoRaMacRxSlot_t rxSlot )
 {
     uint8_t status = 0;
+    bool adrBlockFound = false;
     uint8_t macCmdPayload[2] = { 0x00, 0x00 };
 
     while( macIndex < commandsSize )
@@ -1785,6 +1796,10 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 uint8_t linkAdrNbRep = 0;
                 uint8_t linkAdrNbBytesParsed = 0;
 
+                if( adrBlockFound == false )
+                {
+                    adrBlockFound = true;
+
                     // Fill parameter structure
                     linkAdrReq.Payload = &payload[macIndex - 1];
                     linkAdrReq.PayloadSize = commandsSize - ( macIndex - 1 );
@@ -1793,6 +1808,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     linkAdrReq.CurrentDatarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
                     linkAdrReq.CurrentTxPower = MacCtx.NvmCtx->MacParams.ChannelsTxPower;
                     linkAdrReq.CurrentNbRep = MacCtx.NvmCtx->MacParams.ChannelsNbTrans;
+                    linkAdrReq.Version = MacCtx.NvmCtx->Version;
 
                     // Process the ADR requests
                     status = RegionLinkAdrReq( MacCtx.NvmCtx->Region, &linkAdrReq, &linkAdrDatarate,
@@ -1812,6 +1828,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     }
                     // Update MAC index
                     macIndex += linkAdrNbBytesParsed - 1;
+                }
                 break;
             }
             case SRV_MAC_DUTY_CYCLE_REQ:
@@ -2047,6 +2064,10 @@ LoRaMacStatus_t Send( LoRaMacHeader_t* macHdr, uint8_t fPort, void* fBuffer, uin
 {
     LoRaMacFrameCtrl_t fCtrl;
     LoRaMacStatus_t status = LORAMAC_STATUS_PARAMETER_INVALID;
+    int8_t datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
+    int8_t txPower = MacCtx.NvmCtx->MacParams.ChannelsTxPower;
+    uint32_t adrAckCounter = MacCtx.NvmCtx->AdrAckCounter;
+    CalcNextAdrParams_t adrNext;
 
     // Check if we are joined
     if( MacCtx.NvmCtx->IsLoRaMacNetworkJoined == false )
@@ -2083,6 +2104,20 @@ LoRaMacStatus_t Send( LoRaMacHeader_t* macHdr, uint8_t fPort, void* fBuffer, uin
         fCtrl.Bits.Ack = 1;
     }
 
+    // ADR next request
+    adrNext.Version = MacCtx.NvmCtx->Version;
+    adrNext.UpdateChanMask = true;
+    adrNext.AdrEnabled = fCtrl.Bits.Adr;
+    adrNext.AdrAckCounter = MacCtx.NvmCtx->AdrAckCounter;
+    adrNext.AdrAckLimit = MacCtx.NvmCtx->AdrAckLimit;
+    adrNext.AdrAckDelay = MacCtx.NvmCtx->AdrAckDelay;
+    adrNext.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
+    adrNext.TxPower = MacCtx.NvmCtx->MacParams.ChannelsTxPower;
+    adrNext.UplinkDwellTime = MacCtx.NvmCtx->MacParams.UplinkDwellTime;
+    adrNext.Region = MacCtx.NvmCtx->Region;
+
+    fCtrl.Bits.AdrAckReq = LoRaMacAdrCalcNext( &adrNext, &MacCtx.NvmCtx->MacParams.ChannelsDatarate,
+                                               &MacCtx.NvmCtx->MacParams.ChannelsTxPower, &adrAckCounter );
 
     // Prepare the frame
     status = PrepareFrame( macHdr, &fCtrl, fPort, fBuffer, fBufferSize );
@@ -2694,10 +2729,7 @@ static void AckTimeoutRetriesFinalize( void )
 {
     if( MacCtx.McpsConfirm.AckReceived == false )
     {
-        InitDefaultsParams_t params;
-        params.Type = INIT_TYPE_RESTORE_DEFAULT_CHANNELS;
-        params.NvmCtx = Contexts.RegionNvmCtx;
-        RegionInitDefaults( MacCtx.NvmCtx->Region, &params );
+        RegionInitDefaults( MacCtx.NvmCtx->Region, INIT_TYPE_RESTORE );
 
         MacCtx.NvmCtx->NodeAckRequested = false;
         MacCtx.McpsConfirm.AckReceived = false;
@@ -2823,6 +2855,14 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
     MacCtx.NvmCtx->MacParamsDefaults.AntennaGain = phyParam.fValue;
 
+    getPhy.Attribute = PHY_DEF_ADR_ACK_LIMIT;
+    phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
+    MacCtx.NvmCtx->AdrAckLimit = phyParam.Value;
+
+    getPhy.Attribute = PHY_DEF_ADR_ACK_DELAY;
+    phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
+    MacCtx.NvmCtx->AdrAckDelay = phyParam.Value;
+
     // Init parameters which are not set in function ResetMacParameters
     MacCtx.NvmCtx->MacParamsDefaults.ChannelsNbTrans = 1;
     MacCtx.NvmCtx->MacParamsDefaults.SystemMaxRxError = 10;
@@ -2903,7 +2943,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
 
 LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo )
 {
-    AdrNextParams_t adrNext;
+    CalcNextAdrParams_t adrNext;
     uint32_t adrAckCounter = MacCtx.NvmCtx->AdrAckCounter;
     int8_t datarate = MacCtx.NvmCtx->MacParamsDefaults.ChannelsDatarate;
     int8_t txPower = MacCtx.NvmCtx->MacParamsDefaults.ChannelsTxPower;
@@ -2915,16 +2955,20 @@ LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo )
     }
 
     // Setup ADR request
+    adrNext.Version = MacCtx.NvmCtx->Version;
     adrNext.UpdateChanMask = false;
     adrNext.AdrEnabled = MacCtx.NvmCtx->AdrCtrlOn;
     adrNext.AdrAckCounter = MacCtx.NvmCtx->AdrAckCounter;
+    adrNext.AdrAckLimit = MacCtx.NvmCtx->AdrAckLimit;
+    adrNext.AdrAckDelay = MacCtx.NvmCtx->AdrAckDelay;
     adrNext.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
     adrNext.TxPower = MacCtx.NvmCtx->MacParams.ChannelsTxPower;
     adrNext.UplinkDwellTime = MacCtx.NvmCtx->MacParams.UplinkDwellTime;
+    adrNext.Region = MacCtx.NvmCtx->Region;
 
     // We call the function for information purposes only. We don't want to
     // apply the datarate, the tx power and the ADR ack counter.
-    RegionAdrNext( MacCtx.NvmCtx->Region, &adrNext, &datarate, &txPower, &adrAckCounter );
+    LoRaMacAdrCalcNext( &adrNext, &datarate, &txPower, &adrAckCounter );
 
     txInfo->CurrentPossiblePayloadSize = GetMaxAppPayloadWithoutFOptsLength( datarate );
 

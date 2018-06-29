@@ -35,7 +35,7 @@
 #ifndef __REGION_AS923_H__
 #define __REGION_AS923_H__
 
-#include "LoRaMac.h"
+#include "region/Region.h"
 
 /*!
  * LoRaMac maximum number of channels
@@ -363,21 +363,6 @@ void RegionAS923ApplyCFList( ApplyCFListParams_t* applyCFList );
  * \retval Returns true, if the channels mask could be set.
  */
 bool RegionAS923ChanMaskSet( ChanMaskSetParams_t* chanMaskSet );
-
-/*!
- * \brief Calculates the next datarate to set, when ADR is on or off.
- *
- * \param [IN] adrNext Pointer to the function parameters.
- *
- * \param [OUT] drOut The calculated datarate for the next TX.
- *
- * \param [OUT] txPowOut The TX power for the next TX.
- *
- * \param [OUT] adrAckCounter The calculated ADR acknowledgement counter.
- *
- * \retval Returns true, if an ADR request should be performed.
- */
-bool RegionAS923AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowOut, uint32_t* adrAckCounter );
 
 /*!
  * Computes the Rx window timeout and offset.

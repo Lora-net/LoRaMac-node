@@ -35,7 +35,8 @@
 #ifndef __REGIONCOMMON_H__
 #define __REGIONCOMMON_H__
 
-#include "LoRaMac.h"
+#include "LoRaMacTypes.h"
+#include "region/Region.h"
 
 typedef struct sRegionCommonLinkAdrParams
 {
@@ -63,6 +64,10 @@ typedef struct sRegionCommonLinkAdrParams
 
 typedef struct sRegionCommonLinkAdrReqVerifyParams
 {
+    /*!
+     * LoRaWAN specification Version
+     */
+    Version_t Version;
     /*!
      * The current status of the AdrLinkRequest.
      */

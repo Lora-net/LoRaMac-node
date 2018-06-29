@@ -239,16 +239,10 @@ uint8_t RegionCommonLinkAdrReqVerifyParams( RegionCommonLinkAdrReqVerifyParams_t
     // Handle the case when ADR is off.
     if( verifyParams->AdrEnabled == false )
     {
-        // When ADR is off, we are allowed to change the channels mask and the NbRep,
-        // if the datarate and the TX power of the LinkAdrReq are set to 0x0F.
-        if( ( verifyParams->Datarate != 0x0F ) || ( verifyParams->TxPower != 0x0F ) )
-        {
-            status = 0;
-            nbRepetitions = verifyParams->CurrentNbRep;
-        }
-        // Get the current datarate and tx power
-        datarate = verifyParams->CurrentDatarate;
-        txPower = verifyParams->CurrentTxPower;
+        // When ADR is off, we are allowed to change the channels mask
+        nbRepetitions = verifyParams->CurrentNbRep;
+        datarate =  verifyParams->CurrentDatarate;
+        txPower =  verifyParams->CurrentTxPower;
     }
 
     if( status != 0 )

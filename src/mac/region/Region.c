@@ -41,7 +41,6 @@
 #define AS923_VERIFY( )                            AS923_CASE { return RegionAS923Verify( verify, phyAttribute ); }
 #define AS923_APPLY_CF_LIST( )                     AS923_CASE { RegionAS923ApplyCFList( applyCFList ); break; }
 #define AS923_CHAN_MASK_SET( )                     AS923_CASE { return RegionAS923ChanMaskSet( chanMaskSet ); }
-#define AS923_ADR_NEXT( )                          AS923_CASE { return RegionAS923AdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
 #define AS923_COMPUTE_RX_WINDOW_PARAMETERS( )      AS923_CASE { RegionAS923ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
 #define AS923_RX_CONFIG( )                         AS923_CASE { return RegionAS923RxConfig( rxConfig, datarate ); }
 #define AS923_TX_CONFIG( )                         AS923_CASE { return RegionAS923TxConfig( txConfig, txPower, txTimeOnAir ); }
@@ -66,7 +65,6 @@
 #define AS923_VERIFY( )
 #define AS923_APPLY_CF_LIST( )
 #define AS923_CHAN_MASK_SET( )
-#define AS923_ADR_NEXT( )
 #define AS923_COMPUTE_RX_WINDOW_PARAMETERS( )
 #define AS923_RX_CONFIG( )
 #define AS923_TX_CONFIG( )
@@ -95,7 +93,6 @@
 #define AU915_VERIFY( )                            AU915_CASE { return RegionAU915Verify( verify, phyAttribute ); }
 #define AU915_APPLY_CF_LIST( )                     AU915_CASE { RegionAU915ApplyCFList( applyCFList ); break; }
 #define AU915_CHAN_MASK_SET( )                     AU915_CASE { return RegionAU915ChanMaskSet( chanMaskSet ); }
-#define AU915_ADR_NEXT( )                          AU915_CASE { return RegionAU915AdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
 #define AU915_COMPUTE_RX_WINDOW_PARAMETERS( )      AU915_CASE { RegionAU915ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
 #define AU915_RX_CONFIG( )                         AU915_CASE { return RegionAU915RxConfig( rxConfig, datarate ); }
 #define AU915_TX_CONFIG( )                         AU915_CASE { return RegionAU915TxConfig( txConfig, txPower, txTimeOnAir ); }
@@ -120,7 +117,6 @@
 #define AU915_VERIFY( )
 #define AU915_APPLY_CF_LIST( )
 #define AU915_CHAN_MASK_SET( )
-#define AU915_ADR_NEXT( )
 #define AU915_COMPUTE_RX_WINDOW_PARAMETERS( )
 #define AU915_RX_CONFIG( )
 #define AU915_TX_CONFIG( )
@@ -149,7 +145,6 @@
 #define CN470_VERIFY( )                            CN470_CASE { return RegionCN470Verify( verify, phyAttribute ); }
 #define CN470_APPLY_CF_LIST( )                     CN470_CASE { RegionCN470ApplyCFList( applyCFList ); break; }
 #define CN470_CHAN_MASK_SET( )                     CN470_CASE { return RegionCN470ChanMaskSet( chanMaskSet ); }
-#define CN470_ADR_NEXT( )                          CN470_CASE { return RegionCN470AdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
 #define CN470_COMPUTE_RX_WINDOW_PARAMETERS( )      CN470_CASE { RegionCN470ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
 #define CN470_RX_CONFIG( )                         CN470_CASE { return RegionCN470RxConfig( rxConfig, datarate ); }
 #define CN470_TX_CONFIG( )                         CN470_CASE { return RegionCN470TxConfig( txConfig, txPower, txTimeOnAir ); }
@@ -174,7 +169,6 @@
 #define CN470_VERIFY( )
 #define CN470_APPLY_CF_LIST( )
 #define CN470_CHAN_MASK_SET( )
-#define CN470_ADR_NEXT( )
 #define CN470_COMPUTE_RX_WINDOW_PARAMETERS( )
 #define CN470_RX_CONFIG( )
 #define CN470_TX_CONFIG( )
@@ -203,7 +197,6 @@
 #define CN779_VERIFY( )                            CN779_CASE { return RegionCN779Verify( verify, phyAttribute ); }
 #define CN779_APPLY_CF_LIST( )                     CN779_CASE { RegionCN779ApplyCFList( applyCFList ); break; }
 #define CN779_CHAN_MASK_SET( )                     CN779_CASE { return RegionCN779ChanMaskSet( chanMaskSet ); }
-#define CN779_ADR_NEXT( )                          CN779_CASE { return RegionCN779AdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
 #define CN779_COMPUTE_RX_WINDOW_PARAMETERS( )      CN779_CASE { RegionCN779ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
 #define CN779_RX_CONFIG( )                         CN779_CASE { return RegionCN779RxConfig( rxConfig, datarate ); }
 #define CN779_TX_CONFIG( )                         CN779_CASE { return RegionCN779TxConfig( txConfig, txPower, txTimeOnAir ); }
@@ -228,7 +221,6 @@
 #define CN779_VERIFY( )
 #define CN779_APPLY_CF_LIST( )
 #define CN779_CHAN_MASK_SET( )
-#define CN779_ADR_NEXT( )
 #define CN779_COMPUTE_RX_WINDOW_PARAMETERS( )
 #define CN779_RX_CONFIG( )
 #define CN779_TX_CONFIG( )
@@ -257,7 +249,6 @@
 #define EU433_VERIFY( )                            EU433_CASE { return RegionEU433Verify( verify, phyAttribute ); }
 #define EU433_APPLY_CF_LIST( )                     EU433_CASE { RegionEU433ApplyCFList( applyCFList ); break; }
 #define EU433_CHAN_MASK_SET( )                     EU433_CASE { return RegionEU433ChanMaskSet( chanMaskSet ); }
-#define EU433_ADR_NEXT( )                          EU433_CASE { return RegionEU433AdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
 #define EU433_COMPUTE_RX_WINDOW_PARAMETERS( )      EU433_CASE { RegionEU433ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
 #define EU433_RX_CONFIG( )                         EU433_CASE { return RegionEU433RxConfig( rxConfig, datarate ); }
 #define EU433_TX_CONFIG( )                         EU433_CASE { return RegionEU433TxConfig( txConfig, txPower, txTimeOnAir ); }
@@ -282,7 +273,6 @@
 #define EU433_VERIFY( )
 #define EU433_APPLY_CF_LIST( )
 #define EU433_CHAN_MASK_SET( )
-#define EU433_ADR_NEXT( )
 #define EU433_COMPUTE_RX_WINDOW_PARAMETERS( )
 #define EU433_RX_CONFIG( )
 #define EU433_TX_CONFIG( )
@@ -311,7 +301,6 @@
 #define EU868_VERIFY( )                            EU868_CASE { return RegionEU868Verify( verify, phyAttribute ); }
 #define EU868_APPLY_CF_LIST( )                     EU868_CASE { RegionEU868ApplyCFList( applyCFList ); break; }
 #define EU868_CHAN_MASK_SET( )                     EU868_CASE { return RegionEU868ChanMaskSet( chanMaskSet ); }
-#define EU868_ADR_NEXT( )                          EU868_CASE { return RegionEU868AdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
 #define EU868_COMPUTE_RX_WINDOW_PARAMETERS( )      EU868_CASE { RegionEU868ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
 #define EU868_RX_CONFIG( )                         EU868_CASE { return RegionEU868RxConfig( rxConfig, datarate ); }
 #define EU868_TX_CONFIG( )                         EU868_CASE { return RegionEU868TxConfig( txConfig, txPower, txTimeOnAir ); }
@@ -336,7 +325,6 @@
 #define EU868_VERIFY( )
 #define EU868_APPLY_CF_LIST( )
 #define EU868_CHAN_MASK_SET( )
-#define EU868_ADR_NEXT( )
 #define EU868_COMPUTE_RX_WINDOW_PARAMETERS( )
 #define EU868_RX_CONFIG( )
 #define EU868_TX_CONFIG( )
@@ -365,7 +353,6 @@
 #define KR920_VERIFY( )                            KR920_CASE { return RegionKR920Verify( verify, phyAttribute ); }
 #define KR920_APPLY_CF_LIST( )                     KR920_CASE { RegionKR920ApplyCFList( applyCFList ); break; }
 #define KR920_CHAN_MASK_SET( )                     KR920_CASE { return RegionKR920ChanMaskSet( chanMaskSet ); }
-#define KR920_ADR_NEXT( )                          KR920_CASE { return RegionKR920AdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
 #define KR920_COMPUTE_RX_WINDOW_PARAMETERS( )      KR920_CASE { RegionKR920ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
 #define KR920_RX_CONFIG( )                         KR920_CASE { return RegionKR920RxConfig( rxConfig, datarate ); }
 #define KR920_TX_CONFIG( )                         KR920_CASE { return RegionKR920TxConfig( txConfig, txPower, txTimeOnAir ); }
@@ -390,7 +377,6 @@
 #define KR920_VERIFY( )
 #define KR920_APPLY_CF_LIST( )
 #define KR920_CHAN_MASK_SET( )
-#define KR920_ADR_NEXT( )
 #define KR920_COMPUTE_RX_WINDOW_PARAMETERS( )
 #define KR920_RX_CONFIG( )
 #define KR920_TX_CONFIG( )
@@ -419,7 +405,6 @@
 #define IN865_VERIFY( )                            IN865_CASE { return RegionIN865Verify( verify, phyAttribute ); }
 #define IN865_APPLY_CF_LIST( )                     IN865_CASE { RegionIN865ApplyCFList( applyCFList ); break; }
 #define IN865_CHAN_MASK_SET( )                     IN865_CASE { return RegionIN865ChanMaskSet( chanMaskSet ); }
-#define IN865_ADR_NEXT( )                          IN865_CASE { return RegionIN865AdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
 #define IN865_COMPUTE_RX_WINDOW_PARAMETERS( )      IN865_CASE { RegionIN865ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
 #define IN865_RX_CONFIG( )                         IN865_CASE { return RegionIN865RxConfig( rxConfig, datarate ); }
 #define IN865_TX_CONFIG( )                         IN865_CASE { return RegionIN865TxConfig( txConfig, txPower, txTimeOnAir ); }
@@ -444,7 +429,6 @@
 #define IN865_VERIFY( )
 #define IN865_APPLY_CF_LIST( )
 #define IN865_CHAN_MASK_SET( )
-#define IN865_ADR_NEXT( )
 #define IN865_COMPUTE_RX_WINDOW_PARAMETERS( )
 #define IN865_RX_CONFIG( )
 #define IN865_TX_CONFIG( )
@@ -473,7 +457,6 @@
 #define US915_VERIFY( )                            US915_CASE { return RegionUS915Verify( verify, phyAttribute ); }
 #define US915_APPLY_CF_LIST( )                     US915_CASE { RegionUS915ApplyCFList( applyCFList ); break; }
 #define US915_CHAN_MASK_SET( )                     US915_CASE { return RegionUS915ChanMaskSet( chanMaskSet ); }
-#define US915_ADR_NEXT( )                          US915_CASE { return RegionUS915AdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
 #define US915_COMPUTE_RX_WINDOW_PARAMETERS( )      US915_CASE { RegionUS915ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
 #define US915_RX_CONFIG( )                         US915_CASE { return RegionUS915RxConfig( rxConfig, datarate ); }
 #define US915_TX_CONFIG( )                         US915_CASE { return RegionUS915TxConfig( txConfig, txPower, txTimeOnAir ); }
@@ -498,7 +481,6 @@
 #define US915_VERIFY( )
 #define US915_APPLY_CF_LIST( )
 #define US915_CHAN_MASK_SET( )
-#define US915_ADR_NEXT( )
 #define US915_COMPUTE_RX_WINDOW_PARAMETERS( )
 #define US915_RX_CONFIG( )
 #define US915_TX_CONFIG( )
@@ -651,26 +633,6 @@ bool RegionChanMaskSet( LoRaMacRegion_t region, ChanMaskSetParams_t* chanMaskSet
         KR920_CHAN_MASK_SET( );
         IN865_CHAN_MASK_SET( );
         US915_CHAN_MASK_SET( );
-        default:
-        {
-            return false;
-        }
-    }
-}
-
-bool RegionAdrNext( LoRaMacRegion_t region, AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowOut, uint32_t* adrAckCounter )
-{
-    switch( region )
-    {
-        AS923_ADR_NEXT( );
-        AU915_ADR_NEXT( );
-        CN470_ADR_NEXT( );
-        CN779_ADR_NEXT( );
-        EU433_ADR_NEXT( );
-        EU868_ADR_NEXT( );
-        KR920_ADR_NEXT( );
-        IN865_ADR_NEXT( );
-        US915_ADR_NEXT( );
         default:
         {
             return false;
