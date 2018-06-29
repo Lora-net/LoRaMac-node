@@ -39,6 +39,10 @@
 #ifndef __LORAMAC_CONFIRMQUEUE_H__
 #define __LORAMAC_CONFIRMQUEUE_H__
 
+#include <stdbool.h>
+#include <stdint.h>
+
+#include "LoRaMac.h"
 
 /*!
  * LoRaMac MLME-Confirm queue length
