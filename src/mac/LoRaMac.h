@@ -106,6 +106,11 @@
 #define LORA_MAC_FRMPAYLOAD_OVERHEAD                13 // MHDR(1) + FHDR(7) + Port(1) + MIC(4)
 
 /*!
+ * Maximum number of multicast context
+ */
+#define   LORAMAC_MAX_MC_CTX       4
+
+/*!
  * LoRaWAN devices classes definition
  *
  * LoRaWAN Specification V1.0.2, chapter 2.1
@@ -308,7 +313,7 @@ typedef struct sLoRaMacParams
     /*!
      * Number of uplink messages repetitions [1:15] (unconfirmed messages only)
      */
-    uint8_t ChannelsNbRep;
+    uint8_t ChannelsNbTrans;
     /*!
      * Datarate offset between uplink and downlink on first window
      */
@@ -1384,8 +1389,8 @@ typedef struct sMlmeIndication
  * \ref MIB_CHANNELS                             | YES | NO
  * \ref MIB_RX2_CHANNEL                          | YES | YES
  * \ref MIB_CHANNELS_MASK                        | YES | YES
- * \ref MIB_CHANNELS_DEFAULT_MASK    | YES | YES
- * \ref MIB_CHANNELS_NB_REP                      | YES | YES
+ * \ref MIB_CHANNELS_DEFAULT_MASK                | YES | YES
+ * \ref MIB_CHANNELS_NB_TRANS                    | YES | YES
  * \ref MIB_MAX_RX_WINDOW_DURATION               | YES | YES
  * \ref MIB_RECEIVE_DELAY_1                      | YES | YES
  * \ref MIB_RECEIVE_DELAY_2                      | YES | YES
@@ -1522,7 +1527,7 @@ typedef enum eMib
      *
      * LoRaWAN Specification V1.0.2, chapter 5.2
      */
-    MIB_CHANNELS_NB_REP,
+    MIB_CHANNELS_NB_TRANS,
     /*!
      * Maximum receive window duration in [ms]
      *
@@ -1780,9 +1785,9 @@ typedef union uMibParam
     /*!
      * Number of frame repetitions
      *
-     * Related MIB type: \ref MIB_CHANNELS_NB_REP
+     * Related MIB type: \ref MIB_CHANNELS_NB_TRANS
      */
-    uint8_t ChannelNbRep;
+    uint8_t ChannelsNbTrans;
     /*!
      * Maximum receive window duration
      *
