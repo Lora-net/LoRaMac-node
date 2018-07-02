@@ -77,11 +77,6 @@ extern "C"
 #define UNIX_GPS_EPOCH_OFFSET                       315964800
 
 /*!
- * \brief Size of the string returned by SysTimeGetStr
- */
-#define DATE_TIME_STR_LEN                           32
-
-/*!
  * \brief Structure holding the system time in seconds and milliseconds.
  */
 typedef struct SysTime_s
@@ -125,6 +120,13 @@ void SysTimeSet( SysTime_t sysTime );
 SysTime_t SysTimeGet( void );
 
 /*!
+ * \brief Gets current MCU system time
+ *
+ * \retval sysTime    Current seconds/sub-seconds since Mcu started
+ */
+SysTime_t SysTimeGetMcuTime( void );
+
+/*!
  * Converts the given SysTime to the equivalent RTC value in milliseconds
  *
  * \param [IN] sysTime System time to be converted
@@ -149,13 +151,6 @@ uint32_t SysTimeMkTime( const struct tm* localtime );
                           the result of the conversion.
  */
 void SysTimeLocalTime( const uint32_t timestamp, struct tm *localtime );
-
-/*!
- * \brief Decodes the strFormat and posts it to the circular queue for printing
- *
- * \param [OUT]:  string String buffer pointer.
- */
-void SysTimeGetStr( char dateTimeSring[DATE_TIME_STR_LEN] );
 
 #ifdef __cplusplus
 }

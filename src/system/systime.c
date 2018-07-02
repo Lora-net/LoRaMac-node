@@ -32,7 +32,7 @@
 #define END_OF_FEBRUARY_NORM                         59 //31+28
 #define END_OF_JULY_NORM                            212 //31+28+...
 
-#define UNIX_YEAR                                    68 //68 is leap year
+#define UNIX_YEAR                                    68 //1968 is leap year
 
 //UNIX time 0 = start at 01:00:00, 01/01/1970
 #define UNIX_HOUR_OFFSET                            ( ( TM_DAYS_IN_LEAP_YEAR + TM_DAYS_IN_YEAR ) * TM_SECONDS_IN_1DAY )
@@ -44,8 +44,8 @@
 #define  DAYS_IN_MONTH_CORRECTION_LEAP              ( (uint32_t )0x445550 )
 
 
-/* 1461 = 366 + 365 + 365 + 365 */
-#define DIV_1461( X )                               ( ( ( X ) * 91867 + 22750 ) >> 25 )
+/* 365.25 = (366 + 365 + 365 + 365)/4 */
+#define DIV_365_25( X )                               ( ( ( X ) * 91867 + 22750 ) >> 25 )
 
 #define DIV_APPROX_86400( X )                       ( ( ( X ) >> 18 ) + ( ( X ) >> 17 ) )
 
@@ -70,15 +70,6 @@ static uint32_t CalendarGetMonth( uint32_t days, uint32_t year );
 static void CalendarDiv86400( uint32_t in, uint32_t* out, uint32_t* remainder );
 static uint32_t CalendarDiv61( uint32_t in );
 static void CalendarDiv60( uint32_t in, uint32_t* out, uint32_t* remainder );
-
-/*!
- * \brief This is the time difference between the calendar time and UNIX time.
- */
-static SysTime_t DeltaTime =
-{
-    .Seconds = 0,
-    .SubSeconds = 0
-};
 
 const char *WeekDayString[]={ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 
@@ -112,33 +103,47 @@ SysTime_t SysTimeSub( SysTime_t a, SysTime_t b )
 
 void SysTimeSet( SysTime_t sysTime )
 {
+    SysTime_t deltaTime;
+  
     SysTime_t calendarTime = { .Seconds = 0, .SubSeconds = 0 };
 
     calendarTime.Seconds = RtcGetCalendarTime( ( uint16_t* )&calendarTime.SubSeconds );
 
     // sysTime is epoch
-    DeltaTime = SysTimeSub( sysTime, calendarTime );
+    deltaTime = SysTimeSub( sysTime, calendarTime );
 
-    RtcBkupWrite( DeltaTime.Seconds, ( uint32_t )DeltaTime.SubSeconds );
+    RtcBkupWrite( deltaTime.Seconds, ( uint32_t )deltaTime.SubSeconds );
 }
 
 SysTime_t SysTimeGet( void )
 {
     SysTime_t calendarTime = { .Seconds = 0, .SubSeconds = 0 };
     SysTime_t sysTime = { .Seconds = 0, .SubSeconds = 0 };
+    SysTime_t deltaTime;
 
     calendarTime.Seconds = RtcGetCalendarTime( ( uint16_t* )&calendarTime.SubSeconds );
 
-    RtcBkupRead( &DeltaTime.Seconds, ( uint32_t* )&DeltaTime.SubSeconds );
+    RtcBkupRead( &deltaTime.Seconds, ( uint32_t* )&deltaTime.SubSeconds );
 
-    sysTime = SysTimeAdd( DeltaTime, calendarTime );
+    sysTime = SysTimeAdd( deltaTime, calendarTime );
 
     return sysTime;
 }
 
+SysTime_t SysTimeGetMcuTime( void )
+{
+    SysTime_t calendarTime = { .Seconds = 0, .SubSeconds = 0 };
+
+    calendarTime.Seconds = RtcGetCalendarTime( ( uint16_t* )&calendarTime.SubSeconds );
+
+    return calendarTime;
+}
+
 uint32_t SysTime2Ms( SysTime_t sysTime )
 {
-    SysTime_t calendarTime = SysTimeSub( sysTime, DeltaTime );
+    SysTime_t deltaTime;
+    RtcBkupRead( &deltaTime.Seconds, ( uint32_t* )&deltaTime.SubSeconds );
+    SysTime_t calendarTime = SysTimeSub( sysTime, deltaTime );
     return calendarTime.Seconds * 1000 + calendarTime.SubSeconds;
 }
 
@@ -201,7 +206,7 @@ void SysTimeLocalTime( const uint32_t timestamp, struct tm *localtime )
     localtime->tm_hour = ( uint8_t )divOut;
 
     // Calculates year
-    localtime->tm_year = DIV_1461( days );
+    localtime->tm_year = DIV_365_25( days );
     days-= DIVC_BY_4( ( TM_DAYS_IN_YEAR * 3 + TM_DAYS_IN_LEAP_YEAR ) * localtime->tm_year );
 
     localtime->tm_yday = days;
@@ -223,26 +228,6 @@ void SysTimeLocalTime( const uint32_t timestamp, struct tm *localtime )
     localtime->tm_year += UNIX_YEAR;
 
     localtime->tm_isdst = -1;
-}
-
-void SysTimeGetStr( char dateTimeString[DATE_TIME_STR_LEN] )
-{
-    SysTime_t sysTime;
-    struct tm dateTime;
-
-    sysTime = SysTimeGet( );
-    SysTimeLocalTime( sysTime.Seconds, &dateTime );
-
-    snprintf( dateTimeString,
-              DATE_TIME_STR_LEN,
-              "it's %02dh%02dm%02d on %s %02d/%02d/%04d",
-              dateTime.tm_hour,
-              dateTime.tm_min,
-              dateTime.tm_sec,
-              WeekDayString[dateTime.tm_wday],
-              dateTime.tm_mday,
-              dateTime.tm_mon,
-              dateTime.tm_year + 1900 );
 }
 
 static uint32_t CalendarGetMonth( uint32_t days, uint32_t year )

@@ -76,6 +76,14 @@ Gpio_t DbgRtcPin1;
 #endif
 
 /*!
+ * Used to store the Seconds and SubSeconds.
+ * 
+ * WARNING: Temporary fix fix. Should use MCU NVM internal
+ *          registers
+ */
+uint32_t RtcBkupRegisters[] = { 0, 0 };
+
+/*!
  * \brief Callback for the hw_timer when alarm expired
  */
 static void RtcAlarmIrq( void );
@@ -220,12 +228,18 @@ uint32_t RtcGetCalendarTime( uint16_t *milliseconds )
 
 void RtcBkupWrite( uint32_t data0, uint32_t data1 )
 {
-    // Not implemented
+    CRITICAL_SECTION_BEGIN( );
+    RtcBkupRegisters[0] = data0;
+    RtcBkupRegisters[1] = data1;
+    CRITICAL_SECTION_END( );
 }
 
 void RtcBkupRead( uint32_t* data0, uint32_t* data1 )
 {
-    // Not implemented
+    CRITICAL_SECTION_BEGIN( );
+    *data0 = RtcBkupRegisters[0];
+    *data1 = RtcBkupRegisters[1];
+    CRITICAL_SECTION_END( );
 }
 
 void RtcProcess( void )
