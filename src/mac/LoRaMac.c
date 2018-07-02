@@ -210,7 +210,7 @@ typedef struct sLoRaMacNvmCtx
     /*
      * End-Device network activation
      */
-    bool IsLoRaMacNetworkJoined;
+    ActivationType_t NetworkActivation;
     /*!
      * Last received Message integrity Code (MIC)
      */
@@ -756,7 +756,14 @@ static void ProcessRadioTxDone( void )
     MacCtx.NvmCtx->LastTxChannel = MacCtx.NvmCtx->Channel;
     // Update last tx done time for the current channel
     txDone.Channel = MacCtx.NvmCtx->Channel;
-    txDone.Joined = MacCtx.NvmCtx->IsLoRaMacNetworkJoined;
+    if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
+    {
+        txDone.Joined  = false;
+    }
+    else
+    {
+        txDone.Joined  = true;
+    }
     txDone.LastTxDoneTime = TxDoneParams.CurTime;
     RegionSetBandTxDone( MacCtx.NvmCtx->Region, &txDone );
     // Update Aggregated last tx done time
@@ -856,7 +863,7 @@ static void ProcessRadioRxDone( void )
             macMsgJoinAccept.BufSize = size;
 
             // Abort in case if the device isn't joined yet and no rejoin request is ongoing.
-            if( MacCtx.NvmCtx->IsLoRaMacNetworkJoined == true )
+            if( MacCtx.NvmCtx->NetworkActivation != ACTIVATION_TYPE_NONE )
             {
                 MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                 PrepareRxDoneAbort( );
@@ -896,7 +903,7 @@ static void ProcessRadioRxDone( void )
 
                 RegionApplyCFList( MacCtx.NvmCtx->Region, &applyCFList );
 
-                MacCtx.NvmCtx->IsLoRaMacNetworkJoined = true;
+                MacCtx.NvmCtx->NetworkActivation = ACTIVATION_TYPE_OTAA;
 
                 // MLME handling
                 if( LoRaMacConfirmQueueIsCmdActive( MLME_JOIN ) == true )
@@ -2070,7 +2077,7 @@ LoRaMacStatus_t Send( LoRaMacHeader_t* macHdr, uint8_t fPort, void* fBuffer, uin
     CalcNextAdrParams_t adrNext;
 
     // Check if we are joined
-    if( MacCtx.NvmCtx->IsLoRaMacNetworkJoined == false )
+    if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
     {
         return LORAMAC_STATUS_NO_NETWORK_JOINED;
     }
@@ -2200,7 +2207,14 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
     nextChan.AggrTimeOff = MacCtx.AggregatedTimeOff;
     nextChan.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
     nextChan.DutyCycleEnabled = MacCtx.NvmCtx->DutyCycleOn;
-    nextChan.Joined = MacCtx.NvmCtx->IsLoRaMacNetworkJoined;
+    if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
+    {
+        nextChan.Joined = false;
+    }
+    else
+    {
+        nextChan.Joined = true;
+    }
     nextChan.LastAggrTx = MacCtx.AggregatedLastTxDoneTime;
 
     // Select channel
@@ -2240,7 +2254,7 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
                                      MacCtx.NvmCtx->MacParams.SystemMaxRxError,
                                      &MacCtx.RxWindow2Config );
 
-    if( MacCtx.NvmCtx->IsLoRaMacNetworkJoined == false )
+    if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
     {
         MacCtx.RxWindow1Delay = MacCtx.NvmCtx->MacParams.JoinAcceptDelay1 + MacCtx.RxWindow1Config.WindowOffset;
         MacCtx.RxWindow2Delay = MacCtx.NvmCtx->MacParams.JoinAcceptDelay2 + MacCtx.RxWindow2Config.WindowOffset;
@@ -2312,7 +2326,14 @@ static void CalculateBackOff( uint8_t channel )
 {
     CalcBackOffParams_t calcBackOff;
 
-    calcBackOff.Joined = MacCtx.NvmCtx->IsLoRaMacNetworkJoined;
+    if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
+    {
+        calcBackOff.Joined = false;
+    }
+    else
+    {
+        calcBackOff.Joined = true;
+    }
     calcBackOff.DutyCycleEnabled = MacCtx.NvmCtx->DutyCycleOn;
     calcBackOff.Channel = channel;
     calcBackOff.ElapsedTime = TimerGetElapsedTime( MacCtx.InitializationTime );
@@ -2329,7 +2350,7 @@ static void CalculateBackOff( uint8_t channel )
 
 static void ResetMacParameters( void )
 {
-    MacCtx.NvmCtx->IsLoRaMacNetworkJoined = false;
+    MacCtx.NvmCtx->NetworkActivation = ACTIVATION_TYPE_NONE;
 
     // ADR counter
     MacCtx.NvmCtx->AdrAckCounter = 0;
@@ -3027,9 +3048,9 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t* mibGet )
             mibGet->Param.Class = MacCtx.NvmCtx->DeviceClass;
             break;
         }
-        case MIB_NETWORK_JOINED:
+        case MIB_NETWORK_ACTIVATION:
         {
-            mibGet->Param.IsNetworkJoined = MacCtx.NvmCtx->IsLoRaMacNetworkJoined;
+            mibGet->Param.NetworkActivation = MacCtx.NvmCtx->NetworkActivation;
             break;
         }
         case MIB_ADR:
@@ -3199,9 +3220,16 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
             status = SwitchClass( mibSet->Param.Class );
             break;
         }
-        case MIB_NETWORK_JOINED:
+        case MIB_NETWORK_ACTIVATION:
         {
-            MacCtx.NvmCtx->IsLoRaMacNetworkJoined = mibSet->Param.IsNetworkJoined;
+            if( mibSet->Param.NetworkActivation != ACTIVATION_TYPE_OTAA  )
+            {
+                MacCtx.NvmCtx->NetworkActivation = mibSet->Param.NetworkActivation;
+            }
+            else
+            {   // Do not allow to set ACTIVATION_TYPE_OTAA since the MAC will set it automatically after a successful join process.
+                status = LORAMAC_STATUS_PARAMETER_INVALID;
+            }
             break;
         }
         case MIB_ADR:
@@ -3554,7 +3582,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
             {
                 MacCtx.NvmCtx->MacParams.Rx2Channel = mibSet->Param.Rx2Channel;
 
-                if( ( MacCtx.NvmCtx->DeviceClass == CLASS_C ) && ( MacCtx.NvmCtx->IsLoRaMacNetworkJoined == true ) )
+                if( ( MacCtx.NvmCtx->DeviceClass == CLASS_C ) && ( MacCtx.NvmCtx->NetworkActivation != ACTIVATION_TYPE_NONE ) )
                 {
                     // We can only compute the RX window parameters directly, if we are already
                     // in class c mode and joined. We cannot setup an RX window in case of any other
@@ -3858,7 +3886,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
                 return LORAMAC_STATUS_PARAMETER_INVALID;
             }
 
-            MacCtx.NvmCtx->IsLoRaMacNetworkJoined = false;
+            MacCtx.NvmCtx->NetworkActivation = ACTIVATION_TYPE_NONE;
 
             ResetMacParameters( );
 

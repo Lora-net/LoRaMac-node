@@ -415,12 +415,12 @@ static void OnTxNextPacketTimerEvent( void )
 
     TimerStop( &TxNextPacketTimer );
 
-    mibReq.Type = MIB_NETWORK_JOINED;
+    mibReq.Type = MIB_NETWORK_ACTIVATION;
     status = LoRaMacMibGetRequestConfirm( &mibReq );
 
     if( status == LORAMAC_STATUS_OK )
     {
-        if( mibReq.Param.IsNetworkJoined == false )
+        if( mibReq.Param.NetworkActivation == ACTIVATION_TYPE_NONE )
         {
             // Network not joined yet. Try to join again
             JoinNetwork( );
@@ -1018,12 +1018,12 @@ int main( void )
                 mibReq.Param.Class = CLASS_C;
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
-                mibReq.Type = MIB_NETWORK_JOINED;
+                mibReq.Type = MIB_NETWORK_ACTIVATION;
                 status = LoRaMacMibGetRequestConfirm( &mibReq );
 
                 if( status == LORAMAC_STATUS_OK )
                 {
-                    if( mibReq.Param.IsNetworkJoined == false )
+                    if( mibReq.Param.NetworkActivation == ACTIVATION_TYPE_NONE )
                     {
                         DeviceState = DEVICE_STATE_JOIN;
                     }
@@ -1077,8 +1077,8 @@ int main( void )
                 mibReq.Param.AbpLrWanVersion.Value = ABP_ACTIVATION_LRWAN_VERSION;
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
-                mibReq.Type = MIB_NETWORK_JOINED;
-                mibReq.Param.IsNetworkJoined = true;
+                mibReq.Type = MIB_NETWORK_ACTIVATION;
+                mibReq.Param.NetworkActivation = ACTIVATION_TYPE_ABP;
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
                 DeviceState = DEVICE_STATE_SEND;
