@@ -164,6 +164,26 @@ LoRaMacFCntHandlerStatus_t LoRaMacResetFCnts( void );
  */
 LoRaMacFCntHandlerStatus_t LoRaMacFCntHandlerSetMulticastReference( MulticastCtx_t* multicastList );
 
+/*!
+ * Computes next RJcount0 or RJcount1 counter value.
+ *
+ * \param[IN]     fCntID          - Frame counter identifier
+ * \param[OUT]    rJcount         - RJcount value
+ *
+ * \retval                     - Status of the operation
+ */
+LoRaMacFCntHandlerStatus_t LoRaMacGetRJcount( FCntIdentifier_t fCntID, uint16_t* rJcount );
+
+/*!
+ * Sets the RJcount0 or RJcount1 counter value.
+ *
+ * \param[IN]     fCntID          - Frame counter identifier
+ * \param[IN]     rJcount         - RJcount value
+ *
+ * \retval                     - Status of the operation
+ */
+LoRaMacFCntHandlerStatus_t LoRaMacSetRJcount( FCntIdentifier_t fCntID, uint16_t rJcount );
+
 /*! \} addtogroup LORAMAC */
 
 #endif // __LORAMAC_FCNT_HANDLER_H__

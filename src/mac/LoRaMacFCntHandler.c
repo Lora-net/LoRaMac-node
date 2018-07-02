@@ -33,21 +33,21 @@ Maintainer: Miguel Luis ( Semtech ), Daniel Jaeckle ( STACKFORCE ), Johannes Bru
  */
 typedef struct sFCntList
 {
-    /*
+    /*!
      * Uplink frame counter which is incremented with each uplink.
      */
     uint32_t FCntUp;
-    /*
+    /*!
      * Network downlink frame counter which is incremented with each downlink on FPort 0
      * or when the FPort field is missing.
      */
     uint32_t NFCntDown;
-    /*
+    /*!
      * Application downlink frame counter which is incremented with each downlink
      * on a port different than 0.
      */
     uint32_t AFCntDown;
-    /*
+    /*!
      * In case if the device is connected to a LoRaWAN 1.0 Server,
      * this counter is used for every kind of downlink frame.
      */
@@ -68,6 +68,14 @@ typedef struct sFCntList
      * Multicast downlink counter for index 3
      */
     uint32_t McFCntDown3;
+    /*!
+     * RJcount0 is a counter incremented with every transmitted Type 0 or 2 Rejoin request.
+     */
+    uint16_t RJcount0;
+    /*!
+     * RJcount1 is a counter incremented with every transmitted  Type 1 Rejoin request.
+     */
+    uint16_t RJcount1;
 }FCntList_t;
 
 
@@ -298,6 +306,52 @@ LoRaMacFCntHandlerStatus_t LoRaMacResetFCnts( void )
 
     NvmCtxChanged( );
 
+    return LORAMAC_FCNT_HANDLER_SUCCESS;
+}
+
+LoRaMacFCntHandlerStatus_t LoRaMacGetRJcount( FCntIdentifier_t fCntID, uint16_t* rJcount )
+{
+    if( rJcount == 0 )
+    {
+        return LORAMAC_FCNT_HANDLER_ERROR_NPE;
+    }
+
+    switch( fCntID )
+    {
+        case RJ_COUNT_0:
+        {
+            *rJcount = FCntHandlerNvmCtx.FCntList.RJcount0 + 1;
+            break;
+        }
+        case RJ_COUNT_1:
+        {
+            *rJcount = FCntHandlerNvmCtx.FCntList.RJcount1 + 1;
+            break;
+        }
+        default:
+            return LORAMAC_FCNT_HANDLER_ERROR;
+    }
+
+    return LORAMAC_FCNT_HANDLER_SUCCESS;
+}
+
+LoRaMacFCntHandlerStatus_t LoRaMacSetRJcount( FCntIdentifier_t fCntID, uint16_t rJcount )
+{
+    switch( fCntID )
+    {
+        case RJ_COUNT_0:
+        {
+            FCntHandlerNvmCtx.FCntList.RJcount0 = rJcount;
+            break;
+        }
+        case RJ_COUNT_1:
+        {
+            FCntHandlerNvmCtx.FCntList.RJcount1 = rJcount;
+            break;
+        }
+        default:
+            return LORAMAC_FCNT_HANDLER_ERROR;
+    }
     return LORAMAC_FCNT_HANDLER_SUCCESS;
 }
 

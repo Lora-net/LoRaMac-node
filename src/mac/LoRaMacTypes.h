@@ -123,6 +123,14 @@ typedef enum eFCntIdentifier
      * Multicast downlink counter for index 3
      */
     MC_FCNT_DOWN_3,
+    /*!
+     * RJcount1 is a counter incremented with every transmitted  Type 1 Rejoin request.
+     */
+    RJ_COUNT_0,
+    /*!
+     * RJcount0 is a counter incremented with every transmitted Type 0 or 2 Rejoin request.
+     */
+    RJ_COUNT_1,
 }FCntIdentifier_t;
 
 /*!
@@ -335,6 +343,10 @@ typedef enum eJoinReqIdentifier
 typedef enum eLoRaMacMoteCmd
 {
     /*!
+     * ResetInd
+     */
+    MOTE_MAC_RESET_IND               = 0x01,
+    /*!
      * LinkCheckReq
      */
     MOTE_MAC_LINK_CHECK_REQ          = 0x02,
@@ -371,9 +383,25 @@ typedef enum eLoRaMacMoteCmd
      */
     MOTE_MAC_DL_CHANNEL_ANS          = 0x0A,
     /*!
+     * RekeyInd
+     */
+    MOTE_MAC_REKEY_IND               = 0x0B,
+    /*!
      * DeviceTimeReq
      */
     MOTE_MAC_DEVICE_TIME_REQ         = 0x0D,
+    /*!
+     * ADRParamSetupAns
+     */
+    MOTE_MAC_ADR_PARAM_SETUP_ANS     = 0x0C,
+    /*!
+     * RejoinParamSetupAns
+     */
+    MOTE_MAC_REJOIN_PARAM_ANS        = 0x0F,
+    /*!
+     * DeviceModeInd ( Class C only )
+     */
+    MOTE_MAC_DEVICE_MODE_IND         = 0x20,
     /*!
      * PingSlotInfoReq
      */
@@ -439,6 +467,26 @@ typedef enum eLoRaMacSrvCmd
      * DlChannelReq
      */
     SRV_MAC_DL_CHANNEL_REQ           = 0x0A,
+    /*!
+     * RekeyConf
+     */
+    SRV_MAC_REKEY_CONF               = 0x0B,
+    /*!
+     * ADRParamSetupReq
+     */
+    SRV_MAC_ADR_PARAM_SETUP_REQ      = 0x0C,
+    /*!
+     * ForceRejoinReq
+     */
+    SRV_MAC_FORCE_REJOIN_REQ         = 0x0E,
+    /*!
+     * RejoinParamSetupReq
+     */
+    SRV_MAC_REJOIN_PARAM_REQ         = 0x0F,
+    /*!
+     * DeviceModeConf ( Class C only )
+     */
+    SRV_MAC_DEVICE_MODE_CONF         = 0x20,
     /*!
      * DeviceTimeAns
      */
@@ -519,6 +567,10 @@ typedef enum eLoRaMacFrameType
      * LoRaMAC confirmed down-link frame
      */
     FRAME_TYPE_DATA_CONFIRMED_DOWN   = 0x05,
+    /*!
+     * LoRaMAC Rejoin Request
+     */
+    FRAME_TYPE_REJOIN                = 0x06,
     /*!
      * LoRaMAC proprietary frame
      */

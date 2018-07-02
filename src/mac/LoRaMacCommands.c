@@ -287,6 +287,9 @@ static bool IsSticky( uint8_t cid )
 {
     switch( cid )
     {
+        case MOTE_MAC_RESET_IND:
+        case MOTE_MAC_REKEY_IND:
+        case MOTE_MAC_DEVICE_MODE_IND:
         case MOTE_MAC_DL_CHANNEL_ANS:
         case MOTE_MAC_RX_PARAM_SETUP_ANS:
         case MOTE_MAC_RX_TIMING_SETUP_ANS:
