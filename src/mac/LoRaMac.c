@@ -1203,7 +1203,7 @@ static void ProcessRadioTxTimeout( void )
     MacCtx.MacFlags.Bits.MacDone = 1;
 }
 
-static void ProcessRadioRxError( void )
+static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStatus, LoRaMacEventInfoStatus_t rx2EventInfoStatus )
 {
     bool classBRx = false;
 
@@ -1240,9 +1240,9 @@ static void ProcessRadioRxError( void )
         {
             if( MacCtx.NvmCtx->NodeAckRequested == true )
             {
-                MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX1_ERROR;
+                MacCtx.McpsConfirm.Status = rx1EventInfoStatus;
             }
-            LoRaMacConfirmQueueSetStatusCmn( LORAMAC_EVENT_INFO_STATUS_RX1_ERROR );
+            LoRaMacConfirmQueueSetStatusCmn( rx1EventInfoStatus );
 
             if( MacCtx.NvmCtx->DeviceClass != CLASS_C )
             {
@@ -1257,9 +1257,9 @@ static void ProcessRadioRxError( void )
         {
             if( MacCtx.NvmCtx->NodeAckRequested == true )
             {
-                MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX2_ERROR;
+                MacCtx.McpsConfirm.Status = rx2EventInfoStatus;
             }
-            LoRaMacConfirmQueueSetStatusCmn( LORAMAC_EVENT_INFO_STATUS_RX2_ERROR );
+            LoRaMacConfirmQueueSetStatusCmn( rx2EventInfoStatus );
 
             if( MacCtx.NvmCtx->DeviceClass != CLASS_C )
             {
@@ -1274,75 +1274,14 @@ static void ProcessRadioRxError( void )
     }
 }
 
+static void ProcessRadioRxError( void )
+{
+    HandleRadioRxErrorTimeout( LORAMAC_EVENT_INFO_STATUS_RX1_ERROR, LORAMAC_EVENT_INFO_STATUS_RX2_ERROR );
+}
+
 static void ProcessRadioRxTimeout( void )
 {
-    bool classBRx = false;
-
-    if( MacCtx.NvmCtx->DeviceClass != CLASS_C )
-    {
-        Radio.Sleep( );
-    }
-
-    if( LoRaMacClassBIsBeaconExpected( ) == true )
-    {
-        LoRaMacClassBSetBeaconState( BEACON_STATE_TIMEOUT );
-        LoRaMacClassBBeaconTimerEvent( );
-        classBRx = true;
-    }
-    if( MacCtx.NvmCtx->DeviceClass == CLASS_B )
-    {
-        if( LoRaMacClassBIsPingExpected( ) == true )
-        {
-            LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
-            LoRaMacClassBPingSlotTimerEvent( );
-            classBRx = true;
-        }
-        if( LoRaMacClassBIsMulticastExpected( ) == true )
-        {
-            LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
-            LoRaMacClassBMulticastSlotTimerEvent( );
-            classBRx = true;
-        }
-    }
-
-    if( classBRx == false )
-    {
-        if( MacCtx.RxSlot == RX_SLOT_WIN_1 )
-        {
-            if( MacCtx.NvmCtx->NodeAckRequested == true )
-            {
-                MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX1_TIMEOUT;
-            }
-            LoRaMacConfirmQueueSetStatusCmn( LORAMAC_EVENT_INFO_STATUS_RX1_TIMEOUT );
-
-            if( MacCtx.NvmCtx->DeviceClass != CLASS_C )
-            {
-                if( TimerGetElapsedTime( MacCtx.AggregatedLastTxDoneTime ) >= MacCtx.RxWindow2Delay )
-                {
-                    TimerStop( &MacCtx.RxWindowTimer2 );
-                    MacCtx.MacFlags.Bits.MacDone = 1;
-                }
-            }
-        }
-        else
-        {
-            if( MacCtx.NvmCtx->NodeAckRequested == true )
-            {
-                MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT;
-            }
-            LoRaMacConfirmQueueSetStatusCmn( LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT );
-
-            if( MacCtx.NvmCtx->DeviceClass != CLASS_C )
-            {
-                MacCtx.MacFlags.Bits.MacDone = 1;
-            }
-        }
-    }
-
-    if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
-    {
-        OpenContinuousRx2Window( );
-    }
+    HandleRadioRxErrorTimeout( LORAMAC_EVENT_INFO_STATUS_RX1_TIMEOUT, LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT );
 }
 
 static void LoRaMacHandleIrqEvents( void )
