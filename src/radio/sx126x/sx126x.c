@@ -491,9 +491,9 @@ void SX126xSetTxParams( int8_t power, RadioRampTimes_t rampTime )
         {
             power = 14;
         }
-        else if( power < -3 )
+        else if( power < -17 )
         {
-            power = -3;
+            power = -17;
         }
         SX126xWriteRegister( REG_OCP, 0x18 ); // current max is 80 mA for the whole device
     }
@@ -504,9 +504,9 @@ void SX126xSetTxParams( int8_t power, RadioRampTimes_t rampTime )
         {
             power = 22;
         }
-        else if( power < -3 )
+        else if( power < -9 )
         {
-            power = -3;
+            power = -9;
         }
         SX126xWriteRegister( REG_OCP, 0x38 ); // current max 160mA for the whole device
     }
