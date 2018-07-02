@@ -2217,6 +2217,23 @@ static const uint8_t LoRaMacMaxEirpTable[] = { 8, 10, 12, 13, 14, 16, 18, 20, 21
  */
 LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacCallback_t* callbacks, LoRaMacRegion_t region );
 
+/*!
+ * \brief   Starts LoRaMAC layer
+ *
+ * \retval  LoRaMacStatus_t Status of the operation. Possible returns are:
+ *          returns are:
+ *          \ref LORAMAC_STATUS_OK,
+ */
+LoRaMacStatus_t LoRaMacStart( void );
+
+/*!
+ * \brief   Stops LoRaMAC layer
+ *
+ * \retval  LoRaMacStatus_t Status of the operation. Possible returns are:
+ *          returns are:
+ *          \ref LORAMAC_STATUS_OK,
+ */
+LoRaMacStatus_t LoRaMacStop( void );
 
 /*!
  * Processes the LoRaMac events.

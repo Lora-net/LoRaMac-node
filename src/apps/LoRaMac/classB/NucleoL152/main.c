@@ -1217,6 +1217,8 @@ int main( void )
                 mibReq.Param.SystemMaxRxError = 20;
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
+                LoRaMacStart( );
+
                 mibReq.Type = MIB_NETWORK_ACTIVATION;
                 status = LoRaMacMibGetRequestConfirm( &mibReq );
 

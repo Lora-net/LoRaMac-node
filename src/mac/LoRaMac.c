@@ -83,13 +83,13 @@
 enum eLoRaMacState
 {
     LORAMAC_IDLE          = 0x00000000,
-    LORAMAC_TX_RUNNING    = 0x00000001,
-    LORAMAC_RX            = 0x00000002,
-    LORAMAC_ACK_REQ       = 0x00000004,
-    LORAMAC_ACK_RETRY     = 0x00000008,
-    LORAMAC_TX_DELAYED    = 0x00000010,
-    LORAMAC_TX_CONFIG     = 0x00000020,
-    LORAMAC_RX_ABORT      = 0x00000040,
+    LORAMAC_STOPPED       = 0x00000001,
+    LORAMAC_TX_RUNNING    = 0x00000002,
+    LORAMAC_RX            = 0x00000004,
+    LORAMAC_ACK_RETRY     = 0x00000010,
+    LORAMAC_TX_DELAYED    = 0x00000020,
+    LORAMAC_TX_CONFIG     = 0x00000040,
+    LORAMAC_RX_ABORT      = 0x00000080,
 };
 
 typedef struct sLoRaMacNvmCtx
@@ -2911,7 +2911,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     MacCtx.MacPrimitives = primitives;
     MacCtx.MacCallbacks = callbacks;
     MacCtx.MacFlags.Value = 0;
-    MacCtx.MacState = LORAMAC_IDLE;
+    MacCtx.MacState = LORAMAC_STOPPED;
 
     // Reset duty cycle times
     MacCtx.AggregatedLastTxDoneTime = 0;
@@ -2970,6 +2970,26 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     LoRaMacClassBInit( &classBParams, &classBCallbacks );
 
     return LORAMAC_STATUS_OK;
+}
+
+LoRaMacStatus_t LoRaMacStart( void )
+{
+    MacCtx.MacState = LORAMAC_IDLE;
+    return LORAMAC_STATUS_OK;
+}
+
+LoRaMacStatus_t LoRaMacStop( void )
+{
+    if( MacCtx.MacState == LORAMAC_IDLE )
+    {
+        MacCtx.MacState = LORAMAC_STOPPED;
+        return LORAMAC_STATUS_OK;
+    }
+    else if(  MacCtx.MacState == LORAMAC_STOPPED )
+    {
+        return LORAMAC_STATUS_OK;
+    }
+    return LORAMAC_STATUS_BUSY;
 }
 
 LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo )
