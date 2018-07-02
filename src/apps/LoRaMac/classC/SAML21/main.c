@@ -547,7 +547,8 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
         printf("CHANNEL MASK: ");
 #if defined( REGION_AS923 ) || defined( REGION_CN779 ) || \
     defined( REGION_EU868 ) || defined( REGION_IN865 ) || \
-    defined( REGION_KR920 ) || defined( REGION_EU433 )
+    defined( REGION_KR920 ) || defined( REGION_EU433 ) || \
+    defined( REGION_RU864 )
 
         for( uint8_t i = 0; i < 1; i++)
 

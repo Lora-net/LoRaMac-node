@@ -2213,6 +2213,10 @@ typedef enum eLoRaMacRegion_t
      * North american band on 915MHz
      */
     LORAMAC_REGION_US915,
+    /*!
+     * Russia band on 864MHz
+     */
+    LORAMAC_REGION_RU864,
 }LoRaMacRegion_t;
 
 /*!
