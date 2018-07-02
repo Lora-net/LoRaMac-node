@@ -328,6 +328,11 @@ PhyParam_t RegionIN865GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = IN865_BEACON_CHANNEL_DR;
             break;
         }
+        case PHY_PING_SLOT_CHANNEL_DR:
+        {
+            phyParam.Value = IN865_PING_SLOT_CHANNEL_DR;
+            break;
+        }
         default:
         {
             break;

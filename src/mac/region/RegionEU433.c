@@ -324,6 +324,11 @@ PhyParam_t RegionEU433GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = EU433_BEACON_CHANNEL_DR;
             break;
         }
+        case PHY_PING_SLOT_CHANNEL_DR:
+        {
+            phyParam.Value = EU433_PING_SLOT_CHANNEL_DR;
+            break;
+        }
         default:
         {
             break;

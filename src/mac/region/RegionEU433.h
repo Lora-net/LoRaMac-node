@@ -230,6 +230,11 @@
 #define EU433_BEACON_CHANNEL_BW                     0
 
 /*!
+ * Ping slot channel datarate
+ */
+#define EU433_PING_SLOT_CHANNEL_DR                  DR_3
+
+/*!
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */

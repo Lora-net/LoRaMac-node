@@ -324,6 +324,11 @@ PhyParam_t RegionCN779GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = CN779_BEACON_CHANNEL_DR;
             break;
         }
+        case PHY_PING_SLOT_CHANNEL_DR:
+        {
+            phyParam.Value = CN779_PING_SLOT_CHANNEL_DR;
+            break;
+        }
         default:
         {
             break;

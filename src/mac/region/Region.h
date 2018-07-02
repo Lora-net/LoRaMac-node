@@ -714,7 +714,11 @@ typedef enum ePhyAttribute
     /*!
      * The number of channels for the beacon reception.
      */
-    PHY_BEACON_NB_CHANNELS
+    PHY_BEACON_NB_CHANNELS,
+    /*!
+     * The datarate of a ping slot channel.
+     */
+    PHY_PING_SLOT_CHANNEL_DR
 }PhyAttribute_t;
 
 /*!

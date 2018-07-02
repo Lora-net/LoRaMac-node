@@ -238,6 +238,11 @@
 #define AS923_BEACON_CHANNEL_BW                     0
 
 /*!
+ * Ping slot channel datarate
+ */
+#define AS923_PING_SLOT_CHANNEL_DR                  DR_3
+
+/*!
  * Maximum number of bands
  */
 #define AS923_MAX_NB_BANDS                          1

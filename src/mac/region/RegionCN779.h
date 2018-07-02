@@ -225,6 +225,11 @@
 #define CN779_BEACON_CHANNEL_BW                     0
 
 /*!
+ * Ping slot channel datarate
+ */
+#define CN779_PING_SLOT_CHANNEL_DR                  DR_3
+
+/*!
  * LoRaMac maximum number of bands
  */
 #define CN779_MAX_NB_BANDS                           1

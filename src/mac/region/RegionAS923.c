@@ -363,6 +363,11 @@ PhyParam_t RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = AS923_BEACON_CHANNEL_DR;
             break;
         }
+        case PHY_PING_SLOT_CHANNEL_DR:
+        {
+            phyParam.Value = AS923_PING_SLOT_CHANNEL_DR;
+            break;
+        }
         default:
         {
             break;

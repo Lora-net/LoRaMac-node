@@ -234,6 +234,11 @@
 #define AU915_BEACON_CHANNEL_BW                     2
 
 /*!
+ * Ping slot channel datarate
+ */
+#define AU915_PING_SLOT_CHANNEL_DR                  DR_10
+
+/*!
  * LoRaMac maximum number of bands
  */
 #define AU915_MAX_NB_BANDS                          1

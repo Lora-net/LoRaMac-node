@@ -222,6 +222,11 @@
 #define IN865_BEACON_CHANNEL_BW                     0
 
 /*!
+ * Ping slot channel datarate
+ */
+#define IN865_PING_SLOT_CHANNEL_DR                  DR_4
+
+/*!
  * Maximum number of bands
  */
 #define IN865_MAX_NB_BANDS                          1

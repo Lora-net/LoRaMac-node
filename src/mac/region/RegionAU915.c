@@ -354,6 +354,11 @@ PhyParam_t RegionAU915GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = AU915_BEACON_NB_CHANNELS;
             break;
         }
+        case PHY_PING_SLOT_CHANNEL_DR:
+        {
+            phyParam.Value = AU915_PING_SLOT_CHANNEL_DR;
+            break;
+        }
         default:
         {
             break;

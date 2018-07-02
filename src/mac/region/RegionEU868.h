@@ -222,6 +222,11 @@
 #define EU868_BEACON_CHANNEL_BW                     0
 
 /*!
+ * Ping slot channel datarate
+ */
+#define EU868_PING_SLOT_CHANNEL_DR                  DR_3
+
+/*!
  * Maximum number of bands
  */
 #define EU868_MAX_NB_BANDS                          5

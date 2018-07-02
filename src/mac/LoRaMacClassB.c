@@ -377,6 +377,9 @@ static void GetTemperatureLevel( LoRaMacClassBCallback_t *callbacks, BeaconConte
 
 static void InitClassBDefaults( void )
 {
+    GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
+
     // Init events
     LoRaMacClassBEvents.Value = 0;
 
@@ -388,6 +391,10 @@ static void InitClassBDefaults( void )
     Ctx.NvmCtx->BeaconCtx.Temperature = 25.0;
     GetTemperatureLevel( &Ctx.LoRaMacClassBCallbacks, &Ctx.NvmCtx->BeaconCtx );
 
+    // Setup default ping slot datarate
+    getPhy.Attribute = PHY_PING_SLOT_CHANNEL_DR;
+    phyParam = RegionGetPhyParam( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &getPhy );
+    Ctx.NvmCtx->PingSlotCtx.Datarate = (int8_t)( phyParam.Value );
 
     // Setup default states
     Ctx.NvmCtx->BeaconState = BEACON_STATE_ACQUISITION;
