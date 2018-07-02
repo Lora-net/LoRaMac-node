@@ -304,12 +304,37 @@ typedef struct sLoRaMacClassBParams
 }LoRaMacClassBParams_t;
 
 /*!
+ * Signature of callback function to be called by this module when the
+ * non-volatile needs to be saved.
+ */
+typedef void ( *EventNvmCtxChanged )( void );
+
+/*!
  * \brief Initialize LoRaWAN Class B
  *
  * \param [IN] classBParams Information and feedback parameter
  * \param [IN] callbacks Contains the callback which the Class B implementation needs
+ * \param [IN] callback function which will be called when the non-volatile context needs to be saved.
  */
-void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks );
+void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks, EventNvmCtxChanged classBNvmCtxChanged );
+
+/*!
+ * Restores the internal non-volatile context from passed pointer.
+ *
+ * \param [IN]     classBNvmCtx     - Pointer to non-volatile class B module context to be restored.
+ *
+ * \retval                     - Status of the operation
+ */
+bool LoRaMacClassBRestoreNvmCtx( void* classBNvmCtx );
+
+/*!
+ * Returns a pointer to the internal non-volatile context.
+ *
+ * \param [IN]     classBNvmCtxSize - Size of the module non-volatile context
+ *
+ * \retval                    - Points to a structure where the module store its non-volatile context
+ */
+void* LoRaMacClassBGetNvmCtx( size_t* classBNvmCtxSize );
 
 /*!
  * \brief Set the state of the beacon state machine

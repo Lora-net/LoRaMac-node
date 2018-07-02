@@ -63,6 +63,10 @@ typedef struct sLoRaMacConfirmQueueCtx
     * Pointer to the last element of the ring buffer
     */
     MlmeConfirmQueue_t* BufferEnd;
+    /*
+     * Callback function to notify the upper layer about context change
+     */
+    EventNvmCtxChanged EventNvmCtxChanged;
     /*!
     * Non-volatile module context.
     */
@@ -127,7 +131,7 @@ static MlmeConfirmQueue_t* GetElement( Mlme_t request, MlmeConfirmQueue_t* buffe
     return NULL;
 }
 
-void LoRaMacConfirmQueueInit( LoRaMacPrimitives_t* primitives )
+void LoRaMacConfirmQueueInit( LoRaMacPrimitives_t* primitives, EventNvmCtxChanged confirmQueueNvmCtxChanged )
 {
     ConfirmQueueCtx.Primitives = primitives;
 
@@ -145,6 +149,23 @@ void LoRaMacConfirmQueueInit( LoRaMacPrimitives_t* primitives )
 
     // Common status
     ConfirmQueueCtx.ConfirmQueueNvmCtx->CommonStatus = LORAMAC_EVENT_INFO_STATUS_ERROR;
+
+    // Assign callback
+    ConfirmQueueCtx.EventNvmCtxChanged = confirmQueueNvmCtxChanged;
+}
+
+bool LoRaMacConfirmQueueRestoreNvmCtx( void* confirmQueueNvmCtx )
+{
+    // Restore module context
+    if( confirmQueueNvmCtx != NULL )
+    {
+        memcpy1( ( uint8_t* )&ConfirmQueueNvmCtx, ( uint8_t* ) confirmQueueNvmCtx, sizeof( ConfirmQueueNvmCtx ) );
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void* LoRaMacConfirmQueueGetNvmCtx( size_t* confirmQueueNvmCtxSize )

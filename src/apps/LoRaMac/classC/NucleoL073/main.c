@@ -29,6 +29,7 @@
 #include "gpio.h"
 #include "LoRaMac.h"
 #include "Commissioning.h"
+#include "NvmCtxMgmt.h"
 
 #ifndef ACTIVE_REGION
 
@@ -164,7 +165,7 @@ static bool NextTx = true;
  */
 static enum eDeviceState
 {
-    DEVICE_STATE_INIT,
+    DEVICE_STATE_RESTORE,
     DEVICE_STATE_START,
     DEVICE_STATE_JOIN,
     DEVICE_STATE_SEND,
@@ -911,10 +912,11 @@ int main( void )
     macPrimitives.MacMlmeIndication = MlmeIndication;
     macCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
     macCallbacks.GetTemperatureLevel = NULL;
+    macCallbacks.NvmContextChange = NvmCtxMgmtEvent;
 
     LoRaMacInitialization( &macPrimitives, &macCallbacks, ACTIVE_REGION );
 
-    DeviceState = DEVICE_STATE_INIT;
+    DeviceState = DEVICE_STATE_RESTORE;
 
     printf( "###### ===== ClassC demo application v1.0.RC1 ==== ######\r\n\r\n" );
 
@@ -930,8 +932,15 @@ int main( void )
 
         switch( DeviceState )
         {
-            case DEVICE_STATE_INIT:
+            case DEVICE_STATE_RESTORE:
             {
+                // Try to restore from NVM and query the mac if possible.
+                if( NvmCtxMgmtRestore( ) == NVMCTXMGMT_STATUS_SUCCESS )
+                {
+                    printf( "\r\n###### ===== CTXS RESTORED ==== ######\r\n\r\n" );
+                }
+                else
+                {
                     mibReq.Type = MIB_APP_KEY;
                     mibReq.Param.AppKey = AppKey;
                     LoRaMacMibSetRequestConfirm( &mibReq );
@@ -984,6 +993,7 @@ int main( void )
                     mibReq.Param.AppSKey = AppSKey;
                     LoRaMacMibSetRequestConfirm( &mibReq );
 #endif
+                }
                 DeviceState = DEVICE_STATE_START;
                 break;
             }
@@ -1120,13 +1130,18 @@ int main( void )
             }
             case DEVICE_STATE_SLEEP:
             {
+                if( NvmCtxMgmtStore( ) == NVMCTXMGMT_STATUS_SUCCESS )
+                {
+                    printf( "\r\n###### ===== CTXS STORED ==== ######\r\n" );
+                }
+
                 // Wake up through events
                 BoardLowPowerHandler( );
                 break;
             }
             default:
             {
-                DeviceState = DEVICE_STATE_INIT;
+                DeviceState = DEVICE_STATE_START;
                 break;
             }
         }

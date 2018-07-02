@@ -268,6 +268,77 @@ typedef enum eLoRaMacRxSlot
 }LoRaMacRxSlot_t;
 
 /*!
+ * LoRaMAC structure to hold internal context pointers and its lengths
+ */
+typedef struct sLoRaMacCtxs
+{
+    /*!
+     * \brief   Pointer to Mac context
+     */
+    void* MacNvmCtx;
+    /*!
+     * \brief   Size of Mac context
+     */
+    size_t MacNvmCtxSize;
+    /*!
+     * \brief   Pointer to region context
+     */
+    void* RegionNvmCtx;
+    /*!
+     * \brief   Size of region context
+     */
+    size_t RegionNvmCtxSize;
+    /*!
+     * \brief   Pointer to crypto module context
+     */
+    void* CryptoNvmCtx;
+    /*!
+     * \brief   Size of crypto module context
+     */
+    size_t CryptoNvmCtxSize;
+    /*!
+     * \brief   Pointer to secure element driver context
+     */
+    void* SecureElementNvmCtx;
+    /*!
+     * \brief   Size of secure element driver context
+     */
+    size_t SecureElementNvmCtxSize;
+    /*!
+     * \brief   Pointer to MAC commands module context
+     */
+    void* CommandsNvmCtx;
+    /*!
+     * \brief   Size of MAC commands module context
+     */
+    size_t CommandsNvmCtxSize;
+    /*!
+     * \brief   Pointer to Class B module context
+     */
+    void* ClassBNvmCtx;
+    /*!
+     * \brief   Size of MAC Class B module context
+     */
+    size_t ClassBNvmCtxSize;
+    /*!
+     * \brief   Pointer to MLME Confirm queue module context
+     */
+    void* ConfirmQueueNvmCtx;
+    /*!
+     * \brief   Size of MLME Confirm queue module context
+     */
+    size_t ConfirmQueueNvmCtxSize;
+    /*!
+     * \brief   Pointer to FCnt handler module context
+     */
+    void* FCntHandlerNvmCtx;
+    /*!
+     * \brief   Size of FCnt handler module context
+     */
+    size_t FCntHandlerNvmCtxSize;
+}LoRaMacCtxs_t;
+
+/*!
  * Global MAC layer parameters
  */
 typedef struct sLoRaMacParams
@@ -1197,6 +1268,7 @@ typedef struct sMlmeIndication
  * \ref MIB_MAX_BEACON_LESS_PERIOD               | YES | YES
  * \ref MIB_ANTENNA_GAIN                         | YES | YES
  * \ref MIB_DEFAULT_ANTENNA_GAIN                 | YES | YES
+ * \ref MIB_NVM_CTXS                             | YES | YES
  * \ref MIB_ABP_LORAWAN_VERSION                  | YES | YES
  *
  * The following table provides links to the function implementations of the
@@ -1508,6 +1580,10 @@ typedef enum eMib
      * radioTxPower = ( int8_t )floor( maxEirp - antennaGain )
      */
     MIB_DEFAULT_ANTENNA_GAIN,
+    /*!
+     * Structure holding pointers to internal contexts and its size
+     */
+    MIB_NVM_CTXS,
     /*!
      * LoRaWAN MAC layer operating version when activated by ABP.
      */
@@ -1865,6 +1941,12 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_DEFAULT_ANTENNA_GAIN
      */
     float DefaultAntennaGain;
+    /*!
+     * Structure holding pointers to internal non-volatile contexts and its lengths.
+     *
+     * Related MIB type: \ref MIB_NVM_CTXS
+     */
+    LoRaMacCtxs_t* Contexts;
     /*
      * LoRaWAN MAC layer operating version when activated by ABP.
      *
@@ -2134,6 +2216,46 @@ typedef enum eLoRaMacRegion_t
 }LoRaMacRegion_t;
 
 /*!
+ * Enumeration of modules which have a context
+ */
+typedef enum LoRaMacNvmCtxModule_e
+{
+    /*!
+     * Context for the MAC
+     */
+    LORAMAC_NVMCTXMODULE_MAC,
+    /*!
+     * Context for the regions
+     */
+    LORAMAC_NVMCTXMODULE_REGION,
+    /*!
+     * Context for the crypto module
+     */
+    LORAMAC_NVMCTXMODULE_CRYPTO,
+    /*!
+     * Context for the secure element
+     */
+    LORAMAC_NVMCTXMODULE_SECURE_ELEMENT,
+    /*!
+     * Context for the command queue
+     */
+    LORAMAC_NVMCTXMODULE_COMMANDS,
+    /*!
+     * Context for class b
+     */
+    LORAMAC_NVMCTXMODULE_CLASS_B,
+    /*!
+     * Context for the confirm queue
+     */
+    LORAMAC_NVMCTXMODULE_CONFIRM_QUEUE,
+    /*!
+     * Context for the frame count handler
+     */
+    LORAMAC_NVMCTXMODULE_FCNT_HANDLER
+}LoRaMacNvmCtxModule_t;
+
+
+/*!
  * LoRaMAC events structure
  * Used to notify upper layers of MAC events
  */
@@ -2185,6 +2307,12 @@ typedef struct sLoRaMacCallback
      * \retval  Temperature level
      */
     float ( *GetTemperatureLevel )( void );
+    /*!
+     * \brief   Will be called when an attribute has changed in one of the context.
+     *
+     * \param   Context that changed
+     */
+    void ( *NvmContextChange )( LoRaMacNvmCtxModule_t module );
 }LoRaMacCallback_t;
 
 

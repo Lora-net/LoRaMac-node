@@ -40,12 +40,18 @@ if((CLASS STREQUAL classB) AND NOT CLASSB_ENABLED )
 endif()
 
 #---------------------------------------------------------------------------------------
+# Applications
+#---------------------------------------------------------------------------------------
+file(GLOB ${PROJECT_NAME}_APPS "${CMAKE_CURRENT_LIST_DIR}/common/*.c")
+
+#---------------------------------------------------------------------------------------
 # Target
 #---------------------------------------------------------------------------------------
 
 file(GLOB ${PROJECT_NAME}_SOURCES "${CMAKE_CURRENT_LIST_DIR}/${CLASS}/${BOARD}/*.c")
 
 add_executable(${PROJECT_NAME}-${CLASS}
+                            ${${PROJECT_NAME}_APPS}
                             ${${PROJECT_NAME}_SOURCES}
                             $<TARGET_OBJECTS:mac>
                             $<TARGET_OBJECTS:system>
@@ -61,6 +67,7 @@ target_compile_definitions(${PROJECT_NAME}-${CLASS}  PUBLIC
 )
 
 target_include_directories(${PROJECT_NAME}-${CLASS} PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/common
     $<BUILD_INTERFACE:$<TARGET_PROPERTY:mac,INTERFACE_INCLUDE_DIRECTORIES>>
     $<BUILD_INTERFACE:$<TARGET_PROPERTY:system,INTERFACE_INCLUDE_DIRECTORIES>>
     $<BUILD_INTERFACE:$<TARGET_PROPERTY:radio,INTERFACE_INCLUDE_DIRECTORIES>>

@@ -352,6 +352,11 @@ static LoRaMacCtx_t MacCtx;
  */
 static LoRaMacNvmCtx_t NvmMacCtx;
 
+/*
+ * List of module contexts.
+ */
+LoRaMacCtxs_t Contexts;
+
 /*!
  * Defines the LoRaMac radio events status
  */
@@ -604,6 +609,26 @@ static bool IsFPortAllowed( uint8_t fPort );
 static void OpenContinuousRx2Window( void );
 
 /*!
+ * \brief   Returns a pointer to the internal contexts structure.
+ *
+ * \retval  void Points to a structure containing all contexts
+ */
+LoRaMacCtxs_t* GetCtxs( void );
+
+/*!
+ * \brief   Restoring of internal module contexts
+ *
+ * \details This function allows to restore module contexts by a given pointer.
+ *
+ *
+ * \retval  LoRaMacStatus_t Status of the operation. Possible returns are:
+ *          returns are:
+ *          \ref LORAMAC_STATUS_OK,
+ *          \ref LORAMAC_STATUS_PARAMETER_INVALID,
+ */
+LoRaMacStatus_t RestoreCtxs( LoRaMacCtxs_t* contexts );
+
+/*!
  * \brief   Determines the frame type
  *
  * \param [IN] macMsg Data message object
@@ -652,10 +677,50 @@ static void AckTimeoutRetriesProcess( void );
  */
 static void AckTimeoutRetriesFinalize( void );
 
+/*!
+ * \brief Calls the callback to indicate that a context changed
+ */
+static void CallNvmCtxCallback( LoRaMacNvmCtxModule_t module );
 
+/*!
+ * \brief MAC NVM Context has been changed
+ */
+static void EventMacNvmCtxChanged( void );
 
+/*!
+ * \brief Region NVM Context has been changed
+ */
+static void EventRegionNvmCtxChanged( void );
 
+/*!
+ * \brief Crypto NVM Context has been changed
+ */
+static void EventCryptoNvmCtxChanged( void );
 
+/*!
+ * \brief Secure Element NVM Context has been changed
+ */
+static void EventSecureElementNvmCtxChanged( void );
+
+/*!
+ * \brief MAC commands module nvm context has been changed
+ */
+static void EventCommandsNvmCtxChanged( void );
+
+/*!
+ * \brief Class B module nvm context has been changed
+ */
+static void EventClassBNvmCtxChanged( void );
+
+/*!
+ * \brief Confirm Queue module nvm context has been changed
+ */
+static void EventConfirmQueueNvmCtxChanged( void );
+
+/*!
+ * \brief FCnt Handler module nvm context has been changed
+ */
+static void EventFCntHandlerNvmCtxChanged( void );
 
 /*!
  * Structure used to store the radio Tx event data
@@ -2542,6 +2607,76 @@ LoRaMacStatus_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint
     return LORAMAC_STATUS_OK;
 }
 
+LoRaMacCtxs_t* GetCtxs( void )
+{
+    Contexts.MacNvmCtx = &NvmMacCtx;
+    Contexts.MacNvmCtxSize = sizeof( NvmMacCtx );
+    Contexts.CryptoNvmCtx = LoRaMacCryptoGetNvmCtx( &Contexts.CryptoNvmCtxSize );
+    GetNvmCtxParams_t params;
+    Contexts.RegionNvmCtx = RegionGetNvmCtx( MacCtx.NvmCtx->Region, &params );
+    Contexts.RegionNvmCtxSize = params.nvmCtxSize;
+    Contexts.SecureElementNvmCtx = SecureElementGetNvmCtx( &Contexts.SecureElementNvmCtxSize );
+    Contexts.CommandsNvmCtx = LoRaMacCommandsGetNvmCtx( &Contexts.CommandsNvmCtxSize );
+    Contexts.ClassBNvmCtx = LoRaMacClassBGetNvmCtx( &Contexts.ClassBNvmCtxSize );
+    Contexts.ConfirmQueueNvmCtx = LoRaMacConfirmQueueGetNvmCtx( &Contexts.ConfirmQueueNvmCtxSize );
+    Contexts.FCntHandlerNvmCtx = LoRaMacFCntHandlerGetNvmCtx( &Contexts.FCntHandlerNvmCtxSize );
+    return &Contexts;
+}
+
+LoRaMacStatus_t RestoreCtxs( LoRaMacCtxs_t* contexts )
+{
+    if( contexts == NULL )
+    {
+        return LORAMAC_STATUS_PARAMETER_INVALID;
+    }
+    if( MacCtx.MacState != LORAMAC_STOPPED )
+    {
+        return LORAMAC_STATUS_BUSY;
+    }
+
+    if( contexts->MacNvmCtx != NULL )
+    {
+        memcpy1( ( uint8_t* ) &NvmMacCtx, ( uint8_t* ) contexts->MacNvmCtx, contexts->MacNvmCtxSize );
+    }
+
+    InitDefaultsParams_t params;
+    params.Type = INIT_TYPE_RESTORE_CTX;
+    params.NvmCtx = contexts->RegionNvmCtx;
+    RegionInitDefaults( MacCtx.NvmCtx->Region, &params );
+
+    if( SecureElementRestoreNvmCtx( contexts->SecureElementNvmCtx ) != SECURE_ELEMENT_SUCCESS )
+    {
+        return LORAMAC_STATUS_CRYPTO_ERROR;
+    }
+
+    if( LoRaMacCryptoRestoreNvmCtx( contexts->CryptoNvmCtx ) != LORAMAC_CRYPTO_SUCCESS )
+    {
+        return LORAMAC_STATUS_CRYPTO_ERROR;
+    }
+
+    if( LoRaMacFCntHandlerRestoreNvmCtx( contexts->FCntHandlerNvmCtx ) != LORAMAC_FCNT_HANDLER_SUCCESS )
+    {
+        return LORAMAC_STATUS_FCNT_HANDLER_ERROR;
+    }
+
+    if( LoRaMacCommandsRestoreNvmCtx( contexts->CommandsNvmCtx ) != LORAMAC_COMMANDS_SUCCESS )
+    {
+        return LORAMAC_STATUS_MAC_COMMAD_ERROR;
+    }
+
+    if( LoRaMacClassBRestoreNvmCtx( contexts->ClassBNvmCtx ) != true )
+    {
+        return LORAMAC_STATUS_CLASS_B_ERROR;
+    }
+
+    if( LoRaMacConfirmQueueRestoreNvmCtx( contexts->ConfirmQueueNvmCtx ) != true )
+    {
+        return LORAMAC_STATUS_CONFIRM_QUEUE_ERROR;
+    }
+
+    return LORAMAC_STATUS_OK;
+}
+
 LoRaMacStatus_t DetermineFrameType( LoRaMacMessageData_t* macMsg, FType_t* fType )
 {
     if( ( macMsg == NULL ) || ( fType == NULL ) )
@@ -2694,7 +2829,7 @@ static void AckTimeoutRetriesFinalize( void )
     {
         InitDefaultsParams_t params;
         params.Type = INIT_TYPE_RESTORE_DEFAULT_CHANNELS;
-        params.NvmCtx = NULL;
+        params.NvmCtx = Contexts.RegionNvmCtx;
         RegionInitDefaults( MacCtx.NvmCtx->Region, &params );
 
         MacCtx.NvmCtx->NodeAckRequested = false;
@@ -2703,14 +2838,53 @@ static void AckTimeoutRetriesFinalize( void )
     MacCtx.McpsConfirm.NbRetries = MacCtx.NvmCtx->AckTimeoutRetriesCounter;
 }
 
+static void CallNvmCtxCallback( LoRaMacNvmCtxModule_t module )
+{
+    if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->NvmContextChange != NULL ) )
+    {
+        MacCtx.MacCallbacks->NvmContextChange( module );
+    }
+}
 
+static void EventMacNvmCtxChanged( void )
+{
+    CallNvmCtxCallback( LORAMAC_NVMCTXMODULE_MAC );
+}
 
+static void EventRegionNvmCtxChanged( void )
+{
+    CallNvmCtxCallback( LORAMAC_NVMCTXMODULE_REGION );
+}
 
+static void EventCryptoNvmCtxChanged( void )
+{
+    CallNvmCtxCallback( LORAMAC_NVMCTXMODULE_CRYPTO );
+}
 
+static void EventSecureElementNvmCtxChanged( void )
+{
+    CallNvmCtxCallback( LORAMAC_NVMCTXMODULE_SECURE_ELEMENT );
+}
 
+static void EventCommandsNvmCtxChanged( void )
+{
+    CallNvmCtxCallback( LORAMAC_NVMCTXMODULE_COMMANDS );
+}
 
+static void EventClassBNvmCtxChanged( void )
+{
+    CallNvmCtxCallback( LORAMAC_NVMCTXMODULE_CLASS_B );
+}
 
+static void EventConfirmQueueNvmCtxChanged( void )
+{
+    CallNvmCtxCallback( LORAMAC_NVMCTXMODULE_CONFIRM_QUEUE );
+}
 
+void EventFCntHandlerNvmCtxChanged( void )
+{
+    CallNvmCtxCallback( LORAMAC_NVMCTXMODULE_FCNT_HANDLER );
+}
 
 LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacCallback_t* callbacks, LoRaMacRegion_t region )
 {
@@ -2739,7 +2913,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     }
 
     // Confirm queue reset
-    LoRaMacConfirmQueueInit( primitives );
+    LoRaMacConfirmQueueInit( primitives, EventConfirmQueueNvmCtxChanged );
 
     // Initialize the module context with zeros
     memset1( ( uint8_t* ) &NvmMacCtx, 0x00, sizeof( LoRaMacNvmCtx_t ) );
@@ -2879,25 +3053,25 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     RegionInitDefaults( MacCtx.NvmCtx->Region, &params );
 
     // Initialize the Secure Element driver
-    if( SecureElementInit( NULL ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementInit( EventSecureElementNvmCtxChanged ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_STATUS_CRYPTO_ERROR;
     }
 
     // Initialize Crypto module
-    if( LoRaMacCryptoInit( NULL ) != LORAMAC_CRYPTO_SUCCESS )
+    if( LoRaMacCryptoInit( EventCryptoNvmCtxChanged ) != LORAMAC_CRYPTO_SUCCESS )
     {
         return LORAMAC_STATUS_CRYPTO_ERROR;
     }
 
     // Initialize MAC commands module
-    if( LoRaMacCommandsInit( NULL ) != LORAMAC_COMMANDS_SUCCESS )
+    if( LoRaMacCommandsInit( EventCommandsNvmCtxChanged ) != LORAMAC_COMMANDS_SUCCESS )
     {
         return LORAMAC_STATUS_MAC_COMMAD_ERROR;
     }
 
     // Initialize FCnt Handler module
-    if( LoRaMacFCntHandlerInit( NULL ) != LORAMAC_FCNT_HANDLER_SUCCESS )
+    if( LoRaMacFCntHandlerInit( EventFCntHandlerNvmCtxChanged ) != LORAMAC_FCNT_HANDLER_SUCCESS )
     {
         return LORAMAC_STATUS_FCNT_HANDLER_ERROR;
     }
@@ -2929,7 +3103,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     classBParams.LoRaMacParams = &MacCtx.NvmCtx->MacParams;
     classBParams.MulticastChannels = &MacCtx.NvmCtx->MulticastChannelList[0];
 
-    LoRaMacClassBInit( &classBParams, &classBCallbacks );
+    LoRaMacClassBInit( &classBParams, &classBCallbacks, &EventClassBNvmCtxChanged );
 
     return LORAMAC_STATUS_OK;
 }
@@ -3157,6 +3331,11 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t* mibGet )
         case MIB_ANTENNA_GAIN:
         {
             mibGet->Param.AntennaGain = MacCtx.NvmCtx->MacParams.AntennaGain;
+            break;
+        }
+        case MIB_NVM_CTXS:
+        {
+            mibGet->Param.Contexts = GetCtxs( );
             break;
         }
         case MIB_DEFAULT_ANTENNA_GAIN:
@@ -3731,6 +3910,18 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
             MacCtx.NvmCtx->MacParamsDefaults.AntennaGain = mibSet->Param.DefaultAntennaGain;
             break;
         }
+        case MIB_NVM_CTXS:
+        {
+            if( mibSet->Param.Contexts != 0 )
+            {
+                status = RestoreCtxs( mibSet->Param.Contexts );
+            }
+            else
+            {
+                status = LORAMAC_STATUS_PARAMETER_INVALID;
+            }
+            break;
+        }
         case MIB_ABP_LORAWAN_VERSION:
         {
             if( mibSet->Param.AbpLrWanVersion.Fields.Minor <= 1 )
@@ -3754,7 +3945,8 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
             break;
         }
     }
-
+    EventRegionNvmCtxChanged( );
+    EventMacNvmCtxChanged( );
     return status;
 }
 
@@ -3774,6 +3966,7 @@ LoRaMacStatus_t LoRaMacChannelAdd( uint8_t id, ChannelParams_t params )
     channelAdd.NewChannel = &params;
     channelAdd.ChannelId = id;
 
+    EventRegionNvmCtxChanged( );
     return RegionChannelAdd( MacCtx.NvmCtx->Region, &channelAdd );
 }
 
@@ -3795,6 +3988,8 @@ LoRaMacStatus_t LoRaMacChannelRemove( uint8_t id )
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
+
+    EventRegionNvmCtxChanged( );
     return LORAMAC_STATUS_OK;
 }
 
@@ -3813,6 +4008,9 @@ LoRaMacStatus_t LoRaMacMulticastChannelSet( MulticastChannel_t channel )
 
     // Calculate class b parameters
     LoRaMacClassBSetMulticastPeriodicity( &MacCtx.NvmCtx->MulticastChannelList[channel.AddrID] );
+
+    EventMacNvmCtxChanged( );
+    EventRegionNvmCtxChanged( );
     return LORAMAC_STATUS_OK;
 }
 
@@ -3878,7 +4076,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
                 // Revert back the previous datarate ( mainly used for US915 like regions )
                 MacCtx.NvmCtx->MacParams.ChannelsDatarate = RegionAlternateDr( MacCtx.NvmCtx->Region, mlmeRequest->Req.Join.Datarate );
             }
-
+            EventRegionNvmCtxChanged( );
             break;
         }
         case MLME_LINK_CHECK:
@@ -4014,6 +4212,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
         }
     }
 
+    EventMacNvmCtxChanged( );
     return status;
 }
 
@@ -4130,6 +4329,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
         }
     }
 
+    EventMacNvmCtxChanged( );
     return status;
 }
 

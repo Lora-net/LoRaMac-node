@@ -81,6 +81,10 @@ typedef struct sLoRaMacClassBCtx
     * in class b operation.
     */
     LoRaMacClassBParams_t LoRaMacClassBParams;
+    /*
+     * Callback function to notify the upper layer about context change
+     */
+    EventNvmCtxChanged EventNvmCtxChanged;
     /*!
     * Non-volatile module context.
     */
@@ -503,9 +507,20 @@ static uint16_t CalcPingPeriod( uint8_t pingNb )
     return CLASSB_BEACON_WINDOW_SLOTS / pingNb;
 }
 
+/*
+ * Dummy callback in case if the user provides NULL function pointer
+ */
+static void NvmContextChange( void )
+{
+    if( Ctx.EventNvmCtxChanged != NULL )
+    {
+        Ctx.EventNvmCtxChanged( );
+    }
+}
+
 #endif // LORAMAC_CLASSB_ENABLED
 
-void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks )
+void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks, EventNvmCtxChanged classBNvmCtxChanged )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     // Store callbacks
@@ -517,12 +532,44 @@ void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallba
     // Assign non-volatile context
     Ctx.NvmCtx = &NvmCtx;
 
+    // Assign callback
+    Ctx.EventNvmCtxChanged = classBNvmCtxChanged;
+
     // Initialize timers
     TimerInit( &Ctx.BeaconTimer, LoRaMacClassBBeaconTimerEvent );
     TimerInit( &Ctx.PingSlotTimer, LoRaMacClassBPingSlotTimerEvent );
     TimerInit( &Ctx.MulticastSlotTimer, LoRaMacClassBMulticastSlotTimerEvent );
 
     InitClassBDefaults( );
+#endif // LORAMAC_CLASSB_ENABLED
+}
+
+bool LoRaMacClassBRestoreNvmCtx( void* classBNvmCtx )
+{
+#ifdef LORAMAC_CLASSB_ENABLED
+    // Restore module context
+    if( classBNvmCtx != NULL )
+    {
+        memcpy1( ( uint8_t* ) &NvmCtx, ( uint8_t* ) classBNvmCtx, sizeof( NvmCtx ) );
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+#else
+    return true;
+#endif // LORAMAC_CLASSB_ENABLED
+}
+
+void* LoRaMacClassBGetNvmCtx( size_t* classBNvmCtxSize )
+{
+#ifdef LORAMAC_CLASSB_ENABLED
+    *classBNvmCtxSize = sizeof( NvmCtx );
+    return &NvmCtx;
+#else
+    *classBNvmCtxSize = 0;
+    return NULL;
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -551,6 +598,9 @@ void LoRaMacClassBSetBeaconState( BeaconState_t beaconState )
             Ctx.NvmCtx->BeaconState = beaconState;
         }
     }
+
+    NvmContextChange( );
+
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -558,7 +608,7 @@ void LoRaMacClassBSetPingSlotState( PingSlotState_t pingSlotState )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     Ctx.NvmCtx->PingSlotState = pingSlotState;
-
+    NvmContextChange( );
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -566,7 +616,7 @@ void LoRaMacClassBSetMulticastSlotState( PingSlotState_t multicastSlotState )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     Ctx.NvmCtx->MulticastSlotState = multicastSlotState;
-
+    NvmContextChange( );
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -822,6 +872,8 @@ static void LoRaMacClassBProcessBeacon( void )
         TimerSetValue( &Ctx.BeaconTimer, beaconEventTime );
         TimerStart( &Ctx.BeaconTimer );
     }
+
+    NvmContextChange( );
 }
 #endif // LORAMAC_CLASSB_ENABLED
 
@@ -927,6 +979,8 @@ static void LoRaMacClassBProcessPingSlot( void )
             break;
         }
     }
+
+    NvmContextChange( );
 }
 #endif // LORAMAC_CLASSB_ENABLED
 
@@ -1077,6 +1131,8 @@ static void LoRaMacClassBProcessMulticastSlot( void )
             break;
         }
     }
+
+    NvmContextChange( );
 }
 #endif // LORAMAC_CLASSB_ENABLED
 
@@ -1165,6 +1221,8 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
         beaconProcessed = true;
     }
 
+    NvmContextChange( );
+
     return beaconProcessed;
 #else
     return false;
@@ -1243,7 +1301,7 @@ void LoRaMacClassBSetPingSlotInfo( uint8_t periodicity )
 #ifdef LORAMAC_CLASSB_ENABLED
     Ctx.NvmCtx->PingSlotCtx.PingNb = CalcPingNb( periodicity );
     Ctx.NvmCtx->PingSlotCtx.PingPeriod = CalcPingPeriod( Ctx.NvmCtx->PingSlotCtx.PingNb );
-
+    NvmContextChange( );
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -1271,6 +1329,8 @@ void LoRaMacClassBHaltBeaconing( void )
 
         // Halt ping and multicast slot state machines
         LoRaMacClassBStopRxSlots( );
+
+        NvmContextChange( );
     }
 #endif // LORAMAC_CLASSB_ENABLED
 }
@@ -1292,7 +1352,7 @@ void LoRaMacClassBResumeBeaconing( void )
         }
 
         LoRaMacClassBBeaconTimerEvent( );
-
+        NvmContextChange( );
     }
 #endif // LORAMAC_CLASSB_ENABLED
 }
@@ -1364,6 +1424,7 @@ LoRaMacStatus_t LoRaMacMibClassBSetRequestConfirm( MibRequestConfirm_t *mibSet )
             break;
         }
     }
+    NvmContextChange( );
     return status;
 #else
     return LORAMAC_STATUS_SERVICE_UNKNOWN;
@@ -1418,7 +1479,7 @@ uint8_t LoRaMacClassBPingSlotChannelReq( uint8_t datarate, uint32_t frequency )
             Ctx.NvmCtx->PingSlotCtx.Frequency = 0;
         }
         Ctx.NvmCtx->PingSlotCtx.Datarate = datarate;
-
+        NvmContextChange( );
     }
 
     return status;
@@ -1453,6 +1514,7 @@ void LoRaMacClassBBeaconTimingAns( uint16_t beaconTimingDelay, uint8_t beaconTim
         Ctx.LoRaMacClassBParams.MlmeConfirm->BeaconTimingDelay = Ctx.NvmCtx->BeaconCtx.BeaconTimingDelay;
         Ctx.LoRaMacClassBParams.MlmeConfirm->BeaconTimingChannel = Ctx.NvmCtx->BeaconCtx.BeaconTimingChannel;
     }
+    NvmContextChange( );
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -1492,6 +1554,8 @@ void LoRaMacClassBDeviceTimeAns( void )
             LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_OK, MLME_DEVICE_TIME );
         }
     }
+
+    NvmContextChange( );
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -1512,6 +1576,7 @@ bool LoRaMacClassBBeaconFreqReq( uint32_t frequency )
         Ctx.NvmCtx->BeaconCtx.Ctrl.CustomFreq = 0;
         return true;
     }
+    NvmContextChange( );
     return false;
 #else
     return false;
@@ -1567,6 +1632,7 @@ void LoRaMacClassBStartRxSlots( void )
         TimerSetValue( &Ctx.MulticastSlotTimer, 1 );
         TimerStart( &Ctx.MulticastSlotTimer );
 
+        NvmContextChange( );
     }
 #endif // LORAMAC_CLASSB_ENABLED
 }
