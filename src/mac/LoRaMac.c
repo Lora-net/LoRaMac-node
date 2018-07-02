@@ -3166,14 +3166,7 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t* mibGet )
         }
         default:
         {
-            if( MacCtx.NvmCtx->DeviceClass == CLASS_B )
-            {
-                status = LoRaMacClassBMibGetRequestConfirm( mibGet );
-            }
-            else
-            {
-                status = LORAMAC_STATUS_SERVICE_UNKNOWN;
-            }
+            status = LoRaMacClassBMibGetRequestConfirm( mibGet );
             break;
         }
     }
@@ -3757,14 +3750,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
         }
         default:
         {
-            if( MacCtx.NvmCtx->DeviceClass == CLASS_B )
-            {
-                status = LoRaMacMibClassBSetRequestConfirm( mibSet );
-            }
-            else
-            {
-                status = LORAMAC_STATUS_SERVICE_UNKNOWN;
-            }
+            status = LoRaMacMibClassBSetRequestConfirm( mibSet );
             break;
         }
     }
