@@ -2878,6 +2878,29 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     params.NvmCtx = NULL;
     RegionInitDefaults( MacCtx.NvmCtx->Region, &params );
 
+    // Initialize the Secure Element driver
+    if( SecureElementInit( NULL ) != SECURE_ELEMENT_SUCCESS )
+    {
+        return LORAMAC_STATUS_CRYPTO_ERROR;
+    }
+
+    // Initialize Crypto module
+    if( LoRaMacCryptoInit( NULL ) != LORAMAC_CRYPTO_SUCCESS )
+    {
+        return LORAMAC_STATUS_CRYPTO_ERROR;
+    }
+
+    // Initialize MAC commands module
+    if( LoRaMacCommandsInit( NULL ) != LORAMAC_COMMANDS_SUCCESS )
+    {
+        return LORAMAC_STATUS_MAC_COMMAD_ERROR;
+    }
+
+    // Initialize FCnt Handler module
+    if( LoRaMacFCntHandlerInit( NULL ) != LORAMAC_FCNT_HANDLER_SUCCESS )
+    {
+        return LORAMAC_STATUS_FCNT_HANDLER_ERROR;
+    }
 
     // Set multicast downlink counter reference
     LoRaMacFCntHandlerSetMulticastReference( MacCtx.NvmCtx->MulticastChannelList );
