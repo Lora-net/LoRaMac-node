@@ -58,25 +58,25 @@
 typedef enum eFType
 {
     /*!
-     * Frame type  A
+     * Frame type A
      *
      * FOptsLen > 0, Fopt present, FPort > 0, FRMPayload present
      */
     FRAME_TYPE_A,
     /*!
-     * LoRaWAN device class B
+     * Frame type B
      *
      * FOptsLen > 0, Fopt present, FPort not present, FRMPayload not present
      */
     FRAME_TYPE_B,
     /*!
-     * LoRaWAN device class C
+     * Frame type C
      *
      * FOptsLen = 0, Fopt not present, FPort = 0 , FRMPayload containing MAC commands
      */
     FRAME_TYPE_C,
     /*!
-     * LoRaWAN device class D
+     * Frame type D
      *
      * FOptsLen = 0, Fopt not present, FPort > 0 , FRMPayload present
      */
