@@ -176,7 +176,6 @@ void SX1276SetRfTxPower( int8_t power )
     paDac = SX1276Read( REG_PADAC );
 
     paConfig = ( paConfig & RF_PACONFIG_PASELECT_MASK ) | SX1276GetPaSelect( SX1276.Settings.Channel );
-    paConfig = ( paConfig & RF_PACONFIG_MAX_POWER_MASK ) | 0x70;
 
     if( ( paConfig & RF_PACONFIG_PASELECT_PABOOST ) == RF_PACONFIG_PASELECT_PABOOST )
     {
@@ -215,15 +214,22 @@ void SX1276SetRfTxPower( int8_t power )
     }
     else
     {
-        if( power < -1 )
+        if( power > 0 )
         {
-            power = -1;
+            if( power > 15 )
+            {
+                power = 15;
+            }
+            paConfig = ( paConfig & RF_PACONFIG_MAX_POWER_MASK & RF_PACONFIG_OUTPUTPOWER_MASK ) | ( 7 << 4 ) | ( power );
         }
-        if( power > 14 )
+        else
         {
-            power = 14;
+            if( power < -4 )
+            {
+                power = -4;
+            }
+            paConfig = ( paConfig & RF_PACONFIG_MAX_POWER_MASK & RF_PACONFIG_OUTPUTPOWER_MASK ) | ( 0 << 4 ) | ( power + 4 );
         }
-        paConfig = ( paConfig & RF_PACONFIG_OUTPUTPOWER_MASK ) | ( uint8_t )( ( uint16_t )( power + 1 ) & 0x0F );
     }
     SX1276Write( REG_PACONFIG, paConfig );
     SX1276Write( REG_PADAC, paDac );
