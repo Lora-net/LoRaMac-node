@@ -647,6 +647,11 @@ void LoRaMacClassBBeaconTimerEvent( void )
     Ctx.NvmCtx->BeaconCtx.TimeStamp = TimerGetCurrentTime( );
     TimerStop( &Ctx.BeaconTimer );
     LoRaMacClassBEvents.Events.Beacon = 1;
+
+    if( Ctx.LoRaMacClassBCallbacks.MacProcessNotify != NULL )
+    {
+        Ctx.LoRaMacClassBCallbacks.MacProcessNotify( );
+    }
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -881,6 +886,11 @@ void LoRaMacClassBPingSlotTimerEvent( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     LoRaMacClassBEvents.Events.PingSlot = 1;
+
+    if( Ctx.LoRaMacClassBCallbacks.MacProcessNotify != NULL )
+    {
+        Ctx.LoRaMacClassBCallbacks.MacProcessNotify( );
+    }
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -988,6 +998,11 @@ void LoRaMacClassBMulticastSlotTimerEvent( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     LoRaMacClassBEvents.Events.MulticastSlot = 1;
+
+    if( Ctx.LoRaMacClassBCallbacks.MacProcessNotify != NULL )
+    {
+        Ctx.LoRaMacClassBCallbacks.MacProcessNotify( );
+    }
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
