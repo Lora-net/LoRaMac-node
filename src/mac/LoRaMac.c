@@ -594,15 +594,6 @@ LoRaMacStatus_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint
 static void ResetMacParameters( void );
 
 /*!
- * \brief Checks if the fPort value is allowed
- *
- * \param [IN] fPort     The fPort
- *
- * \retval [false: fPort not allowed, true: fPort allowed]
- */
-static bool IsFPortAllowed( uint8_t fPort );
-
-/*!
  * \brief Opens up a continuous RX 2 window. This is used for
  *        class c devices.
  */
@@ -1044,13 +1035,6 @@ static void ProcessRadioRxDone( void )
 
             FType_t fType;
             if( LORAMAC_STATUS_OK != DetermineFrameType( &macMsgData, &fType ) )
-            {
-                MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
-                PrepareRxDoneAbort( );
-                return;
-            }
-
-            if( IsFPortAllowed( macMsgData.FPort ) == false )
             {
                 MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                 PrepareRxDoneAbort( );
@@ -2416,15 +2400,6 @@ static void ResetMacParameters( void )
     // Initialize channel index.
     MacCtx.NvmCtx->Channel = 0;
     MacCtx.NvmCtx->LastTxChannel = MacCtx.NvmCtx->Channel;
-}
-
-static bool IsFPortAllowed( uint8_t fPort )
-{
-    if( fPort > 224 )
-    {
-        return false;
-    }
-    return true;
 }
 
 static void OpenContinuousRx2Window( void )
@@ -4311,12 +4286,6 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
         }
         default:
             break;
-    }
-
-    // Filter fPorts
-    if( IsFPortAllowed( fPort ) == false )
-    {
-        return LORAMAC_STATUS_PARAMETER_INVALID;
     }
 
     // Get the minimum possible datarate
