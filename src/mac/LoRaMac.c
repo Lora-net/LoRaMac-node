@@ -1351,13 +1351,15 @@ static void ProcessRadioRxTimeout( void )
 
 static void LoRaMacHandleIrqEvents( void )
 {
-    LoRaMacRadioEvents_t events = LoRaMacRadioEvents;
+    LoRaMacRadioEvents_t events;
+
+    CRITICAL_SECTION_BEGIN( );
+    events = LoRaMacRadioEvents;
+    LoRaMacRadioEvents.Value = 0;
+    CRITICAL_SECTION_END( );
+
     if( events.Value != 0 )
     {
-        CRITICAL_SECTION_BEGIN( );
-        LoRaMacRadioEvents.Value = 0;
-        CRITICAL_SECTION_END( );
-
         if( events.Events.TxDone == 1 )
         {
             ProcessRadioTxDone( );
