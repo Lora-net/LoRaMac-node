@@ -2333,6 +2333,13 @@ typedef struct sLoRaMacCallback
      * \param   Context that changed
      */
     void ( *NvmContextChange )( LoRaMacNvmCtxModule_t module );
+    /*!
+     *\brief    Will be called each time a Radio IRQ is handled by the MAC
+     *          layer.
+     * 
+     *\warning  Runs in a IRQ context. Should only change variables state.
+     */
+    void ( *MacProcessNotify )( void );
 }LoRaMacCallback_t;
 
 

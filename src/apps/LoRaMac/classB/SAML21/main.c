@@ -186,6 +186,13 @@ static TimerEvent_t LedBeaconTimer;
 static bool NextTx = true;
 
 /*!
+ * Indicates if LoRaMacProcess must be called.
+ * 
+ * \warning If variable is equal to 0 then the MCU can be set in low power mode
+ */
+static uint8_t IsMacProcessRequired = 0;
+
+/*!
  * Device states
  */
 static enum eDeviceState
@@ -1098,6 +1105,11 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
     }
 }
 
+void OnMacProcessNotify( void )
+{
+    IsMacProcessRequired = 1;
+}
+
 /**
  * Main application entry point.
  */
@@ -1118,6 +1130,7 @@ int main( void )
     macCallbacks.GetBatteryLevel = BoardGetBatteryLevel;
     macCallbacks.GetTemperatureLevel = NULL;
     macCallbacks.NvmContextChange = NvmCtxMgmtEvent;
+    macCallbacks.MacProcessNotify = OnMacProcessNotify;
 
     LoRaMacInitialization( &macPrimitives, &macCallbacks, ACTIVE_REGION );
 
@@ -1130,8 +1143,20 @@ int main( void )
     {
         // Tick the RTC to execute callback in context of the main loop (in stead of the IRQ)
         TimerProcess( );
-        // Processes the LoRaMac events
-        LoRaMacProcess( );
+        // Process Radio IRQ
+        if( Radio.IrqProcess != NULL )
+        {
+            Radio.IrqProcess( );
+        }
+        if( IsMacProcessRequired == 1 )
+        {
+            CRITICAL_SECTION_BEGIN( );
+            IsMacProcessRequired = 0;
+            CRITICAL_SECTION_END( );
+
+            // Processes the LoRaMac events
+            LoRaMacProcess( );
+        }
 
         switch( DeviceState )
         {
@@ -1419,8 +1444,11 @@ int main( void )
                     printf( "\r\n###### ===== CTXS STORED ==== ######\r\n" );
                 }
 
-                // Wake up through events
-                BoardLowPowerHandler( );
+                if( IsMacProcessRequired == 0 )
+                {
+                    // Wake up through events
+                    BoardLowPowerHandler( );
+                } 
                 break;
             }
             default:

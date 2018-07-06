@@ -262,6 +262,13 @@ typedef struct sLoRaMacClassBCallback
      * \retval  Temperature level
      */
     float ( *GetTemperatureLevel )( void );
+    /*!
+     *\brief    Will be called each time a Radio IRQ is handled by the MAC
+     *          layer.
+     * 
+     *\warning  Runs in a IRQ context. Should only change variables state.
+     */
+    void ( *MacProcessNotify )( void );
 }LoRaMacClassBCallback_t;
 
 /*!

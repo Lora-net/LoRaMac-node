@@ -691,15 +691,6 @@ static bool ConvertRejoinCycleTime( uint32_t rejoinCycleTime, uint32_t* timeInMi
 static void ResetMacParameters( void );
 
 /*!
- * \brief Checks if the fPort value is allowed
- *
- * \param [IN] fPort     The fPort
- *
- * \retval [false: fPort not allowed, true: fPort allowed]
- */
-static bool IsFPortAllowed( uint8_t fPort );
-
-/*!
  * \brief Checks if it's required to send a Rejoin (Type 0) request.
  *
  * \retval [false: Rejoin not required, true: Rejoin required]
@@ -838,6 +829,11 @@ static void OnRadioTxDone( void )
     MacCtx.LastTxSysTime = SysTimeGet( );
 
     LoRaMacRadioEvents.Events.TxDone = 1;
+
+    if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
+    {
+        MacCtx.MacCallbacks->MacProcessNotify( );
+    }
 }
 
 static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
@@ -849,21 +845,41 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
     RxDoneParams.Snr = snr;
 
     LoRaMacRadioEvents.Events.RxDone = 1;
+
+    if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
+    {
+        MacCtx.MacCallbacks->MacProcessNotify( );
+    }
 }
 
 static void OnRadioTxTimeout( void )
 {
     LoRaMacRadioEvents.Events.TxTimeout = 1;
+
+    if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
+    {
+        MacCtx.MacCallbacks->MacProcessNotify( );
+    }
 }
 
 static void OnRadioRxError( void )
 {
     LoRaMacRadioEvents.Events.RxError = 1;
+
+    if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
+    {
+        MacCtx.MacCallbacks->MacProcessNotify( );
+    }
 }
 
 static void OnRadioRxTimeout( void )
 {
     LoRaMacRadioEvents.Events.RxTimeout = 1;
+
+    if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
+    {
+        MacCtx.MacCallbacks->MacProcessNotify( );
+    }
 }
 
 static void ProcessRadioTxDone( void )
@@ -1145,13 +1161,6 @@ static void ProcessRadioRxDone( void )
 
             FType_t fType;
             if( LORAMAC_STATUS_OK != DetermineFrameType( &macMsgData, &fType ) )
-            {
-                MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
-                PrepareRxDoneAbort( );
-                return;
-            }
-
-            if( IsFPortAllowed( macMsgData.FPort ) == false )
             {
                 MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                 PrepareRxDoneAbort( );
@@ -2746,15 +2755,6 @@ static void ResetMacParameters( void )
     MacCtx.NvmCtx->LastTxChannel = MacCtx.NvmCtx->Channel;
 }
 
-static bool IsFPortAllowed( uint8_t fPort )
-{
-    if( fPort > 224 )
-    {
-        return false;
-    }
-    return true;
-}
-
 static bool IsReJoin0Required( )
 {
 
@@ -3463,9 +3463,11 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     // Initialize class b
     // Apply callback
     classBCallbacks.GetTemperatureLevel = NULL;
+    classBCallbacks.MacProcessNotify = NULL;
     if( callbacks != NULL )
     {
         classBCallbacks.GetTemperatureLevel = callbacks->GetTemperatureLevel;
+        classBCallbacks.MacProcessNotify = callbacks->MacProcessNotify;
     }
 
     // Must all be static. Don't use local references.
@@ -4712,12 +4714,6 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
         }
         default:
             break;
-    }
-
-    // Filter fPorts
-    if( IsFPortAllowed( fPort ) == false )
-    {
-        return LORAMAC_STATUS_PARAMETER_INVALID;
     }
 
     // Get the minimum possible datarate
