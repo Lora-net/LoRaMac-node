@@ -1185,7 +1185,7 @@ typedef struct sCalcBackOffParams
     /*!
      * Elapsed time since the start of the node.
      */
-    TimerTime_t ElapsedTime;
+    SysTime_t ElapsedTime;
     /*!
      * Time-on-air of the last transmission.
      */
