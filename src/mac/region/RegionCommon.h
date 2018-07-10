@@ -161,7 +161,7 @@ typedef struct sRegionCommonCalcBackOffParams
     /*!
      * The elapsed time since initialization.
      */
-    TimerTime_t ElapsedTime;
+    SysTime_t ElapsedTime;
     /*!
      * The time on air of the last Tx frame.
      */
@@ -208,7 +208,7 @@ typedef struct sRegionCommonRxBeaconSetupParams
  *
  * \retval Duty cycle restriction.
  */
-uint16_t RegionCommonGetJoinDc( TimerTime_t elapsedTime );
+uint16_t RegionCommonGetJoinDc( SysTime_t elapsedTime );
 
 /*!
  * \brief Verifies, if a value is in a given range.

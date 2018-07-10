@@ -51,15 +51,15 @@ static uint8_t CountChannels( uint16_t mask, uint8_t nbBits )
     return nbActiveBits;
 }
 
-uint16_t RegionCommonGetJoinDc( TimerTime_t elapsedTime )
+uint16_t RegionCommonGetJoinDc( SysTime_t elapsedTime )
 {
     uint16_t dutyCycle = 0;
 
-    if( elapsedTime < 3600000 )
+    if( elapsedTime.Seconds < 3600 )
     {
         dutyCycle = BACKOFF_DC_1_HOUR;
     }
-    else if( elapsedTime < ( 3600000 + 36000000 ) )
+    else if( elapsedTime.Seconds < ( 3600 + 36000 ) )
     {
         dutyCycle = BACKOFF_DC_10_HOURS;
     }

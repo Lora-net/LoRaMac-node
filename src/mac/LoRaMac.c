@@ -304,7 +304,7 @@ typedef struct sLoRaMacCtx
     *
     * \remark Used for the BACKOFF_DC computation.
     */
-    TimerTime_t InitializationTime;
+    SysTime_t InitializationTime;
     SysTime_t LastTxSysTime;
     /*
     * LoRaMac internal state
@@ -2704,7 +2704,7 @@ static void CalculateBackOff( uint8_t channel )
     }
     calcBackOff.DutyCycleEnabled = MacCtx.NvmCtx->DutyCycleOn;
     calcBackOff.Channel = channel;
-    calcBackOff.ElapsedTime = TimerGetElapsedTime( MacCtx.InitializationTime );
+    calcBackOff.ElapsedTime = SysTimeSub( SysTimeGetMcuTime( ), MacCtx.InitializationTime );
     calcBackOff.TxTimeOnAir = MacCtx.TxTimeOnAir;
     calcBackOff.LastTxIsJoinRequest = MacCtx.LastTxIsJoinRequest;
 
@@ -3412,7 +3412,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     TimerInit( &MacCtx.ForceRejoinReqCycleTimer, OnForceRejoinReqCycleTimerEvent );
 
     // Store the current initialization time
-    MacCtx.InitializationTime = TimerGetCurrentTime( );
+    MacCtx.InitializationTime = SysTimeGetMcuTime( );
 
     // Initialize Radio driver
     MacCtx.RadioEvents.TxDone = OnRadioTxDone;
