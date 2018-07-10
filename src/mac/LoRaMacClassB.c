@@ -1651,13 +1651,15 @@ void LoRaMacClassBSetMulticastPeriodicity( MulticastCtx_t* multicastChannel )
 void LoRaMacClassBProcess( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
-    LoRaMacClassBEvents_t events = LoRaMacClassBEvents;
+    LoRaMacClassBEvents_t events;
+
+    CRITICAL_SECTION_BEGIN( );
+    events = LoRaMacClassBEvents;
+    LoRaMacClassBEvents.Value = 0;
+    CRITICAL_SECTION_END( );
+
     if( events.Value != 0 )
     {
-        CRITICAL_SECTION_BEGIN( );
-        LoRaMacClassBEvents.Value = 0;
-        CRITICAL_SECTION_END( );
-
         if( events.Events.Beacon == 1 )
         {
             LoRaMacClassBProcessBeacon( );
