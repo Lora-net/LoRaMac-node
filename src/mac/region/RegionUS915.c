@@ -174,12 +174,12 @@ static LoRaMacStatus_t ComputeNext125kHzJoinChannel( uint8_t* newChannelIndex )
             *newChannelIndex = (startIndex * 8) + findAvailableChannelsIndex[randr( 0, ( availableChannels - 1 ) )];
         }
         startIndex++;
-        if (startIndex > 8) startIndex = 0;
+        if (startIndex > 7) startIndex = 0;
     } while(availableChannels == 0 && startIndex != NvmCtx.JoinChannelGroupsCurrentIndex);
 
     NvmCtx.JoinChannelGroupsCurrentIndex = startIndex++;
 
-    if( NvmCtx.JoinChannelGroupsCurrentIndex > 8 )
+    if( NvmCtx.JoinChannelGroupsCurrentIndex > 7 )
     {
         // Start again from group 0
         NvmCtx.JoinChannelGroupsCurrentIndex = 0;
