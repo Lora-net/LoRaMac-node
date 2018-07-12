@@ -141,6 +141,7 @@ static LoRaMacStatus_t ComputeNext125kHzJoinChannel( uint8_t* newChannelIndex )
     uint16_t channelMaskRemaining;
     uint8_t findAvailableChannelsIndex[8] = { 0 };
     uint8_t availableChannels = 0;
+    uint8_t startIndex = NvmCtx.JoinChannelGroupsCurrentIndex;
 
     // Null pointer check
     if( newChannelIndex == NULL )
@@ -148,36 +149,41 @@ static LoRaMacStatus_t ComputeNext125kHzJoinChannel( uint8_t* newChannelIndex )
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
 
-    // Current ChannelMaskRemaining, two groups per channel mask. For example Group 0 and 1 (8 bit) are ChannelMaskRemaining 0 (16 bit), etc.
-    currentChannelsMaskRemainingIndex = (uint8_t) NvmCtx.JoinChannelGroupsCurrentIndex / 2;
+    do {
+        // Current ChannelMaskRemaining, two groups per channel mask. For example Group 0 and 1 (8 bit) are ChannelMaskRemaining 0 (16 bit), etc.
+        currentChannelsMaskRemainingIndex = (uint8_t) startIndex / 2;
 
-    // For even numbers we need the 8 LSBs and for uneven the 8 MSBs
-    if( ( NvmCtx.JoinChannelGroupsCurrentIndex % 2 ) == 0 )
-    {
-        channelMaskRemaining = ( NvmCtx.ChannelsMaskRemaining[currentChannelsMaskRemainingIndex] & 0x00FF );
-    }
-    else
-    {
-        channelMaskRemaining = ( ( NvmCtx.ChannelsMaskRemaining[currentChannelsMaskRemainingIndex] >> 8 ) & 0x00FF );
-    }
+        // For even numbers we need the 8 LSBs and for uneven the 8 MSBs
+        if( ( startIndex % 2 ) == 0 )
+        {
+            channelMaskRemaining = ( NvmCtx.ChannelsMaskRemaining[currentChannelsMaskRemainingIndex] & 0x00FF );
+        }
+        else
+        {
+            channelMaskRemaining = ( ( NvmCtx.ChannelsMaskRemaining[currentChannelsMaskRemainingIndex] >> 8 ) & 0x00FF );
+        }
 
 
-    if( FindAvailable125kHzChannels( findAvailableChannelsIndex, channelMaskRemaining, &availableChannels ) == LORAMAC_STATUS_PARAMETER_INVALID )
-    {
-        return LORAMAC_STATUS_PARAMETER_INVALID;
-    }
+        if( FindAvailable125kHzChannels( findAvailableChannelsIndex, channelMaskRemaining, &availableChannels ) == LORAMAC_STATUS_PARAMETER_INVALID )
+        {
+            return LORAMAC_STATUS_PARAMETER_INVALID;
+        }
 
-    // Choose randomly a free channel 125kHz
-    *newChannelIndex = findAvailableChannelsIndex[randr( 0, ( availableChannels - 1 ) )];
+        if (availableChannels) {
+            // Choose randomly a free channel 125kHz
+            *newChannelIndex = (startIndex * 8) + findAvailableChannelsIndex[randr( 0, ( availableChannels - 1 ) )];
+        }
+        startIndex++;
+        if (startIndex > 8) startIndex = 0;
+    } while(availableChannels == 0 && startIndex != NvmCtx.JoinChannelGroupsCurrentIndex);
 
-    NvmCtx.JoinChannelGroupsCurrentIndex++;
+    NvmCtx.JoinChannelGroupsCurrentIndex = startIndex++;
 
     if( NvmCtx.JoinChannelGroupsCurrentIndex > 8 )
     {
         // Start again from group 0
         NvmCtx.JoinChannelGroupsCurrentIndex = 0;
     }
-
     return LORAMAC_STATUS_OK;
 }
 
@@ -1007,7 +1013,7 @@ LoRaMacStatus_t RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_
                 {
                     return LORAMAC_STATUS_PARAMETER_INVALID;
                 }
-                *channel = ( NvmCtx.JoinChannelGroupsCurrentIndex * 8 ) + newChannelIndex;
+                *channel = newChannelIndex;
             }
             // 500kHz Channels (64 - 71) DR4
             else
