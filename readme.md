@@ -18,19 +18,59 @@
 
 The aim of this project is to show an example of the endpoint LoRaWAN stack implementation.
 
-This LoRaWAN stack implements all regions defined in "LoRaWAN Regional Parameters v1.0.2rB" document. Class A and Class C endpoint implementation
-is fully compatible with "LoRaWAN specification 1.0.2".
+This project has 3 active branches in place. The **[master](https://github.com/Lora-net/LoRaMac-node/tree/master)** branch which provides the latest released source code ([v4.4.1](https://github.com/Lora-net/LoRaMac-node/releases/tag/v4.4.1)), the **[develop](https://github.com/Lora-net/LoRaMac-node/tree/develop)** branch which provides the current source code development status to be released next ([Milestone 4.4.2](https://github.com/Lora-net/LoRaMac-node/milestone/2)) and the **[feature/5.0.0](https://github.com/Lora-net/LoRaMac-node/tree/feature/5.0.0)** branch which provides a preview of the current source code development status for [LoRaWAN Specification v1.1](https://lora-alliance.org/resource-hub/lorawantm-specification-v11) specification.([Milestone 5.0.0](https://github.com/Lora-net/LoRaMac-node/milestone/3))
 
-Each LoRaWAN application example includes the LoRaWAN certification protocol implementation.
+* The [master](https://github.com/Lora-net/LoRaMac-node/tree/master) branch implementation is based on [LoRaWAN Specification v1.0.2](https://lora-alliance.org/resource-hub/lorawantm-specification-v102) and [LoRaWAN Regional Parameters v1.0.2rB](https://www.lora-alliance.org/resource-hub/lorawantm-regional-parameters-v102rb) specifications.  
+ClassA and ClassC end-device classes are fully implemented.
 
-SX1272/76 radio drivers are also provided.
-In case only point to point links are required a Ping-Pong application is provided as example.
+* The [develop](https://github.com/Lora-net/LoRaMac-node/tree/develop) branch implementation is based on [LoRaWAN Specification v1.0.3](https://lora-alliance.org/resource-hub/lorawantm-specification-v103) and [LoRaWAN Regional Parameters v1.0.3rA](https://www.lora-alliance.org/resource-hub/lorawantm-regional-parameters-v103ra) specifications.  
+ClassA, ClassB and ClassC end-device classes are fully implemented.
 
-*The LoRaWAN stack API documentation can be found at: http://stackforce.github.io/LoRaMac-doc/*
+* The [feature/5.0.0](https://github.com/Lora-net/LoRaMac-node/tree/feature/5.0.0) branch implementation is based on [LoRaWAN Specification v1.1](https://lora-alliance.org/resource-hub/lorawantm-specification-v11) and [LoRaWAN Regional Parameters v1.1rB](https://lora-alliance.org/resource-hub/lorawantm-regional-parameters-v11rb) specifications.  
+ClassA, ClassB and ClassC end-device classes are fully implemented.
 
-## System schematic and definitions
+The [develop](https://github.com/Lora-net/LoRaMac-node/tree/develop) and [feature/5.0.0](https://github.com/Lora-net/LoRaMac-node/tree/feature/5.0.0) branches both rely on a software emulated secure-element implementation. Please refer to the [Secure element API](https://github.com/Lora-net/LoRaMac-node/wiki/secure-element) document for further information.
 
-The available supported hardware platforms schematics can be found in the Doc directory.
+This project also provides SX1272/73, SX1276/77/78/79 and SX1261/2 radio drivers.
+
+For each currently supported platform example applications are provided.
+
+* **LoRaMac/classA**: ClassA end-device example application.
+
+* **LoRaMac/classB**: ClassB end-device example application.
+
+* **LoRaMac/classC**: ClassC end-device example application.
+
+* **ping-pong**: Point to point RF link example application.
+
+* **rx-sensi**: Example application useful to measure the radio sensitivity level using an RF generator.
+
+* **tx-cw**: Example application to show how to generate an RF Continuous Wave transmission.
+
+**Note**: *Each LoRaWAN application example (LoRaMac/classX) includes an implementation of the LoRa-Alliacne; LoRaWAN certification protocol.*
+
+**Note**: *The LoRaWAN stack API documentation can be found at: http://stackforce.github.io/LoRaMac-doc/*
+
+## Supported platforms
+
+This project currently provides support for the below platforms.  
+This project can be ported to other platforms using different MCU than the ones currently supported.  
+The [Porting Guide](http://stackforce.github.io/LoRaMac-doc/_p_o_r_t_i_n_g__g_u_i_d_e.html) document provides guide lines on how to port the project to other platforms.
+
+* NAMote72
+  * [NAMote72 platform documentation](Doc/NAMote72-platform.md)
+
+* NucleoLxxx
+  * [NucleoLxxx platforms documentation](Doc/NucleoLxxx-platform.md)
+
+* SAML21
+  * [SAML21 platform documentation](Doc/SAML21-platform.md)
+
+## Usage
+
+A CMAKE building system is used in order to generate the right set of files to compile and debug the different projects.
+
+Further information can be found in [Development environment](Doc/development-environment.md) document.
 
 ## Acknowledgments
 
@@ -41,36 +81,6 @@ This program uses the AES algorithm implementation (http://www.gladman.me.uk/) b
 
 This program uses the CMAC algorithm implementation
 (http://www.cse.chalmers.se/research/group/dcs/masters/contikisec/) by Lander Casado, Philippas Tsigas.
-
-## Dependencies
-
-This program depends on specific hardware platforms. Currently the supported
-platforms are:
-
-* NAMote72
-  * **MCU**     : STM32L152RC - 256K FLASH, 32K RAM, Timers, SPI, I2C,
-                          USART,
-                          USB 2.0 full-speed device/host/OTG controller (Not used),
-                          DAC, ADC, DMA
-  * **RADIO**   : SX1272
-  * **ANTENNA** : Printed circuit antenna
-  * **BUTTONS** : No
-  * **LEDS**    : 4
-  * **SENSORS** : Magnetic, 3 axis Accelerometer, Pressure, Temperature
-  * **GPS**     : Yes, SIM39EA module
-  * **Display** : No
-  * **ST-Link** : Yes, MBED like
-  * **EXTENSION HEADER** : Yes, Arduino connectors
-  * **REMARK**  : None
-
-* SAML21
-  * [SAML21 platform documentation](Doc/SAML21-platform.md)
-
-## Usage
-
-A CMAKE building system is used in order to generate the right set of files to compile and debug the different projects.
-
-Further information can be found in [Development environment](Doc/development-environment.md) document.
 
 ## Changelog
 
@@ -92,15 +102,15 @@ Further information can be found in [Development environment](Doc/development-en
 
 | Region        | Verdict       | # Test houses | Comments      |
 | ------------- |:-------------:|:-------------:|:--------------|
-| EU868         | <font color='green'>PASS</font> | 0 | - |
-| US915         | <font color='green'>PASS</font> | 0 | - |
-| CN779         | <font color='green'>PASS</font> | 0 | No certification specification - tests based on EU868 certification |
-| EU433         | <font color='orange'>Not tested</font> | 0 | No certification specification - tests based on EU868 certification |
+| EU868         | <font color='green'>PASS</font> | 2 | - |
+| US915         | <font color='green'>PASS</font> | 2 | - |
+| CN779         | <font color='green'>PASS</font> | 1 | No certification specification - tests based on EU868 certification |
+| EU433         | <font color='orange'>Not tested</font> | 1 | No certification specification - tests based on EU868 certification |
 | AU915         | <font color='green'>PASS</font> | 0 | No certification specification - tests based on US915 certification |
 | CN470         | <font color='orange'>Not tested</font> | 0 | No certification specification |
-| AS923         | <font color='green'>PASS</font> | 0 | - |
-| KR920         | <font color='green'>PASS</font> | 0 | - |
-| IN865         | <font color='green'>PASS</font> | 0 | - |
+| AS923         | <font color='green'>PASS</font> | 2 | - |
+| KR920         | <font color='green'>PASS</font> | 1 | - |
+| IN865         | <font color='green'>PASS</font> | 2 | - |
 
 ### 2017-09-08, V4.4.0
 
