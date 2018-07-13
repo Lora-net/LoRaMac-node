@@ -335,7 +335,7 @@ void HAL_UART_ErrorCallback( UART_HandleTypeDef *handle )
 
 void USART2_IRQHandler( void )
 {
-    // [BEGIN] Workaround to solve an issue with the HAL drivers not managin the uart state correctly.
+    // [BEGIN] Workaround to solve an issue with the HAL drivers not managing the uart state correctly.
     uint32_t tmpFlag = 0, tmpItSource = 0;
 
     tmpFlag = __HAL_UART_GET_FLAG( &UartHandle, UART_FLAG_TC );
@@ -348,7 +348,7 @@ void USART2_IRQHandler( void )
             UartHandle.State = HAL_UART_STATE_BUSY_TX_RX;
         }
     }
-    // [END] Workaround to solve an issue with the HAL drivers not managin the uart state correctly.
+    // [END] Workaround to solve an issue with the HAL drivers not managing the uart state correctly.
 
     HAL_UART_IRQHandler( &UartHandle );
 }
