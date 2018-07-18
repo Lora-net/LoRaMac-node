@@ -179,11 +179,11 @@ static TimerEvent_t LedBeaconTimer;
 static bool NextTx = true;
 
 /*!
- * Indicates if LoRaMacProcess must be called.
+ * Indicates if LoRaMacProcess call is pending.
  * 
  * \warning If variable is equal to 0 then the MCU can be set in low power mode
  */
-static uint8_t IsMacProcessRequired = 0;
+static uint8_t IsMacProcessPending = 0;
 
 /*!
  * Device states
@@ -1101,7 +1101,7 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
 
 void OnMacProcessNotify( void )
 {
-    IsMacProcessRequired = 1;
+    IsMacProcessPending = 1;
 }
 
 /**
@@ -1140,15 +1140,8 @@ int main( void )
         {
             Radio.IrqProcess( );
         }
-        if( IsMacProcessRequired == 1 )
-        {
-            CRITICAL_SECTION_BEGIN( );
-            IsMacProcessRequired = 0;
-            CRITICAL_SECTION_END( );
-
-            // Processes the LoRaMac events
-            LoRaMacProcess( );
-        }
+        // Processes the LoRaMac events
+        LoRaMacProcess( );
 
         switch( DeviceState )
         {
@@ -1425,11 +1418,18 @@ int main( void )
                     printf( "\r\n###### ===== CTXS STORED ==== ######\r\n" );
                 }
 
-                if( IsMacProcessRequired == 0 )
+                CRITICAL_SECTION_BEGIN( );
+                if( IsMacProcessPending == 1 )
                 {
-                    // Wake up through events
+                    // Clear flag and prevent MCU to go into low power modes.
+                    IsMacProcessPending = 0;
+                }
+                else
+                {
+                    // The MCU wakes up through events
                     BoardLowPowerHandler( );
-                } 
+                }
+                CRITICAL_SECTION_END( );
                 break;
             }
             default:
