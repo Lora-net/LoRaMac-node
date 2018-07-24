@@ -1621,6 +1621,7 @@ static void OnRxWindow2TimerEvent( void )
     }
     else
     {
+        Radio.Standby( );
         // Setup continuous listening for class c
         MacCtx.RxWindow2Config.RxContinuous = true;
     }
