@@ -99,12 +99,35 @@ void SX126xInit( DioIrqHandler dioIrq )
 #endif
 
     SX126xSetDio2AsRfSwitchCtrl( true );
-    OperatingMode = MODE_STDBY_RC;
+    SX126xSetOperatingMode( MODE_STDBY_RC );
 }
 
 RadioOperatingModes_t SX126xGetOperatingMode( void )
 {
     return OperatingMode;
+}
+
+void SX126xSetOperatingMode( RadioOperatingModes_t mode )
+{
+    OperatingMode = mode;
+#if defined( USE_RADIO_DEBUG )
+    switch( mode )
+    {
+        case MODE_TX:
+            SX126xDbgPinTxWrite( 1 );
+            SX126xDbgPinRxWrite( 0 );
+            break;
+        case MODE_RX:
+        case MODE_RX_DC:
+            SX126xDbgPinTxWrite( 0 );
+            SX126xDbgPinRxWrite( 1 );
+            break;
+        default:
+            SX126xDbgPinTxWrite( 0 );
+            SX126xDbgPinRxWrite( 0 );
+            break;
+    }
+#endif
 }
 
 void SX126xCheckDeviceReady( void )
@@ -223,11 +246,7 @@ void SX126xSetSleep( SleepParams_t sleepConfig )
     SX126xAntSwOff( );
 
     SX126xWriteCommand( RADIO_SET_SLEEP, &sleepConfig.Value, 1 );
-    OperatingMode = MODE_SLEEP;
-#if defined( USE_RADIO_DEBUG )
-    SX126xDbgPinTxWrite( 0 );
-    SX126xDbgPinRxWrite( 0 );
-#endif
+    SX126xSetOperatingMode( MODE_SLEEP );
 }
 
 void SX126xSetStandby( RadioStandbyModes_t standbyConfig )
@@ -235,63 +254,49 @@ void SX126xSetStandby( RadioStandbyModes_t standbyConfig )
     SX126xWriteCommand( RADIO_SET_STANDBY, ( uint8_t* )&standbyConfig, 1 );
     if( standbyConfig == STDBY_RC )
     {
-        OperatingMode = MODE_STDBY_RC;
+        SX126xSetOperatingMode( MODE_STDBY_RC );
     }
     else
     {
-        OperatingMode = MODE_STDBY_XOSC;
+        SX126xSetOperatingMode( MODE_STDBY_XOSC );
     }
-#if defined( USE_RADIO_DEBUG )
-    SX126xDbgPinTxWrite( 0 );
-    SX126xDbgPinRxWrite( 0 );
-#endif
 }
 
 void SX126xSetFs( void )
 {
     SX126xWriteCommand( RADIO_SET_FS, 0, 0 );
-    OperatingMode = MODE_FS;
-#if defined( USE_RADIO_DEBUG )
-    SX126xDbgPinTxWrite( 0 );
-    SX126xDbgPinRxWrite( 0 );
-#endif
+    SX126xSetOperatingMode( MODE_FS );
 }
 
 void SX126xSetTx( uint32_t timeout )
 {
     uint8_t buf[3];
 
-    OperatingMode = MODE_TX;
+    SX126xSetOperatingMode( MODE_TX );
 
     buf[0] = ( uint8_t )( ( timeout >> 16 ) & 0xFF );
     buf[1] = ( uint8_t )( ( timeout >> 8 ) & 0xFF );
     buf[2] = ( uint8_t )( timeout & 0xFF );
     SX126xWriteCommand( RADIO_SET_TX, buf, 3 );
-#if defined( USE_RADIO_DEBUG )
-    SX126xDbgPinTxWrite( 1 );
-#endif
 }
 
 void SX126xSetRx( uint32_t timeout )
 {
     uint8_t buf[3];
 
-    OperatingMode = MODE_RX;
+    SX126xSetOperatingMode( MODE_RX );
 
     buf[0] = ( uint8_t )( ( timeout >> 16 ) & 0xFF );
     buf[1] = ( uint8_t )( ( timeout >> 8 ) & 0xFF );
     buf[2] = ( uint8_t )( timeout & 0xFF );
     SX126xWriteCommand( RADIO_SET_RX, buf, 3 );
-#if defined( USE_RADIO_DEBUG )
-    SX126xDbgPinRxWrite( 1 );
-#endif
 }
 
 void SX126xSetRxBoosted( uint32_t timeout )
 {
     uint8_t buf[3];
 
-    OperatingMode = MODE_RX;
+    SX126xSetOperatingMode( MODE_RX );
 
     SX126xWriteRegister( REG_RX_GAIN, 0x96 ); // max LNA gain, increase current by ~2mA for around ~3dB in sensivity
 
@@ -299,9 +304,6 @@ void SX126xSetRxBoosted( uint32_t timeout )
     buf[1] = ( uint8_t )( ( timeout >> 8 ) & 0xFF );
     buf[2] = ( uint8_t )( timeout & 0xFF );
     SX126xWriteCommand( RADIO_SET_RX, buf, 3 );
-#if defined( USE_RADIO_DEBUG )
-    SX126xDbgPinRxWrite( 1 );
-#endif
 }
 
 void SX126xSetRxDutyCycle( uint32_t rxTime, uint32_t sleepTime )
@@ -315,13 +317,13 @@ void SX126xSetRxDutyCycle( uint32_t rxTime, uint32_t sleepTime )
     buf[4] = ( uint8_t )( ( sleepTime >> 8 ) & 0xFF );
     buf[5] = ( uint8_t )( sleepTime & 0xFF );
     SX126xWriteCommand( RADIO_SET_RXDUTYCYCLE, buf, 6 );
-    OperatingMode = MODE_RX_DC;
+    SX126xSetOperatingMode( MODE_RX_DC );
 }
 
 void SX126xSetCad( void )
 {
     SX126xWriteCommand( RADIO_SET_CAD, 0, 0 );
-    OperatingMode = MODE_CAD;
+    SX126xSetOperatingMode( MODE_CAD );
 }
 
 void SX126xSetTxContinuousWave( void )
@@ -631,7 +633,7 @@ void SX126xSetCadParams( RadioLoRaCadSymbols_t cadSymbolNum, uint8_t cadDetPeak,
     buf[5] = ( uint8_t )( ( cadTimeout >> 8 ) & 0xFF );
     buf[6] = ( uint8_t )( cadTimeout & 0xFF );
     SX126xWriteCommand( RADIO_SET_CADPARAMS, buf, 5 );
-    OperatingMode = MODE_CAD;
+    SX126xSetOperatingMode( MODE_CAD );
 }
 
 void SX126xSetBufferBaseAddress( uint8_t txBaseAddress, uint8_t rxBaseAddress )

@@ -1181,9 +1181,11 @@ void SX1276SetOpMode( uint8_t opMode )
     {
         case RF_OPMODE_TRANSMITTER:
             SX1276DbgPinTxWrite( 1 );
+            SX1276DbgPinRxWrite( 0 );
             break;
         case RF_OPMODE_RECEIVER:
         case RFLR_OPMODE_RECEIVER_SINGLE:
+            SX1276DbgPinTxWrite( 0 );
             SX1276DbgPinRxWrite( 1 );
             break;
         default:
