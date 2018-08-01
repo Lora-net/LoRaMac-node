@@ -59,9 +59,9 @@
 
 #define RF_FREQUENCY                                915000000 // Hz
 
-#elif defined( REGION_US915_HYBRID )
+#elif defined( REGION_RU864 )
 
-#define RF_FREQUENCY                                915000000 // Hz
+#define RF_FREQUENCY                                864000000 // Hz
 
 #else
     #error "Please define a frequency band in the compiler options."
@@ -148,7 +148,7 @@ int main( void )
 
     while( 1 )
     {
-        TimerLowPowerHandler( );
+        BoardLowPowerHandler( );
     }
 }
 

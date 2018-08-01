@@ -35,6 +35,7 @@
 #include "mma8451.h"
 #include "sx9500.h"
 #include "board-config.h"
+#include "lpm-board.h"
 #include "rtc-board.h"
 #include "sx1272-board.h"
 #include "board.h"
@@ -105,8 +106,8 @@ static bool UsbIsConnected = false;
 /*!
  * UART2 FIFO buffers size
  */
-#define UART2_FIFO_TX_SIZE                                1056
-#define UART2_FIFO_RX_SIZE                                1056
+#define UART2_FIFO_TX_SIZE                                2048
+#define UART2_FIFO_RX_SIZE                                2048
 
 uint8_t Uart2TxBuffer[UART2_FIFO_TX_SIZE];
 uint8_t Uart2RxBuffer[UART2_FIFO_RX_SIZE];
@@ -121,34 +122,24 @@ static bool SystemWakeupTimeCalibrated = false;
  */
 static void OnCalibrateSystemWakeupTimeTimerEvent( void )
 {
+    RtcSetMcuWakeUpTime( );
     SystemWakeupTimeCalibrated = true;
 }
 
 /*!
- * Nested interrupt counter.
- *
- * \remark Interrupt should only be fully disabled once the value is 0
- */
-static uint8_t IrqNestLevel = 0;
-
-/*!
  * Holds the bord version.
  */
-static BoardVersion_t BoardVersion = { 0 };
+static Version_t BoardVersion = { 0 };
 
-void BoardDisableIrq( void )
+void BoardCriticalSectionBegin( uint32_t *mask )
 {
+    *mask = __get_PRIMASK( );
     __disable_irq( );
-    IrqNestLevel++;
 }
 
-void BoardEnableIrq( void )
+void BoardCriticalSectionEnd( uint32_t *mask )
 {
-    IrqNestLevel--;
-    if( IrqNestLevel == 0 )
-    {
-        __enable_irq( );
-    }
+    __set_PRIMASK( *mask );
 }
 
 void BoardInitPeriph( void )
@@ -204,7 +195,7 @@ void BoardInitMcu( void )
             FifoInit( &Uart2.FifoRx, Uart2RxBuffer, UART2_FIFO_RX_SIZE );
             // Configure your terminal for 8 Bits data (7 data bit + 1 parity bit), no parity and no flow ctrl
             UartInit( &Uart2, UART_2, UART_TX, UART_RX );
-            UartConfig( &Uart2, RX_TX, 115200, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
+            UartConfig( &Uart2, RX_TX, 921600, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
         }
         else
         {
@@ -217,6 +208,11 @@ void BoardInitMcu( void )
         BoardUnusedIoInit( );
 
         I2cInit( &I2c, I2C_1, I2C_SCL, I2C_SDA );
+        if( GetBoardPowerSource( ) == BATTERY_POWER )
+        {
+            // Disables OFF mode - Enables lowest power mode (STOP)
+            LpmSetOffMode( LPM_APPLI_ID, LPM_DISABLE );
+        }
     }
     else
     {
@@ -251,7 +247,7 @@ void BoardInitMcu( void )
 
 void BoardResetMcu( void )
 {
-    BoardDisableIrq( );
+    CRITICAL_SECTION_BEGIN( );
 
     //Restart system
     NVIC_SystemReset( );
@@ -422,11 +418,11 @@ static void BoardUnusedIoInit( void )
     }
 }
 
-BoardVersion_t BoardGetVersion( void )
+Version_t BoardGetVersion( void )
 {
     Gpio_t pinPc1;
     Gpio_t pinPc7;
-    BoardVersion_t boardVersion = { 0 };
+    Version_t boardVersion = { 0 };
     boardVersion.Value = 0;
 
     GpioInit( &pinPc1, BOARD_VERSION_PC1, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
@@ -503,7 +499,7 @@ void CalibrateSystemWakeupTime( void )
         TimerStart( &CalibrateSystemWakeupTimeTimer );
         while( SystemWakeupTimeCalibrated == false )
         {
-            TimerLowPowerHandler( );
+
         }
     }
 }
@@ -513,26 +509,26 @@ void SystemClockReConfig( void )
     __HAL_RCC_PWR_CLK_ENABLE( );
     __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE1 );
 
-    /* Enable HSE */
+    // Enable HSE
     __HAL_RCC_HSE_CONFIG( RCC_HSE_ON );
 
-    /* Wait till HSE is ready */
+    // Wait till HSE is ready
     while( __HAL_RCC_GET_FLAG( RCC_FLAG_HSERDY ) == RESET )
     {
     }
 
-    /* Enable PLL */
+    // Enable PLL
     __HAL_RCC_PLL_ENABLE( );
 
-    /* Wait till PLL is ready */
+    // Wait till PLL is ready
     while( __HAL_RCC_GET_FLAG( RCC_FLAG_PLLRDY ) == RESET )
     {
     }
 
-    /* Select PLL as system clock source */
+    // Select PLL as system clock source
     __HAL_RCC_SYSCLK_CONFIG ( RCC_SYSCLKSOURCE_PLLCLK );
 
-    /* Wait till PLL is used as system clock source */
+    // Wait till PLL is used as system clock source
     while( __HAL_RCC_GET_SYSCLK_SOURCE( ) != RCC_SYSCLKSOURCE_STATUS_PLLCLK )
     {
     }
@@ -556,15 +552,114 @@ uint8_t GetBoardPowerSource( void )
     }
 }
 
-#ifdef __GNUC__
-int __io_putchar( int c )
-#else /* __GNUC__ */
-int fputc( int c, FILE *stream )
-#endif
+/**
+  * \brief Enters Low Power Stop Mode
+  *
+  * \note ARM exists the function when waking up
+  */
+void LpmEnterStopMode( void)
 {
-    while( UartPutChar( &Uart2, c ) != 0 );
+    CRITICAL_SECTION_BEGIN( );
+
+    BoardDeInitMcu( );
+
+    // Disable the Power Voltage Detector
+    HAL_PWR_DisablePVD( );
+
+    // Clear wake up flag
+    SET_BIT( PWR->CR, PWR_CR_CWUF );
+
+    // Enable Ultra low power mode
+    HAL_PWREx_EnableUltraLowPower( );
+
+    // Enable the fast wake up from Ultra low power mode
+    HAL_PWREx_EnableFastWakeUp( );
+
+    CRITICAL_SECTION_END( );
+
+    // Enter Stop Mode
+    HAL_PWR_EnterSTOPMode( PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI );
+}
+
+/*!
+ * \brief Exists Low Power Stop Mode
+ */
+void LpmExitStopMode( void )
+{
+    // Disable IRQ while the MCU is not running on HSI
+    CRITICAL_SECTION_BEGIN( );
+
+    // Initilizes the peripherals
+    BoardInitMcu( );
+
+    CRITICAL_SECTION_END( );
+}
+
+/*!
+ * \brief Enters Low Power Sleep Mode
+ *
+ * \note ARM exits the function when waking up
+ */
+void LpmEnterSleepMode( void)
+{
+    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+}
+
+void BoardLowPowerHandler( void )
+{
+    __disable_irq( );
+    /*!
+     * If an interrupt has occurred after __disable_irq( ), it is kept pending 
+     * and cortex will not enter low power anyway
+     */
+
+    LpmEnterLowPower( );
+
+    __enable_irq( );
+}
+
+#if !defined ( __CC_ARM )
+
+/*
+ * Function to be used by stdout for printf etc
+ */
+int _write( int fd, const void *buf, size_t count )
+{
+    while( UartPutBuffer( &Uart2, ( uint8_t* )buf, ( uint16_t )count ) != 0 ){ };
+    return count;
+}
+
+/*
+ * Function to be used by stdin for scanf etc
+ */
+int _read( int fd, const void *buf, size_t count )
+{
+    size_t bytesRead = 0;
+    while( UartGetBuffer( &Uart2, ( uint8_t* )buf, count, ( uint16_t* )&bytesRead ) != 0 ){ };
+    // Echo back the character
+    while( UartPutBuffer( &Uart2, ( uint8_t* )buf, ( uint16_t )bytesRead ) != 0 ){ };
+    return bytesRead;
+}
+
+#else
+
+// Keil compiler
+int fputc( int c, FILE *stream )
+{
+    while( UartPutChar( &Uart2, ( uint8_t )c ) != 0 );
     return c;
 }
+
+int fgetc( FILE *stream )
+{
+    uint8_t c = 0;
+    while( UartGetChar( &Uart2, &c ) != 0 );
+    // Echo back the character
+    while( UartPutChar( &Uart2, c ) != 0 );
+    return ( int )c;
+}
+
+#endif
 
 #ifdef USE_FULL_ASSERT
 /*

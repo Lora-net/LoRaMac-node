@@ -29,6 +29,7 @@
  * \author    Daniel Jaeckle ( STACKFORCE )
  */
 #include <math.h>
+#include "radio.h"
 #include "utilities.h"
 #include "RegionCommon.h"
 
@@ -50,15 +51,15 @@ static uint8_t CountChannels( uint16_t mask, uint8_t nbBits )
     return nbActiveBits;
 }
 
-uint16_t RegionCommonGetJoinDc( TimerTime_t elapsedTime )
+uint16_t RegionCommonGetJoinDc( SysTime_t elapsedTime )
 {
     uint16_t dutyCycle = 0;
 
-    if( elapsedTime < 3600000 )
+    if( elapsedTime.Seconds < 3600 )
     {
         dutyCycle = BACKOFF_DC_1_HOUR;
     }
-    else if( elapsedTime < ( 3600000 + 36000000 ) )
+    else if( elapsedTime.Seconds < ( 3600 + 36000 ) )
     {
         dutyCycle = BACKOFF_DC_10_HOURS;
     }
@@ -238,16 +239,10 @@ uint8_t RegionCommonLinkAdrReqVerifyParams( RegionCommonLinkAdrReqVerifyParams_t
     // Handle the case when ADR is off.
     if( verifyParams->AdrEnabled == false )
     {
-        // When ADR is off, we are allowed to change the channels mask and the NbRep,
-        // if the datarate and the TX power of the LinkAdrReq are set to 0x0F.
-        if( ( verifyParams->Datarate != 0x0F ) || ( verifyParams->TxPower != 0x0F ) )
-        {
-            status = 0;
-            nbRepetitions = verifyParams->CurrentNbRep;
-        }
-        // Get the current datarate and tx power
-        datarate = verifyParams->CurrentDatarate;
-        txPower = verifyParams->CurrentTxPower;
+        // When ADR is off, we are allowed to change the channels mask
+        nbRepetitions = verifyParams->CurrentNbRep;
+        datarate =  verifyParams->CurrentDatarate;
+        txPower =  verifyParams->CurrentTxPower;
     }
 
     if( status != 0 )
@@ -357,4 +352,33 @@ void RegionCommonCalcBackOff( RegionCommonCalcBackOffParams_t* calcBackOffParams
             calcBackOffParams->Bands[bandIdx].TimeOff = 0;
         }
     }
+}
+
+
+void RegionCommonRxBeaconSetup( RegionCommonRxBeaconSetupParams_t* rxBeaconSetupParams )
+{
+    bool rxContinuous = true;
+    uint8_t datarate;
+
+    // Set the radio into sleep mode
+    Radio.Sleep( );
+
+    // Setup frequency and payload length
+    Radio.SetChannel( rxBeaconSetupParams->Frequency );
+    Radio.SetMaxPayloadLength( MODEM_LORA, rxBeaconSetupParams->BeaconSize );
+
+    // Check the RX continuous mode
+    if( rxBeaconSetupParams->RxTime != 0 )
+    {
+        rxContinuous = false;
+    }
+
+    // Get region specific datarate
+    datarate = rxBeaconSetupParams->Datarates[rxBeaconSetupParams->BeaconDatarate];
+
+    // Setup radio
+    Radio.SetRxConfig( MODEM_LORA, rxBeaconSetupParams->BeaconChannelBW, datarate,
+                       1, 0, 10, rxBeaconSetupParams->SymbolTimeout, true, rxBeaconSetupParams->BeaconSize, false, 0, 0, false, rxContinuous );
+
+    Radio.Rx( rxBeaconSetupParams->RxTime );
 }

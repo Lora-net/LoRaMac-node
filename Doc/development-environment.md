@@ -13,7 +13,7 @@ It allows to build the project either by using a command line terminal or by usi
     * Linux Arch: `pacman -S cmake`
   * Windows:
     * [CMake Download](https://cmake.org/download/)  
-     **Note**: Please ensure that CMake path is added to the system PATH variable.
+     **Note**: Please use the latest full release and ensure that CMake path is added to the system path variable. (On Windows 10 search for _Environment Variables_ at start menu and add your CMake installation path e.g. `C:\Program Files\CMake\bin` to `Path` variable )
   * OSX:
     * Homebrew: `brew install cmake`
 * GNU ARM-Toolchain
@@ -22,8 +22,12 @@ It allows to build the project either by using a command line terminal or by usi
     * Linux Arch: `pacman -S arm-none-eabi-gcc arm-none-eabi-newlib`
   * Windows:
     * [GNU Arm Embedded Toolchain](https://developer.arm.com/open-source/gnu-toolchain/gnu-rm)
-    * The Make utility is also required, one can use e.g. [MSYS2](http://www.msys2.org)  
-    **Note**: Please ensure that both paths are added to the system PATH variable.
+    * The Make utility is also required, one can use e.g. [MSYS2](http://www.msys2.org) or [MinGW](http://mingw.org/)
+        * With MSYS2:
+            * Follow the installation instructions provided by them.
+            * Install MinGW Make with `pacman -S mingw-w64-x86_64-make`.
+
+     **Note**: Please ensure that both paths are added to the system PATH variable. Add for example: `C:\msys64\mingw64\bin` and `C:\Program Files (x86)\GNU Tools ARM Embedded\6 2017-q2-update\bin` to `Path` variable.
   * OSX:
     * Homebrew: `brew tap ARMmbed/homebrew-formulae && brew install arm-none-eabi-gcc`
 * OpenOCD
@@ -97,25 +101,19 @@ Alternatively one can use a graphical interface to configure CMake, drop down me
      * LORAMAC_REGION_CN470
      * LORAMAC_REGION_KR920
      * LORAMAC_REGION_IN865
-     * LORAMAC_REGION_US915_HYBRID
+     * LORAMAC_REGION_RU864
 * `MODULATION` - Type of modulation choice.  
    **Note**: Only applicable to ping-pong or rx-sensi `APPLICATION` choice.  
    The possible choices are:
      * LORA
      * FSK
-* `USE_BOOTLOADER` - Enables Bootloader support. (Default OFF)  
-   **Note**: Only applicable to LoRaMote or SensorNode `BOARD` choice.
-* `USE_USB_CDC` - Enables USB-Uart support. (Default OFF)  
-   **Note**: Only applicable to LoRaMote or SensorNode `BOARD` choice.
 * `USE_DEBUGGER`- Enables debugger support. (Default ON)
 * `BOARD` - Target board choice.  
    The possible choices are:  
-     * LoRaMote (Default)
-     * MoteII
      * NAMote72
+     * NucleoL073 (default)
+     * NucleoL152
      * SAML21
-     * SensorNode
-     * SK-iM880A
 * `REGION_EU868` - Enables support for the Region EU868 (Default ON)
 * `REGION_US915` - Enables support for the Region US915 (Default OFF)
 * `REGION_CN779` - Enables support for the Region CN779 (Default OFF)
@@ -125,7 +123,7 @@ Alternatively one can use a graphical interface to configure CMake, drop down me
 * `REGION_CN470` - Enables support for the Region CN470 (Default OFF)
 * `REGION_KR920` - Enables support for the Region IN865 (Default OFF)
 * `REGION_IN865` - Enables support for the Region AS923 (Default OFF)
-* `REGION_US915_HYBRID` - Enables support for the Region US915 HYBRID (Default OFF)
+* `REGION_RU864` - Enables support for the Region RU864 (Default OFF)
 
 ### Options that are automatically set
 
@@ -143,14 +141,8 @@ Alternatively one can use a graphical interface to configure CMake, drop down me
 1. OpenOCD  
     OpenOCD has to be started with parameters that depend on the used debugger device and target board.  
     Some examples are shown below:
-    * LoRaMote + STLinkV2:  
-    `openocd -f interface/stlink-v2.cfg  -f target/stm32l1.cfg`
-
-    * MoteII + STLinkV2-1 (On board debugger):  
+    * NucleoL073 + STLinkV2-1 (On board debugger):  
     `openocd -f interface/stlink-v2-1.cfg  -f target/stm32l0.cfg`
-
-    * LoRaMote + JLink:  
-    `openocd -f interface/jlink.cfg -c "transport select swd"  -f target/stm32l1.cfg`
 
     * SAML21 Xplained Pro (On board debugger, tested with openocd 0.10, did not work with 0.9):
     `openocd -f interface/cmsis-dap.cfg -f target/at91samdXX.cfg`

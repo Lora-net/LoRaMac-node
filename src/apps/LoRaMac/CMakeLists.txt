@@ -30,10 +30,19 @@ set_property(CACHE CLASS PROPERTY STRINGS ${CLASS_LIST})
 # Allow switching of active region
 set(ACTIVE_REGION_LIST   LORAMAC_REGION_EU868 LORAMAC_REGION_US915 LORAMAC_REGION_CN779
     LORAMAC_REGION_EU433 LORAMAC_REGION_AU915 LORAMAC_REGION_AS923 LORAMAC_REGION_CN470
-    LORAMAC_REGION_KR920 LORAMAC_REGION_IN865 LORAMAC_REGION_US915_HYBRID
+    LORAMAC_REGION_KR920 LORAMAC_REGION_IN865 LORAMAC_REGION_RU864
 )
 set(ACTIVE_REGION LORAMAC_REGION_EU868 CACHE STRING "Default active region is EU868")
 set_property(CACHE ACTIVE_REGION PROPERTY STRINGS ${ACTIVE_REGION_LIST})
+
+if((CLASS STREQUAL classB) AND NOT CLASSB_ENABLED )
+    message(FATAL_ERROR "Please turn on Class B support of LoRaMac ( CLASSB_ENABLED=ON ) to use Class B application")
+endif()
+
+#---------------------------------------------------------------------------------------
+# Applications
+#---------------------------------------------------------------------------------------
+file(GLOB ${PROJECT_NAME}_APPS "${CMAKE_CURRENT_LIST_DIR}/common/*.c")
 
 #---------------------------------------------------------------------------------------
 # Target
@@ -42,6 +51,7 @@ set_property(CACHE ACTIVE_REGION PROPERTY STRINGS ${ACTIVE_REGION_LIST})
 file(GLOB ${PROJECT_NAME}_SOURCES "${CMAKE_CURRENT_LIST_DIR}/${CLASS}/${BOARD}/*.c")
 
 add_executable(${PROJECT_NAME}-${CLASS}
+                            ${${PROJECT_NAME}_APPS}
                             ${${PROJECT_NAME}_SOURCES}
                             $<TARGET_OBJECTS:mac>
                             $<TARGET_OBJECTS:system>
@@ -57,6 +67,7 @@ target_compile_definitions(${PROJECT_NAME}-${CLASS}  PUBLIC
 )
 
 target_include_directories(${PROJECT_NAME}-${CLASS} PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/common
     $<BUILD_INTERFACE:$<TARGET_PROPERTY:mac,INTERFACE_INCLUDE_DIRECTORIES>>
     $<BUILD_INTERFACE:$<TARGET_PROPERTY:system,INTERFACE_INCLUDE_DIRECTORIES>>
     $<BUILD_INTERFACE:$<TARGET_PROPERTY:radio,INTERFACE_INCLUDE_DIRECTORIES>>

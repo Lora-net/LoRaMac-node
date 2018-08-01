@@ -37,11 +37,11 @@
 #define AS923_IS_ACTIVE( )                         AS923_CASE { return true; }
 #define AS923_GET_PHY_PARAM( )                     AS923_CASE { return RegionAS923GetPhyParam( getPhy ); }
 #define AS923_SET_BAND_TX_DONE( )                  AS923_CASE { RegionAS923SetBandTxDone( txDone ); break; }
-#define AS923_INIT_DEFAULTS( )                     AS923_CASE { RegionAS923InitDefaults( type ); break; }
+#define AS923_INIT_DEFAULTS( )                     AS923_CASE { RegionAS923InitDefaults( params ); break; }
+#define AS923_GET_NVM_CTX( )                       AS923_CASE { return RegionAS923GetNvmCtx( params ); }
 #define AS923_VERIFY( )                            AS923_CASE { return RegionAS923Verify( verify, phyAttribute ); }
 #define AS923_APPLY_CF_LIST( )                     AS923_CASE { RegionAS923ApplyCFList( applyCFList ); break; }
 #define AS923_CHAN_MASK_SET( )                     AS923_CASE { return RegionAS923ChanMaskSet( chanMaskSet ); }
-#define AS923_ADR_NEXT( )                          AS923_CASE { return RegionAS923AdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
 #define AS923_COMPUTE_RX_WINDOW_PARAMETERS( )      AS923_CASE { RegionAS923ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
 #define AS923_RX_CONFIG( )                         AS923_CASE { return RegionAS923RxConfig( rxConfig, datarate ); }
 #define AS923_TX_CONFIG( )                         AS923_CASE { return RegionAS923TxConfig( txConfig, txPower, txTimeOnAir ); }
@@ -57,15 +57,16 @@
 #define AS923_CHANNEL_REMOVE( )                    AS923_CASE { return RegionAS923ChannelsRemove( channelRemove ); }
 #define AS923_SET_CONTINUOUS_WAVE( )               AS923_CASE { RegionAS923SetContinuousWave( continuousWave ); break; }
 #define AS923_APPLY_DR_OFFSET( )                   AS923_CASE { return RegionAS923ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
+#define AS923_RX_BEACON_SETUP( )                   AS923_CASE { RegionAS923RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define AS923_IS_ACTIVE( )
 #define AS923_GET_PHY_PARAM( )
 #define AS923_SET_BAND_TX_DONE( )
 #define AS923_INIT_DEFAULTS( )
+#define AS923_GET_NVM_CTX( )
 #define AS923_VERIFY( )
 #define AS923_APPLY_CF_LIST( )
 #define AS923_CHAN_MASK_SET( )
-#define AS923_ADR_NEXT( )
 #define AS923_COMPUTE_RX_WINDOW_PARAMETERS( )
 #define AS923_RX_CONFIG( )
 #define AS923_TX_CONFIG( )
@@ -81,6 +82,7 @@
 #define AS923_CHANNEL_REMOVE( )
 #define AS923_SET_CONTINUOUS_WAVE( )
 #define AS923_APPLY_DR_OFFSET( )
+#define AS923_RX_BEACON_SETUP( )
 #endif
 
 #ifdef REGION_AU915
@@ -89,11 +91,11 @@
 #define AU915_IS_ACTIVE( )                         AU915_CASE { return true; }
 #define AU915_GET_PHY_PARAM( )                     AU915_CASE { return RegionAU915GetPhyParam( getPhy ); }
 #define AU915_SET_BAND_TX_DONE( )                  AU915_CASE { RegionAU915SetBandTxDone( txDone ); break; }
-#define AU915_INIT_DEFAULTS( )                     AU915_CASE { RegionAU915InitDefaults( type ); break; }
+#define AU915_INIT_DEFAULTS( )                     AU915_CASE { RegionAU915InitDefaults( params ); break; }
+#define AU915_GET_NVM_CTX( )                       AU915_CASE { return RegionAU915GetNvmCtx( params ); }
 #define AU915_VERIFY( )                            AU915_CASE { return RegionAU915Verify( verify, phyAttribute ); }
 #define AU915_APPLY_CF_LIST( )                     AU915_CASE { RegionAU915ApplyCFList( applyCFList ); break; }
 #define AU915_CHAN_MASK_SET( )                     AU915_CASE { return RegionAU915ChanMaskSet( chanMaskSet ); }
-#define AU915_ADR_NEXT( )                          AU915_CASE { return RegionAU915AdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
 #define AU915_COMPUTE_RX_WINDOW_PARAMETERS( )      AU915_CASE { RegionAU915ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
 #define AU915_RX_CONFIG( )                         AU915_CASE { return RegionAU915RxConfig( rxConfig, datarate ); }
 #define AU915_TX_CONFIG( )                         AU915_CASE { return RegionAU915TxConfig( txConfig, txPower, txTimeOnAir ); }
@@ -109,15 +111,16 @@
 #define AU915_CHANNEL_REMOVE( )                    AU915_CASE { return RegionAU915ChannelsRemove( channelRemove ); }
 #define AU915_SET_CONTINUOUS_WAVE( )               AU915_CASE { RegionAU915SetContinuousWave( continuousWave ); break; }
 #define AU915_APPLY_DR_OFFSET( )                   AU915_CASE { return RegionAU915ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
+#define AU915_RX_BEACON_SETUP( )                   AU915_CASE { RegionAU915RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define AU915_IS_ACTIVE( )
 #define AU915_GET_PHY_PARAM( )
 #define AU915_SET_BAND_TX_DONE( )
 #define AU915_INIT_DEFAULTS( )
+#define AU915_GET_NVM_CTX( )
 #define AU915_VERIFY( )
 #define AU915_APPLY_CF_LIST( )
 #define AU915_CHAN_MASK_SET( )
-#define AU915_ADR_NEXT( )
 #define AU915_COMPUTE_RX_WINDOW_PARAMETERS( )
 #define AU915_RX_CONFIG( )
 #define AU915_TX_CONFIG( )
@@ -133,6 +136,7 @@
 #define AU915_CHANNEL_REMOVE( )
 #define AU915_SET_CONTINUOUS_WAVE( )
 #define AU915_APPLY_DR_OFFSET( )
+#define AU915_RX_BEACON_SETUP( )
 #endif
 
 #ifdef REGION_CN470
@@ -141,11 +145,11 @@
 #define CN470_IS_ACTIVE( )                         CN470_CASE { return true; }
 #define CN470_GET_PHY_PARAM( )                     CN470_CASE { return RegionCN470GetPhyParam( getPhy ); }
 #define CN470_SET_BAND_TX_DONE( )                  CN470_CASE { RegionCN470SetBandTxDone( txDone ); break; }
-#define CN470_INIT_DEFAULTS( )                     CN470_CASE { RegionCN470InitDefaults( type ); break; }
+#define CN470_INIT_DEFAULTS( )                     CN470_CASE { RegionCN470InitDefaults( params ); break; }
+#define CN470_GET_NVM_CTX( )                       CN470_CASE { return RegionCN470GetNvmCtx( params ); }
 #define CN470_VERIFY( )                            CN470_CASE { return RegionCN470Verify( verify, phyAttribute ); }
 #define CN470_APPLY_CF_LIST( )                     CN470_CASE { RegionCN470ApplyCFList( applyCFList ); break; }
 #define CN470_CHAN_MASK_SET( )                     CN470_CASE { return RegionCN470ChanMaskSet( chanMaskSet ); }
-#define CN470_ADR_NEXT( )                          CN470_CASE { return RegionCN470AdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
 #define CN470_COMPUTE_RX_WINDOW_PARAMETERS( )      CN470_CASE { RegionCN470ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
 #define CN470_RX_CONFIG( )                         CN470_CASE { return RegionCN470RxConfig( rxConfig, datarate ); }
 #define CN470_TX_CONFIG( )                         CN470_CASE { return RegionCN470TxConfig( txConfig, txPower, txTimeOnAir ); }
@@ -161,15 +165,16 @@
 #define CN470_CHANNEL_REMOVE( )                    CN470_CASE { return RegionCN470ChannelsRemove( channelRemove ); }
 #define CN470_SET_CONTINUOUS_WAVE( )               CN470_CASE { RegionCN470SetContinuousWave( continuousWave ); break; }
 #define CN470_APPLY_DR_OFFSET( )                   CN470_CASE { return RegionCN470ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
+#define CN470_RX_BEACON_SETUP( )                   CN470_CASE { RegionCN470RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define CN470_IS_ACTIVE( )
 #define CN470_GET_PHY_PARAM( )
 #define CN470_SET_BAND_TX_DONE( )
 #define CN470_INIT_DEFAULTS( )
+#define CN470_GET_NVM_CTX( )
 #define CN470_VERIFY( )
 #define CN470_APPLY_CF_LIST( )
 #define CN470_CHAN_MASK_SET( )
-#define CN470_ADR_NEXT( )
 #define CN470_COMPUTE_RX_WINDOW_PARAMETERS( )
 #define CN470_RX_CONFIG( )
 #define CN470_TX_CONFIG( )
@@ -185,6 +190,7 @@
 #define CN470_CHANNEL_REMOVE( )
 #define CN470_SET_CONTINUOUS_WAVE( )
 #define CN470_APPLY_DR_OFFSET( )
+#define CN470_RX_BEACON_SETUP( )
 #endif
 
 #ifdef REGION_CN779
@@ -193,11 +199,11 @@
 #define CN779_IS_ACTIVE( )                         CN779_CASE { return true; }
 #define CN779_GET_PHY_PARAM( )                     CN779_CASE { return RegionCN779GetPhyParam( getPhy ); }
 #define CN779_SET_BAND_TX_DONE( )                  CN779_CASE { RegionCN779SetBandTxDone( txDone ); break; }
-#define CN779_INIT_DEFAULTS( )                     CN779_CASE { RegionCN779InitDefaults( type ); break; }
+#define CN779_INIT_DEFAULTS( )                     CN779_CASE { RegionCN779InitDefaults( params ); break; }
+#define CN779_GET_NVM_CTX( )                       CN779_CASE { return RegionCN779GetNvmCtx( params ); }
 #define CN779_VERIFY( )                            CN779_CASE { return RegionCN779Verify( verify, phyAttribute ); }
 #define CN779_APPLY_CF_LIST( )                     CN779_CASE { RegionCN779ApplyCFList( applyCFList ); break; }
 #define CN779_CHAN_MASK_SET( )                     CN779_CASE { return RegionCN779ChanMaskSet( chanMaskSet ); }
-#define CN779_ADR_NEXT( )                          CN779_CASE { return RegionCN779AdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
 #define CN779_COMPUTE_RX_WINDOW_PARAMETERS( )      CN779_CASE { RegionCN779ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
 #define CN779_RX_CONFIG( )                         CN779_CASE { return RegionCN779RxConfig( rxConfig, datarate ); }
 #define CN779_TX_CONFIG( )                         CN779_CASE { return RegionCN779TxConfig( txConfig, txPower, txTimeOnAir ); }
@@ -213,15 +219,16 @@
 #define CN779_CHANNEL_REMOVE( )                    CN779_CASE { return RegionCN779ChannelsRemove( channelRemove ); }
 #define CN779_SET_CONTINUOUS_WAVE( )               CN779_CASE { RegionCN779SetContinuousWave( continuousWave ); break; }
 #define CN779_APPLY_DR_OFFSET( )                   CN779_CASE { return RegionCN779ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
+#define CN779_RX_BEACON_SETUP( )                   CN779_CASE { RegionCN779RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define CN779_IS_ACTIVE( )
 #define CN779_GET_PHY_PARAM( )
 #define CN779_SET_BAND_TX_DONE( )
 #define CN779_INIT_DEFAULTS( )
+#define CN779_GET_NVM_CTX( )
 #define CN779_VERIFY( )
 #define CN779_APPLY_CF_LIST( )
 #define CN779_CHAN_MASK_SET( )
-#define CN779_ADR_NEXT( )
 #define CN779_COMPUTE_RX_WINDOW_PARAMETERS( )
 #define CN779_RX_CONFIG( )
 #define CN779_TX_CONFIG( )
@@ -237,6 +244,7 @@
 #define CN779_CHANNEL_REMOVE( )
 #define CN779_SET_CONTINUOUS_WAVE( )
 #define CN779_APPLY_DR_OFFSET( )
+#define CN779_RX_BEACON_SETUP( )
 #endif
 
 #ifdef REGION_EU433
@@ -245,11 +253,11 @@
 #define EU433_IS_ACTIVE( )                         EU433_CASE { return true; }
 #define EU433_GET_PHY_PARAM( )                     EU433_CASE { return RegionEU433GetPhyParam( getPhy ); }
 #define EU433_SET_BAND_TX_DONE( )                  EU433_CASE { RegionEU433SetBandTxDone( txDone ); break; }
-#define EU433_INIT_DEFAULTS( )                     EU433_CASE { RegionEU433InitDefaults( type ); break; }
+#define EU433_INIT_DEFAULTS( )                     EU433_CASE { RegionEU433InitDefaults( params ); break; }
+#define EU433_GET_NVM_CTX( )                       EU433_CASE { return RegionEU433GetNvmCtx( params ); }
 #define EU433_VERIFY( )                            EU433_CASE { return RegionEU433Verify( verify, phyAttribute ); }
 #define EU433_APPLY_CF_LIST( )                     EU433_CASE { RegionEU433ApplyCFList( applyCFList ); break; }
 #define EU433_CHAN_MASK_SET( )                     EU433_CASE { return RegionEU433ChanMaskSet( chanMaskSet ); }
-#define EU433_ADR_NEXT( )                          EU433_CASE { return RegionEU433AdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
 #define EU433_COMPUTE_RX_WINDOW_PARAMETERS( )      EU433_CASE { RegionEU433ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
 #define EU433_RX_CONFIG( )                         EU433_CASE { return RegionEU433RxConfig( rxConfig, datarate ); }
 #define EU433_TX_CONFIG( )                         EU433_CASE { return RegionEU433TxConfig( txConfig, txPower, txTimeOnAir ); }
@@ -265,15 +273,16 @@
 #define EU433_CHANNEL_REMOVE( )                    EU433_CASE { return RegionEU433ChannelsRemove( channelRemove ); }
 #define EU433_SET_CONTINUOUS_WAVE( )               EU433_CASE { RegionEU433SetContinuousWave( continuousWave ); break; }
 #define EU433_APPLY_DR_OFFSET( )                   EU433_CASE { return RegionEU433ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
+#define EU433_RX_BEACON_SETUP( )                   EU433_CASE { RegionEU433RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define EU433_IS_ACTIVE( )
 #define EU433_GET_PHY_PARAM( )
 #define EU433_SET_BAND_TX_DONE( )
 #define EU433_INIT_DEFAULTS( )
+#define EU433_GET_NVM_CTX( )
 #define EU433_VERIFY( )
 #define EU433_APPLY_CF_LIST( )
 #define EU433_CHAN_MASK_SET( )
-#define EU433_ADR_NEXT( )
 #define EU433_COMPUTE_RX_WINDOW_PARAMETERS( )
 #define EU433_RX_CONFIG( )
 #define EU433_TX_CONFIG( )
@@ -289,6 +298,7 @@
 #define EU433_CHANNEL_REMOVE( )
 #define EU433_SET_CONTINUOUS_WAVE( )
 #define EU433_APPLY_DR_OFFSET( )
+#define EU433_RX_BEACON_SETUP( )
 #endif
 
 #ifdef REGION_EU868
@@ -297,11 +307,11 @@
 #define EU868_IS_ACTIVE( )                         EU868_CASE { return true; }
 #define EU868_GET_PHY_PARAM( )                     EU868_CASE { return RegionEU868GetPhyParam( getPhy ); }
 #define EU868_SET_BAND_TX_DONE( )                  EU868_CASE { RegionEU868SetBandTxDone( txDone ); break; }
-#define EU868_INIT_DEFAULTS( )                     EU868_CASE { RegionEU868InitDefaults( type ); break; }
+#define EU868_INIT_DEFAULTS( )                     EU868_CASE { RegionEU868InitDefaults( params ); break; }
+#define EU868_GET_NVM_CTX( )                       EU868_CASE { return RegionEU868GetNvmCtx( params ); }
 #define EU868_VERIFY( )                            EU868_CASE { return RegionEU868Verify( verify, phyAttribute ); }
 #define EU868_APPLY_CF_LIST( )                     EU868_CASE { RegionEU868ApplyCFList( applyCFList ); break; }
 #define EU868_CHAN_MASK_SET( )                     EU868_CASE { return RegionEU868ChanMaskSet( chanMaskSet ); }
-#define EU868_ADR_NEXT( )                          EU868_CASE { return RegionEU868AdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
 #define EU868_COMPUTE_RX_WINDOW_PARAMETERS( )      EU868_CASE { RegionEU868ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
 #define EU868_RX_CONFIG( )                         EU868_CASE { return RegionEU868RxConfig( rxConfig, datarate ); }
 #define EU868_TX_CONFIG( )                         EU868_CASE { return RegionEU868TxConfig( txConfig, txPower, txTimeOnAir ); }
@@ -317,15 +327,16 @@
 #define EU868_CHANNEL_REMOVE( )                    EU868_CASE { return RegionEU868ChannelsRemove( channelRemove ); }
 #define EU868_SET_CONTINUOUS_WAVE( )               EU868_CASE { RegionEU868SetContinuousWave( continuousWave ); break; }
 #define EU868_APPLY_DR_OFFSET( )                   EU868_CASE { return RegionEU868ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
+#define EU868_RX_BEACON_SETUP( )                   EU868_CASE { RegionEU868RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define EU868_IS_ACTIVE( )
 #define EU868_GET_PHY_PARAM( )
 #define EU868_SET_BAND_TX_DONE( )
 #define EU868_INIT_DEFAULTS( )
+#define EU868_GET_NVM_CTX( )
 #define EU868_VERIFY( )
 #define EU868_APPLY_CF_LIST( )
 #define EU868_CHAN_MASK_SET( )
-#define EU868_ADR_NEXT( )
 #define EU868_COMPUTE_RX_WINDOW_PARAMETERS( )
 #define EU868_RX_CONFIG( )
 #define EU868_TX_CONFIG( )
@@ -341,6 +352,7 @@
 #define EU868_CHANNEL_REMOVE( )
 #define EU868_SET_CONTINUOUS_WAVE( )
 #define EU868_APPLY_DR_OFFSET( )
+#define EU868_RX_BEACON_SETUP( )
 #endif
 
 #ifdef REGION_KR920
@@ -349,11 +361,11 @@
 #define KR920_IS_ACTIVE( )                         KR920_CASE { return true; }
 #define KR920_GET_PHY_PARAM( )                     KR920_CASE { return RegionKR920GetPhyParam( getPhy ); }
 #define KR920_SET_BAND_TX_DONE( )                  KR920_CASE { RegionKR920SetBandTxDone( txDone ); break; }
-#define KR920_INIT_DEFAULTS( )                     KR920_CASE { RegionKR920InitDefaults( type ); break; }
+#define KR920_INIT_DEFAULTS( )                     KR920_CASE { RegionKR920InitDefaults( params ); break; }
+#define KR920_GET_NVM_CTX( )                       KR920_CASE { return RegionKR920GetNvmCtx( params ); }
 #define KR920_VERIFY( )                            KR920_CASE { return RegionKR920Verify( verify, phyAttribute ); }
 #define KR920_APPLY_CF_LIST( )                     KR920_CASE { RegionKR920ApplyCFList( applyCFList ); break; }
 #define KR920_CHAN_MASK_SET( )                     KR920_CASE { return RegionKR920ChanMaskSet( chanMaskSet ); }
-#define KR920_ADR_NEXT( )                          KR920_CASE { return RegionKR920AdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
 #define KR920_COMPUTE_RX_WINDOW_PARAMETERS( )      KR920_CASE { RegionKR920ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
 #define KR920_RX_CONFIG( )                         KR920_CASE { return RegionKR920RxConfig( rxConfig, datarate ); }
 #define KR920_TX_CONFIG( )                         KR920_CASE { return RegionKR920TxConfig( txConfig, txPower, txTimeOnAir ); }
@@ -369,15 +381,16 @@
 #define KR920_CHANNEL_REMOVE( )                    KR920_CASE { return RegionKR920ChannelsRemove( channelRemove ); }
 #define KR920_SET_CONTINUOUS_WAVE( )               KR920_CASE { RegionKR920SetContinuousWave( continuousWave ); break; }
 #define KR920_APPLY_DR_OFFSET( )                   KR920_CASE { return RegionKR920ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
+#define KR920_RX_BEACON_SETUP( )                   KR920_CASE { RegionKR920RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define KR920_IS_ACTIVE( )
 #define KR920_GET_PHY_PARAM( )
 #define KR920_SET_BAND_TX_DONE( )
 #define KR920_INIT_DEFAULTS( )
+#define KR920_GET_NVM_CTX( )
 #define KR920_VERIFY( )
 #define KR920_APPLY_CF_LIST( )
 #define KR920_CHAN_MASK_SET( )
-#define KR920_ADR_NEXT( )
 #define KR920_COMPUTE_RX_WINDOW_PARAMETERS( )
 #define KR920_RX_CONFIG( )
 #define KR920_TX_CONFIG( )
@@ -393,6 +406,7 @@
 #define KR920_CHANNEL_REMOVE( )
 #define KR920_SET_CONTINUOUS_WAVE( )
 #define KR920_APPLY_DR_OFFSET( )
+#define KR920_RX_BEACON_SETUP( )
 #endif
 
 #ifdef REGION_IN865
@@ -401,11 +415,11 @@
 #define IN865_IS_ACTIVE( )                         IN865_CASE { return true; }
 #define IN865_GET_PHY_PARAM( )                     IN865_CASE { return RegionIN865GetPhyParam( getPhy ); }
 #define IN865_SET_BAND_TX_DONE( )                  IN865_CASE { RegionIN865SetBandTxDone( txDone ); break; }
-#define IN865_INIT_DEFAULTS( )                     IN865_CASE { RegionIN865InitDefaults( type ); break; }
+#define IN865_INIT_DEFAULTS( )                     IN865_CASE { RegionIN865InitDefaults( params ); break; }
+#define IN865_GET_NVM_CTX( )                       IN865_CASE { return RegionIN865GetNvmCtx( params ); }
 #define IN865_VERIFY( )                            IN865_CASE { return RegionIN865Verify( verify, phyAttribute ); }
 #define IN865_APPLY_CF_LIST( )                     IN865_CASE { RegionIN865ApplyCFList( applyCFList ); break; }
 #define IN865_CHAN_MASK_SET( )                     IN865_CASE { return RegionIN865ChanMaskSet( chanMaskSet ); }
-#define IN865_ADR_NEXT( )                          IN865_CASE { return RegionIN865AdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
 #define IN865_COMPUTE_RX_WINDOW_PARAMETERS( )      IN865_CASE { RegionIN865ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
 #define IN865_RX_CONFIG( )                         IN865_CASE { return RegionIN865RxConfig( rxConfig, datarate ); }
 #define IN865_TX_CONFIG( )                         IN865_CASE { return RegionIN865TxConfig( txConfig, txPower, txTimeOnAir ); }
@@ -421,15 +435,16 @@
 #define IN865_CHANNEL_REMOVE( )                    IN865_CASE { return RegionIN865ChannelsRemove( channelRemove ); }
 #define IN865_SET_CONTINUOUS_WAVE( )               IN865_CASE { RegionIN865SetContinuousWave( continuousWave ); break; }
 #define IN865_APPLY_DR_OFFSET( )                   IN865_CASE { return RegionIN865ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
+#define IN865_RX_BEACON_SETUP( )                   IN865_CASE { RegionIN865RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define IN865_IS_ACTIVE( )
 #define IN865_GET_PHY_PARAM( )
 #define IN865_SET_BAND_TX_DONE( )
 #define IN865_INIT_DEFAULTS( )
+#define IN865_GET_NVM_CTX( )
 #define IN865_VERIFY( )
 #define IN865_APPLY_CF_LIST( )
 #define IN865_CHAN_MASK_SET( )
-#define IN865_ADR_NEXT( )
 #define IN865_COMPUTE_RX_WINDOW_PARAMETERS( )
 #define IN865_RX_CONFIG( )
 #define IN865_TX_CONFIG( )
@@ -445,6 +460,7 @@
 #define IN865_CHANNEL_REMOVE( )
 #define IN865_SET_CONTINUOUS_WAVE( )
 #define IN865_APPLY_DR_OFFSET( )
+#define IN865_RX_BEACON_SETUP( )
 #endif
 
 #ifdef REGION_US915
@@ -453,11 +469,11 @@
 #define US915_IS_ACTIVE( )                         US915_CASE { return true; }
 #define US915_GET_PHY_PARAM( )                     US915_CASE { return RegionUS915GetPhyParam( getPhy ); }
 #define US915_SET_BAND_TX_DONE( )                  US915_CASE { RegionUS915SetBandTxDone( txDone ); break; }
-#define US915_INIT_DEFAULTS( )                     US915_CASE { RegionUS915InitDefaults( type ); break; }
+#define US915_INIT_DEFAULTS( )                     US915_CASE { RegionUS915InitDefaults( params ); break; }
+#define US915_GET_NVM_CTX( )                       US915_CASE { return RegionUS915GetNvmCtx( params ); }
 #define US915_VERIFY( )                            US915_CASE { return RegionUS915Verify( verify, phyAttribute ); }
 #define US915_APPLY_CF_LIST( )                     US915_CASE { RegionUS915ApplyCFList( applyCFList ); break; }
 #define US915_CHAN_MASK_SET( )                     US915_CASE { return RegionUS915ChanMaskSet( chanMaskSet ); }
-#define US915_ADR_NEXT( )                          US915_CASE { return RegionUS915AdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
 #define US915_COMPUTE_RX_WINDOW_PARAMETERS( )      US915_CASE { RegionUS915ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
 #define US915_RX_CONFIG( )                         US915_CASE { return RegionUS915RxConfig( rxConfig, datarate ); }
 #define US915_TX_CONFIG( )                         US915_CASE { return RegionUS915TxConfig( txConfig, txPower, txTimeOnAir ); }
@@ -473,15 +489,16 @@
 #define US915_CHANNEL_REMOVE( )                    US915_CASE { return RegionUS915ChannelsRemove( channelRemove ); }
 #define US915_SET_CONTINUOUS_WAVE( )               US915_CASE { RegionUS915SetContinuousWave( continuousWave ); break; }
 #define US915_APPLY_DR_OFFSET( )                   US915_CASE { return RegionUS915ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
+#define US915_RX_BEACON_SETUP( )                   US915_CASE { RegionUS915RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
 #define US915_IS_ACTIVE( )
 #define US915_GET_PHY_PARAM( )
 #define US915_SET_BAND_TX_DONE( )
 #define US915_INIT_DEFAULTS( )
+#define US915_GET_NVM_CTX( )
 #define US915_VERIFY( )
 #define US915_APPLY_CF_LIST( )
 #define US915_CHAN_MASK_SET( )
-#define US915_ADR_NEXT( )
 #define US915_COMPUTE_RX_WINDOW_PARAMETERS( )
 #define US915_RX_CONFIG( )
 #define US915_TX_CONFIG( )
@@ -497,58 +514,61 @@
 #define US915_CHANNEL_REMOVE( )
 #define US915_SET_CONTINUOUS_WAVE( )
 #define US915_APPLY_DR_OFFSET( )
+#define US915_RX_BEACON_SETUP( )
 #endif
 
-#ifdef REGION_US915_HYBRID
-#include "RegionUS915-Hybrid.h"
-#define US915_HYBRID_CASE                                 case LORAMAC_REGION_US915_HYBRID:
-#define US915_HYBRID_IS_ACTIVE( )                         US915_HYBRID_CASE { return true; }
-#define US915_HYBRID_GET_PHY_PARAM( )                     US915_HYBRID_CASE { return RegionUS915HybridGetPhyParam( getPhy ); }
-#define US915_HYBRID_SET_BAND_TX_DONE( )                  US915_HYBRID_CASE { RegionUS915HybridSetBandTxDone( txDone ); break; }
-#define US915_HYBRID_INIT_DEFAULTS( )                     US915_HYBRID_CASE { RegionUS915HybridInitDefaults( type ); break; }
-#define US915_HYBRID_VERIFY( )                            US915_HYBRID_CASE { return RegionUS915HybridVerify( verify, phyAttribute ); }
-#define US915_HYBRID_APPLY_CF_LIST( )                     US915_HYBRID_CASE { RegionUS915HybridApplyCFList( applyCFList ); break; }
-#define US915_HYBRID_CHAN_MASK_SET( )                     US915_HYBRID_CASE { return RegionUS915HybridChanMaskSet( chanMaskSet ); }
-#define US915_HYBRID_ADR_NEXT( )                          US915_HYBRID_CASE { return RegionUS915HybridAdrNext( adrNext, drOut, txPowOut, adrAckCounter ); }
-#define US915_HYBRID_COMPUTE_RX_WINDOW_PARAMETERS( )      US915_HYBRID_CASE { RegionUS915HybridComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
-#define US915_HYBRID_RX_CONFIG( )                         US915_HYBRID_CASE { return RegionUS915HybridRxConfig( rxConfig, datarate ); }
-#define US915_HYBRID_TX_CONFIG( )                         US915_HYBRID_CASE { return RegionUS915HybridTxConfig( txConfig, txPower, txTimeOnAir ); }
-#define US915_HYBRID_LINK_ADR_REQ( )                      US915_HYBRID_CASE { return RegionUS915HybridLinkAdrReq( linkAdrReq, drOut, txPowOut, nbRepOut, nbBytesParsed ); }
-#define US915_HYBRID_RX_PARAM_SETUP_REQ( )                US915_HYBRID_CASE { return RegionUS915HybridRxParamSetupReq( rxParamSetupReq ); }
-#define US915_HYBRID_NEW_CHANNEL_REQ( )                   US915_HYBRID_CASE { return RegionUS915HybridNewChannelReq( newChannelReq ); }
-#define US915_HYBRID_TX_PARAM_SETUP_REQ( )                US915_HYBRID_CASE { return RegionUS915HybridTxParamSetupReq( txParamSetupReq ); }
-#define US915_HYBRID_DL_CHANNEL_REQ( )                    US915_HYBRID_CASE { return RegionUS915HybridDlChannelReq( dlChannelReq ); }
-#define US915_HYBRID_ALTERNATE_DR( )                      US915_HYBRID_CASE { return RegionUS915HybridAlternateDr( currentDr ); }
-#define US915_HYBRID_CALC_BACKOFF( )                      US915_HYBRID_CASE { RegionUS915HybridCalcBackOff( calcBackOff ); break; }
-#define US915_HYBRID_NEXT_CHANNEL( )                      US915_HYBRID_CASE { return RegionUS915HybridNextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
-#define US915_HYBRID_CHANNEL_ADD( )                       US915_HYBRID_CASE { return RegionUS915HybridChannelAdd( channelAdd ); }
-#define US915_HYBRID_CHANNEL_REMOVE( )                    US915_HYBRID_CASE { return RegionUS915HybridChannelsRemove( channelRemove ); }
-#define US915_HYBRID_SET_CONTINUOUS_WAVE( )               US915_HYBRID_CASE { RegionUS915HybridSetContinuousWave( continuousWave ); break; }
-#define US915_HYBRID_APPLY_DR_OFFSET( )                   US915_HYBRID_CASE { return RegionUS915HybridApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
+#ifdef REGION_RU864
+#include "RegionRU864.h"
+#define RU864_CASE                                 case LORAMAC_REGION_RU864:
+#define RU864_IS_ACTIVE( )                         RU864_CASE { return true; }
+#define RU864_GET_PHY_PARAM( )                     RU864_CASE { return RegionRU864GetPhyParam( getPhy ); }
+#define RU864_SET_BAND_TX_DONE( )                  RU864_CASE { RegionRU864SetBandTxDone( txDone ); break; }
+#define RU864_INIT_DEFAULTS( )                     RU864_CASE { RegionRU864InitDefaults( params ); break; }
+#define RU864_GET_NVM_CTX( )                       RU864_CASE { return RegionRU864GetNvmCtx( params ); }
+#define RU864_VERIFY( )                            RU864_CASE { return RegionRU864Verify( verify, phyAttribute ); }
+#define RU864_APPLY_CF_LIST( )                     RU864_CASE { RegionRU864ApplyCFList( applyCFList ); break; }
+#define RU864_CHAN_MASK_SET( )                     RU864_CASE { return RegionRU864ChanMaskSet( chanMaskSet ); }
+#define RU864_COMPUTE_RX_WINDOW_PARAMETERS( )      RU864_CASE { RegionRU864ComputeRxWindowParameters( datarate, minRxSymbols, rxError, rxConfigParams ); break; }
+#define RU864_RX_CONFIG( )                         RU864_CASE { return RegionRU864RxConfig( rxConfig, datarate ); }
+#define RU864_TX_CONFIG( )                         RU864_CASE { return RegionRU864TxConfig( txConfig, txPower, txTimeOnAir ); }
+#define RU864_LINK_ADR_REQ( )                      RU864_CASE { return RegionRU864LinkAdrReq( linkAdrReq, drOut, txPowOut, nbRepOut, nbBytesParsed ); }
+#define RU864_RX_PARAM_SETUP_REQ( )                RU864_CASE { return RegionRU864RxParamSetupReq( rxParamSetupReq ); }
+#define RU864_NEW_CHANNEL_REQ( )                   RU864_CASE { return RegionRU864NewChannelReq( newChannelReq ); }
+#define RU864_TX_PARAM_SETUP_REQ( )                RU864_CASE { return RegionRU864TxParamSetupReq( txParamSetupReq ); }
+#define RU864_DL_CHANNEL_REQ( )                    RU864_CASE { return RegionRU864DlChannelReq( dlChannelReq ); }
+#define RU864_ALTERNATE_DR( )                      RU864_CASE { return RegionRU864AlternateDr( currentDr ); }
+#define RU864_CALC_BACKOFF( )                      RU864_CASE { RegionRU864CalcBackOff( calcBackOff ); break; }
+#define RU864_NEXT_CHANNEL( )                      RU864_CASE { return RegionRU864NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
+#define RU864_CHANNEL_ADD( )                       RU864_CASE { return RegionRU864ChannelAdd( channelAdd ); }
+#define RU864_CHANNEL_REMOVE( )                    RU864_CASE { return RegionRU864ChannelsRemove( channelRemove ); }
+#define RU864_SET_CONTINUOUS_WAVE( )               RU864_CASE { RegionRU864SetContinuousWave( continuousWave ); break; }
+#define RU864_APPLY_DR_OFFSET( )                   RU864_CASE { return RegionRU864ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
+#define RU864_RX_BEACON_SETUP( )                   RU864_CASE { RegionRU864RxBeaconSetup( rxBeaconSetup, outDr ); }
 #else
-#define US915_HYBRID_IS_ACTIVE( )
-#define US915_HYBRID_GET_PHY_PARAM( )
-#define US915_HYBRID_SET_BAND_TX_DONE( )
-#define US915_HYBRID_INIT_DEFAULTS( )
-#define US915_HYBRID_VERIFY( )
-#define US915_HYBRID_APPLY_CF_LIST( )
-#define US915_HYBRID_CHAN_MASK_SET( )
-#define US915_HYBRID_ADR_NEXT( )
-#define US915_HYBRID_COMPUTE_RX_WINDOW_PARAMETERS( )
-#define US915_HYBRID_RX_CONFIG( )
-#define US915_HYBRID_TX_CONFIG( )
-#define US915_HYBRID_LINK_ADR_REQ( )
-#define US915_HYBRID_RX_PARAM_SETUP_REQ( )
-#define US915_HYBRID_NEW_CHANNEL_REQ( )
-#define US915_HYBRID_TX_PARAM_SETUP_REQ( )
-#define US915_HYBRID_DL_CHANNEL_REQ( )
-#define US915_HYBRID_ALTERNATE_DR( )
-#define US915_HYBRID_CALC_BACKOFF( )
-#define US915_HYBRID_NEXT_CHANNEL( )
-#define US915_HYBRID_CHANNEL_ADD( )
-#define US915_HYBRID_CHANNEL_REMOVE( )
-#define US915_HYBRID_SET_CONTINUOUS_WAVE( )
-#define US915_HYBRID_APPLY_DR_OFFSET( )
+#define RU864_IS_ACTIVE( )
+#define RU864_GET_PHY_PARAM( )
+#define RU864_SET_BAND_TX_DONE( )
+#define RU864_INIT_DEFAULTS( )
+#define RU864_GET_NVM_CTX( )
+#define RU864_VERIFY( )
+#define RU864_APPLY_CF_LIST( )
+#define RU864_CHAN_MASK_SET( )
+#define RU864_COMPUTE_RX_WINDOW_PARAMETERS( )
+#define RU864_RX_CONFIG( )
+#define RU864_TX_CONFIG( )
+#define RU864_LINK_ADR_REQ( )
+#define RU864_RX_PARAM_SETUP_REQ( )
+#define RU864_NEW_CHANNEL_REQ( )
+#define RU864_TX_PARAM_SETUP_REQ( )
+#define RU864_DL_CHANNEL_REQ( )
+#define RU864_ALTERNATE_DR( )
+#define RU864_CALC_BACKOFF( )
+#define RU864_NEXT_CHANNEL( )
+#define RU864_CHANNEL_ADD( )
+#define RU864_CHANNEL_REMOVE( )
+#define RU864_SET_CONTINUOUS_WAVE( )
+#define RU864_APPLY_DR_OFFSET( )
+#define RU864_RX_BEACON_SETUP( )
 #endif
 
 bool RegionIsActive( LoRaMacRegion_t region )
@@ -564,7 +584,7 @@ bool RegionIsActive( LoRaMacRegion_t region )
         KR920_IS_ACTIVE( );
         IN865_IS_ACTIVE( );
         US915_IS_ACTIVE( );
-        US915_HYBRID_IS_ACTIVE( );
+        RU864_IS_ACTIVE( );
         default:
         {
             return false;
@@ -586,7 +606,7 @@ PhyParam_t RegionGetPhyParam( LoRaMacRegion_t region, GetPhyParams_t* getPhy )
         KR920_GET_PHY_PARAM( );
         IN865_GET_PHY_PARAM( );
         US915_GET_PHY_PARAM( );
-        US915_HYBRID_GET_PHY_PARAM( );
+        RU864_GET_PHY_PARAM( );
         default:
         {
             return phyParam;
@@ -607,7 +627,7 @@ void RegionSetBandTxDone( LoRaMacRegion_t region, SetBandTxDoneParams_t* txDone 
         KR920_SET_BAND_TX_DONE( );
         IN865_SET_BAND_TX_DONE( );
         US915_SET_BAND_TX_DONE( );
-        US915_HYBRID_SET_BAND_TX_DONE( );
+        RU864_SET_BAND_TX_DONE( );
         default:
         {
             return;
@@ -615,7 +635,7 @@ void RegionSetBandTxDone( LoRaMacRegion_t region, SetBandTxDoneParams_t* txDone 
     }
 }
 
-void RegionInitDefaults( LoRaMacRegion_t region, InitType_t type )
+void RegionInitDefaults( LoRaMacRegion_t region, InitDefaultsParams_t* params )
 {
     switch( region )
     {
@@ -628,10 +648,31 @@ void RegionInitDefaults( LoRaMacRegion_t region, InitType_t type )
         KR920_INIT_DEFAULTS( );
         IN865_INIT_DEFAULTS( );
         US915_INIT_DEFAULTS( );
-        US915_HYBRID_INIT_DEFAULTS( );
+        RU864_INIT_DEFAULTS( );
         default:
         {
             break;
+        }
+    }
+}
+
+void* RegionGetNvmCtx( LoRaMacRegion_t region, GetNvmCtxParams_t* params )
+{
+    switch( region )
+    {
+        AS923_GET_NVM_CTX( );
+        AU915_GET_NVM_CTX( );
+        CN470_GET_NVM_CTX( );
+        CN779_GET_NVM_CTX( );
+        EU433_GET_NVM_CTX( );
+        EU868_GET_NVM_CTX( );
+        KR920_GET_NVM_CTX( );
+        IN865_GET_NVM_CTX( );
+        US915_GET_NVM_CTX( );
+        RU864_GET_NVM_CTX( );
+        default:
+        {
+           return 0;
         }
     }
 }
@@ -649,7 +690,7 @@ bool RegionVerify( LoRaMacRegion_t region, VerifyParams_t* verify, PhyAttribute_
         KR920_VERIFY( );
         IN865_VERIFY( );
         US915_VERIFY( );
-        US915_HYBRID_VERIFY( );
+        RU864_VERIFY( );
         default:
         {
             return false;
@@ -670,7 +711,7 @@ void RegionApplyCFList( LoRaMacRegion_t region, ApplyCFListParams_t* applyCFList
         KR920_APPLY_CF_LIST( );
         IN865_APPLY_CF_LIST( );
         US915_APPLY_CF_LIST( );
-        US915_HYBRID_APPLY_CF_LIST( );
+        RU864_APPLY_CF_LIST( );
         default:
         {
             break;
@@ -691,28 +732,7 @@ bool RegionChanMaskSet( LoRaMacRegion_t region, ChanMaskSetParams_t* chanMaskSet
         KR920_CHAN_MASK_SET( );
         IN865_CHAN_MASK_SET( );
         US915_CHAN_MASK_SET( );
-        US915_HYBRID_CHAN_MASK_SET( );
-        default:
-        {
-            return false;
-        }
-    }
-}
-
-bool RegionAdrNext( LoRaMacRegion_t region, AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowOut, uint32_t* adrAckCounter )
-{
-    switch( region )
-    {
-        AS923_ADR_NEXT( );
-        AU915_ADR_NEXT( );
-        CN470_ADR_NEXT( );
-        CN779_ADR_NEXT( );
-        EU433_ADR_NEXT( );
-        EU868_ADR_NEXT( );
-        KR920_ADR_NEXT( );
-        IN865_ADR_NEXT( );
-        US915_ADR_NEXT( );
-        US915_HYBRID_ADR_NEXT( );
+        RU864_CHAN_MASK_SET( );
         default:
         {
             return false;
@@ -733,7 +753,7 @@ void RegionComputeRxWindowParameters( LoRaMacRegion_t region, int8_t datarate, u
         KR920_COMPUTE_RX_WINDOW_PARAMETERS( );
         IN865_COMPUTE_RX_WINDOW_PARAMETERS( );
         US915_COMPUTE_RX_WINDOW_PARAMETERS( );
-        US915_HYBRID_COMPUTE_RX_WINDOW_PARAMETERS( );
+        RU864_COMPUTE_RX_WINDOW_PARAMETERS( );
         default:
         {
             break;
@@ -754,7 +774,7 @@ bool RegionRxConfig( LoRaMacRegion_t region, RxConfigParams_t* rxConfig, int8_t*
         KR920_RX_CONFIG( );
         IN865_RX_CONFIG( );
         US915_RX_CONFIG( );
-        US915_HYBRID_RX_CONFIG( );
+        RU864_RX_CONFIG( );
         default:
         {
             return false;
@@ -775,7 +795,7 @@ bool RegionTxConfig( LoRaMacRegion_t region, TxConfigParams_t* txConfig, int8_t*
         KR920_TX_CONFIG( );
         IN865_TX_CONFIG( );
         US915_TX_CONFIG( );
-        US915_HYBRID_TX_CONFIG( );
+        RU864_TX_CONFIG( );
         default:
         {
             return false;
@@ -796,7 +816,7 @@ uint8_t RegionLinkAdrReq( LoRaMacRegion_t region, LinkAdrReqParams_t* linkAdrReq
         KR920_LINK_ADR_REQ( );
         IN865_LINK_ADR_REQ( );
         US915_LINK_ADR_REQ( );
-        US915_HYBRID_LINK_ADR_REQ( );
+        RU864_LINK_ADR_REQ( );
         default:
         {
             return 0;
@@ -817,7 +837,7 @@ uint8_t RegionRxParamSetupReq( LoRaMacRegion_t region, RxParamSetupReqParams_t* 
         KR920_RX_PARAM_SETUP_REQ( );
         IN865_RX_PARAM_SETUP_REQ( );
         US915_RX_PARAM_SETUP_REQ( );
-        US915_HYBRID_RX_PARAM_SETUP_REQ( );
+        RU864_RX_PARAM_SETUP_REQ( );
         default:
         {
             return 0;
@@ -838,7 +858,7 @@ uint8_t RegionNewChannelReq( LoRaMacRegion_t region, NewChannelReqParams_t* newC
         KR920_NEW_CHANNEL_REQ( );
         IN865_NEW_CHANNEL_REQ( );
         US915_NEW_CHANNEL_REQ( );
-        US915_HYBRID_NEW_CHANNEL_REQ( );
+        RU864_NEW_CHANNEL_REQ( );
         default:
         {
             return 0;
@@ -859,7 +879,7 @@ int8_t RegionTxParamSetupReq( LoRaMacRegion_t region, TxParamSetupReqParams_t* t
         KR920_TX_PARAM_SETUP_REQ( );
         IN865_TX_PARAM_SETUP_REQ( );
         US915_TX_PARAM_SETUP_REQ( );
-        US915_HYBRID_TX_PARAM_SETUP_REQ( );
+        RU864_TX_PARAM_SETUP_REQ( );
         default:
         {
             return 0;
@@ -880,7 +900,7 @@ uint8_t RegionDlChannelReq( LoRaMacRegion_t region, DlChannelReqParams_t* dlChan
         KR920_DL_CHANNEL_REQ( );
         IN865_DL_CHANNEL_REQ( );
         US915_DL_CHANNEL_REQ( );
-        US915_HYBRID_DL_CHANNEL_REQ( );
+        RU864_DL_CHANNEL_REQ( );
         default:
         {
             return 0;
@@ -901,7 +921,7 @@ int8_t RegionAlternateDr( LoRaMacRegion_t region, int8_t currentDr )
         KR920_ALTERNATE_DR( );
         IN865_ALTERNATE_DR( );
         US915_ALTERNATE_DR( );
-        US915_HYBRID_ALTERNATE_DR( );
+        RU864_ALTERNATE_DR( );
         default:
         {
             return 0;
@@ -922,7 +942,7 @@ void RegionCalcBackOff( LoRaMacRegion_t region, CalcBackOffParams_t* calcBackOff
         KR920_CALC_BACKOFF( );
         IN865_CALC_BACKOFF( );
         US915_CALC_BACKOFF( );
-        US915_HYBRID_CALC_BACKOFF( );
+        RU864_CALC_BACKOFF( );
         default:
         {
             break;
@@ -943,7 +963,7 @@ LoRaMacStatus_t RegionNextChannel( LoRaMacRegion_t region, NextChanParams_t* nex
         KR920_NEXT_CHANNEL( );
         IN865_NEXT_CHANNEL( );
         US915_NEXT_CHANNEL( );
-        US915_HYBRID_NEXT_CHANNEL( );
+        RU864_NEXT_CHANNEL( );
         default:
         {
             return LORAMAC_STATUS_REGION_NOT_SUPPORTED;
@@ -964,7 +984,7 @@ LoRaMacStatus_t RegionChannelAdd( LoRaMacRegion_t region, ChannelAddParams_t* ch
         KR920_CHANNEL_ADD( );
         IN865_CHANNEL_ADD( );
         US915_CHANNEL_ADD( );
-        US915_HYBRID_CHANNEL_ADD( );
+        RU864_CHANNEL_ADD( );
         default:
         {
             return LORAMAC_STATUS_PARAMETER_INVALID;
@@ -985,7 +1005,7 @@ bool RegionChannelsRemove( LoRaMacRegion_t region, ChannelRemoveParams_t* channe
         KR920_CHANNEL_REMOVE( );
         IN865_CHANNEL_REMOVE( );
         US915_CHANNEL_REMOVE( );
-        US915_HYBRID_CHANNEL_REMOVE( );
+        RU864_CHANNEL_REMOVE( );
         default:
         {
             return false;
@@ -1006,7 +1026,7 @@ void RegionSetContinuousWave( LoRaMacRegion_t region, ContinuousWaveParams_t* co
         KR920_SET_CONTINUOUS_WAVE( );
         IN865_SET_CONTINUOUS_WAVE( );
         US915_SET_CONTINUOUS_WAVE( );
-        US915_HYBRID_SET_CONTINUOUS_WAVE( );
+        RU864_SET_CONTINUOUS_WAVE( );
         default:
         {
             break;
@@ -1027,10 +1047,31 @@ uint8_t RegionApplyDrOffset( LoRaMacRegion_t region, uint8_t downlinkDwellTime, 
         KR920_APPLY_DR_OFFSET( );
         IN865_APPLY_DR_OFFSET( );
         US915_APPLY_DR_OFFSET( );
-        US915_HYBRID_APPLY_DR_OFFSET( );
+        RU864_APPLY_DR_OFFSET( );
         default:
         {
             return dr;
+        }
+    }
+}
+
+void RegionRxBeaconSetup( LoRaMacRegion_t region, RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr )
+{
+    switch( region )
+    {
+        AS923_RX_BEACON_SETUP( );
+        AU915_RX_BEACON_SETUP( );
+        CN470_RX_BEACON_SETUP( );
+        CN779_RX_BEACON_SETUP( );
+        EU433_RX_BEACON_SETUP( );
+        EU868_RX_BEACON_SETUP( );
+        KR920_RX_BEACON_SETUP( );
+        IN865_RX_BEACON_SETUP( );
+        US915_RX_BEACON_SETUP( );
+        RU864_RX_BEACON_SETUP( );
+        default:
+        {
+            break;
         }
     }
 }

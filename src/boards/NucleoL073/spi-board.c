@@ -30,7 +30,7 @@ static SPI_HandleTypeDef SpiHandle[2];
 
 void SpiInit( Spi_t *obj, SpiId_t spiId, PinNames mosi, PinNames miso, PinNames sclk, PinNames nss )
 {
-    BoardDisableIrq( );
+    CRITICAL_SECTION_BEGIN( );
 
     obj->SpiId = spiId;
 
@@ -74,7 +74,7 @@ void SpiInit( Spi_t *obj, SpiId_t spiId, PinNames mosi, PinNames miso, PinNames 
 
     HAL_SPI_Init( &SpiHandle[spiId] );
 
-    BoardEnableIrq( );
+    CRITICAL_SECTION_END( );
 }
 
 void SpiDeInit( Spi_t *obj )
@@ -150,7 +150,7 @@ uint16_t SpiInOut( Spi_t *obj, uint16_t outData )
 
     __HAL_SPI_ENABLE( &SpiHandle[obj->SpiId] );
 
-    BoardDisableIrq( );
+    CRITICAL_SECTION_BEGIN( );
 
     while( __HAL_SPI_GET_FLAG( &SpiHandle[obj->SpiId], SPI_FLAG_TXE ) == RESET );
     SpiHandle[obj->SpiId].Instance->DR = ( uint16_t ) ( outData & 0xFF );
@@ -158,7 +158,7 @@ uint16_t SpiInOut( Spi_t *obj, uint16_t outData )
     while( __HAL_SPI_GET_FLAG( &SpiHandle[obj->SpiId], SPI_FLAG_RXNE ) == RESET );
     rxData = ( uint16_t ) SpiHandle[obj->SpiId].Instance->DR;
 
-    BoardEnableIrq( );
+    CRITICAL_SECTION_END( );
 
     return( rxData );
 }

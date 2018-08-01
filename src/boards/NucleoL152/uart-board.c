@@ -196,7 +196,7 @@ uint8_t UartMcuPutChar( Uart_t *obj, uint8_t data )
     }
     else
     {
-        BoardDisableIrq( );
+        CRITICAL_SECTION_BEGIN( );
         TxData = data;
 
         if( IsFifoFull( &obj->FifoTx ) == false )
@@ -206,10 +206,10 @@ uint8_t UartMcuPutChar( Uart_t *obj, uint8_t data )
             // Trig UART Tx interrupt to start sending the FIFO contents.
             __HAL_UART_ENABLE_IT( &UartHandle, UART_IT_TC );
 
-            BoardEnableIrq( );
+            CRITICAL_SECTION_END( );
             return 0; // OK
         }
-        BoardEnableIrq( );
+        CRITICAL_SECTION_END( );
         return 1; // Busy
     }
 }
@@ -226,15 +226,15 @@ uint8_t UartMcuGetChar( Uart_t *obj, uint8_t *data )
     }
     else
     {
-        BoardDisableIrq( );
+        CRITICAL_SECTION_BEGIN( );
 
         if( IsFifoEmpty( &obj->FifoRx ) == false )
         {
             *data = FifoPop( &obj->FifoRx );
-            BoardEnableIrq( );
+            CRITICAL_SECTION_END( );
             return 0;
         }
-        BoardEnableIrq( );
+        CRITICAL_SECTION_END( );
         return 1;
     }
 }
@@ -335,7 +335,7 @@ void HAL_UART_ErrorCallback( UART_HandleTypeDef *handle )
 
 void USART2_IRQHandler( void )
 {
-    // [BEGIN] Workaround to solve an issue with the HAL drivers not managin the uart state correctly.
+    // [BEGIN] Workaround to solve an issue with the HAL drivers not managing the uart state correctly.
     uint32_t tmpFlag = 0, tmpItSource = 0;
 
     tmpFlag = __HAL_UART_GET_FLAG( &UartHandle, UART_FLAG_TC );
@@ -348,7 +348,7 @@ void USART2_IRQHandler( void )
             UartHandle.State = HAL_UART_STATE_BUSY_TX_RX;
         }
     }
-    // [END] Workaround to solve an issue with the HAL drivers not managin the uart state correctly.
+    // [END] Workaround to solve an issue with the HAL drivers not managing the uart state correctly.
 
     HAL_UART_IRQHandler( &UartHandle );
 }

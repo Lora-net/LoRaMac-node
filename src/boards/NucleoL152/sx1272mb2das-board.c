@@ -28,6 +28,14 @@
 #include "sx1272-board.h"
 
 /*!
+ * \brief Gets the board PA selection configuration
+ *
+ * \param [IN] channel Channel frequency in Hz
+ * \retval PaSelect RegPaConfig PaSelect value
+ */
+static uint8_t SX1272GetPaSelect( uint32_t channel );
+
+/*!
  * Flag used to set the RF switch control pins in low power mode when the radio is not active.
  */
 static bool RadioIsActive = false;
@@ -68,6 +76,14 @@ const struct Radio_s Radio =
  */
 Gpio_t AntSwitch;
 
+/*!
+ * Debug GPIO pins objects
+ */
+#if defined( USE_RADIO_DEBUG )
+Gpio_t DbgPinTx;
+Gpio_t DbgPinRx;
+#endif
+
 void SX1272IoInit( void )
 {
     GpioInit( &SX1272.Spi.Nss, RADIO_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
@@ -80,6 +96,11 @@ void SX1272IoInit( void )
     // Initialize Gpio_t port to NULL.
     SX1272.DIO4.port = NULL;
     SX1272.DIO5.port = NULL;
+
+#if defined( USE_RADIO_DEBUG )
+    GpioInit( &DbgPinTx, RADIO_DBG_PIN_TX, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &DbgPinRx, RADIO_DBG_PIN_RX, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+#endif
 }
 
 void SX1272IoIrqInit( DioIrqHandler **irqHandlers )
@@ -205,7 +226,7 @@ void SX1272SetRfTxPower( int8_t power )
     SX1272Write( REG_PADAC, paDac );
 }
 
-uint8_t SX1272GetPaSelect( uint32_t channel )
+static uint8_t SX1272GetPaSelect( uint32_t channel )
 {
     return RF_PACONFIG_PASELECT_RFO;
 }
@@ -260,3 +281,15 @@ bool SX1272CheckRfFrequency( uint32_t frequency )
     // Implement check. Currently all frequencies are supported
     return true;
 }
+
+#if defined( USE_RADIO_DEBUG )
+void SX1272DbgPinTxWrite( uint8_t state )
+{
+    GpioWrite( &DbgPinTx, state );
+}
+
+void SX1272DbgPinRxWrite( uint8_t state )
+{
+    GpioWrite( &DbgPinRx, state );
+}
+#endif

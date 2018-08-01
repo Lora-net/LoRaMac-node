@@ -28,6 +28,8 @@
  *
  * \author    Daniel Jaeckle ( STACKFORCE )
  *
+ * \author    Johannes Bruder ( STACKFORCE )
+ *
  * \defgroup  REGIONIN865 Region IN865
  *            Implementation according to LoRaWAN Specification v1.0.2.
  * \{
@@ -35,7 +37,7 @@
 #ifndef __REGION_IN865_H__
 #define __REGION_IN865_H__
 
-#include "LoRaMac.h"
+#include "region/Region.h"
 
 /*!
  * LoRaMac maximum number of channels
@@ -186,6 +188,44 @@
  */
 #define IN865_RX_WND_2_DR                           DR_2
 
+/*
+ * CLASS B
+ */
+/*!
+ * Beacon frequency
+ */
+#define IN865_BEACON_CHANNEL_FREQ                   866550000
+
+/*!
+ * Payload size of a beacon frame
+ */
+#define IN865_BEACON_SIZE                           19
+
+/*!
+ * Size of RFU 1 field
+ */
+#define IN865_RFU1_SIZE                             1
+
+/*!
+ * Size of RFU 2 field
+ */
+#define IN865_RFU2_SIZE                             3
+
+/*!
+ * Datarate of the beacon channel
+ */
+#define IN865_BEACON_CHANNEL_DR                     DR_4
+
+/*!
+ * Bandwith of the beacon channel
+ */
+#define IN865_BEACON_CHANNEL_BW                     0
+
+/*!
+ * Ping slot channel datarate
+ */
+#define IN865_PING_SLOT_CHANNEL_DR                  DR_4
+
 /*!
  * Maximum number of bands
  */
@@ -266,7 +306,16 @@ void RegionIN865SetBandTxDone( SetBandTxDoneParams_t* txDone );
  *
  * \param [IN] type Sets the initialization type.
  */
-void RegionIN865InitDefaults( InitType_t type );
+void RegionIN865InitDefaults( InitDefaultsParams_t* params );
+
+/*!
+ * \brief Returns a pointer to the internal context and its size.
+ *
+ * \param [OUT] params Pointer to the function parameters.
+ *
+ * \retval      Points to a structure where the module store its non-volatile context.
+ */
+void* RegionIN865GetNvmCtx( GetNvmCtxParams_t* params );
 
 /*!
  * \brief Verifies a parameter.
@@ -295,21 +344,6 @@ void RegionIN865ApplyCFList( ApplyCFListParams_t* applyCFList );
  * \retval Returns true, if the channels mask could be set.
  */
 bool RegionIN865ChanMaskSet( ChanMaskSetParams_t* chanMaskSet );
-
-/*!
- * \brief Calculates the next datarate to set, when ADR is on or off.
- *
- * \param [IN] adrNext Pointer to the function parameters.
- *
- * \param [OUT] drOut The calculated datarate for the next TX.
- *
- * \param [OUT] txPowOut The TX power for the next TX.
- *
- * \param [OUT] adrAckCounter The calculated ADR acknowledgement counter.
- *
- * \retval Returns true, if an ADR request should be performed.
- */
-bool RegionIN865AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowOut, uint32_t* adrAckCounter );
 
 /*!
  * Computes the Rx window timeout and offset.
@@ -464,6 +498,13 @@ void RegionIN865SetContinuousWave( ContinuousWaveParams_t* continuousWave );
  * \retval newDr Computed datarate.
  */
 uint8_t RegionIN865ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset );
+
+/*!
+ * \brief Sets the radio into beacon reception mode
+ *
+ * \param [IN] rxBeaconSetup Pointer to the function parameters
+ */
+ void RegionIN865RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
 
 /*! \} defgroup REGIONIN865 */
 

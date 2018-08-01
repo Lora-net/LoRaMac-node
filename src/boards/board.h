@@ -24,7 +24,7 @@
 #define __BOARD_H__
 
 #include <stdint.h>
-
+#include "utilities.h"
 /*!
  * Possible power sources
  */
@@ -33,35 +33,6 @@ enum BoardPowerSources
     USB_POWER = 0,
     BATTERY_POWER,
 };
-
-/*!
- * Board Version
- */
-typedef union BoardVersion_u
-{
-    struct BoardVersion_s
-    {
-        uint8_t Rfu;
-        uint8_t Revision;
-        uint8_t Minor;
-        uint8_t Major;
-    }Fields;
-    uint32_t Value;
-}BoardVersion_t;
-
-/*!
- * \brief Disable interrupts
- *
- * \remark IRQ nesting is managed
- */
-void BoardDisableIrq( void );
-
-/*!
- * \brief Enable interrupts
- *
- * \remark IRQ nesting is managed
- */
-void BoardEnableIrq( void );
 
 /*!
  * \brief Initializes the mcu.
@@ -124,6 +95,11 @@ uint32_t BoardGetRandomSeed( void );
 void BoardGetUniqueId( uint8_t *id );
 
 /*!
+ * \brief Manages the entry into ARM cortex deep-sleep mode
+ */
+void BoardLowPowerHandler( void );
+
+/*!
  * \brief Get the board power source
  *
  * \retval value  power source [0: USB_POWER, 1: BATTERY_POWER]
@@ -135,6 +111,6 @@ uint8_t GetBoardPowerSource( void );
  *
  * \retval value  Version
  */
-BoardVersion_t BoardGetVersion( void );
+Version_t BoardGetVersion( void );
 
 #endif // __BOARD_H__

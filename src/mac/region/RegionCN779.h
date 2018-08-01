@@ -28,6 +28,8 @@
  *
  * \author    Daniel Jaeckle ( STACKFORCE )
  *
+ * \author    Johannes Bruder ( STACKFORCE )
+ *
  * \defgroup  REGIONCN779 Region CN779
  *            Implementation according to LoRaWAN Specification v1.0.2.
  * \{
@@ -35,7 +37,7 @@
 #ifndef __REGION_CN779_H__
 #define __REGION_CN779_H__
 
-#include "LoRaMac.h"
+#include "region/Region.h"
 
 /*!
  * LoRaMac maximum number of channels
@@ -189,6 +191,44 @@
  */
 #define CN779_RX_WND_2_DR                           DR_0
 
+/*
+ * CLASS B
+ */
+/*!
+ * Beacon frequency
+ */
+#define CN779_BEACON_CHANNEL_FREQ                   785000000
+
+/*!
+ * Payload size of a beacon frame
+ */
+#define CN779_BEACON_SIZE                           17
+
+/*!
+ * Size of RFU 1 field
+ */
+#define CN779_RFU1_SIZE                             2
+
+/*!
+ * Size of RFU 2 field
+ */
+#define CN779_RFU2_SIZE                             0
+
+/*!
+ * Datarate of the beacon channel
+ */
+#define CN779_BEACON_CHANNEL_DR                     DR_3
+
+/*!
+ * Bandwith of the beacon channel
+ */
+#define CN779_BEACON_CHANNEL_BW                     0
+
+/*!
+ * Ping slot channel datarate
+ */
+#define CN779_PING_SLOT_CHANNEL_DR                  DR_3
+
 /*!
  * LoRaMac maximum number of bands
  */
@@ -263,7 +303,16 @@ void RegionCN779SetBandTxDone( SetBandTxDoneParams_t* txDone );
  *
  * \param [IN] type Sets the initialization type.
  */
-void RegionCN779InitDefaults( InitType_t type );
+void RegionCN779InitDefaults( InitDefaultsParams_t* params );
+
+/*!
+ * \brief Returns a pointer to the internal context and its size.
+ *
+ * \param [OUT] params Pointer to the function parameters.
+ *
+ * \retval      Points to a structure where the module store its non-volatile context.
+ */
+void* RegionCN779GetNvmCtx( GetNvmCtxParams_t* params );
 
 /*!
  * \brief Verifies a parameter.
@@ -292,21 +341,6 @@ void RegionCN779ApplyCFList( ApplyCFListParams_t* applyCFList );
  * \retval Returns true, if the channels mask could be set.
  */
 bool RegionCN779ChanMaskSet( ChanMaskSetParams_t* chanMaskSet );
-
-/*!
- * \brief Calculates the next datarate to set, when ADR is on or off.
- *
- * \param [IN] adrNext Pointer to the function parameters.
- *
- * \param [OUT] drOut The calculated datarate for the next TX.
- *
- * \param [OUT] txPowOut The TX power for the next TX.
- *
- * \param [OUT] adrAckCounter The calculated ADR acknowledgement counter.
- *
- * \retval Returns true, if an ADR request should be performed.
- */
-bool RegionCN779AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowOut, uint32_t* adrAckCounter );
 
 /*!
  * Computes the Rx window timeout and offset.
@@ -461,6 +495,13 @@ void RegionCN779SetContinuousWave( ContinuousWaveParams_t* continuousWave );
  * \retval newDr Computed datarate.
  */
 uint8_t RegionCN779ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset );
+
+/*!
+ * \brief Sets the radio into beacon reception mode
+ *
+ * \param [IN] rxBeaconSetup Pointer to the function parameters
+ */
+ void RegionCN779RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
 
 /*! \} defgroup REGIONCN779 */
 

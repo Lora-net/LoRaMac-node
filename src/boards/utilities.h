@@ -63,6 +63,21 @@
 #define POW2( n ) ( 1 << n )
 
 /*!
+ * Version
+ */
+typedef union Version_u
+{
+    struct Version_s
+    {
+        uint8_t Rfu;
+        uint8_t Revision;
+        uint8_t Minor;
+        uint8_t Major;
+    }Fields;
+    uint32_t Value;
+}Version_t;
+
+/*!
  * \brief Initializes the pseudo random generator initial value
  *
  * \param [IN] seed Pseudo random generator initial value
@@ -116,5 +131,35 @@ void memset1( uint8_t *dst, uint8_t value, uint16_t size );
  * \retval hexChar Converted hexadecimal character
  */
 int8_t Nibble2HexChar( uint8_t a );
+
+/*!
+ * Begins critical section
+ */
+#define CRITICAL_SECTION_BEGIN( ) uint32_t mask; BoardCriticalSectionBegin( &mask )
+
+/*!
+ * Ends critical section
+ */
+#define CRITICAL_SECTION_END( ) BoardCriticalSectionEnd( &mask )
+
+/*
+ * ============================================================================
+ * Following functions must be implemented inside the specific platform 
+ * board.c file.
+ * ============================================================================
+ */
+/*!
+ * Disable interrupts, begins critical section
+ * 
+ * \param [IN] mask Pointer to a variable where to store the CPU IRQ mask
+ */
+void BoardCriticalSectionBegin( uint32_t *mask );
+
+/*!
+ * Ends critical section
+ * 
+ * \param [IN] mask Pointer to a variable where the CPU IRQ mask was stored
+ */
+void BoardCriticalSectionEnd( uint32_t *mask );
 
 #endif // __UTILITIES_H__

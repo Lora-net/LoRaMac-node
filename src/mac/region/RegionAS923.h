@@ -28,6 +28,8 @@
  *
  * \author    Daniel Jaeckle ( STACKFORCE )
  *
+ * \author    Johannes Bruder ( STACKFORCE )
+ *
  * \defgroup  REGIONAS923 Region AS923
  *            Implementation according to LoRaWAN Specification v1.0.2.
  * \{
@@ -35,7 +37,7 @@
 #ifndef __REGION_AS923_H__
 #define __REGION_AS923_H__
 
-#include "LoRaMac.h"
+#include "region/Region.h"
 
 /*!
  * LoRaMac maximum number of channels
@@ -202,6 +204,44 @@
  */
 #define AS923_RX_WND_2_DR                           DR_2
 
+/*
+ * CLASS B
+ */
+/*!
+ * Beacon frequency
+ */
+#define AS923_BEACON_CHANNEL_FREQ                   923400000
+
+/*!
+ * Payload size of a beacon frame
+ */
+#define AS923_BEACON_SIZE                           17
+
+/*!
+ * Size of RFU 1 field
+ */
+#define AS923_RFU1_SIZE                             2
+
+/*!
+ * Size of RFU 2 field
+ */
+#define AS923_RFU2_SIZE                             0
+
+/*!
+ * Datarate of the beacon channel
+ */
+#define AS923_BEACON_CHANNEL_DR                     DR_3
+
+/*!
+ * Bandwith of the beacon channel
+ */
+#define AS923_BEACON_CHANNEL_BW                     0
+
+/*!
+ * Ping slot channel datarate
+ */
+#define AS923_PING_SLOT_CHANNEL_DR                  DR_3
+
 /*!
  * Maximum number of bands
  */
@@ -301,7 +341,16 @@ void RegionAS923SetBandTxDone( SetBandTxDoneParams_t* txDone );
  *
  * \param [IN] type Sets the initialization type.
  */
-void RegionAS923InitDefaults( InitType_t type );
+void RegionAS923InitDefaults( InitDefaultsParams_t* params );
+
+/*!
+ * \brief Returns a pointer to the internal context and its size.
+ *
+ * \param [OUT] params Pointer to the function parameters.
+ *
+ * \retval      Points to a structure where the module store its non-volatile context.
+ */
+void* RegionAS923GetNvmCtx( GetNvmCtxParams_t* params );
 
 /*!
  * \brief Verifies a parameter.
@@ -330,21 +379,6 @@ void RegionAS923ApplyCFList( ApplyCFListParams_t* applyCFList );
  * \retval Returns true, if the channels mask could be set.
  */
 bool RegionAS923ChanMaskSet( ChanMaskSetParams_t* chanMaskSet );
-
-/*!
- * \brief Calculates the next datarate to set, when ADR is on or off.
- *
- * \param [IN] adrNext Pointer to the function parameters.
- *
- * \param [OUT] drOut The calculated datarate for the next TX.
- *
- * \param [OUT] txPowOut The TX power for the next TX.
- *
- * \param [OUT] adrAckCounter The calculated ADR acknowledgement counter.
- *
- * \retval Returns true, if an ADR request should be performed.
- */
-bool RegionAS923AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowOut, uint32_t* adrAckCounter );
 
 /*!
  * Computes the Rx window timeout and offset.
@@ -499,6 +533,13 @@ void RegionAS923SetContinuousWave( ContinuousWaveParams_t* continuousWave );
  * \retval newDr Computed datarate.
  */
 uint8_t RegionAS923ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset );
+
+/*!
+ * \brief Sets the radio into beacon reception mode
+ *
+ * \param [IN] rxBeaconSetup Pointer to the function parameters
+ */
+ void RegionAS923RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
 
 /*! \} defgroup REGIONAS923 */
 

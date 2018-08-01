@@ -85,14 +85,6 @@ void SX1272Reset( void );
 void SX1272SetRfTxPower( int8_t power );
 
 /*!
- * \brief Gets the board PA selection configuration
- *
- * \param [IN] channel Channel frequency in Hz
- * \retval PaSelect RegPaConfig PaSelect value
- */
-uint8_t SX1272GetPaSelect( uint32_t channel );
-
-/*!
  * \brief Set the RF Switch I/Os pins in low power mode
  *
  * \param [IN] status enable or disable
@@ -134,6 +126,20 @@ bool SX1272CheckRfFrequency( uint32_t frequency );
  * \retval time Board TCXO wakeup time in ms.
  */
 uint32_t SX1272GetBoardTcxoWakeupTime( void );
+
+/*!
+ * \brief Writes new Tx debug pin state
+ *
+ * \param [IN] state Debug pin state
+ */
+void SX1272DbgPinTxWrite( uint8_t state );
+
+/*!
+ * \brief Writes new Rx debug pin state
+ *
+ * \param [IN] state Debug pin state
+ */
+void SX1272DbgPinRxWrite( uint8_t state );
 
 /*!
  * Radio hardware and global parameters

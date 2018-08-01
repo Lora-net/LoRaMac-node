@@ -28,6 +28,8 @@
  *
  * \author    Daniel Jaeckle ( STACKFORCE )
  *
+ * \author    Johannes Bruder ( STACKFORCE )
+ *
  * \defgroup  REGIONUS915 Region US915
  *            Implementation according to LoRaWAN Specification v1.0.2.
  * \{
@@ -35,7 +37,7 @@
 #ifndef __REGION_US915_H__
 #define __REGION_US915_H__
 
-#include "LoRaMac.h"
+#include "region/Region.h"
 
 /*!
  * LoRaMac maximum number of channels
@@ -167,10 +169,58 @@
  */
 #define US915_RX_WND_2_DR                           DR_8
 
+/*
+ * CLASS B
+ */
+/*!
+ * Beacon frequency
+ */
+#define US915_BEACON_CHANNEL_FREQ                   923300000
+
+/*!
+ * Beacon frequency channel stepwidth
+ */
+#define US915_BEACON_CHANNEL_STEPWIDTH              600000
+
+/*!
+ * Number of possible beacon channels
+ */
+#define US915_BEACON_NB_CHANNELS                    8
+
+/*!
+ * Payload size of a beacon frame
+ */
+#define US915_BEACON_SIZE                           23
+
+/*!
+ * Size of RFU 1 field
+ */
+#define US915_RFU1_SIZE                             5
+
+/*!
+ * Size of RFU 2 field
+ */
+#define US915_RFU2_SIZE                             3
+
+/*!
+ * Datarate of the beacon channel
+ */
+#define US915_BEACON_CHANNEL_DR                     DR_8
+
+/*!
+ * Bandwith of the beacon channel
+ */
+#define US915_BEACON_CHANNEL_BW                     2
+
+/*!
+ * Ping slot channel datarate
+ */
+#define US915_PING_SLOT_CHANNEL_DR                  DR_8
+
 /*!
  * LoRaMac maximum number of bands
  */
-#define US915_MAX_NB_BANDS                           1
+#define US915_MAX_NB_BANDS                          1
 
 /*!
  * Band 0 definition
@@ -246,7 +296,16 @@ void RegionUS915SetBandTxDone( SetBandTxDoneParams_t* txDone );
  *
  * \param [IN] type Sets the initialization type.
  */
-void RegionUS915InitDefaults( InitType_t type );
+void RegionUS915InitDefaults( InitDefaultsParams_t* params );
+
+/*!
+ * \brief Returns a pointer to the internal context and its size.
+ *
+ * \param [OUT] params Pointer to the function parameters.
+ *
+ * \retval      Points to a structure where the module store its non-volatile context.
+ */
+void* RegionUS915GetNvmCtx( GetNvmCtxParams_t* params );
 
 /*!
  * \brief Verifies a parameter.
@@ -275,21 +334,6 @@ void RegionUS915ApplyCFList( ApplyCFListParams_t* applyCFList );
  * \retval Returns true, if the channels mask could be set.
  */
 bool RegionUS915ChanMaskSet( ChanMaskSetParams_t* chanMaskSet );
-
-/*!
- * \brief Calculates the next datarate to set, when ADR is on or off.
- *
- * \param [IN] adrNext Pointer to the function parameters.
- *
- * \param [OUT] drOut The calculated datarate for the next TX.
- *
- * \param [OUT] txPowOut The TX power for the next TX.
- *
- * \param [OUT] adrAckCounter The calculated ADR acknowledgement counter.
- *
- * \retval Returns true, if an ADR request should be performed.
- */
-bool RegionUS915AdrNext( AdrNextParams_t* adrNext, int8_t* drOut, int8_t* txPowOut, uint32_t* adrAckCounter );
 
 /*!
  * Computes the Rx window timeout and offset.
@@ -444,6 +488,13 @@ void RegionUS915SetContinuousWave( ContinuousWaveParams_t* continuousWave );
  * \retval newDr Computed datarate.
  */
 uint8_t RegionUS915ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset );
+
+/*!
+ * \brief Sets the radio into beacon reception mode
+ *
+ * \param [IN] rxBeaconSetup Pointer to the function parameters
+ */
+ void RegionUS915RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
 
 /*! \} defgroup REGIONUS915 */
 

@@ -101,23 +101,21 @@ TimerTime_t TimerGetCurrentTime( void );
 /*!
  * \brief Return the Time elapsed since a fix moment in Time
  *
- * \param [IN] savedTime    fix moment in Time
+ * \param [IN] past         fix moment in Time
  * \retval time             returns elapsed time
  */
-TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime );
+TimerTime_t TimerGetElapsedTime( TimerTime_t past );
 
 /*!
- * \brief Return the Time elapsed since a fix moment in Time
+ * \brief Computes the temperature compensation for a period of time on a
+ *        specific temperature.
  *
- * \param [IN] eventInFuture    fix moment in the future
- * \retval time             returns difference between now and future event
+ * \param [IN] period Time period to compensate
+ * \param [IN] temperature Current temperature
+ *
+ * \retval Compensated time period
  */
-TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture );
-
-/*!
- * \brief Manages the entry into ARM cortex deep-sleep mode
- */
-void TimerLowPowerHandler( void );
+TimerTime_t TimerTempCompensation( TimerTime_t period, float temperature );
 
 /*!
  * \brief Processes pending timer events

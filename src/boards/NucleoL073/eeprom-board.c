@@ -30,7 +30,7 @@ uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
 
     assert_param( ( DATA_EEPROM_BASE + addr ) >= DATA_EEPROM_BASE );
     assert_param( buffer != NULL );
-    assert_param( size < ( DATA_EEPROM_END - DATA_EEPROM_BASE ) );
+    assert_param( size < ( DATA_EEPROM_BANK2_END - DATA_EEPROM_BASE ) );
 
     if( HAL_FLASHEx_DATAEEPROM_Unlock( ) == HAL_OK )
     {
@@ -55,7 +55,7 @@ uint8_t EepromMcuReadBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
 {
     assert_param( ( DATA_EEPROM_BASE + addr ) >= DATA_EEPROM_BASE );
     assert_param( buffer != NULL );
-    assert_param( size < ( DATA_EEPROM_END - DATA_EEPROM_BASE ) );
+    assert_param( size < ( DATA_EEPROM_BANK2_END - DATA_EEPROM_BASE ) );
 
     memcpy1( buffer, ( uint8_t* )( DATA_EEPROM_BASE + addr ), size );
     return SUCCESS;

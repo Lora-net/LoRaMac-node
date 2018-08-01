@@ -24,9 +24,6 @@
  */
 #include <math.h>
 #include <string.h>
-#if defined( USE_RADIO_DEBUG )
-#include "board-config.h"
-#endif
 #include "utilities.h"
 #include "timer.h"
 #include "radio.h"
@@ -220,11 +217,6 @@ TimerEvent_t TxTimeoutTimer;
 TimerEvent_t RxTimeoutTimer;
 TimerEvent_t RxTimeoutSyncWord;
 
-#if defined( USE_RADIO_DEBUG )
-Gpio_t DbgPinTx;
-Gpio_t DbgPinRx;
-#endif
-
 /*
  * Radio driver functions implementation
  */
@@ -234,11 +226,6 @@ void SX1276Init( RadioEvents_t *events )
     uint8_t i;
 
     RadioEvents = events;
-
-#if defined( USE_RADIO_DEBUG )
-    GpioInit( &DbgPinTx, RADIO_DBG_PIN_TX, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &DbgPinRx, RADIO_DBG_PIN_RX, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-#endif
 
     // Initialize driver timeout timers
     TimerInit( &TxTimeoutTimer, SX1276OnTimeoutIrq );
@@ -1193,15 +1180,17 @@ void SX1276SetOpMode( uint8_t opMode )
     switch( opMode )
     {
         case RF_OPMODE_TRANSMITTER:
-            GpioWrite( &DbgPinTx, 1 );
+            SX1276DbgPinTxWrite( 1 );
+            SX1276DbgPinRxWrite( 0 );
             break;
         case RF_OPMODE_RECEIVER:
         case RFLR_OPMODE_RECEIVER_SINGLE:
-            GpioWrite( &DbgPinRx, 1 );
+            SX1276DbgPinTxWrite( 0 );
+            SX1276DbgPinRxWrite( 1 );
             break;
         default:
-            GpioWrite( &DbgPinTx, 0 );
-            GpioWrite( &DbgPinRx, 0 );
+            SX1276DbgPinTxWrite( 0 );
+            SX1276DbgPinRxWrite( 0 );
             break;
     }
 #endif

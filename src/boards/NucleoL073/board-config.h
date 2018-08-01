@@ -65,6 +65,10 @@
 #define LED_1                                       PC_1
 #define LED_2                                       PC_0
 
+// Debug pins definition.
+#define RADIO_DBG_PIN_TX                            PB_6
+#define RADIO_DBG_PIN_RX                            PC_7
+
 #elif defined( SX1272MB2DAS) || defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
 
 #define RADIO_NSS                                   PB_6
@@ -80,6 +84,10 @@
 
 #define LED_1                                       NC
 #define LED_2                                       NC
+
+// Debug pins definition.
+#define RADIO_DBG_PIN_TX                            PB_0
+#define RADIO_DBG_PIN_RX                            PA_4
 
 #endif
 
@@ -97,9 +105,5 @@
 
 #define UART_TX                                     PA_2
 #define UART_RX                                     PA_3
-
-// Debug pins definition.
-#define RADIO_DBG_PIN_TX                            NC
-#define RADIO_DBG_PIN_RX                            NC
 
 #endif // __BOARD_CONFIG_H__

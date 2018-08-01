@@ -34,12 +34,25 @@
 Gpio_t AntPow;
 Gpio_t DeviceSel;
 
+/*!
+ * Debug GPIO pins objects
+ */
+#if defined( USE_RADIO_DEBUG )
+Gpio_t DbgPinTx;
+Gpio_t DbgPinRx;
+#endif
+
 void SX126xIoInit( void )
 {
     GpioInit( &SX126x.Spi.Nss, RADIO_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
     GpioInit( &SX126x.BUSY, RADIO_BUSY, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &SX126x.DIO1, RADIO_DIO_1, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &DeviceSel, RADIO_DEVICE_SEL, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+
+#if defined( USE_RADIO_DEBUG )
+    GpioInit( &DbgPinTx, RADIO_DBG_PIN_TX, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &DbgPinRx, RADIO_DBG_PIN_RX, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+#endif
 }
 
 void SX126xIoIrqInit( DioIrqHandler dioIrq )
@@ -75,7 +88,7 @@ void SX126xWaitOnBusy( void )
 
 void SX126xWakeup( void )
 {
-    BoardDisableIrq( );
+    CRITICAL_SECTION_BEGIN( );
 
     GpioWrite( &SX126x.Spi.Nss, 0 );
 
@@ -87,7 +100,7 @@ void SX126xWakeup( void )
     // Wait for chip to be ready.
     SX126xWaitOnBusy( );
 
-    BoardEnableIrq( );
+    CRITICAL_SECTION_END( );
 }
 
 void SX126xWriteCommand( RadioCommands_t command, uint8_t *buffer, uint16_t size )
@@ -220,7 +233,7 @@ void SX126xSetRfTxPower( int8_t power )
     SX126xSetTxParams( power, RADIO_RAMP_40_US );
 }
 
-uint8_t SX126xGetPaSelect( uint32_t channel )
+uint8_t SX126xGetDeviceId( void )
 {
     if( GpioRead( &DeviceSel ) == 1 )
     {
@@ -247,3 +260,15 @@ bool SX126xCheckRfFrequency( uint32_t frequency )
     // Implement check. Currently all frequencies are supported
     return true;
 }
+
+#if defined( USE_RADIO_DEBUG )
+void SX126xDbgPinTxWrite( uint8_t state )
+{
+    GpioWrite( &DbgPinTx, state );
+}
+
+void SX126xDbgPinRxWrite( uint8_t state )
+{
+    GpioWrite( &DbgPinRx, state );
+}
+#endif

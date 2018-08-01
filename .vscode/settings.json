@@ -6,7 +6,7 @@
         // path:
         //     Windows : No default path. Specify the path where the
         //               toolchain is installed. i.e:
-        //               "C:/PROGRA~2/GNUTOO~1/62017-~2".
+        //               "C:/PROGRA~2/GNUTOO~1/72017-~1".
         //     Linux   : /usr
         //     OSX     : /usr/local
         // It is required to uncomment and to fill the following line.
@@ -30,6 +30,9 @@
         // classA, classB or classC.
         "CLASS":"classA",
 
+        // Switch for Class B support of LoRaMac:
+        "CLASSB_ENABLED":"OFF",
+
         // Select the active region for which the stack will be initialized.
         // You can choose between:
         // LORAMAC_REGION_EU868, LORAMAC_REGION_US915, ..
@@ -41,8 +44,8 @@
         "MODULATION":"LORA",
 
         // Target board, the following boards are supported:
-        // LoRaMote (Default), MoteII, NAMote72, NucleoL073, NucleoL152, SAML21, SensorNode and SK-iM880A.
-        "BOARD":"LoRaMote",
+        // NAMote72, NucleoL073 (Default), NucleoL152 and SAML21.
+        "BOARD":"NucleoL073",
 
         // MBED Radio shield selection. (Applies only to Nucleo platforms)
         // The following shields are supported:
@@ -60,6 +63,6 @@
         "REGION_CN470":"OFF",
         "REGION_KR920":"OFF",
         "REGION_IN865":"OFF",
-        "REGION_US915_HYBRID":"OFF"
+        "REGION_RU864":"OFF"
     }
 }
