@@ -23,7 +23,7 @@ This project has 3 active branches in place. The **[master](https://github.com/L
 * The [master](https://github.com/Lora-net/LoRaMac-node/tree/master) branch implementation is based on [LoRaWAN Specification v1.0.2](https://lora-alliance.org/resource-hub/lorawantm-specification-v102) and [LoRaWAN Regional Parameters v1.0.2rB](https://www.lora-alliance.org/resource-hub/lorawantm-regional-parameters-v102rb) specifications.  
 ClassA and ClassC end-device classes are fully implemented.
 
-* The [develop](https://github.com/Lora-net/LoRaMac-node/tree/develop) branch implementation is based on [LoRaWAN Specification v1.0.3](https://lora-alliance.org/resource-hub/lorawantm-specification-v103) and [LoRaWAN Regional Parameters v1.0.3rA](https://www.lora-alliance.org/resource-hub/lorawantm-regional-parameters-v103ra) specifications.  
+* The [develop](https://github.com/Lora-net/LoRaMac-node/tree/develop) branch implementation is based on [LoRaWAN Specification v1.0.3](https://lora-alliance.org/resource-hub/lorawantm-specification-v103) and [LoRaWAN Regional Parameters v1.0.3revA](https://lora-alliance.org/resource-hub/lorawan-regional-parameters-v103reva) specifications.  
 ClassA, ClassB and ClassC end-device classes are fully implemented.
 
 * The [feature/5.0.0](https://github.com/Lora-net/LoRaMac-node/tree/feature/5.0.0) branch implementation is based on [LoRaWAN Specification v1.1](https://lora-alliance.org/resource-hub/lorawantm-specification-v11) and [LoRaWAN Regional Parameters v1.1rB](https://lora-alliance.org/resource-hub/lorawantm-regional-parameters-v11rb) specifications.  
