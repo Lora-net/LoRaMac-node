@@ -456,14 +456,28 @@ LoRaMacCommandStatus_t LoRaMacCommandsRemoveNoneStickyCmds( void )
 
 LoRaMacCommandStatus_t LoRaMacCommandsRemoveStickyAnsCmds( void )
 {
-    MacCommand_t* macCmd;
+    MacCommand_t* curElement;
+    MacCommand_t* nexElement;
 
-    for( uint8_t i = 0; i < sizeof( CIDsStickyAnsCmds ); i++)
+    // Start at the head of the list
+    curElement = NvmCtx.MacCommandList.First;
+
+    // Loop through all elements
+    while( curElement != NULL )
     {
-        if( LoRaMacCommandsGetCmd( CIDsStickyAnsCmds[i], &macCmd ) == LORAMAC_COMMANDS_SUCCESS )
+        nexElement = curElement->Next;
+        if( curElement->IsSticky == true )
         {
-            LoRaMacCommandsRemoveCmd( macCmd );
+            for( uint8_t i = 0; i < sizeof( CIDsStickyAnsCmds ); i++)
+            {
+                if( curElement->CID == CIDsStickyAnsCmds[i] )
+                {
+                    LoRaMacCommandsRemoveCmd( curElement );
+                    break;
+                }
+            }
         }
+        curElement = nexElement;
     }
 
     NvmCtxCallback( );
