@@ -169,7 +169,7 @@ static LoRaMacStatus_t ComputeNext125kHzJoinChannel( uint8_t* newChannelIndex )
             return LORAMAC_STATUS_PARAMETER_INVALID;
         }
 
-        if ( availableChannels )
+        if ( availableChannels > 0 )
         {
             // Choose randomly a free channel 125kHz
             *newChannelIndex = ( startIndex * 8 ) + findAvailableChannelsIndex[randr( 0, ( availableChannels - 1 ) )];
@@ -179,7 +179,7 @@ static LoRaMacStatus_t ComputeNext125kHzJoinChannel( uint8_t* newChannelIndex )
         {
             startIndex = 0;
         }
-    } while( availableChannels == 0 && startIndex != NvmCtx.JoinChannelGroupsCurrentIndex );
+    } while( ( availableChannels == 0 ) && ( startIndex != NvmCtx.JoinChannelGroupsCurrentIndex ) );
 
     if ( availableChannels > 0 )
     {
