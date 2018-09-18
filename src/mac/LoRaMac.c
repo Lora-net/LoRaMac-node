@@ -907,6 +907,7 @@ static void ProcessRadioRxDone( void )
     MacCtx.McpsIndication.AckReceived = false;
     MacCtx.McpsIndication.DownLinkCounter = 0;
     MacCtx.McpsIndication.McpsIndication = MCPS_UNCONFIRMED;
+    MacCtx.McpsIndication.DevAddr = address;
 
     Radio.Sleep( );
     TimerStop( &MacCtx.RxWindowTimer2 );
