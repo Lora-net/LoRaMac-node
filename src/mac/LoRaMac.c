@@ -714,6 +714,13 @@ static void EventConfirmQueueNvmCtxChanged( void );
 static void EventFCntHandlerNvmCtxChanged( void );
 
 /*!
+ * \brief Verifies if a request is pending currently
+ *
+ *\retval 1: Request pending, 0: request not pending
+ */
+static uint8_t IsRequestPending( void );
+
+/*!
  * Structure used to store the radio Tx event data
  */
 struct
@@ -1096,13 +1103,19 @@ static void ProcessRadioRxDone( void )
                 {
                     // We are not the destination of this frame.
                     MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
+
+                    // Abort the reception, if we are not in RX_SLOT_WIN_CLASS_C
+                    if( MacCtx.McpsIndication.RxSlot != RX_SLOT_WIN_CLASS_C )
+                    {
+                        PrepareRxDoneAbort( );
+                    }
                 }
                 else
                 {
                     // MIC calculation fail
                     MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
+                    PrepareRxDoneAbort( );
                 }
-                PrepareRxDoneAbort( );
                 return;
             }
 
@@ -1410,7 +1423,7 @@ void LoRaMacProcess( void )
         }
 
         // An error occurs during transmitting
-        if( ( MacCtx.MacFlags.Bits.MlmeReq == 1 ) || ( ( MacCtx.MacFlags.Bits.McpsReq == 1 ) ) )
+        if( IsRequestPending( ) > 0 )
         {
             // Get a status of any request and check if we have a TX timeout
             MacCtx.MlmeConfirm.Status = LoRaMacConfirmQueueGetStatusCmn( );
@@ -2878,10 +2891,21 @@ static void EventConfirmQueueNvmCtxChanged( void )
     CallNvmCtxCallback( LORAMAC_NVMCTXMODULE_CONFIRM_QUEUE );
 }
 
-void EventFCntHandlerNvmCtxChanged( void )
+static void EventFCntHandlerNvmCtxChanged( void )
 {
     CallNvmCtxCallback( LORAMAC_NVMCTXMODULE_FCNT_HANDLER );
 }
+
+static uint8_t IsRequestPending( void )
+{
+    if( ( MacCtx.MacFlags.Bits.MlmeReq == 1 ) ||
+        ( MacCtx.MacFlags.Bits.McpsReq == 1 ) )
+    {
+        return 1;
+    }
+    return 0;
+}
+
 
 LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacCallback_t* callbacks, LoRaMacRegion_t region )
 {
