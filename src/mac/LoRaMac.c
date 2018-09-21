@@ -643,6 +643,15 @@ static LoRaMacStatus_t SecureFrame( uint8_t txDr, uint8_t txCh );
  */
 static void CalculateBackOff( uint8_t channel );
 
+/*
+ * \brief Function to remove pending MAC commands
+ *
+ * \param [IN] rxSlot     The RX slot on which the frame was received
+ * \param [IN] fCtrl      The frame control field of the received frame
+ * \param [IN] request    The request type
+ */
+static void RemoveMacCommands( LoRaMacRxSlot_t rxSlot, LoRaMacFrameCtrl_t fCtrl, Mcps_t request );
+
 /*!
  * \brief LoRaMAC layer prepared frame buffer transmission with channel specification
  *
@@ -802,6 +811,13 @@ static void EventConfirmQueueNvmCtxChanged( void );
  * \brief FCnt Handler module nvm context has been changed
  */
 static void EventFCntHandlerNvmCtxChanged( void );
+
+/*!
+ * \brief Verifies if a request is pending currently
+ *
+ *\retval 1: Request pending, 0: request not pending
+ */
+static uint8_t IsRequestPending( void );
 
 /*!
  * Structure used to store the radio Tx event data
@@ -1000,6 +1016,7 @@ static void ProcessRadioRxDone( void )
     MacCtx.McpsIndication.AckReceived = false;
     MacCtx.McpsIndication.DownLinkCounter = 0;
     MacCtx.McpsIndication.McpsIndication = MCPS_UNCONFIRMED;
+    MacCtx.McpsIndication.DevAddress = 0;
 
     Radio.Sleep( );
     TimerStop( &MacCtx.RxWindowTimer2 );
@@ -1159,6 +1176,9 @@ static void ProcessRadioRxDone( void )
                 return;
             }
 
+            // Store device address
+            MacCtx.McpsIndication.DevAddress = macMsgData.FHDR.DevAddr;
+
             FType_t fType;
             if( LORAMAC_STATUS_OK != DetermineFrameType( &macMsgData, &fType ) )
             {
@@ -1222,13 +1242,19 @@ static void ProcessRadioRxDone( void )
                 {
                     // We are not the destination of this frame.
                     MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
+
+                    // Abort the reception, if we are not in RX_SLOT_WIN_CLASS_C
+                    if( MacCtx.McpsIndication.RxSlot != RX_SLOT_WIN_CLASS_C )
+                    {
+                        PrepareRxDoneAbort( );
+                    }
                 }
                 else
                 {
                     // MIC calculation fail
                     MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
+                    PrepareRxDoneAbort( );
                 }
-                PrepareRxDoneAbort( );
                 return;
             }
 
@@ -1277,19 +1303,7 @@ static void ProcessRadioRxDone( void )
                 return;
             }
 
-            // Remove all sticky MAC commands answers since we can assume
-            // that they have been received by the server.
-            if( MacCtx.McpsConfirm.McpsRequest == MCPS_CONFIRMED )
-            {
-                if( macMsgData.FHDR.FCtrl.Bits.Ack == 1 )
-                {  // For confirmed uplinks only if we have received an ACK.
-                    LoRaMacCommandsRemoveStickyAnsCmds( );
-                }
-            }
-            else
-            {
-                LoRaMacCommandsRemoveStickyAnsCmds( );
-            }
+            RemoveMacCommands( MacCtx.McpsIndication.RxSlot, macMsgData.FHDR.FCtrl, MacCtx.McpsConfirm.McpsRequest );
 
             switch( fType )
             {
@@ -1551,7 +1565,7 @@ void LoRaMacProcess( void )
         }
 
         // An error occurs during transmitting
-        if( ( MacCtx.MacFlags.Bits.MlmeReq == 1 ) || ( ( MacCtx.MacFlags.Bits.McpsReq == 1 ) ) )
+        if( IsRequestPending( ) > 0 )
         {
             // Get a status of any request and check if we have a TX timeout
             MacCtx.MlmeConfirm.Status = LoRaMacConfirmQueueGetStatusCmn( );
@@ -2015,7 +2029,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
             }
             case SRV_MAC_DUTY_CYCLE_REQ:
             {
-                MacCtx.NvmCtx->MaxDCycle = payload[macIndex++];
+                MacCtx.NvmCtx->MaxDCycle = payload[macIndex++] & 0x0F;
                 MacCtx.NvmCtx->AggregatedDCycle = 1 << MacCtx.NvmCtx->MaxDCycle;
                 LoRaMacCommandsAddCmd( MOTE_MAC_DUTY_CYCLE_ANS, macCmdPayload, 0 );
                 break;
@@ -2361,11 +2375,6 @@ LoRaMacStatus_t Send( LoRaMacHeader_t* macHdr, uint8_t fPort, void* fBuffer, uin
     if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
     {
         return LORAMAC_STATUS_NO_NETWORK_JOINED;
-    }
-    // Check if the device is off
-    if( MacCtx.NvmCtx->MaxDCycle == 255 )
-    {
-        return LORAMAC_STATUS_DEVICE_OFF;
     }
     if( MacCtx.NvmCtx->MaxDCycle == 0 )
     {
@@ -2717,6 +2726,27 @@ static void CalculateBackOff( uint8_t channel )
     // update as we do only calculate the time-off based on the last transmission
     MacCtx.AggregatedTimeOff = ( MacCtx.TxTimeOnAir * MacCtx.NvmCtx->AggregatedDCycle - MacCtx.TxTimeOnAir );
 }
+
+static void RemoveMacCommands( LoRaMacRxSlot_t rxSlot, LoRaMacFrameCtrl_t fCtrl, Mcps_t request )
+{
+    if( rxSlot == RX_SLOT_WIN_1 || rxSlot == RX_SLOT_WIN_2  )
+    {
+        // Remove all sticky MAC commands answers since we can assume
+        // that they have been received by the server.
+        if( request == MCPS_CONFIRMED )
+        {
+            if( fCtrl.Bits.Ack == 1 )
+            {  // For confirmed uplinks only if we have received an ACK.
+                LoRaMacCommandsRemoveStickyAnsCmds( );
+            }
+        }
+        else
+        {
+            LoRaMacCommandsRemoveStickyAnsCmds( );
+        }
+    }
+}
+
 
 static void ResetMacParameters( void )
 {
@@ -3256,10 +3286,21 @@ static void EventConfirmQueueNvmCtxChanged( void )
     CallNvmCtxCallback( LORAMAC_NVMCTXMODULE_CONFIRM_QUEUE );
 }
 
-void EventFCntHandlerNvmCtxChanged( void )
+static void EventFCntHandlerNvmCtxChanged( void )
 {
     CallNvmCtxCallback( LORAMAC_NVMCTXMODULE_FCNT_HANDLER );
 }
+
+static uint8_t IsRequestPending( void )
+{
+    if( ( MacCtx.MacFlags.Bits.MlmeReq == 1 ) ||
+        ( MacCtx.MacFlags.Bits.McpsReq == 1 ) )
+    {
+        return 1;
+    }
+    return 0;
+}
+
 
 LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacCallback_t* callbacks, LoRaMacRegion_t region )
 {
