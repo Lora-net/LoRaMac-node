@@ -923,6 +923,7 @@ static void ProcessRadioRxDone( void )
     MacCtx.McpsIndication.AckReceived = false;
     MacCtx.McpsIndication.DownLinkCounter = 0;
     MacCtx.McpsIndication.McpsIndication = MCPS_UNCONFIRMED;
+    MacCtx.McpsIndication.DevAddress = 0;
 
     Radio.Sleep( );
     TimerStop( &MacCtx.RxWindowTimer2 );
@@ -1048,6 +1049,9 @@ static void ProcessRadioRxDone( void )
                 PrepareRxDoneAbort( );
                 return;
             }
+
+            // Store device address
+            MacCtx.McpsIndication.DevAddress = macMsgData.FHDR.DevAddr;
 
             FType_t fType;
             if( LORAMAC_STATUS_OK != DetermineFrameType( &macMsgData, &fType ) )
