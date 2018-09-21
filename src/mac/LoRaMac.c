@@ -555,6 +555,15 @@ static LoRaMacStatus_t SecureFrame( uint8_t txDr, uint8_t txCh );
  */
 static void CalculateBackOff( uint8_t channel );
 
+/*
+ * \brief Function to remove pending MAC commands
+ *
+ * \param [IN] rxSlot     The RX slot on which the frame was received
+ * \param [IN] fCtrl      The frame control field of the received frame
+ * \param [IN] request    The request type
+ */
+static void RemoveMacCommands( LoRaMacRxSlot_t rxSlot, LoRaMacFrameCtrl_t fCtrl, Mcps_t request );
+
 /*!
  * \brief LoRaMAC layer prepared frame buffer transmission with channel specification
  *
@@ -1164,19 +1173,7 @@ static void ProcessRadioRxDone( void )
                 return;
             }
 
-            // Remove all sticky MAC commands answers since we can assume
-            // that they have been received by the server.
-            if( MacCtx.McpsConfirm.McpsRequest == MCPS_CONFIRMED )
-            {
-                if( macMsgData.FHDR.FCtrl.Bits.Ack == 1 )
-                {  // For confirmed uplinks only if we have received an ACK.
-                    LoRaMacCommandsRemoveStickyAnsCmds( );
-                }
-            }
-            else
-            {
-                LoRaMacCommandsRemoveStickyAnsCmds( );
-            }
+            RemoveMacCommands( MacCtx.McpsIndication.RxSlot, macMsgData.FHDR.FCtrl, MacCtx.McpsConfirm.McpsRequest );
 
             switch( fType )
             {
@@ -2370,6 +2367,27 @@ static void CalculateBackOff( uint8_t channel )
     // update as we do only calculate the time-off based on the last transmission
     MacCtx.AggregatedTimeOff = ( MacCtx.TxTimeOnAir * MacCtx.NvmCtx->AggregatedDCycle - MacCtx.TxTimeOnAir );
 }
+
+static void RemoveMacCommands( LoRaMacRxSlot_t rxSlot, LoRaMacFrameCtrl_t fCtrl, Mcps_t request )
+{
+    if( rxSlot == RX_SLOT_WIN_1 || rxSlot == RX_SLOT_WIN_2  )
+    {
+        // Remove all sticky MAC commands answers since we can assume
+        // that they have been received by the server.
+        if( request == MCPS_CONFIRMED )
+        {
+            if( fCtrl.Bits.Ack == 1 )
+            {  // For confirmed uplinks only if we have received an ACK.
+                LoRaMacCommandsRemoveStickyAnsCmds( );
+            }
+        }
+        else
+        {
+            LoRaMacCommandsRemoveStickyAnsCmds( );
+        }
+    }
+}
+
 
 static void ResetMacParameters( void )
 {
