@@ -63,6 +63,9 @@ The [Porting Guide](http://stackforce.github.io/LoRaMac-doc/_p_o_r_t_i_n_g__g_u_
 * NucleoLxxx
   * [NucleoLxxx platforms documentation](Doc/NucleoLxxx-platform.md)
 
+* SKiM880B, SKiM980A, SKiM881AXL
+  * [SKiM88xx platforms documentation](Doc/SKiM88xx-platform.md)
+
 * SAML21
   * [SAML21 platform documentation](Doc/SAML21-platform.md)
 

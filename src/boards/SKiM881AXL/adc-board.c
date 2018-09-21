@@ -44,7 +44,7 @@ void AdcMcuConfig( void )
 {
     // Configure ADC
     AdcHandle.Init.OversamplingMode      = DISABLE;
-    AdcHandle.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV1;
+    AdcHandle.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV2;
     AdcHandle.Init.Resolution            = ADC_RESOLUTION_12B;
     AdcHandle.Init.SamplingTime          = ADC_SAMPLETIME_160CYCLES_5;
     AdcHandle.Init.ScanConvMode          = ADC_SCAN_DIRECTION_FORWARD;
@@ -52,12 +52,12 @@ void AdcMcuConfig( void )
     AdcHandle.Init.ContinuousConvMode    = DISABLE;
     AdcHandle.Init.DiscontinuousConvMode = DISABLE;
     AdcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-    AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T6_TRGO;
+    AdcHandle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
     AdcHandle.Init.DMAContinuousRequests = DISABLE;
     AdcHandle.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
-    AdcHandle.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
+    AdcHandle.Init.Overrun               = ADC_OVR_DATA_PRESERVED;
     AdcHandle.Init.LowPowerAutoWait      = DISABLE;
-    AdcHandle.Init.LowPowerFrequencyMode = DISABLE; // To be enabled only if ADC clock < 2.8 MHz
+    AdcHandle.Init.LowPowerFrequencyMode = ENABLE; // To be enabled only if ADC clock < 2.8 MHz
     AdcHandle.Init.LowPowerAutoPowerOff  = DISABLE;
     HAL_ADC_Init( &AdcHandle );
 
@@ -81,9 +81,13 @@ uint16_t AdcMcuReadChannel( Adc_t *obj, uint32_t channel )
 
     __HAL_RCC_ADC1_CLK_ENABLE( );
 
+    // Deselects all channels
+    adcConf.Channel = ADC_CHANNEL_MASK;
+    adcConf.Rank = ADC_RANK_NONE; 
+    HAL_ADC_ConfigChannel( &AdcHandle, &adcConf );
+
     adcConf.Channel = channel;
     adcConf.Rank = ADC_RANK_CHANNEL_NUMBER;
-
     HAL_ADC_ConfigChannel( &AdcHandle, &adcConf );
 
     // Enable ADC1

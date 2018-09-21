@@ -20,7 +20,7 @@
  *
  * \author    Gregory Cristian ( Semtech )
  */
-#include "stm32l0xx.h"
+#include "stm32l1xx.h"
 #include "board-config.h"
 #include "adc-board.h"
 
@@ -43,11 +43,7 @@ void AdcMcuInit( Adc_t *obj, PinNames adcInput )
 void AdcMcuConfig( void )
 {
     // Configure ADC
-    AdcHandle.Init.OversamplingMode      = DISABLE;
-    AdcHandle.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV1;
     AdcHandle.Init.Resolution            = ADC_RESOLUTION_12B;
-    AdcHandle.Init.SamplingTime          = ADC_SAMPLETIME_160CYCLES_5;
-    AdcHandle.Init.ScanConvMode          = ADC_SCAN_DIRECTION_FORWARD;
     AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     AdcHandle.Init.ContinuousConvMode    = DISABLE;
     AdcHandle.Init.DiscontinuousConvMode = DISABLE;
@@ -55,15 +51,10 @@ void AdcMcuConfig( void )
     AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T6_TRGO;
     AdcHandle.Init.DMAContinuousRequests = DISABLE;
     AdcHandle.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
-    AdcHandle.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
+    AdcHandle.Init.NbrOfConversion       = 1;
     AdcHandle.Init.LowPowerAutoWait      = DISABLE;
-    AdcHandle.Init.LowPowerFrequencyMode = DISABLE; // To be enabled only if ADC clock < 2.8 MHz
     AdcHandle.Init.LowPowerAutoPowerOff  = DISABLE;
     HAL_ADC_Init( &AdcHandle );
-
-    // Calibration
-    HAL_ADCEx_Calibration_Start( &AdcHandle, ADC_SINGLE_ENDED );
-
 }
 
 uint16_t AdcMcuReadChannel( Adc_t *obj, uint32_t channel )
@@ -82,7 +73,8 @@ uint16_t AdcMcuReadChannel( Adc_t *obj, uint32_t channel )
     __HAL_RCC_ADC1_CLK_ENABLE( );
 
     adcConf.Channel = channel;
-    adcConf.Rank = ADC_RANK_CHANNEL_NUMBER;
+    adcConf.Rank = ADC_REGULAR_RANK_1;
+    adcConf.SamplingTime = ADC_SAMPLETIME_192CYCLES;
 
     HAL_ADC_ConfigChannel( &AdcHandle, &adcConf );
 
