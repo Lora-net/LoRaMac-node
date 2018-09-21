@@ -46,7 +46,7 @@ void AdcMcuConfig( void )
     AdcHandle.Init.OversamplingMode      = DISABLE;
     AdcHandle.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV1;
     AdcHandle.Init.Resolution            = ADC_RESOLUTION_12B;
-    AdcHandle.Init.SamplingTime          = ADC_SAMPLETIME_239CYCLES_5;
+    AdcHandle.Init.SamplingTime          = ADC_SAMPLETIME_160CYCLES_5;
     AdcHandle.Init.ScanConvMode          = ADC_SCAN_DIRECTION_FORWARD;
     AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     AdcHandle.Init.ContinuousConvMode    = DISABLE;
