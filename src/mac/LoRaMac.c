@@ -2462,12 +2462,14 @@ LoRaMacStatus_t SendReJoinReq( JoinReqIdentifier_t joinReqType )
         {
             MacCtx.NvmCtx->IsRejoinRequestPending = true;
 
-            MacCtx.TxMsg.Type = LORAMAC_MSG_TYPE_JOIN_REQUEST;
+            MacCtx.TxMsg.Type = LORAMAC_MSG_TYPE_RE_JOIN_1;
             MacCtx.TxMsg.Message.ReJoin1.Buffer = MacCtx.PktBuffer;
             MacCtx.TxMsg.Message.ReJoin1.BufSize = LORAMAC_PHY_MAXPAYLOAD;
 
             macHdr.Bits.MType = FRAME_TYPE_REJOIN;
             MacCtx.TxMsg.Message.ReJoin1.MHDR.Value = macHdr.Value;
+
+            MacCtx.TxMsg.Message.ReJoin1.ReJoinType = 1;
 
             memcpy1( MacCtx.TxMsg.Message.ReJoin1.JoinEUI, MacCtx.JoinEui, LORAMAC_JOIN_EUI_FIELD_SIZE );
             memcpy1( MacCtx.TxMsg.Message.ReJoin1.DevEUI, MacCtx.DevEui, LORAMAC_DEV_EUI_FIELD_SIZE );
@@ -2480,43 +2482,25 @@ LoRaMacStatus_t SendReJoinReq( JoinReqIdentifier_t joinReqType )
             break;
         }
         case REJOIN_REQ_0:
-        {
-            MacCtx.NvmCtx->IsRejoinRequestPending = true;
-
-            MacCtx.TxMsg.Type = LORAMAC_MSG_TYPE_JOIN_REQUEST;
-            MacCtx.TxMsg.Message.ReJoin0or2.Buffer = MacCtx.PktBuffer;
-            MacCtx.TxMsg.Message.ReJoin0or2.BufSize = LORAMAC_PHY_MAXPAYLOAD;
-
-            macHdr.Bits.MType = FRAME_TYPE_REJOIN;
-            MacCtx.TxMsg.Message.ReJoin0or2.MHDR.Value = macHdr.Value;
-
-            MacCtx.TxMsg.Message.ReJoin0or2.ReJoinType = 0;
-
-            MacCtx.TxMsg.Message.ReJoin0or2.NetID[0] = MacCtx.NvmCtx->NetID & 0xFF;
-            MacCtx.TxMsg.Message.ReJoin0or2.NetID[1] = ( MacCtx.NvmCtx->NetID >> 8 ) & 0xFF;
-            MacCtx.TxMsg.Message.ReJoin0or2.NetID[2] = ( MacCtx.NvmCtx->NetID >> 16 ) & 0xFF;
-
-            memcpy1( MacCtx.TxMsg.Message.ReJoin0or2.DevEUI, MacCtx.DevEui, LORAMAC_DEV_EUI_FIELD_SIZE );
-
-            if( LORAMAC_FCNT_HANDLER_SUCCESS != LoRaMacGetRJcount( RJ_COUNT_0, &MacCtx.TxMsg.Message.ReJoin0or2.RJcount0 ) )
-            {
-                return LORAMAC_STATUS_FCNT_HANDLER_ERROR;
-            }
-
-            break;
-        }
         case REJOIN_REQ_2:
         {
+            if( joinReqType == REJOIN_REQ_0 )
+            {
+                MacCtx.TxMsg.Message.ReJoin0or2.ReJoinType = 0;
+            }
+            else
+            {
+                MacCtx.TxMsg.Message.ReJoin0or2.ReJoinType = 2;
+            }
+
             MacCtx.NvmCtx->IsRejoinRequestPending = true;
 
-            MacCtx.TxMsg.Type = LORAMAC_MSG_TYPE_JOIN_REQUEST;
+            MacCtx.TxMsg.Type = LORAMAC_MSG_TYPE_RE_JOIN_0_2;
             MacCtx.TxMsg.Message.ReJoin0or2.Buffer = MacCtx.PktBuffer;
             MacCtx.TxMsg.Message.ReJoin0or2.BufSize = LORAMAC_PHY_MAXPAYLOAD;
 
             macHdr.Bits.MType = FRAME_TYPE_REJOIN;
             MacCtx.TxMsg.Message.ReJoin0or2.MHDR.Value = macHdr.Value;
-
-            MacCtx.TxMsg.Message.ReJoin0or2.ReJoinType = 2;
 
             MacCtx.TxMsg.Message.ReJoin0or2.NetID[0] = MacCtx.NvmCtx->NetID & 0xFF;
             MacCtx.TxMsg.Message.ReJoin0or2.NetID[1] = ( MacCtx.NvmCtx->NetID >> 8 ) & 0xFF;
