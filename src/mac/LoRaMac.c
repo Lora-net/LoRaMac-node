@@ -1855,7 +1855,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
             }
             case SRV_MAC_DUTY_CYCLE_REQ:
             {
-                MacCtx.NvmCtx->MaxDCycle = payload[macIndex++];
+                MacCtx.NvmCtx->MaxDCycle = payload[macIndex++] & 0x0F;
                 MacCtx.NvmCtx->AggregatedDCycle = 1 << MacCtx.NvmCtx->MaxDCycle;
                 LoRaMacCommandsAddCmd( MOTE_MAC_DUTY_CYCLE_ANS, macCmdPayload, 0 );
                 break;
@@ -2095,11 +2095,6 @@ LoRaMacStatus_t Send( LoRaMacHeader_t* macHdr, uint8_t fPort, void* fBuffer, uin
     if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
     {
         return LORAMAC_STATUS_NO_NETWORK_JOINED;
-    }
-    // Check if the device is off
-    if( MacCtx.NvmCtx->MaxDCycle == 255 )
-    {
-        return LORAMAC_STATUS_DEVICE_OFF;
     }
     if( MacCtx.NvmCtx->MaxDCycle == 0 )
     {
