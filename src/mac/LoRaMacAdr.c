@@ -132,47 +132,44 @@ static bool CalcNextV11X( CalcNextAdrParams_t* adrNext, int8_t* drOut, int8_t* t
         }
         else
         {
-            if( adrNext->AdrAckCounter >=  adrNext->AdrAckLimit )
+            if( adrNext->AdrAckCounter >= adrNext->AdrAckLimit )
             {
                 adrAckReq = true;
             }
+        }
+
+        if( adrNext->AdrAckCounter >= ( adrNext->AdrAckLimit + adrNext->AdrAckDelay ) )
+        {
+            if( adrNext->AdrAckCounter >= ( adrNext->AdrAckLimit + adrNext->AdrAckDelay + adrNext->AdrAckDelay ) )
+            {
+                if( ( adrNext->AdrAckCounter % adrNext->AdrAckDelay ) == 1 )
+                {
+                    if( datarate == minTxDatarate )
+                    {
+                        // Unset adrAckReq as soon as we sent ADR_ACK_DELAY times with  the lowest datarate
+                        adrAckReq = false;
+                        if( adrNext->UpdateChanMask == true )
+                        {
+                            InitDefaultsParams_t params;
+                            params.Type = INIT_TYPE_RESTORE_DEFAULT_CHANNELS;
+                            RegionInitDefaults( adrNext->Region, &params );
+                        }
+                    }
+
+                    // Decrease the datarate
+                    getPhy.Attribute = PHY_NEXT_LOWER_TX_DR;
+                    getPhy.Datarate = datarate;
+                    getPhy.UplinkDwellTime = adrNext->UplinkDwellTime;
+                    phyParam = RegionGetPhyParam( adrNext->Region, &getPhy );
+                    datarate = phyParam.Value;
+                }
+            }
             else
             {
-                adrAckReq = false;
-            }
-            if( adrNext->AdrAckCounter >= ( adrNext->AdrAckLimit + adrNext->AdrAckDelay ) )
-            {
-                if( adrNext->AdrAckCounter >= ( adrNext->AdrAckLimit + adrNext->AdrAckDelay + adrNext->AdrAckDelay ) )
-                {
-                    if( ( adrNext->AdrAckCounter % adrNext->AdrAckDelay ) == 1 )
-                    {
-                        if( datarate == minTxDatarate )
-                        {
-                            // Unset adrAckReq as soon as we sent ADR_ACK_DELAY times with  the lowest datarate
-                            adrAckReq = false;
-                            if( adrNext->UpdateChanMask == true )
-                            {
-                                InitDefaultsParams_t params;
-                                params.Type = INIT_TYPE_RESTORE_DEFAULT_CHANNELS;
-                                RegionInitDefaults( adrNext->Region, &params );
-                            }
-                        }
-
-                        // Decrease the datarate
-                        getPhy.Attribute = PHY_NEXT_LOWER_TX_DR;
-                        getPhy.Datarate = datarate;
-                        getPhy.UplinkDwellTime = adrNext->UplinkDwellTime;
-                        phyParam = RegionGetPhyParam( adrNext->Region, &getPhy );
-                        datarate = phyParam.Value;
-                    }
-                }
-                else
-                {
-                    // Set TX Power to maximum
-                    getPhy.Attribute = PHY_MAX_TX_POWER;
-                    phyParam = RegionGetPhyParam( adrNext->Region, &getPhy );
-                    txPower = phyParam.Value;
-                }
+                // Set TX Power to maximum
+                getPhy.Attribute = PHY_MAX_TX_POWER;
+                phyParam = RegionGetPhyParam( adrNext->Region, &getPhy );
+                txPower = phyParam.Value;
             }
         }
     }
