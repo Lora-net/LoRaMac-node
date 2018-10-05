@@ -142,7 +142,7 @@ static bool CalcNextV11X( CalcNextAdrParams_t* adrNext, int8_t* drOut, int8_t* t
 
         if( adrNext->AdrAckCounter >= ( adrNext->AdrAckLimit + adrNext->AdrAckDelay ) )
         {
-            if( adrNext->AdrAckCounter >= ( adrNext->AdrAckLimit + adrNext->AdrAckDelay + adrNext->AdrAckDelay ) )
+            if( adrNext->AdrAckCounter >= ( uint32_t )( adrNext->AdrAckLimit + adrNext->AdrAckDelay + adrNext->AdrAckDelay ) )
             {
                 if( ( adrNext->AdrAckCounter % adrNext->AdrAckDelay ) == 1 )
                 {
