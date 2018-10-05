@@ -1146,6 +1146,7 @@ static void ProcessRadioRxDone( void )
             break;
         case FRAME_TYPE_DATA_CONFIRMED_DOWN:
             MacCtx.McpsIndication.McpsIndication = MCPS_CONFIRMED;
+            // Intentional fall through
         case FRAME_TYPE_DATA_UNCONFIRMED_DOWN:
             // Check if the received payload size is valid
             getPhy.UplinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
@@ -1158,7 +1159,7 @@ static void ProcessRadioRxDone( void )
                 getPhy.Attribute = PHY_MAX_PAYLOAD_REPEATER;
             }
             phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
-            if( MAX( 0, ( int16_t )( ( int16_t ) size - ( int16_t ) LORA_MAC_FRMPAYLOAD_OVERHEAD ) ) > phyParam.Value )
+            if( MAX( 0, ( int16_t )( ( int16_t ) size - ( int16_t ) LORA_MAC_FRMPAYLOAD_OVERHEAD ) ) > ( int16_t )phyParam.Value )
             {
                 MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                 PrepareRxDoneAbort( );
@@ -2115,6 +2116,8 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
             case SRV_MAC_TX_PARAM_SETUP_REQ:
             {
                 TxParamSetupReqParams_t txParamSetupReq;
+                GetPhyParams_t getPhy;
+                PhyParam_t phyParam;
                 uint8_t eirpDwellTime = payload[macIndex++];
 
                 txParamSetupReq.UplinkDwellTime = 0;
@@ -2137,6 +2140,12 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     MacCtx.NvmCtx->MacParams.UplinkDwellTime = txParamSetupReq.UplinkDwellTime;
                     MacCtx.NvmCtx->MacParams.DownlinkDwellTime = txParamSetupReq.DownlinkDwellTime;
                     MacCtx.NvmCtx->MacParams.MaxEirp = LoRaMacMaxEirpTable[txParamSetupReq.MaxEirp];
+                    // Update the datarate in case of the new configuration limits it
+                    getPhy.Attribute = PHY_MIN_TX_DR;
+                    getPhy.UplinkDwellTime = MacCtx.NvmCtx->MacParams.UplinkDwellTime;
+                    phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
+                    MacCtx.NvmCtx->MacParams.ChannelsDatarate = MAX( MacCtx.NvmCtx->MacParams.ChannelsDatarate, ( int8_t )phyParam.Value );
+
                     // Add command response
                     LoRaMacCommandsAddCmd( MOTE_MAC_TX_PARAM_SETUP_ANS, macCmdPayload, 0 );
                 }
@@ -2992,7 +3001,7 @@ LoRaMacCtxs_t* GetCtxs( void )
     Contexts.MacNvmCtx = &NvmMacCtx;
     Contexts.MacNvmCtxSize = sizeof( NvmMacCtx );
     Contexts.CryptoNvmCtx = LoRaMacCryptoGetNvmCtx( &Contexts.CryptoNvmCtxSize );
-    GetNvmCtxParams_t params;
+    GetNvmCtxParams_t params ={ 0 };
     Contexts.RegionNvmCtx = RegionGetNvmCtx( MacCtx.NvmCtx->Region, &params );
     Contexts.RegionNvmCtxSize = params.nvmCtxSize;
     Contexts.SecureElementNvmCtx = SecureElementGetNvmCtx( &Contexts.SecureElementNvmCtxSize );
@@ -4749,7 +4758,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
     phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
     // Apply the minimum possible datarate.
     // Some regions have limitations for the minimum datarate.
-    datarate = MAX( datarate, phyParam.Value );
+    datarate = MAX( datarate, ( int8_t )phyParam.Value );
 
     if( readyToSend == true )
     {

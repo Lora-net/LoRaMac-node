@@ -60,7 +60,10 @@ const struct Radio_s Radio =
     SX1272ReadBuffer,
     SX1272SetMaxPayloadLength,
     SX1272SetPublicNetwork,
-    SX1272GetWakeupTime
+    SX1272GetWakeupTime,
+    NULL, // void ( *IrqProcess )( void )
+    NULL, // void ( *RxBoosted )( uint32_t timeout ) - SX126x Only
+    NULL, // void ( *SetRxDutyCycle )( uint32_t rxTime, uint32_t sleepTime ) - SX126x Only
 };
 
 /*!

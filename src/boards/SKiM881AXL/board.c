@@ -102,7 +102,7 @@ uint8_t Uart1RxBuffer[UART1_FIFO_RX_SIZE];
 /*!
  * Flag to indicate if the SystemWakeupTime is Calibrated
  */
-static bool SystemWakeupTimeCalibrated = false;
+static volatile bool SystemWakeupTimeCalibrated = false;
 
 /*!
  * Callback indicating the end of the system wake-up time calibration
