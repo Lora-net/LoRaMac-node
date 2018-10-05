@@ -378,7 +378,7 @@ static void PrepareTxFrame( uint8_t port )
                 int16_t altitudeBar = 0;
                 int16_t temperature = 0;
                 int32_t latitude, longitude = 0;
-                int16_t altitudeGps = 0xFFFF;
+                int16_t altitudeGps = ( int16_t )0xFFFF;
                 uint8_t batteryLevel = 0;
 
                 pressure = ( uint16_t )( MPL3115ReadPressure( ) / 10 );             // in hPa / 10

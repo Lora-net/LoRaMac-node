@@ -1020,6 +1020,7 @@ static void ProcessRadioRxDone( void )
             break;
         case FRAME_TYPE_DATA_CONFIRMED_DOWN:
             MacCtx.McpsIndication.McpsIndication = MCPS_CONFIRMED;
+            // Intentional fall through
         case FRAME_TYPE_DATA_UNCONFIRMED_DOWN:
             // Check if the received payload size is valid
             getPhy.UplinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
@@ -1032,7 +1033,7 @@ static void ProcessRadioRxDone( void )
                 getPhy.Attribute = PHY_MAX_PAYLOAD_REPEATER;
             }
             phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
-            if( MAX( 0, ( int16_t )( ( int16_t ) size - ( int16_t ) LORA_MAC_FRMPAYLOAD_OVERHEAD ) ) > phyParam.Value )
+            if( MAX( 0, ( int16_t )( ( int16_t ) size - ( int16_t ) LORA_MAC_FRMPAYLOAD_OVERHEAD ) ) > ( int16_t )phyParam.Value )
             {
                 MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                 PrepareRxDoneAbort( );
@@ -2652,7 +2653,7 @@ LoRaMacCtxs_t* GetCtxs( void )
     Contexts.MacNvmCtx = &NvmMacCtx;
     Contexts.MacNvmCtxSize = sizeof( NvmMacCtx );
     Contexts.CryptoNvmCtx = LoRaMacCryptoGetNvmCtx( &Contexts.CryptoNvmCtxSize );
-    GetNvmCtxParams_t params;
+    GetNvmCtxParams_t params ={ 0 };
     Contexts.RegionNvmCtx = RegionGetNvmCtx( MacCtx.NvmCtx->Region, &params );
     Contexts.RegionNvmCtxSize = params.nvmCtxSize;
     Contexts.SecureElementNvmCtx = SecureElementGetNvmCtx( &Contexts.SecureElementNvmCtxSize );
@@ -4345,7 +4346,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
     phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
     // Apply the minimum possible datarate.
     // Some regions have limitations for the minimum datarate.
-    datarate = MAX( datarate, phyParam.Value );
+    datarate = MAX( datarate, ( int8_t )phyParam.Value );
 
     if( readyToSend == true )
     {

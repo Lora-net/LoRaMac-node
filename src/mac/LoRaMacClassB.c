@@ -756,8 +756,8 @@ static void LoRaMacClassBProcessBeacon( void )
 
             // Setup next state
             Ctx.NvmCtx->BeaconState = BEACON_STATE_REACQUISITION;
-            // no break here
         }
+            // Intentional fall through
         case BEACON_STATE_REACQUISITION:
         {
             activateTimer = true;
@@ -909,8 +909,8 @@ static void LoRaMacClassBProcessPingSlot( void )
                                             Ctx.NvmCtx->PingSlotCtx.PingPeriod,
                                             &( Ctx.NvmCtx->PingSlotCtx.PingOffset ) );
             Ctx.NvmCtx->PingSlotState = PINGSLOT_STATE_SET_TIMER;
-            // no break
         }
+            // Intentional fall through
         case PINGSLOT_STATE_SET_TIMER:
         {
             if( CalcNextSlotTime( Ctx.NvmCtx->PingSlotCtx.PingOffset, Ctx.NvmCtx->PingSlotCtx.PingPeriod, Ctx.NvmCtx->PingSlotCtx.PingNb, &pingSlotTime ) == true )
@@ -1040,8 +1040,8 @@ static void LoRaMacClassBProcessMulticastSlot( void )
                 cur++;
             }
             Ctx.NvmCtx->MulticastSlotState = PINGSLOT_STATE_SET_TIMER;
-            // no break
         }
+            // Intentional fall through
         case PINGSLOT_STATE_SET_TIMER:
         {
             cur = Ctx.LoRaMacClassBParams.MulticastChannels;

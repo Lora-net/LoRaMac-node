@@ -25,6 +25,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "timer.h"
 
 /*!
  * \brief Temperature coefficient of the clock source
@@ -45,13 +46,6 @@
  * \brief Turnover temperature deviation of the clock source
  */
 #define RTC_TEMP_DEV_TURNOVER                           ( 5.0 )
-
-/*!
- * \brief Timer time variable definition
- */
-#ifndef TimerTime_t
-typedef uint32_t TimerTime_t;
-#endif
 
 /*!
  * \brief Initializes the RTC timer

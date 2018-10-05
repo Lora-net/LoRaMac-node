@@ -54,7 +54,7 @@ static double Longitude = 0;
 static int32_t LatitudeBinary = 0;
 static int32_t LongitudeBinary = 0;
 
-static int16_t Altitude = 0xFFFF;
+static int16_t Altitude = ( int16_t )0xFFFF;
 
 static uint32_t PpsCnt = 0;
 
@@ -228,7 +228,7 @@ int16_t GpsGetLatestGpsAltitude( void )
     }
     else
     {
-        Altitude = 0xFFFF;
+        Altitude = ( int16_t )0xFFFF;
     }
     CRITICAL_SECTION_END( );
 
@@ -650,7 +650,7 @@ void GpsFormatGpsData( void )
 
 void GpsResetPosition( void )
 {
-    Altitude = 0xFFFF;
+    Altitude = ( int16_t )0xFFFF;
     Latitude = 0;
     Longitude = 0;
     LatitudeBinary = 0;

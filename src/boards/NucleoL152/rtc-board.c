@@ -282,14 +282,14 @@ void RtcDelayMs( uint32_t delay )
 /*!
  * \brief Sets the alarm
  *
- * \note The alarm is set at now (read in this funtion) + timeout
+ * \note The alarm is set at now (read in this function) + timeout
  *
  * \param timeout Duration of the Timer ticks
  */
 void RtcSetAlarm( uint32_t timeout )
 {
     // We don't go in Low Power mode for timeout below MIN_ALARM_DELAY
-    if( ( MIN_ALARM_DELAY + McuWakeUpTimeCal ) < ( ( timeout - RtcGetTimerElapsedTime( ) ) ) )
+    if( ( MIN_ALARM_DELAY + McuWakeUpTimeCal ) < ( int16_t )( timeout - RtcGetTimerElapsedTime( ) ) )
     {
         LpmSetStopMode( LPM_RTC_ID, LPM_ENABLE );
     }
