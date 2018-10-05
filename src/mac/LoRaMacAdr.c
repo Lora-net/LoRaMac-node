@@ -125,6 +125,7 @@ static bool CalcNextV11X( CalcNextAdrParams_t* adrNext, int8_t* drOut, int8_t* t
         getPhy.UplinkDwellTime = adrNext->UplinkDwellTime;
         phyParam = RegionGetPhyParam( adrNext->Region, &getPhy );
         minTxDatarate = phyParam.Value;
+        datarate = MAX( datarate, minTxDatarate );
 
         if( datarate == minTxDatarate )
         {
