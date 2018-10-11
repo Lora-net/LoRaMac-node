@@ -901,7 +901,6 @@ uint8_t RegionUS915LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
 uint8_t RegionUS915RxParamSetupReq( RxParamSetupReqParams_t* rxParamSetupReq )
 {
     uint8_t status = 0x07;
-    uint32_t freq = rxParamSetupReq->Frequency;
 
     // Verify radio frequency
     if( VerifyRfFreq( rxParamSetupReq->Frequency ) == false )
