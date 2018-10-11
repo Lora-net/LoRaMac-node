@@ -239,9 +239,16 @@ static bool VerifyRfFreq( uint32_t freq )
         return false;
     }
 
+    // Rx frequencies
     if( ( freq < US915_FIRST_RX1_CHANNEL ) ||
         ( freq > US915_LAST_RX1_CHANNEL ) ||
         ( ( ( freq - ( uint32_t ) US915_FIRST_RX1_CHANNEL ) % ( uint32_t ) US915_STEPWIDTH_RX1_CHANNEL ) != 0 ) )
+    {
+        return false;
+    }
+
+    // Test for frequency range - take RX and TX freqencies into account
+    if( ( freq < 902300000 ) ||  ( freq > 927500000 ) )
     {
         return false;
     }

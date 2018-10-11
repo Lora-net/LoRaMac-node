@@ -112,9 +112,16 @@ static bool VerifyRfFreq( uint32_t freq )
         return false;
     }
 
+    // Rx frequencies
     if( ( freq < CN470_FIRST_RX1_CHANNEL ) ||
         ( freq > CN470_LAST_RX1_CHANNEL ) ||
         ( ( ( freq - ( uint32_t ) CN470_FIRST_RX1_CHANNEL ) % ( uint32_t ) CN470_STEPWIDTH_RX1_CHANNEL ) != 0 ) )
+    {
+        return false;
+    }
+
+    // Test for frequency range - take RX and TX freqencies into account
+    if( ( freq < 470300000 ) ||  ( freq > 509700000 ) )
     {
         return false;
     }

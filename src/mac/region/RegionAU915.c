@@ -120,9 +120,17 @@ static bool VerifyRfFreq( uint32_t freq )
         return false;
     }
 
+    // Rx frequencies
     if( ( freq < AU915_FIRST_RX1_CHANNEL ) ||
         ( freq > AU915_LAST_RX1_CHANNEL ) ||
         ( ( ( freq - ( uint32_t ) AU915_FIRST_RX1_CHANNEL ) % ( uint32_t ) AU915_STEPWIDTH_RX1_CHANNEL ) != 0 ) )
+    {
+        return false;
+    }
+
+    // Tx frequencies for 125kHz
+    // Also includes the range for 500kHz channels
+    if( ( freq < 915200000 ) ||  ( freq > 927800000 ) )
     {
         return false;
     }
