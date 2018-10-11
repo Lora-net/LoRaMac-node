@@ -910,7 +910,6 @@ LoRaMacStatus_t RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_
 
 LoRaMacStatus_t RegionEU433ChannelAdd( ChannelAddParams_t* channelAdd )
 {
-    uint8_t band = 0;
     bool drInvalid = false;
     bool freqInvalid = false;
     uint8_t id = channelAdd->ChannelId;
@@ -978,7 +977,7 @@ LoRaMacStatus_t RegionEU433ChannelAdd( ChannelAddParams_t* channelAdd )
     }
 
     memcpy1( ( uint8_t* ) &(NvmCtx.Channels[id]), ( uint8_t* ) channelAdd->NewChannel, sizeof( NvmCtx.Channels[id] ) );
-    NvmCtx.Channels[id].Band = band;
+    NvmCtx.Channels[id].Band = 0;
     NvmCtx.ChannelsMask[0] |= ( 1 << id );
     return LORAMAC_STATUS_OK;
 }
