@@ -104,7 +104,7 @@ static int8_t LimitTxPower( int8_t txPower, int8_t maxBandTxPower, int8_t datara
     return txPowerResult;
 }
 
-static bool VerifyTxFreq( uint32_t freq, uint8_t *band )
+static bool VerifyRfFreq( uint32_t freq )
 {
     // Check radio driver support
     if( Radio.CheckRfFrequency( freq ) == false )
@@ -113,11 +113,7 @@ static bool VerifyTxFreq( uint32_t freq, uint8_t *band )
     }
 
     // Check frequency bands
-    if( ( freq >= 864000000 ) && ( freq <= 870000000 ) )
-    {
-        *band = 0;
-    }
-    else
+    if( ( freq < 864000000 ) ||  ( freq > 870000000 ) )
     {
         return false;
     }
@@ -720,7 +716,7 @@ uint8_t RegionRU864RxParamSetupReq( RxParamSetupReqParams_t* rxParamSetupReq )
     uint8_t status = 0x07;
 
     // Verify radio frequency
-    if( Radio.CheckRfFrequency( rxParamSetupReq->Frequency ) == false )
+    if( VerifyRfFreq( rxParamSetupReq->Frequency ) == false )
     {
         status &= 0xFE; // Channel frequency KO
     }
@@ -801,10 +797,9 @@ int8_t RegionRU864TxParamSetupReq( TxParamSetupReqParams_t* txParamSetupReq )
 uint8_t RegionRU864DlChannelReq( DlChannelReqParams_t* dlChannelReq )
 {
     uint8_t status = 0x03;
-    uint8_t band = 0;
 
     // Verify if the frequency is supported
-    if( VerifyTxFreq( dlChannelReq->Rx1Frequency, &band ) == false )
+    if( VerifyRfFreq( dlChannelReq->Rx1Frequency ) == false )
     {
         status &= 0xFE;
     }
@@ -948,7 +943,7 @@ LoRaMacStatus_t RegionRU864ChannelAdd( ChannelAddParams_t* channelAdd )
     // Check frequency
     if( freqInvalid == false )
     {
-        if( VerifyTxFreq( channelAdd->NewChannel->Frequency, &band ) == false )
+        if( VerifyRfFreq( channelAdd->NewChannel->Frequency ) == false )
         {
             freqInvalid = true;
         }
