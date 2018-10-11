@@ -104,6 +104,30 @@ static int8_t LimitTxPower( int8_t txPower, int8_t maxBandTxPower, int8_t datara
     return txPowerResult;
 }
 
+static bool VerifyRfFreq( uint32_t freq )
+{
+    // Check radio driver support
+    if( Radio.CheckRfFrequency( freq ) == false )
+    {
+        return false;
+    }
+
+    // Rx frequencies
+    if( ( freq < CN470_FIRST_RX1_CHANNEL ) ||
+        ( freq > CN470_LAST_RX1_CHANNEL ) ||
+        ( ( ( freq - ( uint32_t ) CN470_FIRST_RX1_CHANNEL ) % ( uint32_t ) CN470_STEPWIDTH_RX1_CHANNEL ) != 0 ) )
+    {
+        return false;
+    }
+
+    // Test for frequency range - take RX and TX freqencies into account
+    if( ( freq < 470300000 ) ||  ( freq > 509700000 ) )
+    {
+        return false;
+    }
+    return true;
+}
+
 static uint8_t CountNbOfEnabledChannels( uint8_t datarate, uint16_t* channelsMask, ChannelParams_t* channels, Band_t* bands, uint8_t* enabledChannels, uint8_t* delayTx )
 {
     uint8_t nbEnabledChannels = 0;
@@ -639,13 +663,9 @@ uint8_t RegionCN470LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
 uint8_t RegionCN470RxParamSetupReq( RxParamSetupReqParams_t* rxParamSetupReq )
 {
     uint8_t status = 0x07;
-    uint32_t freq = rxParamSetupReq->Frequency;
 
     // Verify radio frequency
-    if( ( Radio.CheckRfFrequency( freq ) == false ) ||
-        ( freq < CN470_FIRST_RX1_CHANNEL ) ||
-        ( freq > CN470_LAST_RX1_CHANNEL ) ||
-        ( ( ( freq - ( uint32_t ) CN470_FIRST_RX1_CHANNEL ) % ( uint32_t ) CN470_STEPWIDTH_RX1_CHANNEL ) != 0 ) )
+    if( VerifyRfFreq( rxParamSetupReq->Frequency ) == false )
     {
         status &= 0xFE; // Channel frequency KO
     }
