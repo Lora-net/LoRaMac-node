@@ -23,7 +23,7 @@ cmake_minimum_required(VERSION 3.6)
 #---------------------------------------------------------------------------------------
 
 # Allow switching of target platform
-set(BOARD_LIST NAMote72 NucleoL073 NucleoL152 SAML21 SKiM880B SKiM980A SKiM881AXL)
+set(BOARD_LIST NAMote72 NucleoL073 NucleoL152 SAML21 SKiM880B SKiM980A SKiM881AXL B-L072Z-LRWAN1)
 set(BOARD NucleoL073 CACHE STRING "Default target platform is NucleoL073")
 set_property(CACHE BOARD PROPERTY STRINGS ${BOARD_LIST})
 
@@ -145,6 +145,17 @@ elseif(BOARD STREQUAL SKiM881AXL)
 
     # Configure radio
     set(RADIO sx1272 CACHE INTERNAL "Radio sx1272 selected")
+
+elseif(BOARD STREQUAL B-L072Z-LRWAN1)
+    # Configure toolchain for B-L072Z-LRWAN1
+    set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/boards/B-L072Z-LRWAN1/cmsis/arm-gcc/stm32l072xx_flash.ld)
+    include(stm32l0)
+
+    # Build platform specific board implementation
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/B-L072Z-LRWAN1)
+
+    # Configure radio
+    set(RADIO sx1276 CACHE INTERNAL "Radio sx1276 selected")
 endif()
 
 #---------------------------------------------------------------------------------------

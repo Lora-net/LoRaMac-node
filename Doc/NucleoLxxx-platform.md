@@ -11,3 +11,7 @@ The following mbed shields may be used with NucleoLxxx platforms:
 * [SX1261DVK1BAS](sx1261dvk1bas-e406v03a.pdf)
 * [SX1262DVK1CAS](sx1262dvk1cas-e428v03a.pdf)
 * [SX1262DVK1DAS](sx1262dvk1das-e449v01a.pdf)
+
+# Discovery kit platform support documents
+
+* [B-L072Z-LRWAN1](https://os.mbed.com/platforms/ST-Discovery-LRWAN1/)
