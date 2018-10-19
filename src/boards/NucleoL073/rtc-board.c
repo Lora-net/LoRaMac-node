@@ -290,7 +290,7 @@ void RtcDelayMs( uint32_t delay )
 void RtcSetAlarm( uint32_t timeout )
 {
     // We don't go in Low Power mode for timeout below MIN_ALARM_DELAY
-    if( ( MIN_ALARM_DELAY + McuWakeUpTimeCal ) < ( int16_t )( timeout - RtcGetTimerElapsedTime( ) ) )
+    if( ( int64_t )( MIN_ALARM_DELAY + McuWakeUpTimeCal ) < ( int64_t )( timeout - RtcGetTimerElapsedTime( ) ) )
     {
         LpmSetStopMode( LPM_RTC_ID, LPM_ENABLE );
     }
