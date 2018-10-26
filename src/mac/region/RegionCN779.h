@@ -435,7 +435,7 @@ uint8_t RegionCN779DlChannelReq( DlChannelReqParams_t* dlChannelReq );
  *
  * \retval Datarate to apply.
  */
-int8_t RegionCN779AlternateDr( int8_t currentDr );
+int8_t RegionCN779AlternateDr( int8_t currentDr, AlternateDrType_t type );
 
 /*!
  * \brief Calculates the back-off time.

@@ -448,7 +448,7 @@ uint8_t RegionKR920DlChannelReq( DlChannelReqParams_t* dlChannelReq );
  *
  * \retval Datarate to apply.
  */
-int8_t RegionKR920AlternateDr( int8_t currentDr );
+int8_t RegionKR920AlternateDr( int8_t currentDr, AlternateDrType_t type );
 
 /*!
  * \brief Calculates the back-off time.

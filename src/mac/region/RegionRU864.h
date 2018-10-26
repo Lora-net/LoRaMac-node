@@ -421,7 +421,7 @@ uint8_t RegionRU864DlChannelReq( DlChannelReqParams_t* dlChannelReq );
  *
  * \retval Datarate to apply.
  */
-int8_t RegionRU864AlternateDr( int8_t currentDr );
+int8_t RegionRU864AlternateDr( int8_t currentDr, AlternateDrType_t type );
 
 /*!
  * \brief Calculates the back-off time.

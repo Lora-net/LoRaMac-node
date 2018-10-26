@@ -496,7 +496,7 @@ void RegionUS915InitDefaults( InitDefaultsParams_t* params )
             NvmCtx.JoinChannelGroupsCurrentIndex = 0;
 
             // Initialize the join trials counter
-            NvmCtx.JoinTrialsCounter = 1;
+            NvmCtx.JoinTrialsCounter = 0;
 
             // Channels
             // 125 kHz channels
@@ -546,15 +546,6 @@ void RegionUS915InitDefaults( InitDefaultsParams_t* params )
             { // Copy-And the channels mask
                 NvmCtx.ChannelsMaskRemaining[i] &= NvmCtx.ChannelsMask[i];
             }
-            break;
-        }
-        case INIT_TYPE_APP_DEFAULTS:
-        {
-            // Copy channels default mask
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 6 );
-
-            // Copy into channels mask remaining
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMaskRemaining, NvmCtx.ChannelsMask, 6 );
             break;
         }
         default:
@@ -950,10 +941,18 @@ uint8_t RegionUS915DlChannelReq( DlChannelReqParams_t* dlChannelReq )
     return 0;
 }
 
-int8_t RegionUS915AlternateDr( int8_t currentDr )
+int8_t RegionUS915AlternateDr( int8_t currentDr, AlternateDrType_t type )
 {
     // Alternates the data rate according to the channel sequence:
     // Eight times a 125kHz DR_0 and then one 500kHz DR_4 channel
+    if( type == ALTERNATE_DR )
+    {
+        NvmCtx.JoinTrialsCounter++;
+    }
+    else
+    {
+        NvmCtx.JoinTrialsCounter--;
+    }
 
     if( NvmCtx.JoinTrialsCounter % 9 == 0 )
     {
@@ -964,7 +963,6 @@ int8_t RegionUS915AlternateDr( int8_t currentDr )
     {
         currentDr = DR_0;
     }
-    NvmCtx.JoinTrialsCounter++;
     return currentDr;
 }
 

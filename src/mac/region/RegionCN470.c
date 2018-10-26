@@ -399,12 +399,6 @@ void RegionCN470InitDefaults( InitDefaultsParams_t* params )
             RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 6 );
             break;
         }
-        case INIT_TYPE_APP_DEFAULTS:
-        {
-            // Update the channels mask defaults
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 6 );
-            break;
-        }
         default:
         {
             break;
@@ -701,7 +695,7 @@ uint8_t RegionCN470DlChannelReq( DlChannelReqParams_t* dlChannelReq )
     return 0;
 }
 
-int8_t RegionCN470AlternateDr( int8_t currentDr )
+int8_t RegionCN470AlternateDr( int8_t currentDr, AlternateDrType_t type )
 {
     return currentDr;
 }

@@ -465,15 +465,6 @@ void RegionAU915InitDefaults( InitDefaultsParams_t* params )
             }
             break;
         }
-        case INIT_TYPE_APP_DEFAULTS:
-        {
-            // Copy channels default mask
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 6 );
-
-            // Copy into channels mask remaining
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMaskRemaining, NvmCtx.ChannelsMask, 6 );
-            break;
-        }
         default:
         {
             break;
@@ -870,7 +861,7 @@ uint8_t RegionAU915DlChannelReq( DlChannelReqParams_t* dlChannelReq )
     return 0;
 }
 
-int8_t RegionAU915AlternateDr( int8_t currentDr )
+int8_t RegionAU915AlternateDr( int8_t currentDr, AlternateDrType_t type )
 {
     static int8_t trialsCount = 0;
 

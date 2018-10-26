@@ -420,12 +420,6 @@ void RegionAS923InitDefaults( InitDefaultsParams_t* params )
             NvmCtx.ChannelsMask[0] |= NvmCtx.ChannelsDefaultMask[0];
             break;
         }
-        case INIT_TYPE_APP_DEFAULTS:
-        {
-            // Update the channels mask defaults
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 1 );
-            break;
-        }
         default:
         {
             break;
@@ -888,7 +882,7 @@ uint8_t RegionAS923DlChannelReq( DlChannelReqParams_t* dlChannelReq )
     return status;
 }
 
-int8_t RegionAS923AlternateDr( int8_t currentDr )
+int8_t RegionAS923AlternateDr( int8_t currentDr, AlternateDrType_t type )
 {
     // Only AS923_DWELL_LIMIT_DATARATE is supported
     return AS923_DWELL_LIMIT_DATARATE;
