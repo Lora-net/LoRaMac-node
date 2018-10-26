@@ -37,8 +37,6 @@ void GpioIoeInit( Gpio_t *obj, PinNames pin, PinModes mode,  PinConfigs config, 
 
     obj->pin = pin;
     obj->pinIndex = ( 0x01 << pin % 16 );
-    obj->Context = NULL;
-    obj->IrqHandler = NULL;
 
     if( ( obj->pin % 16 ) > 0x07 )
     {
