@@ -231,13 +231,14 @@ void GpioMcuRemoveInterrupt( Gpio_t *obj )
 {
     if( obj->pin < IOE_0 )
     {
+        // Clear callback before changing pin mode
+        GpioIrq[( obj->pin ) & 0x0F] = NULL;
+
         GPIO_InitTypeDef   GPIO_InitStructure;
 
         GPIO_InitStructure.Pin =  obj->pinIndex ;
         GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
         HAL_GPIO_Init( obj->port, &GPIO_InitStructure );
-
-        GpioIrq[( obj->pin ) & 0x0F] = NULL;
     }
     else
     {
