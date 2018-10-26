@@ -459,7 +459,7 @@ static bool SendFrame( void )
 /*!
  * \brief Function executed on TxNextPacket Timeout event
  */
-static void OnTxNextPacketTimerEvent( void )
+static void OnTxNextPacketTimerEvent( void* context )
 {
     MibRequestConfirm_t mibReq;
     LoRaMacStatus_t status;
@@ -487,7 +487,7 @@ static void OnTxNextPacketTimerEvent( void )
 /*!
  * \brief Function executed on Led 4 Timeout event
  */
-static void OnLed4TimerEvent( void )
+static void OnLed4TimerEvent( void* context )
 {
     TimerStop( &Led4Timer );
     // Switch LED 4 OFF
@@ -497,7 +497,7 @@ static void OnLed4TimerEvent( void )
 /*!
  * \brief Function executed on Led 2 Timeout event
  */
-static void OnLed2TimerEvent( void )
+static void OnLed2TimerEvent( void* context )
 {
     TimerStop( &Led2Timer );
     // Switch LED 2 OFF
@@ -657,7 +657,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
     {
         // The server signals that it has pending data to be sent.
         // We schedule an uplink as soon as possible to flush the server.
-        OnTxNextPacketTimerEvent( );
+        OnTxNextPacketTimerEvent( NULL );
     }
     // Check Buffer
     // Check BufferSize
@@ -936,7 +936,7 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
     {
         case MLME_SCHEDULE_UPLINK:
         {// The MAC signals that we shall provide an uplink as soon as possible
-            OnTxNextPacketTimerEvent( );
+            OnTxNextPacketTimerEvent( NULL );
             break;
         }
         default:

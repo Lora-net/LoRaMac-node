@@ -386,12 +386,6 @@ void RegionIN865InitDefaults( InitDefaultsParams_t* params )
             NvmCtx.ChannelsMask[0] |= NvmCtx.ChannelsDefaultMask[0];
             break;
         }
-        case INIT_TYPE_APP_DEFAULTS:
-        {
-            // Update the channels mask defaults
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 1 );
-            break;
-        }
         default:
         {
             break;
@@ -858,7 +852,7 @@ uint8_t RegionIN865DlChannelReq( DlChannelReqParams_t* dlChannelReq )
     return status;
 }
 
-int8_t RegionIN865AlternateDr( int8_t currentDr )
+int8_t RegionIN865AlternateDr( int8_t currentDr, AlternateDrType_t type )
 {
     return currentDr;
 }

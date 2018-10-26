@@ -102,37 +102,37 @@ void SX1276SetOpMode( uint8_t opMode );
 /*!
  * \brief DIO 0 IRQ callback
  */
-void SX1276OnDio0Irq( void );
+void SX1276OnDio0Irq( void* context );
 
 /*!
  * \brief DIO 1 IRQ callback
  */
-void SX1276OnDio1Irq( void );
+void SX1276OnDio1Irq( void* context );
 
 /*!
  * \brief DIO 2 IRQ callback
  */
-void SX1276OnDio2Irq( void );
+void SX1276OnDio2Irq( void* context );
 
 /*!
  * \brief DIO 3 IRQ callback
  */
-void SX1276OnDio3Irq( void );
+void SX1276OnDio3Irq( void* context );
 
 /*!
  * \brief DIO 4 IRQ callback
  */
-void SX1276OnDio4Irq( void );
+void SX1276OnDio4Irq( void* context );
 
 /*!
  * \brief DIO 5 IRQ callback
  */
-void SX1276OnDio5Irq( void );
+void SX1276OnDio5Irq( void* context );
 
 /*!
  * \brief Tx & Rx timeout timer callback
  */
-void SX1276OnTimeoutIrq( void );
+void SX1276OnTimeoutIrq( void* context );
 
 /*
  * Private global constants
@@ -1339,7 +1339,7 @@ uint32_t SX1276GetWakeupTime( void )
     return SX1276GetBoardTcxoWakeupTime( ) + RADIO_WAKEUP_TIME;
 }
 
-void SX1276OnTimeoutIrq( void )
+void SX1276OnTimeoutIrq( void* context )
 {
     switch( SX1276.Settings.State )
     {
@@ -1414,7 +1414,7 @@ void SX1276OnTimeoutIrq( void )
     }
 }
 
-void SX1276OnDio0Irq( void )
+void SX1276OnDio0Irq( void* context )
 {
     volatile uint8_t irqFlags = 0;
 
@@ -1615,7 +1615,7 @@ void SX1276OnDio0Irq( void )
     }
 }
 
-void SX1276OnDio1Irq( void )
+void SX1276OnDio1Irq( void* context )
 {
     switch( SX1276.Settings.State )
     {
@@ -1692,7 +1692,7 @@ void SX1276OnDio1Irq( void )
     }
 }
 
-void SX1276OnDio2Irq( void )
+void SX1276OnDio2Irq( void* context )
 {
     switch( SX1276.Settings.State )
     {
@@ -1762,7 +1762,7 @@ void SX1276OnDio2Irq( void )
     }
 }
 
-void SX1276OnDio3Irq( void )
+void SX1276OnDio3Irq( void* context )
 {
     switch( SX1276.Settings.Modem )
     {
@@ -1793,7 +1793,7 @@ void SX1276OnDio3Irq( void )
     }
 }
 
-void SX1276OnDio4Irq( void )
+void SX1276OnDio4Irq( void* context )
 {
     switch( SX1276.Settings.Modem )
     {
@@ -1812,7 +1812,7 @@ void SX1276OnDio4Irq( void )
     }
 }
 
-void SX1276OnDio5Irq( void )
+void SX1276OnDio5Irq( void* context )
 {
     switch( SX1276.Settings.Modem )
     {

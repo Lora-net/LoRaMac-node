@@ -641,7 +641,7 @@ bool LoRaMacClassBIsAcquisitionInProgress( void )
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
-void LoRaMacClassBBeaconTimerEvent( void )
+void LoRaMacClassBBeaconTimerEvent( void* context )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     Ctx.NvmCtx->BeaconCtx.TimeStamp = TimerGetCurrentTime( );
@@ -882,7 +882,7 @@ static void LoRaMacClassBProcessBeacon( void )
 }
 #endif // LORAMAC_CLASSB_ENABLED
 
-void LoRaMacClassBPingSlotTimerEvent( void )
+void LoRaMacClassBPingSlotTimerEvent( void* context )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     LoRaMacClassBEvents.Events.PingSlot = 1;
@@ -994,7 +994,7 @@ static void LoRaMacClassBProcessPingSlot( void )
 }
 #endif // LORAMAC_CLASSB_ENABLED
 
-void LoRaMacClassBMulticastSlotTimerEvent( void )
+void LoRaMacClassBMulticastSlotTimerEvent( void* context )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     LoRaMacClassBEvents.Events.MulticastSlot = 1;
@@ -1217,14 +1217,14 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
                 ResetWindowTimeout( );
                 Ctx.NvmCtx->BeaconState = BEACON_STATE_LOCKED;
 
-                LoRaMacClassBBeaconTimerEvent( );
+                LoRaMacClassBBeaconTimerEvent( NULL );
             }
         }
 
         if( Ctx.NvmCtx->BeaconState == BEACON_STATE_RX )
         {
             Ctx.NvmCtx->BeaconState = BEACON_STATE_TIMEOUT;
-            LoRaMacClassBBeaconTimerEvent( );
+            LoRaMacClassBBeaconTimerEvent( NULL );
         }
         // When the MAC listens for a beacon, it is not allowed to process any other
         // downlink except the beacon frame itself. The reason for this is that no valid downlink window is open.
@@ -1329,7 +1329,7 @@ void LoRaMacClassBHaltBeaconing( void )
             ( Ctx.NvmCtx->BeaconState == BEACON_STATE_LOST ) )
         {
             // Update the state machine before halt
-            LoRaMacClassBBeaconTimerEvent( );
+            LoRaMacClassBBeaconTimerEvent( NULL );
         }
 
         CRITICAL_SECTION_BEGIN( );
@@ -1366,7 +1366,7 @@ void LoRaMacClassBResumeBeaconing( void )
             Ctx.NvmCtx->BeaconState = BEACON_STATE_REACQUISITION;
         }
 
-        LoRaMacClassBBeaconTimerEvent( );
+        LoRaMacClassBBeaconTimerEvent( NULL );
         NvmContextChange( );
     }
 #endif // LORAMAC_CLASSB_ENABLED

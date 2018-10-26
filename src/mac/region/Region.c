@@ -50,7 +50,7 @@
 #define AS923_NEW_CHANNEL_REQ( )                   AS923_CASE { return RegionAS923NewChannelReq( newChannelReq ); }
 #define AS923_TX_PARAM_SETUP_REQ( )                AS923_CASE { return RegionAS923TxParamSetupReq( txParamSetupReq ); }
 #define AS923_DL_CHANNEL_REQ( )                    AS923_CASE { return RegionAS923DlChannelReq( dlChannelReq ); }
-#define AS923_ALTERNATE_DR( )                      AS923_CASE { return RegionAS923AlternateDr( currentDr ); }
+#define AS923_ALTERNATE_DR( )                      AS923_CASE { return RegionAS923AlternateDr( currentDr, type ); }
 #define AS923_CALC_BACKOFF( )                      AS923_CASE { RegionAS923CalcBackOff( calcBackOff ); break; }
 #define AS923_NEXT_CHANNEL( )                      AS923_CASE { return RegionAS923NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define AS923_CHANNEL_ADD( )                       AS923_CASE { return RegionAS923ChannelAdd( channelAdd ); }
@@ -104,7 +104,7 @@
 #define AU915_NEW_CHANNEL_REQ( )                   AU915_CASE { return RegionAU915NewChannelReq( newChannelReq ); }
 #define AU915_TX_PARAM_SETUP_REQ( )                AU915_CASE { return RegionAU915TxParamSetupReq( txParamSetupReq ); }
 #define AU915_DL_CHANNEL_REQ( )                    AU915_CASE { return RegionAU915DlChannelReq( dlChannelReq ); }
-#define AU915_ALTERNATE_DR( )                      AU915_CASE { return RegionAU915AlternateDr( currentDr ); }
+#define AU915_ALTERNATE_DR( )                      AU915_CASE { return RegionAU915AlternateDr( currentDr, type ); }
 #define AU915_CALC_BACKOFF( )                      AU915_CASE { RegionAU915CalcBackOff( calcBackOff ); break; }
 #define AU915_NEXT_CHANNEL( )                      AU915_CASE { return RegionAU915NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define AU915_CHANNEL_ADD( )                       AU915_CASE { return RegionAU915ChannelAdd( channelAdd ); }
@@ -158,7 +158,7 @@
 #define CN470_NEW_CHANNEL_REQ( )                   CN470_CASE { return RegionCN470NewChannelReq( newChannelReq ); }
 #define CN470_TX_PARAM_SETUP_REQ( )                CN470_CASE { return RegionCN470TxParamSetupReq( txParamSetupReq ); }
 #define CN470_DL_CHANNEL_REQ( )                    CN470_CASE { return RegionCN470DlChannelReq( dlChannelReq ); }
-#define CN470_ALTERNATE_DR( )                      CN470_CASE { return RegionCN470AlternateDr( currentDr ); }
+#define CN470_ALTERNATE_DR( )                      CN470_CASE { return RegionCN470AlternateDr( currentDr, type ); }
 #define CN470_CALC_BACKOFF( )                      CN470_CASE { RegionCN470CalcBackOff( calcBackOff ); break; }
 #define CN470_NEXT_CHANNEL( )                      CN470_CASE { return RegionCN470NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define CN470_CHANNEL_ADD( )                       CN470_CASE { return RegionCN470ChannelAdd( channelAdd ); }
@@ -212,7 +212,7 @@
 #define CN779_NEW_CHANNEL_REQ( )                   CN779_CASE { return RegionCN779NewChannelReq( newChannelReq ); }
 #define CN779_TX_PARAM_SETUP_REQ( )                CN779_CASE { return RegionCN779TxParamSetupReq( txParamSetupReq ); }
 #define CN779_DL_CHANNEL_REQ( )                    CN779_CASE { return RegionCN779DlChannelReq( dlChannelReq ); }
-#define CN779_ALTERNATE_DR( )                      CN779_CASE { return RegionCN779AlternateDr( currentDr ); }
+#define CN779_ALTERNATE_DR( )                      CN779_CASE { return RegionCN779AlternateDr( currentDr, type ); }
 #define CN779_CALC_BACKOFF( )                      CN779_CASE { RegionCN779CalcBackOff( calcBackOff ); break; }
 #define CN779_NEXT_CHANNEL( )                      CN779_CASE { return RegionCN779NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define CN779_CHANNEL_ADD( )                       CN779_CASE { return RegionCN779ChannelAdd( channelAdd ); }
@@ -266,7 +266,7 @@
 #define EU433_NEW_CHANNEL_REQ( )                   EU433_CASE { return RegionEU433NewChannelReq( newChannelReq ); }
 #define EU433_TX_PARAM_SETUP_REQ( )                EU433_CASE { return RegionEU433TxParamSetupReq( txParamSetupReq ); }
 #define EU433_DL_CHANNEL_REQ( )                    EU433_CASE { return RegionEU433DlChannelReq( dlChannelReq ); }
-#define EU433_ALTERNATE_DR( )                      EU433_CASE { return RegionEU433AlternateDr( currentDr ); }
+#define EU433_ALTERNATE_DR( )                      EU433_CASE { return RegionEU433AlternateDr( currentDr, type ); }
 #define EU433_CALC_BACKOFF( )                      EU433_CASE { RegionEU433CalcBackOff( calcBackOff ); break; }
 #define EU433_NEXT_CHANNEL( )                      EU433_CASE { return RegionEU433NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define EU433_CHANNEL_ADD( )                       EU433_CASE { return RegionEU433ChannelAdd( channelAdd ); }
@@ -320,7 +320,7 @@
 #define EU868_NEW_CHANNEL_REQ( )                   EU868_CASE { return RegionEU868NewChannelReq( newChannelReq ); }
 #define EU868_TX_PARAM_SETUP_REQ( )                EU868_CASE { return RegionEU868TxParamSetupReq( txParamSetupReq ); }
 #define EU868_DL_CHANNEL_REQ( )                    EU868_CASE { return RegionEU868DlChannelReq( dlChannelReq ); }
-#define EU868_ALTERNATE_DR( )                      EU868_CASE { return RegionEU868AlternateDr( currentDr ); }
+#define EU868_ALTERNATE_DR( )                      EU868_CASE { return RegionEU868AlternateDr( currentDr, type ); }
 #define EU868_CALC_BACKOFF( )                      EU868_CASE { RegionEU868CalcBackOff( calcBackOff ); break; }
 #define EU868_NEXT_CHANNEL( )                      EU868_CASE { return RegionEU868NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define EU868_CHANNEL_ADD( )                       EU868_CASE { return RegionEU868ChannelAdd( channelAdd ); }
@@ -374,7 +374,7 @@
 #define KR920_NEW_CHANNEL_REQ( )                   KR920_CASE { return RegionKR920NewChannelReq( newChannelReq ); }
 #define KR920_TX_PARAM_SETUP_REQ( )                KR920_CASE { return RegionKR920TxParamSetupReq( txParamSetupReq ); }
 #define KR920_DL_CHANNEL_REQ( )                    KR920_CASE { return RegionKR920DlChannelReq( dlChannelReq ); }
-#define KR920_ALTERNATE_DR( )                      KR920_CASE { return RegionKR920AlternateDr( currentDr ); }
+#define KR920_ALTERNATE_DR( )                      KR920_CASE { return RegionKR920AlternateDr( currentDr, type ); }
 #define KR920_CALC_BACKOFF( )                      KR920_CASE { RegionKR920CalcBackOff( calcBackOff ); break; }
 #define KR920_NEXT_CHANNEL( )                      KR920_CASE { return RegionKR920NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define KR920_CHANNEL_ADD( )                       KR920_CASE { return RegionKR920ChannelAdd( channelAdd ); }
@@ -428,7 +428,7 @@
 #define IN865_NEW_CHANNEL_REQ( )                   IN865_CASE { return RegionIN865NewChannelReq( newChannelReq ); }
 #define IN865_TX_PARAM_SETUP_REQ( )                IN865_CASE { return RegionIN865TxParamSetupReq( txParamSetupReq ); }
 #define IN865_DL_CHANNEL_REQ( )                    IN865_CASE { return RegionIN865DlChannelReq( dlChannelReq ); }
-#define IN865_ALTERNATE_DR( )                      IN865_CASE { return RegionIN865AlternateDr( currentDr ); }
+#define IN865_ALTERNATE_DR( )                      IN865_CASE { return RegionIN865AlternateDr( currentDr, type ); }
 #define IN865_CALC_BACKOFF( )                      IN865_CASE { RegionIN865CalcBackOff( calcBackOff ); break; }
 #define IN865_NEXT_CHANNEL( )                      IN865_CASE { return RegionIN865NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define IN865_CHANNEL_ADD( )                       IN865_CASE { return RegionIN865ChannelAdd( channelAdd ); }
@@ -482,7 +482,7 @@
 #define US915_NEW_CHANNEL_REQ( )                   US915_CASE { return RegionUS915NewChannelReq( newChannelReq ); }
 #define US915_TX_PARAM_SETUP_REQ( )                US915_CASE { return RegionUS915TxParamSetupReq( txParamSetupReq ); }
 #define US915_DL_CHANNEL_REQ( )                    US915_CASE { return RegionUS915DlChannelReq( dlChannelReq ); }
-#define US915_ALTERNATE_DR( )                      US915_CASE { return RegionUS915AlternateDr( currentDr ); }
+#define US915_ALTERNATE_DR( )                      US915_CASE { return RegionUS915AlternateDr( currentDr, type ); }
 #define US915_CALC_BACKOFF( )                      US915_CASE { RegionUS915CalcBackOff( calcBackOff ); break; }
 #define US915_NEXT_CHANNEL( )                      US915_CASE { return RegionUS915NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define US915_CHANNEL_ADD( )                       US915_CASE { return RegionUS915ChannelAdd( channelAdd ); }
@@ -536,7 +536,7 @@
 #define RU864_NEW_CHANNEL_REQ( )                   RU864_CASE { return RegionRU864NewChannelReq( newChannelReq ); }
 #define RU864_TX_PARAM_SETUP_REQ( )                RU864_CASE { return RegionRU864TxParamSetupReq( txParamSetupReq ); }
 #define RU864_DL_CHANNEL_REQ( )                    RU864_CASE { return RegionRU864DlChannelReq( dlChannelReq ); }
-#define RU864_ALTERNATE_DR( )                      RU864_CASE { return RegionRU864AlternateDr( currentDr ); }
+#define RU864_ALTERNATE_DR( )                      RU864_CASE { return RegionRU864AlternateDr( currentDr, type ); }
 #define RU864_CALC_BACKOFF( )                      RU864_CASE { RegionRU864CalcBackOff( calcBackOff ); break; }
 #define RU864_NEXT_CHANNEL( )                      RU864_CASE { return RegionRU864NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define RU864_CHANNEL_ADD( )                       RU864_CASE { return RegionRU864ChannelAdd( channelAdd ); }
@@ -908,7 +908,7 @@ uint8_t RegionDlChannelReq( LoRaMacRegion_t region, DlChannelReqParams_t* dlChan
     }
 }
 
-int8_t RegionAlternateDr( LoRaMacRegion_t region, int8_t currentDr )
+int8_t RegionAlternateDr( LoRaMacRegion_t region, int8_t currentDr, AlternateDrType_t type )
 {
     switch( region )
     {

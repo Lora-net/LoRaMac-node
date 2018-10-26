@@ -107,7 +107,7 @@ static volatile bool SystemWakeupTimeCalibrated = false;
 /*!
  * Callback indicating the end of the system wake-up time calibration
  */
-static void OnCalibrateSystemWakeupTimeTimerEvent( void )
+static void OnCalibrateSystemWakeupTimeTimerEvent( void* context )
 {
     RtcSetMcuWakeUpTime( );
     SystemWakeupTimeCalibrated = true;

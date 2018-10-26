@@ -97,6 +97,11 @@ typedef enum
 }IrqPriorities;
 
 /*!
+ * GPIO IRQ handler function prototype
+ */
+typedef void( GpioIrqHandler )( void* context );
+
+/*!
  * Structure for the GPIO
  */
 typedef struct
@@ -106,17 +111,9 @@ typedef struct
     void *port;
     uint16_t portIndex;
     PinTypes pull;
+    void* Context;
+    GpioIrqHandler* IrqHandler;
 }Gpio_t;
-
-/*!
- * GPIO IRQ handler function prototype
- */
-typedef void( GpioIrqHandler )( void );
-
-/*!
- * GPIO Expander IRQ handler function prototype
- */
-typedef void( GpioIoeIrqHandler )( void );
 
 /*!
  * \brief Initializes the given GPIO object
@@ -130,6 +127,14 @@ typedef void( GpioIoeIrqHandler )( void );
  * \param [IN] value  Default output value at initialization
  */
 void GpioInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, PinTypes type, uint32_t value );
+
+/*!
+ * \brief Sets a user defined object pointer
+ *
+ * \param [IN] context User defined data object pointer to pass back
+ *                     on IRQ handler callback
+ */
+void GpioSetContext( Gpio_t *obj, void* context );
 
 /*!
  * \brief GPIO IRQ Initialization

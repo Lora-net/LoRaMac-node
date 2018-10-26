@@ -669,7 +669,7 @@ typedef struct SX126x_s
 /*!
  * Hardware IO IRQ callback function definition
  */
-typedef void ( DioIrqHandler )( void );
+typedef void ( DioIrqHandler )( void* context );
 
 /*!
  * SX126x definitions

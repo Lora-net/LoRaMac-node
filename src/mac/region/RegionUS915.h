@@ -426,9 +426,11 @@ uint8_t RegionUS915DlChannelReq( DlChannelReqParams_t* dlChannelReq );
  *
  * \param [IN] currentDr Current datarate.
  *
+ * \param [IN] type Alternation type.
+ *
  * \retval Datarate to apply.
  */
-int8_t RegionUS915AlternateDr( int8_t currentDr );
+int8_t RegionUS915AlternateDr( int8_t currentDr, AlternateDrType_t type );
 
 /*!
  * \brief Calculates the back-off time.

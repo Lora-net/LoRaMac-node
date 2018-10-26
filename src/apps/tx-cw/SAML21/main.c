@@ -84,7 +84,7 @@ extern Gpio_t Led1;
 /*!
  * \brief Function executed on Led 1 Timeout event
  */
-void OnLed1TimerEvent( void )
+void OnLed1TimerEvent( void* context )
 {
     Led1TimerEvent = true;
 }
