@@ -256,10 +256,6 @@ typedef struct sLoRaMacCtx
     */
     TimerTime_t AggregatedLastTxDoneTime;
     TimerTime_t AggregatedTimeOff;
-    /*!
-    * Set to true, if the last uplink was a join request
-    */
-    bool LastTxIsJoinRequest;
     /*
     * Stores the time at LoRaMac initialization.
     *
@@ -837,16 +833,6 @@ static void ProcessRadioTxDone( void )
         phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
         TimerSetValue( &MacCtx.AckTimeoutTimer, MacCtx.RxWindow2Delay + phyParam.Value );
         TimerStart( &MacCtx.AckTimeoutTimer );
-    }
-
-    // Verify if the last uplink was a join request
-    if( ( MacCtx.MacFlags.Bits.MlmeReq == 1 ) && ( MacCtx.MlmeConfirm.MlmeRequest == MLME_JOIN ) )
-    {
-        MacCtx.LastTxIsJoinRequest = true;
-    }
-    else
-    {
-        MacCtx.LastTxIsJoinRequest = false;
     }
 
     // Store last Tx channel
@@ -2371,7 +2357,11 @@ static void CalculateBackOff( uint8_t channel )
     calcBackOff.Channel = channel;
     calcBackOff.ElapsedTime = SysTimeSub( SysTimeGetMcuTime( ), MacCtx.InitializationTime );
     calcBackOff.TxTimeOnAir = MacCtx.TxTimeOnAir;
-    calcBackOff.LastTxIsJoinRequest = MacCtx.LastTxIsJoinRequest;
+    calcBackOff.LastTxIsJoinRequest = false;
+    if( ( MacCtx.MacFlags.Bits.MlmeReq == 1 ) && ( LoRaMacConfirmQueueIsCmdActive( MLME_JOIN ) == true ) )
+    {
+        calcBackOff.LastTxIsJoinRequest = true;
+    }
 
     // Update regional back-off
     RegionCalcBackOff( MacCtx.NvmCtx->Region, &calcBackOff );
