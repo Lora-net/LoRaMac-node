@@ -55,7 +55,7 @@
  * Defines a random delay for application data transmission duty cycle. 5s,
  * value in [ms].
  */
-#define APP_TX_DUTYCYCLE_RND                        5000
+#define APP_TX_DUTYCYCLE_RND                        0000
 
 /*!
  * Default datarate
