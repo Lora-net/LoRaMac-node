@@ -1255,7 +1255,7 @@ static void ProcessRadioRxDone( void )
     // Verify if we need to disable the AckTimeoutTimer
     CheckToDisableAckTimeout( MacCtx.NvmCtx->NodeAckRequested, MacCtx.NvmCtx->DeviceClass, MacCtx.McpsConfirm.AckReceived );
 
-    if( MacCtx.AckTimeoutTimer.IsRunning == false )
+    if( TimerIsStarted( &MacCtx.AckTimeoutTimer ) == false )
     {  // Procedure is completed when the AckTimeoutTimer is not running anymore
         MacCtx.MacFlags.Bits.MacDone = 1;
 
