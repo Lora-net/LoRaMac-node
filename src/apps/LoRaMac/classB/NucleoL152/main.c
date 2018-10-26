@@ -53,7 +53,7 @@
  * Defines a random delay for application data transmission duty cycle. 5s,
  * value in [ms].
  */
-#define APP_TX_DUTYCYCLE_RND                        0000
+#define APP_TX_DUTYCYCLE_RND                        5000
 
 /*!
  * Default datarate
@@ -1128,51 +1128,6 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
     }
 }
 
-void SetupMulticastChannels( void )
-{
-    // Manually setup Multicast Keys.
-    MibRequestConfirm_t mibReq;
-
-    // MC channel 0 App session key setup
-    mibReq.Type = MIB_MC_APP_S_KEY_0;
-    mibReq.Param.McAppSKey0 = ( uint8_t* )Multicast0AppSKey;
-    LoRaMacMibSetRequestConfirm( &mibReq );
-
-    // MC channel 0 Nwk session key setup
-    mibReq.Type = MIB_MC_NWK_S_KEY_0;
-    mibReq.Param.McNwkSKey0 = ( uint8_t* )Multicast0NwkSKey;
-    LoRaMacMibSetRequestConfirm( &mibReq );
-
-    // MC channel 1 App session key setup
-    mibReq.Type = MIB_MC_APP_S_KEY_1;
-    mibReq.Param.McAppSKey1 = ( uint8_t* )Multicast1AppSKey;
-    LoRaMacMibSetRequestConfirm( &mibReq );
-
-    // MC channel 1 Nwk session key setup
-    mibReq.Type = MIB_MC_NWK_S_KEY_1;
-    mibReq.Param.McNwkSKey1 = ( uint8_t* )Multicast1NwkSKey;
-    LoRaMacMibSetRequestConfirm( &mibReq );
-
-    MulticastChannel_t channel;
-    // Setup Channel 0
-    channel.AddrID = MULTICAST_0_ADDR;
-    channel.Address = MULTICAST_CHANNEL_0_ADDRESS;
-    channel.IsEnabled = true;
-    channel.Frequency = MULTICAST_CHANNEL_0_FREQUENCY;
-    channel.Datarate = MULTICAST_CHANNEL_0_DATARATE;
-    channel.Periodicity = MULTICAST_CHANNEL_0_PERIODICITY;
-    LoRaMacMulticastChannelSet( channel );
-
-    // Setup Channel 1
-    channel.AddrID = MULTICAST_1_ADDR;
-    channel.Address = MULTICAST_CHANNEL_1_ADDRESS;
-    channel.IsEnabled = true;
-    channel.Frequency = MULTICAST_CHANNEL_1_FREQUENCY;
-    channel.Datarate = MULTICAST_CHANNEL_1_DATARATE;
-    channel.Periodicity = MULTICAST_CHANNEL_1_PERIODICITY;
-    LoRaMacMulticastChannelSet( channel );
-}
-
 void OnMacProcessNotify( void )
 {
     IsMacProcessPending = 1;
@@ -1287,9 +1242,6 @@ int main( void )
 
             case DEVICE_STATE_START:
             {
-                // Currently at least 1 Multicast channel must be created before the MAC initialization.
-                //SetupMulticastChannels( );
-
                 TimerInit( &TxNextPacketTimer, OnTxNextPacketTimerEvent );
 
                 TimerInit( &Led1Timer, OnLed1TimerEvent );
