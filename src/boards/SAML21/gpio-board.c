@@ -55,6 +55,11 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
     }
 }
 
+void GpioMcuSetContext( Gpio_t *obj, void* context )
+{
+    obj->Context = context;
+}
+
 void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriority, GpioIrqHandler *irqHandler )
 {
     //ext_irq_register( obj->pin, irqHandler );

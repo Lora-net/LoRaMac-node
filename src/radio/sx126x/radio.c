@@ -420,7 +420,7 @@ bool IrqFired = false;
 /*!
  * \brief DIO 0 IRQ callback
  */
-void RadioOnDioIrq( void );
+void RadioOnDioIrq( void* context );
 
 /*!
  * \brief Tx timeout timer callback
@@ -1064,7 +1064,7 @@ void RadioOnRxTimeoutIrq( void* context )
     }
 }
 
-void RadioOnDioIrq( void )
+void RadioOnDioIrq( void* context )
 {
     IrqFired = true;
 }

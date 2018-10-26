@@ -25,7 +25,7 @@
 #include "gpio-ioe.h"
 #include "sx1509.h"
 
-static GpioIoeIrqHandler *GpioIoeIrq[16];
+static Gpio_t *GpioIrq[16];
 
 void GpioIoeInit( Gpio_t *obj, PinNames pin, PinModes mode,  PinConfigs config, PinTypes type, uint32_t value )
 {
@@ -37,6 +37,8 @@ void GpioIoeInit( Gpio_t *obj, PinNames pin, PinModes mode,  PinConfigs config, 
 
     obj->pin = pin;
     obj->pinIndex = ( 0x01 << pin % 16 );
+    obj->Context = NULL;
+    obj->IrqHandler = NULL;
 
     if( ( obj->pin % 16 ) > 0x07 )
     {
@@ -101,16 +103,27 @@ void GpioIoeInit( Gpio_t *obj, PinNames pin, PinModes mode,  PinConfigs config, 
         regVal = regVal | obj->pinIndex;
     }
     SX1509Write( regAdd, regVal );
-
 }
 
-void GpioIoeSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriority, GpioIoeIrqHandler *irqHandler )
+void GpioIoeSetContext( Gpio_t *obj, void* context )
+{
+    obj->Context = context;
+}
+
+void GpioIoeSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriority, GpioIrqHandler *irqHandler )
 {
     uint8_t regAdd = 0;
     uint8_t regVal = 0;
     uint8_t i = 0;
     uint16_t tempVal = 0;
     uint8_t val = 0;
+
+    if( irqHandler == NULL )
+    {
+        return;
+    }
+
+    obj->IrqHandler = irqHandler;
 
     if( ( obj->pin % 16 ) > 0x07 )
     {
@@ -197,7 +210,7 @@ void GpioIoeSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriori
     }
     SX1509Write( regAdd, regVal );
 
-    GpioIoeIrq[obj->pin & 0x0F] = irqHandler;
+    GpioIrq[obj->pin & 0x0F] = obj;
 }
 
 void GpioIoeRemoveInterrupt( Gpio_t *obj )
@@ -206,6 +219,9 @@ void GpioIoeRemoveInterrupt( Gpio_t *obj )
     uint8_t regVal = 0;
     uint8_t i = 0;
     uint16_t tempVal = 0;
+
+    // Clear callback before changing pin mode
+    GpioIrq[obj->pin & 0x0F] = NULL;
 
     if( ( obj->pin % 16 ) > 0x07 )
     {
@@ -278,8 +294,6 @@ void GpioIoeRemoveInterrupt( Gpio_t *obj )
             break;
     }
     SX1509Write( regAdd, regVal );
-
-    GpioIoeIrq[obj->pin & 0x0F] = NULL;
 }
 
 void GpioIoeWrite( Gpio_t *obj, uint32_t value )
@@ -357,9 +371,9 @@ void GpioIoeInterruptHandler( void )
         {
             if( ( irq & mask ) != 0 )
             {
-                if( GpioIoeIrq[pinIndex] != NULL )
+                if( ( GpioIrq[pinIndex] != NULL ) && ( GpioIrq[pinIndex]->IrqHandler != NULL ) )
                 {
-                    GpioIoeIrq[pinIndex]( );
+                    GpioIrq[pinIndex]->IrqHandler( GpioIrq[pinIndex]->Context );
                 }
             }
         }

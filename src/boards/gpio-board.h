@@ -39,6 +39,14 @@
 void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, PinTypes type, uint32_t value );
 
 /*!
+ * \brief Sets a user defined object pointer
+ *
+ * \param [IN] context User defined data object pointer to pass back
+ *                     on IRQ handler callback
+ */
+void GpioMcuSetContext( Gpio_t *obj, void* context );
+
+/*!
  * \brief GPIO IRQ Initialization
  *
  * \param [IN] obj         Pointer to the GPIO object

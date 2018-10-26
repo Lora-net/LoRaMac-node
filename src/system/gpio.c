@@ -31,6 +31,11 @@ void GpioInit( Gpio_t *obj, PinNames pin, PinModes mode,  PinConfigs config, Pin
     GpioMcuInit( obj, pin, mode, config, type, value );
 }
 
+void GpioSetContext( Gpio_t *obj, void* context )
+{
+    GpioMcuSetContext( obj, context );
+}
+
 void GpioSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriority, GpioIrqHandler *irqHandler )
 {
     GpioMcuSetInterrupt( obj, irqMode, irqPriority, irqHandler );
