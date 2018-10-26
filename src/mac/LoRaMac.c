@@ -514,23 +514,23 @@ static void OnRxWindow2TimerEvent( void* context );
 /*!
  * \brief Function executed on Rejoin Type 0 cycle timer event
  */
-static void OnRejoin0CycleTimerEvent( void );
+static void OnRejoin0CycleTimerEvent( void* context );
 
 /*!
  * \brief Function executed on Rejoin Type 0 cycle timer event
  */
-static void OnRejoin1CycleTimerEvent( void );
+static void OnRejoin1CycleTimerEvent( void* context );
 
 /*!
  * \brief Function executed on Rejoin Type 0 cycle timer event
  */
-static void OnRejoin2CycleTimerEvent( void );
+static void OnRejoin2CycleTimerEvent( void* context );
 
 /*!
  * \brief Function executed on Rejoin Type 0 or 2 cycle timer event
  *        which was requested by a ForceRejoinReq MAC command.
  */
-static void OnForceRejoinReqCycleTimerEvent( void );
+static void OnForceRejoinReqCycleTimerEvent( void* context );
 
 /*!
  * \brief Check if the OnAckTimeoutTimer has do be disabled. If so, the
@@ -1719,18 +1719,6 @@ static void LoRaMacHandleMcpsRequest( void )
             if( MacCtx.NvmCtx->AckTimeoutRetry == true )
             {
                 stopRetransmission = CheckRetransConfirmedUplink( );
-
-                if( MacCtx.NvmCtx->Version.Fields.Minor == 0 )
-                {
-                    if( stopRetransmission == false )
-                    {
-                        AckTimeoutRetriesProcess( );
-                    }
-                    else
-                    {
-                        AckTimeoutRetriesFinalize( );
-                    }
-                }
             }
             else
             {
@@ -1741,6 +1729,11 @@ static void LoRaMacHandleMcpsRequest( void )
         if( stopRetransmission == true )
         {// Stop retransmission
             StopRetransmission( );
+
+            if( IsReJoin0Required( ) == true )
+            {
+                SendReJoinReq( REJOIN_REQ_0 );
+            }
         }
         else if( waitForRetransmission == false )
         {// Arrange further retransmission
@@ -1774,7 +1767,7 @@ static uint8_t LoRaMacCheckForTxTimeout( void )
     {
         // Stop transmit cycle due to tx timeout
         MacCtx.MacState &= ~LORAMAC_TX_RUNNING;
-        MacCtx.McpsConfirm.NbRetries = MacCtx.NvmCtx->AckTimeoutRetriesCounter;
+        MacCtx.McpsConfirm.NbTrans = MacCtx.NvmCtx->ChannelsNbTransCounter;
         MacCtx.McpsConfirm.AckReceived = false;
         MacCtx.McpsConfirm.TxTimeOnAir = 0;
         return 0x01;
@@ -4900,7 +4893,7 @@ static bool ConvertRejoinCycleTime( uint32_t rejoinCycleTime, uint32_t* timeInMi
     }
 }
 
-static void OnRejoin0CycleTimerEvent( void )
+static void OnRejoin0CycleTimerEvent( void* context )
 {
     TimerStop( &MacCtx.Rejoin0CycleTimer );
     ConvertRejoinCycleTime( MacCtx.NvmCtx->Rejoin0CycleInSec, &MacCtx.Rejoin0CycleTime );
@@ -4911,7 +4904,7 @@ static void OnRejoin0CycleTimerEvent( void )
     TimerStart( &MacCtx.Rejoin0CycleTimer );
 }
 
-static void OnRejoin1CycleTimerEvent( void )
+static void OnRejoin1CycleTimerEvent( void* context )
 {
     TimerStop( &MacCtx.Rejoin1CycleTimer );
     ConvertRejoinCycleTime( MacCtx.NvmCtx->Rejoin1CycleInSec, &MacCtx.Rejoin1CycleTime );
@@ -4922,7 +4915,7 @@ static void OnRejoin1CycleTimerEvent( void )
     TimerStart( &MacCtx.Rejoin1CycleTimer );
 }
 
-static void OnRejoin2CycleTimerEvent( void )
+static void OnRejoin2CycleTimerEvent( void* context )
 {
     TimerStop( &MacCtx.Rejoin2CycleTimer );
     ConvertRejoinCycleTime( MacCtx.NvmCtx->Rejoin2CycleInSec, &MacCtx.Rejoin2CycleTime );
@@ -4933,7 +4926,7 @@ static void OnRejoin2CycleTimerEvent( void )
     TimerStart( &MacCtx.Rejoin2CycleTimer );
 }
 
-static void OnForceRejoinReqCycleTimerEvent( void )
+static void OnForceRejoinReqCycleTimerEvent( void* context )
 {
     if( MacCtx.NvmCtx->ForceRejoinRetriesCounter == MacCtx.NvmCtx->ForceRejoinMaxRetries )
     {
