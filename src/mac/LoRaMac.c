@@ -412,17 +412,17 @@ static void OnRadioRxTimeout( void );
 /*!
  * \brief Function executed on duty cycle delayed Tx  timer event
  */
-static void OnTxDelayedTimerEvent( void );
+static void OnTxDelayedTimerEvent( void* context );
 
 /*!
  * \brief Function executed on first Rx window timer event
  */
-static void OnRxWindow1TimerEvent( void );
+static void OnRxWindow1TimerEvent( void* context );
 
 /*!
  * \brief Function executed on second Rx window timer event
  */
-static void OnRxWindow2TimerEvent( void );
+static void OnRxWindow2TimerEvent( void* context );
 
 /*!
  * \brief Check if the OnAckTimeoutTimer has do be disabled. If so, the
@@ -437,7 +437,7 @@ static void CheckToDisableAckTimeout( bool nodeAckRequested, DeviceClass_t devCl
 /*!
  * \brief Function executed on AckTimeout timer event
  */
-static void OnAckTimeoutTimerEvent( void );
+static void OnAckTimeoutTimerEvent( void* context );
 
 /*!
  * \brief Initializes and opens the reception window
@@ -879,7 +879,7 @@ static void PrepareRxDoneAbort( void )
 
     if( MacCtx.NvmCtx->NodeAckRequested )
     {
-        OnAckTimeoutTimerEvent( );
+        OnAckTimeoutTimerEvent( NULL );
     }
 
     MacCtx.MacFlags.Bits.McpsInd = 1;
@@ -941,13 +941,13 @@ static void ProcessRadioRxDone( void )
         if( LoRaMacClassBIsPingExpected( ) == true )
         {
             LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
-            LoRaMacClassBPingSlotTimerEvent( );
+            LoRaMacClassBPingSlotTimerEvent( NULL );
              MacCtx.McpsIndication.RxSlot = RX_SLOT_WIN_PING_SLOT;
         }
         else if( LoRaMacClassBIsMulticastExpected( ) == true )
         {
             LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
-            LoRaMacClassBMulticastSlotTimerEvent( );
+            LoRaMacClassBMulticastSlotTimerEvent( NULL );
             MacCtx.McpsIndication.RxSlot = RX_SLOT_WIN_MULTICAST_SLOT;
         }
     }
@@ -1304,7 +1304,7 @@ static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStat
     if( LoRaMacClassBIsBeaconExpected( ) == true )
     {
         LoRaMacClassBSetBeaconState( BEACON_STATE_TIMEOUT );
-        LoRaMacClassBBeaconTimerEvent( );
+        LoRaMacClassBBeaconTimerEvent( NULL );
         classBRx = true;
     }
     if( MacCtx.NvmCtx->DeviceClass == CLASS_B )
@@ -1312,13 +1312,13 @@ static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStat
         if( LoRaMacClassBIsPingExpected( ) == true )
         {
             LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
-            LoRaMacClassBPingSlotTimerEvent( );
+            LoRaMacClassBPingSlotTimerEvent( NULL );
             classBRx = true;
         }
         if( LoRaMacClassBIsMulticastExpected( ) == true )
         {
             LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
-            LoRaMacClassBMulticastSlotTimerEvent( );
+            LoRaMacClassBMulticastSlotTimerEvent( NULL );
             classBRx = true;
         }
     }
@@ -1573,7 +1573,7 @@ void LoRaMacProcess( void )
     }
 }
 
-static void OnTxDelayedTimerEvent( void )
+static void OnTxDelayedTimerEvent( void* context )
 {
     TimerStop( &MacCtx.TxDelayedTimer );
     MacCtx.MacState &= ~LORAMAC_TX_DELAYED;
@@ -1599,7 +1599,7 @@ static void OnTxDelayedTimerEvent( void )
     }
 }
 
-static void OnRxWindow1TimerEvent( void )
+static void OnRxWindow1TimerEvent( void* context )
 {
     TimerStop( &MacCtx.RxWindowTimer1 );
     MacCtx.RxSlot = RX_SLOT_WIN_1;
@@ -1620,7 +1620,7 @@ static void OnRxWindow1TimerEvent( void )
     RxWindowSetup( MacCtx.RxWindow1Config.RxContinuous, MacCtx.NvmCtx->MacParams.MaxRxWindow );
 }
 
-static void OnRxWindow2TimerEvent( void )
+static void OnRxWindow2TimerEvent( void* context )
 {
     TimerStop( &MacCtx.RxWindowTimer2 );
 
@@ -1656,7 +1656,7 @@ static void CheckToDisableAckTimeout( bool nodeAckRequested, DeviceClass_t devCl
         {// FIRST CASE
             // We have performed an unconfirmed uplink in class c mode
             // and have received a downlink in RX1 or RX2.
-            OnAckTimeoutTimerEvent( );
+            OnAckTimeoutTimerEvent( NULL );
         }
     }
     else
@@ -1665,12 +1665,12 @@ static void CheckToDisableAckTimeout( bool nodeAckRequested, DeviceClass_t devCl
         {// SECOND CASE
             // We have performed a confirmed uplink and have received a
             // downlink with a valid ACK.
-            OnAckTimeoutTimerEvent( );
+            OnAckTimeoutTimerEvent( NULL );
         }
     }
 }
 
-static void OnAckTimeoutTimerEvent( void )
+static void OnAckTimeoutTimerEvent( void* context )
 {
     TimerStop( &MacCtx.AckTimeoutTimer );
 
@@ -2445,7 +2445,7 @@ static void ResetMacParameters( void )
 
 static void OpenContinuousRx2Window( void )
 {
-    OnRxWindow2TimerEvent( );
+    OnRxWindow2TimerEvent( NULL );
     MacCtx.RxSlot = RX_SLOT_WIN_CLASS_C;
 }
 
@@ -4242,7 +4242,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
             {
                 // Start class B algorithm
                 LoRaMacClassBSetBeaconState( BEACON_STATE_ACQUISITION );
-                LoRaMacClassBBeaconTimerEvent( );
+                LoRaMacClassBBeaconTimerEvent( NULL );
 
                 status = LORAMAC_STATUS_OK;
             }

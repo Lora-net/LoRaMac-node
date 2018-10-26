@@ -124,7 +124,7 @@ void SX1272OnDio5Irq( void );
 /*!
  * \brief Tx & Rx timeout timer callback
  */
-void SX1272OnTimeoutIrq( void );
+void SX1272OnTimeoutIrq( void* context );
 
 /*
  * Private global constants
@@ -1178,7 +1178,7 @@ uint32_t SX1272GetWakeupTime( void )
     return SX1272GetBoardTcxoWakeupTime( ) + RADIO_WAKEUP_TIME;
 }
 
-void SX1272OnTimeoutIrq( void )
+void SX1272OnTimeoutIrq( void* context )
 {
     switch( SX1272.Settings.State )
     {

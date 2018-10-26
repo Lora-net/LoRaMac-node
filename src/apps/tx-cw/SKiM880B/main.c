@@ -90,7 +90,7 @@ extern Gpio_t Led3;
 /*!
  * \brief Function executed on Led 1 Timeout event
  */
-void OnLed4TimerEvent( void )
+void OnLed4TimerEvent( void* context )
 {
     Led4TimerEvent = true;
 }
@@ -98,7 +98,7 @@ void OnLed4TimerEvent( void )
 /*!
  * \brief Function executed on Led 2 Timeout event
  */
-void OnLed2TimerEvent( void )
+void OnLed2TimerEvent( void* context )
 {
     Led2TimerEvent = true;
 }
@@ -106,7 +106,7 @@ void OnLed2TimerEvent( void )
 /*!
  * \brief Function executed on Led 3 Timeout event
  */
-void OnLed3TimerEvent( void )
+void OnLed3TimerEvent( void* context )
 {
     Led3TimerEvent = true;
 }

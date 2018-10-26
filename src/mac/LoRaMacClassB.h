@@ -374,17 +374,17 @@ bool LoRaMacClassBIsAcquisitionInProgress( void );
 /*!
  * \brief State machine of the Class B for beaconing
  */
-void LoRaMacClassBBeaconTimerEvent( void );
+void LoRaMacClassBBeaconTimerEvent( void* context );
 
 /*!
  * \brief State machine of the Class B for ping slots
  */
-void LoRaMacClassBPingSlotTimerEvent( void );
+void LoRaMacClassBPingSlotTimerEvent( void* context );
 
 /*!
  * \brief State machine of the Class B for multicast slots
  */
-void LoRaMacClassBMulticastSlotTimerEvent( void );
+void LoRaMacClassBMulticastSlotTimerEvent( void* context );
 
 /*!
  * \brief Receives and decodes the beacon frame

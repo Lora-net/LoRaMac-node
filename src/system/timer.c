@@ -28,17 +28,17 @@
 /*!
  * Safely execute call back
  */
-#define ExecuteCallBack( _callback_ ) \
-    do                                \
-    {                                 \
-        if( _callback_ == NULL )      \
-        {                             \
-            while( 1 );               \
-        }                             \
-        else                          \
-        {                             \
-            _callback_( );            \
-        }                             \
+#define ExecuteCallBack( _callback_, context ) \
+    do                                         \
+    {                                          \
+        if( _callback_ == NULL )               \
+        {                                      \
+            while( 1 );                        \
+        }                                      \
+        else                                   \
+        {                                      \
+            _callback_( context );             \
+        }                                      \
     }while( 0 );
 
 /*!
@@ -83,13 +83,19 @@ static void TimerSetTimeout( TimerEvent_t *obj );
  */
 static bool TimerExists( TimerEvent_t *obj );
 
-void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
+void TimerInit( TimerEvent_t *obj, void ( *callback )( void *context ) )
 {
     obj->Timestamp = 0;
     obj->ReloadValue = 0;
     obj->IsRunning = false;
     obj->Callback = callback;
+    obj->Context = NULL;
     obj->Next = NULL;
+}
+
+void TimerSetContext( TimerEvent_t *obj, void* context )
+{
+    obj->Context = context;
 }
 
 void TimerStart( TimerEvent_t *obj )
@@ -199,7 +205,7 @@ void TimerIrqHandler( void )
     {
         cur = TimerListHead;
         TimerListHead = TimerListHead->Next;
-        ExecuteCallBack( cur->Callback );
+        ExecuteCallBack( cur->Callback, cur->Context );
     }
 
     // Remove all the expired object from the list
@@ -207,7 +213,7 @@ void TimerIrqHandler( void )
     {
         cur = TimerListHead;
         TimerListHead = TimerListHead->Next;
-        ExecuteCallBack( cur->Callback );
+        ExecuteCallBack( cur->Callback, cur->Context );
     }
 
     // Start the next TimerListHead if it exists AND NOT running
