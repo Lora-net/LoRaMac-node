@@ -4087,9 +4087,16 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
         return LORAMAC_STATUS_BUSY;
     }
 
-    memset1( ( uint8_t* ) &MacCtx.MlmeConfirm, 0, sizeof( MacCtx.MlmeConfirm ) );
-
+    if( LoRaMacConfirmQueueGetCnt( ) == 0 )
+    {
+        memset1( ( uint8_t* ) &MacCtx.MlmeConfirm, 0, sizeof( MacCtx.MlmeConfirm ) );
+    }
     MacCtx.MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+
+    MacCtx.MacFlags.Bits.MlmeReq = 1;
+    queueElement.Request = mlmeRequest->Type;
+    queueElement.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+    queueElement.RestrictCommonReadyToHandle = false;
 
     switch( mlmeRequest->Type )
     {
@@ -4110,18 +4117,12 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
 
             ResetMacParameters( );
 
-            MacCtx.MacFlags.Bits.MlmeReq = 1;
-            MacCtx.MlmeConfirm.MlmeRequest = mlmeRequest->Type;
-            queueElement.Request = mlmeRequest->Type;
-
             MacCtx.DevEui = mlmeRequest->Req.Join.DevEui;
             MacCtx.JoinEui = mlmeRequest->Req.Join.JoinEui;
 
             MacCtx.NvmCtx->MacParams.ChannelsDatarate = RegionAlternateDr( MacCtx.NvmCtx->Region, mlmeRequest->Req.Join.Datarate, ALTERNATE_DR );
 
             queueElement.Status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
-            queueElement.RestrictCommonReadyToHandle = false;
-            LoRaMacConfirmQueueAdd( &queueElement );
 
             status = SendReJoinReq( JOIN_REQ );
 
@@ -4130,18 +4131,10 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
                 // Revert back the previous datarate ( mainly used for US915 like regions )
                 MacCtx.NvmCtx->MacParams.ChannelsDatarate = RegionAlternateDr( MacCtx.NvmCtx->Region, mlmeRequest->Req.Join.Datarate, ALTERNATE_DR_RESTORE );
             }
-            EventRegionNvmCtxChanged( );
             break;
         }
         case MLME_LINK_CHECK:
         {
-            // Apply the request
-            MacCtx.MacFlags.Bits.MlmeReq = 1;
-            queueElement.Request = mlmeRequest->Type;
-            queueElement.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
-            queueElement.RestrictCommonReadyToHandle = false;
-            LoRaMacConfirmQueueAdd( &queueElement );
-
             // LoRaMac will send this command piggy-pack
             status = LORAMAC_STATUS_OK;
             if( LoRaMacCommandsAddCmd( MOTE_MAC_LINK_CHECK_REQ, macCmdPayload, 0 ) != LORAMAC_COMMANDS_SUCCESS )
@@ -4152,37 +4145,17 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
         }
         case MLME_TXCW:
         {
-            // Apply the request
-            MacCtx.MacFlags.Bits.MlmeReq = 1;
-            queueElement.Request = mlmeRequest->Type;
-            queueElement.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
-            queueElement.RestrictCommonReadyToHandle = false;
-            LoRaMacConfirmQueueAdd( &queueElement );
-
             status = SetTxContinuousWave( mlmeRequest->Req.TxCw.Timeout );
             break;
         }
         case MLME_TXCW_1:
         {
-            // Apply the request
-            MacCtx.MacFlags.Bits.MlmeReq = 1;
-            queueElement.Request = mlmeRequest->Type;
-            queueElement.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
-            queueElement.RestrictCommonReadyToHandle = false;
-            LoRaMacConfirmQueueAdd( &queueElement );
 
             status = SetTxContinuousWave1( mlmeRequest->Req.TxCw.Timeout, mlmeRequest->Req.TxCw.Frequency, mlmeRequest->Req.TxCw.Power );
             break;
         }
         case MLME_DEVICE_TIME:
         {
-            // Apply the request
-            MacCtx.MacFlags.Bits.MlmeReq = 1;
-            queueElement.Request = mlmeRequest->Type;
-            queueElement.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
-            queueElement.RestrictCommonReadyToHandle = false;
-            LoRaMacConfirmQueueAdd( &queueElement );
-
             // LoRaMac will send this command piggy-pack
             status = LORAMAC_STATUS_OK;
             if( LoRaMacCommandsAddCmd( MOTE_MAC_DEVICE_TIME_REQ, macCmdPayload, 0 ) != LORAMAC_COMMANDS_SUCCESS )
@@ -4194,13 +4167,6 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
         case MLME_PING_SLOT_INFO:
         {
             uint8_t value = mlmeRequest->Req.PingSlotInfo.PingSlot.Value;
-
-            // Apply the request
-            MacCtx.MacFlags.Bits.MlmeReq = 1;
-            queueElement.Request = mlmeRequest->Type;
-            queueElement.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
-            queueElement.RestrictCommonReadyToHandle = false;
-            LoRaMacConfirmQueueAdd( &queueElement );
 
             // LoRaMac will send this command piggy-pack
             LoRaMacClassBSetPingSlotInfo( mlmeRequest->Req.PingSlotInfo.PingSlot.Fields.Periodicity );
@@ -4214,13 +4180,6 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
         }
         case MLME_BEACON_TIMING:
         {
-            // Apply the request
-            MacCtx.MacFlags.Bits.MlmeReq = 1;
-            queueElement.Request = mlmeRequest->Type;
-            queueElement.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
-            queueElement.RestrictCommonReadyToHandle = false;
-            LoRaMacConfirmQueueAdd( &queueElement );
-
             // LoRaMac will send this command piggy-pack
             status = LORAMAC_STATUS_OK;
             if( LoRaMacCommandsAddCmd( MOTE_MAC_BEACON_TIMING_REQ, macCmdPayload, 0 ) != LORAMAC_COMMANDS_SUCCESS )
@@ -4232,11 +4191,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
         case MLME_BEACON_ACQUISITION:
         {
             // Apply the request
-            MacCtx.MacFlags.Bits.MlmeReq = 1;
-            queueElement.Request = mlmeRequest->Type;
-            queueElement.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
             queueElement.RestrictCommonReadyToHandle = true;
-            LoRaMacConfirmQueueAdd( &queueElement );
 
             if( LoRaMacClassBIsAcquisitionInProgress( ) == false )
             {
@@ -4258,15 +4213,17 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
 
     if( status != LORAMAC_STATUS_OK )
     {
-        MacCtx.NvmCtx->NodeAckRequested = false;
-        LoRaMacConfirmQueueRemoveLast( );
         if( LoRaMacConfirmQueueGetCnt( ) == 0 )
         {
+            MacCtx.NvmCtx->NodeAckRequested = false;
             MacCtx.MacFlags.Bits.MlmeReq = 0;
         }
     }
-
-    EventMacNvmCtxChanged( );
+    else
+    {
+        LoRaMacConfirmQueueAdd( &queueElement );
+        EventMacNvmCtxChanged( );
+    }
     return status;
 }
 
