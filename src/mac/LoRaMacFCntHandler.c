@@ -211,7 +211,7 @@ LoRaMacFCntHandlerStatus_t LoRaMacGetFCntDown( AddressIdentifier_t addrID, FType
         }
         else
         {  // Negative difference, assume a roll-over of one uint16_t
-            *currentDown = previousDown + fCntDiff + ( 0x10000 + ( previousDown & 0xFFFF0000 ) );
+            *currentDown = ( previousDown & 0xFFFF0000 ) + 0x10000 + macMsg->FHDR.FCnt;
         }
     }
 
