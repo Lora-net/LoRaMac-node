@@ -2946,7 +2946,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t* macHdr, LoRaMacFrameCtrl_t* fCtrl
     {
         case FRAME_TYPE_DATA_CONFIRMED_UP:
             MacCtx.NvmCtx->NodeAckRequested = true;
-            //Intentional fall-through
+            // Intentional fall through
         case FRAME_TYPE_DATA_UNCONFIRMED_UP:
             MacCtx.TxMsg.Type = LORAMAC_MSG_TYPE_DATA;
             MacCtx.TxMsg.Message.Data.Buffer = MacCtx.PktBuffer;
