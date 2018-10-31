@@ -32,7 +32,7 @@
 #include "lpm-board.h"
 #include "rtc-board.h"
 
-#if defined( SX1261DVK1BAS ) || defined( SX1262DVK1CAS ) || defined( SX1262DVK1DAS )
+#if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
     #include "sx126x-board.h"
 #elif defined( SX1272MB2DAS)
     #include "sx1272-board.h"
@@ -167,7 +167,7 @@ void BoardInitMcu( void )
         SystemClockReConfig( );
     }
 
-#if defined( SX1261DVK1BAS ) || defined( SX1262DVK1CAS ) || defined( SX1262DVK1DAS )
+#if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
     SpiInit( &SX126x.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX126xIoInit( );
 #elif defined( SX1272MB2DAS)
@@ -199,7 +199,7 @@ void BoardResetMcu( void )
 
 void BoardDeInitMcu( void )
 {
-#if defined( SX1261DVK1BAS ) || defined( SX1262DVK1CAS ) || defined( SX1262DVK1DAS )
+#if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
     SpiDeInit( &SX126x.Spi );
     SX126xIoDeInit( );
 #elif defined( SX1272MB2DAS)

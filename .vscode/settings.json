@@ -44,13 +44,13 @@
         "MODULATION":"LORA",
 
         // Target board, the following boards are supported:
-        // NAMote72, NucleoL073 (Default), NucleoL152, SAML21, SKiM880B, SKiM980A, SKiM881AXL and B-L072Z-LRWAN1.
+        // NAMote72, NucleoL073 (Default), NucleoL152, NucleoL476, SAML21, SKiM880B, SKiM980A, SKiM881AXL and B-L072Z-LRWAN1.
         "BOARD":"NucleoL073",
 
         // MBED Radio shield selection. (Applies only to Nucleo platforms)
         // The following shields are supported:
-        // SX1272MB2DAS, SX1276MB1LAS, SX1276MB1MAS, SX1261DVK1BAS(Default), SX1262DVK1CAS, SX1262DVK1DAS.
-        "MBED_RADIO_SHIELD":"SX1261DVK1BAS",
+        // SX1272MB2DAS, SX1276MB1LAS, SX1276MB1MAS, SX1261MBXBAS(Default), SX1262MBXCAS, SX1262MBXDAS.
+        "MBED_RADIO_SHIELD":"SX1261MBXBAS",
 
         // Region support activation, Select the ones you want to support.
         // By default only REGION_EU868 support is enabled.
