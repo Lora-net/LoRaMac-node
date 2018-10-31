@@ -1,7 +1,7 @@
 /*!
- * \file      sx1262dvk1das-board.c
+ * \file      sx1262mbxcas-board.c
  *
- * \brief     Target board SX1262DVK1DAS shield driver implementation
+ * \brief     Target board SX1262MBXCAS shield driver implementation
  *
  * \copyright Revised BSD License, see section \ref LICENSE.
  *

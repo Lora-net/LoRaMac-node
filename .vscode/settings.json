@@ -49,8 +49,8 @@
 
         // MBED Radio shield selection. (Applies only to Nucleo platforms)
         // The following shields are supported:
-        // SX1272MB2DAS, SX1276MB1LAS, SX1276MB1MAS, SX1261DVK1BAS(Default), SX1262DVK1CAS, SX1262DVK1DAS.
-        "MBED_RADIO_SHIELD":"SX1261DVK1BAS",
+        // SX1272MB2DAS, SX1276MB1LAS, SX1276MB1MAS, SX1261MBXBAS(Default), SX1262MBXCAS, SX1262MBXDAS.
+        "MBED_RADIO_SHIELD":"SX1261MBXBAS",
 
         // Region support activation, Select the ones you want to support.
         // By default only REGION_EU868 support is enabled.

@@ -1,7 +1,10 @@
 /*!
- * \file      sx1261dvk1bas-board.c
+ * \file      sx1262mbxdas-board.c
  *
- * \brief     Target board SX1261DVK1BAS shield driver implementation
+ * \brief     Target board SX1262MBXDAS shield driver implementation
+ *
+ * \remark    This target board is only available with the SX126xDVK1xAS
+ *            development kit.
  *
  * \copyright Revised BSD License, see section \ref LICENSE.
  *

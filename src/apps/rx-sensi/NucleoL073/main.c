@@ -99,7 +99,7 @@
 #define FSK_BANDWIDTH                               50000     // Hz >> SSB in sx127x
 #define FSK_AFC_BANDWIDTH                           83333     // Hz
 
-#elif defined( SX1261DVK1BAS ) || defined( SX1262DVK1CAS ) || defined( SX1262DVK1DAS )
+#elif defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
 
 #define FSK_BANDWIDTH                               100000    // Hz >> DSB in sx126x
 #define FSK_AFC_BANDWIDTH                           166666    // Hz >> Unused in sx126x
