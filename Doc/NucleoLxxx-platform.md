@@ -2,6 +2,7 @@
 
 * [NucleoL073RZ](https://os.mbed.com/platforms/ST-Nucleo-L073RZ/)
 * [NucleoL152RE](https://os.mbed.com/platforms/ST-Nucleo-L152RE/)
+* [NucleoL476RG](https://os.mbed.com/platforms/ST-Nucleo-L476RG/)
 
 The following mbed shields may be used with NucleoLxxx platforms:
 

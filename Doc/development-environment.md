@@ -113,6 +113,7 @@ Alternatively one can use a graphical interface to configure CMake, drop down me
      * NAMote72
      * NucleoL073 (default)
      * NucleoL152
+     * NucleoL476
      * SAML21
      * SKiM880B
      * SKiM980A
