@@ -1368,24 +1368,24 @@ void SX1272OnDio0Irq( void* context )
                         break;
                     }
 
-                    SX1272.Settings.LoRaPacketHandler.SnrValue = SX1272Read( REG_LR_PKTSNRVALUE );
-                    if( SX1272.Settings.LoRaPacketHandler.SnrValue & 0x80 ) // The SNR sign bit is 1
+                    snr = SX1272Read( REG_LR_PKTSNRVALUE );
+                    if( snr & 0x80 ) // The SNR sign bit is 1
                     {
                         // Invert and divide by 4
-                        snr = ( ( ~SX1272.Settings.LoRaPacketHandler.SnrValue + 1 ) & 0xFF ) >> 2;
-                        snr = -snr;
+                        SX1272.Settings.LoRaPacketHandler.SnrValue = ( ( ~snr + 1 ) & 0xFF ) >> 2;
+                        SX1272.Settings.LoRaPacketHandler.SnrValue = -SX1272.Settings.LoRaPacketHandler.SnrValue;
                     }
                     else
                     {
                         // Divide by 4
-                        snr = ( SX1272.Settings.LoRaPacketHandler.SnrValue & 0xFF ) >> 2;
+                        SX1272.Settings.LoRaPacketHandler.SnrValue = ( snr & 0xFF ) >> 2;
                     }
 
                     int16_t rssi = SX1272Read( REG_LR_PKTRSSIVALUE );
-                    if( snr < 0 )
+                    if( SX1272.Settings.LoRaPacketHandler.SnrValue < 0 )
                     {
                         SX1272.Settings.LoRaPacketHandler.RssiValue = RSSI_OFFSET + rssi + ( rssi >> 4 ) +
-                                                                      snr;
+                                                                      SX1272.Settings.LoRaPacketHandler.SnrValue;
                     }
                     else
                     {
