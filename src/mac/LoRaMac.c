@@ -779,7 +779,7 @@ static uint8_t LoRaMacCheckForBeaconAcquisition( void );
 /*!
  * \brief This function handles join request
  */
-static void LoRaMacHanleJoinRequests( void );
+static void LoRaMacHandleJoinRequest( void );
 
 /*!
  * \brief This function handles mcps request
@@ -1612,7 +1612,7 @@ static void LoRaMacHandleMcpsRequest( void )
     }
 }
 
-static void LoRaMacHanleJoinRequests( void )
+static void LoRaMacHandleJoinRequest( void )
 {
     // Handle join request
     if( ( MacCtx.MacFlags.Bits.MlmeReq == 1 ) && ( LoRaMacConfirmQueueIsCmdActive( MLME_JOIN ) == true ) )
@@ -1688,7 +1688,7 @@ void LoRaMacProcess( void )
 
         if( noTx == 0x00 )
         {
-            LoRaMacHanleJoinRequests( );
+            LoRaMacHandleJoinRequest( );
             LoRaMacHandleMcpsRequest( );
         }
         LoRaMacHandleRequestEvents( );
