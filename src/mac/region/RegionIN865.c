@@ -933,6 +933,11 @@ LoRaMacStatus_t RegionIN865ChannelAdd( ChannelAddParams_t* channelAdd )
     bool freqInvalid = false;
     uint8_t id = channelAdd->ChannelId;
 
+    if( id < IN865_NUMB_DEFAULT_CHANNELS )
+    {
+        return LORAMAC_STATUS_FREQ_AND_DR_INVALID;
+    }
+
     if( id >= IN865_MAX_NB_CHANNELS )
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
@@ -950,26 +955,6 @@ LoRaMacStatus_t RegionIN865ChannelAdd( ChannelAddParams_t* channelAdd )
     if( channelAdd->NewChannel->DrRange.Fields.Min > channelAdd->NewChannel->DrRange.Fields.Max )
     {
         drInvalid = true;
-    }
-
-    // Default channels don't accept all values
-    if( id < IN865_NUMB_DEFAULT_CHANNELS )
-    {
-        // Validate the datarate range for min: must be DR_0
-        if( channelAdd->NewChannel->DrRange.Fields.Min > DR_0 )
-        {
-            drInvalid = true;
-        }
-        // Validate the datarate range for max: must be DR_5 <= Max <= TX_MAX_DATARATE
-        if( RegionCommonValueInRange( channelAdd->NewChannel->DrRange.Fields.Max, DR_5, IN865_TX_MAX_DATARATE ) == false )
-        {
-            drInvalid = true;
-        }
-        // We are not allowed to change the frequency
-        if( channelAdd->NewChannel->Frequency != NvmCtx.Channels[id].Frequency )
-        {
-            freqInvalid = true;
-        }
     }
 
     // Check frequency
