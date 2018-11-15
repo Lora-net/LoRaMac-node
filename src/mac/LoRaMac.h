@@ -503,7 +503,7 @@ typedef struct sBeaconInfo
     /*!
      * SNR
      */
-    uint8_t Snr;
+    int8_t Snr;
     /*!
      * Data structure for the gateway specific part. The
      * content of the values may differ for each gateway
@@ -892,7 +892,7 @@ typedef struct sMcpsIndication
     /*!
      * Snr of the received packet
      */
-    uint8_t Snr;
+    int8_t Snr;
     /*!
      * Receive window
      */

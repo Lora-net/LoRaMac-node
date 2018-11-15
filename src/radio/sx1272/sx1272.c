@@ -1344,8 +1344,6 @@ void SX1272OnDio0Irq( void* context )
                 break;
             case MODEM_LORA:
                 {
-                    int8_t snr = 0;
-
                     // Clear Irq
                     SX1272Write( REG_LR_IRQFLAGS, RFLR_IRQFLAGS_RXDONE );
 
@@ -1368,24 +1366,14 @@ void SX1272OnDio0Irq( void* context )
                         break;
                     }
 
-                    SX1272.Settings.LoRaPacketHandler.SnrValue = SX1272Read( REG_LR_PKTSNRVALUE );
-                    if( SX1272.Settings.LoRaPacketHandler.SnrValue & 0x80 ) // The SNR sign bit is 1
-                    {
-                        // Invert and divide by 4
-                        snr = ( ( ~SX1272.Settings.LoRaPacketHandler.SnrValue + 1 ) & 0xFF ) >> 2;
-                        snr = -snr;
-                    }
-                    else
-                    {
-                        // Divide by 4
-                        snr = ( SX1272.Settings.LoRaPacketHandler.SnrValue & 0xFF ) >> 2;
-                    }
+                    // Returns SNR value [dB] rounded to the nearest integer value
+                    SX1272.Settings.LoRaPacketHandler.SnrValue = ( ( ( int8_t )SX1272Read( REG_LR_PKTSNRVALUE ) ) + 2 ) >> 2;
 
                     int16_t rssi = SX1272Read( REG_LR_PKTRSSIVALUE );
-                    if( snr < 0 )
+                    if( SX1272.Settings.LoRaPacketHandler.SnrValue < 0 )
                     {
                         SX1272.Settings.LoRaPacketHandler.RssiValue = RSSI_OFFSET + rssi + ( rssi >> 4 ) +
-                                                                      snr;
+                                                                      SX1272.Settings.LoRaPacketHandler.SnrValue;
                     }
                     else
                     {

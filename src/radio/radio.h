@@ -65,7 +65,7 @@ typedef struct
      * \param [IN] payload Received buffer pointer
      * \param [IN] size    Received buffer size
      * \param [IN] rssi    RSSI value computed while receiving the frame [dBm]
-     * \param [IN] snr     Raw SNR value given by the radio hardware
+     * \param [IN] snr     SNR value computed while receiving the frame [dB]
      *                     FSK : N/A ( set to 0 )
      *                     LoRa: SNR value in dB
      */
