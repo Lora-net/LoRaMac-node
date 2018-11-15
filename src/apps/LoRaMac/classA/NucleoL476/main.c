@@ -418,7 +418,6 @@ static bool SendFrame( void )
             mcpsReq.Req.Confirmed.fPort = AppPort;
             mcpsReq.Req.Confirmed.fBuffer = AppDataBuffer;
             mcpsReq.Req.Confirmed.fBufferSize = AppDataSize;
-            mcpsReq.Req.Confirmed.NbTrials = 8;
             mcpsReq.Req.Confirmed.Datarate = LORAWAN_DEFAULT_DATARATE;
         }
     }
@@ -517,7 +516,7 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
                 // Check Datarate
                 // Check TxPower
                 // Check AckReceived
-                // Check NbTrials
+                // Check NbTrans
                 break;
             }
             case MCPS_PROPRIETARY:
