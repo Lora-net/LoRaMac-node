@@ -1508,8 +1508,6 @@ void SX1276OnDio0Irq( void* context )
                 break;
             case MODEM_LORA:
                 {
-                    int8_t snr = 0;
-
                     // Clear Irq
                     SX1276Write( REG_LR_IRQFLAGS, RFLR_IRQFLAGS_RXDONE );
 
@@ -1532,31 +1530,21 @@ void SX1276OnDio0Irq( void* context )
                         break;
                     }
 
-                    SX1276.Settings.LoRaPacketHandler.SnrValue = SX1276Read( REG_LR_PKTSNRVALUE );
-                    if( SX1276.Settings.LoRaPacketHandler.SnrValue & 0x80 ) // The SNR sign bit is 1
-                    {
-                        // Invert and divide by 4
-                        snr = ( ( ~SX1276.Settings.LoRaPacketHandler.SnrValue + 1 ) & 0xFF ) >> 2;
-                        snr = -snr;
-                    }
-                    else
-                    {
-                        // Divide by 4
-                        snr = ( SX1276.Settings.LoRaPacketHandler.SnrValue & 0xFF ) >> 2;
-                    }
+                    // Returns SNR value [dB] rounded to the nearest integer value
+                    SX1276.Settings.LoRaPacketHandler.SnrValue = ( ( ( int8_t )SX1276Read( REG_LR_PKTSNRVALUE ) ) + 2 ) >> 2;
 
                     int16_t rssi = SX1276Read( REG_LR_PKTRSSIVALUE );
-                    if( snr < 0 )
+                    if( SX1276.Settings.LoRaPacketHandler.SnrValue < 0 )
                     {
                         if( SX1276.Settings.Channel > RF_MID_BAND_THRESH )
                         {
                             SX1276.Settings.LoRaPacketHandler.RssiValue = RSSI_OFFSET_HF + rssi + ( rssi >> 4 ) +
-                                                                          snr;
+                                                                          SX1276.Settings.LoRaPacketHandler.SnrValue;
                         }
                         else
                         {
                             SX1276.Settings.LoRaPacketHandler.RssiValue = RSSI_OFFSET_LF + rssi + ( rssi >> 4 ) +
-                                                                          snr;
+                                                                          SX1276.Settings.LoRaPacketHandler.SnrValue;
                         }
                     }
                     else
@@ -1637,10 +1625,17 @@ void SX1276OnDio1Irq( void* context )
                     }
                 }
 
-                if( ( SX1276.Settings.FskPacketHandler.Size - SX1276.Settings.FskPacketHandler.NbBytes ) > SX1276.Settings.FskPacketHandler.FifoThresh )
+                // ERRATA 3.1 - PayloadReady Set for 31.25ns if FIFO is Empty
+                //
+                //              When FifoLevel interrupt is used to offload the
+                //              FIFO, the microcontroller should  monitor  both
+                //              PayloadReady  and FifoLevel interrupts, and
+                //              read only (FifoThreshold-1) bytes off the FIFO
+                //              when FifoLevel fires
+                if( ( SX1276.Settings.FskPacketHandler.Size - SX1276.Settings.FskPacketHandler.NbBytes ) >= SX1276.Settings.FskPacketHandler.FifoThresh )
                 {
-                    SX1276ReadFifo( ( RxTxBuffer + SX1276.Settings.FskPacketHandler.NbBytes ), SX1276.Settings.FskPacketHandler.FifoThresh );
-                    SX1276.Settings.FskPacketHandler.NbBytes += SX1276.Settings.FskPacketHandler.FifoThresh;
+                    SX1276ReadFifo( ( RxTxBuffer + SX1276.Settings.FskPacketHandler.NbBytes ), SX1276.Settings.FskPacketHandler.FifoThresh - 1 );
+                    SX1276.Settings.FskPacketHandler.NbBytes += SX1276.Settings.FskPacketHandler.FifoThresh - 1;
                 }
                 else
                 {
