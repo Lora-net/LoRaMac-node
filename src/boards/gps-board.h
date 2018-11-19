@@ -39,7 +39,7 @@ typedef enum PpsTrigger_s
 /*!
  * \brief Low level handling of the PPS signal from the GPS receiver
  */
-void GpsMcuOnPpsSignal( void );
+void GpsMcuOnPpsSignal( void* context );
 
 /*!
  * \brief Invert the IRQ trigger edge on the PPS signal
