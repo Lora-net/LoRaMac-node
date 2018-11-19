@@ -516,7 +516,7 @@ static bool ValidatePayloadLength( uint8_t lenN, int8_t datarate, uint8_t fOptsL
  * \param [IN] snr          The SNR value  of the frame
  * \param [IN] rxSlot       The RX slot where the frame was received
  */
-static void ProcessMacCommands( uint8_t* payload, uint8_t macIndex, uint8_t commandsSize, uint8_t snr, LoRaMacRxSlot_t rxSlot );
+static void ProcessMacCommands( uint8_t* payload, uint8_t macIndex, uint8_t commandsSize, int8_t snr, LoRaMacRxSlot_t rxSlot );
 
 /*!
  * \brief LoRaMAC layer generic send frame
@@ -779,7 +779,7 @@ static uint8_t LoRaMacCheckForBeaconAcquisition( void );
 /*!
  * \brief This function handles join request
  */
-static void LoRaMacHanleJoinRequests( void );
+static void LoRaMacHandleJoinRequest( void );
 
 /*!
  * \brief This function handles mcps request
@@ -1612,7 +1612,7 @@ static void LoRaMacHandleMcpsRequest( void )
     }
 }
 
-static void LoRaMacHanleJoinRequests( void )
+static void LoRaMacHandleJoinRequest( void )
 {
     // Handle join request
     if( ( MacCtx.MacFlags.Bits.MlmeReq == 1 ) && ( LoRaMacConfirmQueueIsCmdActive( MLME_JOIN ) == true ) )
@@ -1688,7 +1688,7 @@ void LoRaMacProcess( void )
 
         if( noTx == 0x00 )
         {
-            LoRaMacHanleJoinRequests( );
+            LoRaMacHandleJoinRequest( );
             LoRaMacHandleMcpsRequest( );
         }
         LoRaMacHandleRequestEvents( );
@@ -1928,7 +1928,7 @@ static void SetMlmeScheduleUplinkIndication( void )
     MacCtx.MacFlags.Bits.MlmeInd = 1;
 }
 
-static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t commandsSize, uint8_t snr, LoRaMacRxSlot_t rxSlot )
+static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t commandsSize, int8_t snr, LoRaMacRxSlot_t rxSlot )
 {
     uint8_t status = 0;
     bool adrBlockFound = false;
@@ -2036,7 +2036,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     batteryLevel = MacCtx.MacCallbacks->GetBatteryLevel( );
                 }
                 macCmdPayload[0] = batteryLevel;
-                macCmdPayload[1] = snr & 0x3F;
+                macCmdPayload[1] = ( uint8_t )( snr & 0x3F );
                 LoRaMacCommandsAddCmd( MOTE_MAC_DEV_STATUS_ANS, macCmdPayload, 2 );
                 break;
             }
