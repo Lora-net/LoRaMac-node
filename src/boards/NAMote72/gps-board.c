@@ -54,7 +54,7 @@ bool GpsPowerEnInverted = false;
 
 extern Uart_t Uart1;
 
-void GpsMcuOnPpsSignal( void )
+void GpsMcuOnPpsSignal( void* context )
 {
     bool parseData = false;
 
