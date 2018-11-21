@@ -1629,7 +1629,7 @@ static void LoRaMacHandleJoinRequest( void )
 static uint8_t LoRaMacCheckForTxTimeout( void )
 {
     if( ( LoRaMacConfirmQueueGetStatusCmn( ) == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT ) ||
-        ( LoRaMacConfirmQueueGetStatusCmn( ) == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT ) )
+        ( MacCtx.McpsConfirm.Status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT ) )
     {
         // Stop transmit cycle due to tx timeout
         MacCtx.MacState &= ~LORAMAC_TX_RUNNING;
