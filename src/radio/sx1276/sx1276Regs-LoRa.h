@@ -71,14 +71,14 @@
 #define REG_LR_FEIMID                               0x29
 #define REG_LR_FEILSB                               0x2A
 #define REG_LR_RSSIWIDEBAND                         0x2C
-#define REG_LR_TEST2F                               0x2F
-#define REG_LR_TEST30                               0x30
+#define REG_LR_IFFREQ1                              0x2F
+#define REG_LR_IFFREQ2                              0x30
 #define REG_LR_DETECTOPTIMIZE                       0x31
 #define REG_LR_INVERTIQ                             0x33
-#define REG_LR_TEST36                               0x36
+#define REG_LR_HIGHBWOPTIMIZE1                      0x36
 #define REG_LR_DETECTIONTHRESHOLD                   0x37
 #define REG_LR_SYNCWORD                             0x39
-#define REG_LR_TEST3A                               0x3A
+#define REG_LR_HIGHBWOPTIMIZE2                      0x3A
 #define REG_LR_INVERTIQ2                            0x3B
 
 // end of documented register in datasheet
