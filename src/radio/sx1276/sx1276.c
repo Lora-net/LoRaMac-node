@@ -524,19 +524,19 @@ void SX1276SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
             if( ( bandwidth == 9 ) && ( SX1276.Settings.Channel > RF_MID_BAND_THRESH ) )
             {
                 // ERRATA 2.1 - Sensitivity Optimization with a 500 kHz Bandwidth
-                SX1276Write( REG_LR_TEST36, 0x02 );
-                SX1276Write( REG_LR_TEST3A, 0x64 );
+                SX1276Write( REG_LR_HIGHBWOPTIMIZE1, 0x02 );
+                SX1276Write( REG_LR_HIGHBWOPTIMIZE2, 0x64 );
             }
             else if( bandwidth == 9 )
             {
                 // ERRATA 2.1 - Sensitivity Optimization with a 500 kHz Bandwidth
-                SX1276Write( REG_LR_TEST36, 0x02 );
-                SX1276Write( REG_LR_TEST3A, 0x7F );
+                SX1276Write( REG_LR_HIGHBWOPTIMIZE1, 0x02 );
+                SX1276Write( REG_LR_HIGHBWOPTIMIZE2, 0x7F );
             }
             else
             {
                 // ERRATA 2.1 - Sensitivity Optimization with a 500 kHz Bandwidth
-                SX1276Write( REG_LR_TEST36, 0x03 );
+                SX1276Write( REG_LR_HIGHBWOPTIMIZE1, 0x03 );
             }
 
             if( datarate == 6 )
@@ -921,41 +921,41 @@ void SX1276SetRx( uint32_t timeout )
             if( SX1276.Settings.LoRa.Bandwidth < 9 )
             {
                 SX1276Write( REG_LR_DETECTOPTIMIZE, SX1276Read( REG_LR_DETECTOPTIMIZE ) & 0x7F );
-                SX1276Write( REG_LR_TEST30, 0x00 );
+                SX1276Write( REG_LR_IFFREQ2, 0x00 );
                 switch( SX1276.Settings.LoRa.Bandwidth )
                 {
                 case 0: // 7.8 kHz
-                    SX1276Write( REG_LR_TEST2F, 0x48 );
+                    SX1276Write( REG_LR_IFFREQ1, 0x48 );
                     SX1276SetChannel(SX1276.Settings.Channel + 7810 );
                     break;
                 case 1: // 10.4 kHz
-                    SX1276Write( REG_LR_TEST2F, 0x44 );
+                    SX1276Write( REG_LR_IFFREQ1, 0x44 );
                     SX1276SetChannel(SX1276.Settings.Channel + 10420 );
                     break;
                 case 2: // 15.6 kHz
-                    SX1276Write( REG_LR_TEST2F, 0x44 );
+                    SX1276Write( REG_LR_IFFREQ1, 0x44 );
                     SX1276SetChannel(SX1276.Settings.Channel + 15620 );
                     break;
                 case 3: // 20.8 kHz
-                    SX1276Write( REG_LR_TEST2F, 0x44 );
+                    SX1276Write( REG_LR_IFFREQ1, 0x44 );
                     SX1276SetChannel(SX1276.Settings.Channel + 20830 );
                     break;
                 case 4: // 31.2 kHz
-                    SX1276Write( REG_LR_TEST2F, 0x44 );
+                    SX1276Write( REG_LR_IFFREQ1, 0x44 );
                     SX1276SetChannel(SX1276.Settings.Channel + 31250 );
                     break;
                 case 5: // 41.4 kHz
-                    SX1276Write( REG_LR_TEST2F, 0x44 );
+                    SX1276Write( REG_LR_IFFREQ1, 0x44 );
                     SX1276SetChannel(SX1276.Settings.Channel + 41670 );
                     break;
                 case 6: // 62.5 kHz
-                    SX1276Write( REG_LR_TEST2F, 0x40 );
+                    SX1276Write( REG_LR_IFFREQ1, 0x40 );
                     break;
                 case 7: // 125 kHz
-                    SX1276Write( REG_LR_TEST2F, 0x40 );
+                    SX1276Write( REG_LR_IFFREQ1, 0x40 );
                     break;
                 case 8: // 250 kHz
-                    SX1276Write( REG_LR_TEST2F, 0x40 );
+                    SX1276Write( REG_LR_IFFREQ1, 0x40 );
                     break;
                 }
             }
