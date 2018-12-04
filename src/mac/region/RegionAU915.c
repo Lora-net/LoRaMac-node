@@ -917,7 +917,8 @@ LoRaMacStatus_t RegionAU915NextChannel( NextChanParams_t* nextChanParams, uint8_
         }
     }
 
-    if( nextChanParams->AggrTimeOff <= TimerGetElapsedTime( nextChanParams->LastAggrTx ) )
+    TimerTime_t elapsed = TimerGetElapsedTime( nextChanParams->LastAggrTx );
+    if( nextChanParams->AggrTimeOff <= elapsed )
     {
         // Reset Aggregated time off
         *aggregatedTimeOff = 0;
@@ -933,7 +934,7 @@ LoRaMacStatus_t RegionAU915NextChannel( NextChanParams_t* nextChanParams, uint8_
     else
     {
         delayTx++;
-        nextTxDelay = nextChanParams->AggrTimeOff - TimerGetElapsedTime( nextChanParams->LastAggrTx );
+        nextTxDelay = nextChanParams->AggrTimeOff - elapsed;
     }
 
     if( nbEnabledChannels > 0 )
