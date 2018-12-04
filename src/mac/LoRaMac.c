@@ -2609,6 +2609,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t* macHdr, LoRaMacFrameCtrl_t* fCtrl
             MacCtx.TxMsg.Message.Data.FHDR.FCtrl.Value = fCtrl->Value;
             MacCtx.TxMsg.Message.Data.FRMPayloadSize = MacCtx.AppDataSize;
             MacCtx.TxMsg.Message.Data.FRMPayload = MacCtx.AppData;
+            MacCtx.TxMsg.Message.Data.FRMPayloadEncrypted = false;
 
             if( LORAMAC_FCNT_HANDLER_SUCCESS != LoRaMacGetFCntUp( &fCntUp ) )
             {
@@ -2664,6 +2665,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t* macHdr, LoRaMacFrameCtrl_t* fCtrl
 
                     MacCtx.TxMsg.Message.Data.FRMPayload = MacCtx.NvmCtx->MacCommandsBuffer;
                     MacCtx.TxMsg.Message.Data.FRMPayloadSize = macCmdsSize;
+                    MacCtx.TxMsg.Message.Data.FRMPayloadEncrypted = false;
                 }
             }
 
