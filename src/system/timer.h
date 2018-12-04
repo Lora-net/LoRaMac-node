@@ -46,6 +46,7 @@ typedef struct TimerEvent_s
  */
 #ifndef TimerTime_t
 typedef uint32_t TimerTime_t;
+#define TIMERTIME_T_MAX (~0)
 #endif
 
 /*!
