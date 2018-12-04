@@ -270,6 +270,10 @@ typedef struct sLoRaMacMessageData
      */
     uint8_t FRMPayloadSize;
     /*!
+     * Flag indicating if payload has been encrypted already
+     */
+    bool FRMPayloadEncrypted;
+    /*!
      * Message integrity code (MIC)
      */
     uint32_t MIC;

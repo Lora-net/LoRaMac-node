@@ -1341,13 +1341,14 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSecureMessage( uint32_t fCntUp, uint8_t txDr,
         FRMPayloadDecryptionKeyID = NWK_S_ENC_KEY;
     }
 
-    if( fCntUp > CryptoCtx.NvmCtx->FCntUp )
+    if ( !macMsg->FRMPayloadEncrypted )
     {
         retval = PayloadEncrypt( macMsg->FRMPayload, macMsg->FRMPayloadSize, FRMPayloadDecryptionKeyID, macMsg->FHDR.DevAddr, UPLINK, fCntUp );
         if( retval != LORAMAC_CRYPTO_SUCCESS )
         {
             return retval;
         }
+        macMsg->FRMPayloadEncrypted = true;
 
         if( CryptoCtx.LrWanVersion.Fields.Minor == 1 )
         {
