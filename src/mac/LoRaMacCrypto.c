@@ -243,7 +243,7 @@ static KeyAddr_t KeyAddrList[NUM_OF_SEC_CTX] =
  * \param[IN/OUT]  buffer       - Data buffer
  * \retval                      - Status of the operation
  */
-static LoRaMacCryptoStatus_t PayloadEncrypt( uint8_t* buffer, int32_t size, KeyIdentifier_t keyID, uint32_t address, uint8_t dir, uint32_t frameCounter )
+static LoRaMacCryptoStatus_t PayloadEncrypt( uint8_t* buffer, int16_t size, KeyIdentifier_t keyID, uint32_t address, uint8_t dir, uint32_t frameCounter )
 {
     if( buffer == 0 )
     {
@@ -278,7 +278,7 @@ static LoRaMacCryptoStatus_t PayloadEncrypt( uint8_t* buffer, int32_t size, KeyI
             return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
         }
 
-        for( uint8_t i = 0; i < (size>=16?16:size); i++ )
+        for( uint8_t i = 0; i < ( ( size > 16 ) ? 16 : size ); i++ )
         {
             buffer[bufferIndex + i] = buffer[bufferIndex + i] ^ sBlock[i];
         }
