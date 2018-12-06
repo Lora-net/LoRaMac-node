@@ -368,7 +368,7 @@ void SX126xCalibrateImage( uint32_t freq )
     else if( freq > 850000000 )
     {
         calFreq[0] = 0xD7;
-        calFreq[1] = 0xD8;
+        calFreq[1] = 0xDB;
     }
     else if( freq > 770000000 )
     {
