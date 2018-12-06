@@ -860,7 +860,7 @@ LoRaMacStatus_t RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_
         NvmCtx.ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
     }
 
-    TimerTime_t elapsed = nextChanParams->LastAggrTx==0?0:TimerGetElapsedTime( nextChanParams->LastAggrTx );
+    TimerTime_t elapsed = ( nextChanParams->LastAggrTx == 0 ) ? 0 : TimerGetElapsedTime( nextChanParams->LastAggrTx );
     if( nextChanParams->LastAggrTx == 0 || nextChanParams->AggrTimeOff <= elapsed )
     {
         // Reset Aggregated time off
