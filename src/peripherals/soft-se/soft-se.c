@@ -215,7 +215,6 @@ SecureElementStatus_t SecureElementSetKey( KeyIdentifier_t keyID, uint8_t* key )
     {
         return SECURE_ELEMENT_ERROR_NPE;
     }
-    SecureElementStatus_t retval = SECURE_ELEMENT_ERROR;
 
     for( uint8_t i = 0; i < NUM_OF_KEYS; i++ )
     {
@@ -223,14 +222,15 @@ SecureElementStatus_t SecureElementSetKey( KeyIdentifier_t keyID, uint8_t* key )
         {
             if( LORAMAC_CRYPTO_MULTICAST_KEYS < SeNvmCtx.KeyList[i].KeyID )
             {  // Decrypt the key if its a multicast key
-
+                SecureElementStatus_t retval = SECURE_ELEMENT_ERROR;
                 uint8_t decryptedKey[16] = { 0 };
 
                 retval = SecureElementAesEncrypt( key, 16, MC_KE_KEY, decryptedKey );
-                if( retval != SECURE_ELEMENT_SUCCESS )
-                {
-                    return retval;
-                }
+
+                memcpy1( SeNvmCtx.KeyList[i].KeyValue, decryptedKey, KEY_SIZE );
+                SeNvmCtxChanged( );
+
+                return retval;
             }
             else
             {
