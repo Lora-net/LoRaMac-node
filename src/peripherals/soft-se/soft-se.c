@@ -221,8 +221,8 @@ SecureElementStatus_t SecureElementSetKey( KeyIdentifier_t keyID, uint8_t* key )
     {
         if( SeNvmCtx.KeyList[i].KeyID == keyID )
         {
-            if( LORAMAC_CRYPTO_MULITCAST_KEYS < SeNvmCtx.KeyList[i].KeyID )
-            {  // Decrypt the key if its a Mulitcast key
+            if( LORAMAC_CRYPTO_MULTICAST_KEYS < SeNvmCtx.KeyList[i].KeyID )
+            {  // Decrypt the key if its a multicast key
 
                 uint8_t decryptedKey[16] = { 0 };
 
@@ -246,7 +246,7 @@ SecureElementStatus_t SecureElementSetKey( KeyIdentifier_t keyID, uint8_t* key )
 
 SecureElementStatus_t SecureElementComputeAesCmac( uint8_t* buffer, uint16_t size, KeyIdentifier_t keyID, uint32_t* cmac )
 {
-    if( keyID >= LORAMAC_CRYPTO_MULITCAST_KEYS )
+    if( keyID >= LORAMAC_CRYPTO_MULTICAST_KEYS )
     {
         //Never accept multicast key identifier for cmac computation
         return SECURE_ELEMENT_ERROR_INVALID_KEY_ID;

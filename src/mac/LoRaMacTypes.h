@@ -47,7 +47,7 @@
 /*!
  * Start value for multicast keys enumeration
  */
-#define LORAMAC_CRYPTO_MULITCAST_KEYS   127
+#define LORAMAC_CRYPTO_MULTICAST_KEYS   127
 
 /*!
  * LoRaWAN Frame type enumeration to differ between the possible data up/down frame configurations.
@@ -165,7 +165,7 @@ typedef enum eKeyIdentifier
     /*!
      * Multicast key encryption key
      */
-    MC_KE_KEY = LORAMAC_CRYPTO_MULITCAST_KEYS,
+    MC_KE_KEY = LORAMAC_CRYPTO_MULTICAST_KEYS,
     /*!
      * Multicast root key index 0
      */

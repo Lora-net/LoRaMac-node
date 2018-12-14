@@ -116,7 +116,7 @@
 /*!
  * Start value for multicast keys enumeration
  */
-#define LORAMAC_CRYPTO_MULITCAST_KEYS   127
+#define LORAMAC_CRYPTO_MULTICAST_KEYS   127
 
 /*!
  * LoRaWAN devices classes definition
