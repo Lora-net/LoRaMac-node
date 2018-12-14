@@ -1335,7 +1335,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
 LoRaMacCryptoStatus_t LoRaMacCryptoSecureMessage( uint32_t fCntUp, uint8_t txDr, uint8_t txCh, LoRaMacMessageData_t* macMsg )
 {
     LoRaMacCryptoStatus_t retval = LORAMAC_CRYPTO_ERROR;
-    KeyIdentifier_t FRMPayloadDecryptionKeyID = APP_S_KEY;
+    KeyIdentifier_t payloadDecryptionKeyID = APP_S_KEY;
 
     if( macMsg == NULL )
     {
@@ -1351,12 +1351,12 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSecureMessage( uint32_t fCntUp, uint8_t txDr,
     if( macMsg->FPort == 0 )
     {
         // Use network session key
-        FRMPayloadDecryptionKeyID = NWK_S_ENC_KEY;
+        payloadDecryptionKeyID = NWK_S_ENC_KEY;
     }
 
     if( fCntUp > CryptoCtx.NvmCtx->FCntUp )
     {
-        retval = PayloadEncrypt( macMsg->FRMPayload, macMsg->FRMPayloadSize, FRMPayloadDecryptionKeyID, macMsg->FHDR.DevAddr, UPLINK, fCntUp );
+        retval = PayloadEncrypt( macMsg->FRMPayload, macMsg->FRMPayloadSize, payloadDecryptionKeyID, macMsg->FHDR.DevAddr, UPLINK, fCntUp );
         if( retval != LORAMAC_CRYPTO_SUCCESS )
         {
             return retval;
@@ -1435,7 +1435,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
     }
 
     LoRaMacCryptoStatus_t retval = LORAMAC_CRYPTO_ERROR;
-    KeyIdentifier_t FRMPayloadDecryptionKeyID = APP_S_KEY;
+    KeyIdentifier_t payloadDecryptionKeyID = APP_S_KEY;
     KeyIdentifier_t micComputationKeyID = S_NWK_S_INT_KEY;
     KeyAddr_t* curItem;
 
@@ -1451,7 +1451,9 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
     {
         return retval;
     }
-    FRMPayloadDecryptionKeyID = curItem->AppSkey;
+
+    payloadDecryptionKeyID = curItem->AppSkey;
+
 
     // Check if it is our address
     if( address != macMsg->FHDR.DevAddr )
@@ -1478,9 +1480,9 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
     if( macMsg->FPort == 0 )
     {
         // Use network session encryption key
-        FRMPayloadDecryptionKeyID = NWK_S_ENC_KEY;
+        payloadDecryptionKeyID = NWK_S_ENC_KEY;
     }
-    retval = PayloadEncrypt( macMsg->FRMPayload, macMsg->FRMPayloadSize, FRMPayloadDecryptionKeyID, address, DOWNLINK, fCntDown );
+    retval = PayloadEncrypt( macMsg->FRMPayload, macMsg->FRMPayloadSize, payloadDecryptionKeyID, address, DOWNLINK, fCntDown );
     if( retval != LORAMAC_CRYPTO_SUCCESS )
     {
         return retval;
