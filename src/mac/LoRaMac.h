@@ -397,38 +397,6 @@ typedef struct sLoRaMacParams
 }LoRaMacParams_t;
 
 /*!
- * Multicast channel
- */
-typedef struct sMulticastChannel
-{
-    /*
-     * Address identifier
-     */
-    AddressIdentifier_t AddrID;
-    /*!
-     * Address
-     */
-    uint32_t Address;
-    /*!
-     * True if the entry is active
-     */
-    bool IsEnabled;
-    /*!
-     * Reception frequency of the ping slot windows
-     */
-    uint32_t Frequency;
-    /*!
-     * Datarate of the ping slot
-     */
-    int8_t Datarate;
-    /*!
-     * This parameter is necessary for class b operation. It defines the
-     * periodicity of the multicast downlink slots
-     */
-    uint16_t Periodicity;
-}MulticastChannel_t;
-
-/*!
  * LoRaMAC data structure for a PingSlotInfoReq \ref MLME_PING_SLOT_INFO
  *
  * LoRaWAN Specification
@@ -1085,7 +1053,7 @@ typedef struct sMlmeReqDeriveMcSessionKeyPair
     /*!
      *  Address identifier to select the multicast group
      */
-    AddressIdentifier_t AddrID;
+    AddressIdentifier_t GroupID;
 }MlmeReqDeriveMcSessionKeyPair_t;
 
 /*!
@@ -1935,7 +1903,7 @@ typedef union uMibParam
      *
      * Related MIB type: \ref MIB_MULTICAST_CHANNEL
      */
-    MulticastChannel_t MulticastChannel;
+    McChannelParams_t MulticastChannel;
     /*!
      * System overall timing error in milliseconds.
      *
@@ -2182,7 +2150,11 @@ typedef enum eLoRaMacStatus
      */
     LORAMAC_STATUS_CONFIRM_QUEUE_ERROR,
     /*!
-     * Undefined error occured
+     * The multicast group doesn't exist
+     */
+    LORAMAC_STATUS_MC_GROUP_UNDEFINED,
+    /*!
+     * Undefined error occurred
      */
     LORAMAC_STATUS_ERROR
 }LoRaMacStatus_t;
@@ -2456,18 +2428,60 @@ LoRaMacStatus_t LoRaMacChannelAdd( uint8_t id, ChannelParams_t params );
 LoRaMacStatus_t LoRaMacChannelRemove( uint8_t id );
 
 /*!
- * \brief   LoRaMAC multicast channel setting service
+ * \brief   LoRaMAC multicast channel setup service
  *
- * \details Sets a multicast channel.
+ * \details Sets up a multicast channel.
  *
  * \param   [IN] channel - Multicast channel to set.
  *
  * \retval  LoRaMacStatus_t Status of the operation. Possible returns are:
  *          \ref LORAMAC_STATUS_OK,
  *          \ref LORAMAC_STATUS_BUSY,
- *          \ref LORAMAC_STATUS_PARAMETER_INVALID.
+ *          \ref LORAMAC_STATUS_PARAMETER_INVALID,
+ *          \ref LORAMAC_STATUS_MC_GROUP_UNDEFINED.
  */
-LoRaMacStatus_t LoRaMacMulticastChannelSet( MulticastChannel_t channel );
+LoRaMacStatus_t LoRaMacMcChannelSetup( McChannelParams_t *channel );
+
+/*!
+ * \brief   LoRaMAC multicast channel removal service
+ *
+ * \details Removes/Disables a multicast channel.
+ *
+ * \param   [IN] groupID - Multicast channel ID to be removed/disabled
+ *
+ * \retval  LoRaMacStatus_t Status of the operation. Possible returns are:
+ *          \ref LORAMAC_STATUS_OK,
+ *          \ref LORAMAC_STATUS_BUSY,
+ *          \ref LORAMAC_STATUS_MC_GROUP_UNDEFINED.
+ */
+LoRaMacStatus_t LoRaMacMcChannelDelete( AddressIdentifier_t groupID );
+
+/*!
+ * \brief   LoRaMAC multicast channel get groupId from MC address.
+ *
+ * \param   [IN]  mcAddress - Multicast address to be checked
+ *
+ * \retval  groupID           Multicast channel ID associated to the address.
+ *                            Returns 0xFF if the address isn't found.
+ */
+uint8_t LoRaMacMcChannelGetGroupId( uint32_t mcAddress );
+
+/*!
+ * \brief   LoRaMAC multicast channel Rx parameters setup service
+ *
+ * \details Sets up a multicast channel reception parameters.
+ *
+ * \param   [IN]  groupID  - Multicast channel ID
+ * \param   [IN]  rxParams - Reception parameters
+ * \param   [OUT] status   - Status mask [UNDEF_ID | FREQ_ERR | DR_ERR | GROUP_ID]
+ *
+ * \retval  LoRaMacStatus_t Status of the operation. Possible returns are:
+ *          \ref LORAMAC_STATUS_OK,
+ *          \ref LORAMAC_STATUS_BUSY,
+ *          \ref LORAMAC_STATUS_PARAMETER_INVALID,
+ *          \ref LORAMAC_STATUS_MC_GROUP_UNDEFINED.
+ */
+LoRaMacStatus_t LoRaMacMcChannelSetupRxParams( AddressIdentifier_t groupID, McRxParams_t *rxParams, uint8_t *status );
 
 /*!
  * \brief   LoRaMAC MIB-Get

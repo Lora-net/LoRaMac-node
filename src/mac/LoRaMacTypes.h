@@ -278,40 +278,95 @@ typedef enum eAddressIdentifier
     UNICAST_DEV_ADDR = 4,
 }AddressIdentifier_t;
 
-/*!
- * Multicast context
+/*
+ * Multicast Rx window parameters
  */
-typedef struct sMulticastCtx
+typedef union uMcRxParams
 {
+    struct
+    {
+        /*!
+            * Reception frequency of the ping slot windows
+            */
+        uint32_t Frequency;
+        /*!
+            * Datarate of the ping slot
+            */
+        int8_t Datarate;
+        /*!
+            * This parameter is necessary for class B operation. It defines the
+            * periodicity of the multicast downlink slots
+            */
+        uint16_t Periodicity;
+    }ClassB;
+    struct
+    {
+        /*!
+        * Reception frequency of the ping slot windows
+        */
+        uint32_t Frequency;
+        /*!
+        * Datarate of the ping slot
+        */
+        int8_t Datarate;
+    }ClassC;
+}McRxParams_t;
+
+/*!
+ * Multicast channel
+ */
+typedef struct sMcChannelParams
+{
+    /*!
+     * Multicats channel LoRaWAN class B or C
+     */
+    DeviceClass_t Class;
+    /*!
+     * True if the entry is active
+     */
+    bool IsEnabled;
     /*
      * Address identifier
      */
-    AddressIdentifier_t AddrID;
+    AddressIdentifier_t GroupID;
     /*!
      * Address
      */
     uint32_t Address;
     /*!
+     * Encrypted multicast key
+     */
+    uint8_t *McKeyE;
+    /*!
+     * Minimum multicast frame counter value
+     */
+    uint32_t FCountMin;
+    /*!
+     * Maximum multicast frame counter value
+     */
+    uint32_t FCountMax;
+    /*!
+     * Multicast reception parameters
+     */
+    McRxParams_t RxParams;
+}McChannelParams_t;
+
+/*!
+ * Multicast context
+ */
+typedef struct sMulticastCtx
+{
+    /*!
+     * Multicast channel parameters
+     */
+    McChannelParams_t ChannelParams;
+    /*!
      * Downlink counter
      */
     uint32_t* DownLinkCounter;
-    /*!
-     * True if the entry is active
+    /*
+     * Following parameters are only used for ClassB multicast channels
      */
-    bool IsEnabled;
-    /*!
-     * Reception frequency of the ping slot windows
-     */
-    uint32_t Frequency;
-    /*!
-     * Datarate of the ping slot
-     */
-    int8_t Datarate;
-    /*!
-     * This parameter is necessary for class b operation. It defines the
-     * periodicity of the multicast downlink slots
-     */
-    uint16_t Periodicity;
     /*!
      * Number of multicast slots. The variable can be
      * calculated as follows:
