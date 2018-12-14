@@ -1844,6 +1844,23 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
             {
                 MacCtx.NvmCtx->DeviceClass = deviceClass;
 
+                for( int8_t i = 0; i < LORAMAC_MAX_MC_CTX; i++ )
+                {
+                    if( MacCtx.NvmCtx->MulticastChannelList[i].ChannelParams.IsEnabled == true )
+                    // TODO: Check multicast channel device class.
+                    {
+                        MacCtx.NvmCtx->MacParams.RxCChannel.Frequency = MacCtx.NvmCtx->MulticastChannelList[i].ChannelParams.RxParams.ClassC.Frequency;
+                        MacCtx.NvmCtx->MacParams.RxCChannel.Datarate = MacCtx.NvmCtx->MulticastChannelList[i].ChannelParams.RxParams.ClassC.Datarate;
+                     
+                        MacCtx.RxWindowCConfig.Channel = MacCtx.NvmCtx->Channel;
+                        MacCtx.RxWindowCConfig.Frequency = MacCtx.NvmCtx->MacParams.RxCChannel.Frequency;
+                        MacCtx.RxWindowCConfig.DownlinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
+                        MacCtx.RxWindowCConfig.RepeaterSupport = MacCtx.NvmCtx->RepeaterSupport;
+                        MacCtx.RxWindowCConfig.RxSlot = RX_SLOT_WIN_CLASS_C_MULTICAST;
+                        MacCtx.RxWindowCConfig.RxContinuous = true;
+                        break;
+                    }
+                }
                 // Set the NodeAckRequested indicator to default
                 MacCtx.NvmCtx->NodeAckRequested = false;
                 // Set the radio into sleep mode in case we are still in RX mode
