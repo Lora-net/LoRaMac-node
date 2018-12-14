@@ -33,15 +33,12 @@ set(MBED_RADIO_SHIELD SX1261MBXBAS CACHE STRING "Default MBED radio shield is SX
 set_property(CACHE MBED_RADIO_SHIELD PROPERTY STRINGS ${MBED_RADIO_SHIELD_LIST})
 
 # Allow switching of Applications
-set(APPLICATION_LIST LoRaMac ping-pong rx-sensi tx-cw BootLoader)
+set(APPLICATION_LIST LoRaMac ping-pong rx-sensi tx-cw )
 set(APPLICATION LoRaMac CACHE STRING "Default Application is LoRaMac")
 set_property(CACHE APPLICATION PROPERTY STRINGS ${APPLICATION_LIST})
 
 # Switch for USB-Uart support, enable it for some Applications who needs it.
 option(USE_USB_CDC "Use USB-Uart" OFF)
-
-# Switch for bootloader support.
-option(USE_BOOTLOADER "Use Bootloader" OFF)
 
 # Switch for debugger support.
 option(USE_DEBUGGER "Use Debugger" ON)
@@ -210,9 +207,5 @@ elseif(APPLICATION STREQUAL rx-sensi)
 elseif(APPLICATION STREQUAL tx-cw)
 
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/apps/tx-cw)
-
-elseif(APPLICATION STREQUAL BootLoader)
-
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/apps/BootLoader)
 
 endif()
