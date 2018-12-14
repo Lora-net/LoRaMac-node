@@ -90,6 +90,7 @@ Alternatively one can use a graphical interface to configure CMake, drop down me
      * classB
      * classC
      * periodic-uplink-lpp
+     * fuota-test-01
 * `ACTIVE_REGION` - Active region for which the stack will be initialized.  
    **Note**: Only applicable to LoRaMac `APPLICATION` choice.  
    The possible choices are:

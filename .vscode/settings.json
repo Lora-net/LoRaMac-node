@@ -27,8 +27,8 @@
         "APPLICATION":"LoRaMac",
 
         // Select LoRaMac sub project. You can choose between:
-        // classA, classB or classC, periodic-uplink-lpp.
-        "SUB_PROJECT":"periodic-uplink-lpp",
+        // classA, classB or classC, periodic-uplink-lpp, fuota-test-01.
+        "SUB_PROJECT":"fuota-test-01",
 
         // Switch for Class B support of LoRaMac:
         "CLASSB_ENABLED":"ON",
