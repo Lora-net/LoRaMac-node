@@ -513,12 +513,27 @@ static void OnTxTimerEvent( void* context )
     {
         if( IsFileTransferDone == false )
         {
+            if( IsClockSynched == false )
+            {
 #if( TIME_SYNCH_REQ == TIME_APP_TIME_REQ )
-            LmhpClockSyncAppTimeReq( );
+                LmhpClockSyncAppTimeReq( );
 #else
-            // Use MAC command to synchronize the time.
-            LmHandlerDeviceTimeReq( );
+                // Use MAC command to synchronize the time.
+                LmHandlerDeviceTimeReq( );
 #endif
+            }
+            else
+            {
+                uint8_t randomFrame[] = { randr( 0, 255 ) };
+                // Send random packet
+                LmHandlerAppData_t appData =
+                {
+                    .Buffer = randomFrame,
+                    .BufferSize = sizeof( randomFrame ),
+                    .Port = 1
+                };
+                LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+            }
         }
         else
         {
