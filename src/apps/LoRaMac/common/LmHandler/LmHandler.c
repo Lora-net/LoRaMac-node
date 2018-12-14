@@ -33,6 +33,7 @@
 #include "LmhpCompliance.h"
 #include "LmhpClockSync.h"
 #include "LmhpRemoteMcastSetup.h"
+#include "LmhpFragmentation.h"
 
 #ifndef ACTIVE_REGION
 
@@ -858,6 +859,11 @@ LmHandlerErrorStatus_t LmHandlerPackageRegister( uint8_t id, void *params )
         case PACKAGE_ID_REMOTE_MCAST_SETUP:
         {
             package = LmhpRemoteMcastSetupPackageFactory( );
+            break;
+        }
+        case PACKAGE_ID_FRAGMENTATION:
+        {
+            package = LmhpFragmentationPackageFactory( );
             break;
         }
     }
