@@ -1034,9 +1034,9 @@ static void LoRaMacClassBProcessMulticastSlot( void )
             for( uint8_t i = 0; i < 4; i++ )
             {
                 ComputePingOffset( Ctx.NvmCtx->BeaconCtx.BeaconTime,
-                                                cur->Address,
-                                                cur->PingPeriod,
-                                                &( cur->PingOffset ) );
+                                   cur->ChannelParams.Address,
+                                   cur->PingPeriod,
+                                   &( cur->PingOffset ) );
                 cur++;
             }
             Ctx.NvmCtx->MulticastSlotState = PINGSLOT_STATE_SET_TIMER;
