@@ -50,6 +50,33 @@
 #define LORAMAC_CRYPTO_MULTICAST_KEYS   127
 
 /*!
+ * LoRaWAN devices classes definition
+ *
+ * LoRaWAN Specification V1.0.2, chapter 2.1
+ */
+typedef enum DeviceClass_e
+{
+    /*!
+     * LoRaWAN device class A
+     *
+     * LoRaWAN Specification V1.0.2, chapter 3
+     */
+    CLASS_A = 0x00,
+    /*!
+     * LoRaWAN device class B
+     *
+     * LoRaWAN Specification V1.0.2, chapter 8
+     */
+    CLASS_B = 0x01,
+    /*!
+     * LoRaWAN device class C
+     *
+     * LoRaWAN Specification V1.0.2, chapter 17
+     */
+    CLASS_C = 0x02,
+}DeviceClass_t;
+
+/*!
  * LoRaWAN Frame type enumeration to differ between the possible data up/down frame configurations.
  *
  * Note: The naming is implementation specific since there is no definition
