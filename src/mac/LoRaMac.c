@@ -150,11 +150,11 @@ typedef struct sLoRaMacNvmCtx
      */
     uint32_t AdrAckCounter;
     /*
-     * Limit of uplinks without any donwlink response before the ADRACKReq bit will be set.
+     * Limit of uplinks without any downlink response before the ADRACKReq bit will be set.
      */
     uint16_t AdrAckLimit;
     /*
-     * Limit of uplinks without any donwlink response after a the first frame with set ADRACKReq bit
+     * Limit of uplinks without any downlink response after a the first frame with set ADRACKReq bit
      * before the trying to regain the connectivity.
      */
     uint16_t AdrAckDelay;
@@ -352,7 +352,7 @@ typedef struct sLoRaMacCtx
     */
     LoRaMacFlags_t MacFlags;
     /*
-    * Data structure inidicating if a request is allowed or not.
+    * Data structure indicating if a request is allowed or not.
     */
     LoRaMacRequestHandling_t AllowRequests;
     /*
@@ -758,12 +758,12 @@ static uint8_t IsRequestPending( void );
 static void LoRaMacEnableRequests( LoRaMacRequestHandling_t requestState );
 
 /*!
- * \brief This function verifies if a RX abort occured
+ * \brief This function verifies if a RX abort occurred
  */
 static void LoRaMacCheckForRxAbort( void );
 
 /*!
- * \brief This function verifies if a TX timeout occured
+ * \brief This function verifies if a TX timeout occurred
  *
  *\retval 1: TX timeout, 0: no TX timeout
  */
