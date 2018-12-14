@@ -194,9 +194,9 @@ typedef struct sChannelParams
 }ChannelParams_t;
 
 /*!
- * LoRaMAC receive window 2 channel parameters
+ * LoRaMAC receive window channel parameters
  */
-typedef struct sRx2ChannelParams
+typedef struct sRxChannelParams
 {
     /*!
      * Frequency in Hz
@@ -210,7 +210,7 @@ typedef struct sRx2ChannelParams
      * The allowed ranges are region specific. Please refer to \ref DR_0 to \ref DR_15 for details.
      */
     uint8_t  Datarate;
-}Rx2ChannelParams_t;
+}RxChannelParams_t;
 
 /*!
  * LoRaMAC receive window enumeration
@@ -230,13 +230,17 @@ typedef enum eLoRaMacRxSlot
      */
     RX_SLOT_WIN_CLASS_C,
     /*!
+     * LoRaMAC class c multicast downlink
+     */
+    RX_SLOT_WIN_CLASS_C_MULTICAST,
+    /*!
      * LoRaMAC class b ping slot window
      */
-    RX_SLOT_WIN_PING_SLOT,
+    RX_SLOT_WIN_CLASS_B_PING_SLOT,
     /*!
      * LoRaMAC class b multicast slot window
      */
-    RX_SLOT_WIN_MULTICAST_SLOT,
+    RX_SLOT_WIN_CLASS_B_MULTICAST_SLOT,
 }LoRaMacRxSlot_t;
 
 /*!
@@ -365,7 +369,11 @@ typedef struct sLoRaMacParams
     /*!
      * LoRaMAC 2nd reception window settings
      */
-    Rx2ChannelParams_t Rx2Channel;
+    RxChannelParams_t Rx2Channel;
+    /*!
+     * LoRaMAC continuous reception window settings
+     */
+    RxChannelParams_t RxCChannel;
     /*!
      * Uplink dwell time configuration. 0: No limit, 1: 400ms
      */
@@ -1216,6 +1224,9 @@ typedef struct sMlmeIndication
  * \ref MIB_REPEATER_SUPPORT                     | YES | YES
  * \ref MIB_CHANNELS                             | YES | NO
  * \ref MIB_RX2_CHANNEL                          | YES | YES
+ * \ref MIB_RX2_DFAULT_CHANNEL                   | YES | YES
+ * \ref MIB_RXC_CHANNEL                          | YES | YES
+ * \ref MIB_RXC_DFAULT_CHANNEL                   | YES | YES
  * \ref MIB_CHANNELS_MASK                        | YES | YES
  * \ref MIB_CHANNELS_DEFAULT_MASK                | YES | YES
  * \ref MIB_CHANNELS_NB_TRANS                    | YES | YES
@@ -1451,6 +1462,18 @@ typedef enum eMib
      * LoRaWAN Specification V1.0.2, chapter 3.3.2
      */
     MIB_RX2_DEFAULT_CHANNEL,
+    /*!
+     * Set receive window C channel
+     *
+     * LoRaWAN Specification V1.0.2, chapter 3.3.1
+     */
+    MIB_RXC_CHANNEL,
+    /*!
+     * Set receive window C channel
+     *
+     * LoRaWAN Specification V1.0.2, chapter 3.3.2
+     */
+    MIB_RXC_DEFAULT_CHANNEL,
     /*!
      * LoRaWAN channels mask
      *
@@ -1816,13 +1839,25 @@ typedef union uMibParam
      *
      * Related MIB type: \ref MIB_RX2_CHANNEL
      */
-    Rx2ChannelParams_t Rx2Channel;
+    RxChannelParams_t Rx2Channel;
     /*!
      * Channel for the receive window 2
      *
      * Related MIB type: \ref MIB_RX2_DEFAULT_CHANNEL
      */
-    Rx2ChannelParams_t Rx2DefaultChannel;
+    RxChannelParams_t Rx2DefaultChannel;
+    /*!
+     * Channel for the receive window C
+     *
+     * Related MIB type: \ref MIB_RXC_CHANNEL
+     */
+    RxChannelParams_t RxCChannel;
+    /*!
+     * Channel for the receive window C
+     *
+     * Related MIB type: \ref MIB_RXC_DEFAULT_CHANNEL
+     */
+    RxChannelParams_t RxCDefaultChannel;
     /*!
      * Channel mask
      *

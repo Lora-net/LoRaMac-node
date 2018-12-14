@@ -961,7 +961,7 @@ static void LoRaMacClassBProcessPingSlot( void )
                 pingSlotRxConfig.RepeaterSupport = Ctx.LoRaMacClassBParams.LoRaMacParams->RepeaterSupport;
                 pingSlotRxConfig.Frequency = frequency;
                 pingSlotRxConfig.RxContinuous = false;
-                pingSlotRxConfig.RxSlot = RX_SLOT_WIN_PING_SLOT;
+                pingSlotRxConfig.RxSlot = RX_SLOT_WIN_CLASS_B_PING_SLOT;
 
                 RegionRxConfig( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &pingSlotRxConfig, ( int8_t* )&Ctx.LoRaMacClassBParams.McpsIndication->RxDatarate );
 
@@ -1117,7 +1117,7 @@ static void LoRaMacClassBProcessMulticastSlot( void )
             multicastSlotRxConfig.RepeaterSupport = Ctx.LoRaMacClassBParams.LoRaMacParams->RepeaterSupport;
             multicastSlotRxConfig.Frequency = frequency;
             multicastSlotRxConfig.RxContinuous = false;
-            multicastSlotRxConfig.RxSlot = RX_SLOT_WIN_MULTICAST_SLOT;
+            multicastSlotRxConfig.RxSlot = RX_SLOT_WIN_CLASS_B_MULTICAST_SLOT;
 
             RegionRxConfig( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &multicastSlotRxConfig, ( int8_t* )&Ctx.LoRaMacClassBParams.McpsIndication->RxDatarate );
 
