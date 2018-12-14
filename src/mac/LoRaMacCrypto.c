@@ -1453,7 +1453,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
     }
 
     payloadDecryptionKeyID = curItem->AppSkey;
-
+    micComputationKeyID = curItem->NwkSkey;
 
     // Check if it is our address
     if( address != macMsg->FHDR.DevAddr )
