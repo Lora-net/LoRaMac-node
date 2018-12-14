@@ -285,6 +285,7 @@ const char* MacStatusStrings[] =
     "MAC command error",             // LORAMAC_STATUS_MAC_COMMAD_ERROR
     "ClassB error",                  // LORAMAC_STATUS_CLASS_B_ERROR
     "Confirm queue error",           // LORAMAC_STATUS_CONFIRM_QUEUE_ERROR
+    "Multicast group undefined",     // LORAMAC_STATUS_MC_GROUP_UNDEFINED
     "Unknown error",                 // LORAMAC_STATUS_ERROR
 };
 
@@ -982,7 +983,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
     GpioWrite( &Led2, 0 );
     TimerStart( &Led2Timer );
 
-    const char *slotStrings[] = { "1", "2", "C", "Ping-Slot", "Multicast Ping-Slot" };
+    const char *slotStrings[] = { "1", "2", "C", "C Multicast", "B Ping-Slot", "B Multicast Ping-Slot" };
 
     printf( "\r\n###### ===== DOWNLINK FRAME %lu ==== ######\r\n", mcpsIndication->DownLinkCounter );
 
