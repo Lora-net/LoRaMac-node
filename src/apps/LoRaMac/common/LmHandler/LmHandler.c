@@ -32,6 +32,7 @@
 #include "LmhPackage.h"
 #include "LmhpCompliance.h"
 #include "LmhpClockSync.h"
+#include "LmhpRemoteMcastSetup.h"
 
 #ifndef ACTIVE_REGION
 
@@ -852,6 +853,11 @@ LmHandlerErrorStatus_t LmHandlerPackageRegister( uint8_t id, void *params )
         case PACKAGE_ID_CLOCK_SYNC:
         {
             package = LmphClockSyncPackageFactory( );
+            break;
+        }
+        case PACKAGE_ID_REMOTE_MCAST_SETUP:
+        {
+            package = LmhpRemoteMcastSetupPackageFactory( );
             break;
         }
     }
