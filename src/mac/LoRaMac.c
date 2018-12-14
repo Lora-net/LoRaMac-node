@@ -2078,11 +2078,18 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
 {
     uint8_t status = 0;
     bool adrBlockFound = false;
+    bool adrInvalidBlockFound = false;
     uint8_t macCmdPayload[2] = { 0x00, 0x00 };
     MacCommand_t* macCmd;
 
     while( macIndex < commandsSize )
     {
+        if( payload[macIndex] != SRV_MAC_LINK_ADR_REQ )
+        {
+            // Reset the status if the command is not a SRV_MAC_LINK_ADR_REQ
+            adrInvalidBlockFound = false;
+        }
+
         // Decode Frame MAC commands
         switch( payload[macIndex++] )
         {
@@ -2142,13 +2149,24 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                         MacCtx.NvmCtx->MacParams.ChannelsNbTrans = linkAdrNbRep;
                     }
 
-                    // Add the answers to the buffer
-                    for( uint8_t i = 0; i < ( linkAdrNbBytesParsed / 5 ); i++ )
-                    {
-                        LoRaMacCommandsAddCmd( MOTE_MAC_LINK_ADR_ANS, &status, 1 );
-                    }
+                    // Add one single answer to the buffer
+                    LoRaMacCommandsAddCmd( MOTE_MAC_LINK_ADR_ANS, &status, 1 );
+
                     // Update MAC index
                     macIndex += linkAdrNbBytesParsed - 1;
+                }
+                else if( adrInvalidBlockFound == false )
+                {
+                    adrInvalidBlockFound = true;
+                    // Set all status bits to zero, if there is more than one
+                    // atomic block of LinkAdrReq.
+                    status = 0;
+                    LoRaMacCommandsAddCmd( MOTE_MAC_LINK_ADR_ANS, &status, 1 );
+                    macIndex += 4;
+                }
+                else
+                {
+                    macIndex += 4;
                 }
                 break;
             }
