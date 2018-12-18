@@ -1308,7 +1308,7 @@ static void ProcessRadioRxDone( void )
 
             break;
         case FRAME_TYPE_PROPRIETARY:
-            memcpy1( MacCtx.RxPayload, &payload[pktHeaderLen], size );
+            memcpy1( MacCtx.RxPayload, &payload[pktHeaderLen], size - pktHeaderLen );
 
             MacCtx.McpsIndication.McpsIndication = MCPS_PROPRIETARY;
             MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_OK;
