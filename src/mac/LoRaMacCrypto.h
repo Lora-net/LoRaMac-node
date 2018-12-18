@@ -249,16 +249,14 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
 LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcRootKey( KeyIdentifier_t keyID );
 
 /*!
- * Derives the McKEKey from the AppKey or NwkKey.
+ * Derives the McKEKey from the McRootKey.
  *
- * McKEKey = aes128_encrypt(NwkKey or AppKey , nonce | DevEUI  | pad16)
+ * McKEKey = aes128_encrypt(McRootKey , 0x00  | pad16)
  *
- * \param[IN]     keyID           - Key identifier of the root key to use to perform the derivation ( NwkKey or AppKey )
- * \param[IN]     nonce           - Nonce value ( nonce <= 15)
- * \param[IN]     devEUI          - DevEUI Value
+ * \param[IN]     keyID           - Key identifier of the root key to use to perform the derivation ( McRootKey )
  * \retval                        - Status of the operation
  */
-LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcKEKey( KeyIdentifier_t keyID, uint16_t nonce, uint8_t* devEUI );
+LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcKEKey( KeyIdentifier_t keyID );
 
 /*!
  * Derives a Multicast group key pair ( McAppSKey, McNwkSKey ) from McKey

@@ -222,8 +222,8 @@ SecureElementStatus_t SecureElementSetKey( KeyIdentifier_t keyID, uint8_t* key )
     {
         if( SeNvmCtx.KeyList[i].KeyID == keyID )
         {
-            if( LORAMAC_CRYPTO_MULTICAST_KEYS < SeNvmCtx.KeyList[i].KeyID )
-            {  // Decrypt the key if its a multicast key
+            if( ( keyID == MC_KEY_0 ) || ( keyID == MC_KEY_1 ) || ( keyID == MC_KEY_2 ) || ( keyID == MC_KEY_3 ) )
+            {  // Decrypt the key if its a Mckey
                 SecureElementStatus_t retval = SECURE_ELEMENT_ERROR;
                 uint8_t decryptedKey[16] = { 0 };
 
@@ -332,15 +332,6 @@ SecureElementStatus_t SecureElementDeriveAndStoreKey( Version_t version, uint8_t
         {
             return SECURE_ELEMENT_ERROR_INVALID_KEY_ID;
         }
-    }
-
-    // In case of McKEKey derivation, the parameter input is concatenated: nonce | DevEUI  | pad16
-    // where nonce SHALL be greater than 15
-    uint16_t nonce = input[0];
-    nonce |= ( ( uint16_t ) input[1] << 8 );
-    if( ( targetKeyID == MC_KE_KEY ) && ( nonce < 16 ) )
-    {
-        return retval;
     }
 
     // Derive key

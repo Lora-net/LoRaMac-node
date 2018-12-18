@@ -1524,29 +1524,14 @@ LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcRootKey( KeyIdentifier_t keyID )
     return LORAMAC_CRYPTO_SUCCESS;
 }
 
-LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcKEKey( KeyIdentifier_t keyID, uint16_t nonce, uint8_t* devEUI )
+LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcKEKey( KeyIdentifier_t keyID )
 {
-    if( devEUI == 0 )
-    {
-        return LORAMAC_CRYPTO_ERROR_NPE;
-    }
-
-    // Nonce SHALL be greater than 15
-    if( nonce < 16 )
-    {
-        return LORAMAC_CRYPTO_FAIL_PARAM;
-    }
-
-    // Prevent other keys than NwkKey or AppKey for LoRaWAN 1.1 or later
-    if( ( ( keyID == APP_KEY ) && ( CryptoCtx.LrWanVersion.Fields.Minor == 0 ) ) || ( keyID == NWK_KEY ) )
+    // Prevent other keys than McRootKey
+    if( keyID != MC_ROOT_KEY )
     {
         return LORAMAC_CRYPTO_ERROR_INVALID_KEY_ID;
     }
     uint8_t compBase[16] = { 0 };
-
-    compBase[0] = nonce & 0xFF;
-    compBase[1] = ( nonce >> 8 ) & 0xFF;
-    memcpyr( compBase + 2, devEUI, 8 );
 
     if( SecureElementDeriveAndStoreKey( CryptoCtx.LrWanVersion, compBase, keyID, MC_KE_KEY ) != SECURE_ELEMENT_SUCCESS )
     {
