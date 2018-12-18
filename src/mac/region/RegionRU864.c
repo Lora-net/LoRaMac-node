@@ -852,7 +852,7 @@ LoRaMacStatus_t RegionRU864NextChannel( NextChanParams_t* nextChanParams, uint8_
     }
 
     TimerTime_t elapsed = TimerGetElapsedTime( nextChanParams->LastAggrTx );
-    if( nextChanParams->AggrTimeOff <= elapsed )
+    if( ( nextChanParams->LastAggrTx == 0 ) || ( nextChanParams->AggrTimeOff <= elapsed ) )
     {
         // Reset Aggregated time off
         *aggregatedTimeOff = 0;
