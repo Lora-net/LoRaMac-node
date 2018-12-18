@@ -26,6 +26,8 @@
 #include "board-config.h"
 #include "board.h"
 #include "gpio.h"
+#include "gps.h"
+#include "mpl3115.h"
 
 #include "Commissioning.h"
 #include "LmHandler.h"
