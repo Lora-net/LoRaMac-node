@@ -1267,6 +1267,19 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
     // Derive session keys
     if( CryptoCtx.LrWanVersion.Fields.Minor == 1 )
     {
+        // Derive lifetime keys
+        retval = LoRaMacCryptoDeriveMcRootKey( APP_KEY );
+        if( retval != LORAMAC_CRYPTO_SUCCESS )
+        {
+            return retval;
+        }
+
+        retval = LoRaMacCryptoDeriveMcKEKey( MC_ROOT_KEY );
+        if( retval != LORAMAC_CRYPTO_SUCCESS )
+        {
+            return retval;
+        }
+
         retval = DeriveSessionKey11x( F_NWK_S_INT_KEY, macMsg->JoinNonce, joinEUI, devNonceForKeyDerivation );
         if( retval != LORAMAC_CRYPTO_SUCCESS )
         {
@@ -1294,6 +1307,17 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
     else
     {
         // prior LoRaWAN 1.1.0
+        retval = LoRaMacCryptoDeriveMcRootKey( GEN_APP_KEY );
+        if( retval != LORAMAC_CRYPTO_SUCCESS )
+        {
+            return retval;
+        }
+
+        retval = LoRaMacCryptoDeriveMcKEKey( MC_ROOT_KEY );
+        if( retval != LORAMAC_CRYPTO_SUCCESS )
+        {
+            return retval;
+        }
 
         retval = DeriveSessionKey10x( APP_S_KEY, macMsg->JoinNonce, macMsg->NetID, ( uint8_t* ) &CryptoCtx.NvmCtx->DevNonce );
         if( retval != LORAMAC_CRYPTO_SUCCESS )
