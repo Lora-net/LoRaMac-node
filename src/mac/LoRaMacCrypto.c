@@ -243,7 +243,7 @@ static KeyAddr_t KeyAddrList[NUM_OF_SEC_CTX] =
  * \param[IN/OUT]  buffer       - Data buffer
  * \retval                      - Status of the operation
  */
-static LoRaMacCryptoStatus_t PayloadEncrypt( uint8_t* buffer, uint16_t size, KeyIdentifier_t keyID, uint32_t address, uint8_t dir, uint32_t frameCounter )
+static LoRaMacCryptoStatus_t PayloadEncrypt( uint8_t* buffer, int16_t size, KeyIdentifier_t keyID, uint32_t address, uint8_t dir, uint32_t frameCounter )
 {
     if( buffer == 0 )
     {
@@ -269,7 +269,7 @@ static LoRaMacCryptoStatus_t PayloadEncrypt( uint8_t* buffer, uint16_t size, Key
     aBlock[12] = ( frameCounter >> 16 ) & 0xFF;
     aBlock[13] = ( frameCounter >> 24 ) & 0xFF;
 
-    while( size >= 16 )
+    while( size > 0 )
     {
         aBlock[15] = ctr & 0xFF;
         ctr++;
@@ -278,25 +278,12 @@ static LoRaMacCryptoStatus_t PayloadEncrypt( uint8_t* buffer, uint16_t size, Key
             return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
         }
 
-        for( uint8_t i = 0; i < 16; i++ )
+        for( uint8_t i = 0; i < ( ( size > 16 ) ? 16 : size ); i++ )
         {
             buffer[bufferIndex + i] = buffer[bufferIndex + i] ^ sBlock[i];
         }
         size -= 16;
         bufferIndex += 16;
-    }
-
-    if( size > 0 )
-    {
-        aBlock[15] = ctr & 0xFF;
-        if( SecureElementAesEncrypt( aBlock, 16, keyID, sBlock ) != SECURE_ELEMENT_SUCCESS )
-        {
-            return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
-        }
-        for( uint8_t i = 0; i < size; i++ )
-        {
-            buffer[bufferIndex + i] = buffer[bufferIndex + i] ^ sBlock[i];
-        }
     }
 
     return LORAMAC_CRYPTO_SUCCESS;
