@@ -40,12 +40,12 @@ McKey       = aes128_encrypt(McKeyEncryptionKey, McKeyEncrypted)
                              \/
 McKey         : 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 - **OK**
                              ||
-McAppSKey = aes128_encrypt(McKey, [01 FE FF FF FF 00 00 00 00 00 00 00 00 00 00 00])
-McNwkSKey = aes128_encrypt(McKey, [02 FE FF FF FF 00 00 00 00 00 00 00 00 00 00 00])
+McAppSKey = aes128_encrypt(McKey, [01 FF FF FF 01 00 00 00 00 00 00 00 00 00 00 00])
+McNwkSKey = aes128_encrypt(McKey, [02 FF FF FF 01 00 00 00 00 00 00 00 00 00 00 00])
                              ||
                              \/
-McAppSKey     : 20 7A 8C A0 9E 6D 28 70 9B 17 E9 15 F0 EE E5 F4 - **EXPECTED: DA 45 0A 27 AF 6B AD C6 C2 EE 7A 46 69 77 EC 4D**
-McNwkSKey     : 55 EF 19 B4 83 C6 F3 9B 4B D5 E3 AB F8 0D 27 D8 - **EXPECTED: 99 77 C3 58 28 05 CC A3 B2 51 F0 60 9C 22 D6 02**
+McAppSKey     : C3 F6 C3 9B 6B 64 96 C2 96 29 F7 E7 E9 B0 CD 29 - **OK**
+McNwkSKey     : BB 75 C3 62 58 8F 5D 65 FC C6 1C 08 0B 76 DB A3 - **OK**
 
 ```
 
