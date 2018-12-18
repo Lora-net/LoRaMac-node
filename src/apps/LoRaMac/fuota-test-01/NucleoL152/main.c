@@ -301,15 +301,6 @@ int main( void )
 
     LmHandlerInit( &LmHandlerCallbacks, &LmHandlerParams );
 
-    // Manually setup Multicast Keys.
-    MibRequestConfirm_t mibReq;
-
-    // MC key encryption key setup
-    const uint8_t mcKeKey[] = { 0x2C, 0x57, 0x8F, 0x79, 0x27, 0xA9, 0x49, 0xD3, 0xB5, 0x11, 0xAE, 0x8F, 0xB6, 0x91, 0x45, 0xC6 };
-    mibReq.Type = MIB_MC_KE_KEY;
-    mibReq.Param.McKEKey = ( uint8_t* )mcKeKey;
-    LoRaMacMibSetRequestConfirm( &mibReq );
-
     // The LoRa-Alliance Compliance protocol package should always be
     // initialized and activated.
     LmHandlerPackageRegister( PACKAGE_ID_COMPLIANCE, &LmhpComplianceParams );

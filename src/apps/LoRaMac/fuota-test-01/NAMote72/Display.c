@@ -104,10 +104,11 @@ void DisplayNetworkParametersUpdate( CommissioningParams_t *commissioningParams 
         printf( "-%02X", commissioningParams->JoinEui[i] );
     }
     printf( "\r\n" );
-    printf( "AppKey      : %02X", commissioningParams->AppKey[0] );
+    // For 1.0.x devices the AppKey corresponds to NwkKey
+    printf( "AppKey      : %02X", commissioningParams->NwkKey[0] );
     for( int i = 1; i < 16; i++ )
     {
-        printf( " %02X", commissioningParams->AppKey[i] );
+        printf( " %02X", commissioningParams->NwkKey[i] );
     }
     printf( "\n\r\n" );
 }
