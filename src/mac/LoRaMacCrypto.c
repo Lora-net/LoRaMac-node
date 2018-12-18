@@ -1008,6 +1008,18 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSetKey( KeyIdentifier_t keyID, uint8_t* key )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
+    if( ( keyID == GEN_APP_KEY ) || ( keyID == APP_KEY ) )
+    {
+        // Derive lifetime keys
+        if( LoRaMacCryptoDeriveMcRootKey( keyID ) != LORAMAC_CRYPTO_SUCCESS )
+        {
+            return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
+        }
+        if( LoRaMacCryptoDeriveMcKEKey( MC_ROOT_KEY ) != LORAMAC_CRYPTO_SUCCESS )
+        {
+            return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
+        }
+    }
     return LORAMAC_CRYPTO_SUCCESS;
 }
 
@@ -1490,6 +1502,28 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
     return LORAMAC_CRYPTO_SUCCESS;
 }
 
+LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcRootKey( KeyIdentifier_t keyID )
+{
+    // Prevent other keys than GenAppKey for LoRaWAN 1.0.x or AppKey for LoRaWAN 1.1 or later
+    if( ( ( keyID == APP_KEY ) && ( CryptoCtx.LrWanVersion.Fields.Minor == 0 ) ) ||
+        ( ( keyID == GEN_APP_KEY ) && ( CryptoCtx.LrWanVersion.Fields.Minor == 1 ) ) )
+    {
+        return LORAMAC_CRYPTO_ERROR_INVALID_KEY_ID;
+    }
+    uint8_t compBase[16] = { 0 };
+
+    if( CryptoCtx.LrWanVersion.Fields.Minor == 1 )
+    {
+        compBase[0] = 0x20;
+    }
+    if( SecureElementDeriveAndStoreKey( CryptoCtx.LrWanVersion, compBase, keyID, MC_ROOT_KEY ) != SECURE_ELEMENT_SUCCESS )
+    {
+        return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
+    }
+
+    return LORAMAC_CRYPTO_SUCCESS;
+}
+
 LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcKEKey( KeyIdentifier_t keyID, uint16_t nonce, uint8_t* devEUI )
 {
     if( devEUI == 0 )
@@ -1546,13 +1580,12 @@ LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcSessionKeyPair( AddressIdentifier_t a
     uint8_t compBaseNwkS[16] = { 0 };
 
     compBaseAppS[0] = 0x01;
-    compBaseNwkS[0] = 0x02;
-
     compBaseAppS[1] = mcAddr & 0xFF;
     compBaseAppS[2] = ( mcAddr >> 8 ) & 0xFF;
     compBaseAppS[3] = ( mcAddr >> 16 ) & 0xFF;
     compBaseAppS[4] = ( mcAddr >> 24 ) & 0xFF;
 
+    compBaseNwkS[0] = 0x02;
     compBaseNwkS[1] = mcAddr & 0xFF;
     compBaseNwkS[2] = ( mcAddr >> 8 ) & 0xFF;
     compBaseNwkS[3] = ( mcAddr >> 16 ) & 0xFF;

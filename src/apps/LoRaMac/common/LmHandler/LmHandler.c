@@ -54,7 +54,11 @@ static CommissioningParams_t CommissioningParams =
     .IsOtaaActivation = OVER_THE_AIR_ACTIVATION,
     .DevEui = LORAWAN_DEVICE_EUI,
     .JoinEui = LORAWAN_JOIN_EUI,
+#if( ABP_ACTIVATION_LRWAN_VERSION == ABP_ACTIVATION_LRWAN_VERSION_V10x )
+    .GenAppKey = LORAWAN_GEN_APP_KEY,
+#else
     .AppKey = LORAWAN_APP_KEY,
+#endif
     .NwkKey = LORAWAN_NWK_KEY,
 
 #if( OVER_THE_AIR_ACTIVATION == 0 )
@@ -227,9 +231,22 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
         return LORAMAC_HANDLER_ERROR;
     }
 
+#if( OVER_THE_AIR_ACTIVATION == 0 )
+    // Tell the MAC layer which network server version are we connecting too.
+    mibReq.Type = MIB_ABP_LORAWAN_VERSION;
+    mibReq.Param.AbpLrWanVersion.Value = ABP_ACTIVATION_LRWAN_VERSION;
+    LoRaMacMibSetRequestConfirm( &mibReq );
+#endif
+
+#if( ABP_ACTIVATION_LRWAN_VERSION == ABP_ACTIVATION_LRWAN_VERSION_V10x )
+    mibReq.Type = MIB_GEN_APP_KEY;
+    mibReq.Param.GenAppKey = CommissioningParams.GenAppKey;
+    LoRaMacMibSetRequestConfirm( &mibReq );
+#else
     mibReq.Type = MIB_APP_KEY;
     mibReq.Param.AppKey = CommissioningParams.AppKey;
     LoRaMacMibSetRequestConfirm( &mibReq );
+#endif
 
     mibReq.Type = MIB_NWK_KEY;
     mibReq.Param.NwkKey = CommissioningParams.NwkKey;
@@ -298,11 +315,6 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
         {
             LmHandlerCallbacks->OnNetworkParametersChange( &CommissioningParams );
 #if( OVER_THE_AIR_ACTIVATION == 0 )
-            // Tell the MAC layer which network server version are we connecting too.
-            mibReq.Type = MIB_ABP_LORAWAN_VERSION;
-            mibReq.Param.AbpLrWanVersion.Value = ABP_ACTIVATION_LRWAN_VERSION;
-            LoRaMacMibSetRequestConfirm( &mibReq );
-
             mibReq.Type = MIB_NETWORK_ACTIVATION;
             mibReq.Param.NetworkActivation = ACTIVATION_TYPE_ABP;
             LoRaMacMibSetRequestConfirm( &mibReq );

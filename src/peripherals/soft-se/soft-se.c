@@ -29,7 +29,7 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ),
 #include "cmac.h"
 #include "radio.h"
 
-#define NUM_OF_KEYS      22
+#define NUM_OF_KEYS      24
 #define KEY_SIZE         16
 
 /*!
@@ -154,6 +154,7 @@ SecureElementStatus_t SecureElementInit( EventNvmCtxChanged seNvmCtxChanged )
     // Initialize with defaults
     uint8_t itr = 0;
     SeNvmCtx.KeyList[itr++].KeyID = APP_KEY;
+    SeNvmCtx.KeyList[itr++].KeyID = GEN_APP_KEY;
     SeNvmCtx.KeyList[itr++].KeyID = NWK_KEY;
     SeNvmCtx.KeyList[itr++].KeyID = J_S_INT_KEY;
     SeNvmCtx.KeyList[itr++].KeyID = J_S_ENC_KEY;
@@ -161,6 +162,7 @@ SecureElementStatus_t SecureElementInit( EventNvmCtxChanged seNvmCtxChanged )
     SeNvmCtx.KeyList[itr++].KeyID = S_NWK_S_INT_KEY;
     SeNvmCtx.KeyList[itr++].KeyID = NWK_S_ENC_KEY;
     SeNvmCtx.KeyList[itr++].KeyID = APP_S_KEY;
+    SeNvmCtx.KeyList[itr++].KeyID = MC_ROOT_KEY;
     SeNvmCtx.KeyList[itr++].KeyID = MC_KE_KEY;
     SeNvmCtx.KeyList[itr++].KeyID = MC_KEY_0;
     SeNvmCtx.KeyList[itr++].KeyID = MC_APP_S_KEY_0;

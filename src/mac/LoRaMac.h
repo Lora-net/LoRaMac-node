@@ -1167,6 +1167,7 @@ typedef struct sMlmeIndication
  * \ref MIB_ADR                                  | YES | YES
  * \ref MIB_NET_ID                               | YES | YES
  * \ref MIB_DEV_ADDR                             | YES | YES
+ * \ref MIB_GEN_APP_KEY                          | NO  | YES
  * \ref MIB_APP_KEY                              | NO  | YES
  * \ref MIB_NWK_KEY                              | NO  | YES
  * \ref MIB_J_S_INT_KEY                          | NO  | YES
@@ -1268,6 +1269,12 @@ typedef enum eMib
      * LoRaWAN Specification V1.0.2, chapter 6.1.1
      */
     MIB_DEV_ADDR,
+    /*!
+     * Application root key - 1.0.x devices only.
+     *
+     * LoRaWAN Remote Multicast Setup v1.0.0 Specification, chapter 4.3
+     */
+    MIB_GEN_APP_KEY,
     /*!
      * Application root key
      *
@@ -1658,6 +1665,12 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_DEV_ADDR
      */
     uint32_t DevAddr;
+    /*!
+     * Application root key - 1.0.x device only
+     *
+     * Related MIB type: \ref MIB_GEN_APP_KEY
+     */
+    uint8_t* GenAppKey;
     /*!
      * Application root key
      *

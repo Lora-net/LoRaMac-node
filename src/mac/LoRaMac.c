@@ -3627,6 +3627,21 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
             MacCtx.NvmCtx->DevAddr = mibSet->Param.DevAddr;
             break;
         }
+        case MIB_GEN_APP_KEY:
+        {
+            if( mibSet->Param.GenAppKey != NULL )
+            {
+                if( LORAMAC_CRYPTO_SUCCESS != LoRaMacCryptoSetKey( GEN_APP_KEY, mibSet->Param.GenAppKey ) )
+                {
+                    return LORAMAC_STATUS_CRYPTO_ERROR;
+                }
+            }
+            else
+            {
+                status = LORAMAC_STATUS_PARAMETER_INVALID;
+            }
+            break;
+        }
         case MIB_APP_KEY:
         {
             if( mibSet->Param.AppKey != NULL )
