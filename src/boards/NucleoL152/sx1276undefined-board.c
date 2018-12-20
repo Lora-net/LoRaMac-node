@@ -1,7 +1,7 @@
 /*!
- * \file      sx1276mb1las-board.c
+ * \file      sx1276undefined-board.c
  *
- * \brief     Target board SX1276MB1LAS shield driver implementation
+ * \brief     Target 'generic' SX1276/78 module driver implementation
  *
  * \copyright Revised BSD License, see section \ref LICENSE.
  *
@@ -241,6 +241,7 @@ void SX1276SetRfTxPower( int8_t power )
 static uint8_t SX1276GetPaSelect( uint32_t channel )
 {
 
+    // They have antenna connected to PABOOST.
     return RF_PACONFIG_PASELECT_PABOOST;
 }
 
