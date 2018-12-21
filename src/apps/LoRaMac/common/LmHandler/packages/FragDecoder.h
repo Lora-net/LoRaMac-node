@@ -63,11 +63,10 @@ typedef struct sFragDecoderStatus
  *
  * \param [IN] fragNb     Number of expected fragments (without redundancy packets)
  * \param [IN] fragSize   Size of a fragment
- * \param [IN] redundancy Maximum number of redundancy packets
  * \param [IN] file       Pointer to the final un-coded buffer
  * \param [IN] fileSize   Pointer to the final un-coded buffer
  */
-void FragDecoderInit( uint16_t fragNb, uint8_t fragSize, uint16_t redundancy, uint8_t *file, uint32_t fileSize );
+void FragDecoderInit( uint16_t fragNb, uint8_t fragSize, uint8_t *file, uint32_t fileSize );
 
 /*!
  * \brief Function to decode and reconstruct the binary file
