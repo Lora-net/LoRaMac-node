@@ -25,9 +25,26 @@
 
 #include <stdint.h>
 
-#define FRAG_MAX_NB                                 700
-#define FRAG_MAX_SIZE                               255
-#define FRAG_MAX_REDUNDANCY                         340
+/*!
+ * Maximum number of fragment that can be handled.
+ *
+ * \remark This parameter has an impact on the memory footprint.
+ */
+#define FRAG_MAX_NB                                 20
+
+/*!
+ * Maximum fragment size that can be handled.
+ *
+ * \remark This parameter has an impact on the memory footprint.
+ */
+#define FRAG_MAX_SIZE                               50
+
+/*!
+ * Maximum number of extra frames that can be handled.
+ *
+ * \remark This parameter has an impact on the memory footprint.
+ */
+#define FRAG_MAX_REDUNDANCY                         5
 
 #define FRAG_SESSION_FINISHED                       ( int32_t )0
 #define FRAG_SESSION_NOT_STARTED                    ( int32_t )-2
@@ -38,7 +55,7 @@ typedef struct sFragDecoderStatus
     uint16_t FragNbRx;
     uint16_t FragNbLost;
     uint16_t FragNbLastRx;
-    uint8_t MatrixError; // TODO: Add matrix error handling
+    uint8_t MatrixError;
 }FragDecoderStatus_t;
 
 /*!
