@@ -46,6 +46,11 @@
  */
 #define USE_LRWAN_1_1_X_CRYPTO                      0
 
+/*!
+ * Indicates if a random devnonce must be used or not
+ */
+#define USE_RANDOM_DEV_NONCE                        1
+
 /*
  * Initial value of the frame counters
  */
@@ -1044,7 +1049,13 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareJoinRequest( LoRaMacMessageJoinRequest
     LoRaMacCryptoStatus_t retval = LORAMAC_CRYPTO_ERROR;
 
     // Add device nonce
+#if ( USE_RANDOM_DEV_NONCE == 1 )
+    uint32_t devNonce = 0;
+    SecureElementRandomNumber( &devNonce );
+    CryptoCtx.NvmCtx->DevNonce = devNonce;
+#else
     CryptoCtx.NvmCtx->DevNonce++;
+#endif
     CryptoCtx.EventCryptoNvmCtxChanged( );
     macMsg->DevNonce = CryptoCtx.NvmCtx->DevNonce;
 
