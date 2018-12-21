@@ -63,8 +63,8 @@ typedef struct sFragDecoderStatus
  *
  * \param [IN] fragNb     Number of expected fragments (without redundancy packets)
  * \param [IN] fragSize   Size of a fragment
- * \param [IN] file       Pointer to the final un-coded buffer
- * \param [IN] fileSize   Pointer to the final un-coded buffer
+ * \param [IN] file       Pointer to file buffer size
+ * \param [IN] fileSize   File buffer size
  */
 void FragDecoderInit( uint16_t fragNb, uint8_t fragSize, uint8_t *file, uint32_t fileSize );
 
@@ -72,10 +72,12 @@ void FragDecoderInit( uint16_t fragNb, uint8_t fragSize, uint8_t *file, uint32_t
  * \brief Function to decode and reconstruct the binary file
  *        Called for each receive frame
  * 
- * \param [IN] fragCounter Fragment counter
- * \param [IN] rawData     Pointer to the fragment to be processed (length = FRAG_MAX_SIZE)
+ * \param [IN] fragCounter Fragment counter [1..(FragDecoder.FragNb + FragDecoder.Redundancy)]
+ * \param [IN] rawData     Pointer to the fragment to be processed (length = FragDecoder.FragSize)
  *
- * \retval fragCounter Fragment counter
+ * \retval status          Process status. [FRAG_SESSION_ONGOING,
+ *                                          FRAG_SESSION_FINISHED or
+ *                                          FragDecoder.Status.FragNbLost]
  */
 int32_t FragDecoderProcess( uint16_t fragCounter, uint8_t *rawData );
 
