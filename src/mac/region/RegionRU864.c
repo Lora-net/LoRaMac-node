@@ -187,6 +187,11 @@ PhyParam_t RegionRU864GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = GetNextLowerTxDr( getPhy->Datarate, RU864_TX_MIN_DATARATE );
             break;
         }
+        case PHY_MAX_TX_POWER:
+        {
+            phyParam.Value = RU864_MAX_TX_POWER;
+            break;
+        }
         case PHY_DEF_TX_POWER:
         {
             phyParam.Value = RU864_DEFAULT_TX_POWER;
