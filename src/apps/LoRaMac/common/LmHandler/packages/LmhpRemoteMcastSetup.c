@@ -35,7 +35,7 @@
             printf( __VA_ARGS__ );                   \
         }while( 0 )
 #else
-    #define DBG( fmt, args... )
+    #define DBG( fmt, ... )
 #endif
 
 /*!
