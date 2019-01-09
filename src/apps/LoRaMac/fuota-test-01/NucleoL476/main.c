@@ -78,7 +78,7 @@
  *
  * \remark Please note that LORAWAN_DEFAULT_DATARATE is used only when ADR is disabled 
  */
-#define LORAWAN_DEFAULT_DATARATE                    DR_5
+#define LORAWAN_DEFAULT_DATARATE                    DR_3
 
 /*!
  * LoRaWAN confirmed messages
@@ -148,6 +148,7 @@ static void OnClockSync( int32_t timeCorrection );
 static void OnFragProgress( uint16_t fragCounter, uint16_t fragNb, uint8_t fragSize, uint16_t fragNbLost );
 static void OnFragDone( int32_t status, uint8_t *file, uint32_t size );
 static void StartTxProcess( LmHandlerTxEvents_t txEvent );
+static void UplinkProcess( void );
 
 /*!
  * Computes a CCITT 32 bits CRC
@@ -247,6 +248,8 @@ static LmhpFragmentationParams_t FragmentationParams =
  */
 static volatile uint8_t IsMacProcessPending = 0;
 
+static volatile uint8_t IsTxFramePending = 0;
+
 #if( TIME_SYNCH_REQ == TIME_APP_TIME_REQ )
 /*
  * Indicates if the system time has been synchronized
@@ -321,6 +324,9 @@ int main( void )
     {
         // Processes the LoRaMac events
         LmHandlerProcess( );
+
+        // Process application uplinks management
+        UplinkProcess( );
 
         CRITICAL_SECTION_BEGIN( );
         if( IsMacProcessPending == 1 )
@@ -451,9 +457,9 @@ static void OnFragProgress( uint16_t fragCounter, uint16_t fragNb, uint8_t fragS
     printf( "\r\n###### =========== FRAG_DECODER ============ ######\r\n" );
     printf( "######               PROGRESS                ######\r\n");
     printf( "###### ===================================== ######\r\n");
-    printf( "RECEIVED    : %d/%d Fragments\r\n", fragCounter, fragNb );
-    printf( "              %d/%d Bytes\r\n", fragCounter * fragSize, fragNb * fragSize );
-    printf( "LOST        :    %d Fragments\n\n", fragNbLost );
+    printf( "RECEIVED    : %5d / %5d Fragments\r\n", fragCounter, fragNb );
+    printf( "              %5d / %5d Bytes\r\n", fragCounter * fragSize, fragNb * fragSize );
+    printf( "LOST        :       %7d Fragments\r\n\r\n", fragNbLost );
 }
 
 static void OnFragDone( int32_t status, uint8_t *file, uint32_t size )
@@ -467,7 +473,7 @@ static void OnFragDone( int32_t status, uint8_t *file, uint32_t size )
     printf( "######               FINISHED                ######\r\n");
     printf( "###### ===================================== ######\r\n");
     printf( "STATUS      : %ld\r\n", status );
-    printf( "CRC         : %08lX\r\n", FileRxCrc );
+    printf( "CRC         : %08lX\r\n\r\n", FileRxCrc );
 }
 
 static void StartTxProcess( LmHandlerTxEvents_t txEvent )
@@ -491,6 +497,60 @@ static void StartTxProcess( LmHandlerTxEvents_t txEvent )
     }
 }
 
+static void UplinkProcess( void )
+{
+    uint8_t isPending = 0;
+    CRITICAL_SECTION_BEGIN( );
+    isPending = IsTxFramePending;
+    IsTxFramePending = 0;
+    CRITICAL_SECTION_END( );
+    if( isPending == 1 )
+    {
+        if( IsMcSessionStarted == false )
+        {
+            if( IsFileTransferDone == false )
+            {
+                if( IsClockSynched == false )
+                {
+#if( TIME_SYNCH_REQ == TIME_APP_TIME_REQ )
+                    LmhpClockSyncAppTimeReq( );
+#else
+                    // Use MAC command to synchronize the time.
+                    LmHandlerDeviceTimeReq( );
+#endif
+                }
+                else
+                {
+                    uint8_t randomFrame[] = { randr( 0, 255 ) };
+                    // Send random packet
+                    LmHandlerAppData_t appData =
+                    {
+                        .Buffer = randomFrame,
+                        .BufferSize = sizeof( randomFrame ),
+                        .Port = 1
+                    };
+                    LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+                }
+            }
+            else
+            {
+                uint8_t fragAuthReq[] = { 0, FileRxCrc & 0x000000FF, ( FileRxCrc >> 8 ) & 0x000000FF, ( FileRxCrc >> 16 ) & 0x000000FF, ( FileRxCrc >> 24 ) & 0x000000FF };
+                // Send FragAuthReq
+                LmHandlerAppData_t appData =
+                {
+                    .Buffer = fragAuthReq,
+                    .BufferSize = sizeof( fragAuthReq ),
+                    .Port = 201
+                };
+                LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+            }
+            // Switch LED 1 ON
+            GpioWrite( &Led1, 1 );
+            TimerStart( &Led1Timer );
+        }
+    }
+}
+
 /*!
  * Function executed on TxTimer event
  */
@@ -498,51 +558,10 @@ static void OnTxTimerEvent( void* context )
 {
     TimerStop( &TxTimer );
 
-    if( IsMcSessionStarted == false )
-    {
-        if( IsFileTransferDone == false )
-        {
-            if( IsClockSynched == false )
-            {
-#if( TIME_SYNCH_REQ == TIME_APP_TIME_REQ )
-                LmhpClockSyncAppTimeReq( );
-#else
-                // Use MAC command to synchronize the time.
-                LmHandlerDeviceTimeReq( );
-#endif
-            }
-            else
-            {
-                uint8_t randomFrame[] = { randr( 0, 255 ) };
-                // Send random packet
-                LmHandlerAppData_t appData =
-                {
-                    .Buffer = randomFrame,
-                    .BufferSize = sizeof( randomFrame ),
-                    .Port = 1
-                };
-                LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
-            }
-        }
-        else
-        {
-            uint8_t fragAuthReq[] = { 0, FileRxCrc & 0x000000FF, ( FileRxCrc >> 8 ) & 0x000000FF, ( FileRxCrc >> 16 ) & 0x000000FF, ( FileRxCrc >> 24 ) & 0x000000FF };
-            // Send FragAuthReq
-            LmHandlerAppData_t appData =
-            {
-                .Buffer = fragAuthReq,
-                .BufferSize = sizeof( fragAuthReq ),
-                .Port = 201
-            };
-            LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
-        }
-        // Switch LED 1 ON
-        GpioWrite( &Led1, 1 );
-        TimerStart( &Led1Timer );
-    }
+    IsTxFramePending = 1;
 
     // Schedule next transmission
-    TimerSetValue( &TxTimer, APP_TX_DUTYCYCLE  + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND ) );
+    TimerSetValue( &TxTimer, APP_TX_DUTYCYCLE + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND ) );
     TimerStart( &TxTimer );
 }
 
