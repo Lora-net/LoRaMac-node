@@ -860,6 +860,11 @@ LmHandlerErrorStatus_t LmHandlerPackageRegister( uint8_t id, void *params )
         case PACKAGE_ID_COMPLIANCE:
         {
             package = LmphCompliancePackageFactory( );
+
+            JoinParameters.DevEui = CommissioningParams.DevEui;
+            JoinParameters.JoinEui = CommissioningParams.JoinEui;
+            JoinParameters.Datarate = LmHandlerParams->TxDatarate;
+
             ( ( LmhpComplianceParams_t* )params )->JoinParams = &JoinParameters;
             break;
         }
