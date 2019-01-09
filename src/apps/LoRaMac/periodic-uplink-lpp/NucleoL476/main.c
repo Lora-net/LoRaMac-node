@@ -153,6 +153,7 @@ static void OnBeaconStatusChange( LoRaMAcHandlerBeaconParams_t* params );
 
 static void PrepareTxFrame( void );
 static void StartTxProcess( LmHandlerTxEvents_t txEvent );
+static void UplinkProcess( void );
 
 /*!
  * Function executed on TxTimer event
@@ -217,6 +218,8 @@ static LmhpComplianceParams_t LmhpComplianceParams =
  */
 static volatile uint8_t IsMacProcessPending = 0;
 
+static volatile uint8_t IsTxFramePending = 0;
+
 /*!
  * LED GPIO pins objects
  */
@@ -261,6 +264,9 @@ int main( void )
     {
         // Processes the LoRaMac events
         LmHandlerProcess( );
+
+        // Process application uplinks management
+        UplinkProcess( );
 
         CRITICAL_SECTION_BEGIN( );
         if( IsMacProcessPending == 1 )
@@ -419,6 +425,19 @@ static void StartTxProcess( LmHandlerTxEvents_t txEvent )
     }
 }
 
+static void UplinkProcess( void )
+{
+    uint8_t isPending = 0;
+    CRITICAL_SECTION_BEGIN( );
+    isPending = IsTxFramePending;
+    IsTxFramePending = 0;
+    CRITICAL_SECTION_END( );
+    if( isPending == 1 )
+    {
+        PrepareTxFrame( );
+    }
+}
+
 /*!
  * Function executed on TxTimer event
  */
@@ -426,10 +445,10 @@ static void OnTxTimerEvent( void* context )
 {
     TimerStop( &TxTimer );
 
-    PrepareTxFrame( );
+    IsTxFramePending = 1;
 
     // Schedule next transmission
-    TimerSetValue( &TxTimer, APP_TX_DUTYCYCLE  + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND ) );
+    TimerSetValue( &TxTimer, APP_TX_DUTYCYCLE + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND ) );
     TimerStart( &TxTimer );
 }
 

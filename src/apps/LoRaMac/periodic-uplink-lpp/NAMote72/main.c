@@ -156,6 +156,7 @@ static void OnBeaconStatusChange( LoRaMAcHandlerBeaconParams_t* params );
 
 static void PrepareTxFrame( void );
 static void StartTxProcess( LmHandlerTxEvents_t txEvent );
+static void UplinkProcess( void );
 
 /*!
  * Function executed on TxTimer event
@@ -220,6 +221,8 @@ static LmhpComplianceParams_t LmhpComplianceParams =
  */
 static volatile uint8_t IsMacProcessPending = 0;
 
+static volatile uint8_t IsTxFramePending = 0;
+
 /*!
  * LED GPIO pins objects
  */
@@ -265,6 +268,9 @@ int main( void )
     {
         // Processes the LoRaMac events
         LmHandlerProcess( );
+
+        // Process application uplinks management
+        UplinkProcess( );
 
         CRITICAL_SECTION_BEGIN( );
         if( IsMacProcessPending == 1 )
@@ -401,35 +407,33 @@ static void PrepareTxFrame( void )
     }
 #endif
 
-    static uint8_t TxGpsData = 1; // GPS data transmisson control
-    uint8_t channel = 0;
+    static uint8_t TxGpsData = 1; // GPS data transmission control
 
     AppData.Port = LORAWAN_APP_PORT;
 
     CayenneLppReset( );
-    TxGpsData = ( TxGpsData + 1 ) & 0x01; // Send GPS data every 2 uplinks
     if( TxGpsData == 0 )
     {
-        CayenneLppAddDigitalInput( channel++, AppLedStateOn );
-        CayenneLppAddAnalogInput( channel++, BoardGetBatteryLevel( ) * 100 / 254 );
-        CayenneLppAddTemperature( channel++, MPL3115ReadTemperature( ) );
-        CayenneLppAddBarometricPressure( channel++, MPL3115ReadPressure( ) / 100 );
+        CayenneLppAddDigitalInput( 0, AppLedStateOn );
+        CayenneLppAddAnalogInput( 1, BoardGetBatteryLevel( ) * 100 / 254 );
+        CayenneLppAddTemperature( 2, MPL3115ReadTemperature( ) );
+        CayenneLppAddBarometricPressure( 3, MPL3115ReadPressure( ) / 100 );
     }
     else
     {
         if( GpsHasFix( ) == true )
         {
-            int32_t latitude, longitude = 0;
+            double latitude = 0, longitude = 0;
             uint16_t altitudeGps = 0xFFFF;
 
-            GpsGetLatestGpsPositionBinary( &latitude, &longitude );
+            GpsGetLatestGpsPositionDouble( &latitude, &longitude );
             altitudeGps = GpsGetLatestGpsAltitude( );                     // in m
 
-            CayenneLppAddGps( channel++, latitude, longitude, altitudeGps );
+            CayenneLppAddGps( 4, latitude, longitude, altitudeGps );
         }
         else
         {
-            CayenneLppAddGps( channel++, 0, 0, 0 );
+            CayenneLppAddGps( 4, 0, 0, 0 );
         }
     }
 
@@ -438,6 +442,7 @@ static void PrepareTxFrame( void )
 
     if( LmHandlerSend( &AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE ) == LORAMAC_HANDLER_SUCCESS )
     {
+        TxGpsData = ( TxGpsData + 1 ) & 0x01; // Send GPS data every 2 uplinks
         // Switch LED 1 ON
         GpioWrite( &Led1, 0 );
         TimerStart( &Led1Timer );
@@ -465,6 +470,19 @@ static void StartTxProcess( LmHandlerTxEvents_t txEvent )
     }
 }
 
+static void UplinkProcess( void )
+{
+    uint8_t isPending = 0;
+    CRITICAL_SECTION_BEGIN( );
+    isPending = IsTxFramePending;
+    IsTxFramePending = 0;
+    CRITICAL_SECTION_END( );
+    if( isPending == 1 )
+    {
+        PrepareTxFrame( );
+    }
+}
+
 /*!
  * Function executed on TxTimer event
  */
@@ -472,10 +490,10 @@ static void OnTxTimerEvent( void* context )
 {
     TimerStop( &TxTimer );
 
-    PrepareTxFrame( );
+    IsTxFramePending = 1;
 
     // Schedule next transmission
-    TimerSetValue( &TxTimer, APP_TX_DUTYCYCLE  + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND ) );
+    TimerSetValue( &TxTimer, APP_TX_DUTYCYCLE + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND ) );
     TimerStart( &TxTimer );
 }
 
