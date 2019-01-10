@@ -43,14 +43,6 @@
 #endif
 
 /*!
- * Time synchronization method choice
- */
-#define TIME_APP_TIME_REQ                           0
-#define TIME_DEVICE_TIME_REQ                        1 // DO NOT USE. TODO add a notification from the MAC layer
-
-#define TIME_SYNCH_REQ                              TIME_APP_TIME_REQ
-
-/*!
  * LoRaWAN default end-device class
  */
 #define LORAWAN_DEFAULT_CLASS                       CLASS_A
@@ -58,7 +50,7 @@
 /*!
  * Defines the application data transmission duty cycle. 30s, value in [ms].
  */
-#define APP_TX_DUTYCYCLE                            30000
+#define APP_TX_DUTYCYCLE                            40000
 
 /*!
  * Defines a random delay for application data transmission duty cycle. 5s,
@@ -140,10 +132,7 @@ static void OnTxData( LmHandlerTxParams_t* params );
 static void OnRxData( LmHandlerAppData_t* appData, LmHandlerRxParams_t* params );
 static void OnClassChange( DeviceClass_t deviceClass );
 static void OnBeaconStatusChange( LoRaMAcHandlerBeaconParams_t* params );
-
-#if( TIME_SYNCH_REQ == TIME_APP_TIME_REQ )
-static void OnClockSync( int32_t timeCorrection );
-#endif
+static void OnSysTimeUpdate( void );
 
 static void OnFragProgress( uint16_t fragCounter, uint16_t fragNb, uint8_t fragSize, uint16_t fragNbLost );
 static void OnFragDone( int32_t status, uint8_t *file, uint32_t size );
@@ -194,7 +183,8 @@ static LmHandlerCallbacks_t LmHandlerCallbacks =
     .OnTxData = OnTxData,
     .OnRxData = OnRxData,
     .OnClassChange= OnClassChange,
-    .OnBeaconStatusChange = OnBeaconStatusChange
+    .OnBeaconStatusChange = OnBeaconStatusChange,
+    .OnSysTimeUpdate = OnSysTimeUpdate
 };
 
 static LmHandlerParams_t LmHandlerParams =
@@ -215,13 +205,6 @@ static LmhpComplianceParams_t LmhpComplianceParams =
     .StopPeripherals = NULL,
     .StartPeripherals = NULL,
 };
-
-#if( TIME_SYNCH_REQ == TIME_APP_TIME_REQ )
-static LmhpClockSyncParams_t LmhpClockSyncParams =
-{
-    .OnSync = OnClockSync
-};
-#endif
 
 /*!
  * Defines the maximum size for the buffer receiving the fragmentation result.
@@ -250,12 +233,10 @@ static volatile uint8_t IsMacProcessPending = 0;
 
 static volatile uint8_t IsTxFramePending = 0;
 
-#if( TIME_SYNCH_REQ == TIME_APP_TIME_REQ )
 /*
  * Indicates if the system time has been synchronized
  */
 static volatile bool IsClockSynched = false;
-#endif
 
 /*
  * MC Session Started
@@ -307,9 +288,7 @@ int main( void )
     // The LoRa-Alliance Compliance protocol package should always be
     // initialized and activated.
     LmHandlerPackageRegister( PACKAGE_ID_COMPLIANCE, &LmhpComplianceParams );
-#if( TIME_SYNCH_REQ == TIME_APP_TIME_REQ )
-    LmHandlerPackageRegister( PACKAGE_ID_CLOCK_SYNC, &LmhpClockSyncParams );
-#endif
+    LmHandlerPackageRegister( PACKAGE_ID_CLOCK_SYNC, NULL );
     LmHandlerPackageRegister( PACKAGE_ID_REMOTE_MCAST_SETUP, NULL );
     LmHandlerPackageRegister( PACKAGE_ID_FRAGMENTATION, &FragmentationParams );
 
@@ -440,12 +419,9 @@ static void OnBeaconStatusChange( LoRaMAcHandlerBeaconParams_t* params )
     DisplayBeaconUpdate( params );
 }
 
-static void OnClockSync( int32_t timeCorrection )
+static void OnSysTimeUpdate( void )
 {
-    if( timeCorrection >= -1 && timeCorrection <= 1 )
-    {
-        IsClockSynched = true;
-    }
+    IsClockSynched = true;
 }
 
 static void OnFragProgress( uint16_t fragCounter, uint16_t fragNb, uint8_t fragSize, uint16_t fragNbLost )
@@ -499,6 +475,13 @@ static void StartTxProcess( LmHandlerTxEvents_t txEvent )
 
 static void UplinkProcess( void )
 {
+    LmHandlerErrorStatus_t status = LORAMAC_HANDLER_ERROR;
+
+    if( LmHandlerIsBusy( ) == true )
+    {
+        return;
+    }
+
     uint8_t isPending = 0;
     CRITICAL_SECTION_BEGIN( );
     isPending = IsTxFramePending;
@@ -512,41 +495,44 @@ static void UplinkProcess( void )
             {
                 if( IsClockSynched == false )
                 {
-#if( TIME_SYNCH_REQ == TIME_APP_TIME_REQ )
-                    LmhpClockSyncAppTimeReq( );
-#else
-                    // Use MAC command to synchronize the time.
-                    LmHandlerDeviceTimeReq( );
-#endif
+                    status = LmhpClockSyncAppTimeReq( );
                 }
                 else
                 {
-                    uint8_t randomFrame[] = { randr( 0, 255 ) };
+                    AppDataBuffer[0] = randr( 0, 255 );
                     // Send random packet
                     LmHandlerAppData_t appData =
                     {
-                        .Buffer = randomFrame,
-                        .BufferSize = sizeof( randomFrame ),
+                        .Buffer = AppDataBuffer,
+                        .BufferSize = 1,
                         .Port = 1
                     };
-                    LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+                    status = LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
                 }
             }
             else
             {
-                uint8_t fragAuthReq[] = { 0, FileRxCrc & 0x000000FF, ( FileRxCrc >> 8 ) & 0x000000FF, ( FileRxCrc >> 16 ) & 0x000000FF, ( FileRxCrc >> 24 ) & 0x000000FF };
+                AppDataBuffer[0] = 0x05; // FragDataBlockAuthReq
+                AppDataBuffer[1] = FileRxCrc & 0x000000FF;
+                AppDataBuffer[2] = ( FileRxCrc >> 8 ) & 0x000000FF;
+                AppDataBuffer[3] = ( FileRxCrc >> 16 ) & 0x000000FF;
+                AppDataBuffer[4] = ( FileRxCrc >> 24 ) & 0x000000FF;
+
                 // Send FragAuthReq
                 LmHandlerAppData_t appData =
                 {
-                    .Buffer = fragAuthReq,
-                    .BufferSize = sizeof( fragAuthReq ),
+                    .Buffer = AppDataBuffer,
+                    .BufferSize = 5,
                     .Port = 201
                 };
-                LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+                status = LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
             }
-            // Switch LED 1 ON
-            GpioWrite( &Led1, 1 );
-            TimerStart( &Led1Timer );
+            if( status == LORAMAC_HANDLER_SUCCESS )
+            {
+                // Switch LED 1 ON
+                GpioWrite( &Led1, 1 );
+                TimerStart( &Led1Timer );
+            }
         }
     }
 }
