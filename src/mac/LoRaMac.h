@@ -857,6 +857,10 @@ typedef struct sMcpsIndication
      * The device address of the frame
      */
     uint32_t DevAddress;
+    /*!
+     * Set if a DeviceTimeAns MAC command was received.
+     */
+    bool DeviceTimeAnsReceived;
 }McpsIndication_t;
 
 /*!

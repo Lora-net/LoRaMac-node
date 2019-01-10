@@ -982,6 +982,7 @@ static void ProcessRadioRxDone( void )
     MacCtx.McpsIndication.DownLinkCounter = 0;
     MacCtx.McpsIndication.McpsIndication = MCPS_UNCONFIRMED;
     MacCtx.McpsIndication.DevAddress = 0;
+    MacCtx.McpsIndication.DeviceTimeAnsReceived = false;
 
     Radio.Sleep( );
     TimerStop( &MacCtx.RxWindowTimer2 );
@@ -2183,6 +2184,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 // Apply the new system time.
                 SysTimeSet( sysTime );
                 LoRaMacClassBDeviceTimeAns( );
+                MacCtx.McpsIndication.DeviceTimeAnsReceived = true;
                 break;
             }
             case SRV_MAC_PING_SLOT_INFO_ANS:
