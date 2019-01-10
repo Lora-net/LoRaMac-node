@@ -676,6 +676,10 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
 
     LmHandlerCallbacks->OnRxData( &appData, &RxParams );
 
+    if( mcpsIndication->DeviceTimeAnsReceived == true )
+    {
+        LmHandlerCallbacks->OnSysTimeUpdate( );
+    }
     // Call packages RxProcess function
     LmHandlerPackagesNotify( PACKAGE_MCPS_INDICATION, mcpsIndication );
 
@@ -890,6 +894,8 @@ LmHandlerErrorStatus_t LmHandlerPackageRegister( uint8_t id, void *params )
         LmHandlerPackages[id]->OnMacMcpsRequest = LmHandlerCallbacks->OnMacMcpsRequest;
         LmHandlerPackages[id]->OnMacMlmeRequest = LmHandlerCallbacks->OnMacMlmeRequest;
         LmHandlerPackages[id]->OnSendRequest = LmHandlerSend;
+        LmHandlerPackages[id]->OnDeviceTimeRequest = LmHandlerDeviceTimeReq;
+        LmHandlerPackages[id]->OnSysTimeUpdate = LmHandlerCallbacks->OnSysTimeUpdate;
         LmHandlerPackages[id]->Init( params, LmHandlerParams->DataBuffer, LmHandlerParams->DataBufferMaxSize );
 
         return LORAMAC_HANDLER_SUCCESS;

@@ -35,16 +35,12 @@
 
 /*!
  * Clock sync package parameters
+ *
+ * This package doesn't require parameters
  */
-typedef struct LmhpClockSyncParams_s
-{
-    /*!
-     * Caalled once the clock has been synchronized
-     *
-     * \param [IN] timeCorrection Time correction value provided by the server
-     */
-    void ( *OnSync )( int32_t timeCorrection );
-}LmhpClockSyncParams_t;
+//typedef struct LmphClockSyncParams_s
+//{
+//}LmphClockSyncParams_t;
 
 LmhPackage_t *LmphClockSyncPackageFactory( void );
 

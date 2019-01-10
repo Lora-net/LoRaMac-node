@@ -192,6 +192,10 @@ typedef struct LmHandlerCallbacks_s
      * \param [IN] params notification parameters
      */
     void ( *OnBeaconStatusChange )( LoRaMAcHandlerBeaconParams_t *params );
+    /*!
+     * Notifies the upper layer that the system time has been updated.
+     */
+    void ( *OnSysTimeUpdate )( void );
 }LmHandlerCallbacks_t;
 
 /*!

@@ -115,8 +115,6 @@ static void LmhpClockSyncOnMcpsConfirm( McpsConfirm_t *mcpsConfirm );
  */
 static void LmhpClockSyncOnMcpsIndication( McpsIndication_t *mcpsIndication );
 
-static LmhpClockSyncParams_t *LmhpClockSyncParams;
-
 static LmhpClockSyncState_t LmhpClockSyncState =
 {
     .Initialized = false,
@@ -141,6 +139,8 @@ static LmhPackage_t LmhpClockSyncPackage =
     .OnMacMcpsRequest = NULL,                                  // To be initialized by LmHandler
     .OnMacMlmeRequest = NULL,                                  // To be initialized by LmHandler
     .OnSendRequest = NULL,                                     // To be initialized by LmHandler
+    .OnDeviceTimeRequest = NULL,                               // To be initialized by LmHandler
+    .OnSysTimeUpdate = NULL,                                   // To be initialized by LmHandler
 };
 
 LmhPackage_t *LmphClockSyncPackageFactory( void )
@@ -152,7 +152,6 @@ static void LmhpClockSyncInit( void * params, uint8_t *dataBuffer, uint8_t dataB
 {
     if( dataBuffer != NULL )
     {
-        LmhpClockSyncParams = ( LmhpClockSyncParams_t* )params;
         LmhpClockSyncState.DataBuffer = dataBuffer;
         LmhpClockSyncState.DataBufferMaxSize = dataBufferMaxSize;
         LmhpClockSyncState.Initialized = true;
@@ -223,6 +222,12 @@ static void LmhpClockSyncOnMcpsIndication( McpsIndication_t *mcpsIndication )
             }
             case CLOCK_SYNC_APP_TIME_ANS:
             {
+                // Check if a more precise time correction has been received.
+                // If yes then don't process and ignore this answer.
+                if( mcpsIndication->DeviceTimeAnsReceived == true )
+                {
+                    break;
+                }
                 int32_t timeCorrection = 0;
                 timeCorrection  = ( mcpsIndication->Buffer[cmdIndex++] << 0  ) & 0x000000FF;
                 timeCorrection += ( mcpsIndication->Buffer[cmdIndex++] << 8  ) & 0x0000FF00;
@@ -235,9 +240,12 @@ static void LmhpClockSyncOnMcpsIndication( McpsIndication_t *mcpsIndication )
                     curTime.Seconds += timeCorrection;
                     SysTimeSet( curTime );
                     LmhpClockSyncState.TimeReqParam.Fields.TokenReq = ( LmhpClockSyncState.TimeReqParam.Fields.TokenReq + 1 ) & 0x0F;
-                    if( LmhpClockSyncParams->OnSync != NULL )
+                    if( LmhpClockSyncPackage.OnSysTimeUpdate != NULL )
                     {
-                        LmhpClockSyncParams->OnSync( timeCorrection );
+                        if( ( timeCorrection >= -1 ) && ( timeCorrection <= 1 ) )
+                        {
+                            LmhpClockSyncPackage.OnSysTimeUpdate( );
+                        }
                     }
                 }
                 break;
@@ -303,6 +311,12 @@ LmHandlerErrorStatus_t LmhpClockSyncAppTimeReq( void )
     LmhpClockSyncState.NbTransPrev = mibReq.Param.ChannelsNbTrans;
     mibReq.Param.ChannelsNbTrans = 1;
     LoRaMacMibSetRequestConfirm( &mibReq );
+
+    // Add DeviceTimeReq MAC command.
+    // In case the network server supports this more precise command
+    // this package will use DeviceTimeAns answer as clock synchronization
+    // mechanism.
+    LmhpClockSyncPackage.OnDeviceTimeRequest( );
 
     SysTime_t curTime = SysTimeGet( );
     uint8_t dataBufferIndex = 0;

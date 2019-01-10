@@ -121,6 +121,16 @@ typedef struct LmhPackage_s
      *                processed else \ref LORAMAC_HANDLER_ERROR
      */
     LmHandlerErrorStatus_t ( *OnSendRequest )( LmHandlerAppData_t *appData, LmHandlerMsgTypes_t isTxConfirmed );
+    /*!
+    * Requests network server time update
+    *
+    * \retval status Returns \ref LORAMAC_HANDLER_SET if joined else \ref LORAMAC_HANDLER_RESET
+    */
+    LmHandlerErrorStatus_t ( *OnDeviceTimeRequest )( void );
+    /*!
+     * Notifies the upper layer that the system time has been updated.
+     */
+    void ( *OnSysTimeUpdate )( void );
 }LmhPackage_t;
 
 #endif // __LMH_PACKAGE_H__
