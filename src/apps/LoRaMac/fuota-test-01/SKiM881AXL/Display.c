@@ -167,6 +167,13 @@ void DisplayMacMlmeRequestUpdate( LoRaMacStatus_t status, MlmeReq_t *mlmeReq )
             printf( "###### ===================================== ######\r\n");
             break;
         }
+        case MLME_DEVICE_TIME:
+        {
+            printf( "\r\n###### =========== MLME-Request ============ ######\r\n" );
+            printf( "######            MLME_DEVICE_TIME           ######\r\n");
+            printf( "###### ===================================== ######\r\n");
+            break;
+        }
         case MLME_TXCW:
         {
             printf( "\r\n###### =========== MLME-Request ============ ######\r\n" );
@@ -181,24 +188,10 @@ void DisplayMacMlmeRequestUpdate( LoRaMacStatus_t status, MlmeReq_t *mlmeReq )
             printf( "###### ===================================== ######\r\n");
             break;
         }
-        case MLME_DERIVE_MC_KE_KEY:
-        {
-            printf( "\r\n###### =========== MLME-Request ============ ######\r\n" );
-            printf( "######        MLME_DERIVE_MC_KE_KEY          ######\r\n");
-            printf( "###### ===================================== ######\r\n");
-            break;
-        }
-        case MLME_DERIVE_MC_KEY_PAIR:
-        {
-            printf( "\r\n###### =========== MLME-Request ============ ######\r\n" );
-            printf( "######        MLME_DERIVE_MC_KEY_PAIR        ######\r\n");
-            printf( "###### ===================================== ######\r\n");
-            break;
-        }
         default:
         {
             printf( "\r\n###### =========== MLME-Request ============ ######\r\n" );
-            printf( "######                MLME_ERROR             ######\r\n");
+            printf( "######              MLME_UNKNOWN             ######\r\n");
             printf( "###### ===================================== ######\r\n");
             break;
         }
