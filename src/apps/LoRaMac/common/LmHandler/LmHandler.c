@@ -137,6 +137,14 @@ static LoRaMAcHandlerBeaconParams_t BeaconParams =
 };
 
 /*!
+ * Indicates if a switch to Class B operation is pending or not.
+ * 
+ * TODO: Create a new structure to store the current handler states/status
+ *       and add the below variable to it.
+ */
+static bool IsClassBSwitchPending = false;
+
+/*!
  * \brief   MCPS-Confirm event function
  *
  * \param   [IN] mcpsConfirm - Pointer to the confirm structure,
@@ -225,6 +233,8 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
     LoRaMacCallbacks.GetTemperatureLevel = LmHandlerCallbacks->GetTemperature;
     LoRaMacCallbacks.NvmContextChange = NULL;
     LoRaMacCallbacks.MacProcessNotify = LmHandlerCallbacks->OnMacProcess;
+
+    IsClassBSwitchPending = false;
 
     if( LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LmHandlerParams->Region ) != LORAMAC_STATUS_OK )
     {
@@ -579,6 +589,7 @@ LmHandlerErrorStatus_t LmHandlerRequestClass( DeviceClass_t newClass )
                 }
                 // Beacon must first be acquired
                 errorStatus = LmHandlerDeviceTimeReq( );
+                IsClassBSwitchPending = true;
             }
             break;
         case CLASS_C:
@@ -739,7 +750,10 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
         break;
     case MLME_DEVICE_TIME:
         {
-            LmHandlerBeaconReq( );
+            if( IsClassBSwitchPending == true )
+            {
+                LmHandlerBeaconReq( );
+            }
         }
         break;
     case MLME_BEACON_ACQUISITION:
@@ -770,6 +784,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                 LoRaMacMibSetRequestConfirm( &mibReq );
                 // Notify upper layer
                 LmHandlerCallbacks->OnClassChange( CLASS_B );
+                IsClassBSwitchPending = false;
             }
             else
             {
