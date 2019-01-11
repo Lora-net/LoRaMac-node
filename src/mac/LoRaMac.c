@@ -93,15 +93,6 @@ enum eLoRaMacState
 };
 
 /*
- * LoRa Mac boolean type
- */
-typedef enum eLoRaMacBoolean
-{
-    LORAMAC_FALSE = 0,
-    LORAMAC_TRUE = !LORAMAC_FALSE
-}LoRaMacBoolean_t;
-
-/*
  * Request permission state
  */
 typedef enum eLoRaMacRequestHandling
@@ -1471,14 +1462,14 @@ static void LoRaMacHandleIrqEvents( void )
     }
 }
 
-static LoRaMacBoolean_t LoRaMacIsBusy( void )
+bool LoRaMacIsBusy( void )
 {
     if( ( MacCtx.MacState == LORAMAC_IDLE ) &&
         ( MacCtx.AllowRequests == LORAMAC_REQUEST_HANDLING_ON ) )
     {
-        return LORAMAC_FALSE;
+        return false;
     }
-    return LORAMAC_TRUE;
+    return true;
 }
 
 
@@ -3334,7 +3325,7 @@ LoRaMacStatus_t LoRaMacStart( void )
 
 LoRaMacStatus_t LoRaMacStop( void )
 {
-    if( LoRaMacIsBusy( ) == LORAMAC_FALSE )
+    if( LoRaMacIsBusy( ) == false )
     {
         MacCtx.MacState = LORAMAC_STOPPED;
         return LORAMAC_STATUS_OK;
@@ -4413,7 +4404,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
-    if( LoRaMacIsBusy( ) == LORAMAC_TRUE )
+    if( LoRaMacIsBusy( ) == true )
     {
         return LORAMAC_STATUS_BUSY;
     }
@@ -4579,7 +4570,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
-    if( LoRaMacIsBusy( ) == LORAMAC_TRUE )
+    if( LoRaMacIsBusy( ) == true )
     {
         return LORAMAC_STATUS_BUSY;
     }
