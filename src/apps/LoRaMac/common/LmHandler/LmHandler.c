@@ -336,6 +336,10 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
 
 bool LmHandlerIsBusy( void )
 {
+    if( LoRaMacIsBusy( ) == true )
+    {
+        return true;
+    }
     if( LmHandlerJoinStatus( ) != LORAMAC_HANDLER_SET )
     {
         // The network isn't yet joined, try again later.

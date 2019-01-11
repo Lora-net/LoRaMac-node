@@ -2379,6 +2379,13 @@ LoRaMacStatus_t LoRaMacStart( void );
 LoRaMacStatus_t LoRaMacStop( void );
 
 /*!
+ * \brief Returns a value indicating if the MAC layer is busy or not.
+ * 
+ * \retval isBusy Mac layer is busy.
+ */
+bool LoRaMacIsBusy( void );
+
+/*!
  * Processes the LoRaMac events.
  *
  * \remark This function must be called in the main loop.

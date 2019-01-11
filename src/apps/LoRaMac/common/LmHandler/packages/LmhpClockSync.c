@@ -19,7 +19,7 @@
  *
  * \author    Miguel Luis ( Semtech )
  */
-#include "SysTime.h"
+#include "systime.h"
 #include "LmHandler.h"
 #include "LmhpClockSync.h"
 
