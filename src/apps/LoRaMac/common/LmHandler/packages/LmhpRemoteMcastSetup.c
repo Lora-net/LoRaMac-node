@@ -335,7 +335,7 @@ static void LmhpRemoteMcastSetupOnMcpsIndication( McpsIndication_t *mcpsIndicati
 
                 McSessionData[id].RxParams.ClassC.Datarate = mcpsIndication->Buffer[cmdIndex++];
 
-                LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = REMOTE_MCAST_SETUP_MC_GROUP_SETUP_ANS;
+                LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = REMOTE_MCAST_SETUP_MC_GROUP_CLASS_C_SESSION_ANS;
                 if( LoRaMacMcChannelSetupRxParams( id, &McSessionData[id].RxParams, &status ) == LORAMAC_STATUS_OK )
                 {
                     SysTime_t curTime = { .Seconds = 0, .SubSeconds = 0 };
