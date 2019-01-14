@@ -80,7 +80,7 @@
  */
 #define LORAWAN_ADR_ON                              1
 
-#if defined( REGION_EU868 )
+#if defined( REGION_EU868 ) || defined( REGION_RU864 ) || defined( REGION_CN779 ) || defined( REGION_EU433 )
 
 #include "LoRaMacTest.h"
 
@@ -745,7 +745,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     mibReq.Param.AdrEnable = true;
                     LoRaMacMibSetRequestConfirm( &mibReq );
 
-#if defined( REGION_EU868 )
+#if defined( REGION_EU868 ) || defined( REGION_RU864 ) || defined( REGION_CN779 ) || defined( REGION_EU433 )
                     LoRaMacTestSetDutyCycleOn( false );
 #endif
                 }
@@ -766,7 +766,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                     mibReq.Type = MIB_ADR;
                     mibReq.Param.AdrEnable = LORAWAN_ADR_ON;
                     LoRaMacMibSetRequestConfirm( &mibReq );
-#if defined( REGION_EU868 )
+#if defined( REGION_EU868 ) || defined( REGION_RU864 ) || defined( REGION_CN779 ) || defined( REGION_EU433 )
                     LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
 #endif
                     break;
@@ -812,7 +812,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         mibReq.Type = MIB_ADR;
                         mibReq.Param.AdrEnable = LORAWAN_ADR_ON;
                         LoRaMacMibSetRequestConfirm( &mibReq );
-#if defined( REGION_EU868 )
+#if defined( REGION_EU868 ) || defined( REGION_RU864 ) || defined( REGION_CN779 ) || defined( REGION_EU433 )
                         LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
 #endif
 
@@ -1257,7 +1257,7 @@ int main( void )
                 mibReq.Param.AdrEnable = LORAWAN_ADR_ON;
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
-#if defined( REGION_EU868 )
+#if defined( REGION_EU868 ) || defined( REGION_RU864 ) || defined( REGION_CN779 ) || defined( REGION_EU433 )
                 LoRaMacTestSetDutyCycleOn( LORAWAN_DUTYCYCLE_ON );
 #endif
                 mibReq.Type = MIB_SYSTEM_MAX_RX_ERROR;
