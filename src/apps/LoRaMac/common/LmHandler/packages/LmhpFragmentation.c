@@ -399,6 +399,7 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
                         }
                     }
                 }
+                cmdIndex += FragSessionData[fragIndex].FragGroupData.FragSize;
                 break;
             }
             default:
