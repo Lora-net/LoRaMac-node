@@ -32,7 +32,7 @@
 #include "LmhpClockSync.h"
 #include "LmhpRemoteMcastSetup.h"
 #include "LmhpFragmentation.h"
-#include "Display.h"
+#include "LmHandlerMsgDisplay.h"
 
 #ifndef ACTIVE_REGION
 
@@ -281,7 +281,12 @@ int main( void )
     TimerInit( &LedBeaconTimer, OnLedBeaconTimerEvent );
     TimerSetValue( &LedBeaconTimer, 5000 );
 
-    DisplayVersion( );
+    const Version_t appVersion = { .Fields.Major = 1, .Fields.Minor = 0, .Fields.Revision = 0 };
+    const Version_t gitHubVersion = { .Fields.Major = 4, .Fields.Minor = 4, .Fields.Revision = 2 };
+    DisplayAppInfo( "fuota-test-01", 
+                    &appVersion,
+                    &gitHubVersion );
+
 
     LmHandlerInit( &LmHandlerCallbacks, &LmHandlerParams );
 

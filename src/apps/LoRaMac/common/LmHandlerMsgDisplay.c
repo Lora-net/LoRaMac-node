@@ -1,3 +1,24 @@
+/*!
+ * \file      LmHandlerMsgDisplay.h
+ *
+ * \brief     Common set of functions to display default messages from
+ *            LoRaMacHandler.
+ *
+ * \copyright Revised BSD License, see section \ref LICENSE.
+ *
+ * \code
+ *                ______                              _
+ *               / _____)             _              | |
+ *              ( (____  _____ ____ _| |_ _____  ____| |__
+ *               \____ \| ___ |    (_   _) ___ |/ ___)  _ \
+ *               _____) ) ____| | | || |_| ____( (___| | | |
+ *              (______/|_____)_|_|_| \__)_____)\____)_| |_|
+ *              (C)2013-2019 Semtech
+ *
+ * \endcode
+ *
+ * \author    Miguel Luis ( Semtech )
+ */
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -5,7 +26,7 @@
 #include "utilities.h"
 #include "timer.h"
 
-#include "Display.h"
+#include "LmHandlerMsgDisplay.h"
 
 /*!
  * MAC status strings
@@ -167,6 +188,13 @@ void DisplayMacMlmeRequestUpdate( LoRaMacStatus_t status, MlmeReq_t *mlmeReq )
             printf( "###### ===================================== ######\r\n");
             break;
         }
+        case MLME_DEVICE_TIME:
+        {
+            printf( "\r\n###### =========== MLME-Request ============ ######\r\n" );
+            printf( "######            MLME_DEVICE_TIME           ######\r\n");
+            printf( "###### ===================================== ######\r\n");
+            break;
+        }
         case MLME_TXCW:
         {
             printf( "\r\n###### =========== MLME-Request ============ ######\r\n" );
@@ -181,24 +209,10 @@ void DisplayMacMlmeRequestUpdate( LoRaMacStatus_t status, MlmeReq_t *mlmeReq )
             printf( "###### ===================================== ######\r\n");
             break;
         }
-        case MLME_DERIVE_MC_KE_KEY:
-        {
-            printf( "\r\n###### =========== MLME-Request ============ ######\r\n" );
-            printf( "######        MLME_DERIVE_MC_KE_KEY          ######\r\n");
-            printf( "###### ===================================== ######\r\n");
-            break;
-        }
-        case MLME_DERIVE_MC_KEY_PAIR:
-        {
-            printf( "\r\n###### =========== MLME-Request ============ ######\r\n" );
-            printf( "######        MLME_DERIVE_MC_KEY_PAIR        ######\r\n");
-            printf( "###### ===================================== ######\r\n");
-            break;
-        }
         default:
         {
             printf( "\r\n###### =========== MLME-Request ============ ######\r\n" );
-            printf( "######                MLME_ERROR             ######\r\n");
+            printf( "######              MLME_UNKNOWN             ######\r\n");
             printf( "###### ===================================== ######\r\n");
             break;
         }
@@ -324,8 +338,6 @@ void DisplayTxUpdate( LmHandlerTxParams_t *params )
     }
 
     printf( "\r\n" );
-    //printf( "BATTERY: %2.2fV\r\n", BoardGetBatteryVoltage( ) / 1000.0 );
-    //printf( "\r\n" );
 }
 
 void DisplayRxUpdate( LmHandlerAppData_t *appData, LmHandlerRxParams_t *params )
@@ -404,7 +416,11 @@ void DisplayClassUpdate( DeviceClass_t deviceClass )
     printf( "\r\n\r\n###### ===== Switch to Class %c done.  ===== ######\r\n\r\n", "ABC"[deviceClass] );
 }
 
-void DisplayVersion( void )
+void DisplayAppInfo( const char* appName, const Version_t* appVersion, const Version_t* gitHubVersion )
 {
-    printf( "\r\n###### ===== Demo Application v1.0.RC1 ===== ######\r\n\r\n" );
+    printf( "\r\n###### ===================================== ######\r\n\r\n" );
+    printf( "Application name   : %s\r\n", appName );
+    printf( "Application version: %d.%d.%d\r\n", appVersion->Fields.Major, appVersion->Fields.Minor, appVersion->Fields.Revision );
+    printf( "GitHub base version: %d.%d.%d\r\n", gitHubVersion->Fields.Major, gitHubVersion->Fields.Minor, gitHubVersion->Fields.Revision );
+    printf( "\r\n###### ===================================== ######\r\n\r\n" );
 }
