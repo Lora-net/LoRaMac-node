@@ -38,10 +38,6 @@
 typedef struct LmhpComplianceParams_s
 {
     /*!
-     * Points to the Join request parameters
-     */
-    MlmeReqJoin_t *JoinParams;
-    /*!
      * Holds the ADR state
      */
     bool AdrEnabled;

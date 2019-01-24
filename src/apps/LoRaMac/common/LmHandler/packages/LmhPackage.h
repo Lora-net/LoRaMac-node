@@ -112,6 +112,14 @@ typedef struct LmhPackage_s
      */
     void ( *OnMacMlmeRequest )( LoRaMacStatus_t status, MlmeReq_t *mlmeReq );
     /*!
+    * Join a LoRa Network in classA
+    *
+    * \Note if the device is ABP, this is a pass through function
+    * 
+    * \param [IN] isOtaa Indicates which activation mode must be used
+    */
+    void ( *OnJoinRequest )( bool isOtaa );
+    /*!
      * Instructs the MAC layer to send a ClassA uplink
      *
      * \param [IN] appData Data to be sent

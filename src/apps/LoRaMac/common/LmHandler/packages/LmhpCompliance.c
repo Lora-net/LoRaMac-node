@@ -164,7 +164,10 @@ LmhPackage_t LmhpCompliancePackage =
     .OnMlmeIndicationProcess = NULL,                           // Not used in this package
     .OnMacMcpsRequest = NULL,                                  // To be initialized by LmHandler
     .OnMacMlmeRequest = NULL,                                  // To be initialized by LmHandler
+    .OnJoinRequest = NULL,                                     // To be initialized by LmHandler
     .OnSendRequest = NULL,                                     // To be initialized by LmHandler
+    .OnDeviceTimeRequest = NULL,                               // To be initialized by LmHandler
+    .OnSysTimeUpdate = NULL,                                   // To be initialized by LmHandler
 };
 
 LmhPackage_t *LmphCompliancePackageFactory( void )
@@ -390,7 +393,6 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
             break;
         case 6: // (ix)
             {
-                MlmeReq_t mlmeReq;
                 MibRequestConfirm_t mibReq;
 
                 // Disable TestMode and revert back to normal operation
@@ -412,10 +414,7 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
                     LmhpComplianceParams->StartPeripherals( );
                 }
 
-                mlmeReq.Type = MLME_JOIN;
-                mlmeReq.Req.Join = *LmhpComplianceParams->JoinParams;
-
-                LmhpCompliancePackage.OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq );
+                LmhpCompliancePackage.OnJoinRequest( true );
             }
             break;
         case 7: // (x)

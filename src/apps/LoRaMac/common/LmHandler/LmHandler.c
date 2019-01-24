@@ -75,8 +75,6 @@ static CommissioningParams_t CommissioningParams =
 
 static LmhPackage_t *LmHandlerPackages[PKG_MAX_NUMBER];
 
-static MlmeReqJoin_t JoinParameters;
-
 /*!
  * Upper layer LoRaMac parameters
  */
@@ -308,9 +306,7 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
     mibReq.Param.AdrEnable = LmHandlerParams->AdrEnable;
     LoRaMacMibSetRequestConfirm( &mibReq );
 
-#if defined( REGION_EU868 )
     LoRaMacTestSetDutyCycleOn( LmHandlerParams->DutyCycleEnabled );
-#endif
 
     mibReq.Type = MIB_SYSTEM_MAX_RX_ERROR;
     mibReq.Param.SystemMaxRxError = 20;
@@ -324,11 +320,6 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
         if( mibReq.Param.NetworkActivation == ACTIVATION_TYPE_NONE )
         {
             LmHandlerCallbacks->OnNetworkParametersChange( &CommissioningParams );
-#if( OVER_THE_AIR_ACTIVATION == 0 )
-            mibReq.Type = MIB_NETWORK_ACTIVATION;
-            mibReq.Param.NetworkActivation = ACTIVATION_TYPE_ABP;
-            LoRaMacMibSetRequestConfirm( &mibReq );
-#endif
         }
     }
     return LORAMAC_HANDLER_SUCCESS;
@@ -369,34 +360,51 @@ void LmHandlerProcess( void )
     LmHandlerPackagesProcess( );
 }
 
+/*!
+ * Join a LoRa Network in classA
+ *
+ * \Note if the device is ABP, this is a pass through function
+ * 
+ * \param [IN] isOtaa Indicates which activation mode must be used
+ */
+static void LmHandlerJoinRequest( bool isOtaa )
+{
+    if( isOtaa == true )
+    {
+        MlmeReq_t mlmeReq;
+
+        mlmeReq.Type = MLME_JOIN;
+        mlmeReq.Req.Join.DevEui = CommissioningParams.DevEui;
+        mlmeReq.Req.Join.JoinEui = CommissioningParams.JoinEui;
+        mlmeReq.Req.Join.Datarate = LmHandlerParams->TxDatarate;
+        // Update commissioning parameters activation type variable.
+        CommissioningParams.IsOtaaActivation = true;
+
+        // Starts the OTAA join procedure
+        LmHandlerCallbacks->OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq );
+    }
+    else
+    {
+        MibRequestConfirm_t mibReq;
+        LmHandlerJoinParams_t joinParams = 
+        {
+            .CommissioningParams = &CommissioningParams,
+            .Datarate = LmHandlerParams->TxDatarate,
+            .Status = LORAMAC_HANDLER_SUCCESS
+        };
+
+        mibReq.Type = MIB_NETWORK_ACTIVATION;
+        mibReq.Param.NetworkActivation = ACTIVATION_TYPE_ABP;
+        LoRaMacMibSetRequestConfirm( &mibReq );
+
+        // Notify upper layer
+        LmHandlerCallbacks->OnJoinRequest( &joinParams );
+    }
+}
+
 void LmHandlerJoin( void )
 {
-#if( OVER_THE_AIR_ACTIVATION != 0 )
-
-    MlmeReq_t mlmeReq;
-
-    mlmeReq.Type = MLME_JOIN;
-    mlmeReq.Req.Join.DevEui = CommissioningParams.DevEui;
-    mlmeReq.Req.Join.JoinEui = CommissioningParams.JoinEui;
-    mlmeReq.Req.Join.Datarate = LmHandlerParams->TxDatarate;
-
-    JoinParameters = mlmeReq.Req.Join;
-
-    // Starts the OTAA join procedure
-    LmHandlerCallbacks->OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq );
-
-#else
-
-    LmHandlerJoinParams_t joinParams = 
-    {
-        .CommissioningParams = &CommissioningParams,
-        .Datarate = LmHandlerParams->TxDatarate,
-        .Status = LORAMAC_HANDLER_SUCCESS
-    };
-    // Notify upper layer
-    LmHandlerCallbacks->OnJoinRequest( &joinParams );
-
-#endif
+    LmHandlerJoinRequest( CommissioningParams.IsOtaaActivation );
 }
 
 LmHandlerFlagStatus_t LmHandlerJoinStatus( void )
@@ -433,7 +441,7 @@ LmHandlerErrorStatus_t LmHandlerSend( LmHandlerAppData_t *appData, LmHandlerMsgT
     if( LmHandlerJoinStatus( ) != LORAMAC_HANDLER_SET )
     {
         // The network isn't joined, try again.
-        LmHandlerJoin( );
+        LmHandlerJoinRequest( CommissioningParams.IsOtaaActivation );
         return LORAMAC_HANDLER_ERROR;
     }
 
@@ -883,12 +891,6 @@ LmHandlerErrorStatus_t LmHandlerPackageRegister( uint8_t id, void *params )
         case PACKAGE_ID_COMPLIANCE:
         {
             package = LmphCompliancePackageFactory( );
-
-            JoinParameters.DevEui = CommissioningParams.DevEui;
-            JoinParameters.JoinEui = CommissioningParams.JoinEui;
-            JoinParameters.Datarate = LmHandlerParams->TxDatarate;
-
-            ( ( LmhpComplianceParams_t* )params )->JoinParams = &JoinParameters;
             break;
         }
         case PACKAGE_ID_CLOCK_SYNC:
@@ -912,6 +914,7 @@ LmHandlerErrorStatus_t LmHandlerPackageRegister( uint8_t id, void *params )
         LmHandlerPackages[id] = package;
         LmHandlerPackages[id]->OnMacMcpsRequest = LmHandlerCallbacks->OnMacMcpsRequest;
         LmHandlerPackages[id]->OnMacMlmeRequest = LmHandlerCallbacks->OnMacMlmeRequest;
+        LmHandlerPackages[id]->OnJoinRequest = LmHandlerJoinRequest;
         LmHandlerPackages[id]->OnSendRequest = LmHandlerSend;
         LmHandlerPackages[id]->OnDeviceTimeRequest = LmHandlerDeviceTimeReq;
         LmHandlerPackages[id]->OnSysTimeUpdate = LmHandlerCallbacks->OnSysTimeUpdate;

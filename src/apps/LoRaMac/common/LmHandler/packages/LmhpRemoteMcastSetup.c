@@ -181,7 +181,10 @@ static LmhPackage_t LmhpRemoteMcastSetupPackage =
     .OnMlmeIndicationProcess = NULL,                           // Not used in this package
     .OnMacMcpsRequest = NULL,                                  // To be initialized by LmHandler
     .OnMacMlmeRequest = NULL,                                  // To be initialized by LmHandler
+    .OnJoinRequest = NULL,                                     // To be initialized by LmHandler
     .OnSendRequest = NULL,                                     // To be initialized by LmHandler
+    .OnDeviceTimeRequest = NULL,                               // To be initialized by LmHandler
+    .OnSysTimeUpdate = NULL,                                   // To be initialized by LmHandler
 };
 
 LmhPackage_t *LmhpRemoteMcastSetupPackageFactory( void )
