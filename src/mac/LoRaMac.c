@@ -149,23 +149,11 @@ typedef struct sLoRaMacNvmCtx
      * Counts the number of missed ADR acknowledgements
      */
     uint32_t AdrAckCounter;
-    /*
-     * Limit of uplinks without any donwlink response before the ADRACKReq bit will be set.
-     */
-    uint16_t AdrAckLimit;
-    /*
-     * Limit of uplinks without any donwlink response after a the first frame with set ADRACKReq bit
-     * before the trying to regain the connectivity.
-     */
-    uint16_t AdrAckDelay;
+
     /*
      * LoRaMac parameters
      */
     LoRaMacParams_t MacParams;
-    /*
-     * Uplink messages repetitions counter
-     */
-    uint8_t ChannelsNbTransCounter;
     /*
      * Maximum duty cycle
      * \remark Possibility to shutdown the device.
@@ -175,10 +163,6 @@ typedef struct sLoRaMacNvmCtx
     * Enables/Disables duty cycle management (Test only)
     */
     bool DutyCycleOn;
-    /*
-     * Current channel index
-     */
-    uint8_t Channel;
     /*
      * Current channel index
      */
@@ -192,23 +176,6 @@ typedef struct sLoRaMacNvmCtx
      */
     uint8_t MacCommandsBuffer[LORA_MAC_COMMAND_MAX_LENGTH];
     /*
-     * Number of trials to get a frame acknowledged
-     */
-    uint8_t AckTimeoutRetries;
-    /*
-     * Number of trials to get a frame acknowledged
-     */
-    uint8_t AckTimeoutRetriesCounter;
-    /*
-     * Indicates if the AckTimeout timer has expired or not
-     */
-    bool AckTimeoutRetry;
-    /*
-     * If the node has sent a FRAME_TYPE_DATA_CONFIRMED_UP this variable indicates
-     * if the nodes needs to manage the server acknowledgement.
-     */
-    bool NodeAckRequested;
-    /*
      * If the server has sent a FRAME_TYPE_DATA_CONFIRMED_DOWN this variable indicates
      * if the ACK bit must be set for the next transmission
      */
@@ -217,6 +184,17 @@ typedef struct sLoRaMacNvmCtx
      * Aggregated duty cycle management
      */
     uint16_t AggregatedDCycle;
+    /*
+    * Aggregated duty cycle management
+    */
+    TimerTime_t AggregatedLastTxDoneTime;
+    TimerTime_t AggregatedTimeOff;
+    /*
+    * Stores the time at LoRaMac initialization.
+    *
+    * \remark Used for the BACKOFF_DC computation.
+    */
+    SysTime_t InitializationTime;
     /*
      * Current LoRaWAN Version
      */
@@ -265,17 +243,6 @@ typedef struct sLoRaMacCtx
     * Buffer containing the upper layer data.
     */
     uint8_t RxPayload[LORAMAC_PHY_MAXPAYLOAD];
-    /*
-    * Aggregated duty cycle management
-    */
-    TimerTime_t AggregatedLastTxDoneTime;
-    TimerTime_t AggregatedTimeOff;
-    /*
-    * Stores the time at LoRaMac initialization.
-    *
-    * \remark Used for the BACKOFF_DC computation.
-    */
-    SysTime_t InitializationTime;
     SysTime_t LastTxSysTime;
     /*
     * LoRaMac internal state
@@ -315,9 +282,43 @@ typedef struct sLoRaMacCtx
     RxConfigParams_t RxWindow1Config;
     RxConfigParams_t RxWindow2Config;
     /*
+     * Limit of uplinks without any donwlink response before the ADRACKReq bit will be set.
+     */
+    uint16_t AdrAckLimit;
+    /*
+     * Limit of uplinks without any donwlink response after a the first frame with set ADRACKReq bit
+     * before the trying to regain the connectivity.
+     */
+    uint16_t AdrAckDelay;
+    /*
     * Acknowledge timeout timer. Used for packet retransmissions.
     */
     TimerEvent_t AckTimeoutTimer;
+    /*
+     * Uplink messages repetitions counter
+     */
+    uint8_t ChannelsNbTransCounter;
+    /*
+     * Number of trials to get a frame acknowledged
+     */
+    uint8_t AckTimeoutRetries;
+    /*
+     * Number of trials to get a frame acknowledged
+     */
+    uint8_t AckTimeoutRetriesCounter;
+    /*
+     * Indicates if the AckTimeout timer has expired or not
+     */
+    bool AckTimeoutRetry;
+    /*
+     * If the node has sent a FRAME_TYPE_DATA_CONFIRMED_UP this variable indicates
+     * if the nodes needs to manage the server acknowledgement.
+     */
+    bool NodeAckRequested;
+    /*
+     * Current channel index
+     */
+    uint8_t Channel;
     /*
     * Last transmission time on air
     */
