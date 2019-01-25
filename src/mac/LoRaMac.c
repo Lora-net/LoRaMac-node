@@ -2538,8 +2538,8 @@ static void ResetMacParameters( void )
     LoRaMacResetFCnts( );
 
     MacCtx.ChannelsNbTransCounter = 0;
-    MacCtx.NvmCtx->AckTimeoutRetries = 1;
-    MacCtx.NvmCtx->AckTimeoutRetriesCounter = 1;
+    MacCtx.AckTimeoutRetries = 1;
+    MacCtx.AckTimeoutRetriesCounter = 1;
     MacCtx.NvmCtx->AckTimeoutRetry = false;
 
     MacCtx.NvmCtx->MaxDCycle = 0;
