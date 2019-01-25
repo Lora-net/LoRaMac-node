@@ -2270,7 +2270,7 @@ LoRaMacStatus_t Send( LoRaMacHeader_t* macHdr, uint8_t fPort, void* fBuffer, uin
     adrNext.UpdateChanMask = true;
     adrNext.AdrEnabled = fCtrl.Bits.Adr;
     adrNext.AdrAckCounter = MacCtx.NvmCtx->AdrAckCounter;
-    adrNext.AdrAckLimit = MacCtx.NvmCtx->AdrAckLimit;
+    adrNext.AdrAckLimit = MacCtx.AdrAckLimit;
     adrNext.AdrAckDelay = MacCtx.AdrAckDelay;
     adrNext.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
     adrNext.TxPower = MacCtx.NvmCtx->MacParams.ChannelsTxPower;
@@ -3173,7 +3173,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
 
     getPhy.Attribute = PHY_DEF_ADR_ACK_LIMIT;
     phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
-    MacCtx.NvmCtx->AdrAckLimit = phyParam.Value;
+    MacCtx.AdrAckLimit = phyParam.Value;
 
     getPhy.Attribute = PHY_DEF_ADR_ACK_DELAY;
     phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
@@ -3326,7 +3326,7 @@ LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo )
     adrNext.UpdateChanMask = false;
     adrNext.AdrEnabled = MacCtx.NvmCtx->AdrCtrlOn;
     adrNext.AdrAckCounter = MacCtx.NvmCtx->AdrAckCounter;
-    adrNext.AdrAckLimit = MacCtx.NvmCtx->AdrAckLimit;
+    adrNext.AdrAckLimit = MacCtx.AdrAckLimit;
     adrNext.AdrAckDelay = MacCtx.AdrAckDelay;
     adrNext.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
     adrNext.TxPower = MacCtx.NvmCtx->MacParams.ChannelsTxPower;
