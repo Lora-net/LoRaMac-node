@@ -2242,7 +2242,7 @@ LoRaMacStatus_t Send( LoRaMacHeader_t* macHdr, uint8_t fPort, void* fBuffer, uin
     }
     if( MacCtx.NvmCtx->MaxDCycle == 0 )
     {
-        MacCtx.AggregatedTimeOff = 0;
+        MacCtx.NvmCtx->AggregatedTimeOff = 0;
     }
 
     fCtrl.Value = 0;
@@ -2358,7 +2358,7 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
     // Update back-off
     CalculateBackOff( MacCtx.NvmCtx->LastTxChannel );
 
-    nextChan.AggrTimeOff = MacCtx.AggregatedTimeOff;
+    nextChan.AggrTimeOff = MacCtx.NvmCtx->AggregatedTimeOff;
     nextChan.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
     nextChan.DutyCycleEnabled = MacCtx.NvmCtx->DutyCycleOn;
     if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
@@ -2372,7 +2372,7 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
     nextChan.LastAggrTx = MacCtx.NvmCtx->AggregatedLastTxDoneTime;
 
     // Select channel
-    status = RegionNextChannel( MacCtx.NvmCtx->Region, &nextChan, &MacCtx.NvmCtx->Channel, &dutyCycleTimeOff, &MacCtx.AggregatedTimeOff );
+    status = RegionNextChannel( MacCtx.NvmCtx->Region, &nextChan, &MacCtx.NvmCtx->Channel, &dutyCycleTimeOff, &MacCtx.NvmCtx->AggregatedTimeOff );
 
     if( status != LORAMAC_STATUS_OK )
     {
@@ -2503,7 +2503,7 @@ static void CalculateBackOff( uint8_t channel )
 
     // Update aggregated time-off. This must be an assignment and no incremental
     // update as we do only calculate the time-off based on the last transmission
-    MacCtx.AggregatedTimeOff = ( MacCtx.TxTimeOnAir * MacCtx.NvmCtx->AggregatedDCycle - MacCtx.TxTimeOnAir );
+    MacCtx.NvmCtx->AggregatedTimeOff = ( MacCtx.TxTimeOnAir * MacCtx.NvmCtx->AggregatedDCycle - MacCtx.TxTimeOnAir );
 }
 
 static void RemoveMacCommands( LoRaMacRxSlot_t rxSlot, LoRaMacFrameCtrl_t fCtrl, Mcps_t request )
@@ -3204,7 +3204,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
 
     // Reset duty cycle times
     MacCtx.NvmCtx->AggregatedLastTxDoneTime = 0;
-    MacCtx.AggregatedTimeOff = 0;
+    MacCtx.NvmCtx->AggregatedTimeOff = 0;
 
     // Initialize timers
     TimerInit( &MacCtx.TxDelayedTimer, OnTxDelayedTimerEvent );
