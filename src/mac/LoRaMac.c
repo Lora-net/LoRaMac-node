@@ -904,9 +904,9 @@ static void ProcessRadioTxDone( void )
     }
 
     // Store last Tx channel
-    MacCtx.NvmCtx->LastTxChannel = MacCtx.NvmCtx->Channel;
+    MacCtx.NvmCtx->LastTxChannel = MacCtx.Channel;
     // Update last tx done time for the current channel
-    txDone.Channel = MacCtx.NvmCtx->Channel;
+    txDone.Channel = MacCtx.Channel;
     if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
     {
         txDone.Joined  = false;
@@ -1725,7 +1725,7 @@ static void OnRxWindow1TimerEvent( void* context )
     TimerStop( &MacCtx.RxWindowTimer1 );
     MacCtx.RxSlot = RX_SLOT_WIN_1;
 
-    MacCtx.RxWindow1Config.Channel = MacCtx.NvmCtx->Channel;
+    MacCtx.RxWindow1Config.Channel = MacCtx.Channel;
     MacCtx.RxWindow1Config.DrOffset = MacCtx.NvmCtx->MacParams.Rx1DrOffset;
     MacCtx.RxWindow1Config.DownlinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
     MacCtx.RxWindow1Config.RepeaterSupport = MacCtx.NvmCtx->RepeaterSupport;
@@ -1745,7 +1745,7 @@ static void OnRxWindow2TimerEvent( void* context )
 {
     TimerStop( &MacCtx.RxWindowTimer2 );
 
-    MacCtx.RxWindow2Config.Channel = MacCtx.NvmCtx->Channel;
+    MacCtx.RxWindow2Config.Channel = MacCtx.Channel;
     MacCtx.RxWindow2Config.Frequency = MacCtx.NvmCtx->MacParams.Rx2Channel.Frequency;
     MacCtx.RxWindow2Config.DownlinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
     MacCtx.RxWindow2Config.RepeaterSupport = MacCtx.NvmCtx->RepeaterSupport;
@@ -2372,7 +2372,7 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
     nextChan.LastAggrTx = MacCtx.NvmCtx->AggregatedLastTxDoneTime;
 
     // Select channel
-    status = RegionNextChannel( MacCtx.NvmCtx->Region, &nextChan, &MacCtx.NvmCtx->Channel, &dutyCycleTimeOff, &MacCtx.NvmCtx->AggregatedTimeOff );
+    status = RegionNextChannel( MacCtx.NvmCtx->Region, &nextChan, &MacCtx.Channel, &dutyCycleTimeOff, &MacCtx.NvmCtx->AggregatedTimeOff );
 
     if( status != LORAMAC_STATUS_OK )
     {
@@ -2429,14 +2429,14 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
     }
 
     // Secure frame
-    LoRaMacStatus_t retval = SecureFrame( MacCtx.NvmCtx->MacParams.ChannelsDatarate, MacCtx.NvmCtx->Channel );
+    LoRaMacStatus_t retval = SecureFrame( MacCtx.NvmCtx->MacParams.ChannelsDatarate, MacCtx.Channel );
     if( retval != LORAMAC_STATUS_OK )
     {
         return retval;
     }
 
     // Try to send now
-    return SendFrameOnChannel( MacCtx.NvmCtx->Channel );
+    return SendFrameOnChannel( MacCtx.Channel );
 }
 
 static LoRaMacStatus_t SecureFrame( uint8_t txDr, uint8_t txCh )
@@ -2564,8 +2564,8 @@ static void ResetMacParameters( void )
     RegionInitDefaults( MacCtx.NvmCtx->Region, &params );
 
     // Initialize channel index.
-    MacCtx.NvmCtx->Channel = 0;
-    MacCtx.NvmCtx->LastTxChannel = MacCtx.NvmCtx->Channel;
+    MacCtx.Channel = 0;
+    MacCtx.NvmCtx->LastTxChannel = MacCtx.Channel;
 }
 
 static void OpenContinuousRx2Window( void )
@@ -2749,7 +2749,7 @@ LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout )
 {
     ContinuousWaveParams_t continuousWave;
 
-    continuousWave.Channel = MacCtx.NvmCtx->Channel;
+    continuousWave.Channel = MacCtx.Channel;
     continuousWave.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
     continuousWave.TxPower = MacCtx.NvmCtx->MacParams.ChannelsTxPower;
     continuousWave.MaxEirp = MacCtx.NvmCtx->MacParams.MaxEirp;
