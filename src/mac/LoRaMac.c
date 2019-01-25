@@ -2271,7 +2271,7 @@ LoRaMacStatus_t Send( LoRaMacHeader_t* macHdr, uint8_t fPort, void* fBuffer, uin
     adrNext.AdrEnabled = fCtrl.Bits.Adr;
     adrNext.AdrAckCounter = MacCtx.NvmCtx->AdrAckCounter;
     adrNext.AdrAckLimit = MacCtx.NvmCtx->AdrAckLimit;
-    adrNext.AdrAckDelay = MacCtx.NvmCtx->AdrAckDelay;
+    adrNext.AdrAckDelay = MacCtx.AdrAckDelay;
     adrNext.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
     adrNext.TxPower = MacCtx.NvmCtx->MacParams.ChannelsTxPower;
     adrNext.UplinkDwellTime = MacCtx.NvmCtx->MacParams.UplinkDwellTime;
@@ -3177,7 +3177,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
 
     getPhy.Attribute = PHY_DEF_ADR_ACK_DELAY;
     phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
-    MacCtx.NvmCtx->AdrAckDelay = phyParam.Value;
+    MacCtx.AdrAckDelay = phyParam.Value;
 
     // Init parameters which are not set in function ResetMacParameters
     MacCtx.NvmCtx->MacParamsDefaults.ChannelsNbTrans = 1;
@@ -3327,7 +3327,7 @@ LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo )
     adrNext.AdrEnabled = MacCtx.NvmCtx->AdrCtrlOn;
     adrNext.AdrAckCounter = MacCtx.NvmCtx->AdrAckCounter;
     adrNext.AdrAckLimit = MacCtx.NvmCtx->AdrAckLimit;
-    adrNext.AdrAckDelay = MacCtx.NvmCtx->AdrAckDelay;
+    adrNext.AdrAckDelay = MacCtx.AdrAckDelay;
     adrNext.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
     adrNext.TxPower = MacCtx.NvmCtx->MacParams.ChannelsTxPower;
     adrNext.UplinkDwellTime = MacCtx.NvmCtx->MacParams.UplinkDwellTime;
