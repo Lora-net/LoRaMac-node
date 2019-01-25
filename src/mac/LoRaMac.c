@@ -923,7 +923,7 @@ static void ProcessRadioTxDone( void )
     if( MacCtx.NodeAckRequested == false )
     {
         MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
-        MacCtx.NvmCtx->ChannelsNbTransCounter++;
+        MacCtx.ChannelsNbTransCounter++;
     }
 }
 
@@ -1617,7 +1617,7 @@ static void LoRaMacHandleJoinRequest( void )
         if( LoRaMacConfirmQueueGetStatus( MLME_JOIN ) == LORAMAC_EVENT_INFO_STATUS_OK )
         {// Node joined successfully
             LoRaMacResetFCnts( );
-            MacCtx.NvmCtx->ChannelsNbTransCounter = 0;
+            MacCtx.ChannelsNbTransCounter = 0;
         }
         MacCtx.MacState &= ~LORAMAC_TX_RUNNING;
     }
@@ -2537,7 +2537,7 @@ static void ResetMacParameters( void )
     // Initialize the uplink and downlink counters default value
     LoRaMacResetFCnts( );
 
-    MacCtx.NvmCtx->ChannelsNbTransCounter = 0;
+    MacCtx.ChannelsNbTransCounter = 0;
     MacCtx.NvmCtx->AckTimeoutRetries = 1;
     MacCtx.NvmCtx->AckTimeoutRetriesCounter = 1;
     MacCtx.NvmCtx->AckTimeoutRetry = false;
@@ -2897,7 +2897,7 @@ LoRaMacStatus_t DetermineFrameType( LoRaMacMessageData_t* macMsg, FType_t* fType
 static bool CheckRetransUnconfirmedUplink( void )
 {
     // Unconfirmed uplink, when all retransmissions are done.
-    if( MacCtx.NvmCtx->ChannelsNbTransCounter >=
+    if( MacCtx.ChannelsNbTransCounter >=
         MacCtx.NvmCtx->MacParams.ChannelsNbTrans )
     {
         return true;
@@ -2961,7 +2961,7 @@ static bool StopRetransmission( void )
         }
     }
 
-    MacCtx.NvmCtx->ChannelsNbTransCounter = 0;
+    MacCtx.ChannelsNbTransCounter = 0;
     MacCtx.NodeAckRequested = false;
     MacCtx.NvmCtx->AckTimeoutRetry = false;
     MacCtx.MacState &= ~LORAMAC_TX_RUNNING;
