@@ -2540,7 +2540,7 @@ static void ResetMacParameters( void )
     MacCtx.ChannelsNbTransCounter = 0;
     MacCtx.AckTimeoutRetries = 1;
     MacCtx.AckTimeoutRetriesCounter = 1;
-    MacCtx.NvmCtx->AckTimeoutRetry = false;
+    MacCtx.AckTimeoutRetry = false;
 
     MacCtx.NvmCtx->MaxDCycle = 0;
     MacCtx.NvmCtx->AggregatedDCycle = 1;
@@ -2965,7 +2965,7 @@ static bool StopRetransmission( void )
 
     MacCtx.ChannelsNbTransCounter = 0;
     MacCtx.NodeAckRequested = false;
-    MacCtx.NvmCtx->AckTimeoutRetry = false;
+    MacCtx.AckTimeoutRetry = false;
     MacCtx.MacState &= ~LORAMAC_TX_RUNNING;
 
     return true;
