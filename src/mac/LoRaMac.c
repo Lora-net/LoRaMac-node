@@ -2490,7 +2490,7 @@ static void CalculateBackOff( uint8_t channel )
     }
     calcBackOff.DutyCycleEnabled = MacCtx.NvmCtx->DutyCycleOn;
     calcBackOff.Channel = channel;
-    calcBackOff.ElapsedTime = SysTimeSub( SysTimeGetMcuTime( ), MacCtx.InitializationTime );
+    calcBackOff.ElapsedTime = SysTimeSub( SysTimeGetMcuTime( ), MacCtx.NvmCtx->InitializationTime );
     calcBackOff.TxTimeOnAir = MacCtx.TxTimeOnAir;
     calcBackOff.LastTxIsJoinRequest = false;
     if( ( MacCtx.MacFlags.Bits.MlmeReq == 1 ) && ( LoRaMacConfirmQueueIsCmdActive( MLME_JOIN ) == true ) )
@@ -3213,7 +3213,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     TimerInit( &MacCtx.AckTimeoutTimer, OnAckTimeoutTimerEvent );
 
     // Store the current initialization time
-    MacCtx.InitializationTime = SysTimeGetMcuTime( );
+    MacCtx.NvmCtx->InitializationTime = SysTimeGetMcuTime( );
 
     // Initialize Radio driver
     MacCtx.RadioEvents.TxDone = OnRadioTxDone;
