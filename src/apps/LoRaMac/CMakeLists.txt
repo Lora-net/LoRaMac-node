@@ -39,20 +39,85 @@ if((SUB_PROJECT STREQUAL classB OR SUB_PROJECT STREQUAL periodic-uplink-lpp OR S
     message(FATAL_ERROR "Please turn on Class B support of LoRaMac ( CLASSB_ENABLED=ON ) to use Class B, periodic-uplink-lpp, fuota-test-01 sub projects")
 endif()
 
-#---------------------------------------------------------------------------------------
-# Application common features handling
-#---------------------------------------------------------------------------------------
-file(GLOB ${PROJECT_NAME}_COMMON "${CMAKE_CURRENT_LIST_DIR}/common/*.c")
+if(SUB_PROJECT STREQUAL periodic-uplink-lpp)
 
-#---------------------------------------------------------------------------------------
-# Application LoRaMac handler
-#---------------------------------------------------------------------------------------
-file(GLOB ${PROJECT_NAME}_LMH "${CMAKE_CURRENT_LIST_DIR}/common/LmHandler/*.c")
+    #---------------------------------------------------------------------------------------
+    # Application common features handling
+    #---------------------------------------------------------------------------------------
+    list(APPEND ${PROJECT_NAME}_COMMON
+        "${CMAKE_CURRENT_LIST_DIR}/common/CayenneLpp.c"
+        "${CMAKE_CURRENT_LIST_DIR}/common/LmHandlerMsgDisplay.c"
+        "${CMAKE_CURRENT_LIST_DIR}/common/NvmCtxMgmt.c"
+    )
 
-#---------------------------------------------------------------------------------------
-# LoRaMac handler applicative packages
-#---------------------------------------------------------------------------------------
-file(GLOB ${PROJECT_NAME}_LMHP "${CMAKE_CURRENT_LIST_DIR}/common/LmHandler/packages/*.c")
+    #---------------------------------------------------------------------------------------
+    # Application LoRaMac handler
+    #---------------------------------------------------------------------------------------
+    list(APPEND ${PROJECT_NAME}_LMH
+        "${CMAKE_CURRENT_LIST_DIR}/common/LmHandler/LmHandler.c"
+    )
+
+    #---------------------------------------------------------------------------------------
+    # LoRaMac handler applicative packages
+    #---------------------------------------------------------------------------------------
+    list(APPEND ${PROJECT_NAME}_LMHP
+        "${CMAKE_CURRENT_LIST_DIR}/common/LmHandler/packages/FragDecoder.c"
+        "${CMAKE_CURRENT_LIST_DIR}/common/LmHandler/packages/LmhpClockSync.c"
+        "${CMAKE_CURRENT_LIST_DIR}/common/LmHandler/packages/LmhpCompliance.c"
+        "${CMAKE_CURRENT_LIST_DIR}/common/LmHandler/packages/LmhpFragmentation.c"
+        "${CMAKE_CURRENT_LIST_DIR}/common/LmHandler/packages/LmhpRemoteMcastSetup.c"
+    )
+
+elseif(SUB_PROJECT STREQUAL fuota-test-01)
+
+    #---------------------------------------------------------------------------------------
+    # Application common features handling
+    #---------------------------------------------------------------------------------------
+    list(APPEND ${PROJECT_NAME}_COMMON
+        "${CMAKE_CURRENT_LIST_DIR}/common/LmHandlerMsgDisplay.c"
+        "${CMAKE_CURRENT_LIST_DIR}/common/NvmCtxMgmt.c"
+    )
+
+    #---------------------------------------------------------------------------------------
+    # Application LoRaMac handler
+    #---------------------------------------------------------------------------------------
+    list(APPEND ${PROJECT_NAME}_LMH
+        "${CMAKE_CURRENT_LIST_DIR}/common/LmHandler/LmHandler.c"
+    )
+
+    #---------------------------------------------------------------------------------------
+    # LoRaMac handler applicative packages
+    #---------------------------------------------------------------------------------------
+    list(APPEND ${PROJECT_NAME}_LMHP
+        "${CMAKE_CURRENT_LIST_DIR}/common/LmHandler/packages/FragDecoder.c"
+        "${CMAKE_CURRENT_LIST_DIR}/common/LmHandler/packages/LmhpClockSync.c"
+        "${CMAKE_CURRENT_LIST_DIR}/common/LmHandler/packages/LmhpCompliance.c"
+        "${CMAKE_CURRENT_LIST_DIR}/common/LmHandler/packages/LmhpFragmentation.c"
+        "${CMAKE_CURRENT_LIST_DIR}/common/LmHandler/packages/LmhpRemoteMcastSetup.c"
+    )
+
+else() #if(SUB_PROJECT STREQUAL classA OR SUB_PROJECT STREQUAL classB OR SUB_PROJECT STREQUAL classC)
+
+    #---------------------------------------------------------------------------------------
+    # Application common features handling
+    #---------------------------------------------------------------------------------------
+    list(APPEND ${PROJECT_NAME}_COMMON
+        "${CMAKE_CURRENT_LIST_DIR}/common/NvmCtxMgmt.c"
+    )
+
+    #---------------------------------------------------------------------------------------
+    # Application LoRaMac handler
+    #---------------------------------------------------------------------------------------
+    list(APPEND ${PROJECT_NAME}_LMH
+    )
+
+    #---------------------------------------------------------------------------------------
+    # LoRaMac handler applicative packages
+    #---------------------------------------------------------------------------------------
+    list(APPEND ${PROJECT_NAME}_LMHP
+    )
+
+endif()
 
 #---------------------------------------------------------------------------------------
 # Application
