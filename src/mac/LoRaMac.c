@@ -1630,7 +1630,7 @@ static uint8_t LoRaMacCheckForTxTimeout( void )
     {
         // Stop transmit cycle due to tx timeout
         MacCtx.MacState &= ~LORAMAC_TX_RUNNING;
-        MacCtx.McpsConfirm.NbRetries = MacCtx.NvmCtx->AckTimeoutRetriesCounter;
+        MacCtx.McpsConfirm.NbRetries = MacCtx.AckTimeoutRetriesCounter;
         MacCtx.McpsConfirm.AckReceived = false;
         MacCtx.McpsConfirm.TxTimeOnAir = 0;
         return 0x01;
@@ -1711,7 +1711,7 @@ static void OnTxDelayedTimerEvent( void* context )
         {
             // Stop retransmission attempt
             MacCtx.McpsConfirm.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
-            MacCtx.McpsConfirm.NbRetries = MacCtx.NvmCtx->AckTimeoutRetriesCounter;
+            MacCtx.McpsConfirm.NbRetries = MacCtx.AckTimeoutRetriesCounter;
             MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_TX_DR_PAYLOAD_SIZE_ERROR;
             LoRaMacConfirmQueueSetStatusCmn( LORAMAC_EVENT_INFO_STATUS_TX_DR_PAYLOAD_SIZE_ERROR );
             StopRetransmission( );
@@ -2538,8 +2538,8 @@ static void ResetMacParameters( void )
     LoRaMacResetFCnts( );
 
     MacCtx.ChannelsNbTransCounter = 0;
-    MacCtx.NvmCtx->AckTimeoutRetries = 1;
-    MacCtx.NvmCtx->AckTimeoutRetriesCounter = 1;
+    MacCtx.AckTimeoutRetries = 1;
+    MacCtx.AckTimeoutRetriesCounter = 1;
     MacCtx.NvmCtx->AckTimeoutRetry = false;
 
     MacCtx.NvmCtx->MaxDCycle = 0;
@@ -2923,8 +2923,8 @@ static bool CheckRetransUnconfirmedUplink( void )
 static bool CheckRetransConfirmedUplink( void )
 {
     // Confirmed uplink, when all retransmissions ( tries to get a ack ) are done.
-    if( MacCtx.NvmCtx->AckTimeoutRetriesCounter >=
-        MacCtx.NvmCtx->AckTimeoutRetries )
+    if( MacCtx.AckTimeoutRetriesCounter >=
+        MacCtx.AckTimeoutRetries )
     {
         return true;
     }
@@ -2971,10 +2971,10 @@ static bool StopRetransmission( void )
 
 static void AckTimeoutRetriesProcess( void )
 {
-    if( ( MacCtx.NvmCtx->AckTimeoutRetriesCounter < MacCtx.NvmCtx->AckTimeoutRetries ) && ( MacCtx.NvmCtx->AckTimeoutRetriesCounter <= MAX_ACK_RETRIES ) )
+    if( ( MacCtx.AckTimeoutRetriesCounter < MacCtx.AckTimeoutRetries ) && ( MacCtx.AckTimeoutRetriesCounter <= MAX_ACK_RETRIES ) )
     {
-        MacCtx.NvmCtx->AckTimeoutRetriesCounter++;
-        if( ( MacCtx.NvmCtx->AckTimeoutRetriesCounter % 2 ) == 1 )
+        MacCtx.AckTimeoutRetriesCounter++;
+        if( ( MacCtx.AckTimeoutRetriesCounter % 2 ) == 1 )
         {
             GetPhyParams_t getPhy;
             PhyParam_t phyParam;
@@ -3000,7 +3000,7 @@ static void AckTimeoutRetriesFinalize( void )
         MacCtx.NodeAckRequested = false;
         MacCtx.McpsConfirm.AckReceived = false;
     }
-    MacCtx.McpsConfirm.NbRetries = MacCtx.NvmCtx->AckTimeoutRetriesCounter;
+    MacCtx.McpsConfirm.NbRetries = MacCtx.AckTimeoutRetriesCounter;
 }
 
 static void CallNvmCtxCallback( LoRaMacNvmCtxModule_t module )
@@ -3097,8 +3097,8 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     MacCtx.NvmCtx = &NvmMacCtx;
 
     // Set non zero variables to its default value
-    MacCtx.NvmCtx->AckTimeoutRetriesCounter = 1;
-    MacCtx.NvmCtx->AckTimeoutRetries = 1;
+    MacCtx.AckTimeoutRetriesCounter = 1;
+    MacCtx.AckTimeoutRetries = 1;
     MacCtx.NvmCtx->Region = region;
     MacCtx.NvmCtx->DeviceClass = CLASS_A;
     MacCtx.NvmCtx->RepeaterSupport = false;
@@ -4380,14 +4380,14 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
     MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
 
     // AckTimeoutRetriesCounter must be reset every time a new request (unconfirmed or confirmed) is performed.
-    MacCtx.NvmCtx->AckTimeoutRetriesCounter = 1;
+    MacCtx.AckTimeoutRetriesCounter = 1;
 
     switch( mcpsRequest->Type )
     {
         case MCPS_UNCONFIRMED:
         {
             readyToSend = true;
-            MacCtx.NvmCtx->AckTimeoutRetries = 1;
+            MacCtx.AckTimeoutRetries = 1;
 
             macHdr.Bits.MType = FRAME_TYPE_DATA_UNCONFIRMED_UP;
             fPort = mcpsRequest->Req.Unconfirmed.fPort;
@@ -4399,7 +4399,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
         case MCPS_CONFIRMED:
         {
             readyToSend = true;
-            MacCtx.NvmCtx->AckTimeoutRetries = mcpsRequest->Req.Confirmed.NbTrials;
+            MacCtx.AckTimeoutRetries = mcpsRequest->Req.Confirmed.NbTrials;
 
             macHdr.Bits.MType = FRAME_TYPE_DATA_CONFIRMED_UP;
             fPort = mcpsRequest->Req.Confirmed.fPort;
@@ -4411,7 +4411,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
         case MCPS_PROPRIETARY:
         {
             readyToSend = true;
-            MacCtx.NvmCtx->AckTimeoutRetries = 1;
+            MacCtx.AckTimeoutRetries = 1;
 
             macHdr.Bits.MType = FRAME_TYPE_PROPRIETARY;
             fBuffer = mcpsRequest->Req.Proprietary.fBuffer;
