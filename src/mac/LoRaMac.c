@@ -192,10 +192,6 @@ typedef struct sLoRaMacNvmCtx
      */
     uint8_t MacCommandsBuffer[LORA_MAC_COMMAND_MAX_LENGTH];
     /*
-     * Buffer containing the MAC layer commands which must be repeated
-     */
-    uint8_t MacCommandsBufferToRepeat[LORA_MAC_COMMAND_MAX_LENGTH];
-    /*
      * Number of trials to get a frame acknowledged
      */
     uint8_t AckTimeoutRetries;
