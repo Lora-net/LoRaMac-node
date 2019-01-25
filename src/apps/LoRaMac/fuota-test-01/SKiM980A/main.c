@@ -521,8 +521,8 @@ static void UplinkProcess( void )
             if( status == LORAMAC_HANDLER_SUCCESS )
             {
                 // Switch LED 1 ON
-                GpioWrite( &Led1, 1 );
-                TimerStart( &Led1Timer );
+                GpioWrite( &Led4, 1 );
+                TimerStart( &Led4Timer );
             }
         }
     }
