@@ -895,7 +895,7 @@ static void ProcessRadioTxDone( void )
         TimerSetValue( &MacCtx.RxWindowTimer2, MacCtx.RxWindow2Delay );
         TimerStart( &MacCtx.RxWindowTimer2 );
     }
-    if( ( MacCtx.NvmCtx->DeviceClass == CLASS_C ) || ( MacCtx.NvmCtx->NodeAckRequested == true ) )
+    if( ( MacCtx.NvmCtx->DeviceClass == CLASS_C ) || ( MacCtx.NodeAckRequested == true ) )
     {
         getPhy.Attribute = PHY_ACK_TIMEOUT;
         phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
@@ -920,7 +920,7 @@ static void ProcessRadioTxDone( void )
     // Update Aggregated last tx done time
     MacCtx.AggregatedLastTxDoneTime = TxDoneParams.CurTime;
 
-    if( MacCtx.NvmCtx->NodeAckRequested == false )
+    if( MacCtx.NodeAckRequested == false )
     {
         MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
         MacCtx.NvmCtx->ChannelsNbTransCounter++;
@@ -931,7 +931,7 @@ static void PrepareRxDoneAbort( void )
 {
     MacCtx.MacState |= LORAMAC_RX_ABORT;
 
-    if( MacCtx.NvmCtx->NodeAckRequested )
+    if( MacCtx.NodeAckRequested )
     {
         OnAckTimeoutTimerEvent( NULL );
     }
@@ -1321,7 +1321,7 @@ static void ProcessRadioRxDone( void )
     }
 
     // Verify if we need to disable the AckTimeoutTimer
-    CheckToDisableAckTimeout( MacCtx.NvmCtx->NodeAckRequested, MacCtx.NvmCtx->DeviceClass, MacCtx.McpsConfirm.AckReceived );
+    CheckToDisableAckTimeout( MacCtx.NodeAckRequested, MacCtx.NvmCtx->DeviceClass, MacCtx.McpsConfirm.AckReceived );
 
     if( TimerIsStarted( &MacCtx.AckTimeoutTimer ) == false )
     {  // Procedure is completed when the AckTimeoutTimer is not running anymore
@@ -1380,7 +1380,7 @@ static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStat
     {
         if( MacCtx.RxSlot == RX_SLOT_WIN_1 )
         {
-            if( MacCtx.NvmCtx->NodeAckRequested == true )
+            if( MacCtx.NodeAckRequested == true )
             {
                 MacCtx.McpsConfirm.Status = rx1EventInfoStatus;
             }
@@ -1397,7 +1397,7 @@ static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStat
         }
         else
         {
-            if( MacCtx.NvmCtx->NodeAckRequested == true )
+            if( MacCtx.NodeAckRequested == true )
             {
                 MacCtx.McpsConfirm.Status = rx2EventInfoStatus;
             }
@@ -1795,7 +1795,7 @@ static void OnAckTimeoutTimerEvent( void* context )
 {
     TimerStop( &MacCtx.AckTimeoutTimer );
 
-    if( MacCtx.NvmCtx->NodeAckRequested == true )
+    if( MacCtx.NodeAckRequested == true )
     {
         MacCtx.NvmCtx->AckTimeoutRetry = true;
     }
@@ -1839,7 +1839,7 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
                 MacCtx.NvmCtx->DeviceClass = deviceClass;
 
                 // Set the NodeAckRequested indicator to default
-                MacCtx.NvmCtx->NodeAckRequested = false;
+                MacCtx.NodeAckRequested = false;
                 // Set the radio into sleep mode in case we are still in RX mode
                 Radio.Sleep( );
                 // Compute Rx2 windows parameters in case the RX2 datarate has changed
@@ -2554,7 +2554,7 @@ static void ResetMacParameters( void )
     MacCtx.NvmCtx->MacParams.MaxEirp = MacCtx.NvmCtx->MacParamsDefaults.MaxEirp;
     MacCtx.NvmCtx->MacParams.AntennaGain = MacCtx.NvmCtx->MacParamsDefaults.AntennaGain;
 
-    MacCtx.NvmCtx->NodeAckRequested = false;
+    MacCtx.NodeAckRequested = false;
     MacCtx.NvmCtx->SrvAckRequested = false;
 
     // Reset to application defaults
@@ -2577,7 +2577,7 @@ static void OpenContinuousRx2Window( void )
 LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t* macHdr, LoRaMacFrameCtrl_t* fCtrl, uint8_t fPort, void* fBuffer, uint16_t fBufferSize )
 {
     MacCtx.PktBufferLen = 0;
-    MacCtx.NvmCtx->NodeAckRequested = false;
+    MacCtx.NodeAckRequested = false;
     uint32_t fCntUp = 0;
     size_t macCmdsSize = 0;
     uint8_t availableSize = 0;
@@ -2594,7 +2594,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t* macHdr, LoRaMacFrameCtrl_t* fCtrl
     switch( macHdr->Bits.MType )
     {
         case FRAME_TYPE_DATA_CONFIRMED_UP:
-            MacCtx.NvmCtx->NodeAckRequested = true;
+            MacCtx.NodeAckRequested = true;
             // Intentional fall through
         case FRAME_TYPE_DATA_UNCONFIRMED_UP:
             MacCtx.TxMsg.Type = LORAMAC_MSG_TYPE_DATA;
@@ -2962,7 +2962,7 @@ static bool StopRetransmission( void )
     }
 
     MacCtx.NvmCtx->ChannelsNbTransCounter = 0;
-    MacCtx.NvmCtx->NodeAckRequested = false;
+    MacCtx.NodeAckRequested = false;
     MacCtx.NvmCtx->AckTimeoutRetry = false;
     MacCtx.MacState &= ~LORAMAC_TX_RUNNING;
 
@@ -2997,7 +2997,7 @@ static void AckTimeoutRetriesFinalize( void )
         params.NvmCtx = Contexts.RegionNvmCtx;
         RegionInitDefaults( MacCtx.NvmCtx->Region, &params );
 
-        MacCtx.NvmCtx->NodeAckRequested = false;
+        MacCtx.NodeAckRequested = false;
         MacCtx.McpsConfirm.AckReceived = false;
     }
     MacCtx.McpsConfirm.NbRetries = MacCtx.NvmCtx->AckTimeoutRetriesCounter;
@@ -4341,7 +4341,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
     {
         if( LoRaMacConfirmQueueGetCnt( ) == 0 )
         {
-            MacCtx.NvmCtx->NodeAckRequested = false;
+            MacCtx.NodeAckRequested = false;
             MacCtx.MacFlags.Bits.MlmeReq = 0;
         }
     }
@@ -4456,7 +4456,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
         }
         else
         {
-            MacCtx.NvmCtx->NodeAckRequested = false;
+            MacCtx.NodeAckRequested = false;
         }
     }
 
