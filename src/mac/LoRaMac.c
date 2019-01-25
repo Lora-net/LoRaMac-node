@@ -3206,7 +3206,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
 
     // Reset duty cycle times
     MacCtx.NvmCtx->AggregatedLastTxDoneTime = 0;
-    MacCtx.NvmCtx->AggregatedTimeOff = 0;
+    MacCtx.AggregatedTimeOff = 0;
 
     // Initialize timers
     TimerInit( &MacCtx.TxDelayedTimer, OnTxDelayedTimerEvent );
