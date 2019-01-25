@@ -1572,7 +1572,7 @@ static void LoRaMacHandleMcpsRequest( void )
         }
         else if( MacCtx.McpsConfirm.McpsRequest == MCPS_CONFIRMED )
         {
-            if( MacCtx.NvmCtx->AckTimeoutRetry == true )
+            if( MacCtx.AckTimeoutRetry == true )
             {
                 stopRetransmission = CheckRetransConfirmedUplink( );
 
@@ -1602,7 +1602,7 @@ static void LoRaMacHandleMcpsRequest( void )
         {// Arrange further retransmission
             MacCtx.MacFlags.Bits.MacDone = 0;
             // Reset the state of the AckTimeout
-            MacCtx.NvmCtx->AckTimeoutRetry = false;
+            MacCtx.AckTimeoutRetry = false;
             // Sends the same frame again
             OnTxDelayedTimerEvent( NULL );
         }
@@ -1797,7 +1797,7 @@ static void OnAckTimeoutTimerEvent( void* context )
 
     if( MacCtx.NodeAckRequested == true )
     {
-        MacCtx.NvmCtx->AckTimeoutRetry = true;
+        MacCtx.AckTimeoutRetry = true;
     }
     if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
     {
@@ -2540,7 +2540,7 @@ static void ResetMacParameters( void )
     MacCtx.ChannelsNbTransCounter = 0;
     MacCtx.AckTimeoutRetries = 1;
     MacCtx.AckTimeoutRetriesCounter = 1;
-    MacCtx.NvmCtx->AckTimeoutRetry = false;
+    MacCtx.AckTimeoutRetry = false;
 
     MacCtx.NvmCtx->MaxDCycle = 0;
     MacCtx.NvmCtx->AggregatedDCycle = 1;
@@ -2963,7 +2963,7 @@ static bool StopRetransmission( void )
 
     MacCtx.ChannelsNbTransCounter = 0;
     MacCtx.NodeAckRequested = false;
-    MacCtx.NvmCtx->AckTimeoutRetry = false;
+    MacCtx.AckTimeoutRetry = false;
     MacCtx.MacState &= ~LORAMAC_TX_RUNNING;
 
     return true;
