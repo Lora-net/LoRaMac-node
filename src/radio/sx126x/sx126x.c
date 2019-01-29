@@ -632,7 +632,7 @@ void SX126xSetCadParams( RadioLoRaCadSymbols_t cadSymbolNum, uint8_t cadDetPeak,
     buf[4] = ( uint8_t )( ( cadTimeout >> 16 ) & 0xFF );
     buf[5] = ( uint8_t )( ( cadTimeout >> 8 ) & 0xFF );
     buf[6] = ( uint8_t )( cadTimeout & 0xFF );
-    SX126xWriteCommand( RADIO_SET_CADPARAMS, buf, 5 );
+    SX126xWriteCommand( RADIO_SET_CADPARAMS, buf, 7 );
     SX126xSetOperatingMode( MODE_CAD );
 }
 
