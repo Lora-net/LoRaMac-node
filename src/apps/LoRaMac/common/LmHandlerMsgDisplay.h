@@ -26,6 +26,14 @@
 #include "LmHandler.h"
 
 /*!
+ * \brief Displays NVM context operation state
+ *
+ * \param [IN] state Indicates if we are storing (true) or
+ *                    restoring (false) the NVM context
+ */
+void DisplayNvmContextChange( LmHandlerNvmContextStates_t state );
+
+/*!
  * \brief Displays updated network parameters
  *
  * \param [IN] commissioningParams Commissioning provided parameters

@@ -28,6 +28,7 @@
 #include "utilities.h"
 #include "timer.h"
 #include "Commissioning.h"
+#include "NvmCtxMgmt.h"
 #include "LmHandler.h"
 #include "LmhPackage.h"
 #include "LmhpCompliance.h"
@@ -229,7 +230,7 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
     LoRaMacPrimitives.MacMlmeIndication = MlmeIndication;
     LoRaMacCallbacks.GetBatteryLevel = LmHandlerCallbacks->GetBatteryLevel;
     LoRaMacCallbacks.GetTemperatureLevel = LmHandlerCallbacks->GetTemperature;
-    LoRaMacCallbacks.NvmContextChange = NULL;
+    LoRaMacCallbacks.NvmContextChange = NvmCtxMgmtEvent;
     LoRaMacCallbacks.MacProcessNotify = LmHandlerCallbacks->OnMacProcess;
 
     IsClassBSwitchPending = false;
@@ -239,65 +240,72 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
         return LORAMAC_HANDLER_ERROR;
     }
 
+    // Try to restore from NVM and query the mac if possible.
+    if( NvmCtxMgmtRestore( ) == NVMCTXMGMT_STATUS_SUCCESS )
+    {
+        LmHandlerCallbacks->OnNvmContextChange( LORAMAC_HANDLER_NVM_RESTORE );
+    }
+    else
+    {
 #if( OVER_THE_AIR_ACTIVATION == 0 )
-    // Tell the MAC layer which network server version are we connecting too.
-    mibReq.Type = MIB_ABP_LORAWAN_VERSION;
-    mibReq.Param.AbpLrWanVersion.Value = ABP_ACTIVATION_LRWAN_VERSION;
-    LoRaMacMibSetRequestConfirm( &mibReq );
+        // Tell the MAC layer which network server version are we connecting too.
+        mibReq.Type = MIB_ABP_LORAWAN_VERSION;
+        mibReq.Param.AbpLrWanVersion.Value = ABP_ACTIVATION_LRWAN_VERSION;
+        LoRaMacMibSetRequestConfirm( &mibReq );
 #endif
 
 #if( ABP_ACTIVATION_LRWAN_VERSION == ABP_ACTIVATION_LRWAN_VERSION_V10x )
-    mibReq.Type = MIB_GEN_APP_KEY;
-    mibReq.Param.GenAppKey = CommissioningParams.GenAppKey;
-    LoRaMacMibSetRequestConfirm( &mibReq );
+        mibReq.Type = MIB_GEN_APP_KEY;
+        mibReq.Param.GenAppKey = CommissioningParams.GenAppKey;
+        LoRaMacMibSetRequestConfirm( &mibReq );
 #else
-    mibReq.Type = MIB_APP_KEY;
-    mibReq.Param.AppKey = CommissioningParams.AppKey;
-    LoRaMacMibSetRequestConfirm( &mibReq );
+        mibReq.Type = MIB_APP_KEY;
+        mibReq.Param.AppKey = CommissioningParams.AppKey;
+        LoRaMacMibSetRequestConfirm( &mibReq );
 #endif
 
-    mibReq.Type = MIB_NWK_KEY;
-    mibReq.Param.NwkKey = CommissioningParams.NwkKey;
-    LoRaMacMibSetRequestConfirm( &mibReq );
+        mibReq.Type = MIB_NWK_KEY;
+        mibReq.Param.NwkKey = CommissioningParams.NwkKey;
+        LoRaMacMibSetRequestConfirm( &mibReq );
 
 #if( STATIC_DEVICE_EUI != 1 )
-    LmHandlerCallbacks->GetUniqueId( CommissioningParams.DevEui );
+        LmHandlerCallbacks->GetUniqueId( CommissioningParams.DevEui );
 #endif
 
 #if( OVER_THE_AIR_ACTIVATION == 0 )
 
 #if( STATIC_DEVICE_ADDRESS != 1 )
-    // Random seed initialization
-    srand1( LmHandlerCallbacks->GetRandomSeed( ) );
-    // Choose a random device address
-    CommissioningParams.DevAddr = randr( 0, 0x01FFFFFF );
+        // Random seed initialization
+        srand1( LmHandlerCallbacks->GetRandomSeed( ) );
+        // Choose a random device address
+        CommissioningParams.DevAddr = randr( 0, 0x01FFFFFF );
 #endif
 
-    mibReq.Type = MIB_NET_ID;
-    mibReq.Param.NetID = LORAWAN_NETWORK_ID;
-    LoRaMacMibSetRequestConfirm( &mibReq );
+        mibReq.Type = MIB_NET_ID;
+        mibReq.Param.NetID = LORAWAN_NETWORK_ID;
+        LoRaMacMibSetRequestConfirm( &mibReq );
 
-    mibReq.Type = MIB_DEV_ADDR;
-    mibReq.Param.DevAddr = CommissioningParams.DevAddr;
-    LoRaMacMibSetRequestConfirm( &mibReq );
+        mibReq.Type = MIB_DEV_ADDR;
+        mibReq.Param.DevAddr = CommissioningParams.DevAddr;
+        LoRaMacMibSetRequestConfirm( &mibReq );
 
-    mibReq.Type = MIB_F_NWK_S_INT_KEY;
-    mibReq.Param.FNwkSIntKey = CommissioningParams.FNwkSIntKey;
-    LoRaMacMibSetRequestConfirm( &mibReq );
+        mibReq.Type = MIB_F_NWK_S_INT_KEY;
+        mibReq.Param.FNwkSIntKey = CommissioningParams.FNwkSIntKey;
+        LoRaMacMibSetRequestConfirm( &mibReq );
 
-    mibReq.Type = MIB_S_NWK_S_INT_KEY;
-    mibReq.Param.SNwkSIntKey = CommissioningParams.SNwkSIntKey;
-    LoRaMacMibSetRequestConfirm( &mibReq );
+        mibReq.Type = MIB_S_NWK_S_INT_KEY;
+        mibReq.Param.SNwkSIntKey = CommissioningParams.SNwkSIntKey;
+        LoRaMacMibSetRequestConfirm( &mibReq );
 
-    mibReq.Type = MIB_NWK_S_ENC_KEY;
-    mibReq.Param.NwkSEncKey = CommissioningParams.NwkSEncKey;
-    LoRaMacMibSetRequestConfirm( &mibReq );
+        mibReq.Type = MIB_NWK_S_ENC_KEY;
+        mibReq.Param.NwkSEncKey = CommissioningParams.NwkSEncKey;
+        LoRaMacMibSetRequestConfirm( &mibReq );
 
-    mibReq.Type = MIB_APP_S_KEY;
-    mibReq.Param.AppSKey = CommissioningParams.AppSKey;
-    LoRaMacMibSetRequestConfirm( &mibReq );
+        mibReq.Type = MIB_APP_S_KEY;
+        mibReq.Param.AppSKey = CommissioningParams.AppSKey;
+        LoRaMacMibSetRequestConfirm( &mibReq );
 #endif
-
+    }
     mibReq.Type = MIB_PUBLIC_NETWORK;
     mibReq.Param.EnablePublicNetwork = LmHandlerParams->PublicNetworkEnable;
     LoRaMacMibSetRequestConfirm( &mibReq );
@@ -358,6 +366,11 @@ void LmHandlerProcess( void )
 
     // Call all packages process functions
     LmHandlerPackagesProcess( );
+
+    if( NvmCtxMgmtStore( ) == NVMCTXMGMT_STATUS_SUCCESS )
+    {
+        LmHandlerCallbacks->OnNvmContextChange( LORAMAC_HANDLER_NVM_STORE );
+    }
 }
 
 /*!

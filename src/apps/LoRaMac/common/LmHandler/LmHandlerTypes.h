@@ -76,6 +76,12 @@ typedef enum
     LORAMAC_HANDLER_BEACON_NRX
 }LmHandlerBeaconState_t;
 
+typedef enum
+{
+    LORAMAC_HANDLER_NVM_RESTORE,
+    LORAMAC_HANDLER_NVM_STORE,
+}LmHandlerNvmContextStates_t;
+
 /*!
  * Commissioning parameters
  */

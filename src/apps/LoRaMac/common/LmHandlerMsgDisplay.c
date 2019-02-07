@@ -111,6 +111,18 @@ void PrintHexBuffer( uint8_t *buffer, uint8_t size )
     printf( "\r\n" );
 }
 
+void DisplayNvmContextChange( LmHandlerNvmContextStates_t state )
+{
+    if( state == LORAMAC_HANDLER_NVM_STORE )
+    {
+        printf( "\r\n###### ============ CTXS STORED ============ ######\r\n\r\n" );
+    }
+    else
+    {
+        printf( "\r\n###### =========== CTXS RESTORED =========== ######\r\n\r\n" );
+    }
+}
+
 void DisplayNetworkParametersUpdate( CommissioningParams_t *commissioningParams )
 {
     printf( "DevEui      : %02X", commissioningParams->DevEui[0] );

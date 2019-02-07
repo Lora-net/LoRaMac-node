@@ -142,6 +142,13 @@ typedef struct LmHandlerCallbacks_s
      */
     void ( *OnMacProcess )( void );
     /*!
+     * Notifies the upper layer that the NVM context has changed
+     *
+     * \param [IN] stored Indicates if we are storing (true) or
+     *                    restoring (false) the NVM context
+     */
+    void ( *OnNvmContextChange )( LmHandlerNvmContextStates_t state );
+    /*!
      * Notifies the upper layer that a network parameters have been set
      *
      * \param [IN] params notification parameters
