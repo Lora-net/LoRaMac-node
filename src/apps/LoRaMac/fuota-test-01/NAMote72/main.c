@@ -127,6 +127,7 @@ static TimerEvent_t Led2Timer;
 static TimerEvent_t LedBeaconTimer;
 
 static void OnMacProcessNotify( void );
+static void OnNvmContextChange( LmHandlerNvmContextStates_t state );
 static void OnNetworkParametersChange( CommissioningParams_t* params );
 static void OnMacMcpsRequest( LoRaMacStatus_t status, McpsReq_t *mcpsReq );
 static void OnMacMlmeRequest( LoRaMacStatus_t status, MlmeReq_t *mlmeReq );
@@ -179,6 +180,7 @@ static LmHandlerCallbacks_t LmHandlerCallbacks =
     .GetUniqueId = BoardGetUniqueId,
     .GetRandomSeed = BoardGetRandomSeed,
     .OnMacProcess = OnMacProcessNotify,
+    .OnNvmContextChange = OnNvmContextChange,
     .OnNetworkParametersChange = OnNetworkParametersChange,
     .OnMacMcpsRequest = OnMacMcpsRequest,
     .OnMacMlmeRequest = OnMacMlmeRequest,
@@ -263,11 +265,6 @@ extern Gpio_t Led1; // Tx
 extern Gpio_t Led2; // Rx
 extern Gpio_t Led3; // App
 
-static void OnMacProcessNotify( void )
-{
-    IsMacProcessPending = 1;
-}
-
 /*!
  * Main application entry point.
  */
@@ -290,7 +287,6 @@ int main( void )
     DisplayAppInfo( "fuota-test-01", 
                     &appVersion,
                     &gitHubVersion );
-
 
     LmHandlerInit( &LmHandlerCallbacks, &LmHandlerParams );
 
@@ -329,6 +325,16 @@ int main( void )
         }
         CRITICAL_SECTION_END( );
     }
+}
+
+static void OnMacProcessNotify( void )
+{
+    IsMacProcessPending = 1;
+}
+
+static void OnNvmContextChange( LmHandlerNvmContextStates_t state )
+{
+    DisplayNvmContextChange( state );
 }
 
 static void OnNetworkParametersChange( CommissioningParams_t* params )
