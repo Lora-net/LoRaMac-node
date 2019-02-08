@@ -106,11 +106,11 @@ static void NvmCtxChanged( void )
 
 LoRaMacFCntHandlerStatus_t LoRaMacFCntHandlerInit( EventNvmCtxChanged fCntHandlerNvmCtxChanged )
 {
-    // Initialize with default
-    LoRaMacResetFCnts( );
-
     // Assign callback
     FCntHandlerNvmCtxChanged = fCntHandlerNvmCtxChanged;
+
+    // Initialize with default
+    LoRaMacResetFCnts( );
 
     return LORAMAC_FCNT_HANDLER_SUCCESS;
 }
