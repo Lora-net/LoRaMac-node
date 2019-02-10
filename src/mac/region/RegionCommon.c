@@ -203,7 +203,7 @@ TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, bool dutyCycle, Band_t* 
         }
     }
 
-    return nextTxDelay==TIMERTIME_T_MAX?0:nextTxDelay;
+    return ( nextTxDelay == TIMERTIME_T_MAX ) ? 0 : nextTxDelay;
 }
 
 uint8_t RegionCommonParseLinkAdrReq( uint8_t* payload, RegionCommonLinkAdrParams_t* linkAdrParams )
