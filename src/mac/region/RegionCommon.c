@@ -162,7 +162,7 @@ void RegionCommonSetBandTxDone( bool joined, Band_t* band, TimerTime_t lastTxDon
 
 TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, bool dutyCycle, Band_t* bands, uint8_t nbBands )
 {
-    TimerTime_t nextTxDelay = ( TimerTime_t )( -1 );
+    TimerTime_t nextTxDelay = TIMERTIME_T_MAX;
 
     // Update bands Time OFF
     for( uint8_t i = 0; i < nbBands; i++ )
@@ -204,7 +204,8 @@ TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, bool dutyCycle, Band_t* 
             }
         }
     }
-    return nextTxDelay;
+
+    return ( nextTxDelay == TIMERTIME_T_MAX ) ? 0 : nextTxDelay;
 }
 
 uint8_t RegionCommonParseLinkAdrReq( uint8_t* payload, RegionCommonLinkAdrParams_t* linkAdrParams )
