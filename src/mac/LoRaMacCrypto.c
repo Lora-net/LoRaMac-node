@@ -376,7 +376,10 @@ static LoRaMacCryptoStatus_t FOptsEncrypt( uint16_t size, uint32_t address, uint
  */
 static LoRaMacCryptoStatus_t ComputeCmac( uint8_t* msg, uint16_t len, KeyIdentifier_t keyID, uint32_t* cmac )
 {
-    if( SecureElementComputeAesCmac( msg, len, keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
+    struct se_block part;
+    part.buffer = msg;
+    part.size = len;
+    if( SecureElementComputeAesCmacParts( &part, 1, keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
@@ -494,16 +497,18 @@ static LoRaMacCryptoStatus_t ComputeCmacB0( uint8_t* msg, uint16_t len, KeyIdent
         return LORAMAC_CRYPTO_ERROR_BUF_SIZE;
     }
 
-    uint8_t micBuff[CRYPTO_BUFFER_SIZE];
-    memset1( micBuff, 0, CRYPTO_BUFFER_SIZE );
+    uint8_t micBuff[MIC_BLOCK_BX_SIZE];
 
     // Initialize the first Block
     PrepareB0( len, keyID, isAck, dir, devAddr, fCnt, micBuff );
 
-    // Copy the given data to the mic computation buffer
-    memcpy1( ( micBuff + MIC_BLOCK_BX_SIZE ), msg, len );
+    struct se_block parts[2];
+    parts[0].buffer = micBuff;
+    parts[0].size = sizeof( micBuff );
+    parts[1].buffer = msg;
+    parts[1].size = len;
 
-    if( SecureElementComputeAesCmac( micBuff, ( len + MIC_BLOCK_BX_SIZE ), keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementComputeAesCmacParts( parts, 2, keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
@@ -642,16 +647,18 @@ static LoRaMacCryptoStatus_t ComputeCmacB1( uint8_t* msg, uint16_t len, KeyIdent
         return LORAMAC_CRYPTO_ERROR_BUF_SIZE;
     }
 
-    uint8_t micBuff[CRYPTO_BUFFER_SIZE];
-    memset1( micBuff, 0, CRYPTO_BUFFER_SIZE );
+    uint8_t micBuff[MIC_BLOCK_BX_SIZE];
 
     // Initialize the first Block
     PrepareB1( len, keyID, isAck, txDr, txCh, devAddr, fCntUp, micBuff );
 
-    // Copy the given data to the mic computation buffer
-    memcpy1( ( micBuff + MIC_BLOCK_BX_SIZE ), msg, len );
+    struct se_block parts[2];
+    parts[0].buffer = micBuff;
+    parts[0].size = sizeof( micBuff );
+    parts[1].buffer = msg;
+    parts[1].size = len;
 
-    if( SecureElementComputeAesCmac( micBuff, ( len + MIC_BLOCK_BX_SIZE ), keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementComputeAesCmacParts( parts, 2, keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }

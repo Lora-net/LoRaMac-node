@@ -114,15 +114,19 @@ void* SecureElementGetNvmCtx( size_t* seNvmCtxSize );
 SecureElementStatus_t SecureElementSetKey( KeyIdentifier_t keyID, uint8_t* key );
 
 /*!
- * Computes a CMAC
+ * Computes a CMAC of a message given in parts
  *
- * \param[IN]  buffer         - Data buffer
- * \param[IN]  size           - Data buffer size
+ * \param[IN]  buffers        - Data buffers
+ * \param[IN]  numparts       - Number of buffers
  * \param[IN]  keyID          - Key identifier to determine the AES key to be used
  * \param[OUT] cmac           - Computed cmac
  * \retval                    - Status of the operation
  */
-SecureElementStatus_t SecureElementComputeAesCmac( uint8_t* buffer, uint16_t size, KeyIdentifier_t keyID, uint32_t* cmac );
+struct se_block {
+    uint8_t *buffer;
+    uint16_t size;
+};
+SecureElementStatus_t SecureElementComputeAesCmacParts( struct se_block *parts, uint16_t numparts, KeyIdentifier_t keyID, uint32_t* cmac );
 
 /*!
  * Verifies a CMAC (computes and compare with expected cmac)
