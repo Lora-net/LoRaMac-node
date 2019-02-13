@@ -77,17 +77,6 @@ typedef enum eSecureElementStatus
     SECURE_ELEMENT_ERROR,
 }SecureElementStatus_t;
 
-#if( USE_CMAC_BLOCKS_API == 1 )
-/*!
- * CMAC buffer block.
- */
-typedef struct SecureElementBlock_s
-{
-    uint8_t *Buffer;
-    uint16_t Size;
-}SecureElementBlock_t;
-#endif
-
 /*!
  * Signature of callback function to be called by the Secure Element driver when the
  * non volatile context have to be stored.
@@ -142,15 +131,16 @@ SecureElementStatus_t SecureElementComputeAesCmac( uint8_t* buffer, uint16_t siz
 
 #if( USE_CMAC_BLOCKS_API == 1 )
 /*!
- * Computes a CMAC of a message given in blocks
+ * Computes a CMAC of a message using provided initial Bx block
  *
- * \param[IN]  blocks         - Buffer blocks
- * \param[IN]  nbBlocks       - Number of buffer blocks
+ * \param[IN]  micBxBuffer    - Buffer containing the initial Bx block
+ * \param[IN]  buffer         - Data buffer
+ * \param[IN]  size           - Data buffer size
  * \param[IN]  keyID          - Key identifier to determine the AES key to be used
  * \param[OUT] cmac           - Computed cmac
  * \retval                    - Status of the operation
  */
-SecureElementStatus_t SecureElementComputeAesCmacBlocks( SecureElementBlock_t* blocks, uint16_t nbBlocks, KeyIdentifier_t keyID, uint32_t* cmac );
+SecureElementStatus_t SecureElementComputeAesCmacBlocks( uint8_t* micBxBuffer, uint8_t* buffer, uint16_t size, KeyIdentifier_t keyID, uint32_t* cmac );
 #endif
 
 /*!

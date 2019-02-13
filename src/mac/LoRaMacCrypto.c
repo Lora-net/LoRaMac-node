@@ -474,13 +474,7 @@ static LoRaMacCryptoStatus_t ComputeCmacB0( uint8_t* msg, uint16_t len, KeyIdent
     // Initialize the first Block
     PrepareB0( len, keyID, isAck, dir, devAddr, fCnt, micBuff );
 
-    SecureElementBlock_t blocks[2];
-    blocks[0].Buffer = micBuff;
-    blocks[0].Size = sizeof( micBuff );
-    blocks[1].Buffer = msg;
-    blocks[1].Size = len;
-
-    if( SecureElementComputeAesCmacBlocks( blocks, 2, keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementComputeAesCmacBlocks( micBuff, msg, len, keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
@@ -639,13 +633,7 @@ static LoRaMacCryptoStatus_t ComputeCmacB1( uint8_t* msg, uint16_t len, KeyIdent
     // Initialize the first Block
     PrepareB1( len, keyID, isAck, txDr, txCh, devAddr, fCntUp, micBuff );
 
-    SecureElementBlock_t blocks[2];
-    blocks[0].Buffer = micBuff;
-    blocks[0].Size = sizeof( micBuff );
-    blocks[1].Buffer = msg;
-    blocks[1].Size = len;
-
-    if( SecureElementComputeAesCmacBlocks( blocks, 2, keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementComputeAesCmacBlocks( micBuff, msg, len, keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
