@@ -37,6 +37,11 @@
 #include <stdint.h>
 #include "LoRaMacCrypto.h"
 
+/*
+ * When set to 1 the new SecureElementComputeAesCmacBlocks API may be used.
+ */
+#define USE_CMAC_BLOCKS_API                         1
+
 /*!
  * Return values.
  */
@@ -71,6 +76,17 @@ typedef enum eSecureElementStatus
      */
     SECURE_ELEMENT_ERROR,
 }SecureElementStatus_t;
+
+#if( USE_CMAC_BLOCKS_API == 1 )
+/*!
+ * CMAC buffer block.
+ */
+typedef struct SecureElementBlock_s
+{
+    uint8_t *Buffer;
+    uint16_t Size;
+}SecureElementBlock_t;
+#endif
 
 /*!
  * Signature of callback function to be called by the Secure Element driver when the
@@ -114,19 +130,28 @@ void* SecureElementGetNvmCtx( size_t* seNvmCtxSize );
 SecureElementStatus_t SecureElementSetKey( KeyIdentifier_t keyID, uint8_t* key );
 
 /*!
- * Computes a CMAC of a message given in parts
+ * Computes a CMAC of a message
  *
- * \param[IN]  buffers        - Data buffers
- * \param[IN]  numparts       - Number of buffers
+ * \param[IN]  buffer         - Data buffer
+ * \param[IN]  size           - Data buffer size
  * \param[IN]  keyID          - Key identifier to determine the AES key to be used
  * \param[OUT] cmac           - Computed cmac
  * \retval                    - Status of the operation
  */
-struct se_block {
-    uint8_t *buffer;
-    uint16_t size;
-};
-SecureElementStatus_t SecureElementComputeAesCmacParts( struct se_block *parts, uint16_t numparts, KeyIdentifier_t keyID, uint32_t* cmac );
+SecureElementStatus_t SecureElementComputeAesCmac( uint8_t* buffer, uint16_t size, KeyIdentifier_t keyID, uint32_t* cmac );
+
+#if( USE_CMAC_BLOCKS_API == 1 )
+/*!
+ * Computes a CMAC of a message given in blocks
+ *
+ * \param[IN]  blocks         - Buffer blocks
+ * \param[IN]  nbBlocks       - Number of buffer blocks
+ * \param[IN]  keyID          - Key identifier to determine the AES key to be used
+ * \param[OUT] cmac           - Computed cmac
+ * \retval                    - Status of the operation
+ */
+SecureElementStatus_t SecureElementComputeAesCmacBlocks( SecureElementBlock_t* blocks, uint16_t nbBlocks, KeyIdentifier_t keyID, uint32_t* cmac );
+#endif
 
 /*!
  * Verifies a CMAC (computes and compare with expected cmac)

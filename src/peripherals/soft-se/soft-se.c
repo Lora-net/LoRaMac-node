@@ -100,17 +100,28 @@ SecureElementStatus_t GetKeyByID( KeyIdentifier_t keyID, Key_t** keyItem )
 }
 
 /*
- * Computes a CMAC of a message given in parts
+ * Dummy callback in case if the user provides NULL function pointer
+ */
+static void DummyCB( void )
+{
+    return;
+}
+
+#if( USE_CMAC_BLOCKS_API == 0 )
+/*
+ * Computes a CMAC
  *
- * \param[IN]  parts          - Data buffers
- * \param[IN]  num            - Number of buffers
+ *  cmac = aes128_cmac(keyID, buffer)
+ *
+ * \param[IN]  buffer         - Data buffer
+ * \param[IN]  size           - Data buffer size
  * \param[IN]  keyID          - Key identifier to determine the AES key to be used
  * \param[OUT] cmac           - Computed cmac
  * \retval                    - Status of the operation
  */
-SecureElementStatus_t ComputeCmacParts( struct se_block *parts, uint16_t num, KeyIdentifier_t keyID, uint32_t* cmac )
+SecureElementStatus_t ComputeCmac( uint8_t* buffer, uint16_t size, KeyIdentifier_t keyID, uint32_t* cmac )
 {
-    if( parts == NULL || cmac == NULL || num == 0 )
+    if( buffer == NULL || cmac == NULL )
     {
         return SECURE_ELEMENT_ERROR_NPE;
     }
@@ -126,10 +137,54 @@ SecureElementStatus_t ComputeCmacParts( struct se_block *parts, uint16_t num, Ke
     {
         AES_CMAC_SetKey( SeNvmCtx.AesCmacCtx, keyItem->KeyValue );
 
-        for ( size_t i = 0; i < num; i++ )
+        AES_CMAC_Update( SeNvmCtx.AesCmacCtx, buffer, size );
+
+        AES_CMAC_Final( Cmac, SeNvmCtx.AesCmacCtx );
+
+        // Bring into the required format
+        *cmac = ( uint32_t )( ( uint32_t ) Cmac[3] << 24 | ( uint32_t ) Cmac[2] << 16 | ( uint32_t ) Cmac[1] << 8 | ( uint32_t ) Cmac[0] );
+    }
+
+    return retval;
+}
+#else
+/*
+ * Computes a CMAC of a message given in blocks
+ *
+ *  cmac = aes128_cmac(keyID, blocks[i].Buffer)
+ *
+ * \param[IN]  blocks         - Buffer blocks
+ * \param[IN]  nbBlocks       - Number of buffer blocks
+ * \param[IN]  keyID          - Key identifier to determine the AES key to be used
+ * \param[OUT] cmac           - Computed cmac
+ * \retval                    - Status of the operation
+ */
+static SecureElementStatus_t ComputeCmacBlocks( SecureElementBlock_t* blocks, uint16_t nbBlocks, KeyIdentifier_t keyID, uint32_t* cmac )
+{
+    if( ( blocks == NULL ) || ( nbBlocks == 0 ) || ( cmac == NULL ) )
+    {
+        return SECURE_ELEMENT_ERROR_NPE;
+    }
+
+    uint8_t Cmac[16];
+
+    AES_CMAC_Init( SeNvmCtx.AesCmacCtx );
+
+    Key_t* keyItem;
+    SecureElementStatus_t retval = GetKeyByID( keyID, &keyItem );
+
+    if( retval == SECURE_ELEMENT_SUCCESS )
+    {
+        AES_CMAC_SetKey( SeNvmCtx.AesCmacCtx, keyItem->KeyValue );
+
+        for( uint16_t i = 0; i < nbBlocks; i++ )
         {
-            if ( parts[i].buffer == NULL || parts[i].size == 0 ) continue;
-            AES_CMAC_Update( SeNvmCtx.AesCmacCtx, parts[i].buffer, parts[i].size );
+            if( ( blocks[i].Buffer == NULL ) ||
+                ( blocks[i].Size == 0 ) )
+            {
+                continue;
+            }
+            AES_CMAC_Update( SeNvmCtx.AesCmacCtx, blocks[i].Buffer, blocks[i].Size );
         }
 
         AES_CMAC_Final( Cmac, SeNvmCtx.AesCmacCtx );
@@ -140,31 +195,7 @@ SecureElementStatus_t ComputeCmacParts( struct se_block *parts, uint16_t num, Ke
 
     return retval;
 }
-
-/*
- * Computes a CMAC
- *
- * \param[IN]  buffer         - Data buffer
- * \param[IN]  size           - Data buffer size
- * \param[IN]  keyID          - Key identifier to determine the AES key to be used
- * \param[OUT] cmac           - Computed cmac
- * \retval                    - Status of the operation
- */
-SecureElementStatus_t ComputeCmac( uint8_t* buffer, uint16_t size, KeyIdentifier_t keyID, uint32_t* cmac )
-{
-    struct se_block part;
-    part.buffer = buffer;
-    part.size = size;
-    return ComputeCmacParts( &part, 1, keyID, cmac );
-}
-
-/*
- * Dummy callback in case if the user provides NULL function pointer
- */
-static void DummyCB( void )
-{
-    return;
-}
+#endif
 
 /*
  * API functions
@@ -265,7 +296,7 @@ SecureElementStatus_t SecureElementSetKey( KeyIdentifier_t keyID, uint8_t* key )
     return SECURE_ELEMENT_ERROR_INVALID_KEY_ID;
 }
 
-SecureElementStatus_t SecureElementComputeAesCmacParts( struct se_block *parts, uint16_t num, KeyIdentifier_t keyID, uint32_t* cmac )
+SecureElementStatus_t SecureElementComputeAesCmac( uint8_t* buffer, uint16_t size, KeyIdentifier_t keyID, uint32_t* cmac )
 {
     if( keyID >= LORAMAC_CRYPTO_MULITCAST_KEYS )
     {
@@ -273,8 +304,28 @@ SecureElementStatus_t SecureElementComputeAesCmacParts( struct se_block *parts, 
         return SECURE_ELEMENT_ERROR_INVALID_KEY_ID;
     }
 
-    return ComputeCmacParts( parts, num, keyID, cmac );
+#if( USE_CMAC_BLOCKS_API == 0 )
+    return ComputeCmac( buffer, size, keyID, cmac );
+#else
+    SecureElementBlock_t block;
+    block.Buffer = buffer;
+    block.Size = size;
+    return ComputeCmacBlocks( &block, 1, keyID, cmac );
+#endif
 }
+
+#if( USE_CMAC_BLOCKS_API == 1 )
+SecureElementStatus_t SecureElementComputeAesCmacBlocks( SecureElementBlock_t* blocks, uint16_t nbBlocks, KeyIdentifier_t keyID, uint32_t* cmac )
+{
+    if( keyID >= LORAMAC_CRYPTO_MULITCAST_KEYS )
+    {
+        //Never accept multicast key identifier for cmac computation
+        return SECURE_ELEMENT_ERROR_INVALID_KEY_ID;
+    }
+
+    return ComputeCmacBlocks( blocks, nbBlocks, keyID, cmac );
+}
+#endif
 
 SecureElementStatus_t SecureElementVerifyAesCmac( uint8_t* buffer, uint16_t size, uint32_t expectedCmac, KeyIdentifier_t keyID )
 {
@@ -285,8 +336,14 @@ SecureElementStatus_t SecureElementVerifyAesCmac( uint8_t* buffer, uint16_t size
 
     SecureElementStatus_t retval = SECURE_ELEMENT_ERROR;
     uint32_t compCmac = 0;
-
+#if( USE_CMAC_BLOCKS_API == 0 )
     retval = ComputeCmac( buffer, size, keyID, &compCmac );
+#else
+    SecureElementBlock_t block;
+    block.Buffer = buffer;
+    block.Size = size;
+    retval = ComputeCmacBlocks( &block, 1, keyID, &compCmac );
+#endif
     if( retval != SECURE_ELEMENT_SUCCESS )
     {
         return retval;
