@@ -178,7 +178,7 @@ static SecureElementStatus_t ComputeCmacBlocks( uint8_t *micBxBuffer, uint8_t *b
     {
         AES_CMAC_SetKey( SeNvmCtx.AesCmacCtx, keyItem->KeyValue );
 
-        if ( micBxBuffer )
+        if( micBxBuffer != NULL )
         {
             AES_CMAC_Update( SeNvmCtx.AesCmacCtx, micBxBuffer, 16 );
         }
