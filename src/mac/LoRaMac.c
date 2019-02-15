@@ -1169,19 +1169,13 @@ static void ProcessRadioRxDone( void )
                 {
                     // We are not the destination of this frame.
                     MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
-
-                    // Abort the reception, if we are not in RX_SLOT_WIN_CLASS_C
-                    if( MacCtx.McpsIndication.RxSlot != RX_SLOT_WIN_CLASS_C )
-                    {
-                        PrepareRxDoneAbort( );
-                    }
                 }
                 else
                 {
                     // MIC calculation fail
                     MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
-                    PrepareRxDoneAbort( );
                 }
+                PrepareRxDoneAbort( );
                 return;
             }
 
