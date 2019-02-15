@@ -454,31 +454,15 @@ static LoRaMacCryptoStatus_t ComputeCmacB0( uint8_t* msg, uint16_t len, KeyIdent
         return LORAMAC_CRYPTO_ERROR_BUF_SIZE;
     }
 
-#if( USE_CMAC_BLOCKS_API == 0 )
-    uint8_t micBuff[CRYPTO_BUFFER_SIZE];
-    memset1( micBuff, 0, CRYPTO_BUFFER_SIZE );
-
-    // Initialize the first Block
-    PrepareB0( len, keyID, isAck, dir, devAddr, fCnt, micBuff );
-
-    // Copy the given data to the mic computation buffer
-    memcpy1( ( micBuff + MIC_BLOCK_BX_SIZE ), msg, len );
-
-    if( SecureElementComputeAesCmac( micBuff, ( len + MIC_BLOCK_BX_SIZE ), keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
-    {
-        return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
-    }
-#else
     uint8_t micBuff[MIC_BLOCK_BX_SIZE];
 
     // Initialize the first Block
     PrepareB0( len, keyID, isAck, dir, devAddr, fCnt, micBuff );
 
-    if( SecureElementComputeAesCmacBlocks( micBuff, msg, len, keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementComputeAesCmac( micBuff, msg, len, keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
-#endif
     return LORAMAC_CRYPTO_SUCCESS;
 }
 
@@ -613,31 +597,15 @@ static LoRaMacCryptoStatus_t ComputeCmacB1( uint8_t* msg, uint16_t len, KeyIdent
         return LORAMAC_CRYPTO_ERROR_BUF_SIZE;
     }
 
-#if( USE_CMAC_BLOCKS_API == 0 )
-    uint8_t micBuff[CRYPTO_BUFFER_SIZE];
-    memset1( micBuff, 0, CRYPTO_BUFFER_SIZE );
-
-    // Initialize the first Block
-    PrepareB1( len, keyID, isAck, txDr, txCh, devAddr, fCntUp, micBuff );
-
-    // Copy the given data to the mic computation buffer
-    memcpy1( ( micBuff + MIC_BLOCK_BX_SIZE ), msg, len );
-
-    if( SecureElementComputeAesCmac( micBuff, ( len + MIC_BLOCK_BX_SIZE ), keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
-    {
-        return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
-    }
-#else
     uint8_t micBuff[MIC_BLOCK_BX_SIZE];
 
     // Initialize the first Block
     PrepareB1( len, keyID, isAck, txDr, txCh, devAddr, fCntUp, micBuff );
 
-    if( SecureElementComputeAesCmacBlocks( micBuff, msg, len, keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementComputeAesCmac( micBuff, msg, len, keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
-#endif
     return LORAMAC_CRYPTO_SUCCESS;
 }
 
@@ -1024,7 +992,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareJoinRequest( LoRaMacMessageJoinRequest
     }
 
     // Compute mic
-    if( SecureElementComputeAesCmac( macMsg->Buffer, ( LORAMAC_JOIN_REQ_MSG_SIZE - LORAMAC_MIC_FIELD_SIZE ), micComputationKeyID, &macMsg->MIC ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementComputeAesCmac( NULL, macMsg->Buffer, ( LORAMAC_JOIN_REQ_MSG_SIZE - LORAMAC_MIC_FIELD_SIZE ), micComputationKeyID, &macMsg->MIC ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
@@ -1059,7 +1027,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareReJoinType1( LoRaMacMessageReJoinType1
 
     // Compute mic
     // cmac = aes128_cmac(JSIntKey, MHDR | RejoinType | JoinEUI| DevEUI | RJcount1)
-    if( SecureElementComputeAesCmac( macMsg->Buffer, ( LORAMAC_RE_JOIN_1_MSG_SIZE - LORAMAC_MIC_FIELD_SIZE ), J_S_INT_KEY, &macMsg->MIC ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementComputeAesCmac( NULL, macMsg->Buffer, ( LORAMAC_RE_JOIN_1_MSG_SIZE - LORAMAC_MIC_FIELD_SIZE ), J_S_INT_KEY, &macMsg->MIC ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
@@ -1098,7 +1066,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareReJoinType0or2( LoRaMacMessageReJoinTy
 
     // Compute mic
     // cmac = aes128_cmac(SNwkSIntKey, MHDR | Rejoin Type | NetID | DevEUI | RJcount0)
-    if( SecureElementComputeAesCmac( macMsg->Buffer, ( LORAMAC_RE_JOIN_0_2_MSG_SIZE - LORAMAC_MIC_FIELD_SIZE ), S_NWK_S_INT_KEY, &macMsg->MIC ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementComputeAesCmac( NULL, macMsg->Buffer, ( LORAMAC_RE_JOIN_0_2_MSG_SIZE - LORAMAC_MIC_FIELD_SIZE ), S_NWK_S_INT_KEY, &macMsg->MIC ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }

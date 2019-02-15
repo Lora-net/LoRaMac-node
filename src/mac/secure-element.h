@@ -37,11 +37,6 @@
 #include <stdint.h>
 #include "LoRaMacCrypto.h"
 
-/*
- * When set to 1 the new SecureElementComputeAesCmacBlocks API may be used.
- */
-#define USE_CMAC_BLOCKS_API                         1
-
 /*!
  * Return values.
  */
@@ -119,18 +114,6 @@ void* SecureElementGetNvmCtx( size_t* seNvmCtxSize );
 SecureElementStatus_t SecureElementSetKey( KeyIdentifier_t keyID, uint8_t* key );
 
 /*!
- * Computes a CMAC of a message
- *
- * \param[IN]  buffer         - Data buffer
- * \param[IN]  size           - Data buffer size
- * \param[IN]  keyID          - Key identifier to determine the AES key to be used
- * \param[OUT] cmac           - Computed cmac
- * \retval                    - Status of the operation
- */
-SecureElementStatus_t SecureElementComputeAesCmac( uint8_t* buffer, uint16_t size, KeyIdentifier_t keyID, uint32_t* cmac );
-
-#if( USE_CMAC_BLOCKS_API == 1 )
-/*!
  * Computes a CMAC of a message using provided initial Bx block
  *
  * \param[IN]  micBxBuffer    - Buffer containing the initial Bx block
@@ -140,8 +123,7 @@ SecureElementStatus_t SecureElementComputeAesCmac( uint8_t* buffer, uint16_t siz
  * \param[OUT] cmac           - Computed cmac
  * \retval                    - Status of the operation
  */
-SecureElementStatus_t SecureElementComputeAesCmacBlocks( uint8_t* micBxBuffer, uint8_t* buffer, uint16_t size, KeyIdentifier_t keyID, uint32_t* cmac );
-#endif
+SecureElementStatus_t SecureElementComputeAesCmac( uint8_t* micBxBuffer, uint8_t* buffer, uint16_t size, KeyIdentifier_t keyID, uint32_t* cmac );
 
 /*!
  * Verifies a CMAC (computes and compare with expected cmac)
