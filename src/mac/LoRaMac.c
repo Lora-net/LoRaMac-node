@@ -1588,6 +1588,8 @@ static void LoRaMacHandleMcpsRequest( void )
 
         if( stopRetransmission == true )
         {// Stop retransmission
+            TimerStop( &MacCtx.TxDelayedTimer );
+            MacCtx.MacState &= ~LORAMAC_TX_DELAYED;
             StopRetransmission( );
         }
         else if( waitForRetransmission == false )
