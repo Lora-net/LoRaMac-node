@@ -1517,8 +1517,8 @@ static void LoRaMacHandleIndicationEvents( void )
     // Handle MLME indication
     if( MacCtx.MacFlags.Bits.MlmeInd == 1 )
     {
-        MacCtx.MacPrimitives->MacMlmeIndication( &MacCtx.MlmeIndication );
         MacCtx.MacFlags.Bits.MlmeInd = 0;
+        MacCtx.MacPrimitives->MacMlmeIndication( &MacCtx.MlmeIndication );
     }
 
     // Handle events
@@ -1538,6 +1538,11 @@ static void LoRaMacHandleIndicationEvents( void )
     if( MacCtx.MacFlags.Bits.McpsInd == 1 )
     {
         MacCtx.MacFlags.Bits.McpsInd = 0;
+        MacCtx.MacPrimitives->MacMcpsIndication( &MacCtx.McpsIndication );
+    }
+
+    if( ( MacCtx.MacFlags.Bits.MlmeInd == 1 ) || ( MacCtx.MacFlags.Bits.McpsInd == 1 ) )
+    {
         if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
         {// Activate RX2 window for Class C
             if( MacCtx.MacState == LORAMAC_IDLE )
@@ -1545,7 +1550,6 @@ static void LoRaMacHandleIndicationEvents( void )
                 OpenContinuousRx2Window( );
             }
         }
-        MacCtx.MacPrimitives->MacMcpsIndication( &MacCtx.McpsIndication );
     }
 }
 
@@ -1614,6 +1618,14 @@ static void LoRaMacHandleJoinRequest( void )
             MacCtx.ChannelsNbTransCounter = 0;
         }
         MacCtx.MacState &= ~LORAMAC_TX_RUNNING;
+
+        if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
+        {// Activate RX2 window for Class C
+            if( MacCtx.MacState == LORAMAC_IDLE )
+            {
+                OpenContinuousRx2Window( );
+            }
+        }
     }
 }
 
