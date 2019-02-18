@@ -100,17 +100,28 @@ SecureElementStatus_t GetKeyByID( KeyIdentifier_t keyID, Key_t** keyItem )
 }
 
 /*
- * Computes a CMAC
+ * Dummy callback in case if the user provides NULL function pointer
+ */
+static void DummyCB( void )
+{
+    return;
+}
+
+/*
+ * Computes a CMAC of a message using provided initial Bx block
  *
+ *  cmac = aes128_cmac(keyID, blocks[i].Buffer)
+ *
+ * \param[IN]  micBxBuffer    - Buffer containing the initial Bx block
  * \param[IN]  buffer         - Data buffer
  * \param[IN]  size           - Data buffer size
  * \param[IN]  keyID          - Key identifier to determine the AES key to be used
  * \param[OUT] cmac           - Computed cmac
  * \retval                    - Status of the operation
  */
-SecureElementStatus_t ComputeCmac( uint8_t* buffer, uint16_t size, KeyIdentifier_t keyID, uint32_t* cmac )
+static SecureElementStatus_t ComputeCmac( uint8_t *micBxBuffer, uint8_t *buffer, uint16_t size, KeyIdentifier_t keyID, uint32_t* cmac )
 {
-    if( buffer == NULL || cmac == NULL )
+    if( ( buffer == NULL ) || ( cmac == NULL ) )
     {
         return SECURE_ELEMENT_ERROR_NPE;
     }
@@ -126,6 +137,11 @@ SecureElementStatus_t ComputeCmac( uint8_t* buffer, uint16_t size, KeyIdentifier
     {
         AES_CMAC_SetKey( SeNvmCtx.AesCmacCtx, keyItem->KeyValue );
 
+        if( micBxBuffer != NULL )
+        {
+            AES_CMAC_Update( SeNvmCtx.AesCmacCtx, micBxBuffer, 16 );
+        }
+
         AES_CMAC_Update( SeNvmCtx.AesCmacCtx, buffer, size );
 
         AES_CMAC_Final( Cmac, SeNvmCtx.AesCmacCtx );
@@ -135,14 +151,6 @@ SecureElementStatus_t ComputeCmac( uint8_t* buffer, uint16_t size, KeyIdentifier
     }
 
     return retval;
-}
-
-/*
- * Dummy callback in case if the user provides NULL function pointer
- */
-static void DummyCB( void )
-{
-    return;
 }
 
 /*
@@ -244,7 +252,7 @@ SecureElementStatus_t SecureElementSetKey( KeyIdentifier_t keyID, uint8_t* key )
     return SECURE_ELEMENT_ERROR_INVALID_KEY_ID;
 }
 
-SecureElementStatus_t SecureElementComputeAesCmac( uint8_t* buffer, uint16_t size, KeyIdentifier_t keyID, uint32_t* cmac )
+SecureElementStatus_t SecureElementComputeAesCmac( uint8_t *micBxBuffer, uint8_t *buffer, uint16_t size, KeyIdentifier_t keyID, uint32_t* cmac )
 {
     if( keyID >= LORAMAC_CRYPTO_MULITCAST_KEYS )
     {
@@ -252,7 +260,7 @@ SecureElementStatus_t SecureElementComputeAesCmac( uint8_t* buffer, uint16_t siz
         return SECURE_ELEMENT_ERROR_INVALID_KEY_ID;
     }
 
-    return ComputeCmac( buffer, size, keyID, cmac );
+    return ComputeCmac( micBxBuffer, buffer, size, keyID, cmac );
 }
 
 SecureElementStatus_t SecureElementVerifyAesCmac( uint8_t* buffer, uint16_t size, uint32_t expectedCmac, KeyIdentifier_t keyID )
@@ -264,8 +272,7 @@ SecureElementStatus_t SecureElementVerifyAesCmac( uint8_t* buffer, uint16_t size
 
     SecureElementStatus_t retval = SECURE_ELEMENT_ERROR;
     uint32_t compCmac = 0;
-
-    retval = ComputeCmac( buffer, size, keyID, &compCmac );
+    retval = ComputeCmac( NULL, buffer, size, keyID, &compCmac );
     if( retval != SECURE_ELEMENT_SUCCESS )
     {
         return retval;
