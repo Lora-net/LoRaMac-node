@@ -882,11 +882,9 @@ static void ProcessRadioTxDone( void )
     // Setup timers
     TimerSetValue( &MacCtx.RxWindowTimer1, MacCtx.RxWindow1Delay );
     TimerStart( &MacCtx.RxWindowTimer1 );
-    if( MacCtx.NvmCtx->DeviceClass != CLASS_C )
-    {
-        TimerSetValue( &MacCtx.RxWindowTimer2, MacCtx.RxWindow2Delay );
-        TimerStart( &MacCtx.RxWindowTimer2 );
-    }
+    TimerSetValue( &MacCtx.RxWindowTimer2, MacCtx.RxWindow2Delay );
+    TimerStart( &MacCtx.RxWindowTimer2 );
+
     if( ( MacCtx.NvmCtx->DeviceClass == CLASS_C ) || ( MacCtx.NodeAckRequested == true ) )
     {
         getPhy.Attribute = PHY_ACK_TIMEOUT;
@@ -1169,20 +1167,13 @@ static void ProcessRadioRxDone( void )
                 {
                     // We are not the destination of this frame.
                     MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
-
-                    // Abort the reception, if we are not in RX_SLOT_WIN_CLASS_C or RX_SLOT_WIN_CLASS_C_MULTICAST
-                    if( ( MacCtx.McpsIndication.RxSlot != RX_SLOT_WIN_CLASS_C ) ||
-                        ( MacCtx.McpsIndication.RxSlot != RX_SLOT_WIN_CLASS_C_MULTICAST ) )
-                    {
-                        PrepareRxDoneAbort( );
-                    }
                 }
                 else
                 {
                     // MIC calculation fail
                     MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
-                    PrepareRxDoneAbort( );
                 }
+                PrepareRxDoneAbort( );
                 return;
             }
 
@@ -1524,8 +1515,8 @@ static void LoRaMacHandleIndicationEvents( void )
     // Handle MLME indication
     if( MacCtx.MacFlags.Bits.MlmeInd == 1 )
     {
-        MacCtx.MacPrimitives->MacMlmeIndication( &MacCtx.MlmeIndication );
         MacCtx.MacFlags.Bits.MlmeInd = 0;
+        MacCtx.MacPrimitives->MacMlmeIndication( &MacCtx.MlmeIndication );
     }
 
     // Handle events
@@ -1545,6 +1536,11 @@ static void LoRaMacHandleIndicationEvents( void )
     if( MacCtx.MacFlags.Bits.McpsInd == 1 )
     {
         MacCtx.MacFlags.Bits.McpsInd = 0;
+        MacCtx.MacPrimitives->MacMcpsIndication( &MacCtx.McpsIndication );
+    }
+
+    if( ( MacCtx.MacFlags.Bits.MlmeInd == 1 ) || ( MacCtx.MacFlags.Bits.McpsInd == 1 ) )
+    {
         if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
         {// Activate RxC window for Class C
             if( MacCtx.MacState == LORAMAC_IDLE )
@@ -1552,7 +1548,6 @@ static void LoRaMacHandleIndicationEvents( void )
                 OpenContinuousRxCWindow( );
             }
         }
-        MacCtx.MacPrimitives->MacMcpsIndication( &MacCtx.McpsIndication );
     }
 }
 
@@ -1595,6 +1590,8 @@ static void LoRaMacHandleMcpsRequest( void )
 
         if( stopRetransmission == true )
         {// Stop retransmission
+            TimerStop( &MacCtx.TxDelayedTimer );
+            MacCtx.MacState &= ~LORAMAC_TX_DELAYED;
             StopRetransmission( );
         }
         else if( waitForRetransmission == false )
@@ -1604,6 +1601,13 @@ static void LoRaMacHandleMcpsRequest( void )
             MacCtx.AckTimeoutRetry = false;
             // Sends the same frame again
             OnTxDelayedTimerEvent( NULL );
+        }
+        if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
+        {// Activate RX2 window for Class C
+            if( MacCtx.MacState == LORAMAC_IDLE )
+            {
+                OpenContinuousRxCWindow( );
+            }
         }
     }
 }
@@ -1619,6 +1623,14 @@ static void LoRaMacHandleJoinRequest( void )
             MacCtx.ChannelsNbTransCounter = 0;
         }
         MacCtx.MacState &= ~LORAMAC_TX_RUNNING;
+
+        if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
+        {// Activate RX2 window for Class C
+            if( MacCtx.MacState == LORAMAC_IDLE )
+            {
+                OpenContinuousRxCWindow( );
+            }
+        }
     }
 }
 

@@ -376,46 +376,6 @@ static LoRaMacCryptoStatus_t FOptsEncrypt( uint16_t size, uint32_t address, uint
 #endif
 
 /*
- * Computes cmac.
- *
- *  cmac = aes128_cmac(keyID, msg)
- *
- * \param[IN]  msg            - Message to compute the integrity code
- * \param[IN]  len            - Length of message
- * \param[IN]  keyID          - Key identifier
- * \param[OUT] cmac           - Computed cmac
- * \retval                    - Status of the operation
- */
-static LoRaMacCryptoStatus_t ComputeCmac( uint8_t* msg, uint16_t len, KeyIdentifier_t keyID, uint32_t* cmac )
-{
-    if( SecureElementComputeAesCmac( msg, len, keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
-    {
-        return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
-    }
-
-    return LORAMAC_CRYPTO_SUCCESS;
-}
-
-/*!
- * Verifies cmac
- *
- * \param[IN]  msg            - Message to compute the integrity code
- * \param[IN]  len            - Length of message
- * \param[in]  expectedCmac   - Expected cmac
- * \param[IN]  keyID          - Key identifier to determine the AES key to be used
- * \retval                    - Status of the operation
- */
-static LoRaMacCryptoStatus_t VerifyCmac( uint8_t* msg, uint16_t len, KeyIdentifier_t keyID, uint32_t expectedcmac )
-{
-    if( SecureElementVerifyAesCmac( msg, len, expectedcmac, keyID ) != SECURE_ELEMENT_SUCCESS )
-    {
-        return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
-    }
-
-    return LORAMAC_CRYPTO_SUCCESS;
-}
-
-/*
  * Prepares B0 block for cmac computation.
  *
  * \param[IN]  msgLen         - Length of message
@@ -506,20 +466,15 @@ static LoRaMacCryptoStatus_t ComputeCmacB0( uint8_t* msg, uint16_t len, KeyIdent
         return LORAMAC_CRYPTO_ERROR_BUF_SIZE;
     }
 
-    uint8_t micBuff[CRYPTO_BUFFER_SIZE];
-    memset1( micBuff, 0, CRYPTO_BUFFER_SIZE );
+    uint8_t micBuff[MIC_BLOCK_BX_SIZE];
 
     // Initialize the first Block
     PrepareB0( len, keyID, isAck, dir, devAddr, fCnt, micBuff );
 
-    // Copy the given data to the mic computation buffer
-    memcpy1( ( micBuff + MIC_BLOCK_BX_SIZE ), msg, len );
-
-    if( SecureElementComputeAesCmac( micBuff, ( len + MIC_BLOCK_BX_SIZE ), keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementComputeAesCmac( micBuff, msg, len, keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
-
     return LORAMAC_CRYPTO_SUCCESS;
 }
 
@@ -655,28 +610,21 @@ static LoRaMacCryptoStatus_t ComputeCmacB1( uint8_t* msg, uint16_t len, KeyIdent
         return LORAMAC_CRYPTO_ERROR_BUF_SIZE;
     }
 
-    uint8_t micBuff[CRYPTO_BUFFER_SIZE];
-    memset1( micBuff, 0, CRYPTO_BUFFER_SIZE );
+    uint8_t micBuff[MIC_BLOCK_BX_SIZE];
 
     // Initialize the first Block
     PrepareB1( len, keyID, isAck, txDr, txCh, devAddr, fCntUp, micBuff );
 
-    // Copy the given data to the mic computation buffer
-    memcpy1( ( micBuff + MIC_BLOCK_BX_SIZE ), msg, len );
-
-    if( SecureElementComputeAesCmac( micBuff, ( len + MIC_BLOCK_BX_SIZE ), keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementComputeAesCmac( micBuff, msg, len, keyID, cmac ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
-
     return LORAMAC_CRYPTO_SUCCESS;
 }
 #endif
 
 /*
  * Gets security item from list.
- *
- *  cmac = aes128_cmac(keyID, B0 | msg)
  *
  * \param[IN]  addrID          - Address identifier
  * \param[OUT] keyItem        - Key item reference
@@ -925,7 +873,7 @@ static void UpdateFCntDown( FCntIdentifier_t fCntID, uint32_t currentDown )
 /*!
  * Resets the frame counters
  */
-void ResetFCnts( void )
+static void ResetFCnts( void )
 {
 
     CryptoCtx.NvmCtx->FCntUp = 0;
@@ -1046,7 +994,6 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareJoinRequest( LoRaMacMessageJoinRequest
         return LORAMAC_CRYPTO_ERROR_NPE;
     }
     KeyIdentifier_t micComputationKeyID = NWK_KEY;
-    LoRaMacCryptoStatus_t retval = LORAMAC_CRYPTO_ERROR;
 
     // Add device nonce
 #if ( USE_RANDOM_DEV_NONCE == 1 )
@@ -1061,15 +1008,13 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareJoinRequest( LoRaMacMessageJoinRequest
 
 #if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     // Derive lifetime session keys
-    retval = DeriveLifeTimeSessionKey( J_S_INT_KEY, macMsg->DevEUI );
-    if( retval != LORAMAC_CRYPTO_SUCCESS )
+    if( DeriveLifeTimeSessionKey( J_S_INT_KEY, macMsg->DevEUI ) != LORAMAC_CRYPTO_SUCCESS )
     {
-        return retval;
+        return LORAMAC_CRYPTO_ERROR;
     }
-    retval = DeriveLifeTimeSessionKey( J_S_ENC_KEY, macMsg->DevEUI );
-    if( retval != LORAMAC_CRYPTO_SUCCESS )
+    if( DeriveLifeTimeSessionKey( J_S_ENC_KEY, macMsg->DevEUI ) != LORAMAC_CRYPTO_SUCCESS )
     {
-        return retval;
+        return LORAMAC_CRYPTO_ERROR;
     }
 #endif
 
@@ -1080,10 +1025,9 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareJoinRequest( LoRaMacMessageJoinRequest
     }
 
     // Compute mic
-    retval = ComputeCmac( macMsg->Buffer, ( LORAMAC_JOIN_REQ_MSG_SIZE - LORAMAC_MIC_FIELD_SIZE ), micComputationKeyID, &macMsg->MIC );
-    if( retval != LORAMAC_CRYPTO_SUCCESS )
+    if( SecureElementComputeAesCmac( NULL, macMsg->Buffer, ( LORAMAC_JOIN_REQ_MSG_SIZE - LORAMAC_MIC_FIELD_SIZE ), micComputationKeyID, &macMsg->MIC ) != SECURE_ELEMENT_SUCCESS )
     {
-        return retval;
+        return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
 
     // Reserialize message to add the MIC
@@ -1116,10 +1060,9 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareReJoinType1( LoRaMacMessageReJoinType1
 
     // Compute mic
     // cmac = aes128_cmac(JSIntKey, MHDR | RejoinType | JoinEUI| DevEUI | RJcount1)
-    LoRaMacCryptoStatus_t retval = ComputeCmac( macMsg->Buffer, ( LORAMAC_RE_JOIN_1_MSG_SIZE - LORAMAC_MIC_FIELD_SIZE ), J_S_INT_KEY, &macMsg->MIC );
-    if( retval != LORAMAC_CRYPTO_SUCCESS )
+    if( SecureElementComputeAesCmac( NULL, macMsg->Buffer, ( LORAMAC_RE_JOIN_1_MSG_SIZE - LORAMAC_MIC_FIELD_SIZE ), J_S_INT_KEY, &macMsg->MIC ) != SECURE_ELEMENT_SUCCESS )
     {
-        return retval;
+        return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
 
     // Reserialize message to add the MIC
@@ -1156,10 +1099,9 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareReJoinType0or2( LoRaMacMessageReJoinTy
 
     // Compute mic
     // cmac = aes128_cmac(SNwkSIntKey, MHDR | Rejoin Type | NetID | DevEUI | RJcount0)
-    LoRaMacCryptoStatus_t retval = ComputeCmac( macMsg->Buffer, ( LORAMAC_RE_JOIN_0_2_MSG_SIZE - LORAMAC_MIC_FIELD_SIZE ), S_NWK_S_INT_KEY, &macMsg->MIC );
-    if( retval != LORAMAC_CRYPTO_SUCCESS )
+    if( SecureElementComputeAesCmac( NULL, macMsg->Buffer, ( LORAMAC_RE_JOIN_0_2_MSG_SIZE - LORAMAC_MIC_FIELD_SIZE ), S_NWK_S_INT_KEY, &macMsg->MIC ) != SECURE_ELEMENT_SUCCESS )
     {
-        return retval;
+        return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
 
     // Reserialize message to add the MIC
@@ -1245,10 +1187,9 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
     {
         // For legacy mode :
         //   cmac = aes128_cmac(NwkKey, MHDR |  JoinNonce | NetID | DevAddr | DLSettings | RxDelay | CFList | CFListType)
-        retval = VerifyCmac( macMsg->Buffer, ( macMsg->BufSize - LORAMAC_MIC_FIELD_SIZE ), micComputationKeyID, macMsg->MIC );
-        if( retval != LORAMAC_CRYPTO_SUCCESS )
+        if( SecureElementVerifyAesCmac( macMsg->Buffer, ( macMsg->BufSize - LORAMAC_MIC_FIELD_SIZE ), macMsg->MIC, micComputationKeyID ) != SECURE_ELEMENT_SUCCESS )
         {
-            return retval;
+            return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
         }
     }
     else
@@ -1268,10 +1209,9 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
 
         procBuffer[bufItr++] = macMsg->MHDR.Value;
 
-        retval = VerifyCmac( procBuffer, ( macMsg->BufSize + micComputationOffset - LORAMAC_MHDR_FIELD_SIZE - LORAMAC_MIC_FIELD_SIZE ), micComputationKeyID, macMsg->MIC );
-        if( retval != LORAMAC_CRYPTO_SUCCESS )
+        if( SecureElementVerifyAesCmac( macMsg->Buffer,  ( macMsg->BufSize + micComputationOffset - LORAMAC_MHDR_FIELD_SIZE - LORAMAC_MIC_FIELD_SIZE ), macMsg->MIC, micComputationKeyID ) != SECURE_ELEMENT_SUCCESS )
         {
-            return retval;
+            return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
         }
 
         // Check if the JoinNonce is greater as the previous one
