@@ -1604,6 +1604,13 @@ static void LoRaMacHandleMcpsRequest( void )
             // Sends the same frame again
             OnTxDelayedTimerEvent( NULL );
         }
+        if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
+        {// Activate RX2 window for Class C
+            if( MacCtx.MacState == LORAMAC_IDLE )
+            {
+                OpenContinuousRx2Window( );
+            }
+        }
     }
 }
 
