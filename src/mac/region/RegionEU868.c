@@ -409,6 +409,11 @@ void RegionEU868InitDefaults( InitDefaultsParams_t* params )
         {
             // Restore channels default mask
             NvmCtx.ChannelsMask[0] |= NvmCtx.ChannelsDefaultMask[0];
+
+            // Channels
+            NvmCtx.Channels[0] = ( ChannelParams_t ) EU868_LC1;
+            NvmCtx.Channels[1] = ( ChannelParams_t ) EU868_LC2;
+            NvmCtx.Channels[2] = ( ChannelParams_t ) EU868_LC3;
             break;
         }
         default:

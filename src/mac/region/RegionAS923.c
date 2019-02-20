@@ -418,6 +418,10 @@ void RegionAS923InitDefaults( InitDefaultsParams_t* params )
         {
             // Restore channels default mask
             NvmCtx.ChannelsMask[0] |= NvmCtx.ChannelsDefaultMask[0];
+
+            // Channels
+            NvmCtx.Channels[0] = ( ChannelParams_t ) AS923_LC1;
+            NvmCtx.Channels[1] = ( ChannelParams_t ) AS923_LC2;
             break;
         }
         default:
