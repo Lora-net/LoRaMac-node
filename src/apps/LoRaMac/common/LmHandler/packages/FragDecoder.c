@@ -261,7 +261,7 @@ int32_t FragDecoderProcess( uint16_t fragCounter, uint8_t *rawData )
     uint8_t dataTempVector[( FRAG_MAX_REDUNDANCY >> 3 ) + 1];
     uint8_t dataTempVector2[( FRAG_MAX_REDUNDANCY >> 3 ) + 1];
 
-    memset1( matrixRow, 0, FRAG_MAX_NB );
+    memset1( matrixRow, 0, (FRAG_MAX_NB >> 3 ) + 1 );
     memset1( matrixDataTemp, 0, FRAG_MAX_SIZE );
     memset1( dataTempVector, 0, ( FRAG_MAX_REDUNDANCY >> 3 ) + 1 );
     memset1( dataTempVector2, 0, ( FRAG_MAX_REDUNDANCY >> 3 ) + 1 );
