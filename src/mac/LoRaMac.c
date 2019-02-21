@@ -2599,16 +2599,16 @@ static void RxWindowSetup( TimerEvent_t* rxTimer, RxConfigParams_t* rxConfig )
 
 static void OpenContinuousRxCWindow( void )
 {
-    MacCtx.RxWindow2Config.RxSlot = RX_SLOT_WIN_CLASS_C;
+    MacCtx.RxWindowCConfig.RxSlot = RX_SLOT_WIN_CLASS_C;
     // Setup continuous listening
-    MacCtx.RxWindow2Config.RxContinuous = true;
+    MacCtx.RxWindowCConfig.RxContinuous = true;
 
     // At this point the Radio should be idle.
     // Thus, there is no need to set the radio in standby mode.
-    if( RegionRxConfig( MacCtx.NvmCtx->Region, &MacCtx.RxWindow2Config, ( int8_t* )&MacCtx.McpsIndication.RxDatarate ) == true )
+    if( RegionRxConfig( MacCtx.NvmCtx->Region, &MacCtx.RxWindowCConfig, ( int8_t* )&MacCtx.McpsIndication.RxDatarate ) == true )
     {
         Radio.Rx( 0 ); // Continuous mode
-        MacCtx.RxSlot = MacCtx.RxWindow2Config.RxSlot;
+        MacCtx.RxSlot = MacCtx.RxWindowCConfig.RxSlot;
     }
 }
 
