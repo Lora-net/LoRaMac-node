@@ -979,6 +979,7 @@ static void ProcessRadioTxDone( void )
     if( MacCtx.NvmCtx->DeviceClass != CLASS_C )
     {
         Radio.Sleep( );
+        MacCtx.RxSlot = RX_SLOT_NONE;
     }
     else
     {
@@ -1039,6 +1040,10 @@ static void PrepareRxDoneAbort( void )
     if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
     {// Activate RX2 window for Class C
         OpenContinuousRx2Window( );
+    }
+    else
+    {
+        MacCtx.RxSlot = RX_SLOT_NONE;
     }
 }
 
@@ -1477,6 +1482,10 @@ static void ProcessRadioRxDone( void )
     {// Activate RX2 window for Class C
         OpenContinuousRx2Window( );
     }
+    else
+    {
+        MacCtx.RxSlot = RX_SLOT_NONE;
+    }
 }
 
 static void ProcessRadioTxTimeout( void )
@@ -1484,6 +1493,7 @@ static void ProcessRadioTxTimeout( void )
     if( MacCtx.NvmCtx->DeviceClass != CLASS_C )
     {
         Radio.Sleep( );
+        MacCtx.RxSlot = RX_SLOT_NONE;
     }
     else
     {
@@ -1563,6 +1573,10 @@ static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStat
     if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
     {
         OpenContinuousRx2Window( );
+    }
+    else
+    {
+        MacCtx.RxSlot = RX_SLOT_NONE;
     }
 }
 
@@ -1872,6 +1886,12 @@ static void OnRxWindow1TimerEvent( void* context )
 
 static void OnRxWindow2TimerEvent( void* context )
 {
+    // Check if we are processing Rx1 window.
+    // If yes, we don't setup the Rx2 window.
+    if( MacCtx.RxSlot == RX_SLOT_WIN_1 )
+    {
+        return;
+    }
     MacCtx.RxWindow2Config.Channel = MacCtx.Channel;
     MacCtx.RxWindow2Config.Frequency = MacCtx.NvmCtx->MacParams.Rx2Channel.Frequency;
     MacCtx.RxWindow2Config.DownlinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
@@ -2912,10 +2932,8 @@ static void RxWindowSetup( TimerEvent_t* rxTimer, RxConfigParams_t* rxConfig )
 {
     TimerStop( rxTimer );
 
-    if( ( MacCtx.NvmCtx->DeviceClass == CLASS_C ) && ( rxConfig->RxSlot == RX_SLOT_WIN_1 ) )
-    {
-        Radio.Standby( );
-    }
+    // Ensure the radio is Idle
+    Radio.Standby( );
 
     if( RegionRxConfig( MacCtx.NvmCtx->Region, rxConfig, ( int8_t* )&MacCtx.McpsIndication.RxDatarate ) == true )
     {
@@ -2930,6 +2948,8 @@ static void OpenContinuousRx2Window( void )
     // Setup continuous listening
     MacCtx.RxWindow2Config.RxContinuous = true;
 
+    // At this point the Radio should be idle.
+    // Thus, there is no need to set the radio in standby mode.
     if( RegionRxConfig( MacCtx.NvmCtx->Region, &MacCtx.RxWindow2Config, ( int8_t* )&MacCtx.McpsIndication.RxDatarate ) == true )
     {
         Radio.Rx( 0 ); // Continuous mode

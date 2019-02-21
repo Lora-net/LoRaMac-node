@@ -265,6 +265,10 @@ typedef enum eLoRaMacRxSlot
      * LoRaMAC class b multicast slot window
      */
     RX_SLOT_WIN_MULTICAST_SLOT,
+    /*!
+     * LoRaMAC no active receive window
+     */
+    RX_SLOT_NONE,
 }LoRaMacRxSlot_t;
 
 /*!
