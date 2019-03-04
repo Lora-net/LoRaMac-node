@@ -109,7 +109,7 @@ typedef enum eLoRaMacCommandsStatus
  * Signature of callback function to be called by this module when the
  * non-volatile needs to be saved.
  */
-typedef void ( *EventNvmCtxChanged )( void );
+typedef void ( *LoRaMacCommandsNvmEvent )( void );
 
 /*!
  * \brief Initialization of LoRaMac MAC commands module
@@ -119,7 +119,7 @@ typedef void ( *EventNvmCtxChanged )( void );
  *
  * \retval                            - Status of the operation
  */
-LoRaMacCommandStatus_t LoRaMacCommandsInit( EventNvmCtxChanged commandsNvmCtxChanged );
+LoRaMacCommandStatus_t LoRaMacCommandsInit( LoRaMacCommandsNvmEvent commandsNvmCtxChanged );
 
 /*!
  * Restores the internal non-volatile context from passed pointer.

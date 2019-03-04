@@ -314,7 +314,7 @@ typedef struct sLoRaMacClassBParams
  * Signature of callback function to be called by this module when the
  * non-volatile needs to be saved.
  */
-typedef void ( *EventNvmCtxChanged )( void );
+typedef void ( *LoRaMacClassBNvmEvent )( void );
 
 /*!
  * \brief Initialize LoRaWAN Class B
@@ -323,7 +323,7 @@ typedef void ( *EventNvmCtxChanged )( void );
  * \param [IN] callbacks Contains the callback which the Class B implementation needs
  * \param [IN] callback function which will be called when the non-volatile context needs to be saved.
  */
-void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks, EventNvmCtxChanged classBNvmCtxChanged );
+void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks, LoRaMacClassBNvmEvent classBNvmCtxChanged );
 
 /*!
  * Restores the internal non-volatile context from passed pointer.

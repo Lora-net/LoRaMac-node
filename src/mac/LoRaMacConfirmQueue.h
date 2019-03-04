@@ -77,7 +77,7 @@ typedef struct sMlmeConfirmQueue
  * Signature of callback function to be called by this module when the
  * non-volatile needs to be saved.
  */
-typedef void ( *EventNvmCtxChanged )( void );
+typedef void ( *LoRaMacConfirmQueueNvmEvent )( void );
 
 /*!
  * \brief   Initializes the confirm queue
@@ -87,7 +87,7 @@ typedef void ( *EventNvmCtxChanged )( void );
  * \param   [IN] confirmQueueNvmCtxChanged - Callback function which will be called when the
  *                                           non-volatile context needs to be saved.
  */
-void LoRaMacConfirmQueueInit( LoRaMacPrimitives_t* primitives, EventNvmCtxChanged confirmQueueNvmCtxChanged  );
+void LoRaMacConfirmQueueInit( LoRaMacPrimitives_t* primitives, LoRaMacConfirmQueueNvmEvent confirmQueueNvmCtxChanged  );
 
 /*!
  * Restores the internal non-volatile context from passed pointer.
