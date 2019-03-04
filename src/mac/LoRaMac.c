@@ -862,6 +862,18 @@ static void OnRadioRxTimeout( void )
     }
 }
 
+static void UpdateRxSlotIdleState( void )
+{
+    if( MacCtx.NvmCtx->DeviceClass != CLASS_C )
+    {
+        MacCtx.RxSlot = RX_SLOT_NONE;
+    }
+    else
+    {
+        MacCtx.RxSlot = RX_SLOT_WIN_CLASS_C;
+    }
+}
+
 static void ProcessRadioTxDone( void )
 {
     GetPhyParams_t getPhy;
@@ -871,13 +883,7 @@ static void ProcessRadioTxDone( void )
     if( MacCtx.NvmCtx->DeviceClass != CLASS_C )
     {
         Radio.Sleep( );
-        MacCtx.RxSlot = RX_SLOT_NONE;
     }
-    else
-    {
-        OpenContinuousRx2Window( );
-    }
-
     // Setup timers
     TimerSetValue( &MacCtx.RxWindowTimer1, MacCtx.RxWindow1Delay );
     TimerStart( &MacCtx.RxWindowTimer1 );
@@ -928,14 +934,7 @@ static void PrepareRxDoneAbort( void )
     MacCtx.MacFlags.Bits.McpsInd = 1;
     MacCtx.MacFlags.Bits.MacDone = 1;
 
-    if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
-    {// Activate RX2 window for Class C
-        OpenContinuousRx2Window( );
-    }
-    else
-    {
-        MacCtx.RxSlot = RX_SLOT_NONE;
-    }
+    UpdateRxSlotIdleState( );
 }
 
 static void ProcessRadioRxDone( void )
@@ -1329,6 +1328,7 @@ static void ProcessRadioRxDone( void )
     }
     MacCtx.MacFlags.Bits.MacDone = 1;
 
+    UpdateRxSlotIdleState( );
 }
 
 static void ProcessRadioTxTimeout( void )
@@ -1336,12 +1336,8 @@ static void ProcessRadioTxTimeout( void )
     if( MacCtx.NvmCtx->DeviceClass != CLASS_C )
     {
         Radio.Sleep( );
-        MacCtx.RxSlot = RX_SLOT_NONE;
     }
-    else
-    {
-        OpenContinuousRx2Window( );
-    }
+    UpdateRxSlotIdleState( );
 
     MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT;
     LoRaMacConfirmQueueSetStatusCmn( LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT );
@@ -1388,15 +1384,6 @@ static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStat
                 MacCtx.McpsConfirm.Status = rx1EventInfoStatus;
             }
             LoRaMacConfirmQueueSetStatusCmn( rx1EventInfoStatus );
-
-            if( MacCtx.NvmCtx->DeviceClass != CLASS_C )
-            {
-                if( TimerGetElapsedTime( MacCtx.NvmCtx->LastTxDoneTime ) >= MacCtx.RxWindow2Delay )
-                {
-                    TimerStop( &MacCtx.RxWindowTimer2 );
-                    MacCtx.MacFlags.Bits.MacDone = 1;
-                }
-            }
         }
         else
         {
@@ -1413,14 +1400,7 @@ static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStat
         }
     }
 
-    if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
-    {
-        OpenContinuousRx2Window( );
-    }
-    else
-    {
-        MacCtx.RxSlot = RX_SLOT_NONE;
-    }
+    UpdateRxSlotIdleState( );
 }
 
 static void ProcessRadioRxError( void )
@@ -1694,6 +1674,10 @@ void LoRaMacProcess( void )
         LoRaMacEnableRequests( LORAMAC_REQUEST_HANDLING_ON );
     }
     LoRaMacHandleIndicationEvents( );
+    if( MacCtx.RxSlot == RX_SLOT_WIN_CLASS_C )
+    {
+        OpenContinuousRx2Window( );
+    }
 }
 
 static void OnTxDelayedTimerEvent( void* context )
