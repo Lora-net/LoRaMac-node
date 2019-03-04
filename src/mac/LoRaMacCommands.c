@@ -74,7 +74,7 @@ typedef struct sLoRaMacCommandsCtx
 /*
  * Callback function to notify the upper layer about context change
  */
-static EventNvmCtxChanged CommandsNvmCtxChanged;
+static LoRaMacCommandsNvmEvent CommandsNvmCtxChanged;
 
 /*
  * Non-volatile module context.
@@ -307,7 +307,7 @@ static void NvmCtxCallback( void )
     }
 }
 
-LoRaMacCommandStatus_t LoRaMacCommandsInit( EventNvmCtxChanged commandsNvmCtxChanged )
+LoRaMacCommandStatus_t LoRaMacCommandsInit( LoRaMacCommandsNvmEvent commandsNvmCtxChanged )
 {
 
     // Initialize with default

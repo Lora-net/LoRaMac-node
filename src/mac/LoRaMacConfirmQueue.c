@@ -66,7 +66,7 @@ typedef struct sLoRaMacConfirmQueueCtx
     /*
      * Callback function to notify the upper layer about context change
      */
-    EventNvmCtxChanged EventNvmCtxChanged;
+    LoRaMacConfirmQueueNvmEvent LoRaMacConfirmQueueNvmEvent;
     /*!
     * Non-volatile module context.
     */
@@ -131,7 +131,7 @@ static MlmeConfirmQueue_t* GetElement( Mlme_t request, MlmeConfirmQueue_t* buffe
     return NULL;
 }
 
-void LoRaMacConfirmQueueInit( LoRaMacPrimitives_t* primitives, EventNvmCtxChanged confirmQueueNvmCtxChanged )
+void LoRaMacConfirmQueueInit( LoRaMacPrimitives_t* primitives, LoRaMacConfirmQueueNvmEvent confirmQueueNvmCtxChanged )
 {
     ConfirmQueueCtx.Primitives = primitives;
 
@@ -151,7 +151,7 @@ void LoRaMacConfirmQueueInit( LoRaMacPrimitives_t* primitives, EventNvmCtxChange
     ConfirmQueueCtx.ConfirmQueueNvmCtx->CommonStatus = LORAMAC_EVENT_INFO_STATUS_ERROR;
 
     // Assign callback
-    ConfirmQueueCtx.EventNvmCtxChanged = confirmQueueNvmCtxChanged;
+    ConfirmQueueCtx.LoRaMacConfirmQueueNvmEvent = confirmQueueNvmCtxChanged;
 }
 
 bool LoRaMacConfirmQueueRestoreNvmCtx( void* confirmQueueNvmCtx )

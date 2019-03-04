@@ -71,7 +71,7 @@ typedef struct sSecureElementNvCtx
  */
 static SecureElementNvCtx_t SeNvmCtx;
 
-static EventNvmCtxChanged SeNvmCtxChanged;
+static SecureElementNvmEvent SeNvmCtxChanged;
 
 /*
  * Local functions
@@ -157,7 +157,7 @@ static SecureElementStatus_t ComputeCmac( uint8_t *micBxBuffer, uint8_t *buffer,
  * API functions
  */
 
-SecureElementStatus_t SecureElementInit( EventNvmCtxChanged seNvmCtxChanged )
+SecureElementStatus_t SecureElementInit( SecureElementNvmEvent seNvmCtxChanged )
 {
     // Initialize with defaults
     uint8_t itr = 0;

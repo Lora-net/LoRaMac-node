@@ -77,7 +77,7 @@ typedef enum eSecureElementStatus
  * non volatile context have to be stored.
  *
  */
-typedef void ( *EventNvmCtxChanged )( void );
+typedef void ( *SecureElementNvmEvent )( void );
 
 /*!
  * Initialization of Secure Element driver
@@ -86,7 +86,7 @@ typedef void ( *EventNvmCtxChanged )( void );
  *                                            non-volatile context have to be stored.
  * \retval                                  - Status of the operation
  */
-SecureElementStatus_t SecureElementInit( EventNvmCtxChanged seNvmCtxChanged );
+SecureElementStatus_t SecureElementInit( SecureElementNvmEvent seNvmCtxChanged );
 
 /*!
  * Restores the internal nvm context from passed pointer.

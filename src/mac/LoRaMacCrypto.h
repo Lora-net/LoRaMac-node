@@ -125,7 +125,7 @@ typedef enum eLoRaMacCryptoStatus
  * crypto module context.
  *
  */
-typedef void ( *EventNvmCtxChanged )( void );
+typedef void ( *LoRaMacCryptoNvmEvent )( void );
 
 /*!
  * Initialization of LoRaMac Crypto module
@@ -135,7 +135,7 @@ typedef void ( *EventNvmCtxChanged )( void );
  *                                      non-volatile context have to be stored.
  * \retval                            - Status of the operation
  */
-LoRaMacCryptoStatus_t LoRaMacCryptoInit( EventNvmCtxChanged cryptoNvmCtxChanged );
+LoRaMacCryptoStatus_t LoRaMacCryptoInit( LoRaMacCryptoNvmEvent cryptoNvmCtxChanged );
 
 /*!
  * Sets the LoRaWAN specification version to be used.

@@ -90,7 +90,7 @@ static LoRaMacFCntHandlerNvmCtx_t FCntHandlerNvmCtx;
 /*
  * Callback function to notify the upper layer about context change
  */
-static EventNvmCtxChanged FCntHandlerNvmCtxChanged;
+static LoRaMacFCntHandlerNvmEvent FCntHandlerNvmCtxChanged;
 
 /*
  * \brief Wrapper function for the NvmCtx
@@ -104,7 +104,7 @@ static void NvmCtxChanged( void )
 }
 
 
-LoRaMacFCntHandlerStatus_t LoRaMacFCntHandlerInit( EventNvmCtxChanged fCntHandlerNvmCtxChanged )
+LoRaMacFCntHandlerStatus_t LoRaMacFCntHandlerInit( LoRaMacFCntHandlerNvmEvent fCntHandlerNvmCtxChanged )
 {
     // Assign callback
     FCntHandlerNvmCtxChanged = fCntHandlerNvmCtxChanged;

@@ -178,7 +178,7 @@ typedef struct sLoRaMacNvmCtx
     /*
     * Aggregated duty cycle management
     */
-    TimerTime_t AggregatedLastTxDoneTime;
+    TimerTime_t LastTxDoneTime;
     TimerTime_t AggregatedTimeOff;
     /*
     * Stores the time at LoRaMac initialization.
@@ -432,16 +432,6 @@ static void OnRxWindow1TimerEvent( void* context );
  * \brief Function executed on second Rx window timer event
  */
 static void OnRxWindow2TimerEvent( void* context );
-
-/*!
- * \brief Check if the OnAckTimeoutTimer has do be disabled. If so, the
- *        function disables it.
- *
- * \param [IN] nodeAckRequested Set to true, if the node has requested an ACK
- * \param [IN] class The device class
- * \param [IN] ackReceived Set to true, if the node has received an ACK
- */
-static void CheckToDisableAckTimeout( bool nodeAckRequested, DeviceClass_t devClass, bool ackReceived );
 
 /*!
  * \brief Function executed on AckTimeout timer event
@@ -864,6 +854,18 @@ static void OnRadioRxTimeout( void )
     }
 }
 
+static void UpdateRxSlotIdleState( void )
+{
+    if( MacCtx.NvmCtx->DeviceClass != CLASS_C )
+    {
+        MacCtx.RxSlot = RX_SLOT_NONE;
+    }
+    else
+    {
+        MacCtx.RxSlot = RX_SLOT_WIN_CLASS_C;
+    }
+}
+
 static void ProcessRadioTxDone( void )
 {
     GetPhyParams_t getPhy;
@@ -873,13 +875,7 @@ static void ProcessRadioTxDone( void )
     if( MacCtx.NvmCtx->DeviceClass != CLASS_C )
     {
         Radio.Sleep( );
-        MacCtx.RxSlot = RX_SLOT_NONE;
     }
-    else
-    {
-        OpenContinuousRxCWindow( );
-    }
-
     // Setup timers
     TimerSetValue( &MacCtx.RxWindowTimer1, MacCtx.RxWindow1Delay );
     TimerStart( &MacCtx.RxWindowTimer1 );
@@ -909,7 +905,7 @@ static void ProcessRadioTxDone( void )
     txDone.LastTxDoneTime = TxDoneParams.CurTime;
     RegionSetBandTxDone( MacCtx.NvmCtx->Region, &txDone );
     // Update Aggregated last tx done time
-    MacCtx.NvmCtx->AggregatedLastTxDoneTime = TxDoneParams.CurTime;
+    MacCtx.NvmCtx->LastTxDoneTime = TxDoneParams.CurTime;
 
     if( MacCtx.NodeAckRequested == false )
     {
@@ -930,14 +926,7 @@ static void PrepareRxDoneAbort( void )
     MacCtx.MacFlags.Bits.McpsInd = 1;
     MacCtx.MacFlags.Bits.MacDone = 1;
 
-    if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
-    {// Activate RxC window for Class C
-        OpenContinuousRxCWindow( );
-    }
-    else
-    {
-        MacCtx.RxSlot = RX_SLOT_NONE;
-    }
+    UpdateRxSlotIdleState( );
 }
 
 static void ProcessRadioRxDone( void )
@@ -1321,21 +1310,23 @@ static void ProcessRadioRxDone( void )
     }
 
     // Verify if we need to disable the AckTimeoutTimer
-    CheckToDisableAckTimeout( MacCtx.NodeAckRequested, MacCtx.NvmCtx->DeviceClass, MacCtx.McpsConfirm.AckReceived );
-
-    if( TimerIsStarted( &MacCtx.AckTimeoutTimer ) == false )
-    {  // Procedure is completed when the AckTimeoutTimer is not running anymore
-        MacCtx.MacFlags.Bits.MacDone = 1;
-    }
-
-    if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
-    {// Activate RxC window for Class C
-        OpenContinuousRxCWindow( );
+    if( MacCtx.NodeAckRequested == true )
+    {
+        if( MacCtx.McpsConfirm.AckReceived == true )
+        {
+            OnAckTimeoutTimerEvent( NULL );
+        }
     }
     else
     {
-        MacCtx.RxSlot = RX_SLOT_NONE;
+        if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
+        {
+            OnAckTimeoutTimerEvent( NULL );
+        }
     }
+    MacCtx.MacFlags.Bits.MacDone = 1;
+
+    UpdateRxSlotIdleState( );
 }
 
 static void ProcessRadioTxTimeout( void )
@@ -1343,12 +1334,8 @@ static void ProcessRadioTxTimeout( void )
     if( MacCtx.NvmCtx->DeviceClass != CLASS_C )
     {
         Radio.Sleep( );
-        MacCtx.RxSlot = RX_SLOT_NONE;
     }
-    else
-    {
-        OpenContinuousRxCWindow( );
-    }
+    UpdateRxSlotIdleState( );
 
     MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT;
     LoRaMacConfirmQueueSetStatusCmn( LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT );
@@ -1395,15 +1382,6 @@ static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStat
                 MacCtx.McpsConfirm.Status = rx1EventInfoStatus;
             }
             LoRaMacConfirmQueueSetStatusCmn( rx1EventInfoStatus );
-
-            if( MacCtx.NvmCtx->DeviceClass != CLASS_C )
-            {
-                if( TimerGetElapsedTime( MacCtx.NvmCtx->AggregatedLastTxDoneTime ) >= MacCtx.RxWindow2Delay )
-                {
-                    TimerStop( &MacCtx.RxWindowTimer2 );
-                    MacCtx.MacFlags.Bits.MacDone = 1;
-                }
-            }
         }
         else
         {
@@ -1420,14 +1398,7 @@ static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStat
         }
     }
 
-    if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
-    {
-        OpenContinuousRxCWindow( );
-    }
-    else
-    {
-        MacCtx.RxSlot = RX_SLOT_NONE;
-    }
+    UpdateRxSlotIdleState( );
 }
 
 static void ProcessRadioRxError( void )
@@ -1701,6 +1672,10 @@ void LoRaMacProcess( void )
         LoRaMacEnableRequests( LORAMAC_REQUEST_HANDLING_ON );
     }
     LoRaMacHandleIndicationEvents( );
+    if( MacCtx.RxSlot == RX_SLOT_WIN_CLASS_C )
+    {
+        OpenContinuousRxCWindow( );
+    }
 }
 
 static void OnTxDelayedTimerEvent( void* context )
@@ -1757,29 +1732,6 @@ static void OnRxWindow2TimerEvent( void* context )
     MacCtx.RxWindow2Config.RxSlot = RX_SLOT_WIN_2;
 
     RxWindowSetup( &MacCtx.RxWindowTimer2, &MacCtx.RxWindow2Config );
-}
-
-static void CheckToDisableAckTimeout( bool nodeAckRequested, DeviceClass_t devClass, bool ackReceived )
-{
-    // There are three cases where we need to stop the AckTimeoutTimer:
-    if( nodeAckRequested == false )
-    {
-        if( devClass == CLASS_C )
-        {// FIRST CASE
-            // We have performed an unconfirmed uplink in class c mode
-            // and have received a downlink in RX1 or RX2.
-            OnAckTimeoutTimerEvent( NULL );
-        }
-    }
-    else
-    {
-        if( ackReceived == 1 )
-        {// SECOND CASE
-            // We have performed a confirmed uplink and have received a
-            // downlink with a valid ACK.
-            OnAckTimeoutTimerEvent( NULL );
-        }
-    }
 }
 
 static void OnAckTimeoutTimerEvent( void* context )
@@ -2377,7 +2329,7 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
     {
         nextChan.Joined = true;
     }
-    nextChan.LastAggrTx = MacCtx.NvmCtx->AggregatedLastTxDoneTime;
+    nextChan.LastAggrTx = MacCtx.NvmCtx->LastTxDoneTime;
 
     // Select channel
     status = RegionNextChannel( MacCtx.NvmCtx->Region, &nextChan, &MacCtx.Channel, &dutyCycleTimeOff, &MacCtx.NvmCtx->AggregatedTimeOff );
@@ -3243,7 +3195,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     MacCtx.MacState = LORAMAC_STOPPED;
 
     // Reset duty cycle times
-    MacCtx.NvmCtx->AggregatedLastTxDoneTime = 0;
+    MacCtx.NvmCtx->LastTxDoneTime = 0;
     MacCtx.NvmCtx->AggregatedTimeOff = 0;
 
     // Initialize timers
