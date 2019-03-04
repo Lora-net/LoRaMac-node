@@ -187,7 +187,7 @@ typedef struct sLoRaMacNvmCtx
     /*
     * Aggregated duty cycle management
     */
-    TimerTime_t AggregatedLastTxDoneTime;
+    TimerTime_t LastTxDoneTime;
     TimerTime_t AggregatedTimeOff;
     /*
     * Stores the time at LoRaMac initialization.
@@ -917,7 +917,7 @@ static void ProcessRadioTxDone( void )
     txDone.LastTxDoneTime = TxDoneParams.CurTime;
     RegionSetBandTxDone( MacCtx.NvmCtx->Region, &txDone );
     // Update Aggregated last tx done time
-    MacCtx.NvmCtx->AggregatedLastTxDoneTime = TxDoneParams.CurTime;
+    MacCtx.NvmCtx->LastTxDoneTime = TxDoneParams.CurTime;
 
     if( MacCtx.NodeAckRequested == false )
     {
@@ -1400,7 +1400,7 @@ static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStat
 
             if( MacCtx.NvmCtx->DeviceClass != CLASS_C )
             {
-                if( TimerGetElapsedTime( MacCtx.NvmCtx->AggregatedLastTxDoneTime ) >= MacCtx.RxWindow2Delay )
+                if( TimerGetElapsedTime( MacCtx.NvmCtx->LastTxDoneTime ) >= MacCtx.RxWindow2Delay )
                 {
                     TimerStop( &MacCtx.RxWindowTimer2 );
                     MacCtx.MacFlags.Bits.MacDone = 1;
@@ -2350,7 +2350,7 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
     {
         nextChan.Joined = true;
     }
-    nextChan.LastAggrTx = MacCtx.NvmCtx->AggregatedLastTxDoneTime;
+    nextChan.LastAggrTx = MacCtx.NvmCtx->LastTxDoneTime;
 
     // Select channel
     status = RegionNextChannel( MacCtx.NvmCtx->Region, &nextChan, &MacCtx.Channel, &dutyCycleTimeOff, &MacCtx.NvmCtx->AggregatedTimeOff );
@@ -3213,7 +3213,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     MacCtx.MacState = LORAMAC_STOPPED;
 
     // Reset duty cycle times
-    MacCtx.NvmCtx->AggregatedLastTxDoneTime = 0;
+    MacCtx.NvmCtx->LastTxDoneTime = 0;
     MacCtx.NvmCtx->AggregatedTimeOff = 0;
 
     // Initialize timers
