@@ -442,16 +442,6 @@ static void OnRxWindow1TimerEvent( void* context );
 static void OnRxWindow2TimerEvent( void* context );
 
 /*!
- * \brief Check if the OnAckTimeoutTimer has do be disabled. If so, the
- *        function disables it.
- *
- * \param [IN] nodeAckRequested Set to true, if the node has requested an ACK
- * \param [IN] class The device class
- * \param [IN] ackReceived Set to true, if the node has received an ACK
- */
-static void CheckToDisableAckTimeout( bool nodeAckRequested, DeviceClass_t devClass, bool ackReceived );
-
-/*!
  * \brief Function executed on AckTimeout timer event
  */
 static void OnAckTimeoutTimerEvent( void* context );
@@ -1323,21 +1313,22 @@ static void ProcessRadioRxDone( void )
     }
 
     // Verify if we need to disable the AckTimeoutTimer
-    CheckToDisableAckTimeout( MacCtx.NodeAckRequested, MacCtx.NvmCtx->DeviceClass, MacCtx.McpsConfirm.AckReceived );
-
-    if( TimerIsStarted( &MacCtx.AckTimeoutTimer ) == false )
-    {  // Procedure is completed when the AckTimeoutTimer is not running anymore
-        MacCtx.MacFlags.Bits.MacDone = 1;
-    }
-
-    if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
-    {// Activate RX2 window for Class C
-        OpenContinuousRx2Window( );
+    if( MacCtx.NodeAckRequested == true )
+    {
+        if( MacCtx.McpsConfirm.AckReceived == true )
+        {
+            OnAckTimeoutTimerEvent( NULL );
+        }
     }
     else
     {
-        MacCtx.RxSlot = RX_SLOT_NONE;
+        if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
+        {
+            OnAckTimeoutTimerEvent( NULL );
+        }
     }
+    MacCtx.MacFlags.Bits.MacDone = 1;
+
 }
 
 static void ProcessRadioTxTimeout( void )
@@ -1759,29 +1750,6 @@ static void OnRxWindow2TimerEvent( void* context )
     MacCtx.RxWindow2Config.RxSlot = RX_SLOT_WIN_2;
 
     RxWindowSetup( &MacCtx.RxWindowTimer2, &MacCtx.RxWindow2Config );
-}
-
-static void CheckToDisableAckTimeout( bool nodeAckRequested, DeviceClass_t devClass, bool ackReceived )
-{
-    // There are three cases where we need to stop the AckTimeoutTimer:
-    if( nodeAckRequested == false )
-    {
-        if( devClass == CLASS_C )
-        {// FIRST CASE
-            // We have performed an unconfirmed uplink in class c mode
-            // and have received a downlink in RX1 or RX2.
-            OnAckTimeoutTimerEvent( NULL );
-        }
-    }
-    else
-    {
-        if( ackReceived == 1 )
-        {// SECOND CASE
-            // We have performed a confirmed uplink and have received a
-            // downlink with a valid ACK.
-            OnAckTimeoutTimerEvent( NULL );
-        }
-    }
 }
 
 static void OnAckTimeoutTimerEvent( void* context )
