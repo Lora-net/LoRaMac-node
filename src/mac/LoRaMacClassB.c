@@ -84,7 +84,7 @@ typedef struct sLoRaMacClassBCtx
     /*
      * Callback function to notify the upper layer about context change
      */
-    EventNvmCtxChanged EventNvmCtxChanged;
+    LoRaMacClassBNvmEvent LoRaMacClassBNvmEvent;
     /*!
     * Non-volatile module context.
     */
@@ -512,15 +512,15 @@ static uint16_t CalcPingPeriod( uint8_t pingNb )
  */
 static void NvmContextChange( void )
 {
-    if( Ctx.EventNvmCtxChanged != NULL )
+    if( Ctx.LoRaMacClassBNvmEvent != NULL )
     {
-        Ctx.EventNvmCtxChanged( );
+        Ctx.LoRaMacClassBNvmEvent( );
     }
 }
 
 #endif // LORAMAC_CLASSB_ENABLED
 
-void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks, EventNvmCtxChanged classBNvmCtxChanged )
+void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks, LoRaMacClassBNvmEvent classBNvmCtxChanged )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
     // Store callbacks
@@ -533,7 +533,7 @@ void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallba
     Ctx.NvmCtx = &NvmCtx;
 
     // Assign callback
-    Ctx.EventNvmCtxChanged = classBNvmCtxChanged;
+    Ctx.LoRaMacClassBNvmEvent = classBNvmCtxChanged;
 
     // Initialize timers
     TimerInit( &Ctx.BeaconTimer, LoRaMacClassBBeaconTimerEvent );

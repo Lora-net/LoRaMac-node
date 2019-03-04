@@ -180,7 +180,7 @@ typedef struct sLoRaMacCryptoCtx
     /*
      * Callback function to notify the upper layer about context change
      */
-    EventNvmCtxChanged EventCryptoNvmCtxChanged;
+    LoRaMacCryptoNvmEvent EventCryptoNvmCtxChanged;
 }LoRaMacCryptoCtx_t;
 
 /*
@@ -885,7 +885,7 @@ static void DummyCB( void )
  *  API functions
  */
 
-LoRaMacCryptoStatus_t LoRaMacCryptoInit( EventNvmCtxChanged cryptoNvmCtxChanged )
+LoRaMacCryptoStatus_t LoRaMacCryptoInit( LoRaMacCryptoNvmEvent cryptoNvmCtxChanged )
 {
     // Initialize volatile variables
     CryptoCtx.LrWanVersion.Fields.Major = 1;
