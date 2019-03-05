@@ -1013,11 +1013,8 @@ void SX1276SetRx( uint32_t timeout )
     {
         SX1276SetOpMode( RF_OPMODE_RECEIVER );
 
-        if( rxContinuous == false )
-        {
-            TimerSetValue( &RxTimeoutSyncWord, SX1276.Settings.Fsk.RxSingleTimeout );
-            TimerStart( &RxTimeoutSyncWord );
-        }
+        TimerSetValue( &RxTimeoutSyncWord, SX1276.Settings.Fsk.RxSingleTimeout );
+        TimerStart( &RxTimeoutSyncWord );
     }
     else
     {
