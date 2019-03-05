@@ -1746,6 +1746,10 @@ static void OnAckTimeoutTimerEvent( void* context )
     {
         MacCtx.MacFlags.Bits.MacDone = 1;
     }
+    if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
+    {
+        MacCtx.MacCallbacks->MacProcessNotify( );
+    }
 }
 
 static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
