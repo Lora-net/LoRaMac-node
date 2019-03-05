@@ -762,6 +762,7 @@ void SX1272SetStby( void )
 void SX1272SetRx( uint32_t timeout )
 {
     bool rxContinuous = false;
+    TimerStop( &TxTimeoutTimer );
 
     switch( SX1272.Settings.Modem )
     {
@@ -877,6 +878,8 @@ void SX1272SetRx( uint32_t timeout )
 
 void SX1272SetTx( uint32_t timeout )
 {
+    TimerStop( &RxTimeoutTimer );
+
     TimerSetValue( &TxTimeoutTimer, timeout );
 
     switch( SX1272.Settings.Modem )
