@@ -26,11 +26,17 @@
 #include <stdint.h>
 
 /*!
+ * If set to 1 the new API defining \ref FragDecoderWrite and
+ * \ref FragDecoderReadfunction callbacks is used.
+ */
+#define FRAG_DECODER_FILE_HANDLING_NEW_API          1
+
+/*!
  * Maximum number of fragment that can be handled.
  *
  * \remark This parameter has an impact on the memory footprint.
  */
-#define FRAG_MAX_NB                                 20
+#define FRAG_MAX_NB                                 21
 
 /*!
  * Maximum fragment size that can be handled.
@@ -58,6 +64,42 @@ typedef struct sFragDecoderStatus
     uint8_t MatrixError;
 }FragDecoderStatus_t;
 
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+typedef struct sFragDecoderCallbacks
+{
+    /*!
+     * Writes `data` buffer of `size` starting at address `addr`
+     *
+     * \param [IN] addr Address start index to write to.
+     * \param [IN] data Data buffer to be written.
+     * \param [IN] size Size of data buffer to be written.
+     * 
+     * \retval status Write operation status [0: Success, -1 Fail]
+     */
+    uint8_t ( *FragDecoderWrite )( uint32_t addr, uint8_t *data, uint32_t size );
+    /*!
+     * Reads `data` buffer of `size` starting at address `addr`
+     *
+     * \param [IN] addr Address start index to read from.
+     * \param [IN] data Data buffer to be read.
+     * \param [IN] size Size of data buffer to be read.
+     * 
+     * \retval status Read operation status [0: Success, -1 Fail]
+     */
+    uint8_t ( *FragDecoderRead )( uint32_t addr, uint8_t *data, uint32_t size );
+}FragDecoderCallbacks_t;
+#endif
+
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+/*!
+ * \brief Initializes the fragmentation decoder
+ *
+ * \param [IN] fragNb     Number of expected fragments (without redundancy packets)
+ * \param [IN] fragSize   Size of a fragment
+ * \param [IN] callbacks  Pointer to the Write/Read functions.
+ */
+void FragDecoderInit( uint16_t fragNb, uint8_t fragSize, FragDecoderCallbacks_t *callbacks );
+#else
 /*!
  * \brief Initializes the fragmentation decoder
  *
@@ -67,6 +109,16 @@ typedef struct sFragDecoderStatus
  * \param [IN] fileSize   File buffer size
  */
 void FragDecoderInit( uint16_t fragNb, uint8_t fragSize, uint8_t *file, uint32_t fileSize );
+#endif
+
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+/*!
+ * \brief Gets the maximum file size that can be received
+ * 
+ * \retval size FileSize
+ */
+uint32_t FragDecoderGetMaxFileSize( void );
+#endif
 
 /*!
  * \brief Function to decode and reconstruct the binary file

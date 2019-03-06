@@ -264,7 +264,6 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
                 }
                 FragSessionData_t fragSessionData;
                 uint8_t status = 0x00;
-                uint32_t dataBlockSize = 0;
 
                 fragSessionData.FragGroupData.FragSession.Value = mcpsIndication->Buffer[cmdIndex++];
                 
@@ -272,8 +271,6 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
                 fragSessionData.FragGroupData.FragNb |= ( mcpsIndication->Buffer[cmdIndex++] << 8 ) & 0xFF00;
 
                 fragSessionData.FragGroupData.FragSize = mcpsIndication->Buffer[cmdIndex++];
-
-                dataBlockSize = fragSessionData.FragGroupData.FragNb * fragSessionData.FragGroupData.FragSize;
 
                 fragSessionData.FragGroupData.Control.Value = mcpsIndication->Buffer[cmdIndex++];
 
@@ -289,11 +286,17 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
                     status |= 0x01; // Encoding unsupported
                 }
 
-                if( dataBlockSize > LmhpFragmentationParams->BufferSize )
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+                if( ( fragSessionData.FragGroupData.FragNb * fragSessionData.FragGroupData.FragSize ) > FragDecoderGetMaxFileSize( ) )
                 {
                     status |= 0x02; // Not enough Memory
                 }
-
+#else
+                if( ( fragSessionData.FragGroupData.FragNb * fragSessionData.FragGroupData.FragSize ) > LmhpFragmentationParams->BufferSize )
+                {
+                    status |= 0x02; // Not enough Memory
+                }
+#endif
                 status |= ( fragSessionData.FragGroupData.FragSession.Fields.FragIndex << 6 ) & 0xC0;
                 if( fragSessionData.FragGroupData.FragSession.Fields.FragIndex >= FRAGMENTATION_MAX_SESSIONS )
                 {
@@ -314,10 +317,16 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
                     fragSessionData.FragGroupData.IsActive = true;
                     fragSessionData.FragDecoderPorcessStatus = FRAG_SESSION_ONGOING;
                     FragSessionData[fragSessionData.FragGroupData.FragSession.Fields.FragIndex] = fragSessionData;
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+                    FragDecoderInit( fragSessionData.FragGroupData.FragNb,
+                                     fragSessionData.FragGroupData.FragSize,
+                                     &LmhpFragmentationParams->DecoderCallbacks );
+#else
                     FragDecoderInit( fragSessionData.FragGroupData.FragNb,
                                      fragSessionData.FragGroupData.FragSize,
                                      LmhpFragmentationParams->Buffer,
                                      LmhpFragmentationParams->BufferSize );
+#endif
                 }
                 LmhpFragmentationState.DataBuffer[dataBufferIndex++] = FRAGMENTATION_FRAG_SESSION_SETUP_ANS;
                 LmhpFragmentationState.DataBuffer[dataBufferIndex++] = status;
@@ -396,9 +405,14 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
                         FragSessionData[fragIndex].FragDecoderPorcessStatus = FRAG_SESSION_NOT_STARTED;
                         if( LmhpFragmentationParams->OnDone != NULL )
                         {
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+                            LmhpFragmentationParams->OnDone( FragSessionData[fragIndex].FragDecoderPorcessStatus,
+                                                            ( FragSessionData[fragIndex].FragGroupData.FragNb * FragSessionData[fragIndex].FragGroupData.FragSize ) - FragSessionData[fragIndex].FragGroupData.Padding );
+#else
                             LmhpFragmentationParams->OnDone( FragSessionData[fragIndex].FragDecoderPorcessStatus,
                                                             LmhpFragmentationParams->Buffer,
                                                             ( FragSessionData[fragIndex].FragGroupData.FragNb * FragSessionData[fragIndex].FragGroupData.FragSize ) - FragSessionData[fragIndex].FragGroupData.Padding );
+#endif
                         }
                     }
                 }

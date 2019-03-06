@@ -20,6 +20,7 @@
  * \author    Fabien Holin ( Semtech )
  * \author    Miguel Luis ( Semtech )
  */
+#include <stddef.h>
 #include <stdbool.h>
 #include "utilities.h"
 #include "FragDecoder.h"
@@ -49,9 +50,12 @@
 
 typedef struct
 {
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+    FragDecoderCallbacks_t *Callbacks;
+#else
     uint8_t *File;
     uint32_t FileSize;
-
+#endif
     uint16_t FragNb;
     uint8_t FragSize;
 
@@ -64,6 +68,16 @@ typedef struct
     FragDecoderStatus_t Status;
 }FragDecoder_t;
 
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+/*!
+ * \brief Sets a row from source into file destination
+ *
+ * \param [IN] src  Source buffer pointer
+ * \param [IN] row  Destination index of the row to be copied
+ * \param [IN] size Source number of bytes to be copied
+ */
+static void SetRow( uint8_t *src, uint16_t row, uint16_t size );
+#else
 /*!
  * \brief Sets a row from source into destination
  *
@@ -73,9 +87,20 @@ typedef struct
  * \param [IN] size Source number of bytes to be copied
  */
 static void SetRow( uint8_t *dst, uint8_t *src, uint16_t row, uint16_t size );
+#endif
 
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
 /*!
- * \brief Gets a row from source and stores it in destination
+ * \brief Gets a row from source and stores it into file destination
+ *
+ * \param [IN] src  Source buffer pointer
+ * \param [IN] row  Source index of the row to be copied
+ * \param [IN] size Source number of bytes to be copied
+ */
+static void GetRow( uint8_t *src, uint16_t row, uint16_t size );
+#else
+/*!
+ * \brief Gets a row from source and stores it into destination
  *
  * \param [IN] dst  Destination buffer pointer
  * \param [IN] src  Source buffer pointer
@@ -83,6 +108,7 @@ static void SetRow( uint8_t *dst, uint8_t *src, uint16_t row, uint16_t size );
  * \param [IN] size Source number of bytes to be copied
  */
 static void GetRow( uint8_t *dst, uint8_t *src, uint16_t row, uint16_t size );
+#endif
 
 /*!
  * \brief Gets the parity value from a given row of the parity matrix
@@ -213,10 +239,18 @@ static void FragPushLineToBinaryMatrix( uint8_t *bitArray, uint16_t rowIndex, ui
 
 static FragDecoder_t FragDecoder;
 
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+void FragDecoderInit( uint16_t fragNb, uint8_t fragSize, FragDecoderCallbacks_t *callbacks )
+#else
 void FragDecoderInit( uint16_t fragNb, uint8_t fragSize, uint8_t *file, uint32_t fileSize )
+#endif
 {
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+    FragDecoder.Callbacks = callbacks;
+#else
     FragDecoder.File = file;
     FragDecoder.FileSize = fileSize;
+#endif
     FragDecoder.FragNb = fragNb;                                // FragNb = FRAG_MAX_SIZE
     FragDecoder.FragSize = fragSize;                            // number of byte on a row
     FragDecoder.Status.FragNbLastRx = 0;
@@ -241,14 +275,27 @@ void FragDecoderInit( uint16_t fragNb, uint8_t fragSize, uint8_t *file, uint32_t
     }
     
     // Initialize final uncoded data buffer ( FRAG_MAX_NB * FRAG_MAX_SIZE )
-    for( uint32_t i = 0; i < FragDecoder.FileSize; i++ )
+    for( uint32_t i = 0; i < ( fragNb * fragSize ); i++ )
     {
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+        if( ( FragDecoder.Callbacks != NULL ) && ( FragDecoder.Callbacks->FragDecoderWrite != NULL ) )
+        {
+            FragDecoder.Callbacks->FragDecoderWrite( i, ( uint8_t[] ){ 0xFF }, 1 );
+        }
+#else
         FragDecoder.File[i] = 0xFF;
+#endif
     }
-
     FragDecoder.Status.FragNbLost = 0;
     FragDecoder.Status.FragNbLastRx = 0;
 }
+
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+uint32_t FragDecoderGetMaxFileSize( void )
+{
+    return FRAG_MAX_NB * FRAG_MAX_SIZE;
+}
+#endif
 
 int32_t FragDecoderProcess( uint16_t fragCounter, uint8_t *rawData )
 {
@@ -278,7 +325,11 @@ int32_t FragDecoderProcess( uint16_t fragCounter, uint8_t *rawData )
     if( fragCounter < ( FragDecoder.FragNb + 1 ) )
     {
         // The M first frame are not encoded store them
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+        SetRow( rawData, fragCounter - 1, FragDecoder.FragSize );
+#else
         SetRow( FragDecoder.File, rawData, fragCounter - 1, FragDecoder.FragSize );
+#endif
 
         FragDecoder.FragNbMissingIndex[fragCounter - 1] = 0;
 
@@ -315,7 +366,11 @@ int32_t FragDecoderProcess( uint16_t fragCounter, uint8_t *rawData )
                 {
                     // XOR with already receive frag
                     SetParity( i, matrixRow, 0 );
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+                    GetRow( matrixDataTemp, i, FragDecoder.FragSize );
+#else
                     GetRow( matrixDataTemp, FragDecoder.File, i, FragDecoder.FragSize );
+#endif
                     XorDataLine( rawData, matrixDataTemp, FragDecoder.FragSize );
                 }
                 else
@@ -345,7 +400,11 @@ int32_t FragDecoderProcess( uint16_t fragCounter, uint8_t *rawData )
                 XorParityLine( dataTempVector, dataTempVector2, FragDecoder.Status.FragNbLost );
                 // Have to store it in the mi th position of the missing frag
                 li = FragFindMissingIndex( firstOneInRow );
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+                GetRow( matrixDataTemp, li, FragDecoder.FragSize );
+#else
                 GetRow( matrixDataTemp, FragDecoder.File, li, FragDecoder.FragSize );
+#endif
                 XorDataLine( rawData, matrixDataTemp, FragDecoder.FragSize );
                 if( BitArrayIsAllZeros( dataTempVector, FragDecoder.Status.FragNbLost ) )
                 {
@@ -359,7 +418,11 @@ int32_t FragDecoderProcess( uint16_t fragCounter, uint8_t *rawData )
             {
                 FragPushLineToBinaryMatrix( dataTempVector, firstOneInRow, FragDecoder.Status.FragNbLost );
                 li = FragFindMissingIndex( firstOneInRow );
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+                SetRow( rawData, li, FragDecoder.FragSize );
+#else
                 SetRow( FragDecoder.File, rawData, li, FragDecoder.FragSize );
+#endif
                 SetParity( firstOneInRow, FragDecoder.S, 1 );
                 FragDecoder.M2BLine++;
             }
@@ -374,7 +437,11 @@ int32_t FragDecoderProcess( uint16_t fragCounter, uint8_t *rawData )
                     for( i = ( FragDecoder.Status.FragNbLost - 2 ); i >= 0 ; i-- )
                     {
                         li = FragFindMissingIndex( i );
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+                        GetRow( matrixDataTemp, li, FragDecoder.FragSize );
+#else
                         GetRow( matrixDataTemp, FragDecoder.File, li, FragDecoder.FragSize );
+#endif
                         for( j = ( FragDecoder.Status.FragNbLost - 1 ); j > i; j--)
                         {
                             FragExtractLineFromBinaryMatrix( dataTempVector2, i, FragDecoder.Status.FragNbLost );
@@ -385,11 +452,19 @@ int32_t FragDecoderProcess( uint16_t fragCounter, uint8_t *rawData )
 
                                 lj = FragFindMissingIndex( j );
 
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+                                GetRow( rawData, lj, FragDecoder.FragSize );
+#else
                                 GetRow( rawData, FragDecoder.File, lj, FragDecoder.FragSize );
+#endif
                                 XorDataLine( matrixDataTemp , rawData , FragDecoder.FragSize );
                             }
                         }
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+                        SetRow( matrixDataTemp, li, FragDecoder.FragSize );
+#else
                         SetRow( FragDecoder.File, matrixDataTemp, li, FragDecoder.FragSize );
+#endif
                     }
                     return FragDecoder.Status.FragNbLost;
                 }
@@ -415,6 +490,23 @@ FragDecoderStatus_t FragDecoderGetStatus( void )
  *=============================================================================
  */
 
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+static void SetRow( uint8_t *src, uint16_t row, uint16_t size )
+{
+    if( ( FragDecoder.Callbacks != NULL ) && ( FragDecoder.Callbacks->FragDecoderWrite != NULL ) )
+    {
+        FragDecoder.Callbacks->FragDecoderWrite( row * size, src, size );
+    }
+}
+
+static void GetRow( uint8_t *dst, uint16_t row, uint16_t size )
+{
+    if( ( FragDecoder.Callbacks != NULL ) && ( FragDecoder.Callbacks->FragDecoderRead != NULL ) )
+    {
+        FragDecoder.Callbacks->FragDecoderRead( row * size, dst, size );
+    }
+}
+#else
 static void SetRow( uint8_t *dst, uint8_t *src, uint16_t row, uint16_t size )
 {
     memcpy1( &dst[row * size], src, size );
@@ -424,6 +516,7 @@ static void GetRow( uint8_t *dst, uint8_t *src, uint16_t row, uint16_t size )
 {
     memcpy1( dst, &src[row * size], size );
 }
+#endif
 
 static uint8_t GetParity( uint8_t index, uint8_t *matrixRow  )
 {

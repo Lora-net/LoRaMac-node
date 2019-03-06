@@ -139,9 +139,16 @@ static void OnRxData( LmHandlerAppData_t* appData, LmHandlerRxParams_t* params )
 static void OnClassChange( DeviceClass_t deviceClass );
 static void OnBeaconStatusChange( LoRaMAcHandlerBeaconParams_t* params );
 static void OnSysTimeUpdate( void );
-
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+static uint8_t FragDecoderWrite( uint32_t addr, uint8_t *data, uint32_t size );
+static uint8_t FragDecoderRead( uint32_t addr, uint8_t *data, uint32_t size );
+#endif
 static void OnFragProgress( uint16_t fragCounter, uint16_t fragNb, uint8_t fragSize, uint16_t fragNbLost );
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+static void OnFragDone( int32_t status, uint32_t size );
+#else
 static void OnFragDone( int32_t status, uint8_t *file, uint32_t size );
+#endif
 static void StartTxProcess( LmHandlerTxEvents_t txEvent );
 static void UplinkProcess( void );
 
@@ -220,8 +227,17 @@ static LmhpComplianceParams_t LmhpComplianceParams =
 
 /*!
  * Defines the maximum size for the buffer receiving the fragmentation result.
+ *
+ * \remark By default FragDecoder.h defines:
+ *         \ref FRAG_MAX_NB   21
+ *         \ref FRAG_MAX_SIZE 50
+ *
+ *         FileSize = FRAG_MAX_NB * FRAG_MAX_SIZE
+ *
+ *         If bigger file size is to be received or is fragmented differently
+ *         one must update those parameters.
  */
-#define UNFRAGMENTED_DATA_SIZE                     1024
+#define UNFRAGMENTED_DATA_SIZE                     ( 21 * 50 )
 
 /*
  * Un-fragmented data storage.
@@ -230,8 +246,16 @@ static uint8_t UnfragmentedData[UNFRAGMENTED_DATA_SIZE];
 
 static LmhpFragmentationParams_t FragmentationParams =
 {
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+    .DecoderCallbacks = 
+    {
+        .FragDecoderWrite = FragDecoderWrite,
+        .FragDecoderRead = FragDecoderRead,
+    },
+#else
     .Buffer = UnfragmentedData,
     .BufferSize = UNFRAGMENTED_DATA_SIZE,
+#endif
     .OnProgress = OnFragProgress,
     .OnDone = OnFragDone
 };
@@ -450,6 +474,34 @@ static void OnSysTimeUpdate( void )
     IsClockSynched = true;
 }
 
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+static uint8_t FragDecoderWrite( uint32_t addr, uint8_t *data, uint32_t size )
+{
+    if( size >= UNFRAGMENTED_DATA_SIZE )
+    {
+        return -1; // Fail
+    }
+    for(uint32_t i = 0; i < size; i++ )
+    {
+        UnfragmentedData[addr + i] = data[i];
+    }
+    return 0; // Success
+}
+
+static uint8_t FragDecoderRead( uint32_t addr, uint8_t *data, uint32_t size )
+{
+    if( size >= UNFRAGMENTED_DATA_SIZE )
+    {
+        return -1; // Fail
+    }
+    for(uint32_t i = 0; i < size; i++ )
+    {
+        data[i] = UnfragmentedData[addr + i];
+    }
+    return 0; // Success
+}
+#endif
+
 static void OnFragProgress( uint16_t fragCounter, uint16_t fragNb, uint8_t fragSize, uint16_t fragNbLost )
 {
     // Switch LED 3 OFF for each received downlink
@@ -464,6 +516,21 @@ static void OnFragProgress( uint16_t fragCounter, uint16_t fragNb, uint8_t fragS
     printf( "LOST        :       %7d Fragments\r\n\r\n", fragNbLost );
 }
 
+#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
+static void OnFragDone( int32_t status, uint32_t size )
+{
+    FileRxCrc = Crc32( UnfragmentedData, size );
+    IsFileTransferDone = true;
+    // Switch LED 3 OFF
+    GpioWrite( &Led3, 0 );
+
+    printf( "\r\n###### =========== FRAG_DECODER ============ ######\r\n" );
+    printf( "######               FINISHED                ######\r\n");
+    printf( "###### ===================================== ######\r\n");
+    printf( "STATUS      : %ld\r\n", status );
+    printf( "CRC         : %08lX\r\n\r\n", FileRxCrc );
+}
+#else
 static void OnFragDone( int32_t status, uint8_t *file, uint32_t size )
 {
     FileRxCrc = Crc32( file, size );
@@ -477,6 +544,7 @@ static void OnFragDone( int32_t status, uint8_t *file, uint32_t size )
     printf( "STATUS      : %ld\r\n", status );
     printf( "CRC         : %08lX\r\n\r\n", FileRxCrc );
 }
+#endif
 
 static void StartTxProcess( LmHandlerTxEvents_t txEvent )
 {
