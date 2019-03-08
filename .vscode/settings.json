@@ -23,15 +23,15 @@
         "CMAKE_TOOLCHAIN_FILE":"cmake/toolchain-arm-none-eabi.cmake",
 
         // Determines the application. You can choose between:
-        // LoRaMac (Default), ping-pong, rx-sensi, tx-cw and BootLoader.
+        // LoRaMac (Default), ping-pong, rx-sensi, tx-cw.
         "APPLICATION":"LoRaMac",
 
         // Select LoRaMac sub project. You can choose between:
-        // classA, classB or classC.
-        "CLASS":"classA",
+        // classA, classB or classC, periodic-uplink-lpp, fuota-test-01.
+        "SUB_PROJECT":"fuota-test-01",
 
         // Switch for Class B support of LoRaMac:
-        "CLASSB_ENABLED":"OFF",
+        "CLASSB_ENABLED":"ON",
 
         // Select the active region for which the stack will be initialized.
         // You can choose between:
@@ -44,7 +44,7 @@
         "MODULATION":"LORA",
 
         // Target board, the following boards are supported:
-        // NAMote72, NucleoL073 (Default), NucleoL152, NucleoL476, SAML21, SKiM880B, SKiM980A, SKiM881AXL and B-L072Z-LRWAN1.
+        // NAMote72, NucleoL073 (Default), NucleoL152, NucleoL476, SAML21, SKiM880B, SKiM980A, SKiM881AXL, B-L072Z-LRWAN1.
         "BOARD":"NucleoL073",
 
         // MBED Radio shield selection. (Applies only to Nucleo platforms)
