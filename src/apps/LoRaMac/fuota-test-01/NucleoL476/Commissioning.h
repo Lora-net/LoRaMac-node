@@ -66,8 +66,9 @@
  * version it will be connected.
  */
 #define ABP_ACTIVATION_LRWAN_VERSION_V10x                  0x01000300 // 1.0.3.0
+#define ABP_ACTIVATION_LRWAN_VERSION_V11x                  0x01010000 // 1.1.0.0
 
-#define ABP_ACTIVATION_LRWAN_VERSION                       ABP_ACTIVATION_LRWAN_VERSION_V10x
+#define ABP_ACTIVATION_LRWAN_VERSION                       ABP_ACTIVATION_LRWAN_VERSION_V11x
 
 /*!
  * Indicates if the end-device is to be connected to a private or public network
