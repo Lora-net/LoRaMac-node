@@ -47,7 +47,34 @@
 /*!
  * Start value for multicast keys enumeration
  */
-#define LORAMAC_CRYPTO_MULITCAST_KEYS   127
+#define LORAMAC_CRYPTO_MULTICAST_KEYS   127
+
+/*!
+ * LoRaWAN devices classes definition
+ *
+ * LoRaWAN Specification V1.0.2, chapter 2.1
+ */
+typedef enum DeviceClass_e
+{
+    /*!
+     * LoRaWAN device class A
+     *
+     * LoRaWAN Specification V1.0.2, chapter 3
+     */
+    CLASS_A = 0x00,
+    /*!
+     * LoRaWAN device class B
+     *
+     * LoRaWAN Specification V1.0.2, chapter 8
+     */
+    CLASS_B = 0x01,
+    /*!
+     * LoRaWAN device class C
+     *
+     * LoRaWAN Specification V1.0.2, chapter 17
+     */
+    CLASS_C = 0x02,
+}DeviceClass_t;
 
 /*!
  * LoRaWAN Frame type enumeration to differ between the possible data up/down frame configurations.
@@ -135,6 +162,11 @@ typedef enum eKeyIdentifier
      */
     APP_KEY = 0,
     /*!
+     * Application root key
+     * Used to derive McRootKey for 1.0.x devices
+     */
+    GEN_APP_KEY,
+    /*!
      * Network root key
      */
     NWK_KEY,
@@ -163,9 +195,13 @@ typedef enum eKeyIdentifier
      */
     APP_S_KEY,
     /*!
+     * Multicast root key
+     */
+    MC_ROOT_KEY,
+    /*!
      * Multicast key encryption key
      */
-    MC_KE_KEY = LORAMAC_CRYPTO_MULITCAST_KEYS,
+    MC_KE_KEY = LORAMAC_CRYPTO_MULTICAST_KEYS,
     /*!
      * Multicast root key index 0
      */
@@ -251,40 +287,95 @@ typedef enum eAddressIdentifier
     UNICAST_DEV_ADDR = 4,
 }AddressIdentifier_t;
 
-/*!
- * Multicast context
+/*
+ * Multicast Rx window parameters
  */
-typedef struct sMulticastCtx
+typedef union uMcRxParams
 {
+    struct
+    {
+        /*!
+            * Reception frequency of the ping slot windows
+            */
+        uint32_t Frequency;
+        /*!
+            * Datarate of the ping slot
+            */
+        int8_t Datarate;
+        /*!
+            * This parameter is necessary for class B operation. It defines the
+            * periodicity of the multicast downlink slots
+            */
+        uint16_t Periodicity;
+    }ClassB;
+    struct
+    {
+        /*!
+        * Reception frequency of the ping slot windows
+        */
+        uint32_t Frequency;
+        /*!
+        * Datarate of the ping slot
+        */
+        int8_t Datarate;
+    }ClassC;
+}McRxParams_t;
+
+/*!
+ * Multicast channel
+ */
+typedef struct sMcChannelParams
+{
+    /*!
+     * Multicats channel LoRaWAN class B or C
+     */
+    DeviceClass_t Class;
+    /*!
+     * True if the entry is active
+     */
+    bool IsEnabled;
     /*
      * Address identifier
      */
-    AddressIdentifier_t AddrID;
+    AddressIdentifier_t GroupID;
     /*!
      * Address
      */
     uint32_t Address;
     /*!
+     * Encrypted multicast key
+     */
+    uint8_t *McKeyE;
+    /*!
+     * Minimum multicast frame counter value
+     */
+    uint32_t FCountMin;
+    /*!
+     * Maximum multicast frame counter value
+     */
+    uint32_t FCountMax;
+    /*!
+     * Multicast reception parameters
+     */
+    McRxParams_t RxParams;
+}McChannelParams_t;
+
+/*!
+ * Multicast context
+ */
+typedef struct sMulticastCtx
+{
+    /*!
+     * Multicast channel parameters
+     */
+    McChannelParams_t ChannelParams;
+    /*!
      * Downlink counter
      */
     uint32_t* DownLinkCounter;
-    /*!
-     * True if the entry is active
+    /*
+     * Following parameters are only used for ClassB multicast channels
      */
-    bool IsEnabled;
-    /*!
-     * Reception frequency of the ping slot windows
-     */
-    uint32_t Frequency;
-    /*!
-     * Datarate of the ping slot
-     */
-    int8_t Datarate;
-    /*!
-     * This parameter is necessary for class b operation. It defines the
-     * periodicity of the multicast downlink slots
-     */
-    uint16_t Periodicity;
     /*!
      * Number of multicast slots. The variable can be
      * calculated as follows:

@@ -94,7 +94,11 @@
 
 static uint8_t DevEui[] = LORAWAN_DEVICE_EUI;
 static uint8_t JoinEui[] = LORAWAN_JOIN_EUI;
+#if( ABP_ACTIVATION_LRWAN_VERSION == ABP_ACTIVATION_LRWAN_VERSION_V10x )
+static uint8_t GenAppKey[] = LORAWAN_GEN_APP_KEY;
+#else
 static uint8_t AppKey[] = LORAWAN_APP_KEY;
+#endif
 static uint8_t NwkKey[] = LORAWAN_NWK_KEY;
 
 #if( OVER_THE_AIR_ACTIVATION == 0 )
@@ -264,6 +268,7 @@ const char* MacStatusStrings[] =
     "MAC command error",             // LORAMAC_STATUS_MAC_COMMAD_ERROR
     "ClassB error",                  // LORAMAC_STATUS_CLASS_B_ERROR
     "Confirm queue error",           // LORAMAC_STATUS_CONFIRM_QUEUE_ERROR
+    "Multicast group undefined",     // LORAMAC_STATUS_MC_GROUP_UNDEFINED
     "Unknown error",                 // LORAMAC_STATUS_ERROR
 };
 
@@ -812,7 +817,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
     GpioWrite( &Led1, 1 );
     TimerStart( &Led2Timer );
 
-    const char *slotStrings[] = { "1", "2", "C", "Ping-Slot", "Multicast Ping-Slot" };
+    const char *slotStrings[] = { "1", "2", "C", "C Multicast", "B Ping-Slot", "B Multicast Ping-Slot" };
 
     printf( "\r\n###### ===== DOWNLINK FRAME %lu ==== ######\r\n", mcpsIndication->DownLinkCounter );
 
@@ -979,9 +984,22 @@ int main( void )
                 }
                 else
                 {
+#if( OVER_THE_AIR_ACTIVATION == 0 )
+                    // Tell the MAC layer which network server version are we connecting too.
+                    mibReq.Type = MIB_ABP_LORAWAN_VERSION;
+                    mibReq.Param.AbpLrWanVersion.Value = ABP_ACTIVATION_LRWAN_VERSION;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+#endif
+
+#if( ABP_ACTIVATION_LRWAN_VERSION == ABP_ACTIVATION_LRWAN_VERSION_V10x )
+                    mibReq.Type = MIB_GEN_APP_KEY;
+                    mibReq.Param.GenAppKey = GenAppKey;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+#else
                     mibReq.Type = MIB_APP_KEY;
                     mibReq.Param.AppKey = AppKey;
                     LoRaMacMibSetRequestConfirm( &mibReq );
+#endif
 
                     mibReq.Type = MIB_NWK_KEY;
                     mibReq.Param.NwkKey = NwkKey;
@@ -1059,11 +1077,19 @@ int main( void )
 
 #if( USE_TTN_NETWORK == 1 )
                 mibReq.Type = MIB_RX2_DEFAULT_CHANNEL;
-                mibReq.Param.Rx2DefaultChannel = ( Rx2ChannelParams_t ){ 869525000, DR_3 };
+                mibReq.Param.Rx2DefaultChannel = ( RxChannelParams_t ){ 869525000, DR_3 };
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
                 mibReq.Type = MIB_RX2_CHANNEL;
-                mibReq.Param.Rx2Channel = ( Rx2ChannelParams_t ){ 869525000, DR_3 };
+                mibReq.Param.Rx2Channel = ( RxChannelParams_t ){ 869525000, DR_3 };
+                LoRaMacMibSetRequestConfirm( &mibReq );
+
+                mibReq.Type = MIB_RXC_DEFAULT_CHANNEL;
+                mibReq.Param.RxCDefaultChannel = ( RxChannelParams_t ){ 869525000, DR_3 };
+                LoRaMacMibSetRequestConfirm( &mibReq );
+
+                mibReq.Type = MIB_RXC_CHANNEL;
+                mibReq.Param.RxCChannel = ( RxChannelParams_t ){ 869525000, DR_3 };
                 LoRaMacMibSetRequestConfirm( &mibReq );
 #endif
 
@@ -1127,11 +1153,6 @@ int main( void )
                     printf( " %02X", AppSKey[i] );
                 }
                 printf( "\n\r\n" );
-
-                // Tell the MAC layer which network server version are we connecting too.
-                mibReq.Type = MIB_ABP_LORAWAN_VERSION;
-                mibReq.Param.AbpLrWanVersion.Value = ABP_ACTIVATION_LRWAN_VERSION;
-                LoRaMacMibSetRequestConfirm( &mibReq );
 
                 mibReq.Type = MIB_NETWORK_ACTIVATION;
                 mibReq.Param.NetworkActivation = ACTIVATION_TYPE_ABP;

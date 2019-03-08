@@ -416,6 +416,10 @@ bool RegionCN470Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
 {
     switch( phyAttribute )
     {
+        case PHY_FREQUENCY:
+        {
+            return VerifyRfFreq( verify->Frequency );
+        }
         case PHY_TX_DR:
         case PHY_DEF_TX_DR:
         {

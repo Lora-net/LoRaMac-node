@@ -530,6 +530,11 @@
 typedef enum ePhyAttribute
 {
     /*!
+     * Frequency. It is available
+     * to perform a verification with RegionVerify().
+     */
+    PHY_FREQUENCY,
+    /*!
      * Minimum RX datarate.
      */
     PHY_MIN_RX_DR,
@@ -909,6 +914,10 @@ typedef struct sGetNvmCtxParams
  */
 typedef union uVerifyParams
 {
+    /*!
+     * Channel frequency to verify
+     */
+    uint32_t Frequency;
     /*!
      * TX power to verify.
      */

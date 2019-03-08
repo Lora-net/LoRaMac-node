@@ -589,7 +589,7 @@ void LpmExitStopMode( void )
     // Disable IRQ while the MCU is not running on HSI
     CRITICAL_SECTION_BEGIN( );
 
-    // Initilizes the peripherals
+    // Initializes the peripherals
     BoardInitMcu( );
 
     CRITICAL_SECTION_END( );
@@ -602,7 +602,22 @@ void LpmExitStopMode( void )
  */
 void LpmEnterSleepMode( void)
 {
-    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+#ifndef DEBUG
+    /*!
+     * Temporarily remove the following call when compiling in debug mode.
+     * 
+     * Due to an yet unknown reason the PWR_MAINREGULATOR_ON constant gets
+     * changed inside the function which makes the assert fail.
+     * 
+     * When compiling in release mode the code operates as expected.
+     * 
+     * TODO: Check what causes this issue. First guess is that the stack gets
+     *       corrupted somehow.
+     * 
+     * This function is only called when using the GPS peripheral.
+     */
+    HAL_PWR_EnterSLEEPMode( PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI );
+#endif
 }
 
 void BoardLowPowerHandler( void )

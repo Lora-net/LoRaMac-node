@@ -32,7 +32,7 @@
                 "exceptions": true
             },
             "MIMode": "gdb",
-            "MIDebuggerPath": "@GDB_BIN@",
+            "miDebuggerPath": "@GDB_BIN@",
             "debugServerPath": "@OPENOCD_BIN@"
         }
     ]

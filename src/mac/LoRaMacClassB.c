@@ -961,7 +961,7 @@ static void LoRaMacClassBProcessPingSlot( void )
                 pingSlotRxConfig.RepeaterSupport = Ctx.LoRaMacClassBParams.LoRaMacParams->RepeaterSupport;
                 pingSlotRxConfig.Frequency = frequency;
                 pingSlotRxConfig.RxContinuous = false;
-                pingSlotRxConfig.RxSlot = RX_SLOT_WIN_PING_SLOT;
+                pingSlotRxConfig.RxSlot = RX_SLOT_WIN_CLASS_B_PING_SLOT;
 
                 RegionRxConfig( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &pingSlotRxConfig, ( int8_t* )&Ctx.LoRaMacClassBParams.McpsIndication->RxDatarate );
 
@@ -1034,9 +1034,9 @@ static void LoRaMacClassBProcessMulticastSlot( void )
             for( uint8_t i = 0; i < 4; i++ )
             {
                 ComputePingOffset( Ctx.NvmCtx->BeaconCtx.BeaconTime,
-                                                cur->Address,
-                                                cur->PingPeriod,
-                                                &( cur->PingOffset ) );
+                                   cur->ChannelParams.Address,
+                                   cur->PingPeriod,
+                                   &( cur->PingOffset ) );
                 cur++;
             }
             Ctx.NvmCtx->MulticastSlotState = PINGSLOT_STATE_SET_TIMER;
@@ -1101,23 +1101,23 @@ static void LoRaMacClassBProcessMulticastSlot( void )
             }
 
             // Apply frequency
-            frequency = Ctx.NvmCtx->PingSlotCtx.NextMulticastChannel->Frequency;
+            frequency = Ctx.NvmCtx->PingSlotCtx.NextMulticastChannel->ChannelParams.RxParams.ClassB.Frequency;
 
             // Restore the floor plan frequency if there is no individual frequency assigned
             if( frequency == 0 )
             {
                 // Restore floor plan
-                frequency = CalcDownlinkChannelAndFrequency( Ctx.NvmCtx->PingSlotCtx.NextMulticastChannel->Address, Ctx.NvmCtx->BeaconCtx.BeaconTime, CLASSB_BEACON_INTERVAL );
+                frequency = CalcDownlinkChannelAndFrequency( Ctx.NvmCtx->PingSlotCtx.NextMulticastChannel->ChannelParams.Address, Ctx.NvmCtx->BeaconCtx.BeaconTime, CLASSB_BEACON_INTERVAL );
             }
 
             Ctx.NvmCtx->MulticastSlotState = PINGSLOT_STATE_RX;
 
-            multicastSlotRxConfig.Datarate = Ctx.NvmCtx->PingSlotCtx.NextMulticastChannel->Datarate;
+            multicastSlotRxConfig.Datarate = Ctx.NvmCtx->PingSlotCtx.NextMulticastChannel->ChannelParams.RxParams.ClassB.Datarate;
             multicastSlotRxConfig.DownlinkDwellTime = Ctx.LoRaMacClassBParams.LoRaMacParams->DownlinkDwellTime;
             multicastSlotRxConfig.RepeaterSupport = Ctx.LoRaMacClassBParams.LoRaMacParams->RepeaterSupport;
             multicastSlotRxConfig.Frequency = frequency;
             multicastSlotRxConfig.RxContinuous = false;
-            multicastSlotRxConfig.RxSlot = RX_SLOT_WIN_MULTICAST_SLOT;
+            multicastSlotRxConfig.RxSlot = RX_SLOT_WIN_CLASS_B_MULTICAST_SLOT;
 
             RegionRxConfig( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &multicastSlotRxConfig, ( int8_t* )&Ctx.LoRaMacClassBParams.McpsIndication->RxDatarate );
 
@@ -1657,7 +1657,7 @@ void LoRaMacClassBSetMulticastPeriodicity( MulticastCtx_t* multicastChannel )
 #ifdef LORAMAC_CLASSB_ENABLED
     if( multicastChannel != NULL )
     {
-        multicastChannel->PingNb = CalcPingNb( multicastChannel->Periodicity );
+        multicastChannel->PingNb = CalcPingNb( multicastChannel->ChannelParams.RxParams.ClassB.Periodicity );
         multicastChannel->PingPeriod = CalcPingPeriod( multicastChannel->PingNb );
     }
 #endif // LORAMAC_CLASSB_ENABLED
