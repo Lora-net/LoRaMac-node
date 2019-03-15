@@ -324,7 +324,7 @@ static LoRaMacCryptoStatus_t FOptsEncrypt( uint16_t size, uint32_t address, uint
 
     aBlock[0] = 0x01;
 
-    if( CryptoCtx.LrWanVersion.Value > 0x01010000 )
+    if( CryptoCtx.NvmCtx->LrWanVersion.Value > 0x01010000 )
     {
         // Introduced in LoRaWAN 1.1.1 specification
         switch( fCntID )
@@ -361,7 +361,7 @@ static LoRaMacCryptoStatus_t FOptsEncrypt( uint16_t size, uint32_t address, uint
     aBlock[12] = ( frameCounter >> 16 ) & 0xFF;
     aBlock[13] = ( frameCounter >> 24 ) & 0xFF;
 
-    if( CryptoCtx.LrWanVersion.Value > 0x01010000 )
+    if( CryptoCtx.NvmCtx->LrWanVersion.Value > 0x01010000 )
     {
         // Introduced in LoRaWAN 1.1.1 specification
         aBlock[15] = 0x01;
@@ -1241,7 +1241,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
 
     // Derive session keys
 #if( USE_LRWAN_1_1_X_CRYPTO == 1 )
-    if( CryptoCtx.LrWanVersion.Fields.Minor == 1 )
+    if( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor == 1 )
     {
         // Derive lifetime keys
         retval = LoRaMacCryptoDeriveMcRootKey( APP_KEY );
@@ -1363,7 +1363,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSecureMessage( uint32_t fCntUp, uint8_t txDr,
         }
 
 #if( USE_LRWAN_1_1_X_CRYPTO == 1 )
-        if( CryptoCtx.LrWanVersion.Fields.Minor == 1 )
+        if( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor == 1 )
         {
             // Encrypt FOpts
             retval = FOptsEncrypt( macMsg->FHDR.FCtrl.Bits.FOptsLen, macMsg->FHDR.DevAddr, UPLINK, FCNT_UP,  fCntUp, macMsg->FHDR.FOpts );
@@ -1385,7 +1385,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSecureMessage( uint32_t fCntUp, uint8_t txDr,
 
     // Compute mic
 #if( USE_LRWAN_1_1_X_CRYPTO == 1 )
-    if( CryptoCtx.LrWanVersion.Fields.Minor == 1 )
+    if( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor == 1 )
     {
         uint32_t cmacS = 0;
         uint32_t cmacF = 0;
@@ -1493,7 +1493,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
     }
 
 #if( USE_LRWAN_1_1_X_CRYPTO == 1 )
-    if( CryptoCtx.LrWanVersion.Fields.Minor == 1 )
+    if( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor == 1 )
     {
         // Decrypt FOpts
         retval = FOptsEncrypt( macMsg->FHDR.FCtrl.Bits.FOptsLen, address, DOWNLINK, fCntID, fCntDown, macMsg->FHDR.FOpts );
@@ -1512,18 +1512,18 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
 LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcRootKey( KeyIdentifier_t keyID )
 {
     // Prevent other keys than GenAppKey for LoRaWAN 1.0.x or AppKey for LoRaWAN 1.1 or later
-    if( ( ( keyID == APP_KEY ) && ( CryptoCtx.LrWanVersion.Fields.Minor == 0 ) ) ||
-        ( ( keyID == GEN_APP_KEY ) && ( CryptoCtx.LrWanVersion.Fields.Minor == 1 ) ) )
+    if( ( ( keyID == APP_KEY ) && ( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor == 0 ) ) ||
+        ( ( keyID == GEN_APP_KEY ) && ( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor == 1 ) ) )
     {
         return LORAMAC_CRYPTO_ERROR_INVALID_KEY_ID;
     }
     uint8_t compBase[16] = { 0 };
 
-    if( CryptoCtx.LrWanVersion.Fields.Minor == 1 )
+    if( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor == 1 )
     {
         compBase[0] = 0x20;
     }
-    if( SecureElementDeriveAndStoreKey( CryptoCtx.LrWanVersion, compBase, keyID, MC_ROOT_KEY ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementDeriveAndStoreKey( CryptoCtx.NvmCtx->LrWanVersion, compBase, keyID, MC_ROOT_KEY ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
