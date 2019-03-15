@@ -19,6 +19,7 @@ It allows to build the project either by using a command line terminal or by usi
 * GNU ARM-Toolchain
   * GNU/Linux:
     * Ubuntu 16.04/ Linux Mint 18: Since the official repository version is too old, one can use e.g. [PPA](https://launchpad.net/~team-gcc-arm-embedded/+archive/ubuntu/ppa)
+    * Ubuntu 18.04: the toolchain has been updated but there is a bug with [`libnewlib`](https://github.com/bbcmicrobit/micropython/issues/514#issuecomment-404759614) causing the linker to fail. `sudo apt install gcc-arm-none-eabi`
     * Linux Arch: `pacman -S arm-none-eabi-gcc arm-none-eabi-newlib`
   * Windows:
     * [GNU Arm Embedded Toolchain](https://developer.arm.com/open-source/gnu-toolchain/gnu-rm)
