@@ -485,7 +485,6 @@ LmHandlerErrorStatus_t LmHandlerSend( LmHandlerAppData_t *appData, LmHandlerMsgT
         else
         {
             mcpsReq.Type = MCPS_CONFIRMED;
-            mcpsReq.Req.Confirmed.NbTrials = 8;
         }
     }
 
