@@ -117,6 +117,11 @@
 typedef struct sLoRaMacCryptoNvmCtx
 {
     /*
+     * Stores the information if the device is connected to a LoRaWAN network
+     * server with prior to 1.1.0 implementation.
+     */
+    Version_t LrWanVersion;
+    /*
      * Device nonce is a counter starting at 0 when the device is initially
      * powered up and incremented with every JoinRequest.
      */
@@ -174,11 +179,6 @@ typedef struct sLoRaMacCryptoNvmCtx
  */
 typedef struct sLoRaMacCryptoCtx
 {
-    /*
-     * Stores the information if the device is connected to a LoRaWAN network
-     * server with prior to 1.1.0 implementation.
-     */
-    Version_t LrWanVersion;
     /*
      * RJcount0 is a counter incremented with every Type 0 or 2 Rejoin frame transmitted.
      */
@@ -687,7 +687,7 @@ static LoRaMacCryptoStatus_t DeriveSessionKey10x( KeyIdentifier_t keyID, uint8_t
     memcpy1( compBase + 4, netID, 3 );
     memcpy1( compBase + 7, devNonce, 2 );
 
-    if( SecureElementDeriveAndStoreKey( CryptoCtx.LrWanVersion, compBase, NWK_KEY, keyID ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementDeriveAndStoreKey( CryptoCtx.NvmCtx->LrWanVersion, compBase, NWK_KEY, keyID ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
@@ -738,7 +738,7 @@ static LoRaMacCryptoStatus_t DeriveSessionKey11x( KeyIdentifier_t keyID, uint8_t
     memcpyr( compBase + 4, joinEUI, 8 );
     memcpy1( compBase + 12, devNonce, 2 );
 
-    if( SecureElementDeriveAndStoreKey( CryptoCtx.LrWanVersion, compBase, rootKeyId, keyID ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementDeriveAndStoreKey( CryptoCtx.NvmCtx->LrWanVersion, compBase, rootKeyId, keyID ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
@@ -776,7 +776,7 @@ static LoRaMacCryptoStatus_t DeriveLifeTimeSessionKey( KeyIdentifier_t keyID, ui
 
     memcpyr( compBase + 1, devEUI, 8 );
 
-    if( SecureElementDeriveAndStoreKey( CryptoCtx.LrWanVersion, compBase, NWK_KEY, keyID ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementDeriveAndStoreKey( CryptoCtx.NvmCtx->LrWanVersion, compBase, NWK_KEY, keyID ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
@@ -912,10 +912,10 @@ static void DummyCB( void )
 LoRaMacCryptoStatus_t LoRaMacCryptoInit( LoRaMacCryptoNvmEvent cryptoNvmCtxChanged )
 {
     // Initialize volatile variables
-    CryptoCtx.LrWanVersion.Fields.Major = 1;
-    CryptoCtx.LrWanVersion.Fields.Minor = 1;
-    CryptoCtx.LrWanVersion.Fields.Revision = 0;
-    CryptoCtx.LrWanVersion.Fields.Rfu = 0;
+    CryptoCtx.NvmCtx->LrWanVersion.Fields.Major = 1;
+    CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor = 1;
+    CryptoCtx.NvmCtx->LrWanVersion.Fields.Revision = 0;
+    CryptoCtx.NvmCtx->LrWanVersion.Fields.Rfu = 0;
     CryptoCtx.RJcount0 = 0;
 
     // Assign non volatile context
@@ -950,7 +950,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoInit( LoRaMacCryptoNvmEvent cryptoNvmCtxChang
 
 LoRaMacCryptoStatus_t LoRaMacCryptoSetLrWanVersion( Version_t version )
 {
-    CryptoCtx.LrWanVersion = version;
+    CryptoCtx.NvmCtx->LrWanVersion = version;
     return LORAMAC_CRYPTO_SUCCESS;
 }
 
@@ -1181,17 +1181,17 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
     // Is it a LoRaWAN 1.1.0 or later ?
     if( macMsg->DLSettings.Bits.OptNeg == 1 )
     {
-        CryptoCtx.LrWanVersion.Fields.Minor = 1;
+        CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor = 1;
         micComputationKeyID = J_S_INT_KEY;
     }
     else
     {
-        CryptoCtx.LrWanVersion.Fields.Minor = 0;
+        CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor = 0;
         micComputationKeyID = NWK_KEY;
     }
 
     // Verify mic
-    if( CryptoCtx.LrWanVersion.Fields.Minor == 0 )
+    if( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor == 0 )
     {
         // For legacy mode :
         //   cmac = aes128_cmac(NwkKey, MHDR |  JoinNonce | NetID | DevAddr | DLSettings | RxDelay | CFList | CFListType)
@@ -1467,7 +1467,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
 
     // Compute mic
     bool isAck = macMsg->FHDR.FCtrl.Bits.Ack;
-    if( CryptoCtx.LrWanVersion.Fields.Minor == 0 )
+    if( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor == 0 )
     {
         // In legacy mode the IsAck parameter is forced to be false since the ConfFCnt field is not used.
         isAck = false;
@@ -1540,7 +1540,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcKEKey( KeyIdentifier_t keyID )
     }
     uint8_t compBase[16] = { 0 };
 
-    if( SecureElementDeriveAndStoreKey( CryptoCtx.LrWanVersion, compBase, keyID, MC_KE_KEY ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementDeriveAndStoreKey( CryptoCtx.NvmCtx->LrWanVersion, compBase, keyID, MC_KE_KEY ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
@@ -1583,12 +1583,12 @@ LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcSessionKeyPair( AddressIdentifier_t a
     compBaseNwkS[3] = ( mcAddr >> 16 ) & 0xFF;
     compBaseNwkS[4] = ( mcAddr >> 24 ) & 0xFF;
 
-    if( SecureElementDeriveAndStoreKey( CryptoCtx.LrWanVersion, compBaseAppS, curItem->RootKey, curItem->AppSkey ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementDeriveAndStoreKey( CryptoCtx.NvmCtx->LrWanVersion, compBaseAppS, curItem->RootKey, curItem->AppSkey ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
 
-    if( SecureElementDeriveAndStoreKey( CryptoCtx.LrWanVersion, compBaseNwkS, curItem->RootKey, curItem->NwkSkey ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementDeriveAndStoreKey( CryptoCtx.NvmCtx->LrWanVersion, compBaseNwkS, curItem->RootKey, curItem->NwkSkey ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
