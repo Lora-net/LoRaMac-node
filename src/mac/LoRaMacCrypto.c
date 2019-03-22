@@ -911,13 +911,6 @@ static void DummyCB( void )
 
 LoRaMacCryptoStatus_t LoRaMacCryptoInit( LoRaMacCryptoNvmEvent cryptoNvmCtxChanged )
 {
-    // Initialize volatile variables
-    CryptoCtx.NvmCtx->LrWanVersion.Fields.Major = 1;
-    CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor = 1;
-    CryptoCtx.NvmCtx->LrWanVersion.Fields.Revision = 0;
-    CryptoCtx.NvmCtx->LrWanVersion.Fields.Rfu = 0;
-    CryptoCtx.RJcount0 = 0;
-
     // Assign non volatile context
     CryptoCtx.NvmCtx = &NvmCryptoCtx;
 
@@ -933,6 +926,12 @@ LoRaMacCryptoStatus_t LoRaMacCryptoInit( LoRaMacCryptoNvmEvent cryptoNvmCtxChang
 
     // Initialize with default
     memset1( (uint8_t*) CryptoCtx.NvmCtx, 0, sizeof( LoRaMacCryptoNvmCtx_t ) );
+
+    // Set default LoRaWAN version
+    CryptoCtx.NvmCtx->LrWanVersion.Fields.Major = 1;
+    CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor = 1;
+    CryptoCtx.NvmCtx->LrWanVersion.Fields.Revision = 0;
+    CryptoCtx.NvmCtx->LrWanVersion.Fields.Rfu = 0;
 
     // Reset frame counters
     CryptoCtx.RJcount0 = 0;
@@ -1217,7 +1216,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
 
         procBuffer[bufItr++] = macMsg->MHDR.Value;
 
-        if( SecureElementVerifyAesCmac( macMsg->Buffer,  ( macMsg->BufSize + micComputationOffset - LORAMAC_MHDR_FIELD_SIZE - LORAMAC_MIC_FIELD_SIZE ), macMsg->MIC, micComputationKeyID ) != SECURE_ELEMENT_SUCCESS )
+        if( SecureElementVerifyAesCmac( procBuffer,  ( macMsg->BufSize + micComputationOffset - LORAMAC_MHDR_FIELD_SIZE - LORAMAC_MIC_FIELD_SIZE ), macMsg->MIC, micComputationKeyID ) != SECURE_ELEMENT_SUCCESS )
         {
             return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
         }
