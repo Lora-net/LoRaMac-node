@@ -525,7 +525,7 @@ uint32_t RtcGetCalendarTime( uint16_t *milliseconds )
 
     uint64_t calendarValue = RtcGetCalendarValue( &date, &time );
 
-    uint32_t seconds = ( uint32_t )calendarValue >> N_PREDIV_S;
+    uint32_t seconds = ( uint32_t )( calendarValue >> N_PREDIV_S );
 
     ticks =  ( uint32_t )calendarValue & PREDIV_S;
 
