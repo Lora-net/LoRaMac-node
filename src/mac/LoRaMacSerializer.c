@@ -107,7 +107,7 @@ LoRaMacSerializerStatus_t LoRaMacSerializerReJoinType0or2( LoRaMacMessageReJoinT
 
     macMsg->Buffer[bufItr++] = macMsg->ReJoinType;
 
-    memcpyr( &macMsg->Buffer[bufItr], macMsg->NetID, LORAMAC_NET_ID_FIELD_SIZE );
+    memcpy1( &macMsg->Buffer[bufItr], macMsg->NetID, LORAMAC_NET_ID_FIELD_SIZE );
     bufItr += LORAMAC_NET_ID_FIELD_SIZE;
 
     memcpyr( &macMsg->Buffer[bufItr], macMsg->DevEUI, LORAMAC_DEV_EUI_FIELD_SIZE );
