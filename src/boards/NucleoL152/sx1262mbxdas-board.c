@@ -127,14 +127,16 @@ void SX126xWriteCommand( RadioCommands_t command, uint8_t *buffer, uint16_t size
     }
 }
 
-void SX126xReadCommand( RadioCommands_t command, uint8_t *buffer, uint16_t size )
+uint8_t SX126xReadCommand( RadioCommands_t command, uint8_t *buffer, uint16_t size )
 {
+    uint8_t status = 0;
+
     SX126xCheckDeviceReady( );
 
     GpioWrite( &SX126x.Spi.Nss, 0 );
 
     SpiInOut( &SX126x.Spi, ( uint8_t )command );
-    SpiInOut( &SX126x.Spi, 0x00 );
+    status = SpiInOut( &SX126x.Spi, 0x00 );
     for( uint16_t i = 0; i < size; i++ )
     {
         buffer[i] = SpiInOut( &SX126x.Spi, 0 );
@@ -143,6 +145,8 @@ void SX126xReadCommand( RadioCommands_t command, uint8_t *buffer, uint16_t size 
     GpioWrite( &SX126x.Spi.Nss, 1 );
 
     SX126xWaitOnBusy( );
+
+    return status;
 }
 
 void SX126xWriteRegisters( uint16_t address, uint8_t *buffer, uint16_t size )

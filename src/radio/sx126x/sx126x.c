@@ -655,7 +655,7 @@ RadioStatus_t SX126xGetStatus( void )
     uint8_t stat = 0;
     RadioStatus_t status;
 
-    SX126xReadCommand( RADIO_GET_STATUS, ( uint8_t * )&stat, 1 );
+    stat = SX126xReadCommand( RADIO_GET_STATUS, NULL, 0 );
     status.Value = stat;
     return status;
 }

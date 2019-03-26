@@ -76,8 +76,10 @@ void SX126xWriteCommand( RadioCommands_t opcode, uint8_t *buffer, uint16_t size 
  * \param [in]  opcode        Opcode of the command
  * \param [out] buffer        Buffer holding data from the radio
  * \param [in]  size          Size of the buffer
+ *
+ * \retval status Return command radio status
  */
-void SX126xReadCommand( RadioCommands_t opcode, uint8_t *buffer, uint16_t size );
+uint8_t SX126xReadCommand( RadioCommands_t opcode, uint8_t *buffer, uint16_t size );
 
 /*!
  * \brief Write a single byte of data to the radio memory
