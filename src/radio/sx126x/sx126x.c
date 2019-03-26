@@ -48,6 +48,11 @@ static RadioOperatingModes_t OperatingMode;
 static RadioPacketTypes_t PacketType;
 
 /*!
+ * \brief Stores the current packet header type set in the radio
+ */
+static volatile RadioLoRaPacketLengthsMode_t LoRaHeaderType;
+
+/*!
  * \brief Stores the last frequency error measured on LoRa received packet
  */
 volatile uint32_t FrequencyError = 0;
@@ -609,7 +614,7 @@ void SX126xSetPacketParams( PacketParams_t *packetParams )
         n = 6;
         buf[0] = ( packetParams->Params.LoRa.PreambleLength >> 8 ) & 0xFF;
         buf[1] = packetParams->Params.LoRa.PreambleLength;
-        buf[2] = packetParams->Params.LoRa.HeaderType;
+        buf[2] = LoRaHeaderType = packetParams->Params.LoRa.HeaderType;
         buf[3] = packetParams->Params.LoRa.PayloadLength;
         buf[4] = packetParams->Params.LoRa.CrcMode;
         buf[5] = packetParams->Params.LoRa.InvertIQ;
@@ -673,7 +678,7 @@ void SX126xGetRxBufferStatus( uint8_t *payloadLength, uint8_t *rxStartBufferPoin
 
     // In case of LORA fixed header, the payloadLength is obtained by reading
     // the register REG_LR_PAYLOADLENGTH
-    if( ( SX126xGetPacketType( ) == PACKET_TYPE_LORA ) && ( SX126xReadRegister( REG_LR_PACKETPARAMS ) >> 7 == 1 ) )
+    if( ( SX126xGetPacketType( ) == PACKET_TYPE_LORA ) && ( LoRaHeaderType == LORA_PACKET_FIXED_LENGTH ) )
     {
         *payloadLength = SX126xReadRegister( REG_LR_PAYLOADLENGTH );
     }
