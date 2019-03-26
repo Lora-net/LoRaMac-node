@@ -250,7 +250,10 @@ void SX126xSetSleep( SleepParams_t sleepConfig )
 {
     SX126xAntSwOff( );
 
-    SX126xWriteCommand( RADIO_SET_SLEEP, &sleepConfig.Value, 1 );
+    uint8_t value = ( ( ( uint8_t )sleepConfig.Fields.WarmStart << 2 ) |
+                      ( ( uint8_t )sleepConfig.Fields.Reset << 1 ) |
+                      ( ( uint8_t )sleepConfig.Fields.WakeUpRTC ) );
+    SX126xWriteCommand( RADIO_SET_SLEEP, &value, 1 );
     SX126xSetOperatingMode( MODE_SLEEP );
 }
 
@@ -358,7 +361,15 @@ void SX126xSetRegulatorMode( RadioRegulatorMode_t mode )
 
 void SX126xCalibrate( CalibrationParams_t calibParam )
 {
-    SX126xWriteCommand( RADIO_CALIBRATE, ( uint8_t* )&calibParam, 1 );
+    uint8_t value = ( ( ( uint8_t )calibParam.Fields.ImgEnable << 6 ) |
+                      ( ( uint8_t )calibParam.Fields.ADCBulkPEnable << 5 ) |
+                      ( ( uint8_t )calibParam.Fields.ADCBulkNEnable << 4 ) |
+                      ( ( uint8_t )calibParam.Fields.ADCPulseEnable << 3 ) |
+                      ( ( uint8_t )calibParam.Fields.PLLEnable << 2 ) |
+                      ( ( uint8_t )calibParam.Fields.RC13MEnable << 1 ) |
+                      ( ( uint8_t )calibParam.Fields.RC64KEnable ) );
+
+    SX126xWriteCommand( RADIO_CALIBRATE, &value, 1 );
 }
 
 void SX126xCalibrateImage( uint32_t freq )
@@ -653,10 +664,11 @@ void SX126xSetBufferBaseAddress( uint8_t txBaseAddress, uint8_t rxBaseAddress )
 RadioStatus_t SX126xGetStatus( void )
 {
     uint8_t stat = 0;
-    RadioStatus_t status;
+    RadioStatus_t status = { .Value = 0 };
 
     stat = SX126xReadCommand( RADIO_GET_STATUS, NULL, 0 );
-    status.Value = stat;
+    status.Fields.CmdStatus = ( stat & 0x0E ) >> 1;
+    status.Fields.ChipMode = ( stat & 0x70 ) >> 4;
     return status;
 }
 
@@ -725,9 +737,18 @@ void SX126xGetPacketStatus( PacketStatus_t *pktStatus )
 
 RadioError_t SX126xGetDeviceErrors( void )
 {
-    RadioError_t error;
+    uint16_t err[] = { 0, 0 };
+    RadioError_t error = { .Value = 0 };
 
-    SX126xReadCommand( RADIO_GET_ERROR, ( uint8_t * )&error, 2 );
+    SX126xReadCommand( RADIO_GET_ERROR, ( uint8_t* )err, 2 );
+    error.Fields.PaRamp     = ( err[0] & 0x01 );
+    error.Fields.PllLock    = ( err[1] & 0x40 ) >> 6;
+    error.Fields.XoscStart  = ( err[1] & 0x20 ) >> 5;
+    error.Fields.ImgCalib   = ( err[1] & 0x10 ) >> 4;
+    error.Fields.AdcCalib   = ( err[1] & 0x08 ) >> 3;
+    error.Fields.PllCalib   = ( err[1] & 0x04 ) >> 2;
+    error.Fields.Rc13mCalib = ( err[1] & 0x02 ) >> 1;
+    error.Fields.Rc64kCalib = ( err[1] & 0x01 );
     return error;
 }
 
