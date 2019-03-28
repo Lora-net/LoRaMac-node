@@ -667,8 +667,8 @@ RadioStatus_t SX126xGetStatus( void )
     RadioStatus_t status = { .Value = 0 };
 
     stat = SX126xReadCommand( RADIO_GET_STATUS, NULL, 0 );
-    status.Fields.CmdStatus = ( stat & 0x0E ) >> 1;
-    status.Fields.ChipMode = ( stat & 0x70 ) >> 4;
+    status.Fields.CmdStatus = ( stat & ( 0x07 << 1 ) ) >> 1;
+    status.Fields.ChipMode = ( stat & ( 0x07 << 4 ) ) >> 4;
     return status;
 }
 
@@ -737,17 +737,17 @@ void SX126xGetPacketStatus( PacketStatus_t *pktStatus )
 
 RadioError_t SX126xGetDeviceErrors( void )
 {
-    uint16_t err[] = { 0, 0 };
+    uint8_t err[] = { 0, 0 };
     RadioError_t error = { .Value = 0 };
 
     SX126xReadCommand( RADIO_GET_ERROR, ( uint8_t* )err, 2 );
     error.Fields.PaRamp     = ( err[0] & 0x01 );
-    error.Fields.PllLock    = ( err[1] & 0x40 ) >> 6;
-    error.Fields.XoscStart  = ( err[1] & 0x20 ) >> 5;
-    error.Fields.ImgCalib   = ( err[1] & 0x10 ) >> 4;
-    error.Fields.AdcCalib   = ( err[1] & 0x08 ) >> 3;
-    error.Fields.PllCalib   = ( err[1] & 0x04 ) >> 2;
-    error.Fields.Rc13mCalib = ( err[1] & 0x02 ) >> 1;
+    error.Fields.PllLock    = ( err[1] & ( 1 << 6 ) ) >> 6;
+    error.Fields.XoscStart  = ( err[1] & ( 1 << 5 ) ) >> 5;
+    error.Fields.ImgCalib   = ( err[1] & ( 1 << 4 ) ) >> 4;
+    error.Fields.AdcCalib   = ( err[1] & ( 1 << 3 ) ) >> 3;
+    error.Fields.PllCalib   = ( err[1] & ( 1 << 2 ) ) >> 2;
+    error.Fields.Rc13mCalib = ( err[1] & ( 1 << 1 ) ) >> 1;
     error.Fields.Rc64kCalib = ( err[1] & 0x01 );
     return error;
 }
