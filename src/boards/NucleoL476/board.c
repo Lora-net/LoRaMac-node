@@ -65,6 +65,11 @@ Uart_t Uart2;
 static void BoardUnusedIoInit( void );
 
 /*!
+ * Initializes FLASH memory operations for EEPROM_Emul package
+ */
+static void InitFlashMemoryOperations( void );
+
+/*!
  * System Clock Configuration
  */
 static void SystemClockConfig( void );
@@ -139,6 +144,8 @@ void BoardInitMcu( void )
     {
         HAL_Init( );
 
+        InitFlashMemoryOperations( );
+
         // LEDs
         GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
         GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
@@ -194,7 +201,6 @@ void BoardResetMcu( void )
 
     //Restart system
     NVIC_SystemReset( );
-
 }
 
 void BoardDeInitMcu( void )
@@ -317,6 +323,79 @@ void CalibrateSystemWakeupTime( void )
     }
 }
 
+/*!
+ * \brief  Programmable Voltage Detector (PVD) Configuration
+ *         PVD set to level 6 for a threshold around 2.9V.
+ * \param  None
+ * \retval None
+ */
+static void PVD_Config( void )
+{
+    PWR_PVDTypeDef sConfigPVD;
+    sConfigPVD.PVDLevel = PWR_PVDLEVEL_6;
+    sConfigPVD.Mode     = PWR_PVD_MODE_IT_RISING;
+    if( HAL_PWR_ConfigPVD( &sConfigPVD ) != HAL_OK )
+    { 
+        assert_param( FAIL );
+    }
+
+    // Enable PVD
+    HAL_PWR_EnablePVD( );
+
+    // Enable and set PVD Interrupt priority
+    HAL_NVIC_SetPriority( PVD_PVM_IRQn, 0, 0 );
+    HAL_NVIC_EnableIRQ( PVD_PVM_IRQn );
+}
+
+/*!
+ * \brief Initializes the EEPROM emulation module.
+ *
+ * \remark This function is defined in eeprom-board.c file
+ */
+void EepromMcuInit( void );
+
+static void InitFlashMemoryOperations( void )
+{
+    // Enable and set FLASH Interrupt priority
+    // FLASH interrupt is used for the purpose of pages clean up under interrupt
+    HAL_NVIC_SetPriority( FLASH_IRQn, 0, 0 );
+    HAL_NVIC_EnableIRQ( FLASH_IRQn );
+
+    // Unlock the Flash Program Erase controller
+    HAL_FLASH_Unlock( );
+
+#if defined (STM32L4R5xx) || defined (STM32L4R7xx) || defined (STM32L4R9xx) || defined (STM32L4S5xx) || defined (STM32L4S7xx) || defined (STM32L4S9xx)
+    // Clear OPTVERR bit and PEMPTY flag if set
+    if( __HAL_FLASH_GET_FLAG( FLASH_FLAG_OPTVERR ) != RESET )
+    {
+        __HAL_FLASH_CLEAR_FLAG( FLASH_FLAG_OPTVERR );
+    }
+
+    if( __HAL_FLASH_GET_FLAG( FLASH_FLAG_PEMPTY ) != RESET )
+    {
+        __HAL_FLASH_CLEAR_FLAG( FLASH_FLAG_PEMPTY );
+    }
+#endif /* defined (STM32L4R5xx) || defined (STM32L4R7xx) || defined (STM32L4R9xx) || defined (STM32L4S5xx) || defined (STM32L4S7xx) || defined (STM32L4S9xx) */
+
+    // Enable Power Control clock
+    __HAL_RCC_PWR_CLK_ENABLE();
+#if defined (USE_STM32L4XX_NUCLEO_144)
+    HAL_PWR_DisableWakeUpPin( PWR_WAKEUP_PIN2 );
+#endif /* defined (USE_STM32L4XX_NUCLEO_144) */
+
+    // Configure Programmable Voltage Detector (PVD) (optional)
+    // PVD interrupt is used to suspend the current application flow in case
+    // a power-down is detected, allowing the flash interface to finish any
+    // ongoing operation before a reset is triggered.
+    PVD_Config( );
+
+    // Initialize the EEPROM emulation driver
+    EepromMcuInit( );
+
+    // Lock the Flash Program Erase controller
+    HAL_FLASH_Lock( );
+}
+
 void SystemClockReConfig( void )
 {
       RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
@@ -422,8 +501,20 @@ void LpmEnterSleepMode( void)
     HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 }
 
+/*!
+ * \brief Indicates if an erasing operation is on going.
+ *
+ * \remark This function is defined in eeprom-board.c file
+ *
+ * \retval isEradingOnGoing Returns true is an erasing operation is on going.
+ */
+bool EepromMcuIsErasingOnGoing( void );
+
 void BoardLowPowerHandler( void )
 {
+    // Wait for any cleanup to complete before entering standby/shutdown mode
+    while( EepromMcuIsErasingOnGoing( ) == true ){ }
+
     __disable_irq( );
     /*!
      * If an interrupt has occurred after __disable_irq( ), it is kept pending 
