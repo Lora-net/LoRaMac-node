@@ -32,7 +32,7 @@ list(APPEND ${PROJECT_NAME}_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/rtc-board.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/spi-board.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/uart-board.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/stm32/sysIrqHandlers.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/sysIrqHandlers.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/utilities.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/cmsis/arm-gcc/startup_stm32l476xx.s"
     "${CMAKE_CURRENT_SOURCE_DIR}/cmsis/system_stm32l4xx.c"
@@ -56,6 +56,8 @@ list(APPEND ${PROJECT_NAME}_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/stm32/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_spi.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/stm32/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/stm32/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_uart_ex.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/stm32/EEPROM_Emul/Core/eeprom_emul.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/stm32/EEPROM_Emul/Porting/STM32L4/flash_interface.c"
 )
 
 if(MBED_RADIO_SHIELD STREQUAL SX1272MB2DAS)
@@ -90,6 +92,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/../mcu/stm32
     ${CMAKE_CURRENT_SOURCE_DIR}/../mcu/stm32/cmsis
     ${CMAKE_CURRENT_SOURCE_DIR}/../mcu/stm32/STM32L4xx_HAL_Driver/Inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/../mcu/stm32/EEPROM_Emul/Core
+    ${CMAKE_CURRENT_SOURCE_DIR}/../mcu/stm32/EEPROM_Emul/Porting/STM32L4
     $<TARGET_PROPERTY:board,INTERFACE_INCLUDE_DIRECTORIES>
     $<TARGET_PROPERTY:system,INTERFACE_INCLUDE_DIRECTORIES>
     $<TARGET_PROPERTY:radio,INTERFACE_INCLUDE_DIRECTORIES>

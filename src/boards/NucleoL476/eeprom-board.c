@@ -2,10 +2,6 @@
  * \file      eeprom-board.c
  *
  * \brief     Target board EEPROM driver implementation
- * 
- * \remark    WARNING This driver shouldn't be used in production code.
- *                    Please prefer a driver such the one provided on
- *                    X_CUBE_EEPROM package.
  *
  * \copyright Revised BSD License, see section \ref LICENSE.
  *
@@ -24,81 +20,131 @@
  *
  * \author    Gregory Cristian ( Semtech )
  */
+#include <stdint.h>
+#include <stdbool.h>
 #include "stm32l4xx.h"
-#include "utilities.h"
+#include "eeprom_emul.h"
 #include "eeprom-board.h"
+#include "utilities.h"
 
-#define DATA_EEPROM_BASE    ( ( uint32_t )0x080F9800U )
-#define DATA_EEPROM_END     ( ( uint32_t )DATA_EEPROM_BASE + 2048 )
+uint16_t EepromVirtualAddress[NB_OF_VARIABLES];
+__IO uint32_t ErasingOnGoing = 0;
 
 /*!
- * \brief Erase a page of Flash. Here used to Erase EEPROM region.
- *
- * \param [in]  page          address of page to erase
- * \param [in]  banks         address of banks to erase
+ * \brief Initializes the EEPROM emulation module.
  */
-static void FlashPageErase( uint32_t page, uint32_t banks )
+void EepromMcuInit( void )
 {
-    // Check the parameters
-    assert_param( IS_FLASH_PAGE( page ) );
-    assert_param( IS_FLASH_BANK_EXCLUSIVE( banks ) );
+    EE_Status eeStatus = EE_OK;
 
-    if( ( banks & FLASH_BANK_1 ) != RESET )
+    // Unlock the Flash Program Erase controller
+    HAL_FLASH_Unlock( );
+
+    // Set user List of Virtual Address variables: 0x0000 and 0xFFFF values are prohibited
+    for( uint16_t varValue = 0; varValue < NB_OF_VARIABLES; varValue++ )
     {
-        CLEAR_BIT( FLASH->CR, FLASH_CR_BKER );
+        EepromVirtualAddress[varValue] = varValue + 1;
+    }
+
+    // Set EEPROM emulation firmware to erase all potentially incompletely erased
+    // pages if the system came from an asynchronous reset. Conditional erase is
+    // safe to use if all Flash operations where completed before the system reset
+    if( __HAL_PWR_GET_FLAG( PWR_FLAG_SB ) == RESET )
+    {
+        // System reset comes from a power-on reset: Forced Erase
+        // Initialize EEPROM emulation driver (mandatory)
+        eeStatus = EE_Init( EepromVirtualAddress, EE_FORCED_ERASE );
+        if( eeStatus != EE_OK )
+        {
+            assert_param( FAIL );
+        }
     }
     else
     {
-        SET_BIT( FLASH->CR, FLASH_CR_BKER );
+        // Clear the Standby flag
+        __HAL_PWR_CLEAR_FLAG( PWR_FLAG_SB );
+
+        // Check and Clear the Wakeup flag
+        if( __HAL_PWR_GET_FLAG( PWR_FLAG_WUF1 ) != RESET )
+        {
+            __HAL_PWR_CLEAR_FLAG( PWR_FLAG_WUF1 );
+        }
+
+        // System reset comes from a STANDBY wakeup: Conditional Erase
+        // Initialize EEPROM emulation driver (mandatory)
+        eeStatus = EE_Init( EepromVirtualAddress, EE_CONDITIONAL_ERASE );
+        if( eeStatus != EE_OK )
+        {
+            assert_param( FAIL );
+        }
     }
 
-    // Proceed to erase the page
-    MODIFY_REG( FLASH->CR, FLASH_CR_PNB, ( page << 3 ) );
-    SET_BIT( FLASH->CR, FLASH_CR_PER );
-    SET_BIT( FLASH->CR, FLASH_CR_STRT );
+    // Lock the Flash Program Erase controller
+    HAL_FLASH_Lock( );
+}
+
+/*!
+ * \brief Indicates if an erasing operation is on going.
+ *
+ * \retval isEradingOnGoing Returns true is an erasing operation is on going.
+ */
+bool EepromMcuIsErasingOnGoing( void )
+{
+    return ErasingOnGoing;
 }
 
 uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
 {
-    uint8_t status = FAIL;
-    uint64_t *flash = ( uint64_t* )buffer;
+    uint8_t status = SUCCESS;
+    EE_Status eeStatus = EE_OK;
+    
+    // Unlock the Flash Program Erase controller
+    HAL_FLASH_Unlock( );
 
-    assert_param( ( DATA_EEPROM_BASE + addr ) >= DATA_EEPROM_BASE );
-    assert_param( buffer != NULL );
-    assert_param( size < ( DATA_EEPROM_END - DATA_EEPROM_BASE ) );
-
-    if( HAL_FLASH_Unlock( ) == HAL_OK )
+    for( uint32_t i = 0; i < size; i++ )
     {
-        // Page size equal to 2048. Uses last page of flash bank 2
-        FlashPageErase( 255, FLASH_BANK_2 );
-
-        WRITE_REG( FLASH->CR, FLASH_CR_OPTLOCK_Msk );
-
-        for( uint16_t i = 0; i < size; i++ )
-        {
-            if( HAL_FLASH_Program( FLASH_TYPEPROGRAM_DOUBLEWORD,
-                                   ( DATA_EEPROM_BASE + addr + ( 8 * i ) ),
-                                   flash[i] ) != HAL_OK )
-            {
-                // Failed to write EEPROM
-                break;
-            }
-        }
-        status = SUCCESS;
+        eeStatus |= EE_WriteVariable8bits( EepromVirtualAddress[addr + i], buffer[i] );
     }
 
+    if( eeStatus != EE_OK )
+    {
+        status = FAIL;
+    }
+
+    if( ( eeStatus & EE_STATUSMASK_CLEANUP ) == EE_STATUSMASK_CLEANUP )
+    {
+        ErasingOnGoing = 0;
+        eeStatus |= EE_CleanUp( );
+    }
+    if( ( eeStatus & EE_STATUSMASK_ERROR ) == EE_STATUSMASK_ERROR )
+    {
+        status = FAIL;
+    }
+
+    // Lock the Flash Program Erase controller
     HAL_FLASH_Lock( );
     return status;
 }
 
 uint8_t EepromMcuReadBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
 {
-    assert_param( ( DATA_EEPROM_BASE + addr ) >= DATA_EEPROM_BASE );
-    assert_param( buffer != NULL );
-    assert_param( size < ( DATA_EEPROM_END - DATA_EEPROM_BASE ) );
+    uint8_t status = SUCCESS;
 
-    memcpy1( buffer, ( uint8_t* )( DATA_EEPROM_BASE + addr ), size );
-    return SUCCESS;
+    // Unlock the Flash Program Erase controller
+    HAL_FLASH_Unlock( );
+
+    for( uint32_t i = 0; i < size; i++ )
+    {
+        if( EE_ReadVariable8bits( EepromVirtualAddress[addr + i], buffer + i ) != EE_OK )
+        {
+            status = FAIL;
+            break;
+        }
+    }
+
+    // Lock the Flash Program Erase controller
+    HAL_FLASH_Lock( );
+    return status;
 }
 
 void EepromMcuSetDeviceAddr( uint8_t addr )
@@ -110,4 +156,32 @@ uint8_t EepromMcuGetDeviceAddr( void )
 {
     assert_param( FAIL );
     return 0;
+}
+
+/*!
+ * \brief  FLASH end of operation interrupt callback.
+ * \param  ReturnValue: The value saved in this parameter depends on the ongoing procedure
+ *                  Mass Erase: Bank number which has been requested to erase
+ *                  Page Erase: Page which has been erased
+ *                    (if 0xFFFFFFFF, it means that all the selected pages have been erased)
+ *                  Program: Address which was selected for data program
+ * \retval None
+ */
+void HAL_FLASH_EndOfOperationCallback( uint32_t ReturnValue )
+{
+    // Call CleanUp callback when all requested pages have been erased
+    if( ReturnValue == 0xFFFFFFFF )
+    {
+        EE_EndOfCleanup_UserCallback( );
+    }
+}
+
+/*!
+ * \brief  Clean Up end of operation interrupt callback.
+ * \param  None
+ * \retval None
+ */
+void EE_EndOfCleanup_UserCallback( void )
+{
+    ErasingOnGoing = 0;
 }

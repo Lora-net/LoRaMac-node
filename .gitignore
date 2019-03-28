@@ -23,5 +23,6 @@ tmp/
 *.cogui
 *.comarker
 .directory
-launch.json
+.vscode/launch.json
 .cmaketools.json
+ipch/
