@@ -741,14 +741,14 @@ RadioError_t SX126xGetDeviceErrors( void )
     RadioError_t error = { .Value = 0 };
 
     SX126xReadCommand( RADIO_GET_ERROR, ( uint8_t* )err, 2 );
-    error.Fields.PaRamp     = ( err[0] & 0x01 );
+    error.Fields.PaRamp     = ( err[0] & ( 1 << 0 ) ) >> 0;
     error.Fields.PllLock    = ( err[1] & ( 1 << 6 ) ) >> 6;
     error.Fields.XoscStart  = ( err[1] & ( 1 << 5 ) ) >> 5;
     error.Fields.ImgCalib   = ( err[1] & ( 1 << 4 ) ) >> 4;
     error.Fields.AdcCalib   = ( err[1] & ( 1 << 3 ) ) >> 3;
     error.Fields.PllCalib   = ( err[1] & ( 1 << 2 ) ) >> 2;
     error.Fields.Rc13mCalib = ( err[1] & ( 1 << 1 ) ) >> 1;
-    error.Fields.Rc64kCalib = ( err[1] & 0x01 );
+    error.Fields.Rc64kCalib = ( err[1] & ( 1 << 0 ) ) >> 0;
     return error;
 }
 
