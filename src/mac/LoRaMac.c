@@ -3480,7 +3480,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     Version_t lrWanVersion;
     lrWanVersion.Fields.Major    = 1;
     lrWanVersion.Fields.Minor    = 1;
-    lrWanVersion.Fields.Revision = 0;
+    lrWanVersion.Fields.Revision = 1;
     lrWanVersion.Fields.Rfu      = 0;
     MacCtx.NvmCtx->Version = lrWanVersion;
 
