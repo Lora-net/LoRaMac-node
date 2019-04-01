@@ -361,7 +361,7 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
             case FRAGMENTATION_DATA_FRAGMENT:
             {
                 uint8_t fragIndex = 0;
-                uint8_t fragCounter = 0;
+                uint16_t fragCounter = 0;
 
                 fragCounter = ( mcpsIndication->Buffer[cmdIndex++] << 0 ) & 0x00FF;
                 fragCounter |= ( mcpsIndication->Buffer[cmdIndex++] << 8 ) & 0xFF00;
