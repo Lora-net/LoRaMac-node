@@ -2971,7 +2971,7 @@ static bool StopRetransmission( void )
 
 static void AckTimeoutRetriesProcess( void )
 {
-    if( ( MacCtx.AckTimeoutRetriesCounter < MacCtx.AckTimeoutRetries ) && ( MacCtx.AckTimeoutRetriesCounter <= MAX_ACK_RETRIES ) )
+    if( MacCtx.AckTimeoutRetriesCounter < MacCtx.AckTimeoutRetries )
     {
         MacCtx.AckTimeoutRetriesCounter++;
         if( ( MacCtx.AckTimeoutRetriesCounter % 2 ) == 1 )
@@ -4399,7 +4399,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
         case MCPS_CONFIRMED:
         {
             readyToSend = true;
-            MacCtx.AckTimeoutRetries = mcpsRequest->Req.Confirmed.NbTrials;
+            MacCtx.AckTimeoutRetries = MIN( mcpsRequest->Req.Confirmed.NbTrials, MAX_ACK_RETRIES );
 
             macHdr.Bits.MType = FRAME_TYPE_DATA_CONFIRMED_UP;
             fPort = mcpsRequest->Req.Confirmed.fPort;
