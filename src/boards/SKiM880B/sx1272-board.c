@@ -125,12 +125,7 @@ void SX1272IoDeInit( void )
     GpioInit( &SX1272.DIO3, RADIO_DIO_3, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 }
 
-/*!
- * \brief Enables/disables the TCXO if available on board design.
- *
- * \param [IN] state TCXO enabled when true and disabled when false.
- */
-static void SX1272SetBoardTcxo( uint8_t state )
+void SX1272SetBoardTcxo( uint8_t state )
 {
     // No TCXO component available on this board design.
 #if 0
@@ -243,12 +238,10 @@ void SX1272SetAntSwLowPower( bool status )
 
         if( status == false )
         {
-            SX1272SetBoardTcxo( true );
             SX1272AntSwInit( );
         }
         else
         {
-            SX1272SetBoardTcxo( false );
             SX1272AntSwDeInit( );
         }
     }

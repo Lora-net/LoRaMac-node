@@ -121,6 +121,13 @@ void SX1272SetAntSw( uint8_t opMode );
 bool SX1272CheckRfFrequency( uint32_t frequency );
 
 /*!
+ * \brief Enables/disables the TCXO if available on board design.
+ *
+ * \param [IN] state TCXO enabled when true and disabled when false.
+ */
+void SX1272SetBoardTcxo( uint8_t state );
+
+/*!
  * \brief Gets the Defines the time required for the TCXO to wakeup [ms].
  *
  * \retval time Board TCXO wakeup time in ms.

@@ -207,12 +207,7 @@ void SX1276IoDeInit( void )
     gpio_set_pin_function( RADIO_DIO_5, PINMUX_PB15A_EIC_EXTINT15 );
 }
 
-/*!
- * \brief Enables/disables the TCXO if available on board design.
- *
- * \param [IN] state TCXO enabled when true and disabled when false.
- */
-static void SX1276SetBoardTcxo( uint8_t state )
+void SX1276SetBoardTcxo( uint8_t state )
 {
     // No TCXO component available on this board design.
 #if 0
@@ -331,15 +326,6 @@ void SX1276SetAntSwLowPower( bool status )
     if( RadioIsActive != status )
     {
         RadioIsActive = status;
-
-        if( status == false )
-        {
-            SX1276SetBoardTcxo( true );
-        }
-        else
-        {
-            SX1276SetBoardTcxo( false );
-        }
     }
 }
 

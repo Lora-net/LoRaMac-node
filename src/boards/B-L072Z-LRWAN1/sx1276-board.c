@@ -134,18 +134,16 @@ void SX1276IoDeInit( void )
     GpioInit( &SX1276.DIO5, RADIO_DIO_5, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 }
 
-/*!
- * \brief Enables/disables the TCXO if available on board design.
- *
- * \param [IN] state TCXO enabled when true and disabled when false.
- */
-static void SX1276SetBoardTcxo( uint8_t state )
+void SX1276SetBoardTcxo( uint8_t state )
 {
     if( state == true )
     {
-        // Power ON the TCXO
-        GpioWrite( &TcxoPower, 1 );
-        DelayMs( BOARD_TCXO_WAKEUP_TIME );
+        if( GpioRead( &TcxoPower ) == 0 )
+        { // TCXO OFF power it up.
+            // Power ON the TCXO
+            GpioWrite( &TcxoPower, 1 );
+            DelayMs( BOARD_TCXO_WAKEUP_TIME );
+        }
     }
     else
     {
@@ -265,12 +263,10 @@ void SX1276SetAntSwLowPower( bool status )
 
         if( status == false )
         {
-            SX1276SetBoardTcxo( true );
             SX1276AntSwInit( );
         }
         else
         {
-            SX1276SetBoardTcxo( false );
             SX1276AntSwDeInit( );
         }
     }
