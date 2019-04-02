@@ -747,6 +747,10 @@ void SX1272SetSleep( void )
     TimerStop( &TxTimeoutTimer );
 
     SX1272SetOpMode( RF_OPMODE_SLEEP );
+
+    // Disable TCXO radio is in SLEEP mode
+    SX1272SetBoardTcxo( false );
+
     SX1272.Settings.State = RF_IDLE;
 }
 
@@ -1039,6 +1043,8 @@ void SX1272SetOpMode( uint8_t opMode )
     }
     else
     {
+        // Enable TCXO if operating mode different from SLEEP.
+        SX1272SetBoardTcxo( true );
         SX1272SetAntSwLowPower( false );
         SX1272SetAntSw( opMode );
     }
@@ -1066,14 +1072,14 @@ void SX1272SetModem( RadioModems_t modem )
     {
     default:
     case MODEM_FSK:
-        SX1272SetSleep( );
+        SX1272SetOpMode( RF_OPMODE_SLEEP );
         SX1272Write( REG_OPMODE, ( SX1272Read( REG_OPMODE ) & RFLR_OPMODE_LONGRANGEMODE_MASK ) | RFLR_OPMODE_LONGRANGEMODE_OFF );
 
         SX1272Write( REG_DIOMAPPING1, 0x00 );
         SX1272Write( REG_DIOMAPPING2, 0x30 ); // DIO5=ModeReady
         break;
     case MODEM_LORA:
-        SX1272SetSleep( );
+        SX1272SetOpMode( RF_OPMODE_SLEEP );
         SX1272Write( REG_OPMODE, ( SX1272Read( REG_OPMODE ) & RFLR_OPMODE_LONGRANGEMODE_MASK ) | RFLR_OPMODE_LONGRANGEMODE_ON );
 
         SX1272Write( REG_DIOMAPPING1, 0x00 );
