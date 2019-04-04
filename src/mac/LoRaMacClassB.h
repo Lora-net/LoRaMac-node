@@ -121,42 +121,15 @@ typedef enum ePingSlotState
  */
 typedef struct sPingSlotContext
 {
-    struct sPingSlotCtrl
-    {
-        /*!
-         * Set when the server assigned a ping slot to the node
-         */
-        uint8_t Assigned         : 1;
-        /*!
-         * Set when a custom frequency is used
-         */
-        uint8_t CustomFreq       : 1;
-    }Ctrl;
 
     /*!
      * Ping slot length time in ms
      */
     uint32_t PingSlotWindow;
     /*!
-     * Number of ping slots
-     */
-    uint8_t PingNb;
-    /*!
-     * Period of the ping slots
-     */
-    uint16_t PingPeriod;
-    /*!
      * Ping offset
      */
     uint16_t PingOffset;
-    /*!
-     * Reception frequency of the ping slot windows
-     */
-    uint32_t Frequency;
-    /*!
-     * Datarate of the ping slot
-     */
-    int8_t Datarate;
     /*!
      * Current symbol timeout. The node enlarges this variable in case of beacon
      * loss.
@@ -185,10 +158,6 @@ typedef struct sBeaconContext
          */
         uint8_t BeaconAcquired      : 1;
         /*!
-         * Set if the node has a custom frequency for beaconing and ping slots
-         */
-        uint8_t CustomFreq          : 1;
-        /*!
          * Set if a beacon delay was set for the beacon acquisition
          */
         uint8_t BeaconDelaySet      : 1;
@@ -205,10 +174,7 @@ typedef struct sBeaconContext
          */
         uint8_t ResumeBeaconing      : 1;
     }Ctrl;
-    /*!
-     * Beacon reception frequency
-     */
-    uint32_t Frequency;
+
     /*!
      * Current temperature
      */
@@ -265,7 +231,7 @@ typedef struct sLoRaMacClassBCallback
     /*!
      *\brief    Will be called each time a Radio IRQ is handled by the MAC
      *          layer.
-     * 
+     *
      *\warning  Runs in a IRQ context. Should only change variables state.
      */
     void ( *MacProcessNotify )( void );
