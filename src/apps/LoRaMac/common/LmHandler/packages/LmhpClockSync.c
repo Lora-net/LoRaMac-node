@@ -297,27 +297,30 @@ LmHandlerErrorStatus_t LmhpClockSyncAppTimeReq( void )
         return LORAMAC_HANDLER_ERROR;
     }
 
-    MibRequestConfirm_t mibReq;
+    if( LmhpClockSyncState.AppTimeReqPending == false )
+    {
+        MibRequestConfirm_t mibReq;
 
-    // Disable ADR
-    mibReq.Type = MIB_ADR;
-    LoRaMacMibGetRequestConfirm( &mibReq );
-    LmhpClockSyncState.AdrEnabledPrev = mibReq.Param.AdrEnable;
-    mibReq.Param.AdrEnable = false;
-    LoRaMacMibSetRequestConfirm( &mibReq );
+        // Disable ADR
+        mibReq.Type = MIB_ADR;
+        LoRaMacMibGetRequestConfirm( &mibReq );
+        LmhpClockSyncState.AdrEnabledPrev = mibReq.Param.AdrEnable;
+        mibReq.Param.AdrEnable = false;
+        LoRaMacMibSetRequestConfirm( &mibReq );
 
-    // Set NbTrans = 1
-    mibReq.Type = MIB_CHANNELS_NB_TRANS;
-    LoRaMacMibGetRequestConfirm( &mibReq );
-    LmhpClockSyncState.NbTransPrev = mibReq.Param.ChannelsNbTrans;
-    mibReq.Param.ChannelsNbTrans = 1;
-    LoRaMacMibSetRequestConfirm( &mibReq );
+        // Set NbTrans = 1
+        mibReq.Type = MIB_CHANNELS_NB_TRANS;
+        LoRaMacMibGetRequestConfirm( &mibReq );
+        LmhpClockSyncState.NbTransPrev = mibReq.Param.ChannelsNbTrans;
+        mibReq.Param.ChannelsNbTrans = 1;
+        LoRaMacMibSetRequestConfirm( &mibReq );
 
-    // Add DeviceTimeReq MAC command.
-    // In case the network server supports this more precise command
-    // this package will use DeviceTimeAns answer as clock synchronization
-    // mechanism.
-    LmhpClockSyncPackage.OnDeviceTimeRequest( );
+        // Add DeviceTimeReq MAC command.
+        // In case the network server supports this more precise command
+        // this package will use DeviceTimeAns answer as clock synchronization
+        // mechanism.
+        LmhpClockSyncPackage.OnDeviceTimeRequest( );
+    }
 
     SysTime_t curTime = SysTimeGet( );
     uint8_t dataBufferIndex = 0;
