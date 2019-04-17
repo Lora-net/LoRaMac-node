@@ -1287,9 +1287,16 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
             // Reset beacon variables, if one of the crc is valid
             if( beaconProcessed == true )
             {
+                TimerTime_t time = Radio.TimeOnAir( MODEM_LORA, size );
+                SysTime_t timeOnAir;
+                timeOnAir.Seconds = time / 1000;
+                timeOnAir.SubSeconds = time - timeOnAir.Seconds * 1000;
 
                 Ctx.BeaconCtx.LastBeaconRx = Ctx.BeaconCtx.BeaconTime;
                 Ctx.BeaconCtx.LastBeaconRx.Seconds += UNIX_GPS_EPOCH_OFFSET;
+
+                // Update system time.
+                SysTimeSet( SysTimeAdd( Ctx.BeaconCtx.LastBeaconRx, timeOnAir ) );
 
                 Ctx.BeaconCtx.Ctrl.BeaconAcquired = 1;
                 Ctx.BeaconCtx.Ctrl.BeaconMode = 1;
