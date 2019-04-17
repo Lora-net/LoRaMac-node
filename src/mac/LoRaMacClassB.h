@@ -182,15 +182,15 @@ typedef struct sBeaconContext
     /*!
      * Beacon time received with the beacon frame
      */
-    TimerTime_t BeaconTime;
+    SysTime_t BeaconTime;
     /*!
      * Time when the last beacon was received
      */
-    TimerTime_t LastBeaconRx;
+    SysTime_t LastBeaconRx;
     /*!
      * Time when the next beacon will be received
      */
-    TimerTime_t NextBeaconRx;
+    SysTime_t NextBeaconRx;
     /*!
      * This is the time where the RX window will be opened.
      * Its base is NextBeaconRx with temperature compensations

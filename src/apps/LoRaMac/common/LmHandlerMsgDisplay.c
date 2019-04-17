@@ -403,7 +403,7 @@ void DisplayBeaconUpdate( LoRaMAcHandlerBeaconParams_t *params )
         }
         case LORAMAC_HANDLER_BEACON_RX:
         {
-            printf( "\r\n###### ===== BEACON %8lu ==== ######\r\n", params->Info.Time );
+            printf( "\r\n###### ===== BEACON %8lu ==== ######\r\n", params->Info.Time.Seconds );
             printf( "GW DESC     : %d\r\n", params->Info.GwSpecific.InfoDesc );
             printf( "GW INFO     : " );
             PrintHexBuffer( params->Info.GwSpecific.Info, 6 );

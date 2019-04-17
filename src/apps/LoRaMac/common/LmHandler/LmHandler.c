@@ -132,7 +132,19 @@ static LmHandlerRxParams_t RxParams =
 static LoRaMAcHandlerBeaconParams_t BeaconParams = 
 {
     .State = LORAMAC_HANDLER_BEACON_ACQUIRING,
-    .Info = { 0 }
+    .Info = 
+    { 
+        .Time = { .Seconds = 0, .SubSeconds = 0 },
+        .Frequency = 0,
+        .Datarate = 0,
+        .Rssi = 0,
+        .Snr = 0,
+        .GwSpecific =
+        {
+            .InfoDesc = 0,
+            .Info = { 0 }
+        }
+    }
 };
 
 /*!
@@ -856,7 +868,7 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
             LoRaMacMibSetRequestConfirm( &mibReq );
 
             BeaconParams.State = LORAMAC_HANDLER_BEACON_LOST;
-            BeaconParams.Info.Time = 0;
+            BeaconParams.Info.Time.Seconds = 0;
             BeaconParams.Info.GwSpecific.InfoDesc = 0;
             memset1( BeaconParams.Info.GwSpecific.Info, 0, 6 );
 

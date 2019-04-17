@@ -1084,7 +1084,7 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
             if( mlmeIndication->Status == LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED )
             {
                 TimerStart( &LedBeaconTimer );
-                printf( "\r\n###### ===== BEACON %lu ==== ######\r\n", mlmeIndication->BeaconInfo.Time );
+                printf( "\r\n###### ===== BEACON %lu ==== ######\r\n", mlmeIndication->BeaconInfo.Time.Seconds );
                 printf( "GW DESC     : %d\r\n", mlmeIndication->BeaconInfo.GwSpecific.InfoDesc );
                 printf( "GW INFO     : " );
                 PrintHexBuffer( mlmeIndication->BeaconInfo.GwSpecific.Info, 6 );

@@ -439,7 +439,7 @@ typedef struct sBeaconInfo
      * Timestamp in seconds since 00:00:00, Sunday 6th of January 1980
      * (start of the GPS epoch) modulo 2^32
      */
-    uint32_t Time;
+    SysTime_t Time;
     /*!
      * Frequency
      */
