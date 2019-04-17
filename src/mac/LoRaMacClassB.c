@@ -442,7 +442,7 @@ static void GetTemperatureLevel( LoRaMacClassBCallback_t *callbacks, BeaconConte
     }
 }
 
-static void InitClassBDefaults( void )
+static void InitClassB( void )
 {
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;
@@ -468,6 +468,25 @@ static void InitClassBDefaults( void )
     Ctx.BeaconState = BEACON_STATE_ACQUISITION;
     Ctx.PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
     Ctx.MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+}
+
+static void InitClassBDefaults( void )
+{
+    // This function shall reset the Class B settings to default,
+    // but should keep important configurations
+    LoRaMacClassBBeaconNvmCtx_t beaconCtx = Ctx.NvmCtx->BeaconCtx;
+    LoRaMacClassBPingSlotNvmCtx_t pingSlotCtx = Ctx.NvmCtx->PingSlotCtx;
+
+    InitClassB( );
+
+    // Parameters from BeaconFreqReq
+    Ctx.NvmCtx->BeaconCtx.Frequency = beaconCtx.Frequency;
+    Ctx.NvmCtx->BeaconCtx.Ctrl.CustomFreq = beaconCtx.Ctrl.CustomFreq;
+
+    // Parameters from PingSlotChannelReq
+    Ctx.NvmCtx->PingSlotCtx.Ctrl.CustomFreq = pingSlotCtx.Ctrl.CustomFreq;
+    Ctx.NvmCtx->PingSlotCtx.Frequency = pingSlotCtx.Frequency;
+    Ctx.NvmCtx->PingSlotCtx.Datarate = pingSlotCtx.Datarate;
 }
 
 static void EnlargeWindowTimeout( void )
@@ -604,7 +623,7 @@ void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallba
     TimerInit( &Ctx.PingSlotTimer, LoRaMacClassBPingSlotTimerEvent );
     TimerInit( &Ctx.MulticastSlotTimer, LoRaMacClassBMulticastSlotTimerEvent );
 
-    InitClassBDefaults( );
+    InitClassB( );
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
