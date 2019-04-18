@@ -89,9 +89,9 @@ static LoRaMacCommandsCtx_t NvmCtx;
  * \param[IN]     slot           - Slot to check
  * \retval                       - Status of the operation
  */
-static bool isSlotFree( const MacCommand_t* slot )
+static bool IsSlotFree( const MacCommand_t* slot )
 {
-    uint8_t* mem = ( uint8_t )slot;
+    uint8_t* mem = ( uint8_t* )slot;
 
     for( uint16_t size = 0; size < sizeof( MacCommand_t ); size++ )
     {
@@ -108,11 +108,11 @@ static bool isSlotFree( const MacCommand_t* slot )
  *
  * \retval                       - Pointer to slot
  */
-static MacCommand_t* mallocNewMacCommandSlot( void )
+static MacCommand_t* MallocNewMacCommandSlot( void )
 {
     uint8_t itr = 0;
 
-    while( isSlotFree( ( const MacCommand_t* )&NvmCtx.MacCommandSlots[itr]) == false )
+    while( IsSlotFree( ( const MacCommand_t* )&NvmCtx.MacCommandSlots[itr] ) == false )
     {
         itr++;
         if( itr == NUM_OF_MAC_COMMANDS )
