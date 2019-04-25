@@ -371,7 +371,7 @@ static bool CalcNextSlotTime( uint16_t slotOffset, uint16_t pingPeriod, uint16_t
     TimerTime_t currentTime = TimerGetCurrentTime( );
 
     // Calculate the point in time of the last beacon even if we missed it
-    slotTime = ( ( currentTime - SysTime2Ms( Ctx.BeaconCtx.LastBeaconRx ) ) % CLASSB_BEACON_INTERVAL );
+    slotTime = ( ( currentTime - SysTimeToMs( Ctx.BeaconCtx.LastBeaconRx ) ) % CLASSB_BEACON_INTERVAL );
     slotTime = currentTime - slotTime;
 
     // Add the reserved time and the ping offset
@@ -388,7 +388,7 @@ static bool CalcNextSlotTime( uint16_t slotOffset, uint16_t pingPeriod, uint16_t
 
     if( currentPingSlot < pingNb )
     {
-        if( slotTime <= ( SysTime2Ms( Ctx.BeaconCtx.NextBeaconRx ) - CLASSB_BEACON_GUARD - CLASSB_PING_SLOT_WINDOW ) )
+        if( slotTime <= ( SysTimeToMs( Ctx.BeaconCtx.NextBeaconRx ) - CLASSB_BEACON_GUARD - CLASSB_PING_SLOT_WINDOW ) )
         {
             // Calculate the relative ping slot time
             slotTime -= currentTime;
@@ -557,9 +557,8 @@ static TimerTime_t UpdateBeaconState( LoRaMacEventInfoStatus_t status,
     TimerTime_t beaconEventTime = 0;
 
     // Calculate the next beacon RX time
-    beaconEventTime = CalcDelayForNextBeacon( currentTime, SysTime2Ms( Ctx.BeaconCtx.LastBeaconRx ) );
-    Ctx.BeaconCtx.NextBeaconRx.Seconds = ( currentTime + beaconEventTime ) / 1000;
-    Ctx.BeaconCtx.NextBeaconRx.SubSeconds = ( currentTime + beaconEventTime ) - Ctx.BeaconCtx.NextBeaconRx.Seconds * 1000;
+    beaconEventTime = CalcDelayForNextBeacon( currentTime, SysTimeToMs( Ctx.BeaconCtx.LastBeaconRx ) );
+    Ctx.BeaconCtx.NextBeaconRx = SysTimeFromMs( currentTime + beaconEventTime );
 
     // Take temperature compensation into account
     beaconEventTime = TimerTempCompensation( beaconEventTime, Ctx.BeaconCtx.Temperature );
@@ -762,9 +761,9 @@ static void LoRaMacClassBProcessBeacon( void )
                 {
                     if( Ctx.BeaconCtx.BeaconTimingDelay > 0 )
                     {
-                        if( SysTime2Ms( Ctx.BeaconCtx.NextBeaconRx ) > currentTime )
+                        if( SysTimeToMs( Ctx.BeaconCtx.NextBeaconRx ) > currentTime )
                         {
-                            beaconEventTime = TimerTempCompensation( SysTime2Ms( Ctx.BeaconCtx.NextBeaconRx ) - currentTime, Ctx.BeaconCtx.Temperature );
+                            beaconEventTime = TimerTempCompensation( SysTimeToMs( Ctx.BeaconCtx.NextBeaconRx ) - currentTime, Ctx.BeaconCtx.Temperature );
                         }
                         else
                         {
@@ -847,7 +846,7 @@ static void LoRaMacClassBProcessBeacon( void )
             Ctx.BeaconCtx.Ctrl.BeaconAcquired = 0;
 
             // Verify if the maximum beacon less period has been elapsed
-            if( ( currentTime - SysTime2Ms( Ctx.BeaconCtx.LastBeaconRx ) ) > CLASSB_MAX_BEACON_LESS_PERIOD )
+            if( ( currentTime - SysTimeToMs( Ctx.BeaconCtx.LastBeaconRx ) ) > CLASSB_MAX_BEACON_LESS_PERIOD )
             {
                 Ctx.BeaconState = BEACON_STATE_LOST;
             }
@@ -1603,8 +1602,7 @@ void LoRaMacClassBBeaconTimingAns( uint16_t beaconTimingDelay, uint8_t beaconTim
         {
             Ctx.BeaconCtx.Ctrl.BeaconDelaySet = 1;
             Ctx.BeaconCtx.Ctrl.BeaconChannelSet = 1;
-            Ctx.BeaconCtx.NextBeaconRx.Seconds = ( lastRxDone + Ctx.BeaconCtx.BeaconTimingDelay ) / 1000;
-            Ctx.BeaconCtx.NextBeaconRx.SubSeconds = ( lastRxDone + Ctx.BeaconCtx.BeaconTimingDelay ) - Ctx.BeaconCtx.NextBeaconRx.Seconds * 1000;
+            Ctx.BeaconCtx.NextBeaconRx = SysTimeFromMs( lastRxDone + Ctx.BeaconCtx.BeaconTimingDelay );
             LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_OK, MLME_BEACON_TIMING );
         }
 
@@ -1619,7 +1617,7 @@ void LoRaMacClassBDeviceTimeAns( void )
 #ifdef LORAMAC_CLASSB_ENABLED
 
     SysTime_t nextBeacon = SysTimeGet( );
-    uint32_t currentTimeMs = SysTime2Ms( nextBeacon );
+    uint32_t currentTimeMs = SysTimeToMs( nextBeacon );
 
     nextBeacon.Seconds = nextBeacon.Seconds + ( 128 - ( nextBeacon.Seconds % 128 ) );
     nextBeacon.SubSeconds = 0;
@@ -1629,7 +1627,7 @@ void LoRaMacClassBDeviceTimeAns( void )
 
     if( LoRaMacConfirmQueueIsCmdActive( MLME_DEVICE_TIME ) == true )
     {
-        if( currentTimeMs > SysTime2Ms( Ctx.BeaconCtx.NextBeaconRx ) )
+        if( currentTimeMs > SysTimeToMs( Ctx.BeaconCtx.NextBeaconRx ) )
         {
             // We missed the beacon already
             Ctx.BeaconCtx.LastBeaconRx.Seconds = 0;
@@ -1641,7 +1639,7 @@ void LoRaMacClassBDeviceTimeAns( void )
         else
         {
             Ctx.BeaconCtx.Ctrl.BeaconDelaySet = 1;
-            Ctx.BeaconCtx.BeaconTimingDelay = SysTime2Ms( Ctx.BeaconCtx.NextBeaconRx ) - currentTimeMs;
+            Ctx.BeaconCtx.BeaconTimingDelay = SysTimeToMs( Ctx.BeaconCtx.NextBeaconRx ) - currentTimeMs;
             Ctx.BeaconCtx.BeaconTime.Seconds = nextBeacon.Seconds - UNIX_GPS_EPOCH_OFFSET - 128;
             Ctx.BeaconCtx.BeaconTime.SubSeconds = 0;
             LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_OK, MLME_DEVICE_TIME );
@@ -1680,15 +1678,16 @@ TimerTime_t LoRaMacClassBIsUplinkCollision( TimerTime_t txTimeOnAir )
 #ifdef LORAMAC_CLASSB_ENABLED
     TimerTime_t currentTime = TimerGetCurrentTime( );
     TimerTime_t beaconReserved = 0;
+    TimerTime_t nextBeacon = SysTimeToMs( Ctx.BeaconCtx.NextBeaconRx );
 
-    beaconReserved = SysTime2Ms( Ctx.BeaconCtx.NextBeaconRx ) -
+    beaconReserved = nextBeacon -
                      CLASSB_BEACON_GUARD -
                      Ctx.LoRaMacClassBParams.LoRaMacParams->ReceiveDelay1 -
                      Ctx.LoRaMacClassBParams.LoRaMacParams->ReceiveDelay2 -
                      txTimeOnAir;
 
     // Check if the next beacon will be received during the next uplink.
-    if( ( currentTime >= beaconReserved ) && ( currentTime < ( SysTime2Ms( Ctx.BeaconCtx.NextBeaconRx ) + CLASSB_BEACON_RESERVED ) ) )
+    if( ( currentTime >= beaconReserved ) && ( currentTime < ( nextBeacon + CLASSB_BEACON_RESERVED ) ) )
     {// Next beacon will be sent during the next uplink.
         return CLASSB_BEACON_RESERVED;
     }
