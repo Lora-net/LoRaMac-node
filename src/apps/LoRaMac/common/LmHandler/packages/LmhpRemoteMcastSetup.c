@@ -280,7 +280,7 @@ static void LmhpRemoteMcastSetupOnMcpsIndication( McpsIndication_t *mcpsIndicati
                 {
                     .Class = CLASS_C, // Field not used for multicast channel setup. Must be initialized to something
                     .IsEnabled = true,
-                    .GroupID = McSessionData[id].McGroupData.IdHeader.Fields.McGroupId,
+                    .GroupID = ( AddressIdentifier_t )McSessionData[id].McGroupData.IdHeader.Fields.McGroupId,
                     .Address = McSessionData[id].McGroupData.McAddr,
                     .McKeyE = McSessionData[id].McGroupData.McKeyEncrypted,
                     .FCountMin = McSessionData[id].McGroupData.McFCountMin,
@@ -309,7 +309,7 @@ static void LmhpRemoteMcastSetupOnMcpsIndication( McpsIndication_t *mcpsIndicati
 
                 LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = REMOTE_MCAST_SETUP_MC_GROUP_DELETE_ANS;
 
-                if( LoRaMacMcChannelDelete( id ) != LORAMAC_STATUS_OK )
+                if( LoRaMacMcChannelDelete( ( AddressIdentifier_t )id ) != LORAMAC_STATUS_OK )
                 {
                     status |= 0x04; // McGroupUndefined bit set
                 }
@@ -339,7 +339,7 @@ static void LmhpRemoteMcastSetupOnMcpsIndication( McpsIndication_t *mcpsIndicati
                 McSessionData[id].RxParams.ClassC.Datarate = mcpsIndication->Buffer[cmdIndex++];
 
                 LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = REMOTE_MCAST_SETUP_MC_GROUP_CLASS_C_SESSION_ANS;
-                if( LoRaMacMcChannelSetupRxParams( id, &McSessionData[id].RxParams, &status ) == LORAMAC_STATUS_OK )
+                if( LoRaMacMcChannelSetupRxParams( ( AddressIdentifier_t )id, &McSessionData[id].RxParams, &status ) == LORAMAC_STATUS_OK )
                 {
                     SysTime_t curTime = { .Seconds = 0, .SubSeconds = 0 };
                     curTime = SysTimeGet( );
