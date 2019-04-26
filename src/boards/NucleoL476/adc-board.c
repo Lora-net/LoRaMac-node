@@ -30,7 +30,7 @@ void AdcMcuInit( Adc_t *obj, PinNames adcInput )
 {
     AdcHandle.Instance = ( ADC_TypeDef* )ADC1_BASE;
 
-    __HAL_RCC_ADC1_CLK_ENABLE( );
+    __HAL_RCC_ADC_CLK_ENABLE( );
 
     HAL_ADC_DeInit( &AdcHandle );
 
@@ -48,12 +48,11 @@ void AdcMcuConfig( void )
     AdcHandle.Init.ContinuousConvMode    = DISABLE;
     AdcHandle.Init.DiscontinuousConvMode = DISABLE;
     AdcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-    AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T6_TRGO;
+    AdcHandle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
     AdcHandle.Init.DMAContinuousRequests = DISABLE;
     AdcHandle.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
     AdcHandle.Init.NbrOfConversion       = 1;
     AdcHandle.Init.LowPowerAutoWait      = DISABLE;
-    AdcHandle.Init.LowPowerAutoPowerOff  = DISABLE;
     HAL_ADC_Init( &AdcHandle );
 }
 
@@ -70,31 +69,33 @@ uint16_t AdcMcuReadChannel( Adc_t *obj, uint32_t channel )
     {
     }
 
-    __HAL_RCC_ADC1_CLK_ENABLE( );
+    __HAL_RCC_ADC_CLK_ENABLE( );
 
     adcConf.Channel = channel;
     adcConf.Rank = ADC_REGULAR_RANK_1;
-    adcConf.SamplingTime = ADC_SAMPLETIME_192CYCLES;
+    adcConf.SamplingTime = ADC_SAMPLETIME_92CYCLES_5;
 
     HAL_ADC_ConfigChannel( &AdcHandle, &adcConf );
 
-    // Enable ADC1
-    __HAL_ADC_ENABLE( &AdcHandle );
+    // Enable ADC
+    if( ADC_Enable( &AdcHandle ) == HAL_OK )
+    {
+        // Start ADC Software Conversion
+        HAL_ADC_Start( &AdcHandle );
 
-    // Start ADC Software Conversion
-    HAL_ADC_Start( &AdcHandle );
+        HAL_ADC_PollForConversion( &AdcHandle, HAL_MAX_DELAY );
 
-    HAL_ADC_PollForConversion( &AdcHandle, HAL_MAX_DELAY );
+        adcData = HAL_ADC_GetValue( &AdcHandle );
+    }
 
-    adcData = HAL_ADC_GetValue( &AdcHandle );
-
-    __HAL_ADC_DISABLE( &AdcHandle );
+    ADC_ConversionStop( &AdcHandle, ADC_REGULAR_GROUP );
+    HAL_ADC_Stop( &AdcHandle );
 
     if( ( adcConf.Channel == ADC_CHANNEL_TEMPSENSOR ) || ( adcConf.Channel == ADC_CHANNEL_VREFINT ) )
     {
         HAL_ADC_DeInit( &AdcHandle );
     }
-    __HAL_RCC_ADC1_CLK_DISABLE( );
+    __HAL_RCC_ADC_CLK_DISABLE( );
 
     // Disable HSI
     __HAL_RCC_HSI_DISABLE( );

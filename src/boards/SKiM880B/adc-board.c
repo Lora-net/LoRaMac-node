@@ -79,16 +79,17 @@ uint16_t AdcMcuReadChannel( Adc_t *obj, uint32_t channel )
     HAL_ADC_ConfigChannel( &AdcHandle, &adcConf );
 
     // Enable ADC1
-    __HAL_ADC_ENABLE( &AdcHandle );
+    if( ADC_Enable( &AdcHandle ) == HAL_OK )
+    {
+        // Start ADC Software Conversion
+        HAL_ADC_Start( &AdcHandle );
 
-    // Start ADC Software Conversion
-    HAL_ADC_Start( &AdcHandle );
+        HAL_ADC_PollForConversion( &AdcHandle, HAL_MAX_DELAY );
 
-    HAL_ADC_PollForConversion( &AdcHandle, HAL_MAX_DELAY );
+        adcData = HAL_ADC_GetValue( &AdcHandle );
+    }
 
-    adcData = HAL_ADC_GetValue( &AdcHandle );
-
-    __HAL_ADC_DISABLE( &AdcHandle );
+    ADC_ConversionStop_Disable( &AdcHandle );
 
     if( ( adcConf.Channel == ADC_CHANNEL_TEMPSENSOR ) || ( adcConf.Channel == ADC_CHANNEL_VREFINT ) )
     {
