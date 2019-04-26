@@ -262,7 +262,7 @@ static LmHandlerErrorStatus_t LmhpComplianceTxProcess( void )
     // Schedule next transmission
     TimerStart( &ComplianceTxNextPacketTimer );
 
-    return LmhpCompliancePackage.OnSendRequest( &appData, ComplianceTestState.IsTxConfirmed );
+    return LmhpCompliancePackage.OnSendRequest( &appData, ( LmHandlerMsgTypes_t )ComplianceTestState.IsTxConfirmed );
 }
 
 static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )

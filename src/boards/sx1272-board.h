@@ -73,6 +73,16 @@ void SX1272IoIrqInit( DioIrqHandler **irqHandlers );
 void SX1272IoDeInit( void );
 
 /*!
+ * \brief Initializes the TCXO power pin.
+ */
+void SX1272IoTcxoInit( void );
+
+/*!
+ * \brief Initializes the radio debug pins.
+ */
+void SX1272IoDbgInit( void );
+
+/*!
  * \brief Resets the radio
  */
 void SX1272Reset( void );

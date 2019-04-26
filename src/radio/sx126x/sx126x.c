@@ -95,13 +95,8 @@ void SX126xInit( DioIrqHandler dioIrq )
     SX126xWakeup( );
     SX126xSetStandby( STDBY_RC );
 
-#ifdef USE_TCXO
-    CalibrationParams_t calibParam;
-
-    SX126xSetDio3AsTcxoCtrl( TCXO_CTRL_1_7V, SX126xGetBoardTcxoWakeupTime( ) << 6 ); // convert from ms to SX126x time base
-    calibParam.Value = 0x7F;
-    SX126xCalibrate( calibParam );
-#endif
+    // Initialize TCXO control
+    SX126xIoTcxoInit( );
 
     SX126xSetDio2AsRfSwitchCtrl( true );
     SX126xSetOperatingMode( MODE_STDBY_RC );

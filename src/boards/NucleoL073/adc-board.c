@@ -20,6 +20,8 @@
  *
  * \author    Gregory Cristian ( Semtech )
  */
+#include <stdint.h>
+#include <stdbool.h>
 #include "stm32l0xx.h"
 #include "board-config.h"
 #include "adc-board.h"
@@ -44,7 +46,7 @@ void AdcMcuConfig( void )
 {
     // Configure ADC
     AdcHandle.Init.OversamplingMode      = DISABLE;
-    AdcHandle.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV1;
+    AdcHandle.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV2;
     AdcHandle.Init.Resolution            = ADC_RESOLUTION_12B;
     AdcHandle.Init.SamplingTime          = ADC_SAMPLETIME_160CYCLES_5;
     AdcHandle.Init.ScanConvMode          = ADC_SCAN_DIRECTION_FORWARD;
@@ -52,12 +54,12 @@ void AdcMcuConfig( void )
     AdcHandle.Init.ContinuousConvMode    = DISABLE;
     AdcHandle.Init.DiscontinuousConvMode = DISABLE;
     AdcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-    AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T6_TRGO;
+    AdcHandle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
     AdcHandle.Init.DMAContinuousRequests = DISABLE;
     AdcHandle.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
-    AdcHandle.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
+    AdcHandle.Init.Overrun               = ADC_OVR_DATA_PRESERVED;
     AdcHandle.Init.LowPowerAutoWait      = DISABLE;
-    AdcHandle.Init.LowPowerFrequencyMode = DISABLE; // To be enabled only if ADC clock < 2.8 MHz
+    AdcHandle.Init.LowPowerFrequencyMode = ENABLE; // To be enabled only if ADC clock < 2.8 MHz
     AdcHandle.Init.LowPowerAutoPowerOff  = DISABLE;
     HAL_ADC_Init( &AdcHandle );
 
@@ -70,6 +72,8 @@ uint16_t AdcMcuReadChannel( Adc_t *obj, uint32_t channel )
 {
     ADC_ChannelConfTypeDef adcConf = { 0 };
     uint16_t adcData = 0;
+    uint32_t tickStart = 0;
+    bool isAdcReady = true;
 
     // Enable HSI
     __HAL_RCC_HSI_ENABLE( );
@@ -81,20 +85,38 @@ uint16_t AdcMcuReadChannel( Adc_t *obj, uint32_t channel )
 
     __HAL_RCC_ADC1_CLK_ENABLE( );
 
+    // Deselects all channels
+    adcConf.Channel = ADC_CHANNEL_MASK;
+    adcConf.Rank = ADC_RANK_NONE; 
+    HAL_ADC_ConfigChannel( &AdcHandle, &adcConf );
+
     adcConf.Channel = channel;
     adcConf.Rank = ADC_RANK_CHANNEL_NUMBER;
-
     HAL_ADC_ConfigChannel( &AdcHandle, &adcConf );
 
     // Enable ADC1
     __HAL_ADC_ENABLE( &AdcHandle );
 
-    // Start ADC Software Conversion
-    HAL_ADC_Start( &AdcHandle );
+    // Wait for ADC to effectively be enabled
+    tickStart = HAL_GetTick( );
+    while( __HAL_ADC_GET_FLAG( &AdcHandle, ADC_FLAG_RDY ) == RESET )
+    {
+        if( ( HAL_GetTick( ) - tickStart ) > ADC_ENABLE_TIMEOUT )
+        {
+            isAdcReady = false;
+            break;
+        }
+    }
 
-    HAL_ADC_PollForConversion( &AdcHandle, HAL_MAX_DELAY );
+    if( isAdcReady != false )
+    {
+        // Start ADC Software Conversion
+        HAL_ADC_Start( &AdcHandle );
 
-    adcData = HAL_ADC_GetValue( &AdcHandle );
+        HAL_ADC_PollForConversion( &AdcHandle, HAL_MAX_DELAY );
+
+        adcData = HAL_ADC_GetValue( &AdcHandle );
+    }
 
     __HAL_ADC_DISABLE( &AdcHandle );
 

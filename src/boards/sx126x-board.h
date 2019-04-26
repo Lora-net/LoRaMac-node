@@ -47,6 +47,16 @@ void SX126xIoIrqInit( DioIrqHandler dioIrq );
 void SX126xIoDeInit( void );
 
 /*!
+ * \brief Initializes the TCXO power pin.
+ */
+void SX126xIoTcxoInit( void );
+
+/*!
+ * \brief Initializes the radio debug pins.
+ */
+void SX126xIoDbgInit( void );
+
+/*!
  * \brief HW Reset of the radio
  */
 void SX126xReset( void );

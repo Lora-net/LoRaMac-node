@@ -44,11 +44,7 @@
 
 #endif
 
-#if defined( REGION_EU868 )
-
 #include "LoRaMacTest.h"
-
-#endif
 
 static CommissioningParams_t CommissioningParams = 
 {
