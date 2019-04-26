@@ -87,6 +87,8 @@ void BoardInitMcu( void )
     SX1276IoInit( );
 
     McuInitialized = true;
+    SX1276IoDbgInit( );
+    SX1276IoTcxoInit( );
 }
 
 void BoardResetMcu( void )
@@ -95,7 +97,6 @@ void BoardResetMcu( void )
 
     //Restart system
     NVIC_SystemReset( );
-
 }
 
 void BoardDeInitMcu( void )

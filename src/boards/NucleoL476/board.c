@@ -188,6 +188,16 @@ void BoardInitMcu( void )
     if( McuInitialized == false )
     {
         McuInitialized = true;
+#if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
+        // WARNING: If necessary the TCXO control is initialized by SX126xInit function.
+        SX126xIoDbgInit( );
+#elif defined( SX1272MB2DAS)
+        SX1272IoTcxoInit( );
+        SX1272IoDbgInit( );
+#elif defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
+        SX1276IoTcxoInit( );
+        SX1276IoDbgInit( );
+#endif
         if( GetBoardPowerSource( ) == BATTERY_POWER )
         {
             CalibrateSystemWakeupTime( );

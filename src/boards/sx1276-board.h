@@ -74,6 +74,16 @@ void SX1276IoIrqInit( DioIrqHandler **irqHandlers );
 void SX1276IoDeInit( void );
 
 /*!
+ * \brief Initializes the TCXO power pin.
+ */
+void SX1276IoTcxoInit( void );
+
+/*!
+ * \brief Initializes the radio debug pins.
+ */
+void SX1276IoDbgInit( void );
+
+/*!
  * \brief Resets the radio
  */
 void SX1276Reset( void );

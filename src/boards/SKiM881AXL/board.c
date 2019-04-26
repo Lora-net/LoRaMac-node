@@ -181,6 +181,8 @@ void BoardInitMcu( void )
     if( McuInitialized == false )
     {
         McuInitialized = true;
+        SX1272IoDbgInit( );
+        SX1272IoTcxoInit( );
         if( GetBoardPowerSource( ) == BATTERY_POWER )
         {
             CalibrateSystemWakeupTime( );
@@ -194,7 +196,6 @@ void BoardResetMcu( void )
 
     //Restart system
     NVIC_SystemReset( );
-
 }
 
 void BoardDeInitMcu( void )
