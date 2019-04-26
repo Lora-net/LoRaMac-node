@@ -40,9 +40,17 @@
 
 #define RF_FREQUENCY                                915000000 // Hz
 
+#elif defined( REGION_CN470 )
+
+#define RF_FREQUENCY                                470000000 // Hz
+
 #elif defined( REGION_CN779 )
 
 #define RF_FREQUENCY                                779000000 // Hz
+
+#elif defined( REGION_EU433 )
+
+#define RF_FREQUENCY                                433000000 // Hz
 
 #elif defined( REGION_EU868 )
 
