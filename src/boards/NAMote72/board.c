@@ -295,7 +295,7 @@ void BoardGetUniqueId( uint8_t *id )
 /*!
  * VREF calibration value
  */
-#define VREFINT_CAL                                 ( *( uint16_t* )0x1FF80078 )
+#define VREFINT_CAL                                 ( *( uint16_t* )0x1FF800F8U )
 
 /*!
  * ADC maximum value
