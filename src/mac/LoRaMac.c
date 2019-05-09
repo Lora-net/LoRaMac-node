@@ -1972,12 +1972,17 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     status = RegionLinkAdrReq( MacCtx.NvmCtx->Region, &linkAdrReq, &linkAdrDatarate,
                                                &linkAdrTxPower, &linkAdrNbRep, &linkAdrNbBytesParsed );
 
-                    if( ( status & 0x07 ) == 0x07 )
+                    if( status & 0x02 )
                     {
                         MacCtx.NvmCtx->MacParams.ChannelsDatarate = linkAdrDatarate;
-                        MacCtx.NvmCtx->MacParams.ChannelsTxPower = linkAdrTxPower;
-                        MacCtx.NvmCtx->MacParams.ChannelsNbTrans = linkAdrNbRep;
                     }
+
+                    if( status & 0x04 )
+                    {
+                        MacCtx.NvmCtx->MacParams.ChannelsTxPower = linkAdrTxPower;
+                    }
+
+                    MacCtx.NvmCtx->MacParams.ChannelsNbTrans = linkAdrNbRep;
 
                     // Add the answers to the buffer
                     for( uint8_t i = 0; i < ( linkAdrNbBytesParsed / 5 ); i++ )
