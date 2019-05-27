@@ -2917,7 +2917,7 @@ static bool CheckRetransUnconfirmedUplink( void )
         }
         else
         {// For Class B & C stop only if the frame was received in RX1 window
-            if( MacCtx.RxSlot == RX_SLOT_WIN_1 )
+            if( MacCtx.McpsIndication.RxSlot == RX_SLOT_WIN_1 )
             {
                 return true;
             }
