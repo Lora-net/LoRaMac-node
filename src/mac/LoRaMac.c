@@ -741,13 +741,6 @@ static void LoRaMacEnableRequests( LoRaMacRequestHandling_t requestState );
 static void LoRaMacCheckForRxAbort( void );
 
 /*!
- * \brief This function verifies if a TX timeout occurred
- *
- *\retval 1: TX timeout, 0: no TX timeout
- */
-static uint8_t LoRaMacCheckForTxTimeout( void );
-
-/*!
  * \brief This function verifies if a beacon acquisition MLME
  *        request was pending
  *
@@ -1615,21 +1608,6 @@ static void LoRaMacHandleJoinRequest( void )
     }
 }
 
-static uint8_t LoRaMacCheckForTxTimeout( void )
-{
-    if( ( LoRaMacConfirmQueueGetStatusCmn( ) == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT ) ||
-        ( MacCtx.McpsConfirm.Status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT ) )
-    {
-        // Stop transmit cycle due to tx timeout
-        MacCtx.MacState &= ~LORAMAC_TX_RUNNING;
-        MacCtx.McpsConfirm.NbRetries = MacCtx.AckTimeoutRetriesCounter;
-        MacCtx.McpsConfirm.AckReceived = false;
-        MacCtx.McpsConfirm.TxTimeOnAir = 0;
-        return 0x01;
-    }
-    return 0x00;
-}
-
 static uint8_t LoRaMacCheckForBeaconAcquisition( void )
 {
     if( ( LoRaMacConfirmQueueIsCmdActive( MLME_BEACON_ACQUISITION ) == true ) &&
@@ -1671,7 +1649,6 @@ void LoRaMacProcess( void )
         // An error occurs during transmitting
         if( IsRequestPending( ) > 0 )
         {
-            noTx |= LoRaMacCheckForTxTimeout( );
             noTx |= LoRaMacCheckForBeaconAcquisition( );
         }
 
