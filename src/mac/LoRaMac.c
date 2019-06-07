@@ -903,7 +903,6 @@ static void ProcessRadioTxDone( void )
     if( MacCtx.NodeAckRequested == false )
     {
         MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
-        MacCtx.ChannelsNbTransCounter++;
     }
 }
 
@@ -2721,6 +2720,10 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
     LoRaMacClassBHaltBeaconing( );
 
     MacCtx.MacState |= LORAMAC_TX_RUNNING;
+    if( MacCtx.NodeAckRequested == false )
+    {
+        MacCtx.ChannelsNbTransCounter++;
+    }
 
     // Send now
     Radio.Send( MacCtx.PktBuffer, MacCtx.PktBufferLen );
