@@ -41,7 +41,6 @@
 #include "LoRaMacHeaderTypes.h"
 #include "LoRaMacMessageTypes.h"
 #include "LoRaMacParser.h"
-#include "LoRaMacFCntHandler.h"
 #include "LoRaMacCommands.h"
 #include "LoRaMacAdr.h"
 
@@ -445,6 +444,22 @@ static void OnAckTimeoutTimerEvent( void* context );
 static void SetMlmeScheduleUplinkIndication( void );
 
 /*!
+ * Computes next 32 bit downlink counter value and determines the frame counter ID.
+ *
+ * \param[IN]     addrID                - Address identifier
+ * \param[IN]     fType                 - Frame type
+ * \param[IN]     macMsg                - Data message object, holding the current 16 bit transmitted frame counter
+ * \param[IN]     lrWanVersion          - LoRaWAN version
+ * \param[IN]     maxFCntGap            - Maximum allowed frame counter difference (only for 1.0.X necessary)
+ * \param[OUT]    fCntID                - Frame counter identifier
+ * \param[OUT]    currentDown           - Current downlink counter value
+ *
+ * \retval                              - Status of the operation
+ */
+static LoRaMacCryptoStatus_t GetFCntDown( AddressIdentifier_t addrID, FType_t fType, LoRaMacMessageData_t* macMsg, Version_t lrWanVersion,
+                                          uint16_t maxFCntGap, FCntIdentifier_t* fCntID, uint32_t* currentDown );
+
+/*!
  * \brief Switches the device class
  *
  * \param [IN] deviceClass Device class to switch to
@@ -717,11 +732,6 @@ static void EventClassBNvmCtxChanged( void );
 static void EventConfirmQueueNvmCtxChanged( void );
 
 /*!
- * \brief FCnt Handler module nvm context has been changed
- */
-static void EventFCntHandlerNvmCtxChanged( void );
-
-/*!
  * \brief Verifies if a request is pending currently
  *
  *\retval 1: Request pending, 0: request not pending
@@ -942,7 +952,6 @@ static void ProcessRadioRxDone( void )
     uint32_t address = MacCtx.NvmCtx->DevAddr;
     uint8_t multicast = 0;
     AddressIdentifier_t addrID = UNICAST_DEV_ADDR;
-    LoRaMacFCntHandlerStatus_t fCntHandlerStatus;
     FCntIdentifier_t fCntID;
 
     MacCtx.McpsConfirm.AckReceived = false;
@@ -1124,10 +1133,10 @@ static void ProcessRadioRxDone( void )
             phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
 
             // Get downlink frame counter value
-            fCntHandlerStatus = LoRaMacGetFCntDown( addrID, fType, &macMsgData, MacCtx.NvmCtx->Version, phyParam.Value, &fCntID, &downLinkCounter );
-            if( fCntHandlerStatus != LORAMAC_FCNT_HANDLER_SUCCESS )
+            macCryptoStatus = GetFCntDown( addrID, fType, &macMsgData, MacCtx.NvmCtx->Version, phyParam.Value, &fCntID, &downLinkCounter );
+            if( macCryptoStatus != LORAMAC_CRYPTO_SUCCESS )
             {
-                if( fCntHandlerStatus == LORAMAC_FCNT_HANDLER_CHECK_FAIL )
+                if( macCryptoStatus == LORAMAC_CRYPTO_FAIL_FCNT_DUPLICATED )
                 {
                     // Catch the case of repeated downlink frame counter
                     MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
@@ -1136,7 +1145,7 @@ static void ProcessRadioRxDone( void )
                         MacCtx.NvmCtx->SrvAckRequested = true;
                     }
                 }
-                else if( fCntHandlerStatus == LORAMAC_FCNT_HANDLER_MAX_GAP_FAIL )
+                else if( macCryptoStatus == LORAMAC_CRYPTO_FAIL_MAX_GAP_FCNT )
                 {
                     // Lost too many frames
                     MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS;
@@ -1203,14 +1212,6 @@ static void ProcessRadioRxDone( void )
                     MacCtx.NvmCtx->SrvAckRequested = false;
                     MacCtx.McpsIndication.McpsIndication = MCPS_UNCONFIRMED;
                 }
-            }
-
-            // Update downlink counter in mac context / multicast context.
-            if( LORAMAC_FCNT_HANDLER_SUCCESS != LoRaMacSetFCntDown( fCntID, downLinkCounter ) )
-            {
-                MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
-                PrepareRxDoneAbort( );
-                return;
             }
 
             RemoveMacCommands( MacCtx.McpsIndication.RxSlot, macMsgData.FHDR.FCtrl, MacCtx.McpsConfirm.McpsRequest );
@@ -1750,6 +1751,54 @@ static void OnAckTimeoutTimerEvent( void* context )
     {
         MacCtx.MacCallbacks->MacProcessNotify( );
     }
+}
+
+static LoRaMacCryptoStatus_t GetFCntDown( AddressIdentifier_t addrID, FType_t fType, LoRaMacMessageData_t* macMsg, Version_t lrWanVersion,
+                                          uint16_t maxFCntGap, FCntIdentifier_t* fCntID, uint32_t* currentDown )
+{
+    if( ( macMsg == NULL ) || ( fCntID == NULL ) ||
+        ( currentDown == NULL ) )
+    {
+        return LORAMAC_CRYPTO_ERROR_NPE;
+    }
+
+    // Determine the frame counter identifier and choose counter from FCntList
+    switch( addrID )
+    {
+        case UNICAST_DEV_ADDR:
+            if( lrWanVersion.Fields.Minor == 1 )
+            {
+                if( ( fType == FRAME_TYPE_A ) || ( fType == FRAME_TYPE_D ) )
+                {
+                    *fCntID = A_FCNT_DOWN;
+                }
+                else
+                {
+                    *fCntID = N_FCNT_DOWN;
+                }
+            }
+            else
+            { // For LoRaWAN 1.0.X
+                *fCntID = FCNT_DOWN;
+            }
+            break;
+        case MULTICAST_0_ADDR:
+            *fCntID = MC_FCNT_DOWN_0;
+            break;
+        case MULTICAST_1_ADDR:
+            *fCntID = MC_FCNT_DOWN_1;
+            break;
+        case MULTICAST_2_ADDR:
+            *fCntID = MC_FCNT_DOWN_2;
+            break;
+        case MULTICAST_3_ADDR:
+            *fCntID = MC_FCNT_DOWN_3;
+            break;
+        default:
+            return LORAMAC_CRYPTO_FAIL_FCNT_ID;
+    }
+
+    return LoRaMacCryptoGetFCntDown( *fCntID, maxFCntGap, macMsg->FHDR.FCnt, currentDown );
 }
 
 static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
@@ -2419,9 +2468,14 @@ static LoRaMacStatus_t SecureFrame( uint8_t txDr, uint8_t txCh )
             break;
         case LORAMAC_MSG_TYPE_DATA:
 
-            if( LORAMAC_FCNT_HANDLER_SUCCESS != LoRaMacGetFCntUp( &fCntUp ) )
+            if( LORAMAC_CRYPTO_SUCCESS != LoRaMacCryptoGetFCntUp( &fCntUp ) )
             {
                 return LORAMAC_STATUS_FCNT_HANDLER_ERROR;
+            }
+
+            if( ( MacCtx.ChannelsNbTransCounter >= 1 ) || ( MacCtx.AckTimeoutRetriesCounter > 1 ) )
+            {
+                fCntUp -= 1;
             }
 
             macCryptoStatus = LoRaMacCryptoSecureMessage( fCntUp, txDr, txCh, &MacCtx.TxMsg.Message.Data );
@@ -2496,9 +2550,6 @@ static void ResetMacParameters( void )
 
     // ADR counter
     MacCtx.NvmCtx->AdrAckCounter = 0;
-
-    // Initialize the uplink and downlink counters default value
-    LoRaMacResetFCnts( );
 
     MacCtx.ChannelsNbTransCounter = 0;
     MacCtx.AckTimeoutRetries = 1;
@@ -2600,11 +2651,11 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t* macHdr, LoRaMacFrameCtrl_t* fCtrl
             MacCtx.TxMsg.Message.Data.FRMPayloadSize = MacCtx.AppDataSize;
             MacCtx.TxMsg.Message.Data.FRMPayload = MacCtx.AppData;
 
-            if( LORAMAC_FCNT_HANDLER_SUCCESS != LoRaMacGetFCntUp( &fCntUp ) )
+            if( LORAMAC_CRYPTO_SUCCESS != LoRaMacCryptoGetFCntUp( &fCntUp ) )
             {
                 return LORAMAC_STATUS_FCNT_HANDLER_ERROR;
             }
-            MacCtx.TxMsg.Message.Data.FHDR.FCnt = ( uint16_t ) fCntUp;
+            MacCtx.TxMsg.Message.Data.FHDR.FCnt = ( uint16_t )fCntUp;
 
             // Reset confirm parameters
             MacCtx.McpsConfirm.NbRetries = 0;
@@ -2781,7 +2832,6 @@ LoRaMacCtxs_t* GetCtxs( void )
     Contexts.CommandsNvmCtx = LoRaMacCommandsGetNvmCtx( &Contexts.CommandsNvmCtxSize );
     Contexts.ClassBNvmCtx = LoRaMacClassBGetNvmCtx( &Contexts.ClassBNvmCtxSize );
     Contexts.ConfirmQueueNvmCtx = LoRaMacConfirmQueueGetNvmCtx( &Contexts.ConfirmQueueNvmCtxSize );
-    Contexts.FCntHandlerNvmCtx = LoRaMacFCntHandlerGetNvmCtx( &Contexts.FCntHandlerNvmCtxSize );
     return &Contexts;
 }
 
@@ -2814,11 +2864,6 @@ LoRaMacStatus_t RestoreCtxs( LoRaMacCtxs_t* contexts )
     if( LoRaMacCryptoRestoreNvmCtx( contexts->CryptoNvmCtx ) != LORAMAC_CRYPTO_SUCCESS )
     {
         return LORAMAC_STATUS_CRYPTO_ERROR;
-    }
-
-    if( LoRaMacFCntHandlerRestoreNvmCtx( contexts->FCntHandlerNvmCtx ) != LORAMAC_FCNT_HANDLER_SUCCESS )
-    {
-        return LORAMAC_STATUS_FCNT_HANDLER_ERROR;
     }
 
     if( LoRaMacCommandsRestoreNvmCtx( contexts->CommandsNvmCtx ) != LORAMAC_COMMANDS_SUCCESS )
@@ -2938,17 +2983,6 @@ static bool CheckRetransConfirmedUplink( void )
 
 static bool StopRetransmission( void )
 {
-    // Increase the current value by 1
-    uint32_t fCntUp = 0;
-    if( LORAMAC_FCNT_HANDLER_SUCCESS != LoRaMacGetFCntUp( &fCntUp ) )
-    {
-        return false;
-    }
-    if( LORAMAC_FCNT_HANDLER_SUCCESS != LoRaMacSetFCntUp( ( fCntUp ) ) )
-    {
-        return false;
-    }
-
     if( MacCtx.MacFlags.Bits.McpsInd == 0 )
     {   // Maximum repetitions without downlink. Increase ADR Ack counter.
         // Only process the case when the MAC did not receive a downlink.
@@ -3041,11 +3075,6 @@ static void EventClassBNvmCtxChanged( void )
 static void EventConfirmQueueNvmCtxChanged( void )
 {
     CallNvmCtxCallback( LORAMAC_NVMCTXMODULE_CONFIRM_QUEUE );
-}
-
-static void EventFCntHandlerNvmCtxChanged( void )
-{
-    CallNvmCtxCallback( LORAMAC_NVMCTXMODULE_FCNT_HANDLER );
 }
 
 static uint8_t IsRequestPending( void )
@@ -3245,14 +3274,11 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
         return LORAMAC_STATUS_MAC_COMMAD_ERROR;
     }
 
-    // Initialize FCnt Handler module
-    if( LoRaMacFCntHandlerInit( EventFCntHandlerNvmCtxChanged ) != LORAMAC_FCNT_HANDLER_SUCCESS )
-    {
-        return LORAMAC_STATUS_FCNT_HANDLER_ERROR;
-    }
-
     // Set multicast downlink counter reference
-    LoRaMacFCntHandlerSetMulticastReference( MacCtx.NvmCtx->MulticastChannelList );
+    if( LoRaMacCryptoSetMulticastReference( MacCtx.NvmCtx->MulticastChannelList ) != LORAMAC_CRYPTO_SUCCESS )
+    {
+        return LORAMAC_STATUS_CRYPTO_ERROR;
+    }
 
     // Random seed initialization
     srand1( Radio.Random( ) );

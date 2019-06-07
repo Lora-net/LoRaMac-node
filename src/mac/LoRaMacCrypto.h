@@ -70,9 +70,21 @@ typedef enum eLoRaMacCryptoStatus
      */
     LORAMAC_CRYPTO_FAIL_RJCOUNT0_OVERFLOW,
     /*!
-     * FCntUp/Down check failed
+     * FCNT_ID is not supported
      */
-    LORAMAC_CRYPTO_FAIL_FCNT,
+    LORAMAC_CRYPTO_FAIL_FCNT_ID,
+    /*!
+     * FCntUp/Down check failed (new FCnt is smaller than previous one)
+     */
+    LORAMAC_CRYPTO_FAIL_FCNT_SMALLER,
+    /*!
+     * FCntUp/Down check failed (duplicated)
+     */
+    LORAMAC_CRYPTO_FAIL_FCNT_DUPLICATED,
+    /*!
+     * MAX_GAP_FCNT check failed
+     */
+    LORAMAC_CRYPTO_FAIL_MAX_GAP_FCNT,
     /*!
      * Not allowed parameter value
      */
@@ -163,6 +175,34 @@ LoRaMacCryptoStatus_t LoRaMacCryptoRestoreNvmCtx( void* cryptoNvmCtx );
  * \retval                         - Points to a structure where the module store its non-volatile context
  */
 void* LoRaMacCryptoGetNvmCtx( size_t* cryptoNvmCtxSize );
+
+/*!
+ * Returns updated fCntID downlink counter value.
+ *
+ * \param[IN]     fCntID         - Frame counter identifier
+ * \param[IN]     maxFcntGap     - Maximum allowed frame counter difference (only necessary for L2 LW1.0.x)
+ * \param[IN]     frameFcnt      - Received frame counter (used to update current counter value)
+ * \param[OUT]    currentDown    - Current downlink counter value
+ * \retval                       - Status of the operation
+ */
+LoRaMacCryptoStatus_t LoRaMacCryptoGetFCntDown( FCntIdentifier_t fCntID, uint16_t maxFCntGap, uint32_t frameFcnt, uint32_t* currentDown );
+
+/*!
+ * Returns updated fCntUp uplink counter value.
+ *
+ * \param[IN]     currentUp      - Uplink counter value
+ * \retval                       - Status of the operation
+ */
+LoRaMacCryptoStatus_t LoRaMacCryptoGetFCntUp( uint32_t* currentUp );
+
+/*!
+ * Provides multicast context.
+ *
+ * \param[IN]     multicastList - Pointer to the multicast context list
+ *
+ * \retval                      - Status of the operation
+ */
+LoRaMacCryptoStatus_t LoRaMacCryptoSetMulticastReference( MulticastCtx_t* multicastList );
 
 /*!
  * Sets a key

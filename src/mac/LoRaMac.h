@@ -308,14 +308,6 @@ typedef struct sLoRaMacCtxs
      * \brief   Size of MLME Confirm queue module context
      */
     size_t ConfirmQueueNvmCtxSize;
-    /*!
-     * \brief   Pointer to FCnt handler module context
-     */
-    void* FCntHandlerNvmCtx;
-    /*!
-     * \brief   Size of FCnt handler module context
-     */
-    size_t FCntHandlerNvmCtxSize;
 }LoRaMacCtxs_t;
 
 /*!
@@ -2264,10 +2256,6 @@ typedef enum LoRaMacNvmCtxModule_e
      * Context for the confirm queue
      */
     LORAMAC_NVMCTXMODULE_CONFIRM_QUEUE,
-    /*!
-     * Context for the frame count handler
-     */
-    LORAMAC_NVMCTXMODULE_FCNT_HANDLER
 }LoRaMacNvmCtxModule_t;
 
 
