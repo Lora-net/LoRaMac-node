@@ -68,7 +68,7 @@
  * version it will be connected.
  */
 #define ABP_ACTIVATION_LRWAN_VERSION_V10x                  0x01000300 // 1.0.3.0
-#define ABP_ACTIVATION_LRWAN_VERSION_V11x                  0x01010000 // 1.1.0.0
+#define ABP_ACTIVATION_LRWAN_VERSION_V11x                  0x01010100 // 1.1.1.0
 
 #define ABP_ACTIVATION_LRWAN_VERSION                       ABP_ACTIVATION_LRWAN_VERSION_V11x
 
