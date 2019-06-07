@@ -1331,6 +1331,10 @@ static void ProcessRadioTxTimeout( void )
 
     MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT;
     LoRaMacConfirmQueueSetStatusCmn( LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT );
+    if( MacCtx.NodeAckRequested == true )
+    {
+        MacCtx.AckTimeoutRetry = true;
+    }
     MacCtx.MacFlags.Bits.MacDone = 1;
 }
 
