@@ -196,6 +196,16 @@ LoRaMacCryptoStatus_t LoRaMacCryptoGetFCntDown( FCntIdentifier_t fCntID, uint16_
 LoRaMacCryptoStatus_t LoRaMacCryptoGetFCntUp( uint32_t* currentUp );
 
 /*!
+ * Computes next RJcount0 or RJcount1 counter value.
+ *
+ * \param[IN]     fCntID          - Frame counter identifier
+ * \param[OUT]    rJcount         - RJcount value
+ *
+ * \retval                        - Status of the operation
+ */
+LoRaMacCryptoStatus_t LoRaMacCryptoGetRJcount( FCntIdentifier_t fCntID, uint16_t* rJcount );
+
+/*!
  * Provides multicast context.
  *
  * \param[IN]     multicastList - Pointer to the multicast context list

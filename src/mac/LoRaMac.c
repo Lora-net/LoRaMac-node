@@ -337,14 +337,6 @@ typedef struct sLoRaMacCtx
      */
     uint8_t ChannelsNbTransCounter;
     /*
-     * Number of trials to get a frame acknowledged
-     */
-    uint8_t AckTimeoutRetries;
-    /*
-     * Number of trials to get a frame acknowledged
-     */
-    uint8_t AckTimeoutRetriesCounter;
-    /*
      * Indicates if the AckTimeout timer has expired or not
      */
     bool AckTimeoutRetry;
@@ -1012,8 +1004,6 @@ static void ProcessRadioTxDone( void )
     {
         MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
     }
-    MacCtx.ChannelsNbTransCounter++;
-    MacCtx.McpsConfirm.NbTrans = MacCtx.ChannelsNbTransCounter;
 }
 
 static void PrepareRxDoneAbort( void )
@@ -2642,9 +2632,9 @@ LoRaMacStatus_t SendReJoinReq( JoinReqIdentifier_t joinReqType )
             memcpy1( MacCtx.TxMsg.Message.ReJoin1.JoinEUI, MacCtx.JoinEui, LORAMAC_JOIN_EUI_FIELD_SIZE );
             memcpy1( MacCtx.TxMsg.Message.ReJoin1.DevEUI, MacCtx.DevEui, LORAMAC_DEV_EUI_FIELD_SIZE );
 
-            if( LORAMAC_FCNT_HANDLER_SUCCESS != LoRaMacGetRJcount( RJ_COUNT_1, &MacCtx.TxMsg.Message.ReJoin1.RJcount1 ) )
+            if( LORAMAC_CRYPTO_SUCCESS != LoRaMacCryptoGetRJcount( RJ_COUNT_1, &MacCtx.TxMsg.Message.ReJoin1.RJcount1 ) )
             {
-                return LORAMAC_STATUS_FCNT_HANDLER_ERROR;
+                return LORAMAC_STATUS_CRYPTO_ERROR;
             }
 
             break;
@@ -2676,9 +2666,9 @@ LoRaMacStatus_t SendReJoinReq( JoinReqIdentifier_t joinReqType )
 
             memcpy1( MacCtx.TxMsg.Message.ReJoin0or2.DevEUI, MacCtx.DevEui, LORAMAC_DEV_EUI_FIELD_SIZE );
 
-            if( LORAMAC_FCNT_HANDLER_SUCCESS != LoRaMacGetRJcount( RJ_COUNT_0, &MacCtx.TxMsg.Message.ReJoin0or2.RJcount0 ) )
+            if( LORAMAC_CRYPTO_SUCCESS != LoRaMacCryptoGetRJcount( RJ_COUNT_0, &MacCtx.TxMsg.Message.ReJoin0or2.RJcount0 ) )
             {
-                return LORAMAC_STATUS_FCNT_HANDLER_ERROR;
+                return LORAMAC_STATUS_CRYPTO_ERROR;
             }
 
             break;
@@ -2838,7 +2828,7 @@ static LoRaMacStatus_t SecureFrame( uint8_t txDr, uint8_t txCh )
                 return LORAMAC_STATUS_FCNT_HANDLER_ERROR;
             }
 
-            if( ( MacCtx.ChannelsNbTransCounter >= 1 ) || ( MacCtx.AckTimeoutRetriesCounter > 1 ) )
+            if( MacCtx.ChannelsNbTransCounter >= 1 )
             {
                 fCntUp -= 1;
             }
@@ -3156,10 +3146,9 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
     LoRaMacClassBHaltBeaconing( );
 
     MacCtx.MacState |= LORAMAC_TX_RUNNING;
-    if( MacCtx.NodeAckRequested == false )
-    {
-        MacCtx.ChannelsNbTransCounter++;
-    }
+
+    MacCtx.ChannelsNbTransCounter++;
+    MacCtx.McpsConfirm.NbTrans = MacCtx.ChannelsNbTransCounter;
 
     // Send now
     Radio.Send( MacCtx.PktBuffer, MacCtx.PktBufferLen );
