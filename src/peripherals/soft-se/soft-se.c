@@ -159,8 +159,10 @@ static SecureElementStatus_t ComputeCmac( uint8_t *micBxBuffer, uint8_t *buffer,
 
 SecureElementStatus_t SecureElementInit( SecureElementNvmEvent seNvmCtxChanged )
 {
-    // Initialize with defaults
     uint8_t itr = 0;
+    uint8_t zeroKey[16] = { 0 };
+
+    // Initialize with defaults
     SeNvmCtx.KeyList[itr++].KeyID = APP_KEY;
     SeNvmCtx.KeyList[itr++].KeyID = GEN_APP_KEY;
     SeNvmCtx.KeyList[itr++].KeyID = NWK_KEY;
@@ -184,7 +186,10 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmEvent seNvmCtxChanged )
     SeNvmCtx.KeyList[itr++].KeyID = MC_KEY_3;
     SeNvmCtx.KeyList[itr++].KeyID = MC_APP_S_KEY_3;
     SeNvmCtx.KeyList[itr++].KeyID = MC_NWK_S_KEY_3;
-    SeNvmCtx.KeyList[itr++].KeyID = SLOT_RAND_ZERO_KEY;
+    SeNvmCtx.KeyList[itr].KeyID = SLOT_RAND_ZERO_KEY;
+
+    // Set standard keys
+    memcpy1( SeNvmCtx.KeyList[itr].KeyValue, zeroKey, KEY_SIZE );
 
     // Assign callback
     if( seNvmCtxChanged != 0 )

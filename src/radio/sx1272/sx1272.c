@@ -260,6 +260,11 @@ bool SX1272IsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh
     int16_t rssi = 0;
     uint32_t carrierSenseTime = 0;
 
+    if( SX1272GetStatus( ) != RF_IDLE )
+    {
+        return false;
+    }
+
     SX1272SetModem( modem );
 
     SX1272SetChannel( freq );

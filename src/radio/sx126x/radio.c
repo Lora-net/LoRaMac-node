@@ -562,6 +562,11 @@ bool RadioIsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh,
     int16_t rssi = 0;
     uint32_t carrierSenseTime = 0;
 
+    if( RadioGetStatus( ) != RF_IDLE )
+    {
+        return false;
+    }
+
     RadioSetModem( modem );
 
     RadioSetChannel( freq );

@@ -190,7 +190,6 @@ static LoRaMacClassBCtx_t Ctx;
  */
 static void ComputePingOffset( uint64_t beaconTime, uint32_t address, uint16_t pingPeriod, uint16_t *pingOffset )
 {
-    uint8_t zeroKey[16];
     uint8_t buffer[16];
     uint8_t cipher[16];
     uint32_t result = 0;
@@ -199,7 +198,6 @@ static void ComputePingOffset( uint64_t beaconTime, uint32_t address, uint16_t p
      */
     uint32_t time = ( beaconTime % ( ( ( uint64_t ) 1 ) << 32 ) );
 
-    memset1( zeroKey, 0, 16 );
     memset1( buffer, 0, 16 );
     memset1( cipher, 0, 16 );
 
@@ -212,8 +210,6 @@ static void ComputePingOffset( uint64_t beaconTime, uint32_t address, uint16_t p
     buffer[5] = ( address >> 8 ) & 0xFF;
     buffer[6] = ( address >> 16 ) & 0xFF;
     buffer[7] = ( address >> 24 ) & 0xFF;
-
-    SecureElementSetKey( SLOT_RAND_ZERO_KEY, zeroKey );
 
     SecureElementAesEncrypt( buffer, 16, SLOT_RAND_ZERO_KEY, cipher );
 
