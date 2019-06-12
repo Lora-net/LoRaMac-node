@@ -127,7 +127,7 @@ static bool VerifyRfFreq( uint32_t freq, uint8_t *band )
     }
     else if( ( freq >= 868700000 ) && ( freq <= 869200000 ) )
     {
-        *band = 2;
+        *band = 5;
     }
     else if( ( freq >= 869400000 ) && ( freq <= 869650000 ) )
     {
@@ -377,6 +377,7 @@ void RegionEU868InitDefaults( InitDefaultsParams_t* params )
         EU868_BAND2,
         EU868_BAND3,
         EU868_BAND4,
+        EU868_BAND5,
     };
 
     switch( params->Type )
