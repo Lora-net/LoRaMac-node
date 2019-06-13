@@ -229,7 +229,7 @@
 /*!
  * Maximum number of bands
  */
-#define EU868_MAX_NB_BANDS                          5
+#define EU868_MAX_NB_BANDS                          6
 
 /*!
  * Band 0 definition
@@ -260,6 +260,12 @@
  * Band = { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
 #define EU868_BAND4                                 { 100 , EU868_MAX_TX_POWER, 0, 0, 0 } //  1.0 %
+
+/*!
+ * Band 5 definition
+ * Band = { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
+ */
+#define EU868_BAND5                                 { 1000, EU868_MAX_TX_POWER, 0, 0, 0 } //  0.1 %
 
 /*!
  * LoRaMac default channel 1
