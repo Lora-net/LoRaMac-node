@@ -4488,15 +4488,18 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
         }
         case MLME_PING_SLOT_INFO:
         {
-            uint8_t value = mlmeRequest->Req.PingSlotInfo.PingSlot.Value;
-
-            // LoRaMac will send this command piggy-pack
-            LoRaMacClassBSetPingSlotInfo( mlmeRequest->Req.PingSlotInfo.PingSlot.Fields.Periodicity );
-            macCmdPayload[0] = value;
-            status = LORAMAC_STATUS_OK;
-            if( LoRaMacCommandsAddCmd( MOTE_MAC_PING_SLOT_INFO_REQ, macCmdPayload, 1 ) != LORAMAC_COMMANDS_SUCCESS )
+            if( MacCtx.NvmCtx->DeviceClass == CLASS_A )
             {
-                status = LORAMAC_STATUS_MAC_COMMAD_ERROR;
+                uint8_t value = mlmeRequest->Req.PingSlotInfo.PingSlot.Value;
+
+                // LoRaMac will send this command piggy-pack
+                LoRaMacClassBSetPingSlotInfo( mlmeRequest->Req.PingSlotInfo.PingSlot.Fields.Periodicity );
+                macCmdPayload[0] = value;
+                status = LORAMAC_STATUS_OK;
+                if( LoRaMacCommandsAddCmd( MOTE_MAC_PING_SLOT_INFO_REQ, macCmdPayload, 1 ) != LORAMAC_COMMANDS_SUCCESS )
+                {
+                    status = LORAMAC_STATUS_MAC_COMMAD_ERROR;
+                }
             }
             break;
         }
