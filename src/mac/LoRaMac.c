@@ -2985,10 +2985,11 @@ static bool CheckRetransConfirmedUplink( void )
     return false;
 }
 
-
 static bool StopRetransmission( void )
 {
-    if( MacCtx.MacFlags.Bits.McpsInd == 0 )
+    if( ( MacCtx.MacFlags.Bits.McpsInd == 0 ) ||
+        ( ( MacCtx.McpsIndication.RxSlot != RX_SLOT_WIN_1 ) &&
+          ( MacCtx.McpsIndication.RxSlot != RX_SLOT_WIN_2 ) ) )
     {   // Maximum repetitions without downlink. Increase ADR Ack counter.
         // Only process the case when the MAC did not receive a downlink.
         if( MacCtx.NvmCtx->AdrCtrlOn == true )
