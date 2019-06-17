@@ -537,7 +537,7 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
                 // Check Datarate
                 // Check TxPower
                 // Check AckReceived
-                // Check NbTrials
+                // Check NbTrans
                 break;
             }
             case MCPS_PROPRIETARY:
