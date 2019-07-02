@@ -33,11 +33,6 @@ Maintainer: Miguel Luis ( Semtech ), Daniel Jaeckle ( STACKFORCE ), Johannes Bru
 #define CID_FIELD_SIZE 1
 
 /*!
- * List of all stick MAC command answers which will be deleted after a receiving downlink
- */
-const uint8_t CIDsStickyAnsCmds[] = { MOTE_MAC_DL_CHANNEL_ANS, MOTE_MAC_RX_PARAM_SETUP_ANS, MOTE_MAC_RX_TIMING_SETUP_ANS };
-
-/*!
  *  Mac Commands list structure
  */
 typedef struct sMacCommandsList
@@ -460,16 +455,9 @@ LoRaMacCommandStatus_t LoRaMacCommandsRemoveStickyAnsCmds( void )
     while( curElement != NULL )
     {
         nexElement = curElement->Next;
-        if( curElement->IsSticky == true )
+        if( IsSticky( curElement->CID ) == true )
         {
-            for( uint8_t i = 0; i < sizeof( CIDsStickyAnsCmds ); i++ )
-            {
-                if( curElement->CID == CIDsStickyAnsCmds[i] )
-                {
-                    LoRaMacCommandsRemoveCmd( curElement );
-                    break;
-                }
-            }
+            LoRaMacCommandsRemoveCmd( curElement );
         }
         curElement = nexElement;
     }
