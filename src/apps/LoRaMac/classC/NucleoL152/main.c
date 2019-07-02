@@ -1070,10 +1070,6 @@ int main( void )
                 mibReq.Param.SystemMaxRxError = 20;
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
-                mibReq.Type = MIB_DEVICE_CLASS;
-                mibReq.Param.Class = CLASS_C;
-                LoRaMacMibSetRequestConfirm( &mibReq );
-
                 LoRaMacStart( );
 
                 mibReq.Type = MIB_NETWORK_ACTIVATION;
@@ -1144,6 +1140,15 @@ int main( void )
             {
                 if( NextTx == true )
                 {
+                    mibReq.Type = MIB_DEVICE_CLASS;
+                    LoRaMacMibGetRequestConfirm( &mibReq );
+
+                    if( mibReq.Param.Class!= CLASS_C )
+                    {
+                        mibReq.Param.Class = CLASS_C;
+                        LoRaMacMibSetRequestConfirm( &mibReq );
+                    }
+
                     PrepareTxFrame( AppPort );
 
                     NextTx = SendFrame( );
