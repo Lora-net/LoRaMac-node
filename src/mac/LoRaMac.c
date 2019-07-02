@@ -2586,6 +2586,14 @@ static void ResetMacParameters( void )
     // Initialize channel index.
     MacCtx.Channel = 0;
     MacCtx.NvmCtx->LastTxChannel = MacCtx.Channel;
+
+    // Initialize Rx2 config parameters.
+    MacCtx.RxWindow2Config.Channel = MacCtx.Channel;
+    MacCtx.RxWindow2Config.Frequency = MacCtx.NvmCtx->MacParams.Rx2Channel.Frequency;
+    MacCtx.RxWindow2Config.DownlinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
+    MacCtx.RxWindow2Config.RepeaterSupport = MacCtx.NvmCtx->RepeaterSupport;
+    MacCtx.RxWindow2Config.RxContinuous = false;
+    MacCtx.RxWindow2Config.RxSlot = RX_SLOT_WIN_2;
 }
 
 /*!
