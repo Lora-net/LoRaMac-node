@@ -2626,8 +2626,8 @@ LoRaMacStatus_t SendReJoinReq( JoinReqIdentifier_t joinReqType )
 
             MacCtx.TxMsg.Message.ReJoin1.ReJoinType = 1;
 
-            memcpy1( MacCtx.TxMsg.Message.ReJoin1.JoinEUI, MacCtx.JoinEui, LORAMAC_JOIN_EUI_FIELD_SIZE );
-            memcpy1( MacCtx.TxMsg.Message.ReJoin1.DevEUI, MacCtx.DevEui, LORAMAC_DEV_EUI_FIELD_SIZE );
+            memcpy1( MacCtx.TxMsg.Message.ReJoin1.JoinEUI, SecureElementGetJoinEui( ), LORAMAC_JOIN_EUI_FIELD_SIZE );
+            memcpy1( MacCtx.TxMsg.Message.ReJoin1.DevEUI, SecureElementGetDevEui( ), LORAMAC_DEV_EUI_FIELD_SIZE );
 
             if( LORAMAC_CRYPTO_SUCCESS != LoRaMacCryptoGetRJcount( RJ_COUNT_1, &MacCtx.TxMsg.Message.ReJoin1.RJcount1 ) )
             {
@@ -2661,7 +2661,7 @@ LoRaMacStatus_t SendReJoinReq( JoinReqIdentifier_t joinReqType )
             MacCtx.TxMsg.Message.ReJoin0or2.NetID[1] = ( MacCtx.NvmCtx->NetID >> 8 ) & 0xFF;
             MacCtx.TxMsg.Message.ReJoin0or2.NetID[2] = ( MacCtx.NvmCtx->NetID >> 16 ) & 0xFF;
 
-            memcpy1( MacCtx.TxMsg.Message.ReJoin0or2.DevEUI, MacCtx.DevEui, LORAMAC_DEV_EUI_FIELD_SIZE );
+            memcpy1( MacCtx.TxMsg.Message.ReJoin0or2.DevEUI, SecureElementGetDevEui( ), LORAMAC_DEV_EUI_FIELD_SIZE );
 
             if( LORAMAC_CRYPTO_SUCCESS != LoRaMacCryptoGetRJcount( RJ_COUNT_0, &MacCtx.TxMsg.Message.ReJoin0or2.RJcount0 ) )
             {
