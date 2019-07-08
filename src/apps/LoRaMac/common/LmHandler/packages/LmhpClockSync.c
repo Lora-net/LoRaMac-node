@@ -53,6 +53,7 @@ typedef struct LmhpClockSyncState_s
     bool AppTimeReqPending;
     bool AdrEnabledPrev;
     uint8_t NbTransPrev;
+    uint8_t DataratePrev;
 }LmhpClockSyncState_t;
 
 typedef enum LmhpClockSyncMoteCmd_e
@@ -201,6 +202,11 @@ static void LmhpClockSyncOnMcpsConfirm( McpsConfirm_t *mcpsConfirm )
         mibReq.Param.ChannelsNbTrans = LmhpClockSyncState.NbTransPrev;
         LoRaMacMibSetRequestConfirm( &mibReq );
 
+        // Revert data rate setting
+        mibReq.Type = MIB_CHANNELS_DATARATE;
+        mibReq.Param.ChannelsDatarate = LmhpClockSyncState.DataratePrev;
+        LoRaMacMibSetRequestConfirm( &mibReq );        
+        
         LmhpClockSyncState.AppTimeReqPending = false;
     }
 }
@@ -315,6 +321,11 @@ LmHandlerErrorStatus_t LmhpClockSyncAppTimeReq( void )
         mibReq.Param.ChannelsNbTrans = 1;
         LoRaMacMibSetRequestConfirm( &mibReq );
 
+        // Store data rate
+        mibReq.Type = MIB_CHANNELS_DATARATE;
+        LoRaMacMibGetRequestConfirm( &mibReq );  
+        LmhpClockSyncState.DataratePrev = mibReq.Param.ChannelsDatarate;
+        
         // Add DeviceTimeReq MAC command.
         // In case the network server supports this more precise command
         // this package will use DeviceTimeAns answer as clock synchronization
