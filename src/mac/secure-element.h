@@ -37,6 +37,8 @@
 #include <stdint.h>
 #include "LoRaMacCrypto.h"
 
+#define SE_EUI_SIZE             16
+
 /*!
  * Return values.
  */
@@ -165,5 +167,35 @@ SecureElementStatus_t SecureElementDeriveAndStoreKey( Version_t version, uint8_t
  * \retval                    - Status of the operation
  */
 SecureElementStatus_t SecureElementRandomNumber( uint32_t* randomNum );
+
+/*!
+ * Sets the DevEUI
+ *
+ * \param[IN] devEui          - Pointer to the 16-byte devEUI
+ * \retval                    - Status of the operation
+ */
+SecureElementStatus_t SecureElementSetDevEui( uint8_t* devEui );
+
+/*!
+ * Gets the DevEUI
+ *
+ * \retval                    - Pointer to the 16-byte devEUI
+ */
+uint8_t* SecureElementGetDevEui( void );
+
+/*!
+ * Sets the JoinEUI
+ *
+ * \param[IN] joinEui         - Pointer to the 16-byte joinEui
+ * \retval                    - Status of the operation
+ */
+SecureElementStatus_t SecureElementSetJoinEui( uint8_t* joinEui );
+
+/*!
+ * Gets the DevEUI
+ *
+ * \retval                    - Pointer to the 16-byte joinEui
+ */
+uint8_t* SecureElementGetJoinEui( void );
 
 #endif //  __SECURE_ELEMENT_H__

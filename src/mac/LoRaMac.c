@@ -202,14 +202,6 @@ typedef struct sLoRaMacNvmCtx
 typedef struct sLoRaMacCtx
 {
     /*
-     * Device IEEE EUI
-     */
-    uint8_t* DevEui;
-    /*
-    * Join IEEE EUI
-    */
-    uint8_t* JoinEui;
-    /*
     * Length of packet in PktBuffer
     */
     uint16_t PktBufferLen;
@@ -1012,7 +1004,7 @@ static void ProcessRadioRxDone( void )
                 PrepareRxDoneAbort( );
                 return;
             }
-            macCryptoStatus = LoRaMacCryptoHandleJoinAccept( JOIN_REQ, MacCtx.JoinEui, &macMsgJoinAccept );
+            macCryptoStatus = LoRaMacCryptoHandleJoinAccept( JOIN_REQ, SecureElementGetJoinEui( ), &macMsgJoinAccept );
 
             if( LORAMAC_CRYPTO_SUCCESS == macCryptoStatus )
             {
@@ -2350,8 +2342,8 @@ LoRaMacStatus_t SendReJoinReq( JoinReqIdentifier_t joinReqType )
             macHdr.Bits.MType = FRAME_TYPE_JOIN_REQ;
             MacCtx.TxMsg.Message.JoinReq.MHDR.Value = macHdr.Value;
 
-            memcpy1( MacCtx.TxMsg.Message.JoinReq.JoinEUI, MacCtx.JoinEui, LORAMAC_JOIN_EUI_FIELD_SIZE );
-            memcpy1( MacCtx.TxMsg.Message.JoinReq.DevEUI, MacCtx.DevEui, LORAMAC_DEV_EUI_FIELD_SIZE );
+            memcpy1( MacCtx.TxMsg.Message.JoinReq.JoinEUI, SecureElementGetJoinEui( ), LORAMAC_JOIN_EUI_FIELD_SIZE );
+            memcpy1( MacCtx.TxMsg.Message.JoinReq.DevEUI, SecureElementGetDevEui( ), LORAMAC_DEV_EUI_FIELD_SIZE );
 
             allowDelayedTx = false;
 
@@ -4455,8 +4447,8 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
 
             ResetMacParameters( );
 
-            MacCtx.DevEui = mlmeRequest->Req.Join.DevEui;
-            MacCtx.JoinEui = mlmeRequest->Req.Join.JoinEui;
+            SecureElementSetDevEui( mlmeRequest->Req.Join.DevEui );
+            SecureElementSetJoinEui( mlmeRequest->Req.Join.JoinEui );
 
             MacCtx.NvmCtx->MacParams.ChannelsDatarate = RegionAlternateDr( MacCtx.NvmCtx->Region, mlmeRequest->Req.Join.Datarate, ALTERNATE_DR );
 
