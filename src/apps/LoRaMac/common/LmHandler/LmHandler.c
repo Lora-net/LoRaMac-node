@@ -280,6 +280,14 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
         LmHandlerCallbacks->GetUniqueId( CommissioningParams.DevEui );
 #endif
 
+        mibReq.Type = MIB_DEV_EUI;
+        mibReq.Param.DevEui = CommissioningParams.DevEui;
+        LoRaMacMibSetRequestConfirm( &mibReq );
+
+        mibReq.Type = MIB_JOIN_EUI;
+        mibReq.Param.JoinEui = CommissioningParams.JoinEui;
+        LoRaMacMibSetRequestConfirm( &mibReq );
+
 #if( OVER_THE_AIR_ACTIVATION == 0 )
 
 #if( STATIC_DEVICE_ADDRESS != 1 )
@@ -395,8 +403,6 @@ static void LmHandlerJoinRequest( bool isOtaa )
         MlmeReq_t mlmeReq;
 
         mlmeReq.Type = MLME_JOIN;
-        mlmeReq.Req.Join.DevEui = CommissioningParams.DevEui;
-        mlmeReq.Req.Join.JoinEui = CommissioningParams.JoinEui;
         mlmeReq.Req.Join.Datarate = LmHandlerParams->TxDatarate;
         // Update commissioning parameters activation type variable.
         CommissioningParams.IsOtaaActivation = true;
