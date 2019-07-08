@@ -4463,18 +4463,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
                 return LORAMAC_STATUS_BUSY;
             }
 
-            if( ( mlmeRequest->Req.Join.DevEui == NULL ) ||
-                ( mlmeRequest->Req.Join.JoinEui == NULL ) )
-            {
-                return LORAMAC_STATUS_PARAMETER_INVALID;
-            }
-
-            MacCtx.NvmCtx->NetworkActivation = ACTIVATION_TYPE_NONE;
-
             ResetMacParameters( );
-
-            SecureElementSetDevEui( mlmeRequest->Req.Join.DevEui );
-            SecureElementSetJoinEui( mlmeRequest->Req.Join.JoinEui );
 
             MacCtx.NvmCtx->MacParams.ChannelsDatarate = RegionAlternateDr( MacCtx.NvmCtx->Region, mlmeRequest->Req.Join.Datarate, ALTERNATE_DR );
 
