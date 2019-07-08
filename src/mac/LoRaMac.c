@@ -3422,6 +3422,16 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t* mibGet )
             mibGet->Param.NetworkActivation = MacCtx.NvmCtx->NetworkActivation;
             break;
         }
+        case MIB_DEV_EUI:
+        {
+            mibGet->Param.DevEui = SecureElementGetDevEui( );
+            break;
+        }
+        case MIB_JOIN_EUI:
+        {
+            mibGet->Param.JoinEui = SecureElementGetJoinEui( );
+            break;
+        }
         case MIB_ADR:
         {
             mibGet->Param.AdrEnable = MacCtx.NvmCtx->AdrCtrlOn;
@@ -3605,6 +3615,22 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
             }
             else
             {   // Do not allow to set ACTIVATION_TYPE_OTAA since the MAC will set it automatically after a successful join process.
+                status = LORAMAC_STATUS_PARAMETER_INVALID;
+            }
+            break;
+        }
+        case MIB_DEV_EUI:
+        {
+            if( SecureElementSetDevEui( mibSet->Param.DevEui ) != SECURE_ELEMENT_SUCCESS )
+            {
+                status = LORAMAC_STATUS_PARAMETER_INVALID;
+            }
+            break;
+        }
+        case MIB_JOIN_EUI:
+        {
+            if( SecureElementSetJoinEui( mibSet->Param.JoinEui ) != SECURE_ELEMENT_SUCCESS )
+            {
                 status = LORAMAC_STATUS_PARAMETER_INVALID;
             }
             break;
