@@ -53,6 +53,14 @@ typedef struct sKey
 typedef struct sSecureElementNvCtx
 {
     /*
+     * DevEUI storage
+     */
+    uint8_t DevEui[SE_EUI_SIZE];
+    /*
+     * Join EUI storage
+     */
+    uint8_t JoinEui[SE_EUI_SIZE];
+    /*
      * AES computation context variable
      */
     aes_context AesContext;
@@ -190,6 +198,9 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmEvent seNvmCtxChanged )
 
     // Set standard keys
     memcpy1( SeNvmCtx.KeyList[itr].KeyValue, zeroKey, KEY_SIZE );
+
+    memset1( SeNvmCtx.DevEui, 0, SE_EUI_SIZE );
+    memset1( SeNvmCtx.JoinEui, 0, SE_EUI_SIZE );
 
     // Assign callback
     if( seNvmCtxChanged != 0 )
@@ -371,4 +382,36 @@ SecureElementStatus_t SecureElementRandomNumber( uint32_t* randomNum )
     }
     *randomNum = Radio.Random( );
     return SECURE_ELEMENT_SUCCESS;
+}
+
+SecureElementStatus_t SecureElementSetDevEui( uint8_t* devEui )
+{
+    if( devEui == NULL )
+    {
+        return SECURE_ELEMENT_ERROR_NPE;
+    }
+    memcpy1( SeNvmCtx.DevEui, devEui, SE_EUI_SIZE );
+    SeNvmCtxChanged( );
+    return SECURE_ELEMENT_SUCCESS;
+}
+
+uint8_t* SecureElementGetDevEui( void )
+{
+    return SeNvmCtx.DevEui;
+}
+
+SecureElementStatus_t SecureElementSetJoinEui( uint8_t* joinEui )
+{
+    if( joinEui == NULL )
+    {
+        return SECURE_ELEMENT_ERROR_NPE;
+    }
+    memcpy1( SeNvmCtx.JoinEui, joinEui, SE_EUI_SIZE );
+    SeNvmCtxChanged( );
+    return SECURE_ELEMENT_SUCCESS;
+}
+
+uint8_t* SecureElementGetJoinEui( void )
+{
+    return SeNvmCtx.JoinEui;
 }

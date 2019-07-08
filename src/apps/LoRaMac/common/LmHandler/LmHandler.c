@@ -46,7 +46,7 @@
 
 #include "LoRaMacTest.h"
 
-static CommissioningParams_t CommissioningParams = 
+static CommissioningParams_t CommissioningParams =
 {
     .IsOtaaActivation = OVER_THE_AIR_ACTIVATION,
     .DevEui = LORAWAN_DEVICE_EUI,
@@ -92,14 +92,14 @@ static LoRaMacPrimitives_t LoRaMacPrimitives;
  */
 static LoRaMacCallback_t LoRaMacCallbacks;
 
-static LmHandlerJoinParams_t JoinParams = 
+static LmHandlerJoinParams_t JoinParams =
 {
     .CommissioningParams = &CommissioningParams,
     .Datarate = DR_0,
     .Status = LORAMAC_HANDLER_ERROR
 };
 
-static LmHandlerTxParams_t TxParams = 
+static LmHandlerTxParams_t TxParams =
 {
     .CommissioningParams = &CommissioningParams,
     .MsgType = LORAMAC_HANDLER_UNCONFIRMED_MSG,
@@ -116,7 +116,7 @@ static LmHandlerTxParams_t TxParams =
     .Channel = 0
 };
 
-static LmHandlerRxParams_t RxParams = 
+static LmHandlerRxParams_t RxParams =
 {
     .CommissioningParams = &CommissioningParams,
     .Rssi = 0,
@@ -125,11 +125,11 @@ static LmHandlerRxParams_t RxParams =
     .RxSlot = -1
 };
 
-static LoRaMAcHandlerBeaconParams_t BeaconParams = 
+static LoRaMAcHandlerBeaconParams_t BeaconParams =
 {
     .State = LORAMAC_HANDLER_BEACON_ACQUIRING,
-    .Info = 
-    { 
+    .Info =
+    {
         .Time = { .Seconds = 0, .SubSeconds = 0 },
         .Frequency = 0,
         .Datarate = 0,
@@ -145,7 +145,7 @@ static LoRaMAcHandlerBeaconParams_t BeaconParams =
 
 /*!
  * Indicates if a switch to Class B operation is pending or not.
- * 
+ *
  * TODO: Create a new structure to store the current handler states/status
  *       and add the below variable to it.
  */
@@ -212,7 +212,7 @@ typedef enum PackageNotifyTypes_e
 
 /*!
  * Notifies the package to process the LoRaMac callbacks.
- * 
+ *
  * \param [IN] notifyType MAC notification type [PACKAGE_MCPS_CONFIRM,
  *                                               PACKAGE_MCPS_INDICATION,
  *                                               PACKAGE_MLME_CONFIRM,
@@ -279,6 +279,14 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
 #if( STATIC_DEVICE_EUI != 1 )
         LmHandlerCallbacks->GetUniqueId( CommissioningParams.DevEui );
 #endif
+
+        mibReq.Type = MIB_DEV_EUI;
+        mibReq.Param.DevEui = CommissioningParams.DevEui;
+        LoRaMacMibSetRequestConfirm( &mibReq );
+
+        mibReq.Type = MIB_JOIN_EUI;
+        mibReq.Param.JoinEui = CommissioningParams.JoinEui;
+        LoRaMacMibSetRequestConfirm( &mibReq );
 
 #if( OVER_THE_AIR_ACTIVATION == 0 )
 
@@ -385,7 +393,7 @@ void LmHandlerProcess( void )
  * Join a LoRa Network in classA
  *
  * \Note if the device is ABP, this is a pass through function
- * 
+ *
  * \param [IN] isOtaa Indicates which activation mode must be used
  */
 static void LmHandlerJoinRequest( bool isOtaa )
@@ -395,8 +403,6 @@ static void LmHandlerJoinRequest( bool isOtaa )
         MlmeReq_t mlmeReq;
 
         mlmeReq.Type = MLME_JOIN;
-        mlmeReq.Req.Join.DevEui = CommissioningParams.DevEui;
-        mlmeReq.Req.Join.JoinEui = CommissioningParams.JoinEui;
         mlmeReq.Req.Join.Datarate = LmHandlerParams->TxDatarate;
         // Update commissioning parameters activation type variable.
         CommissioningParams.IsOtaaActivation = true;
@@ -407,7 +413,7 @@ static void LmHandlerJoinRequest( bool isOtaa )
     else
     {
         MibRequestConfirm_t mibReq;
-        LmHandlerJoinParams_t joinParams = 
+        LmHandlerJoinParams_t joinParams =
         {
             .CommissioningParams = &CommissioningParams,
             .Datarate = LmHandlerParams->TxDatarate,
@@ -521,7 +527,7 @@ static LmHandlerErrorStatus_t LmHandlerDeviceTimeReq( void )
 
     status = LoRaMacMlmeRequest( &mlmeReq );
     LmHandlerCallbacks->OnMacMlmeRequest( status, &mlmeReq );
-    
+
     if( status == LORAMAC_STATUS_OK )
     {
         return LORAMAC_HANDLER_SUCCESS;
@@ -691,7 +697,7 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
     TxParams.AckReceived = mcpsConfirm->AckReceived;
 
     LmHandlerCallbacks->OnTxData( &TxParams );
-    
+
     LmHandlerPackagesNotify( PACKAGE_MCPS_CONFIRM, mcpsConfirm );
 }
 
