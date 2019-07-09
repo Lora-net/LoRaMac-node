@@ -1278,12 +1278,12 @@ int main( void )
                     LoRaMacMibSetRequestConfirm( &mibReq );
 
                     // Initialize LoRaMac device unique ID if not already defined in Commissioning.h
-                    if( ( DevEui[0] == 0 ) && ( DevEui[1] == 0 ) &&
-                        ( DevEui[2] == 0 ) && ( DevEui[3] == 0 ) &&
-                        ( DevEui[4] == 0 ) && ( DevEui[5] == 0 ) &&
-                        ( DevEui[6] == 0 ) && ( DevEui[7] == 0 ) )
+                    if( ( devEui[0] == 0 ) && ( devEui[1] == 0 ) &&
+                        ( devEui[2] == 0 ) && ( devEui[3] == 0 ) &&
+                        ( devEui[4] == 0 ) && ( devEui[5] == 0 ) &&
+                        ( devEui[6] == 0 ) && ( devEui[7] == 0 ) )
                     {
-                        BoardGetUniqueId( DevEui );
+                        BoardGetUniqueId( devEui );
                     }
 
                     mibReq.Type = MIB_DEV_EUI;
@@ -1383,16 +1383,20 @@ int main( void )
             }
             case DEVICE_STATE_JOIN:
             {
-                printf( "DevEui      : %02X", DevEui[0] );
+                mibReq.Type = MIB_DEV_EUI;
+                LoRaMacMibGetRequestConfirm( &mibReq );
+                printf( "DevEui      : %02X", mibReq.Param.DevEui[0] );
                 for( int i = 1; i < 8; i++ )
                 {
-                    printf( "-%02X", DevEui[i] );
+                    printf( "-%02X", mibReq.Param.DevEui[i] );
                 }
                 printf( "\r\n" );
-                printf( "AppEui      : %02X", JoinEui[0] );
+                mibReq.Type = MIB_JOIN_EUI;
+                LoRaMacMibGetRequestConfirm( &mibReq );
+                printf( "AppEui      : %02X", mibReq.Param.JoinEui[0] );
                 for( int i = 1; i < 8; i++ )
                 {
-                    printf( "-%02X", JoinEui[i] );
+                    printf( "-%02X", mibReq.Param.JoinEui[i] );
                 }
                 printf( "\r\n" );
                 printf( "AppKey      : %02X", NwkKey[0] );
