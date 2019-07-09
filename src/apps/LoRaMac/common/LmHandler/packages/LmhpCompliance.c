@@ -473,13 +473,16 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
 
 static void LmhpComplianceProcess( void )
 {
+    bool isPending;
+
     CRITICAL_SECTION_BEGIN( );
-    if( ComplianceTestState.TxPending == true )
+    isPending = ComplianceTestState.TxPending;
+    ComplianceTestState.TxPending = false;
+    CRITICAL_SECTION_END( );
+    if( isPending == true )
     {
         LmhpComplianceTxProcess( );
-        ComplianceTestState.TxPending = false;
     }
-    CRITICAL_SECTION_END( );
 }
 
 static void OnComplianceTxNextPacketTimerEvent( void* context )
