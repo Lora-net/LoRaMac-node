@@ -725,6 +725,19 @@ void RadioSetRxConfig( RadioModems_t modem, uint32_t bandwidth,
             SX126xSetModulationParams( &SX126x.ModulationParams );
             SX126xSetPacketParams( &SX126x.PacketParams );
 
+            // WORKAROUND - Optimizing the Inverted IQ Operation, see DS_SX1261-2_V1.2 datasheet chapter 15.4
+            if( SX126x.PacketParams.Params.LoRa.InvertIQ == LORA_IQ_INVERTED )
+            {
+                // RegIqPolaritySetup = @address 0x0736
+                SX126xWriteRegister( 0x0736, SX126xReadRegister( 0x0736 ) & ~( 1 << 2 ) );
+            }
+            else
+            {
+                // RegIqPolaritySetup @address 0x0736
+                SX126xWriteRegister( 0x0736, SX126xReadRegister( 0x0736 ) | ( 1 << 2 ) );
+            }
+            // WORKAROUND END
+
             // Timeout Max, Timeout handled directly in SetRx function
             RxTimeout = 0xFFFF;
 
@@ -820,6 +833,20 @@ void RadioSetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
             SX126xSetPacketParams( &SX126x.PacketParams );
             break;
     }
+
+    // WORKAROUND - Modulation Quality with 500 kHz LoRa® Bandwidth, see DS_SX1261-2_V1.2 datasheet chapter 15.1
+    if( ( modem == MODEM_LORA ) && ( SX126x.ModulationParams.Params.LoRa.Bandwidth == LORA_BW_500 ) )
+    {
+        // RegTxModulation = @address 0x0889
+        SX126xWriteRegister( 0x0889, SX126xReadRegister( 0x0889 ) & ~( 1 << 2 ) );
+    }
+    else
+    {
+        // RegTxModulation = @address 0x0889
+        SX126xWriteRegister( 0x0889, SX126xReadRegister( 0x0889 ) | ( 1 << 2 ) );
+    }
+    // WORKAROUND END
+
     SX126xSetRfTxPower( power );
     TxTimeout = timeout;
 }
@@ -1106,6 +1133,13 @@ void RadioIrqProcess( void )
             {
                 //!< Update operating mode state to a value lower than \ref MODE_STDBY_XOSC
                 SX126xSetOperatingMode( MODE_STDBY_RC );
+
+                // WORKAROUND - Implicit Header Mode Timeout Behavior, see DS_SX1261-2_V1.2 datasheet chapter 15.3
+                // RegRtcControl = @address 0x0902
+                SX126xWriteRegister( 0x0902, 0x00 );
+                // RegEventMask = @address 0x0944
+                SX126xWriteRegister( 0x0944, SX126xReadRegister( 0x0944 ) | ( 1 << 1 ) );
+                // WORKAROUND END
             }
             SX126xGetPayload( RadioRxPayload, &size , 255 );
             SX126xGetPacketStatus( &RadioPktStatus );
