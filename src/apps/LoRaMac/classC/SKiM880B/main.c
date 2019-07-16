@@ -808,6 +808,17 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         ComplianceTest.State = 1;
                     }
                     break;
+                case 8: // Send DeviceTimeReq
+                    {
+                        MlmeReq_t mlmeReq;
+
+                        mlmeReq.Type = MLME_DEVICE_TIME;
+
+                        LoRaMacStatus_t status = LoRaMacMlmeRequest( &mlmeReq );
+                        printf( "\r\n###### ===== MLME-Request - MLME_DEVICE_TIME ==== ######\r\n" );
+                        printf( "STATUS      : %s\r\n", MacStatusStrings[status] );
+                    }
+                    break;
                 default:
                     break;
                 }

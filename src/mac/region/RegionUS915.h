@@ -87,7 +87,7 @@
 /*!
  * Minimal Tx output power that can be used by the node
  */
-#define US915_MIN_TX_POWER                          TX_POWER_10
+#define US915_MIN_TX_POWER                          TX_POWER_15
 
 /*!
  * Maximal Tx output power that can be used by the node
