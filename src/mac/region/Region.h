@@ -476,7 +476,7 @@
  * EU868        | -
  * IN865        | Max EIRP - 18
  * KR920        | -
- * US915        | Max ERP - 16
+ * US915        | Max ERP - 18
  * RU864        | -
  */
 #define TX_POWER_9                                  9
@@ -492,28 +492,72 @@
  * EU868        | -
  * IN865        | Max EIRP - 20
  * KR920        | -
- * US915        | Max ERP - 10
+ * US915        | Max ERP - 20
  * RU864        | -
  */
 #define TX_POWER_10                                 10
 
 /*!
- * RFU
+ * Region       | dBM
+ * ------------ | :-----:
+ * AS923        | -
+ * AU915        | Max EIRP - 22
+ * CN470        | -
+ * CN779        | -
+ * EU433        | -
+ * EU868        | -
+ * IN865        | -
+ * KR920        | -
+ * US915        | Max ERP - 22
+ * RU864        | -
  */
 #define TX_POWER_11                                 11
 
 /*!
- * RFU
+ * Region       | dBM
+ * ------------ | :-----:
+ * AS923        | -
+ * AU915        | Max EIRP - 24
+ * CN470        | -
+ * CN779        | -
+ * EU433        | -
+ * EU868        | -
+ * IN865        | -
+ * KR920        | -
+ * US915        | Max ERP - 24
+ * RU864        | -
  */
 #define TX_POWER_12                                 12
 
 /*!
- * RFU
+ * Region       | dBM
+ * ------------ | :-----:
+ * AS923        | -
+ * AU915        | Max EIRP - 26
+ * CN470        | -
+ * CN779        | -
+ * EU433        | -
+ * EU868        | -
+ * IN865        | -
+ * KR920        | -
+ * US915        | Max ERP - 26
+ * RU864        | -
  */
 #define TX_POWER_13                                 13
 
 /*!
- * RFU
+ * Region       | dBM
+ * ------------ | :-----:
+ * AS923        | -
+ * AU915        | Max EIRP - 28
+ * CN470        | -
+ * CN779        | -
+ * EU433        | -
+ * EU868        | -
+ * IN865        | -
+ * KR920        | -
+ * US915        | Max ERP - 28
+ * RU864        | -
  */
 #define TX_POWER_14                                 14
 
