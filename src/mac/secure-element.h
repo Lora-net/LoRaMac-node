@@ -30,6 +30,10 @@
  *
  * \author    Johannes Bruder ( STACKFORCE )
  *
+ * \defgroup  SECUREELEMENT Secure Element API Definition
+ *
+ * \{
+ *
  */
 #ifndef __SECURE_ELEMENT_H__
 #define __SECURE_ELEMENT_H__
@@ -197,5 +201,7 @@ SecureElementStatus_t SecureElementSetJoinEui( uint8_t* joinEui );
  * \retval                    - Pointer to the 16-byte joinEui
  */
 uint8_t* SecureElementGetJoinEui( void );
+
+/*! \} defgroup SECUREELEMENT */
 
 #endif //  __SECURE_ELEMENT_H__
