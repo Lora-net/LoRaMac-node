@@ -36,6 +36,15 @@
  *            layer and the supported features.
  * \{
  *
+ * \example   classA/B-L072Z-LRWAN1/main.c
+ *            LoRaWAN class A application example for the B-L072Z-LRWAN1.
+ *
+ * \example   classB/B-L072Z-LRWAN1/main.c
+ *            LoRaWAN class B application example for the B-L072Z-LRWAN1.
+ *
+ * \example   classC/B-L072Z-LRWAN1/main.c
+ *            LoRaWAN class C application example for the B-L072Z-LRWAN1.
+ *
  * \example   classA/NAMote72/main.c
  *            LoRaWAN class A application example for the NAMote72.
  *
@@ -62,6 +71,51 @@
  *
  * \example   classC/NucleoL152/main.c
  *            LoRaWAN class C application example for the NucleoL152.
+ *
+ * \example   classA/NucleoL476/main.c
+ *            LoRaWAN class A application example for the NucleoL476.
+ *
+ * \example   classB/NucleoL476/main.c
+ *            LoRaWAN class B application example for the NucleoL476.
+ *
+ * \example   classC/NucleoL476/main.c
+ *            LoRaWAN class C application example for the NucleoL476.
+ *
+ * \example   classA/SAML21/main.c
+ *            LoRaWAN class A application example for the SAML21.
+ *
+ * \example   classB/SAML21/main.c
+ *            LoRaWAN class B application example for the SAML21.
+ *
+ * \example   classC/SAML21/main.c
+ *            LoRaWAN class C application example for the SAML21.
+ *
+ * \example   classA/SKiM880B/main.c
+ *            LoRaWAN class A application example for the SKiM880B.
+ *
+ * \example   classB/SKiM880B/main.c
+ *            LoRaWAN class B application example for the SKiM880B.
+ *
+ * \example   classC/SKiM880B/main.c
+ *            LoRaWAN class C application example for the SKiM880B.
+ *
+ * \example   classA/SKiM881AXL/main.c
+ *            LoRaWAN class A application example for the SKiM881AXL.
+ *
+ * \example   classB/SKiM881AXL/main.c
+ *            LoRaWAN class B application example for the SKiM881AXL.
+ *
+ * \example   classC/SKiM881AXL/main.c
+ *            LoRaWAN class C application example for the SKiM881AXL.
+ *
+ * \example   classA/SKiM980A/main.c
+ *            LoRaWAN class A application example for the SKiM980A.
+ *
+ * \example   classB/SKiM980A/main.c
+ *            LoRaWAN class B application example for the SKiM980A.
+ *
+ * \example   classC/SKiM980A/main.c
+ *            LoRaWAN class C application example for the SKiM980A.
  *
  */
 #ifndef __LORAMAC_H__
