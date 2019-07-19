@@ -6,7 +6,7 @@
      \____ \| ___ |    (_   _) ___ |/ ___)  _ \
      _____) ) ____| | | || |_| ____( (___| | | |
     (______/|_____)_|_|_| \__)_____)\____)_| |_|
-        (C)2013-2018 Semtech
+        (C)2013-2019 Semtech
 
      ___ _____ _   ___ _  _____ ___  ___  ___ ___
     / __|_   _/_\ / __| |/ / __/ _ \| _ \/ __| __|
@@ -18,18 +18,16 @@
 
 The aim of this project is to show an example of the endpoint LoRaWAN stack implementation.
 
-This project has 3 active branches in place. The **[master](https://github.com/Lora-net/LoRaMac-node/tree/master)** branch which provides the latest released source code ([v4.4.1](https://github.com/Lora-net/LoRaMac-node/releases/tag/v4.4.1)), the **[develop](https://github.com/Lora-net/LoRaMac-node/tree/develop)** branch which provides the current source code development status to be released next ([Milestone 4.4.2](https://github.com/Lora-net/LoRaMac-node/milestone/2)) and the **[feature/5.0.0](https://github.com/Lora-net/LoRaMac-node/tree/feature/5.0.0)** branch which provides a preview of the current source code development status for [LoRaWAN Specification v1.1](https://lora-alliance.org/resource-hub/lorawantm-specification-v11) specification.([Milestone 5.0.0](https://github.com/Lora-net/LoRaMac-node/milestone/3))
+This project has 3 active branches in place. The **[master](https://github.com/Lora-net/LoRaMac-node/tree/master)** branch which provides the latest released source code ([v4.4.2](https://github.com/Lora-net/LoRaMac-node/releases/tag/v4.4.2)), the **[develop](https://github.com/Lora-net/LoRaMac-node/tree/develop)** branch which provides the current source code development status to be released next ([Milestone 4.4.3](https://github.com/Lora-net/LoRaMac-node/milestone/4)) and the **[feature/5.0.0](https://github.com/Lora-net/LoRaMac-node/tree/feature/5.0.0)** branch which provides a preview of the current source code development status for [LoRaWAN Specification v1.1](https://lora-alliance.org/resource-hub/lorawantm-specification-v11) specification.([Milestone 5.0.0](https://github.com/Lora-net/LoRaMac-node/milestone/3))
 
-* The [master](https://github.com/Lora-net/LoRaMac-node/tree/master) branch implementation is based on [LoRaWAN Specification v1.0.2](https://lora-alliance.org/resource-hub/lorawantm-specification-v102) and [LoRaWAN Regional Parameters v1.0.2rB](https://www.lora-alliance.org/resource-hub/lorawantm-regional-parameters-v102rb) specifications.  
-ClassA and ClassC end-device classes are fully implemented.
+* The [master](https://github.com/Lora-net/LoRaMac-node/tree/master) branch implementation is based on [LoRaWAN Specification v1.0.3](https://lora-alliance.org/resource-hub/lorawantm-specification-v103) and [LoRaWAN Regional Parameters v1.0.3revA](https://www.lora-alliance.org/resource-hub/lorawantm-regional-parameters-v103reva) specifications.  
+ClassA, ClassB and ClassC end-device classes are fully implemented.
 
 * The [develop](https://github.com/Lora-net/LoRaMac-node/tree/develop) branch implementation is based on [LoRaWAN Specification v1.0.3](https://lora-alliance.org/resource-hub/lorawantm-specification-v103) and [LoRaWAN Regional Parameters v1.0.3revA](https://lora-alliance.org/resource-hub/lorawan-regional-parameters-v103reva) specifications.  
 ClassA, ClassB and ClassC end-device classes are fully implemented.
 
 * The [feature/5.0.0](https://github.com/Lora-net/LoRaMac-node/tree/feature/5.0.0) branch implementation is based on [LoRaWAN Specification v1.1](https://lora-alliance.org/resource-hub/lorawantm-specification-v11) and [LoRaWAN Regional Parameters v1.1rB](https://lora-alliance.org/resource-hub/lorawantm-regional-parameters-v11rb) specifications.  
 ClassA, ClassB and ClassC end-device classes are fully implemented.
-
-The [develop](https://github.com/Lora-net/LoRaMac-node/tree/develop) and [feature/5.0.0](https://github.com/Lora-net/LoRaMac-node/tree/feature/5.0.0) branches both rely on a software emulated secure-element implementation. Please refer to the [Secure element API](https://github.com/Lora-net/LoRaMac-node/wiki/secure-element) document for further information.
 
 This project also provides SX1272/73, SX1276/77/78/79 and SX1261/2 radio drivers.
 
@@ -41,13 +39,17 @@ For each currently supported platform example applications are provided.
 
 * **LoRaMac/classC**: ClassC end-device example application.
 
+* **LoRaMac/fuota-test-01**: FUOTA test scenario 01 end-device example application. (Based on provided application common packages)
+
+* **LoRaMac/periodic-uplink-lpp**: ClassA/B/C end-device example application. Periodically uplinks a frame using the Cayenne LPP protocol. (Based on provided application common packages)
+
 * **ping-pong**: Point to point RF link example application.
 
 * **rx-sensi**: Example application useful to measure the radio sensitivity level using an RF generator.
 
 * **tx-cw**: Example application to show how to generate an RF Continuous Wave transmission.
 
-**Note**: *Each LoRaWAN application example (LoRaMac/classX) includes an implementation of the LoRa-Alliacne; LoRaWAN certification protocol.*
+**Note**: *Each LoRaWAN application example (LoRaMac/classX) includes an implementation of the LoRa-Alliance; LoRaWAN certification protocol.*
 
 **Note**: *The LoRaWAN stack API documentation can be found at: http://stackforce.github.io/LoRaMac-doc/*
 
@@ -87,6 +89,44 @@ This program uses the CMAC algorithm implementation
 
 ## Changelog
 
+### 2019-07-19, V4.4.2
+
+* General
+    1. Release based on "LoRaWAN specification 1.0.3" and "LoRaWAN Regional Parameters v1.0.3revA"
+    2. Examples application refactoring plus the addition of the application status display on the serial port. (921600-8-N-1)
+    3. Added new refactored application examples
+       * Added LoRa-Alliance defined application layer protocols support. Only FUOTA test scenario 01 required features are currently implemented.  
+          - "Clock Synchronization" package
+          - "Fragmented data block transport" package
+          - "Remote multicast setup" package
+    4. Added a NVM context management module. (Disabled by default)
+    5. Added secure-element support
+    6. Refactored timer.c/h, rtc-driver.c/h and added a systime.c/h module.
+    7. Functions in ISR context have been moved to main context
+    8. Replaced BoardDisableIrq and BoardEnableIrq functions by CRITICAL_SECTION_BEGIN and CRITICAL_SECTION_END respectively.
+    9. Added B-L072Z-LRWAN1 platform support.
+    10. Added NucleoL476 platform support.
+    11. Added IMST new platforms.
+    12. Removed SensorNode platform support
+    13. Removed MoteII platform support
+    14. Removed LoRaMote platform support
+    15. Applied SX1272 and SX1276 radios errata note 3.1 to the radio drivers implementation.
+    16. Fix printf/scanf functions when GCC is used as compiler.
+
+* LoRaWAN
+    1. GitHub reported issues corrections. Please refer to [Release Version 4.4.2](https://github.com/Lora-net/LoRaMac-node/milestone/2)
+    2. Heavily refactored the LoRaMac.c/h implementation.
+    3. Added RU864 region support.
+    4. Removed US915-Hybrid region support
+    5. Added ClassB support.
+    6. Added a callback to notify the upper layer to call LoRaMacProcess function
+    7. Implemented the support for RxC windows (ClassC) required by the application layer protocols.
+    8. Changed multicast channels handling according to the application layer protocols.
+
+**LoRaWAN pre-certification results**
+
+Please refer to [Releases pre-certification-results](https://github.com/Lora-net/LoRaMac-node/wiki/releases-pre-certification-results) document for further information.
+
 ### 2018-03-07, V4.4.1
 
 * General
@@ -101,19 +141,9 @@ This program uses the CMAC algorithm implementation
 * LoRaWAN
     1. GitHub reported issues corrections. Please refer to [Release Version 4.4.1](https://github.com/Lora-net/LoRaMac-node/milestone/1)
 
-**LoRaWAN certification results**
+**LoRaWAN pre-certification results**
 
-| Region        | Verdict       | # Test houses | Comments      |
-| ------------- |:-------------:|:-------------:|:--------------|
-| EU868         | <font color='green'>PASS</font> | 2 | - |
-| US915         | <font color='green'>PASS</font> | 2 | - |
-| CN779         | <font color='green'>PASS</font> | 1 | No certification specification - tests based on EU868 certification |
-| EU433         | <font color='orange'>Not tested</font> | 1 | No certification specification - tests based on EU868 certification |
-| AU915         | <font color='green'>PASS</font> | 0 | No certification specification - tests based on US915 certification |
-| CN470         | <font color='orange'>Not tested</font> | 0 | No certification specification |
-| AS923         | <font color='green'>PASS</font> | 2 | - |
-| KR920         | <font color='green'>PASS</font> | 1 | - |
-| IN865         | <font color='green'>PASS</font> | 2 | - |
+Please refer to [Releases pre-certification-results](https://github.com/Lora-net/LoRaMac-node/wiki/releases-pre-certification-results) document for further information.
 
 ### 2017-09-08, V4.4.0
 
@@ -128,19 +158,9 @@ This program uses the CMAC algorithm implementation
     2. Updated implementation to support 1.0.2 specification additions.
     3. Added the support for all "LoRaWAN Regional Parameters v1.0.2rB" document defined regions.
 
-**LoRaWAN certification results**
+**LoRaWAN pre-certification results**
 
-| Region        | Verdict       | # Test houses | Comments      |
-| ------------- |:-------------:|:-------------:|:--------------|
-| EU868         | <font color='green'>PASS</font> | 2 | - |
-| US915         | <font color='green'>PASS</font> | 2 | - |
-| CN779         | <font color='orange'>Partial PASS</font> | 1 | No certification specification - tests based on EU868 certification - All tests PASS except 1. Join Accept Rx2 parameters not being applied (under investigation) |
-| EU433         | <font color='green'>PASS</font> | 1 | No certification specification - tests based on EU868 certification |
-| AU915         | <font color='orange'>Not tested yet</font> | 0 | No certification specification |
-| CN470         | <font color='orange'>Not tested yet</font> | 0 | No certification specification |
-| AS923         | <font color='green'>PASS</font> | 2 | - |
-| KR920         | <font color='green'>PASS</font> | 1 | As of today only one test house has sent a report. We decided to perform the release anyway |
-| IN865         | <font color='orange'>PASS</font> | 1 | No certification specification - tests based on EU868 certification |
+Please refer to [Releases pre-certification-results](https://github.com/Lora-net/LoRaMac-node/wiki/releases-pre-certification-results) document for further information.
 
 ### 2017-04-19, V4.3.2
 
@@ -161,6 +181,10 @@ This program uses the CMAC algorithm implementation
     4. Removed useless LoRaMacPayload buffer.
     5. MAC layer indications handling simplification.
     6. Relocate parameter settings from ResetMacParameters to the initialization.
+
+**LoRaWAN pre-certification results**
+
+Please refer to [Releases pre-certification-results](https://github.com/Lora-net/LoRaMac-node/wiki/releases-pre-certification-results) document for further information.
 
 ### 2017-02-27, V4.3.1
 
@@ -183,6 +207,10 @@ This program uses the CMAC algorithm implementation
     1. US band corrections in order to pass the LoRaWAN certification.
     2. GitHub reported issues corrections.
     3. Add region CN470 support.
+
+**LoRaWAN pre-certification results**
+
+Please refer to [Releases pre-certification-results](https://github.com/Lora-net/LoRaMac-node/wiki/releases-pre-certification-results) document for further information.
 
 ### 2016-06-22, V4.3.0
 
@@ -217,6 +245,10 @@ This program uses the CMAC algorithm implementation
     15. Bug fix in OnRadioRxDone. Node now drops frames on port 0 with fOpts > 0.
     16. Bug fix in OnRadioRxDone. Node now receives frames with fOpts > 0 when no payload is present.
 
+**LoRaWAN pre-certification results**
+
+Please refer to [Releases pre-certification-results](https://github.com/Lora-net/LoRaMac-node/wiki/releases-pre-certification-results) document for further information.
+
 ### 2016-05-13, V4.2.0
 
 * General
@@ -249,6 +281,10 @@ This program uses the CMAC algorithm implementation
     11. Introduce a new status MAC_RX_ABORT. Reset MAC_TX_RUNNING only in OnMacStateCheckTimerEvent.
     12. Accept MAC information of duplicated, confirmed downlinks.
     13. Issue(#74): Drop frames with a downlink counter difference greater or equal to MAX_FCNT_GAP.
+
+**LoRaWAN pre-certification results**
+
+Please refer to [Releases pre-certification-results](https://github.com/Lora-net/LoRaMac-node/wiki/releases-pre-certification-results) document for further information.
 
 ### 2016-03-10, V4.1.0
 
