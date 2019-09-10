@@ -118,7 +118,7 @@ static void GetRow( uint8_t *dst, uint8_t *src, uint16_t row, uint16_t size );
  *
  * \retval parity         Parity value at the given index
  */
-static uint8_t GetParity( uint8_t index, uint8_t *matrixRow  );
+static uint8_t GetParity( uint16_t index, uint8_t *matrixRow  );
 
 /*!
  * \brief Sets the parity value on the given row of the parity matrix
@@ -127,7 +127,7 @@ static uint8_t GetParity( uint8_t index, uint8_t *matrixRow  );
  * \param [IN/OUT] matrixRow Pointer to the parity matrix.
  * \param [IN]     parity    The parity value to be set in the parity matrix
  */
-static void SetParity( uint8_t index, uint8_t *matrixRow, uint8_t parity );
+static void SetParity( uint16_t index, uint8_t *matrixRow, uint8_t parity );
 
 /*!
  * \brief Check if the provided value is a power of 2
@@ -518,7 +518,7 @@ static void GetRow( uint8_t *dst, uint8_t *src, uint16_t row, uint16_t size )
 }
 #endif
 
-static uint8_t GetParity( uint8_t index, uint8_t *matrixRow  )
+static uint8_t GetParity( uint16_t index, uint8_t *matrixRow  )
 {
     uint8_t parity;
     parity = matrixRow[index >> 3];
@@ -526,7 +526,7 @@ static uint8_t GetParity( uint8_t index, uint8_t *matrixRow  )
     return parity;
 }
 
-static void SetParity( uint8_t index, uint8_t *matrixRow, uint8_t parity )
+static void SetParity( uint16_t index, uint8_t *matrixRow, uint8_t parity )
 {
     uint8_t mask = 0xFF - ( 1 << ( 7 - ( index % 8 ) ) );
     parity = parity << ( 7 - ( index % 8 ) );
