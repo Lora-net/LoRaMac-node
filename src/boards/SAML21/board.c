@@ -40,7 +40,15 @@
 #include "timer.h"
 #include "gps.h"
 #include "rtc-board.h"
-#include "sx1276-board.h"
+
+#if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
+    #error "sx126x not yet supported for SAML21. Needs to be implemented."
+#elif defined( SX1272MB2DAS)
+    #include "sx1272-board.h"
+#elif defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
+    #include "sx1276-board.h"
+#endif
+
 #include "board.h"
 
 /*
@@ -83,12 +91,23 @@ void BoardInitMcu( void )
     UartInit( &Uart1, UART_1, UART_TX, UART_RX );
     UartConfig( &Uart1, RX_TX, 921600, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
 
+#if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
+    #error "sx126x not yet supported for SAML21. Needs to be implemented."
+#elif defined( SX1272MB2DAS)
+    SpiInit( &SX1272.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+    SX1272IoInit( );
+
+    McuInitialized = true;
+    SX1272IoDbgInit( );
+    SX1272IoTcxoInit( );
+#elif defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
     SpiInit( &SX1276.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX1276IoInit( );
 
     McuInitialized = true;
     SX1276IoDbgInit( );
     SX1276IoTcxoInit( );
+#endif
 }
 
 void BoardResetMcu( void )
@@ -101,7 +120,13 @@ void BoardResetMcu( void )
 
 void BoardDeInitMcu( void )
 {
+#if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
+    #error "sx126x not yet supported for SAML21. Needs to be implemented."
+#elif defined( SX1272MB2DAS)
+    SpiDeInit( &SX1272.Spi );
+#elif defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
     SpiDeInit( &SX1276.Spi );
+#endif
 }
 
 uint32_t BoardGetRandomSeed( void )

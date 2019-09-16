@@ -31,7 +31,6 @@ list(APPEND ${PROJECT_NAME}_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/gpio-board.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/rtc-board.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/spi-board.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/sx1276-board.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/uart-board.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/utilities.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/saml21/hw_timer.c"
@@ -63,6 +62,14 @@ list(APPEND ${PROJECT_NAME}_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/saml21/hpl/sercom/hpl_sercom.c"
 )
 
+if(MBED_RADIO_SHIELD STREQUAL SX1272MB2DAS)
+    list(APPEND ${PROJECT_NAME}_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/sx1272-board.c")
+elseif(MBED_RADIO_SHIELD STREQUAL SX1276MB1LAS OR MBED_RADIO_SHIELD STREQUAL SX1276MB1MAS)
+    list(APPEND ${PROJECT_NAME}_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/sx1276-board.c")
+else()
+    message(STATUS " Please specify the MBED_RADIO_SHIELD !\nPossible values are: SX1272MB2DAS, SX1276MB1LAS, SX1276MB1MAS.")
+endif()
+
 add_library(${PROJECT_NAME} OBJECT EXCLUDE_FROM_ALL ${${PROJECT_NAME}_SOURCES})
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC -D__SAML21J18B__)
@@ -72,6 +79,9 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<BOOL:${USE_DEBUGGER}>:USE_
 
 # Add define if radio debug pins support is enabled
 target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<BOOL:${USE_RADIO_DEBUG}>:USE_RADIO_DEBUG>)
+
+# Add compile time definition for the mbed shield if set.
+target_compile_definitions(${PROJECT_NAME} PUBLIC -D${MBED_RADIO_SHIELD})
 
 # For debug builds set the symbol DEBUG
 set(CMAKE_C_FLAGS_DEBUG -DDEBUG)

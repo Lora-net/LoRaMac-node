@@ -127,7 +127,13 @@ elseif(BOARD STREQUAL SAML21)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/SAML21)
 
     # Configure radio
-    set(RADIO sx1276 CACHE INTERNAL "Radio sx1276 selected")
+    if(MBED_RADIO_SHIELD STREQUAL SX1272MB2DAS)
+        set(RADIO sx1272 CACHE INTERNAL "Radio sx1272 selected")
+    elseif(MBED_RADIO_SHIELD STREQUAL SX1276MB1LAS OR MBED_RADIO_SHIELD STREQUAL SX1276MB1MAS)
+        set(RADIO sx1276 CACHE INTERNAL "Radio sx1276 selected")
+    else()
+        message(STATUS "Please specify the MBED_RADIO_SHIELD!\nPossible values are: SX1272MB2DAS, SX1276MB1LAS and SX1276MB1MAS.")
+    endif()
 
 elseif(BOARD STREQUAL SKiM880B)
     # Configure toolchain for SKiM881AXL

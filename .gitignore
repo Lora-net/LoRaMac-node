@@ -26,3 +26,6 @@ tmp/
 .vscode/launch.json
 .cmaketools.json
 ipch/
+cmake-build-debug/
+.idea/
+

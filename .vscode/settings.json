@@ -47,7 +47,7 @@
         // NAMote72, NucleoL073 (Default), NucleoL152, NucleoL476, SAML21, SKiM880B, SKiM980A, SKiM881AXL, B-L072Z-LRWAN1.
         "BOARD":"NucleoL073",
 
-        // MBED Radio shield selection. (Applies only to Nucleo platforms)
+        // MBED Radio shield selection. (Applies only to Nucleo and SAM platforms)
         // The following shields are supported:
         // SX1272MB2DAS, SX1276MB1LAS, SX1276MB1MAS, SX1261MBXBAS(Default), SX1262MBXCAS, SX1262MBXDAS.
         "MBED_RADIO_SHIELD":"SX1261MBXBAS",
