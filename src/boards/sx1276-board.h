@@ -22,6 +22,9 @@
  */
 #ifndef __SX1276_BOARD_H__
 #define __SX1276_BOARD_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -164,4 +167,7 @@ void SX1276DbgPinRxWrite( uint8_t state );
  */
 extern SX1276_t SX1276;
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __SX1276_BOARD_H__

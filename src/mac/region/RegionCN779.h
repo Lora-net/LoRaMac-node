@@ -36,6 +36,9 @@
  */
 #ifndef __REGION_CN779_H__
 #define __REGION_CN779_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "region/Region.h"
 
@@ -505,4 +508,7 @@ uint8_t RegionCN779ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t d
 
 /*! \} defgroup REGIONCN779 */
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __REGION_CN779_H__

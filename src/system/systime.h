@@ -24,6 +24,9 @@
  */
 #ifndef __SYS_TIME_H__
 #define __SYS_TIME_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifdef __cplusplus
 extern "C"
@@ -165,4 +168,7 @@ void SysTimeLocalTime( const uint32_t timestamp, struct tm *localtime );
 }
 #endif
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __SYS_TIME_H__

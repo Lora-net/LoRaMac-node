@@ -22,6 +22,9 @@
  */
 #ifndef __SX1272_REGS_FSK_H__
 #define __SX1272_REGS_FSK_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*!
  * ============================================================================
@@ -1139,4 +1142,7 @@
  */
 #define RF_BITRATEFRAC_MASK                         0xF0
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __SX1272_REGS_FSK_H__

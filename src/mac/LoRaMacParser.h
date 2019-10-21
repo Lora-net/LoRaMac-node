@@ -36,6 +36,9 @@
  */
 #ifndef __LORAMAC_PARSER_H__
 #define __LORAMAC_PARSER_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdint.h>
 #include "LoRaMacMessageTypes.h"
@@ -82,5 +85,8 @@ LoRaMacParserStatus_t LoRaMacParserData( LoRaMacMessageData_t *macMsg );
 
 /*! \} addtogroup LORAMAC */
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __LORAMAC_PARSER_H__
 

@@ -27,6 +27,9 @@
  */
 #ifndef __DISPLAY_BOARD_H__
 #define __DISPLAY_BOARD_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -290,4 +293,7 @@ void DisplayPrint( const char *string );
  */
 void DisplayPrintf( const char *format, ... );
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __DISPLAY_BOARD_H__

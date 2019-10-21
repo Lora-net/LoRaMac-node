@@ -36,6 +36,9 @@
  */
 #ifndef __LORAMAC_SERIALIZER_H__
 #define __LORAMAC_SERIALIZER_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include <stdint.h>
 #include "LoRaMacMessageTypes.h"
 
@@ -97,5 +100,8 @@ LoRaMacSerializerStatus_t LoRaMacSerializerData( LoRaMacMessageData_t* macMsg );
 
 /*! \} addtogroup LORAMAC */
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __LORAMAC_SERIALIZER_H__
 

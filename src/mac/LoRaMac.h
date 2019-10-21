@@ -120,6 +120,9 @@
  */
 #ifndef __LORAMAC_H__
 #define __LORAMAC_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -2705,4 +2708,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest );
 
 /*! \} defgroup LORAMAC */
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __LORAMAC_H__

@@ -35,6 +35,9 @@
  */
 #ifndef __LORAMACTEST_H__
 #define __LORAMACTEST_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*!
  * \brief   Enabled or disables the duty cycle
@@ -48,4 +51,7 @@ void LoRaMacTestSetDutyCycleOn( bool enable );
 
 /*! \} defgroup LORAMACTEST */
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __LORAMACTEST_H__

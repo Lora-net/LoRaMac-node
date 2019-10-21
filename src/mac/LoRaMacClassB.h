@@ -36,6 +36,9 @@
  */
 #ifndef __LORAMACCLASSB_H__
 #define __LORAMACCLASSB_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "systime.h"
 #include "LoRaMacTypes.h"
@@ -527,4 +530,7 @@ void LoRaMacClassBSetMulticastPeriodicity( MulticastCtx_t* multicastChannel );
 
 void LoRaMacClassBProcess( void );
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __LORAMACCLASSB_H__

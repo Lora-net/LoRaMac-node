@@ -22,6 +22,9 @@
  */
 #ifndef __GPIO_BOARD_H__
 #define __GPIO_BOARD_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "gpio.h"
 
@@ -89,4 +92,7 @@ void GpioMcuToggle( Gpio_t *obj );
  */
 uint32_t GpioMcuRead( Gpio_t *obj );
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __GPIO_BOARD_H__

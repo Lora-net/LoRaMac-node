@@ -22,6 +22,9 @@
  */
 #ifndef __SX1276_H__
 #define __SX1276_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -423,4 +426,7 @@ void SX1276SetPublicNetwork( bool enable );
  */
 uint32_t SX1276GetWakeupTime( void );
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __SX1276_H__

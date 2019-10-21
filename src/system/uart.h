@@ -22,6 +22,9 @@
  */
 #ifndef __UART_H__
 #define __UART_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "fifo.h"
 #include "gpio.h"
@@ -183,4 +186,7 @@ uint8_t UartGetChar( Uart_t *obj, uint8_t *data );
  */
 uint8_t UartGetBuffer( Uart_t *obj, uint8_t *buffer, uint16_t size, uint16_t *nbReadBytes );
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __UART_H__

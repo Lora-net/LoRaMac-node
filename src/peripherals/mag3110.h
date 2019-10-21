@@ -22,6 +22,9 @@
  */
 #ifndef __MAG3110_H__
 #define __MAG3110_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdint.h>
 
@@ -101,4 +104,7 @@ void MAG3110SetDeviceAddr( uint8_t addr );
  */
 uint8_t MAG3110GetDeviceAddr( void );
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __MAG3110_H__

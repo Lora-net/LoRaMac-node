@@ -32,6 +32,9 @@
  */
 #ifndef __BOARD_CONFIG_H__
 #define __BOARD_CONFIG_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*!
  * Defines the time required for the TCXO to wakeup [ms].
@@ -93,4 +96,7 @@
 #define RADIO_DBG_PIN_TX                            PB_13
 #define RADIO_DBG_PIN_RX                            PB_14
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __BOARD_CONFIG_H__

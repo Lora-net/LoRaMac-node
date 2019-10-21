@@ -22,6 +22,9 @@
  */
 #ifndef __SX1509_H__
 #define __SX1509_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdint.h>
 
@@ -212,4 +215,7 @@ void SX1509SetDeviceAddr( uint8_t addr );
  */
 uint8_t SX1509GetDeviceAddr( void );
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __SX1509_H__

@@ -36,6 +36,9 @@
  */
 #ifndef __REGION_EU868_H__
 #define __REGION_EU868_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "region/Region.h"
 
@@ -533,4 +536,7 @@ void RegionEU868RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
 
 /*! \} defgroup REGIONEU868 */
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __REGION_EU868_H__

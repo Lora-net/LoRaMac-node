@@ -37,6 +37,9 @@
  */
 #ifndef __SECURE_ELEMENT_H__
 #define __SECURE_ELEMENT_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdint.h>
 #include "LoRaMacCrypto.h"
@@ -204,4 +207,7 @@ uint8_t* SecureElementGetJoinEui( void );
 
 /*! \} defgroup SECUREELEMENT */
 
+#ifdef __cplusplus
+}
+#endif
 #endif //  __SECURE_ELEMENT_H__

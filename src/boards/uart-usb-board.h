@@ -22,6 +22,9 @@
  */
 #ifndef __UART_USB_BOARD_H__
 #define __UART_USB_BOARD_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdint.h>
 #include "uart.h"
@@ -90,4 +93,7 @@ uint8_t UartUsbPutChar( Uart_t *obj, uint8_t data );
  */
 uint8_t UartUsbGetChar( Uart_t *obj, uint8_t *data );
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __UART_USB_BOARD_H__

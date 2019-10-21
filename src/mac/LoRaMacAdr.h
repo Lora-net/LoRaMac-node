@@ -36,6 +36,9 @@
  */
 #ifndef __LORAMACADR_H__
 #define __LORAMACADR_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*! \} defgroup LORAMACADR */
 
@@ -101,4 +104,7 @@ typedef struct sCalcNextAdrParams
  */
 bool LoRaMacAdrCalcNext( CalcNextAdrParams_t* adrNext, int8_t* drOut, int8_t* txPowOut, uint32_t* adrAckCounter );
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __LORAMACADR_H__

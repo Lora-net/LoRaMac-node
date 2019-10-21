@@ -22,6 +22,9 @@
  */
 #ifndef __GPIO_IOE_H__
 #define __GPIO_IOE_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdint.h>
 #include "gpio.h"
@@ -95,4 +98,7 @@ uint32_t GpioIoeRead( Gpio_t *obj );
  */
 void GpioIoeInterruptHandler( void );
 
+#ifdef __cplusplus
+}
+#endif
 #endif // __GPIO_IOE_H__
