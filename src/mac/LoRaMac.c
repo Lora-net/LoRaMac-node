@@ -2108,8 +2108,10 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 if( MacCtx.NvmCtx->Version.Fields.Minor == serverMinorVersion )
                 {
                     // If they equal remove the sticky ResetInd MAC-Command.
-                    LoRaMacCommandsGetCmd( MOTE_MAC_RESET_IND, &macCmd);
-                    LoRaMacCommandsRemoveCmd( macCmd );
+                    if( LoRaMacCommandsGetCmd( MOTE_MAC_RESET_IND, &macCmd) == LORAMAC_COMMANDS_SUCCESS )
+                    {
+                        LoRaMacCommandsRemoveCmd( macCmd );
+                    }
                 }
                 break;
             }
@@ -2310,8 +2312,10 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 if( MacCtx.NvmCtx->Version.Fields.Minor == serverMinorVersion )
                 {
                     // If they equal remove the sticky RekeyInd MAC-Command.
-                    LoRaMacCommandsGetCmd( MOTE_MAC_REKEY_IND, &macCmd);
-                    LoRaMacCommandsRemoveCmd( macCmd );
+                    if( LoRaMacCommandsGetCmd( MOTE_MAC_REKEY_IND, &macCmd) == LORAMAC_COMMANDS_SUCCESS )
+                    {
+                        LoRaMacCommandsRemoveCmd( macCmd );
+                    }
                 }
                 break;
             }
@@ -2422,8 +2426,10 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
             {
                 // 1 byte payload which we do not handle.
                 macIndex++;
-                LoRaMacCommandsGetCmd( MOTE_MAC_DEVICE_MODE_IND, &macCmd );
-                LoRaMacCommandsRemoveCmd( macCmd );
+                if( LoRaMacCommandsGetCmd( MOTE_MAC_DEVICE_MODE_IND, &macCmd) == LORAMAC_COMMANDS_SUCCESS )
+                {
+                    LoRaMacCommandsRemoveCmd( macCmd );
+                }
                 break;
             }
             case SRV_MAC_DEVICE_TIME_ANS:
