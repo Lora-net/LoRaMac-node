@@ -44,6 +44,11 @@
 #include "LoRaMacTypes.h"
 #include "LoRaMacMessageTypes.h"
 
+/*
+ * Initial value of the frame counters
+ */
+#define FCNT_DOWN_INITAL_VALUE          0xFFFFFFFF
+
 /*!
  * LoRaMac Cryto Status
  */
