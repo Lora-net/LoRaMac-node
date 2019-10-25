@@ -233,6 +233,7 @@ static void LmhpClockSyncOnMcpsIndication( McpsIndication_t *mcpsIndication )
                 // If yes then don't process and ignore this answer.
                 if( mcpsIndication->DeviceTimeAnsReceived == true )
                 {
+                    cmdIndex += 5;
                     break;
                 }
                 int32_t timeCorrection = 0;
