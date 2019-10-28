@@ -36,8 +36,10 @@
  */
 #ifndef __LORAMAC_MESSAGE_TYPES_H__
 #define __LORAMAC_MESSAGE_TYPES_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -330,4 +332,5 @@ typedef struct sLoRaMacMessage
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __LORAMAC_MESSAGE_TYPES_H__

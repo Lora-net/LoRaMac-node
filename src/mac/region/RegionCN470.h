@@ -36,8 +36,10 @@
  */
 #ifndef __REGION_CN470_H__
 #define __REGION_CN470_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include "region/Region.h"
@@ -497,4 +499,5 @@ uint8_t RegionCN470ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t d
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __REGION_CN470_H__

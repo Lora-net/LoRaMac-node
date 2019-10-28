@@ -36,8 +36,10 @@
  */
 #ifndef __REGION_US915_H__
 #define __REGION_US915_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include "region/Region.h"
@@ -506,4 +508,5 @@ uint8_t RegionUS915ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t d
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __REGION_US915_H__

@@ -36,8 +36,10 @@
  */
 #ifndef __LORAMACADR_H__
 #define __LORAMACADR_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /*! \} defgroup LORAMACADR */
@@ -107,4 +109,5 @@ bool LoRaMacAdrCalcNext( CalcNextAdrParams_t* adrNext, int8_t* drOut, int8_t* tx
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __LORAMACADR_H__

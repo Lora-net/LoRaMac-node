@@ -24,8 +24,10 @@
  */
 #ifndef __DELAY_BOARD_H__
 #define __DELAY_BOARD_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -40,4 +42,5 @@ void DelayMsMcu( uint32_t ms );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __DELAY_BOARD_H__

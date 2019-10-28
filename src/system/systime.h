@@ -24,8 +24,10 @@
  */
 #ifndef __SYS_TIME_H__
 #define __SYS_TIME_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -163,4 +165,5 @@ void SysTimeLocalTime( const uint32_t timestamp, struct tm *localtime );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __SYS_TIME_H__

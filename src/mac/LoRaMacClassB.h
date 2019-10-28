@@ -36,8 +36,10 @@
  */
 #ifndef __LORAMACCLASSB_H__
 #define __LORAMACCLASSB_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include "systime.h"
@@ -533,4 +535,5 @@ void LoRaMacClassBProcess( void );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __LORAMACCLASSB_H__

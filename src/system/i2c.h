@@ -22,8 +22,10 @@
  */
 #ifndef __I2C_H__
 #define __I2C_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include "gpio.h"
@@ -115,4 +117,5 @@ uint8_t I2cReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint16_t addr, uint8_t *b
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __I2C_H__

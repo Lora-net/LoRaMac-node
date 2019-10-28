@@ -22,8 +22,10 @@
  */
 #ifndef __TIMER_H__
 #define __TIMER_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stddef.h>
@@ -151,4 +153,5 @@ void TimerProcess( void );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __TIMER_H__

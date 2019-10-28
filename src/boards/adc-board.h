@@ -22,8 +22,10 @@
  */
 #ifndef __ADC_BOARD_H__
 #define __ADC_BOARD_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include "adc.h"
@@ -52,4 +54,5 @@ uint16_t AdcMcuReadChannel( Adc_t *obj, uint32_t channel );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __ADC_BOARD_H__

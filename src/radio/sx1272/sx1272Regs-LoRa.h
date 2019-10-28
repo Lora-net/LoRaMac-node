@@ -22,8 +22,10 @@
  */
 #ifndef __SX1272_REGS_LORA_H__
 #define __SX1272_REGS_LORA_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /*!
@@ -556,4 +558,5 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __SX1272_REGS_LORA_H__

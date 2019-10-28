@@ -22,8 +22,10 @@
  */
 #ifndef __RADIO_H__
 #define __RADIO_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -380,4 +382,5 @@ extern const struct Radio_s Radio;
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __RADIO_H__

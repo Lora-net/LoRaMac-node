@@ -51,8 +51,10 @@
  */
 #ifndef __REGION_H__
 #define __REGION_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -1691,4 +1693,5 @@ void RegionRxBeaconSetup( LoRaMacRegion_t region, RxBeaconSetup_t* rxBeaconSetup
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __REGION_H__

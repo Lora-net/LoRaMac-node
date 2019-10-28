@@ -26,8 +26,10 @@
  */
 #ifndef __GPIO_H__
 #define __GPIO_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -185,4 +187,5 @@ uint32_t GpioRead( Gpio_t *obj );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __GPIO_H__

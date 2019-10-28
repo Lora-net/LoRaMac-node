@@ -36,8 +36,10 @@
  */
 #ifndef __LORAMAC_CRYPTO_H__
 #define __LORAMAC_CRYPTO_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdlib.h>
@@ -323,4 +325,5 @@ LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcSessionKeyPair( AddressIdentifier_t a
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __LORAMAC_CRYPTO_H__

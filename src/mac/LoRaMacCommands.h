@@ -34,8 +34,10 @@
  */
 #ifndef __LORAMAC_COMMANDS_H__
 #define __LORAMAC_COMMANDS_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -220,5 +222,6 @@ LoRaMacCommandStatus_t LoRaMacCommandsStickyCmdsPending( bool* cmdsPending );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __LORAMAC_COMMANDS_H__
 

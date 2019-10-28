@@ -22,8 +22,10 @@
  */
 #ifndef __EEPROM_BOARD_H__
 #define __EEPROM_BOARD_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -69,4 +71,5 @@ uint8_t EepromMcuGetDeviceAddr( void );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __EEPROM_BOARD_H__

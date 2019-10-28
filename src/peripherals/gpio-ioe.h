@@ -22,8 +22,10 @@
  */
 #ifndef __GPIO_IOE_H__
 #define __GPIO_IOE_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -101,4 +103,5 @@ void GpioIoeInterruptHandler( void );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __GPIO_IOE_H__

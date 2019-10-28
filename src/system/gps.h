@@ -22,8 +22,10 @@
  */
 #ifndef __GPS_H__
 #define __GPS_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -156,4 +158,5 @@ void GpsResetPosition( void );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __GPS_H__

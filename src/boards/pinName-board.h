@@ -22,8 +22,10 @@
  */
 #ifndef __PIN_NAME_BOARD_H__
 #define __PIN_NAME_BOARD_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /*!
@@ -41,4 +43,5 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __PIN_NAME_BOARD_H__

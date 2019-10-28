@@ -37,8 +37,10 @@
  */
 #ifndef __SECURE_ELEMENT_H__
 #define __SECURE_ELEMENT_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -210,4 +212,5 @@ uint8_t* SecureElementGetJoinEui( void );
 #ifdef __cplusplus
 }
 #endif
+
 #endif //  __SECURE_ELEMENT_H__

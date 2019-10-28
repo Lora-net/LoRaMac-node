@@ -22,8 +22,10 @@
  */
 #ifndef __SX1276_BOARD_H__
 #define __SX1276_BOARD_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -170,4 +172,5 @@ extern SX1276_t SX1276;
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __SX1276_BOARD_H__

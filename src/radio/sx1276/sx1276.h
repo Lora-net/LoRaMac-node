@@ -22,8 +22,10 @@
  */
 #ifndef __SX1276_H__
 #define __SX1276_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -429,4 +431,5 @@ uint32_t SX1276GetWakeupTime( void );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __SX1276_H__

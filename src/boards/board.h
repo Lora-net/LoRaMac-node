@@ -22,8 +22,10 @@
  */
 #ifndef __BOARD_H__
 #define __BOARD_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -119,4 +121,5 @@ Version_t BoardGetVersion( void );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __BOARD_H__

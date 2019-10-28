@@ -22,8 +22,10 @@
  */
 #ifndef __RTC_BOARD_H__
 #define __RTC_BOARD_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -195,4 +197,5 @@ TimerTime_t RtcTempCompensation( TimerTime_t period, float temperature );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __RTC_BOARD_H__

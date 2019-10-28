@@ -32,8 +32,10 @@
  */
 #ifndef __NVMM_H__
 #define __NVMM_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdlib.h>
@@ -118,4 +120,5 @@ NvmmStatus_t NvmmRead( NvmmDataBlock_t* dataB, void* dst, size_t num );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __NVMM_H__

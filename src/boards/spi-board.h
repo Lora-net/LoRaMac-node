@@ -22,8 +22,10 @@
  */
 #ifndef __SPI_BOARD_H__
 #define __SPI_BOARD_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include "spi.h"
@@ -33,4 +35,5 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __SPI_BOARD_H__

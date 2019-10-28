@@ -22,8 +22,10 @@
  */
 #ifndef __SPI_H__
 #define __SPI_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include "gpio.h"
@@ -103,4 +105,5 @@ uint16_t SpiInOut( Spi_t *obj, uint16_t outData );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __SPI_H__

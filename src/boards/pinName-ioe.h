@@ -22,8 +22,10 @@
  */
 #ifndef __PIN_NAME_IOE_H__
 #define __PIN_NAME_IOE_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 // SX1509 Pin Names
@@ -33,4 +35,5 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __PIN_NAME_IOE_H__

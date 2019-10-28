@@ -22,8 +22,10 @@
  */
 #ifndef __UART_H__
 #define __UART_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include "fifo.h"
@@ -189,4 +191,5 @@ uint8_t UartGetBuffer( Uart_t *obj, uint8_t *buffer, uint16_t size, uint16_t *nb
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __UART_H__

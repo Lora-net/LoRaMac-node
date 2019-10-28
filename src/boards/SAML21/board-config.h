@@ -38,7 +38,8 @@
 #include <hal_gpio.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /*!
@@ -81,4 +82,5 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __BOARD_CONFIG_H__

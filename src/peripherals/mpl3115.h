@@ -22,8 +22,10 @@
  */
 #ifndef __MPL3115_H__
 #define __MPL3115_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -161,4 +163,5 @@ float MPL3115ReadTemperature( void );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __MPL3115_H__

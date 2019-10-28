@@ -22,8 +22,10 @@
  */
 #ifndef __SX1276_REGS_FSK_H__
 #define __SX1276_REGS_FSK_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /*!
@@ -1145,4 +1147,5 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __SX1276_REGS_FSK_H__

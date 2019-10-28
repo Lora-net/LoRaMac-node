@@ -35,8 +35,10 @@
  */
 #ifndef __LORAMACCLASSBCONFIG_H__
 #define __LORAMACCLASSBCONFIG_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /*!
@@ -118,4 +120,5 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __LORAMACCLASSBCONFIG_H__

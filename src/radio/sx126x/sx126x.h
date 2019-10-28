@@ -22,8 +22,10 @@
  */
 #ifndef __SX126x_H__
 #define __SX126x_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -1119,4 +1121,5 @@ void SX126xClearIrqStatus( uint16_t irq );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __SX126x_H__

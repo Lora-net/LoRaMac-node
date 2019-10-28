@@ -22,8 +22,10 @@
  */
 #ifndef __FIFO_H__
 #define __FIFO_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdbool.h>
@@ -91,4 +93,5 @@ bool IsFifoFull( Fifo_t *fifo );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __FIFO_H__

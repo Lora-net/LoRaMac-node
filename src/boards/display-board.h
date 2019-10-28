@@ -27,8 +27,10 @@
  */
 #ifndef __DISPLAY_BOARD_H__
 #define __DISPLAY_BOARD_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -296,4 +298,5 @@ void DisplayPrintf( const char *format, ... );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __DISPLAY_BOARD_H__

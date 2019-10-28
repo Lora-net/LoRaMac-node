@@ -22,8 +22,10 @@
  */
 #ifndef __I2C_BOARD_H__
 #define __I2C_BOARD_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdint.h>
@@ -143,4 +145,5 @@ void I2cSetAddrSize( I2c_t *obj, I2cAddrSize addrSize );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __I2C_BOARD_H__

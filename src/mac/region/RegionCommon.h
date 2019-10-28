@@ -36,8 +36,10 @@
  */
 #ifndef __REGIONCOMMON_H__
 #define __REGIONCOMMON_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include "LoRaMacTypes.h"
@@ -422,4 +424,5 @@ void RegionCommonRxBeaconSetup( RegionCommonRxBeaconSetupParams_t* rxBeaconSetup
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __REGIONCOMMON_H__

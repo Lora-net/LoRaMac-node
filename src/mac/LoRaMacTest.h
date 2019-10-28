@@ -35,8 +35,10 @@
  */
 #ifndef __LORAMACTEST_H__
 #define __LORAMACTEST_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /*!
@@ -54,4 +56,5 @@ void LoRaMacTestSetDutyCycleOn( bool enable );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __LORAMACTEST_H__

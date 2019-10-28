@@ -38,8 +38,10 @@
  */
 #ifndef __LORAMAC_CONFIRMQUEUE_H__
 #define __LORAMAC_CONFIRMQUEUE_H__
+
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stdbool.h>
@@ -198,4 +200,5 @@ bool LoRaMacConfirmQueueIsFull( void );
 #ifdef __cplusplus
 }
 #endif
+
 #endif // __LORAMAC_CONFIRMQUEUE_H__
