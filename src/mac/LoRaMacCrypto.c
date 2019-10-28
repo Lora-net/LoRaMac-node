@@ -52,11 +52,6 @@
 #define USE_RANDOM_DEV_NONCE                        1
 
 /*
- * Initial value of the frame counters
- */
-#define FCNT_DOWN_INITAL_VALUE          0xFFFFFFFF
-
-/*
  * Frame direction definition for uplink communications
  */
 #define UPLINK                          0

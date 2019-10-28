@@ -1376,6 +1376,12 @@ static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStat
                 MacCtx.McpsConfirm.Status = rx1EventInfoStatus;
             }
             LoRaMacConfirmQueueSetStatusCmn( rx1EventInfoStatus );
+
+            if( TimerGetElapsedTime( MacCtx.NvmCtx->LastTxDoneTime ) >= MacCtx.RxWindow2Delay )
+            {
+                TimerStop( &MacCtx.RxWindowTimer2 );
+                MacCtx.MacFlags.Bits.MacDone = 1;
+            }
         }
         else
         {
@@ -2359,12 +2365,41 @@ LoRaMacStatus_t SendReJoinReq( JoinReqIdentifier_t joinReqType )
     return status;
 }
 
+static LoRaMacStatus_t CheckForClassBCollision( void )
+{
+    if( LoRaMacClassBIsBeaconExpected( ) == true )
+    {
+        return LORAMAC_STATUS_BUSY_BEACON_RESERVED_TIME;
+    }
+
+    if( MacCtx.NvmCtx->DeviceClass == CLASS_B )
+    {
+        if( LoRaMacClassBIsPingExpected( ) == true )
+        {
+            return LORAMAC_STATUS_BUSY_PING_SLOT_WINDOW_TIME;
+        }
+        else if( LoRaMacClassBIsMulticastExpected( ) == true )
+        {
+            return LORAMAC_STATUS_BUSY_PING_SLOT_WINDOW_TIME;
+        }
+    }
+    return LORAMAC_STATUS_OK;
+}
+
 static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
 {
     LoRaMacStatus_t status = LORAMAC_STATUS_PARAMETER_INVALID;
     TimerTime_t dutyCycleTimeOff = 0;
     NextChanParams_t nextChan;
     size_t macCmdsSize = 0;
+
+    // Check class b collisions
+    status = CheckForClassBCollision( );
+
+    if( status != LORAMAC_STATUS_OK )
+    {
+        return status;
+    }
 
     // Update back-off
     CalculateBackOff( MacCtx.NvmCtx->LastTxChannel );
@@ -2742,27 +2777,6 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
     txConfig.AntennaGain = MacCtx.NvmCtx->MacParams.AntennaGain;
     txConfig.PktLen = MacCtx.PktBufferLen;
 
-
-    if( LoRaMacClassBIsBeaconExpected( ) == true )
-    {
-        return LORAMAC_STATUS_BUSY_BEACON_RESERVED_TIME;
-    }
-
-    if( MacCtx.NvmCtx->DeviceClass == CLASS_B )
-    {
-        if( LoRaMacClassBIsPingExpected( ) == true )
-        {
-            return LORAMAC_STATUS_BUSY_PING_SLOT_WINDOW_TIME;
-        }
-        else if( LoRaMacClassBIsMulticastExpected( ) == true )
-        {
-            return LORAMAC_STATUS_BUSY_PING_SLOT_WINDOW_TIME;
-        }
-        else
-        {
-            LoRaMacClassBStopRxSlots( );
-        }
-    }
     RegionTxConfig( MacCtx.NvmCtx->Region, &txConfig, &txPower, &MacCtx.TxTimeOnAir );
 
     MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
@@ -2784,6 +2798,12 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
         {
             return LORAMAC_STATUS_BUSY_UPLINK_COLLISION;
         }
+    }
+
+    if( MacCtx.NvmCtx->DeviceClass == CLASS_B )
+    {
+        // Stop slots for class b
+        LoRaMacClassBStopRxSlots( );
     }
 
     LoRaMacClassBHaltBeaconing( );
@@ -4317,6 +4337,9 @@ LoRaMacStatus_t LoRaMacMcChannelSetup( McChannelParams_t *channel )
         // Calculate class b parameters
         LoRaMacClassBSetMulticastPeriodicity( &MacCtx.NvmCtx->MulticastChannelList[channel->GroupID] );
     }
+
+    // Reset multicast channel downlink counter to initial value.
+    *MacCtx.NvmCtx->MulticastChannelList[channel->GroupID].DownLinkCounter = FCNT_DOWN_INITAL_VALUE;
 
     EventMacNvmCtxChanged( );
     EventRegionNvmCtxChanged( );

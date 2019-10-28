@@ -271,10 +271,7 @@ bool SX1276IsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh
     int16_t rssi = 0;
     uint32_t carrierSenseTime = 0;
 
-    if( SX1276GetStatus( ) != RF_IDLE )
-    {
-        return false;
-    }
+    SX1276SetSleep( );
 
     SX1276SetModem( modem );
 
