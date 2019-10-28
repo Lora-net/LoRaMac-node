@@ -28,10 +28,6 @@
 extern "C" {
 #endif
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 #include <stdint.h>
 #include "time.h"
 
@@ -163,10 +159,6 @@ uint32_t SysTimeMkTime( const struct tm* localtime );
                           the result of the conversion.
  */
 void SysTimeLocalTime( const uint32_t timestamp, struct tm *localtime );
-
-#ifdef __cplusplus
-}
-#endif
 
 #ifdef __cplusplus
 }
