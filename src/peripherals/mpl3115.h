@@ -23,6 +23,11 @@
 #ifndef __MPL3115_H__
 #define __MPL3115_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdint.h>
 
 /*
@@ -154,5 +159,9 @@ float MPL3115ReadPressure( void );
  * \retval temperature Measured temperature
  */
 float MPL3115ReadTemperature( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __MPL3115_H__

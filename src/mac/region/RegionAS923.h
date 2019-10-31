@@ -37,6 +37,11 @@
 #ifndef __REGION_AS923_H__
 #define __REGION_AS923_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include "region/Region.h"
 
 /*!
@@ -542,5 +547,9 @@ uint8_t RegionAS923ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t d
  void RegionAS923RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
 
 /*! \} defgroup REGIONAS923 */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __REGION_AS923_H__

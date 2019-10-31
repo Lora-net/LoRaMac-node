@@ -23,6 +23,11 @@
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -144,5 +149,9 @@ TimerTime_t TimerTempCompensation( TimerTime_t period, float temperature );
  * \brief Processes pending timer events
  */
 void TimerProcess( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __TIMER_H__

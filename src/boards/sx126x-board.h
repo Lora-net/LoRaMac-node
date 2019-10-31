@@ -23,6 +23,11 @@
 #ifndef __SX126x_BOARD_H__
 #define __SX126x_BOARD_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "sx126x/sx126x.h"
@@ -167,5 +172,9 @@ void SX126xDbgPinRxWrite( uint8_t state );
  * Radio hardware and global parameters
  */
 extern SX126x_t SX126x;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __SX126x_BOARD_H__

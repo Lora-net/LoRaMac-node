@@ -23,6 +23,11 @@
 #ifndef __SX1509_H__
 #define __SX1509_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdint.h>
 
 #define SX1509_I2C_ADDRESS                          0x3E
@@ -211,5 +216,9 @@ void SX1509SetDeviceAddr( uint8_t addr );
  * \retval: addr Current device slave address
  */
 uint8_t SX1509GetDeviceAddr( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __SX1509_H__

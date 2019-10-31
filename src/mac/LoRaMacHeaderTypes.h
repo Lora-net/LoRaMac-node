@@ -37,6 +37,11 @@
 #ifndef __LORAMAC_HEADER_TYPES_H__
 #define __LORAMAC_HEADER_TYPES_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdint.h>
 
 /*! Frame header (FHDR) maximum field size */
@@ -182,5 +187,9 @@ typedef struct sLoRaMacFrameHeader
 }LoRaMacFrameHeader_t;
 
 /*! \} addtogroup LORAMAC */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __LORAMAC_HEADER_TYPES_H__
