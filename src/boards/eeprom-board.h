@@ -23,6 +23,11 @@
 #ifndef __EEPROM_BOARD_H__
 #define __EEPROM_BOARD_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdint.h>
 
 /*!
@@ -62,5 +67,9 @@ void EepromMcuSetDeviceAddr( uint8_t addr );
  * \retval addr External EEPROM address
  */
 uint8_t EepromMcuGetDeviceAddr( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __EEPROM_BOARD_H__

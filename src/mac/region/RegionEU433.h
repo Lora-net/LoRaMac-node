@@ -37,6 +37,11 @@
 #ifndef __REGION_EU433_H__
 #define __REGION_EU433_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include "region/Region.h"
 
 /*!
@@ -505,5 +510,9 @@ uint8_t RegionEU433ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t d
  void RegionEU433RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
 
 /*! \} defgroup REGIONEU433 */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __REGION_EU433_H__

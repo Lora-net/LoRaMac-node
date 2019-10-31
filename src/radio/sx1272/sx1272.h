@@ -23,6 +23,11 @@
 #ifndef __SX1272_H__
 #define __SX1272_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "gpio.h"
@@ -418,5 +423,9 @@ void SX1272SetPublicNetwork( bool enable );
  * \retval time Radio plus board wakeup time in ms.
  */
 uint32_t SX1272GetWakeupTime( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __SX1272_H__

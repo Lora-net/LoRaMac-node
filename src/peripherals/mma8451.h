@@ -23,6 +23,11 @@
 #ifndef __MMA8451_H__
 #define __MMA8451_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdint.h>
 
 /*
@@ -82,5 +87,9 @@ void MMA8451OrientDetect( void );
  *                     Other bits don't care.
  */
 uint8_t MMA8451GetOrientation( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __MMA8451_H__

@@ -33,6 +33,11 @@
 #ifndef __BOARD_CONFIG_H__
 #define __BOARD_CONFIG_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 /*!
  * Defines the time required for the TCXO to wakeup [ms].
  */
@@ -124,5 +129,9 @@
 #define Led1                                        LedRed
 #define Led2                                        LedYellow
 #define Led3                                        LedUsr
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __BOARD_CONFIG_H__

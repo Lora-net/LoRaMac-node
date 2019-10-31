@@ -52,6 +52,11 @@
 #ifndef __REGION_H__
 #define __REGION_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "utilities.h"
@@ -1684,5 +1689,9 @@ uint8_t RegionApplyDrOffset( LoRaMacRegion_t region, uint8_t downlinkDwellTime, 
 void RegionRxBeaconSetup( LoRaMacRegion_t region, RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
 
 /*! \} defgroup REGION */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __REGION_H__

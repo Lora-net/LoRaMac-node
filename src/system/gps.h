@@ -23,6 +23,11 @@
 #ifndef __GPS_H__
 #define __GPS_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -149,5 +154,9 @@ void GpsFormatGpsData( void );
  * \brief Resets the GPS position variables
  */
 void GpsResetPosition( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __GPS_H__

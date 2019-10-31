@@ -37,6 +37,11 @@
 #ifndef __LORAMAC_MESSAGE_TYPES_H__
 #define __LORAMAC_MESSAGE_TYPES_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdint.h>
 #include "LoRaMacHeaderTypes.h"
 
@@ -323,5 +328,9 @@ typedef struct sLoRaMacMessage
 }LoRaMacMessage_t;
 
 /*! \} addtogroup LORAMAC */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __LORAMAC_MESSAGE_TYPES_H__

@@ -37,6 +37,11 @@
 
 #include <hal_gpio.h>
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 /*!
  * Defines the time required for the TCXO to wakeup [ms].
  */
@@ -73,5 +78,9 @@
 #define RTC_DBG_PIN_1                               GPIO( GPIO_PORTB, 11 )
 
 #define HWTMR_DBG_PIN_0                             GPIO( GPIO_PORTB, 30 )
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __BOARD_CONFIG_H__

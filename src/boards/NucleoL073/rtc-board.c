@@ -185,8 +185,8 @@ void RtcInit( void )
         time.Seconds                  = 0;
         time.SubSeconds               = 0;
         time.TimeFormat               = 0;
-        time.StoreOperation           = RTC_DAYLIGHTSAVING_NONE;
-        time.DayLightSaving           = RTC_STOREOPERATION_RESET;
+        time.StoreOperation           = RTC_STOREOPERATION_RESET;
+        time.DayLightSaving           = RTC_DAYLIGHTSAVING_NONE;
         HAL_RTC_SetTime( &RtcHandle, &time, RTC_FORMAT_BIN );
 
         // Enable Direct Read of the calendar registers (not through Shadow registers)

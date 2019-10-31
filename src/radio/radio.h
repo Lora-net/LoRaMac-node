@@ -23,6 +23,11 @@
 #ifndef __RADIO_H__
 #define __RADIO_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -373,5 +378,9 @@ struct Radio_s
  *         board implementation
  */
 extern const struct Radio_s Radio;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __RADIO_H__

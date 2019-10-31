@@ -37,6 +37,11 @@
 #ifndef __REGION_IN865_H__
 #define __REGION_IN865_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include "region/Region.h"
 
 /*!
@@ -507,5 +512,9 @@ uint8_t RegionIN865ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t d
  void RegionIN865RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
 
 /*! \} defgroup REGIONIN865 */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __REGION_IN865_H__

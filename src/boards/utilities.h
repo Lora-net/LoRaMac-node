@@ -23,6 +23,11 @@
 #ifndef __UTILITIES_H__
 #define __UTILITIES_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdint.h>
 
 /*!
@@ -161,5 +166,9 @@ void BoardCriticalSectionBegin( uint32_t *mask );
  * \param [IN] mask Pointer to a variable where the CPU IRQ mask was stored
  */
 void BoardCriticalSectionEnd( uint32_t *mask );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __UTILITIES_H__
