@@ -32,6 +32,7 @@ extern "C"
 #define IOE_PINS \
     IOE_0, IOE_1, IOE_2, IOE_3, IOE_4, IOE_5, IOE_6, IOE_7, \
     IOE_8, IOE_9, IOE_10, IOE_11, IOE_12, IOE_13, IOE_14, IOE_15
+
 #ifdef __cplusplus
 }
 #endif
