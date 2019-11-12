@@ -859,7 +859,11 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
                 .BufferSize = 0,
                 .Port = 0
             };
-            LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+
+            if( LmHandlerPackages[PACKAGE_ID_COMPLIANCE]->IsRunning( ) == false )
+            {
+                LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+            }
         }
         break;
     case MLME_BEACON_LOST:
