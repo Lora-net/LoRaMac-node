@@ -21,6 +21,7 @@
 
 /*! \file periodic-uplink/B-L072Z-LRWAN1/main.c */
 
+#include <stdio.h>
 #include "utilities.h"
 #include "board.h"
 #include "gpio.h"

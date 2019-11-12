@@ -21,6 +21,7 @@
 
 /*! \file periodic-uplink/SKiM980A/main.c */
 
+#include <stdio.h>
 #include "utilities.h"
 #include "board.h"
 #include "gpio.h"
