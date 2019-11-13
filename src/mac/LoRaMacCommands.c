@@ -17,6 +17,7 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainer: Miguel Luis ( Semtech ), Daniel Jaeckle ( STACKFORCE ), Johannes Bruder ( STACKFORCE )
 */
+#include <stddef.h>
 
 #include "utilities.h"
 #include "LoRaMacCommands.h"
@@ -112,7 +113,7 @@ static MacCommand_t* MallocNewMacCommandSlot( void )
         itr++;
         if( itr == NUM_OF_MAC_COMMANDS )
         {
-            return 0;
+            return NULL;
         }
     }
 
@@ -128,7 +129,7 @@ static MacCommand_t* MallocNewMacCommandSlot( void )
  */
 static bool FreeMacCommandSlot( MacCommand_t* slot )
 {
-    if( slot == 0 )
+    if( slot == NULL )
     {
         return false;
     }
@@ -148,13 +149,13 @@ static bool FreeMacCommandSlot( MacCommand_t* slot )
  */
 static bool LinkedListInit( MacCommandsList_t* list )
 {
-    if( list == 0 )
+    if( list == NULL )
     {
         return false;
     }
 
-    list->First = 0;
-    list->Last = 0;
+    list->First = NULL;
+    list->Last = NULL;
 
     return true;
 }
@@ -168,13 +169,13 @@ static bool LinkedListInit( MacCommandsList_t* list )
  */
 static bool LinkedListAdd( MacCommandsList_t* list, MacCommand_t* element )
 {
-    if( ( list == 0 ) && ( element == 0 ) )
+    if( ( list == NULL ) && ( element == NULL ) )
     {
         return false;
     }
 
     // Check if this is the first entry to enter the list.
-    if( list->First == 0 )
+    if( list->First == NULL )
     {
         list->First = element;
     }
@@ -186,7 +187,7 @@ static bool LinkedListAdd( MacCommandsList_t* list, MacCommand_t* element )
     }
 
     // Update the next point of this entry.
-    element->Next = 0;
+    element->Next = NULL;
 
     // Update the last entry of the list.
     list->Last = element;
@@ -203,7 +204,7 @@ static bool LinkedListAdd( MacCommandsList_t* list, MacCommand_t* element )
  */
 static MacCommand_t* LinkedListGetPrevious( MacCommandsList_t* list, MacCommand_t* element )
 {
-    if( ( list == 0 ) && ( element == 0 ) )
+    if( ( list == NULL ) && ( element == NULL ) )
     {
         return NULL;
     }
@@ -239,7 +240,7 @@ static MacCommand_t* LinkedListGetPrevious( MacCommandsList_t* list, MacCommand_
  */
 static bool LinkedListRemove( MacCommandsList_t* list, MacCommand_t* element )
 {
-    if( ( list == 0 ) && ( element == 0 ) )
+    if( ( list == NULL ) && ( element == NULL ) )
     {
         return false;
     }
@@ -332,7 +333,7 @@ void* LoRaMacCommandsGetNvmCtx( size_t* commandsNvmCtxSize )
 
 LoRaMacCommandStatus_t LoRaMacCommandsAddCmd( uint8_t cid, uint8_t* payload, size_t payloadSize )
 {
-    if( payload == 0 )
+    if( payload == NULL )
     {
         return LORAMAC_COMMANDS_ERROR_NPE;
     }
