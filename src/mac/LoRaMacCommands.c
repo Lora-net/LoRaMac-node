@@ -169,7 +169,7 @@ static bool LinkedListInit( MacCommandsList_t* list )
  */
 static bool LinkedListAdd( MacCommandsList_t* list, MacCommand_t* element )
 {
-    if( ( list == NULL ) && ( element == NULL ) )
+    if( ( list == NULL ) || ( element == NULL ) )
     {
         return false;
     }
@@ -204,7 +204,7 @@ static bool LinkedListAdd( MacCommandsList_t* list, MacCommand_t* element )
  */
 static MacCommand_t* LinkedListGetPrevious( MacCommandsList_t* list, MacCommand_t* element )
 {
-    if( ( list == NULL ) && ( element == NULL ) )
+    if( ( list == NULL ) || ( element == NULL ) )
     {
         return NULL;
     }
@@ -240,7 +240,7 @@ static MacCommand_t* LinkedListGetPrevious( MacCommandsList_t* list, MacCommand_
  */
 static bool LinkedListRemove( MacCommandsList_t* list, MacCommand_t* element )
 {
-    if( ( list == NULL ) && ( element == NULL ) )
+    if( ( list == NULL ) || ( element == NULL ) )
     {
         return false;
     }
