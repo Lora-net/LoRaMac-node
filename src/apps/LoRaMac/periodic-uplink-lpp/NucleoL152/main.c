@@ -21,6 +21,7 @@
 
 /*! \file periodic-uplink/NucleoL152/main.c */
 
+#include <stdio.h>
 #include "utilities.h"
 #include "board.h"
 #include "gpio.h"

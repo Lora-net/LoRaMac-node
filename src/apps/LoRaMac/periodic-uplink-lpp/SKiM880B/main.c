@@ -21,6 +21,7 @@
 
 /*! \file periodic-uplink/SKiM880B/main.c */
 
+#include <stdio.h>
 #include "utilities.h"
 #include "board.h"
 #include "gpio.h"

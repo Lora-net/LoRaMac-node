@@ -21,6 +21,7 @@
 
 /*! \file periodic-uplink/NAMote72/main.c */
 
+#include <stdio.h>
 #include "utilities.h"
 #include "board-config.h"
 #include "board.h"
