@@ -2623,6 +2623,12 @@ static void ResetMacParameters( void )
     MacCtx.RxWindow2Config.RepeaterSupport = MacCtx.NvmCtx->RepeaterSupport;
     MacCtx.RxWindow2Config.RxContinuous = false;
     MacCtx.RxWindow2Config.RxSlot = RX_SLOT_WIN_2;
+
+    // Initialize RxC config parameters.
+    MacCtx.RxWindowCConfig = MacCtx.RxWindow2Config;
+    MacCtx.RxWindowCConfig.RxContinuous = true;
+    MacCtx.RxWindowCConfig.RxSlot = RX_SLOT_WIN_CLASS_C;
+
 }
 
 /*!
@@ -2882,6 +2888,14 @@ LoRaMacStatus_t RestoreCtxs( LoRaMacCtxs_t* contexts )
     params.Type = INIT_TYPE_RESTORE_CTX;
     params.NvmCtx = contexts->RegionNvmCtx;
     RegionInitDefaults( MacCtx.NvmCtx->Region, &params );
+
+    // Initialize RxC config parameters.
+    MacCtx.RxWindowCConfig.Channel = MacCtx.Channel;
+    MacCtx.RxWindowCConfig.Frequency = MacCtx.NvmCtx->MacParams.RxCChannel.Frequency;
+    MacCtx.RxWindowCConfig.DownlinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
+    MacCtx.RxWindowCConfig.RepeaterSupport = MacCtx.NvmCtx->RepeaterSupport;
+    MacCtx.RxWindowCConfig.RxContinuous = true;
+    MacCtx.RxWindowCConfig.RxSlot = RX_SLOT_WIN_CLASS_C;
 
     if( SecureElementRestoreNvmCtx( contexts->SecureElementNvmCtx ) != SECURE_ELEMENT_SUCCESS )
     {
