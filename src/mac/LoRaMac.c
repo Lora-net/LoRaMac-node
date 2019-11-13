@@ -1855,12 +1855,7 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
                 MacCtx.NodeAckRequested = false;
                 // Set the radio into sleep mode in case we are still in RX mode
                 Radio.Sleep( );
-                // Compute Rx2 windows parameters in case the RX2 datarate has changed
-                RegionComputeRxWindowParameters( MacCtx.NvmCtx->Region,
-                                                 MacCtx.NvmCtx->MacParams.RxCChannel.Datarate,
-                                                 MacCtx.NvmCtx->MacParams.MinRxSymbols,
-                                                 MacCtx.NvmCtx->MacParams.SystemMaxRxError,
-                                                 &MacCtx.RxWindowCConfig );
+
                 OpenContinuousRxCWindow( );
 
                 status = LORAMAC_STATUS_OK;
@@ -2653,6 +2648,13 @@ static void RxWindowSetup( TimerEvent_t* rxTimer, RxConfigParams_t* rxConfig )
 
 static void OpenContinuousRxCWindow( void )
 {
+    // Compute RxC windows parameters
+    RegionComputeRxWindowParameters( MacCtx.NvmCtx->Region,
+                                     MacCtx.NvmCtx->MacParams.RxCChannel.Datarate,
+                                     MacCtx.NvmCtx->MacParams.MinRxSymbols,
+                                     MacCtx.NvmCtx->MacParams.SystemMaxRxError,
+                                     &MacCtx.RxWindowCConfig );
+
     MacCtx.RxWindowCConfig.RxSlot = RX_SLOT_WIN_CLASS_C;
     // Setup continuous listening
     MacCtx.RxWindowCConfig.RxContinuous = true;
@@ -4071,12 +4073,7 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
                     // class type.
                     // Set the radio into sleep mode in case we are still in RX mode
                     Radio.Sleep( );
-                    // Compute RxC windows parameters
-                    RegionComputeRxWindowParameters( MacCtx.NvmCtx->Region,
-                                                     MacCtx.NvmCtx->MacParams.RxCChannel.Datarate,
-                                                     MacCtx.NvmCtx->MacParams.MinRxSymbols,
-                                                     MacCtx.NvmCtx->MacParams.SystemMaxRxError,
-                                                     &MacCtx.RxWindowCConfig );
+
                     OpenContinuousRxCWindow( );
                 }
             }
