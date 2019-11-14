@@ -150,8 +150,8 @@
 #define  VDD_VALUE                    ((uint32_t)3300U) /*!< Value of VDD in mv */           
 #define  TICK_INT_PRIORITY            ((uint32_t)0U)    /*!< tick interrupt priority */            
 #define  USE_RTOS                     0U     
-#define  PREFETCH_ENABLE              0U              
-#define  PREREAD_ENABLE               1U
+#define  PREFETCH_ENABLE              1U              
+#define  PREREAD_ENABLE               0U
 #define  BUFFER_CACHE_DISABLE         0U
 
 /* ########################## Assert Selection ############################## */
