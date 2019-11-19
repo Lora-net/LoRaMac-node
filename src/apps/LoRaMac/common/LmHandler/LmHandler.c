@@ -728,7 +728,12 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
 
     if( mcpsIndication->DeviceTimeAnsReceived == true )
     {
+#if( LMH_SYS_TIME_UPDATE_NEW_API == 1 )
+        // Provide fix values. DeviceTimeAns is accurate
+        LmHandlerCallbacks->OnSysTimeUpdate( true, 0 );
+#else
         LmHandlerCallbacks->OnSysTimeUpdate( );
+#endif
     }
     // Call packages RxProcess function
     LmHandlerPackagesNotify( PACKAGE_MCPS_INDICATION, mcpsIndication );
