@@ -250,10 +250,16 @@ static void LmhpClockSyncOnMcpsIndication( McpsIndication_t *mcpsIndication )
                     LmhpClockSyncState.TimeReqParam.Fields.TokenReq = ( LmhpClockSyncState.TimeReqParam.Fields.TokenReq + 1 ) & 0x0F;
                     if( LmhpClockSyncPackage.OnSysTimeUpdate != NULL )
                     {
+#if( LMH_SYS_TIME_UPDATE_NEW_API == 1 )
+                        LmhpClockSyncPackage.OnSysTimeUpdate( 
+                                        ( timeCorrection >= -1 ) && ( timeCorrection <= 1 ),
+                                        timeCorrection );
+#else
                         if( ( timeCorrection >= -1 ) && ( timeCorrection <= 1 ) )
                         {
                             LmhpClockSyncPackage.OnSysTimeUpdate( );
                         }
+#endif
                     }
                 }
                 break;

@@ -199,10 +199,20 @@ typedef struct LmHandlerCallbacks_s
      * \param [IN] params notification parameters
      */
     void ( *OnBeaconStatusChange )( LoRaMAcHandlerBeaconParams_t *params );
+#if( LMH_SYS_TIME_UPDATE_NEW_API == 1 )
+    /*!
+     * Notifies the upper layer that the system time has been updated.
+     *
+     * \param [in] isSynchronized Indicates if the system time is synchronized in the range +/-1 second
+     * \param [in] timeCorrection Received time correction value
+     */
+    void ( *OnSysTimeUpdate )( bool isSynchronized, int32_t timeCorrection );
+#else
     /*!
      * Notifies the upper layer that the system time has been updated.
      */
     void ( *OnSysTimeUpdate )( void );
+#endif
 }LmHandlerCallbacks_t;
 
 /*!
