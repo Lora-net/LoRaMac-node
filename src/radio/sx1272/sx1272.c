@@ -1225,10 +1225,12 @@ void SX1272OnTimeoutIrq( void* context )
         break;
     case RF_TX_RUNNING:
         // Tx timeout shouldn't happen.
-        // But it has been observed that when it happens it is a result of a corrupted SPI transfer
-        // it depends on the platform design.
-        //
-        // The workaround is to put the radio in a known state. Thus, we re-initialize it.
+        // Reported issue of SPI data corruption resulting in TX TIMEOUT 
+        // is NOT related to a bug in radio transceiver.
+        // It is mainly caused by improper PCB routing of SPI lines and/or
+        // violation of SPI specifications.
+        // To mitigate redesign, Semtech offers a workaround which resets
+        // the radio transceiver and putting it into a known state.
 
         // BEGIN WORKAROUND
 
