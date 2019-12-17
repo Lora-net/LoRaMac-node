@@ -18,7 +18,7 @@
 
 The aim of this project is to show an example of the endpoint LoRaWAN stack implementation.
 
-This project has 3 active branches in place. The **[master](https://github.com/Lora-net/LoRaMac-node/tree/master)** branch which provides the latest released source code ([v4.4.2](https://github.com/Lora-net/LoRaMac-node/releases/tag/v4.4.2)), the **[develop](https://github.com/Lora-net/LoRaMac-node/tree/develop)** branch which provides the current source code development status to be released next ([Milestone 4.4.3](https://github.com/Lora-net/LoRaMac-node/milestone/4)) and the **[feature/5.0.0](https://github.com/Lora-net/LoRaMac-node/tree/feature/5.0.0)** branch which provides a preview of the current source code development status for [LoRaWAN Specification v1.1](https://lora-alliance.org/resource-hub/lorawantm-specification-v11) specification.([Milestone 5.0.0](https://github.com/Lora-net/LoRaMac-node/milestone/3))
+This project has 3 active branches in place. The **[master](https://github.com/Lora-net/LoRaMac-node/tree/master)** branch which provides the latest released source code ([v4.4.3](https://github.com/Lora-net/LoRaMac-node/releases/tag/v4.4.3)), the **[develop](https://github.com/Lora-net/LoRaMac-node/tree/develop)** branch which provides the current source code development status to be released next ([Milestone 4.4.4](https://github.com/Lora-net/LoRaMac-node/milestone/6)) and the **[feature/5.0.0](https://github.com/Lora-net/LoRaMac-node/tree/feature/5.0.0)** branch which provides a preview of the current source code development status for [LoRaWAN Specification v1.1](https://lora-alliance.org/resource-hub/lorawantm-specification-v11) specification.([Milestone 5.0.0](https://github.com/Lora-net/LoRaMac-node/milestone/3))
 
 * The [master](https://github.com/Lora-net/LoRaMac-node/tree/master) branch implementation is based on [LoRaWAN Specification v1.0.3](https://lora-alliance.org/resource-hub/lorawantm-specification-v103) and [LoRaWAN Regional Parameters v1.0.3revA](https://www.lora-alliance.org/resource-hub/lorawantm-regional-parameters-v103reva) specifications.  
 ClassA, ClassB and ClassC end-device classes are fully implemented.
@@ -89,6 +89,12 @@ This program uses the CMAC algorithm implementation
 
 ## Changelog
 
+### 2019-12-17, V4.4.3
+
+* General
+    1. Release based on "LoRaWAN specification 1.0.3" and "LoRaWAN Regional Parameters v1.0.3revA"
+    2. GitHub reported issues corrections. Please refer to [Release Version 4.4.3](https://github.com/Lora-net/LoRaMac-node/milestone/4)
+
 ### 2019-07-19, V4.4.2
 
 * General
@@ -96,9 +102,9 @@ This program uses the CMAC algorithm implementation
     2. Examples application refactoring plus the addition of the application status display on the serial port. (921600-8-N-1)
     3. Added new refactored application examples
        * Added LoRa-Alliance defined application layer protocols support. Only FUOTA test scenario 01 required features are currently implemented.  
-          - "Clock Synchronization" package
-          - "Fragmented data block transport" package
-          - "Remote multicast setup" package
+          * "Clock Synchronization" package
+          * "Fragmented data block transport" package
+          * "Remote multicast setup" package
     4. Added a NVM context management module. (Disabled by default)
     5. Added secure-element support
     6. Refactored timer.c/h, rtc-driver.c/h and added a systime.c/h module.

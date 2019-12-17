@@ -975,7 +975,7 @@ int main( void )
 
     DeviceState = DEVICE_STATE_RESTORE;
 
-    printf( "###### ===== ClassC demo application v1.0.RC1 ==== ######\r\n\r\n" );
+    printf( "###### ===== ClassC demo application v1.0.0 ==== ######\r\n\r\n" );
 
     while( 1 )
     {
