@@ -81,7 +81,9 @@ void AES_CMAC_Update(AES_CMAC_CTX *ctx, const uint8_t *data, uint32_t len)
                             return;
                    XOR(ctx->M_last, ctx->X);
                     //rijndael_encrypt(&ctx->rijndael, ctx->X, ctx->X);
-            aes_encrypt( ctx->X, ctx->X, &ctx->rijndael);
+                    memcpy1(in, &ctx->X[0], 16); //Bestela ez du ondo iten
+            aes_encrypt( in, in, &ctx->rijndael);
+                    memcpy1(&ctx->X[0], in, 16);
                     data += mlen;
                     len -= mlen;
             }
