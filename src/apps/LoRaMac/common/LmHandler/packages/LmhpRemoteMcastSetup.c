@@ -312,11 +312,12 @@ static void LmhpRemoteMcastSetupOnMcpsIndication( McpsIndication_t *mcpsIndicati
 
                 McChannelParams_t channel = 
                 {
+                    .IsRemotelySetup = true,
                     .Class = CLASS_C, // Field not used for multicast channel setup. Must be initialized to something
                     .IsEnabled = true,
                     .GroupID = ( AddressIdentifier_t )McSessionData[id].McGroupData.IdHeader.Fields.McGroupId,
                     .Address = McSessionData[id].McGroupData.McAddr,
-                    .McKeyE = McSessionData[id].McGroupData.McKeyEncrypted,
+                    .McKeys.McKeyE = McSessionData[id].McGroupData.McKeyEncrypted,
                     .FCountMin = McSessionData[id].McGroupData.McFCountMin,
                     .FCountMax = McSessionData[id].McGroupData.McFCountMax,
                     .RxParams.ClassC = // Field not used for multicast channel setup. Must be initialized to something
