@@ -254,40 +254,6 @@ static bool VerifyRfFreq( uint32_t freq )
     return true;
 }
 
-static uint8_t CountNbOfEnabledChannels( uint8_t datarate, uint16_t* channelsMask, ChannelParams_t* channels, Band_t* bands, uint8_t* enabledChannels, uint8_t* delayTx )
-{
-    uint8_t nbEnabledChannels = 0;
-    uint8_t delayTransmission = 0;
-
-    for( uint8_t i = 0, k = 0; i < US915_MAX_NB_CHANNELS; i += 16, k++ )
-    {
-        for( uint8_t j = 0; j < 16; j++ )
-        {
-            if( ( channelsMask[k] & ( 1 << j ) ) != 0 )
-            {
-                if( channels[i + j].Frequency == 0 )
-                { // Check if the channel is enabled
-                    continue;
-                }
-                if( RegionCommonValueInRange( datarate, channels[i + j].DrRange.Fields.Min,
-                                              channels[i + j].DrRange.Fields.Max ) == false )
-                { // Check if the current channel selection supports the given datarate
-                    continue;
-                }
-                if( bands[channels[i + j].Band].TimeOff > 0 )
-                { // Check if the band is available for transmission
-                    delayTransmission++;
-                    continue;
-                }
-                enabledChannels[nbEnabledChannels++] = i + j;
-            }
-        }
-    }
-
-    *delayTx = delayTransmission;
-    return nbEnabledChannels;
-}
-
 PhyParam_t RegionUS915GetPhyParam( GetPhyParams_t* getPhy )
 {
     PhyParam_t phyParam = { 0 };
@@ -992,10 +958,12 @@ void RegionUS915CalcBackOff( CalcBackOffParams_t* calcBackOff )
 LoRaMacStatus_t RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
 {
     uint8_t nbEnabledChannels = 0;
-    uint8_t delayTx = 0;
+    uint8_t nbRestrictedChannels = 0;
     uint8_t enabledChannels[US915_MAX_NB_CHANNELS] = { 0 };
-    TimerTime_t nextTxDelay = 0;
-    uint8_t newChannelIndex;
+    uint8_t newChannelIndex = 0;
+    RegionCommonIdentifyChannelsParam_t identifyChannelsParam;
+    RegionCommonCountNbOfEnabledChannelsParams_t countChannelsParams;
+    LoRaMacStatus_t status = LORAMAC_STATUS_NO_CHANNEL_FOUND;
 
     // Count 125kHz channels
     if( RegionCommonCountChannels( NvmCtx.ChannelsMaskRemaining, 0, 4 ) == 0 )
@@ -1013,27 +981,31 @@ LoRaMacStatus_t RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_
         }
     }
 
-    TimerTime_t elapsed = TimerGetElapsedTime( nextChanParams->LastAggrTx );
-    if( ( nextChanParams->LastAggrTx == 0 ) || ( nextChanParams->AggrTimeOff <= elapsed ) )
+    // Search how many channels are enabled
+    countChannelsParams.Joined = nextChanParams->Joined;
+    countChannelsParams.Datarate = nextChanParams->Datarate;
+    countChannelsParams.ChannelsMask = NvmCtx.ChannelsMaskRemaining;
+    countChannelsParams.Channels = NvmCtx.Channels;
+    countChannelsParams.Bands = NvmCtx.Bands;
+    countChannelsParams.MaxNbChannels = US915_MAX_NB_CHANNELS;
+    countChannelsParams.JoinChannels = 0;
+
+    identifyChannelsParam.AggrTimeOff = nextChanParams->AggrTimeOff;
+    identifyChannelsParam.LastAggrTx = nextChanParams->LastAggrTx;
+    identifyChannelsParam.DutyCycleEnabled = nextChanParams->DutyCycleEnabled;
+    identifyChannelsParam.MaxBands = US915_MAX_NB_BANDS;
+
+    identifyChannelsParam.CountNbOfEnabledChannelsParam = &countChannelsParams;
+
+    status = RegionCommonIdentifyChannels( &identifyChannelsParam, aggregatedTimeOff, enabledChannels,
+                                           &nbEnabledChannels, &nbRestrictedChannels, time );
+
+    if( nextChanParams->QueryNextTxDelayOnly == true )
     {
-        // Reset Aggregated time off
-        *aggregatedTimeOff = 0;
-
-        // Update bands Time OFF
-        nextTxDelay = RegionCommonUpdateBandTimeOff( nextChanParams->Joined, nextChanParams->DutyCycleEnabled, NvmCtx.Bands, US915_MAX_NB_BANDS );
-
-        // Search how many channels are enabled
-        nbEnabledChannels = CountNbOfEnabledChannels( nextChanParams->Datarate,
-                                                      NvmCtx.ChannelsMaskRemaining, NvmCtx.Channels,
-                                                      NvmCtx.Bands, enabledChannels, &delayTx );
-    }
-    else
-    {
-        delayTx++;
-        nextTxDelay = nextChanParams->AggrTimeOff - elapsed;
+        return status;
     }
 
-    if( nbEnabledChannels > 0 )
+    if( status == LORAMAC_STATUS_OK )
     {
         if( nextChanParams->Joined == true )
         {
@@ -1071,22 +1043,8 @@ LoRaMacStatus_t RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_
 
         // Disable the channel in the mask
         RegionCommonChanDisable( NvmCtx.ChannelsMaskRemaining, *channel, US915_MAX_NB_CHANNELS );
-
-        *time = 0;
-        return LORAMAC_STATUS_OK;
     }
-    else
-    {
-        if( delayTx > 0 )
-        {
-            // Delay transmission due to AggregatedTimeOff or to a band time off
-            *time = nextTxDelay;
-            return LORAMAC_STATUS_DUTYCYCLE_RESTRICTED;
-        }
-        // Datarate not supported by any channel
-        *time = 0;
-        return LORAMAC_STATUS_NO_CHANNEL_FOUND;
-    }
+    return status;
 }
 
 LoRaMacStatus_t RegionUS915ChannelAdd( ChannelAddParams_t* channelAdd )

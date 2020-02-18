@@ -161,7 +161,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoInit( LoRaMacCryptoNvmEvent cryptoNvmCtxChang
 
 /*!
  * Sets the LoRaWAN specification version to be used.
- * 
+ *
  * \warning This function should be used for ABP only. In case of OTA the version will be set automatically.
  *
  * \param[IN]     version             - LoRaWAN specification version to be used.

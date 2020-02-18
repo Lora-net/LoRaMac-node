@@ -231,7 +231,7 @@ extern "C"
 /*!
  * Datarate of the beacon channel
  */
-#define AU915_BEACON_CHANNEL_DR                     DR_10
+#define AU915_BEACON_CHANNEL_DR                     DR_8
 
 /*!
  * Bandwith of the beacon channel
@@ -241,7 +241,7 @@ extern "C"
 /*!
  * Ping slot channel datarate
  */
-#define AU915_PING_SLOT_CHANNEL_DR                  DR_10
+#define AU915_PING_SLOT_CHANNEL_DR                  DR_8
 
 /*!
  * LoRaMac maximum number of bands

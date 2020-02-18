@@ -46,6 +46,13 @@
 #define REMOTE_MCAST_SETUP_ID                       2
 #define REMOTE_MCAST_SETUP_VERSION                  1
 
+typedef enum LmhpRemoteMcastSetupSessionStates_e
+{
+    REMOTE_MCAST_SETUP_SESSION_STATE_IDLE,
+    REMOTE_MCAST_SETUP_SESSION_STATE_START,
+    REMOTE_MCAST_SETUP_SESSION_STATE_STOP,
+}LmhpRemoteMcastSetupSessionStates_t;
+
 /*!
  * Package current context
  */
@@ -53,6 +60,7 @@ typedef struct LmhpRemoteMcastSetupState_s
 {
     bool Initialized;
     bool IsRunning;
+    LmhpRemoteMcastSetupSessionStates_t SessionState;
     uint8_t DataBufferMaxSize;
     uint8_t *DataBuffer;
 }LmhpRemoteMcastSetupState_t;
@@ -122,6 +130,7 @@ static LmhpRemoteMcastSetupState_t LmhpRemoteMcastSetupState =
 {
     .Initialized = false,
     .IsRunning = false,
+    .SessionState = REMOTE_MCAST_SETUP_SESSION_STATE_IDLE,
 };
 
 typedef struct McGroupData_s
@@ -227,7 +236,32 @@ static bool LmhpRemoteMcastSetupIsRunning( void )
 
 static void LmhpRemoteMcastSetupProcess( void )
 {
-    // TODO: add sessions handling
+    LmhpRemoteMcastSetupSessionStates_t state;
+
+    CRITICAL_SECTION_BEGIN( );
+    state = LmhpRemoteMcastSetupState.SessionState;
+    LmhpRemoteMcastSetupState.SessionState = REMOTE_MCAST_SETUP_SESSION_STATE_IDLE;
+    CRITICAL_SECTION_END( );
+
+    switch( state )
+    {
+        case REMOTE_MCAST_SETUP_SESSION_STATE_START:
+            // Switch to Class C
+            LmHandlerRequestClass( CLASS_C );
+
+            TimerSetValue( &SessionStopTimer, ( 1 << McSessionData[0].SessionTimeout ) * 1000 );
+            TimerStart( &SessionStopTimer );
+            break;
+        case REMOTE_MCAST_SETUP_SESSION_STATE_STOP:
+            // Switch back to Class A
+            LmHandlerRequestClass( CLASS_A );
+            break;
+        case REMOTE_MCAST_SETUP_SESSION_STATE_IDLE:
+        // Intentional fall through
+        default:
+            // Nothing to do.
+            break;
+    }
 }
 
 static void LmhpRemoteMcastSetupOnMcpsIndication( McpsIndication_t *mcpsIndication )
@@ -278,11 +312,12 @@ static void LmhpRemoteMcastSetupOnMcpsIndication( McpsIndication_t *mcpsIndicati
 
                 McChannelParams_t channel = 
                 {
+                    .IsRemotelySetup = true,
                     .Class = CLASS_C, // Field not used for multicast channel setup. Must be initialized to something
                     .IsEnabled = true,
                     .GroupID = ( AddressIdentifier_t )McSessionData[id].McGroupData.IdHeader.Fields.McGroupId,
                     .Address = McSessionData[id].McGroupData.McAddr,
-                    .McKeyE = McSessionData[id].McGroupData.McKeyEncrypted,
+                    .McKeys.McKeyE = McSessionData[id].McGroupData.McKeyEncrypted,
                     .FCountMin = McSessionData[id].McGroupData.McFCountMin,
                     .FCountMax = McSessionData[id].McGroupData.McFCountMax,
                     .RxParams.ClassC = // Field not used for multicast channel setup. Must be initialized to something
@@ -413,17 +448,12 @@ static void OnSessionStartTimer( void *context )
 {
     TimerStop( &SessionStartTimer );
 
-    // Switch to Class C
-    LmHandlerRequestClass( CLASS_C );
-
-    TimerSetValue( &SessionStopTimer, ( 1 << McSessionData[0].SessionTimeout ) * 1000 );
-    TimerStart( &SessionStopTimer );
+    LmhpRemoteMcastSetupState.SessionState = REMOTE_MCAST_SETUP_SESSION_STATE_START;
 }
 
 static void OnSessionStopTimer( void *context )
 {
     TimerStop( &SessionStopTimer );
 
-    // Switch back to Class A
-    LmHandlerRequestClass( CLASS_A );
+    LmhpRemoteMcastSetupState.SessionState = REMOTE_MCAST_SETUP_SESSION_STATE_STOP;
 }

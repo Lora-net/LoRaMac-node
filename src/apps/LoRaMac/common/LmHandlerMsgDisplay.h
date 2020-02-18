@@ -45,16 +45,18 @@ void DisplayNetworkParametersUpdate( CommissioningParams_t* commissioningParams 
  *
  * \param [IN] status McpsRequest execution status
  * \param [IN] mcpsReq McpsRequest command executed
+ * \param [IN] nextTxIn Time to wait for the next uplink transmission
  */
-void DisplayMacMcpsRequestUpdate( LoRaMacStatus_t status, McpsReq_t *mcpsReq );
+void DisplayMacMcpsRequestUpdate( LoRaMacStatus_t status, McpsReq_t *mcpsReq, TimerTime_t nextTxIn );
 
 /*!
  * \brief Displays updated MlmeRequest
  *
  * \param [IN] status MlmeRequest execution status
  * \param [IN] mlmeReq MlmeRequest command executed
+ * \param [IN] nextTxIn Time to wait for the next uplink transmission
  */
-void DisplayMacMlmeRequestUpdate( LoRaMacStatus_t status, MlmeReq_t *mlmeReq );
+void DisplayMacMlmeRequestUpdate( LoRaMacStatus_t status, MlmeReq_t *mlmeReq, TimerTime_t nextTxIn );
 
 /*!
  * \brief Displays updated JoinRequest

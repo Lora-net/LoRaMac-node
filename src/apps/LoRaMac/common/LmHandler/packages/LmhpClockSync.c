@@ -54,6 +54,7 @@ typedef struct LmhpClockSyncState_s
     bool AdrEnabledPrev;
     uint8_t NbTransPrev;
     uint8_t DataratePrev;
+    uint8_t NbTransmissions;
 }LmhpClockSyncState_t;
 
 typedef enum LmhpClockSyncMoteCmd_e
@@ -123,7 +124,8 @@ static LmhpClockSyncState_t LmhpClockSyncState =
     .TimeReqParam.Value = 0,
     .AppTimeReqPending = false,
     .AdrEnabledPrev = false,
-    .NbTransPrev = 0
+    .NbTransPrev = 0,
+    .NbTransmissions = 0,
 };
 
 static LmhPackage_t LmhpClockSyncPackage =
@@ -183,7 +185,13 @@ static bool LmhpClockSyncIsRunning( void )
 
 static void LmhpClockSyncProcess( void )
 {
-    // Nothing to process
+    if( LmhpClockSyncState.NbTransmissions > 0 )
+    {
+        if( LmhpClockSyncAppTimeReq( ) == LORAMAC_HANDLER_SUCCESS )
+        {
+            LmhpClockSyncState.NbTransmissions--;
+        }
+    }
 }
 
 static void LmhpClockSyncOnMcpsConfirm( McpsConfirm_t *mcpsConfirm )
@@ -229,6 +237,8 @@ static void LmhpClockSyncOnMcpsIndication( McpsIndication_t *mcpsIndication )
             }
             case CLOCK_SYNC_APP_TIME_ANS:
             {
+                LmhpClockSyncState.NbTransmissions = 0;
+
                 // Check if a more precise time correction has been received.
                 // If yes then don't process and ignore this answer.
                 if( mcpsIndication->DeviceTimeAnsReceived == true )
@@ -284,7 +294,7 @@ static void LmhpClockSyncOnMcpsIndication( McpsIndication_t *mcpsIndication )
             }
             case CLOCK_SYNC_FORCE_RESYNC_REQ:
             {
-                // TODO implement command prosessing and handling
+                LmhpClockSyncState.NbTransmissions = mcpsIndication->Buffer[cmdIndex++] & 0X07;
                 break;
             }
         }
@@ -332,7 +342,7 @@ LmHandlerErrorStatus_t LmhpClockSyncAppTimeReq( void )
         mibReq.Type = MIB_CHANNELS_DATARATE;
         LoRaMacMibGetRequestConfirm( &mibReq );  
         LmhpClockSyncState.DataratePrev = mibReq.Param.ChannelsDatarate;
-        
+
         // Add DeviceTimeReq MAC command.
         // In case the network server supports this more precise command
         // this package will use DeviceTimeAns answer as clock synchronization

@@ -2747,6 +2747,7 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
     nextChan.AggrTimeOff = MacCtx.NvmCtx->AggregatedTimeOff;
     nextChan.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
     nextChan.DutyCycleEnabled = MacCtx.NvmCtx->DutyCycleOn;
+    nextChan.QueryNextTxDelayOnly = false;
     if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
     {
         nextChan.Joined = false;
@@ -3757,6 +3758,57 @@ LoRaMacStatus_t LoRaMacStop( void )
     return LORAMAC_STATUS_BUSY;
 }
 
+LoRaMacStatus_t LoRaMacQueryNextTxDelay( int8_t datarate, TimerTime_t* time )
+{
+    NextChanParams_t nextChan;
+    uint8_t channel = 0;
+
+    CalcNextAdrParams_t adrNext;
+    uint32_t adrAckCounter = MacCtx.NvmCtx->AdrAckCounter;
+    int8_t txPower = MacCtx.NvmCtx->MacParamsDefaults.ChannelsTxPower;
+
+    if( MacCtx.NvmCtx->LastTxDoneTime == 0 )
+    {
+        *time = 0;
+        return LORAMAC_STATUS_OK;
+    }
+
+    // Update back-off
+    CalculateBackOff( MacCtx.NvmCtx->LastTxChannel );
+
+    nextChan.AggrTimeOff = MacCtx.NvmCtx->AggregatedTimeOff;
+    nextChan.Datarate = datarate;
+    nextChan.DutyCycleEnabled = MacCtx.NvmCtx->DutyCycleOn;
+    nextChan.QueryNextTxDelayOnly = true;
+    nextChan.Joined = true;
+    nextChan.LastAggrTx = MacCtx.NvmCtx->LastTxDoneTime;
+
+    if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
+    {
+        nextChan.Joined = false;
+    }
+    if( MacCtx.NvmCtx->AdrCtrlOn == true )
+    {
+        // Setup ADR request
+        adrNext.UpdateChanMask = false;
+        adrNext.AdrEnabled = MacCtx.NvmCtx->AdrCtrlOn;
+        adrNext.AdrAckCounter = MacCtx.NvmCtx->AdrAckCounter;
+        adrNext.AdrAckLimit = MacCtx.AdrAckLimit;
+        adrNext.AdrAckDelay = MacCtx.AdrAckDelay;
+        adrNext.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
+        adrNext.TxPower = MacCtx.NvmCtx->MacParams.ChannelsTxPower;
+        adrNext.UplinkDwellTime = MacCtx.NvmCtx->MacParams.UplinkDwellTime;
+        adrNext.Region = MacCtx.NvmCtx->Region;
+
+        // We call the function for information purposes only. We don't want to
+        // apply the datarate, the tx power and the ADR ack counter.
+        LoRaMacAdrCalcNext( &adrNext, &nextChan.Datarate, &txPower, &adrAckCounter );
+    }
+
+    // Select channel
+    return RegionNextChannel( MacCtx.NvmCtx->Region, &nextChan, &channel, time, &MacCtx.NvmCtx->AggregatedTimeOff );
+}
+
 LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo )
 {
     CalcNextAdrParams_t adrNext;
@@ -4753,15 +4805,31 @@ LoRaMacStatus_t LoRaMacMcChannelSetup( McChannelParams_t *channel )
 
     MacCtx.NvmCtx->MulticastChannelList[channel->GroupID].ChannelParams = *channel;
 
-    const KeyIdentifier_t mcKeys[LORAMAC_MAX_MC_CTX] = { MC_KEY_0, MC_KEY_1, MC_KEY_2, MC_KEY_3 };
-    if( LoRaMacCryptoSetKey( mcKeys[channel->GroupID], channel->McKeyE ) != LORAMAC_CRYPTO_SUCCESS )
+    if( channel->IsRemotelySetup == true )
     {
-        return LORAMAC_STATUS_CRYPTO_ERROR;
-    }
+        const KeyIdentifier_t mcKeys[LORAMAC_MAX_MC_CTX] = { MC_KEY_0, MC_KEY_1, MC_KEY_2, MC_KEY_3 };
+        if( LoRaMacCryptoSetKey( mcKeys[channel->GroupID], channel->McKeys.McKeyE ) != LORAMAC_CRYPTO_SUCCESS )
+        {
+            return LORAMAC_STATUS_CRYPTO_ERROR;
+        }
 
-    if( LoRaMacCryptoDeriveMcSessionKeyPair( channel->GroupID, channel->Address ) != LORAMAC_CRYPTO_SUCCESS )
+        if( LoRaMacCryptoDeriveMcSessionKeyPair( channel->GroupID, channel->Address ) != LORAMAC_CRYPTO_SUCCESS )
+        {
+            return LORAMAC_STATUS_CRYPTO_ERROR;
+        }
+    }
+    else
     {
-        return LORAMAC_STATUS_CRYPTO_ERROR;
+        const KeyIdentifier_t mcAppSKeys[LORAMAC_MAX_MC_CTX] = { MC_APP_S_KEY_0, MC_APP_S_KEY_1, MC_APP_S_KEY_2, MC_APP_S_KEY_3 };
+        const KeyIdentifier_t mcNwkSKeys[LORAMAC_MAX_MC_CTX] = { MC_NWK_S_KEY_0, MC_NWK_S_KEY_1, MC_NWK_S_KEY_2, MC_NWK_S_KEY_3 };
+        if( LORAMAC_CRYPTO_SUCCESS != LoRaMacCryptoSetKey( mcAppSKeys[channel->GroupID], channel->McKeys.McAppSKey ) )
+        {
+            return LORAMAC_STATUS_CRYPTO_ERROR;
+        }
+        if( LORAMAC_CRYPTO_SUCCESS != LoRaMacCryptoSetKey( mcNwkSKeys[channel->GroupID], channel->McKeys.McNwkSKey ) )
+        {
+            return LORAMAC_STATUS_CRYPTO_ERROR;
+        }
     }
 
     if( channel->Class == CLASS_B )
@@ -5229,5 +5297,34 @@ void LoRaMacTestSetDutyCycleOn( bool enable )
     if( RegionVerify( MacCtx.NvmCtx->Region, &verify, PHY_DUTY_CYCLE ) == true )
     {
         MacCtx.NvmCtx->DutyCycleOn = enable;
+    }
+}
+
+LoRaMacStatus_t LoRaMacDeInitialization( void )
+{
+    // Check the current state of the LoRaMac
+    if ( LoRaMacStop( ) == LORAMAC_STATUS_OK )
+    {
+        // Stop Timers
+        TimerStop( &MacCtx.TxDelayedTimer );
+        TimerStop( &MacCtx.RxWindowTimer1 );
+        TimerStop( &MacCtx.RxWindowTimer2 );
+        TimerStop( &MacCtx.AckTimeoutTimer );
+
+        // Take care about class B
+        LoRaMacClassBHaltBeaconing( );
+
+        // Reset Mac parameters
+        ResetMacParameters( );
+
+        // Switch off Radio
+        Radio.Sleep( );
+
+        // Return success
+        return LORAMAC_STATUS_OK;
+    }
+    else
+    {
+        return LORAMAC_STATUS_BUSY;
     }
 }

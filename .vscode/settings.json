@@ -6,7 +6,7 @@
         // path:
         //     Windows : No default path. Specify the path where the
         //               toolchain is installed. i.e:
-        //               "C:/PROGRA~2/GNUTOO~1/72017-~1".
+        //               "C:/PROGRA~2/GNUTOO~1/92019-~1".
         //     Linux   : /usr
         //     OSX     : /usr/local
         // It is required to uncomment and to fill the following line.
