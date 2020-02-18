@@ -861,12 +861,12 @@ uint32_t RadioTimeOnAir( RadioModems_t modem, uint8_t pktLen )
     {
     case MODEM_FSK:
         {
-           airTime = rint( ( 8 * ( SX126x.PacketParams.Params.Gfsk.PreambleLength +
+           airTime = ( uint32_t )rint( ( 8 * ( SX126x.PacketParams.Params.Gfsk.PreambleLength +
                                      ( SX126x.PacketParams.Params.Gfsk.SyncWordLength >> 3 ) +
                                      ( ( SX126x.PacketParams.Params.Gfsk.HeaderType == RADIO_PACKET_FIXED_LENGTH ) ? 0.0 : 1.0 ) +
                                      pktLen +
                                      ( ( SX126x.PacketParams.Params.Gfsk.CrcLength == RADIO_CRC_2_BYTES ) ? 2.0 : 0 ) ) /
-                                     SX126x.ModulationParams.Params.Gfsk.BitRate ) * 1e3 );
+                                     SX126x.ModulationParams.Params.Gfsk.BitRate ) * 1000 );
         }
         break;
     case MODEM_LORA:
@@ -886,7 +886,7 @@ uint32_t RadioTimeOnAir( RadioModems_t modem, uint8_t pktLen )
             // Time on air
             double tOnAir = tPreamble + tPayload;
             // return milli seconds
-            airTime = floor( tOnAir + 0.999 );
+            airTime = ( uint32_t )floor( tOnAir + 0.999 );
         }
         break;
     }
@@ -987,18 +987,13 @@ void RadioStartCad( void )
     SX126xSetCad( );
 }
 
-void RadioTx( uint32_t timeout )
-{
-    SX126xSetTx( timeout << 6 );
-}
-
 void RadioSetTxContinuousWave( uint32_t freq, int8_t power, uint16_t time )
 {
     SX126xSetRfFrequency( freq );
     SX126xSetRfTxPower( power );
     SX126xSetTxContinuousWave( );
 
-    TimerSetValue( &TxTimeoutTimer, time  * 1e3 );
+    TimerSetValue( &TxTimeoutTimer, time  * 1000 );
     TimerStart( &TxTimeoutTimer );
 }
 
@@ -1025,16 +1020,6 @@ void RadioWriteBuffer( uint16_t addr, uint8_t *buffer, uint8_t size )
 void RadioReadBuffer( uint16_t addr, uint8_t *buffer, uint8_t size )
 {
     SX126xReadRegisters( addr, buffer, size );
-}
-
-void RadioWriteFifo( uint8_t *buffer, uint8_t size )
-{
-    SX126xWriteBuffer( 0, buffer, size );
-}
-
-void RadioReadFifo( uint8_t *buffer, uint8_t size )
-{
-    SX126xReadBuffer( 0, buffer, size );
 }
 
 void RadioSetMaxPayloadLength( RadioModems_t modem, uint8_t max )

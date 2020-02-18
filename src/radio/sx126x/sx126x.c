@@ -162,7 +162,7 @@ uint8_t SX126xGetPayload( uint8_t *buffer, uint8_t *size,  uint8_t maxSize )
 void SX126xSendPayload( uint8_t *payload, uint8_t size, uint32_t timeout )
 {
     SX126xSetPayload( payload, size );
-    SX126xSetTx( timeout );
+    SX126xSetTx( timeout << 6 );
 }
 
 uint8_t SX126xSetSyncWord( uint8_t *syncWord )
