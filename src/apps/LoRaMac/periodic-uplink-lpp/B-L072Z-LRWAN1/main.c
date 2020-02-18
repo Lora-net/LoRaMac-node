@@ -150,8 +150,8 @@ static TimerEvent_t LedBeaconTimer;
 static void OnMacProcessNotify( void );
 static void OnNvmContextChange( LmHandlerNvmContextStates_t state );
 static void OnNetworkParametersChange( CommissioningParams_t* params );
-static void OnMacMcpsRequest( LoRaMacStatus_t status, McpsReq_t *mcpsReq );
-static void OnMacMlmeRequest( LoRaMacStatus_t status, MlmeReq_t *mlmeReq );
+static void OnMacMcpsRequest( LoRaMacStatus_t status, McpsReq_t *mcpsReq, TimerTime_t nextTxIn );
+static void OnMacMlmeRequest( LoRaMacStatus_t status, MlmeReq_t *mlmeReq, TimerTime_t nextTxIn );
 static void OnJoinRequest( LmHandlerJoinParams_t* params );
 static void OnTxData( LmHandlerTxParams_t* params );
 static void OnRxData( LmHandlerAppData_t* appData, LmHandlerRxParams_t* params );
@@ -322,14 +322,14 @@ static void OnNetworkParametersChange( CommissioningParams_t* params )
     DisplayNetworkParametersUpdate( params );
 }
 
-static void OnMacMcpsRequest( LoRaMacStatus_t status, McpsReq_t *mcpsReq )
+static void OnMacMcpsRequest( LoRaMacStatus_t status, McpsReq_t *mcpsReq, TimerTime_t nextTxIn )
 {
-    DisplayMacMcpsRequestUpdate( status, mcpsReq );
+    DisplayMacMcpsRequestUpdate( status, mcpsReq, nextTxIn );
 }
 
-static void OnMacMlmeRequest( LoRaMacStatus_t status, MlmeReq_t *mlmeReq )
+static void OnMacMlmeRequest( LoRaMacStatus_t status, MlmeReq_t *mlmeReq, TimerTime_t nextTxIn )
 {
-    DisplayMacMlmeRequestUpdate( status, mlmeReq );
+    DisplayMacMlmeRequestUpdate( status, mlmeReq, nextTxIn );
 }
 
 static void OnJoinRequest( LmHandlerJoinParams_t* params )

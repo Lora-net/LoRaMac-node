@@ -1285,6 +1285,11 @@ typedef struct sNextChanParams
      * Set to true, if the duty cycle is enabled, otherwise false.
      */
     bool DutyCycleEnabled;
+    /*!
+     * Set to true, if the function shall only provide the time
+     * for the next transmission.
+     */
+    bool QueryNextTxDelayOnly;
 }NextChanParams_t;
 
 /*!

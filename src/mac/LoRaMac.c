@@ -2402,6 +2402,7 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
     nextChan.AggrTimeOff = MacCtx.NvmCtx->AggregatedTimeOff;
     nextChan.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
     nextChan.DutyCycleEnabled = MacCtx.NvmCtx->DutyCycleOn;
+    nextChan.QueryNextTxDelayOnly = false;
     if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
     {
         nextChan.Joined = false;
@@ -3375,6 +3376,57 @@ LoRaMacStatus_t LoRaMacStop( void )
         return LORAMAC_STATUS_OK;
     }
     return LORAMAC_STATUS_BUSY;
+}
+
+LoRaMacStatus_t LoRaMacQueryNextTxDelay( int8_t datarate, TimerTime_t* time )
+{
+    NextChanParams_t nextChan;
+    uint8_t channel = 0;
+
+    CalcNextAdrParams_t adrNext;
+    uint32_t adrAckCounter = MacCtx.NvmCtx->AdrAckCounter;
+    int8_t txPower = MacCtx.NvmCtx->MacParamsDefaults.ChannelsTxPower;
+
+    if( MacCtx.NvmCtx->LastTxDoneTime == 0 )
+    {
+        *time = 0;
+        return LORAMAC_STATUS_OK;
+    }
+
+    // Update back-off
+    CalculateBackOff( MacCtx.NvmCtx->LastTxChannel );
+
+    nextChan.AggrTimeOff = MacCtx.NvmCtx->AggregatedTimeOff;
+    nextChan.Datarate = datarate;
+    nextChan.DutyCycleEnabled = MacCtx.NvmCtx->DutyCycleOn;
+    nextChan.QueryNextTxDelayOnly = true;
+    nextChan.Joined = true;
+    nextChan.LastAggrTx = MacCtx.NvmCtx->LastTxDoneTime;
+
+    if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
+    {
+        nextChan.Joined = false;
+    }
+    if( MacCtx.NvmCtx->AdrCtrlOn == true )
+    {
+        // Setup ADR request
+        adrNext.UpdateChanMask = false;
+        adrNext.AdrEnabled = MacCtx.NvmCtx->AdrCtrlOn;
+        adrNext.AdrAckCounter = MacCtx.NvmCtx->AdrAckCounter;
+        adrNext.AdrAckLimit = MacCtx.AdrAckLimit;
+        adrNext.AdrAckDelay = MacCtx.AdrAckDelay;
+        adrNext.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
+        adrNext.TxPower = MacCtx.NvmCtx->MacParams.ChannelsTxPower;
+        adrNext.UplinkDwellTime = MacCtx.NvmCtx->MacParams.UplinkDwellTime;
+        adrNext.Region = MacCtx.NvmCtx->Region;
+
+        // We call the function for information purposes only. We don't want to
+        // apply the datarate, the tx power and the ADR ack counter.
+        LoRaMacAdrCalcNext( &adrNext, &nextChan.Datarate, &txPower, &adrAckCounter );
+    }
+
+    // Select channel
+    return RegionNextChannel( MacCtx.NvmCtx->Region, &nextChan, &channel, time, &MacCtx.NvmCtx->AggregatedTimeOff );
 }
 
 LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo )

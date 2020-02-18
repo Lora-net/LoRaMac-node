@@ -385,3 +385,86 @@ void RegionCommonRxBeaconSetup( RegionCommonRxBeaconSetupParams_t* rxBeaconSetup
 
     Radio.Rx( rxBeaconSetupParams->RxTime );
 }
+
+void RegionCommonCountNbOfEnabledChannels( RegionCommonCountNbOfEnabledChannelsParams_t* countNbOfEnabledChannelsParams,
+                                           uint8_t* enabledChannels, uint8_t* nbEnabledChannels, uint8_t* nbRestrictedChannels )
+{
+    uint8_t nbChannelCount = 0;
+    uint8_t nbRestrictedChannelsCount = 0;
+
+    for( uint8_t i = 0, k = 0; i < countNbOfEnabledChannelsParams->MaxNbChannels; i += 16, k++ )
+    {
+        for( uint8_t j = 0; j < 16; j++ )
+        {
+            if( ( countNbOfEnabledChannelsParams->ChannelsMask[k] & ( 1 << j ) ) != 0 )
+            {
+                if( countNbOfEnabledChannelsParams->Channels[i + j].Frequency == 0 )
+                { // Check if the channel is enabled
+                    continue;
+                }
+                if( ( countNbOfEnabledChannelsParams->Joined == false ) &&
+                    ( countNbOfEnabledChannelsParams->JoinChannels > 0 ) )
+                {
+                    if( ( countNbOfEnabledChannelsParams->JoinChannels & ( 1 << j ) ) == 0 )
+                    {
+                        continue;
+                    }
+                }
+                if( RegionCommonValueInRange( countNbOfEnabledChannelsParams->Datarate,
+                                              countNbOfEnabledChannelsParams->Channels[i + j].DrRange.Fields.Min,
+                                              countNbOfEnabledChannelsParams->Channels[i + j].DrRange.Fields.Max ) == false )
+                { // Check if the current channel selection supports the given datarate
+                    continue;
+                }
+                if( countNbOfEnabledChannelsParams->Bands[countNbOfEnabledChannelsParams->Channels[i + j].Band].TimeOff > 0 )
+                { // Check if the band is available for transmission
+                    nbRestrictedChannelsCount++;
+                    continue;
+                }
+                enabledChannels[nbChannelCount++] = i + j;
+            }
+        }
+    }
+    *nbEnabledChannels = nbChannelCount;
+    *nbRestrictedChannels = nbRestrictedChannelsCount;
+}
+
+LoRaMacStatus_t RegionCommonIdentifyChannels( RegionCommonIdentifyChannelsParam_t* identifyChannelsParam,
+                                              TimerTime_t* aggregatedTimeOff, uint8_t* enabledChannels,
+                                              uint8_t* nbEnabledChannels, uint8_t* nbRestrictedChannels,
+                                              TimerTime_t* nextTxDelay )
+{
+    TimerTime_t elapsed = TimerGetElapsedTime( identifyChannelsParam->LastAggrTx );
+    *nextTxDelay = identifyChannelsParam->AggrTimeOff - elapsed;
+    *nbRestrictedChannels = 1;
+    *nbEnabledChannels = 0;
+
+    if( ( identifyChannelsParam->LastAggrTx == 0 ) ||
+        ( identifyChannelsParam->AggrTimeOff <= elapsed ) )
+    {
+        // Reset Aggregated time off
+        *aggregatedTimeOff = 0;
+
+        // Update bands Time OFF
+        *nextTxDelay = RegionCommonUpdateBandTimeOff( identifyChannelsParam->CountNbOfEnabledChannelsParam->Joined,
+                                                      identifyChannelsParam->DutyCycleEnabled,
+                                                      identifyChannelsParam->CountNbOfEnabledChannelsParam->Bands,
+                                                      identifyChannelsParam->MaxBands );
+
+        RegionCommonCountNbOfEnabledChannels( identifyChannelsParam->CountNbOfEnabledChannelsParam, enabledChannels,
+                                              nbEnabledChannels, nbRestrictedChannels );
+    }
+
+    if( *nbEnabledChannels > 0 )
+    {
+        return LORAMAC_STATUS_OK;
+    }
+    else if( *nbRestrictedChannels > 0 )
+    {
+        return LORAMAC_STATUS_DUTYCYCLE_RESTRICTED;
+    }
+    else
+    {
+        return LORAMAC_STATUS_NO_CHANNEL_FOUND;
+    }
+}

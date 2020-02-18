@@ -408,7 +408,9 @@ static void LmHandlerJoinRequest( bool isOtaa )
         CommissioningParams.IsOtaaActivation = true;
 
         // Starts the OTAA join procedure
-        LmHandlerCallbacks->OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq );
+        TimerTime_t nextTxIn = 0;
+        LoRaMacQueryNextTxDelay( TxParams.Datarate, &nextTxIn );
+        LmHandlerCallbacks->OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq, nextTxIn );
     }
     else
     {
@@ -506,8 +508,10 @@ LmHandlerErrorStatus_t LmHandlerSend( LmHandlerAppData_t *appData, LmHandlerMsgT
     TxParams.AppData = *appData;
     TxParams.Datarate = LmHandlerParams->TxDatarate;
 
+    TimerTime_t nextTxIn = 0;
+    LoRaMacQueryNextTxDelay( TxParams.Datarate, &nextTxIn );
     status = LoRaMacMcpsRequest( &mcpsReq );
-    LmHandlerCallbacks->OnMacMcpsRequest( status, &mcpsReq );
+    LmHandlerCallbacks->OnMacMcpsRequest( status, &mcpsReq, nextTxIn );
 
     if( status == LORAMAC_STATUS_OK )
     {
@@ -526,8 +530,10 @@ static LmHandlerErrorStatus_t LmHandlerDeviceTimeReq( void )
 
     mlmeReq.Type = MLME_DEVICE_TIME;
 
+    TimerTime_t nextTxIn = 0;
+    LoRaMacQueryNextTxDelay( TxParams.Datarate, &nextTxIn );
     status = LoRaMacMlmeRequest( &mlmeReq );
-    LmHandlerCallbacks->OnMacMlmeRequest( status, &mlmeReq );
+    LmHandlerCallbacks->OnMacMlmeRequest( status, &mlmeReq, nextTxIn );
 
     if( status == LORAMAC_STATUS_OK )
     {
@@ -546,8 +552,10 @@ static LmHandlerErrorStatus_t LmHandlerBeaconReq( void )
 
     mlmeReq.Type = MLME_BEACON_ACQUISITION;
 
+    TimerTime_t nextTxIn = 0;
+    LoRaMacQueryNextTxDelay( TxParams.Datarate, &nextTxIn );
     status = LoRaMacMlmeRequest( &mlmeReq );
-    LmHandlerCallbacks->OnMacMlmeRequest( status, &mlmeReq );
+    LmHandlerCallbacks->OnMacMlmeRequest( status, &mlmeReq, nextTxIn );
 
     if( status == LORAMAC_STATUS_OK )
     {
@@ -568,8 +576,10 @@ LmHandlerErrorStatus_t LmHandlerPingSlotReq( uint8_t periodicity )
     mlmeReq.Req.PingSlotInfo.PingSlot.Fields.Periodicity = periodicity;
     mlmeReq.Req.PingSlotInfo.PingSlot.Fields.RFU = 0;
 
+    TimerTime_t nextTxIn = 0;
+    LoRaMacQueryNextTxDelay( TxParams.Datarate, &nextTxIn );
     status = LoRaMacMlmeRequest( &mlmeReq );
-    LmHandlerCallbacks->OnMacMlmeRequest( status, &mlmeReq );
+    LmHandlerCallbacks->OnMacMlmeRequest( status, &mlmeReq, nextTxIn );
 
     if( status == LORAMAC_STATUS_OK )
     {
