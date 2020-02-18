@@ -2604,7 +2604,7 @@ static void ResetMacParameters( void )
 
     // Reset to application defaults
     InitDefaultsParams_t params;
-    params.Type = INIT_TYPE_RESTORE_DEFAULT_CHANNELS;
+    params.Type = INIT_TYPE_INIT;
     params.NvmCtx = NULL;
     RegionInitDefaults( MacCtx.NvmCtx->Region, &params );
 
