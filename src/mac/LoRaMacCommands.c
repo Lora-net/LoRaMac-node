@@ -546,3 +546,103 @@ LoRaMacCommandStatus_t LoRaMacCommandsStickyCmdsPending( bool* cmdsPending )
 
     return LORAMAC_COMMANDS_SUCCESS;
 }
+
+uint8_t LoRaMacCommandsGetCmdSize( uint8_t cid )
+{
+    uint8_t cidSize = 0;
+
+    // Decode Frame MAC commands
+    switch( cid )
+    {
+        case SRV_MAC_LINK_CHECK_ANS:
+        {
+            // cid + Margin + GwCnt
+            cidSize = 3;
+            break;
+        }
+        case SRV_MAC_LINK_ADR_REQ:
+        {
+            // cid + DataRate_TXPower + ChMask (2) + Redundancy
+            cidSize = 5;
+            break;
+        }
+        case SRV_MAC_DUTY_CYCLE_REQ:
+        {
+            // cid + DutyCyclePL
+            cidSize = 2;
+            break;
+        }
+        case SRV_MAC_RX_PARAM_SETUP_REQ:
+        {
+            // cid + DLsettings + Frequency (4)
+            cidSize = 4;
+            break;
+        }
+        case SRV_MAC_DEV_STATUS_REQ:
+        {
+            // cid
+            cidSize = 1;
+            break;
+        }
+        case SRV_MAC_NEW_CHANNEL_REQ:
+        {
+            // cid + ChIndex + Frequency (3) + DrRange
+            cidSize = 6;
+            break;
+        }
+        case SRV_MAC_RX_TIMING_SETUP_REQ:
+        {
+            // cid + Settings
+            cidSize = 2;
+            break;
+        }
+        case SRV_MAC_TX_PARAM_SETUP_REQ:
+        {
+            // cid + EIRP_DwellTime
+            cidSize = 2;
+            break;
+        }
+        case SRV_MAC_DL_CHANNEL_REQ:
+        {
+            // cid + ChIndex + Frequency (3)
+            cidSize = 5;
+            break;
+        }
+        case SRV_MAC_DEVICE_TIME_ANS:
+        {
+            // cid + Seconds (4) + Fractional seconds (1)
+            cidSize = 6;
+            break;
+        }
+        case SRV_MAC_PING_SLOT_INFO_ANS:
+        {
+            // cid
+            cidSize = 1;
+            break;
+        }
+        case SRV_MAC_PING_SLOT_CHANNEL_REQ:
+        {
+            // cid + Frequency (3) + DR
+            cidSize = 5;
+            break;
+        }
+        case SRV_MAC_BEACON_TIMING_ANS:
+        {
+            // cid + TimingDelay (2) + Channel
+            cidSize = 4;
+            break;
+        }
+        case SRV_MAC_BEACON_FREQ_REQ:
+        {
+            // cid + Frequency (3)
+            cidSize = 4;
+            break;
+        }
+        default:
+        {
+            // Unknown command. ABORT MAC commands processing
+            break;
+        }
+    }
+    return cidSize;
+}
