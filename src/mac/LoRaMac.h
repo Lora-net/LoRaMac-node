@@ -2703,6 +2703,18 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest );
 LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest );
 
 /*!
+ * \brief   LoRaMAC deinitialization
+ *
+ * \details This function stops the timers, re-initializes MAC & regional parameters to default
+ *          and sets radio into sleep state.
+ *
+ * \retval  LoRaMacStatus_t Status of the operation. Possible returns are:
+ *          \ref LORAMAC_STATUS_OK,
+ *          \ref LORAMAC_STATUS_BUSY
+ */
+LoRaMacStatus_t LoRaMacDeInitialization( void );
+
+/*!
  * Automatically add the Region.h file at the end of LoRaMac.h file.
  * This is required because Region.h uses definitions from LoRaMac.h
  */
