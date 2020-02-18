@@ -388,7 +388,7 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
 
                 mlmeReq.Type = MLME_LINK_CHECK;
 
-                LmhpCompliancePackage.OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq );
+                LmhpCompliancePackage.OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq, 0 );
             }
             break;
         case 6: // (ix)
@@ -432,7 +432,7 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
                     mlmeReq.Req.TxCw.Frequency = ( uint32_t )( ( mcpsIndication->Buffer[3] << 16 ) | ( mcpsIndication->Buffer[4] << 8 ) | mcpsIndication->Buffer[5] ) * 100;
                     mlmeReq.Req.TxCw.Power = mcpsIndication->Buffer[6];
                 }
-                LmhpCompliancePackage.OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq );
+                LmhpCompliancePackage.OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq, 0 );
                 ComplianceTestState.State = 1;
             }
             break;
@@ -442,7 +442,7 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
 
                 mlmeReq.Type = MLME_DEVICE_TIME;
 
-                LmhpCompliancePackage.OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq );
+                LmhpCompliancePackage.OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq, 0 );
             }
             break;
         case 9: // Switch end device Class
@@ -462,7 +462,7 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
                 mlmeReq.Type = MLME_PING_SLOT_INFO;
                 mlmeReq.Req.PingSlotInfo.PingSlot.Value = mcpsIndication->Buffer[1];
 
-                LmhpCompliancePackage.OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq );
+                LmhpCompliancePackage.OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq, 0 );
             }
             break;
         default:
