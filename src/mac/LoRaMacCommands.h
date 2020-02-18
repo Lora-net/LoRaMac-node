@@ -217,6 +217,15 @@ LoRaMacCommandStatus_t LoRaMacCommandsSerializeCmds( size_t availableSize, size_
  */
 LoRaMacCommandStatus_t LoRaMacCommandsStickyCmdsPending( bool* cmdsPending );
 
+/*!
+ * \brief Get the MAC command size with corresponding CID.
+ *
+ * \param[IN]   cid                - MAC command identifier
+ *
+ * \retval Size of the command.
+ */
+uint8_t LoRaMacCommandsGetCmdSize( uint8_t cid );
+
 /*! \} addtogroup LORAMAC */
 
 #ifdef __cplusplus
