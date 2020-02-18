@@ -1940,6 +1940,12 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
 
     while( macIndex < commandsSize )
     {
+        // Make sure to parse only complete MAC commands
+        if( ( LoRaMacCommandsGetCmdSize( payload[macIndex] ) + macIndex ) > commandsSize )
+        {
+            return;
+        }
+
         // Decode Frame MAC commands
         switch( payload[macIndex++] )
         {
