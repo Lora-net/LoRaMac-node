@@ -360,6 +360,11 @@ PhyParam_t RegionAU915GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.fValue = AU915_DEFAULT_ANTENNA_GAIN;
             break;
         }
+        case PHY_BEACON_CHANNEL_FREQ:
+        {
+            phyParam.Value = AU915_BEACON_CHANNEL_FREQ;
+            break;
+        }
         case PHY_BEACON_FORMAT:
         {
             phyParam.BeaconFormat.BeaconSize = AU915_BEACON_SIZE;
