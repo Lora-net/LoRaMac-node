@@ -122,7 +122,7 @@ endif()
 #---------------------------------------------------------------------------------------
 # Application
 #---------------------------------------------------------------------------------------
-file(GLOB ${PROJECT_NAME}_SOURCES "${CMAKE_CURRENT_LIST_DIR}/${SUB_PROJECT}/${BOARD}/*.c")
+file(GLOB ${PROJECT_NAME}_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${SUB_PROJECT}/${BOARD}/*.c")
 
 add_executable(${PROJECT_NAME}-${SUB_PROJECT}
                             ${${PROJECT_NAME}_COMMON}
@@ -162,7 +162,6 @@ target_link_libraries(${PROJECT_NAME}-${SUB_PROJECT} m)
 #---------------------------------------------------------------------------------------
 # Debugging and Binutils
 #---------------------------------------------------------------------------------------
-
 include(gdb-helper)
 include(binutils-arm-none-eabi)
 
@@ -173,6 +172,7 @@ generate_vscode_launch_openocd(${PROJECT_NAME}-${SUB_PROJECT})
 
 # Print section sizes of target
 print_section_sizes(${PROJECT_NAME}-${SUB_PROJECT})
+
 
 # Create output in hex and binary format
 create_bin_output(${PROJECT_NAME}-${SUB_PROJECT})

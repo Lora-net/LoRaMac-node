@@ -23,7 +23,7 @@ cmake_minimum_required(VERSION 3.6)
 #---------------------------------------------------------------------------------------
 
 # Allow switching of target platform
-set(BOARD_LIST NAMote72 NucleoL073 NucleoL152 NucleoL476 SAML21 SKiM880B SKiM980A SKiM881AXL B-L072Z-LRWAN1)
+set(BOARD_LIST NAMote72 NucleoL073 NucleoL152 NucleoL476 SAML21 SKiM880B SKiM980A SKiM881AXL B-L072Z-LRWAN1 Simul)
 set(BOARD NucleoL073 CACHE STRING "Default target platform is NucleoL073")
 set_property(CACHE BOARD PROPERTY STRINGS ${BOARD_LIST})
 
@@ -49,8 +49,12 @@ option(CLASSB_ENABLED "Class B support of LoRaMac" OFF)
 #---------------------------------------------------------------------------------------
 # Target Boards
 #---------------------------------------------------------------------------------------
+if(BOARD STREQUAL Simul)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/Simul)
 
-if(BOARD STREQUAL NAMote72)
+    # Configure radio
+    set(RADIO simul CACHE INTERNAL "Radio simulation selected")
+elseif(BOARD STREQUAL NAMote72)
     # Configure toolchain for NAMote72
     set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/boards/NAMote72/cmsis/arm-gcc/stm32l152xc_flash.ld)
     include(stm32l1)
