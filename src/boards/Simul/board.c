@@ -193,3 +193,132 @@ int32_t randr( int32_t min, int32_t max )
 {
     return ( int32_t )rand1( ) % ( max - min + 1 ) + min;
 }
+
+
+/*!
+ * \brief Timer object description
+ */
+typedef struct TimerEvent_s
+{
+    uint32_t Timestamp;                  //! Current timer value
+    uint32_t ReloadValue;                //! Timer delay value
+    bool IsStarted;                      //! Is the timer currently running
+    bool IsNext2Expire;                  //! Is the next timer to expire
+    void ( *Callback )( void* context ); //! Timer IRQ callback function
+    void *Context;                       //! User defined data object pointer to pass back
+    struct TimerEvent_s *Next;           //! Pointer to the next Timer object.
+}TimerEvent_t;
+
+typedef uint32_t TimerTime_t;
+
+
+/*!
+ * Timers list head pointer
+ */
+static TimerEvent_t *TimerListHead = NULL;
+
+/*!
+ * \brief Adds or replace the head timer of the list.
+ *
+ * \remark The list is automatically sorted. The list head always contains the
+ *         next timer to expire.
+ *
+ * \param [IN]  obj Timer object to be become the new head
+ * \param [IN]  remainingTime Remaining time of the previous head to be replaced
+ */
+static void TimerInsertNewHeadTimer( TimerEvent_t *obj );
+
+/*!
+ * \brief Adds a timer to the list.
+ *
+ * \remark The list is automatically sorted. The list head always contains the
+ *         next timer to expire.
+ *
+ * \param [IN]  obj Timer object to be added to the list
+ * \param [IN]  remainingTime Remaining time of the running head after which the object may be added
+ */
+static void TimerInsertTimer( TimerEvent_t *obj );
+
+/*!
+ * \brief Sets a timeout with the duration "timestamp"
+ *
+ * \param [IN] timestamp Delay duration
+ */
+static void TimerSetTimeout( TimerEvent_t *obj );
+
+/*!
+ * \brief Check if the Object to be added is not already in the list
+ *
+ * \param [IN] timestamp Delay duration
+ * \retval true (the object is already in the list) or false
+ */
+static bool TimerExists( TimerEvent_t *obj );
+
+void TimerInit( TimerEvent_t *obj, void ( *callback )( void *context ) )
+{
+}
+
+void TimerSetContext( TimerEvent_t *obj, void* context )
+{
+}
+
+void TimerStart( TimerEvent_t *obj )
+{
+}
+
+static void TimerInsertTimer( TimerEvent_t *obj )
+{
+}
+
+static void TimerInsertNewHeadTimer( TimerEvent_t *obj )
+{
+}
+
+bool TimerIsStarted( TimerEvent_t *obj )
+{
+}
+
+void TimerIrqHandler( void )
+{
+}
+
+void TimerStop( TimerEvent_t *obj )
+{
+}
+
+static bool TimerExists( TimerEvent_t *obj )
+{
+}
+
+void TimerReset( TimerEvent_t *obj )
+{
+}
+
+void TimerSetValue( TimerEvent_t *obj, uint32_t value )
+{
+
+}
+
+TimerTime_t TimerGetCurrentTime( void )
+{
+    return  0;
+}
+
+TimerTime_t TimerGetElapsedTime( TimerTime_t past )
+{
+
+}
+
+static void TimerSetTimeout( TimerEvent_t *obj )
+{
+    
+}
+
+TimerTime_t TimerTempCompensation( TimerTime_t period, float temperature )
+{
+    return 0;
+}
+
+void TimerProcess( void )
+{
+}

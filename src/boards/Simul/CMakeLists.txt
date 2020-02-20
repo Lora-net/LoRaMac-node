@@ -24,6 +24,10 @@ enable_language(ASM)
 #---------------------------------------------------------------------------------------
 
 list(APPEND ${PROJECT_NAME}_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/aes.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmac.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/soft-se.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/systime.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/board.c"
 )
 
@@ -33,6 +37,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+    $<TARGET_PROPERTY:mac,INTERFACE_INCLUDE_DIRECTORIES>
     $<TARGET_PROPERTY:board,INTERFACE_INCLUDE_DIRECTORIES>
     $<TARGET_PROPERTY:radio,INTERFACE_INCLUDE_DIRECTORIES>
 )
