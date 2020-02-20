@@ -315,11 +315,14 @@ void RegionIN865InitDefaults( InitDefaultsParams_t* params )
 
     switch( params->Type )
     {
-        case INIT_TYPE_INIT:
+        case INIT_TYPE_BANDS:
         {
             // Initialize bands
             memcpy1( ( uint8_t* )NvmCtx.Bands, ( uint8_t* )bands, sizeof( Band_t ) * IN865_MAX_NB_BANDS );
-
+            break;
+        }
+        case INIT_TYPE_INIT:
+        {
             // Channels
             NvmCtx.Channels[0] = ( ChannelParams_t ) IN865_LC1;
             NvmCtx.Channels[1] = ( ChannelParams_t ) IN865_LC2;

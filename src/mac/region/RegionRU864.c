@@ -307,11 +307,14 @@ void RegionRU864InitDefaults( InitDefaultsParams_t* params )
 
     switch( params->Type )
     {
-        case INIT_TYPE_INIT:
+        case INIT_TYPE_BANDS:
         {
             // Initialize bands
             memcpy1( ( uint8_t* )NvmCtx.Bands, ( uint8_t* )bands, sizeof( Band_t ) * RU864_MAX_NB_BANDS );
-
+            break;
+        }
+        case INIT_TYPE_INIT:
+        {
             // Channels
             NvmCtx.Channels[0] = ( ChannelParams_t ) RU864_LC1;
             NvmCtx.Channels[1] = ( ChannelParams_t ) RU864_LC2;
