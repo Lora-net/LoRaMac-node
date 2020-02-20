@@ -456,11 +456,14 @@ void RegionUS915InitDefaults( InitDefaultsParams_t* params )
 
     switch( params->Type )
     {
-        case INIT_TYPE_INIT:
+        case INIT_TYPE_BANDS:
         {
             // Initialize bands
             memcpy1( ( uint8_t* )NvmCtx.Bands, ( uint8_t* )bands, sizeof( Band_t ) * US915_MAX_NB_BANDS );
-
+            break;
+        }
+        case INIT_TYPE_INIT:
+        {
             // Initialize 8 bit channel groups index
             NvmCtx.JoinChannelGroupsCurrentIndex = 0;
 

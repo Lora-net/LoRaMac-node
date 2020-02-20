@@ -325,11 +325,14 @@ void RegionCN470InitDefaults( InitDefaultsParams_t* params )
 
     switch( params->Type )
     {
-        case INIT_TYPE_INIT:
+        case INIT_TYPE_BANDS:
         {
             // Initialize bands
             memcpy1( ( uint8_t* )NvmCtx.Bands, ( uint8_t* )bands, sizeof( Band_t ) * CN470_MAX_NB_BANDS );
-
+            break;
+        }
+        case INIT_TYPE_INIT:
+        {
             // Channels
             // 125 kHz channels
             for( uint8_t i = 0; i < CN470_MAX_NB_CHANNELS; i++ )

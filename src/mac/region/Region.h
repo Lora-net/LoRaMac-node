@@ -809,6 +809,10 @@ typedef enum ePhyAttribute
 typedef enum eInitType
 {
     /*!
+     * Initializes the band definitions.
+     */
+    INIT_TYPE_BANDS,
+    /*!
      * Initializes the region specific data to defaults, according to the
      * LoRaWAN specification.
      */

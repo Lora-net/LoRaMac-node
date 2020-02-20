@@ -311,11 +311,14 @@ void RegionEU433InitDefaults( InitDefaultsParams_t* params )
 
     switch( params->Type )
     {
-        case INIT_TYPE_INIT:
+        case INIT_TYPE_BANDS:
         {
             // Initialize bands
             memcpy1( ( uint8_t* )NvmCtx.Bands, ( uint8_t* )bands, sizeof( Band_t ) * EU433_MAX_NB_BANDS );
-
+            break;
+        }
+        case INIT_TYPE_INIT:
+        {
             // Channels
             NvmCtx.Channels[0] = ( ChannelParams_t ) EU433_LC1;
             NvmCtx.Channels[1] = ( ChannelParams_t ) EU433_LC2;
@@ -323,6 +326,7 @@ void RegionEU433InitDefaults( InitDefaultsParams_t* params )
 
             // Initialize the channels default mask
             NvmCtx.ChannelsDefaultMask[0] = LC( 1 ) + LC( 2 ) + LC( 3 );
+
             // Update the channels mask
             RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 1 );
             break;
