@@ -124,6 +124,17 @@ endif()
 #---------------------------------------------------------------------------------------
 file(GLOB ${PROJECT_NAME}_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${SUB_PROJECT}/${BOARD}/*.c")
 
+if(BOARD STREQUAL Simul) 
+add_executable(${PROJECT_NAME}-${SUB_PROJECT}
+                            ${${PROJECT_NAME}_COMMON}
+                            ${${PROJECT_NAME}_LMH}
+                            ${${PROJECT_NAME}_LMHP}
+                            ${${PROJECT_NAME}_SOURCES}
+                            $<TARGET_OBJECTS:mac>
+                            $<TARGET_OBJECTS:radio>
+                            $<TARGET_OBJECTS:${BOARD}>
+)
+else()
 add_executable(${PROJECT_NAME}-${SUB_PROJECT}
                             ${${PROJECT_NAME}_COMMON}
                             ${${PROJECT_NAME}_LMH}
@@ -135,6 +146,7 @@ add_executable(${PROJECT_NAME}-${SUB_PROJECT}
                             $<TARGET_OBJECTS:peripherals>
                             $<TARGET_OBJECTS:${BOARD}>
 )
+endif()
 
 target_compile_definitions(${PROJECT_NAME}-${SUB_PROJECT} PRIVATE $<$<BOOL:${CLASSB_ENABLED}>:LORAMAC_CLASSB_ENABLED>)
 target_compile_definitions(${PROJECT_NAME}-${SUB_PROJECT} PRIVATE ACTIVE_REGION=${ACTIVE_REGION})
