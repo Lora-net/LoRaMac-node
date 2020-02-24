@@ -1,6 +1,14 @@
 #include "radio.h"
 #include "board.h"
 #include <stdio.h>
+#include "mock_radio.h"
+
+
+/*!
+ * Radio hardware and global parameters
+ */
+MockRadio_t MockRadio;
+
 /*!
  * \brief Initializes the radio
  *
@@ -321,9 +329,59 @@ const struct Radio_s Radio =
     RadioSetRxDutyCycle
 };
 
-/*
- * SX126x DIO IRQ callback functions prototype
+uint32_t TxTimeout = 0;
+uint32_t RxTimeout = 0;
+
+bool RxContinuous = false;
+
+
+PacketStatus_t RadioPktStatus;
+uint8_t RadioRxPayload[255];
+
+bool IrqFired = false;
+
+uint8_t MaxPayloadLength = 0xFF;
+
+ /*!
+ * FSK bandwidth definition
  */
+typedef struct
+{
+    uint32_t bandwidth;
+    uint8_t  RegValue;
+}FskBandwidth_t;
+
+
+/*!
+ * Precomputed FSK bandwidth registers values
+ */
+const FskBandwidth_t FskBandwidths[] =
+{
+    { 4800  , 0x1F },
+    { 5800  , 0x17 },
+    { 7300  , 0x0F },
+    { 9700  , 0x1E },
+    { 11700 , 0x16 },
+    { 14600 , 0x0E },
+    { 19500 , 0x1D },
+    { 23400 , 0x15 },
+    { 29300 , 0x0D },
+    { 39000 , 0x1C },
+    { 46900 , 0x14 },
+    { 58600 , 0x0C },
+    { 78200 , 0x1B },
+    { 93800 , 0x13 },
+    { 117300, 0x0B },
+    { 156200, 0x1A },
+    { 187200, 0x12 },
+    { 234300, 0x0A },
+    { 312000, 0x19 },
+    { 373600, 0x11 },
+    { 467000, 0x09 },
+    { 500000, 0x00 }, // Invalid Bandwidth
+};
+
+const RadioLoRaBandwidths_t Bandwidths[] = { LORA_BW_125, LORA_BW_250, LORA_BW_500 };
 
 /*!
  * \brief DIO 0 IRQ callback
@@ -353,21 +411,19 @@ void RadioInit( RadioEvents_t *events )
 
 RadioState_t RadioGetStatus( void )
 {
-
-            return RF_IDLE;
-    
+    return RF_IDLE;
 }
 
 void RadioSetModem( RadioModems_t modem )
 {
 
 }
-static float frequency = 0;
+
+float frequency;
 
 void RadioSetChannel( uint32_t freq )
 {
     frequency = freq/1000000.0;
-
 }
 
 bool RadioIsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh, uint32_t maxCarrierSenseTime )
@@ -390,18 +446,93 @@ void RadioSetRxConfig( RadioModems_t modem, uint32_t bandwidth,
                          bool crcOn, bool freqHopOn, uint8_t hopPeriod,
                          bool iqInverted, bool rxContinuous )
 {
-
-  
+    printf("set rx config\r\n");
 }
-
 
 void RadioSetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
                         uint32_t bandwidth, uint32_t datarate,
                         uint8_t coderate, uint16_t preambleLen,
                         bool fixLen, bool crcOn, bool freqHopOn,
                         uint8_t hopPeriod, bool iqInverted, uint32_t timeout )
-{
-    printf("TxConfig %u!\r\n", fdev);
+{   
+switch( modem )
+    {
+        case MODEM_FSK:
+            MockRadio.ModulationParams.PacketType = PACKET_TYPE_GFSK;
+            MockRadio.ModulationParams.Params.Gfsk.BitRate = datarate;
+
+            MockRadio.ModulationParams.Params.Gfsk.ModulationShaping = MOD_SHAPING_G_BT_1;
+            MockRadio.ModulationParams.Params.Gfsk.Bandwidth = bandwidth;
+            MockRadio.ModulationParams.Params.Gfsk.Fdev = fdev;
+
+            MockRadio.PacketParams.PacketType = PACKET_TYPE_GFSK;
+            MockRadio.PacketParams.Params.Gfsk.PreambleLength = ( preambleLen << 3 ); // convert byte into bit
+            MockRadio.PacketParams.Params.Gfsk.PreambleMinDetect = RADIO_PREAMBLE_DETECTOR_08_BITS;
+            MockRadio.PacketParams.Params.Gfsk.SyncWordLength = 3 << 3 ; // convert byte into bit
+            MockRadio.PacketParams.Params.Gfsk.AddrComp = RADIO_ADDRESSCOMP_FILT_OFF;
+            MockRadio.PacketParams.Params.Gfsk.HeaderType = ( fixLen == true ) ? RADIO_PACKET_FIXED_LENGTH : RADIO_PACKET_VARIABLE_LENGTH;
+
+            if( crcOn == true )
+            {
+                MockRadio.PacketParams.Params.Gfsk.CrcLength = RADIO_CRC_2_BYTES_CCIT;
+            }
+            else
+            {
+                MockRadio.PacketParams.Params.Gfsk.CrcLength = RADIO_CRC_OFF;
+            }
+            MockRadio.PacketParams.Params.Gfsk.DcFree = RADIO_DC_FREEWHITENING;
+
+            RadioStandby( );
+            RadioSetModem( ( MockRadio.ModulationParams.PacketType == PACKET_TYPE_GFSK ) ? MODEM_FSK : MODEM_LORA );
+            break;
+
+        case MODEM_LORA:
+            MockRadio.ModulationParams.PacketType = PACKET_TYPE_LORA;
+            MockRadio.ModulationParams.Params.LoRa.SpreadingFactor = ( RadioLoRaSpreadingFactors_t ) datarate;
+            MockRadio.ModulationParams.Params.LoRa.Bandwidth =  Bandwidths[bandwidth];
+            MockRadio.ModulationParams.Params.LoRa.CodingRate= ( RadioLoRaCodingRates_t )coderate;
+
+            if( ( ( bandwidth == 0 ) && ( ( datarate == 11 ) || ( datarate == 12 ) ) ) ||
+            ( ( bandwidth == 1 ) && ( datarate == 12 ) ) )
+            {
+                MockRadio.ModulationParams.Params.LoRa.LowDatarateOptimize = 0x01;
+            }
+            else
+            {
+                MockRadio.ModulationParams.Params.LoRa.LowDatarateOptimize = 0x00;
+            }
+
+            MockRadio.PacketParams.PacketType = PACKET_TYPE_LORA;
+
+            if( ( MockRadio.ModulationParams.Params.LoRa.SpreadingFactor == LORA_SF5 ) ||
+                ( MockRadio.ModulationParams.Params.LoRa.SpreadingFactor == LORA_SF6 ) )
+            {
+                if( preambleLen < 12 )
+                {
+                    MockRadio.PacketParams.Params.LoRa.PreambleLength = 12;
+                }
+                else
+                {
+                    MockRadio.PacketParams.Params.LoRa.PreambleLength = preambleLen;
+                }
+            }
+            else
+            {
+                MockRadio.PacketParams.Params.LoRa.PreambleLength = preambleLen;
+            }
+
+            MockRadio.PacketParams.Params.LoRa.HeaderType = ( RadioLoRaPacketLengthsMode_t )fixLen;
+            MockRadio.PacketParams.Params.LoRa.PayloadLength = MaxPayloadLength;
+            MockRadio.PacketParams.Params.LoRa.CrcMode = ( RadioLoRaCrcModes_t )crcOn;
+            MockRadio.PacketParams.Params.LoRa.InvertIQ = ( RadioLoRaIQModes_t )iqInverted;
+
+            RadioStandby( );
+            RadioSetModem( ( MockRadio.ModulationParams.PacketType == PACKET_TYPE_GFSK ) ? MODEM_FSK : MODEM_LORA );
+            break;
+    }
+
+    TxTimeout = timeout;
+    printf("set tx config\r\n");
 }
 
 bool RadioCheckRfFrequency( uint32_t frequency )
@@ -409,10 +540,49 @@ bool RadioCheckRfFrequency( uint32_t frequency )
     return true;
 }
 
+//                                          SF12    SF11    SF10    SF9    SF8    SF7
+static double RadioLoRaSymbTime[3][6] = {{ 32.768, 16.384, 8.192, 4.096, 2.048, 1.024 },  // 125 KHz
+                                         { 16.384, 8.192,  4.096, 2.048, 1.024, 0.512 },  // 250 KHz
+                                         { 8.192,  4.096,  2.048, 1.024, 0.512, 0.256 }}; // 500 KHz
+
 uint32_t RadioTimeOnAir( RadioModems_t modem, uint8_t pktLen )
 {
-   
-    return 6;
+    uint32_t airTime = 0;
+
+    switch( modem )
+    {
+    case MODEM_FSK:
+        {
+           airTime = rint( ( 8 * ( MockRadio.PacketParams.Params.Gfsk.PreambleLength +
+                                     ( MockRadio.PacketParams.Params.Gfsk.SyncWordLength >> 3 ) +
+                                     ( ( MockRadio.PacketParams.Params.Gfsk.HeaderType == RADIO_PACKET_FIXED_LENGTH ) ? 0.0 : 1.0 ) +
+                                     pktLen +
+                                     ( ( MockRadio.PacketParams.Params.Gfsk.CrcLength == RADIO_CRC_2_BYTES ) ? 2.0 : 0 ) ) /
+                                     MockRadio.ModulationParams.Params.Gfsk.BitRate ) * 1e3 );
+        }
+        break;
+    case MODEM_LORA:
+        {
+            double ts = RadioLoRaSymbTime[MockRadio.ModulationParams.Params.LoRa.Bandwidth - 4][12 - MockRadio.ModulationParams.Params.LoRa.SpreadingFactor];
+            // time of preamble
+            double tPreamble = ( MockRadio.PacketParams.Params.LoRa.PreambleLength + 4.25 ) * ts;
+            // Symbol length of payload and time
+            double tmp = ceil( ( 8 * pktLen - 4 * MockRadio.ModulationParams.Params.LoRa.SpreadingFactor +
+                                 28 + 16 * MockRadio.PacketParams.Params.LoRa.CrcMode -
+                                 ( ( MockRadio.PacketParams.Params.LoRa.HeaderType == LORA_PACKET_FIXED_LENGTH ) ? 20 : 0 ) ) /
+                                 ( double )( 4 * ( MockRadio.ModulationParams.Params.LoRa.SpreadingFactor -
+                                 ( ( MockRadio.ModulationParams.Params.LoRa.LowDatarateOptimize > 0 ) ? 2 : 0 ) ) ) ) *
+                                 ( ( MockRadio.ModulationParams.Params.LoRa.CodingRate % 4 ) + 4 );
+            double nPayload = 8 + ( ( tmp > 0 ) ? tmp : 0 );
+            double tPayload = nPayload * ts;
+            // Time on air
+            double tOnAir = tPreamble + tPayload;
+            // return milli seconds
+            airTime = floor( tOnAir + 0.999 );
+        }
+        break;
+    }
+    return airTime;
 }
 
 #include <stdint.h>

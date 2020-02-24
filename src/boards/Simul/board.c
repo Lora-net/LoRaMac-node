@@ -22,6 +22,7 @@
  */
 
 #include "board.h"
+#include <stdlib.h>
 
 /*!
  * Initializes the unused GPIO to a know status
@@ -175,16 +176,14 @@ void memcpyr( uint8_t *dst, const uint8_t *src, uint16_t size )
 // Standard random functions redefinition start
 #define RAND_LOCAL_MAX 2147483647L
 
-static uint32_t next = 1;
-
 int32_t rand1( void )
 {
-    return ( ( next = next * 1103515245L + 12345L ) % RAND_LOCAL_MAX );
+    return random();
 }
 
 void srand1( uint32_t seed )
 {
-    next = seed;
+    srandom(seed);
 }
 
 // Standard random functions redefinition end
