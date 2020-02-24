@@ -351,6 +351,10 @@ typedef struct
     uint8_t  RegValue;
 }FskBandwidth_t;
 
+/*!
+ * Radio callbacks variable
+ */
+static RadioEvents_t* RadioEvents;
 
 /*!
  * Precomputed FSK bandwidth registers values
@@ -678,7 +682,7 @@ void RadioStandby( void )
 
 void RadioRx( uint32_t timeout )
 {
-   
+   printf("Rx!");
 }
 
 void RadioRxBoosted( uint32_t timeout )
@@ -760,7 +764,147 @@ void RadioOnDioIrq( void* context )
 {
 }
 
+/*!
+ * \brief Holds the internal operating mode of the radio
+ */
+static RadioOperatingModes_t OperatingMode;
+
+RadioOperatingModes_t MockGetOperatingMode( void )
+{
+    return OperatingMode;
+}
+
+
+void MockSetOperatingMode( RadioOperatingModes_t mode )
+{
+    OperatingMode = mode;
+#if defined( USE_RADIO_DEBUG )
+    switch( mode )
+    {
+        case MODE_TX:
+            break;
+        case MODE_RX:
+        case MODE_RX_DC:
+            break;
+        default:
+            break;
+    }
+#endif
+}
+
+
 void RadioIrqProcess( void )
 {
-  
+     if( IrqFired == true )
+    {
+        CRITICAL_SECTION_BEGIN( );
+        // Clear IRQ flag
+        IrqFired = false;
+        CRITICAL_SECTION_END( );
+
+        // TODO: stuff IRQs better
+        uint16_t irqRegs = IRQ_TX_DONE;
+
+        if( ( irqRegs & IRQ_TX_DONE ) == IRQ_TX_DONE )
+        {
+            //TimerStop( &TxTimeoutTimer );
+            //!< Update operating mode state to a value lower than \ref MODE_STDBY_XOSC
+            // if( ( RadioEvents != NULL ) && ( RadioEvents->TxDone != NULL ) )
+            // {
+                RadioEvents->TxDone( );
+            //}
+        }
+
+        if( ( irqRegs & IRQ_RX_DONE ) == IRQ_RX_DONE )
+        {
+            uint8_t size;
+
+            //TimerStop( &RxTimeoutTimer );
+            if( RxContinuous == false )
+            {
+                //!< Update operating mode state to a value lower than \ref MODE_STDBY_XOSC
+                MockSetOperatingMode( MODE_STDBY_RC );
+            }
+            //SX126xGetPayload( RadioRxPayload, &size , 255 );
+            //SX126xGetPacketStatus( &RadioPktStatus );
+            if( ( RadioEvents != NULL ) && ( RadioEvents->RxDone != NULL ) )
+            {
+                RadioEvents->RxDone( RadioRxPayload, size, RadioPktStatus.Params.LoRa.RssiPkt, RadioPktStatus.Params.LoRa.SnrPkt );
+            }
+        }
+
+        if( ( irqRegs & IRQ_CRC_ERROR ) == IRQ_CRC_ERROR )
+        {
+            if( RxContinuous == false )
+            {
+                //!< Update operating mode state to a value lower than \ref MODE_STDBY_XOSC
+                MockSetOperatingMode( MODE_STDBY_RC );
+            }
+            if( ( RadioEvents != NULL ) && ( RadioEvents->RxError ) )
+            {
+                RadioEvents->RxError( );
+            }
+        }
+
+        if( ( irqRegs & IRQ_CAD_DONE ) == IRQ_CAD_DONE )
+        {
+            //!< Update operating mode state to a value lower than \ref MODE_STDBY_XOSC
+            MockSetOperatingMode( MODE_STDBY_RC );
+            if( ( RadioEvents != NULL ) && ( RadioEvents->CadDone != NULL ) )
+            {
+                RadioEvents->CadDone( ( ( irqRegs & IRQ_CAD_ACTIVITY_DETECTED ) == IRQ_CAD_ACTIVITY_DETECTED ) );
+            }
+        }
+
+        if( ( irqRegs & IRQ_RX_TX_TIMEOUT ) == IRQ_RX_TX_TIMEOUT )
+        {
+            if( MockGetOperatingMode( ) == MODE_TX )
+            {
+                //TimerStop( &TxTimeoutTimer );
+                //!< Update operating mode state to a value lower than \ref MODE_STDBY_XOSC
+                MockSetOperatingMode( MODE_STDBY_RC );
+                if( ( RadioEvents != NULL ) && ( RadioEvents->TxTimeout != NULL ) )
+                {
+                    RadioEvents->TxTimeout( );
+                }
+            }
+            else if( MockGetOperatingMode( ) == MODE_RX )
+            {
+                //TimerStop( &RxTimeoutTimer );
+                //!< Update operating mode state to a value lower than \ref MODE_STDBY_XOSC
+                if( ( RadioEvents != NULL ) && ( RadioEvents->RxTimeout != NULL ) )
+                {
+                    RadioEvents->RxTimeout( );
+                }
+            }
+        }
+
+        if( ( irqRegs & IRQ_PREAMBLE_DETECTED ) == IRQ_PREAMBLE_DETECTED )
+        {
+            //__NOP( );
+        }
+
+        if( ( irqRegs & IRQ_SYNCWORD_VALID ) == IRQ_SYNCWORD_VALID )
+        {
+            //__NOP( );
+        }
+
+        if( ( irqRegs & IRQ_HEADER_VALID ) == IRQ_HEADER_VALID )
+        {
+            //__NOP( );
+        }
+
+        if( ( irqRegs & IRQ_HEADER_ERROR ) == IRQ_HEADER_ERROR )
+        {
+            //TimerStop( &RxTimeoutTimer );
+            if( RxContinuous == false )
+            {
+
+            }
+            if( ( RadioEvents != NULL ) && ( RadioEvents->RxTimeout != NULL ) )
+            {
+                RadioEvents->RxTimeout( );
+            }
+        }
+    }
 }

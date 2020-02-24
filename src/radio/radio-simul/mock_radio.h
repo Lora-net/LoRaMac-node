@@ -2,6 +2,42 @@
 #define __MOCK_RADIO_H__
 
 /*!
+ * \brief Represents the operating mode the radio is actually running
+ */
+typedef enum
+{
+    MODE_SLEEP                              = 0x00,         //! The radio is in sleep mode
+    MODE_STDBY_RC,                                          //! The radio is in standby mode with RC oscillator
+    MODE_STDBY_XOSC,                                        //! The radio is in standby mode with XOSC oscillator
+    MODE_FS,                                                //! The radio is in frequency synthesis mode
+    MODE_TX,                                                //! The radio is in transmit mode
+    MODE_RX,                                                //! The radio is in receive mode
+    MODE_RX_DC,                                             //! The radio is in receive duty cycle mode
+    MODE_CAD                                                //! The radio is in channel activity detection mode
+}RadioOperatingModes_t;
+
+/*!
+ * \brief Represents the interruption masks available for the radio
+ *
+ * \remark Note that not all these interruptions are available for all packet types
+ */
+typedef enum
+{
+    IRQ_RADIO_NONE                          = 0x0000,
+    IRQ_TX_DONE                             = 0x0001,
+    IRQ_RX_DONE                             = 0x0002,
+    IRQ_PREAMBLE_DETECTED                   = 0x0004,
+    IRQ_SYNCWORD_VALID                      = 0x0008,
+    IRQ_HEADER_VALID                        = 0x0010,
+    IRQ_HEADER_ERROR                        = 0x0020,
+    IRQ_CRC_ERROR                           = 0x0040,
+    IRQ_CAD_DONE                            = 0x0080,
+    IRQ_CAD_ACTIVITY_DETECTED               = 0x0100,
+    IRQ_RX_TX_TIMEOUT                       = 0x0200,
+    IRQ_RADIO_ALL                           = 0xFFFF,
+}RadioIrqMasks_t;
+
+/*!
  * \brief Represents the possible packet type (i.e. modem) used
  */
 typedef enum

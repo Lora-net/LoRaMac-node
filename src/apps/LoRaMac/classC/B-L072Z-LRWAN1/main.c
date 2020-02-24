@@ -623,6 +623,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         }
         case MCPS_CONFIRMED:
         {
+            printf("Confirmed");
             break;
         }
         case MCPS_PROPRIETARY:

@@ -1424,6 +1424,7 @@ static void LoRaMacHandleIrqEvents( void )
     {
         if( events.Events.TxDone == 1 )
         {
+            printf("TxDone\r\n");
             ProcessRadioTxDone( );
         }
         if( events.Events.RxDone == 1 )

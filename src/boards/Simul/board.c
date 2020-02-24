@@ -89,14 +89,14 @@ uint32_t BoardGetRandomSeed( void )
 
 void BoardGetUniqueId( uint8_t *id )
 {
-    id[7] = ( ( *( uint32_t* )5 )+ ( *( uint32_t* )3 ) ) >> 24;
-    id[6] = ( ( *( uint32_t* )5 )+ ( *( uint32_t* )3 ) ) >> 16;
-    id[5] = ( ( *( uint32_t* )5 )+ ( *( uint32_t* )3 ) ) >> 8;
-    id[4] = ( ( *( uint32_t* )5 )+ ( *( uint32_t* )3 ) );
-    id[3] = ( ( *( uint32_t* )5 ) ) >> 24;
-    id[2] = ( ( *( uint32_t* )5 ) ) >> 16;
-    id[1] = ( ( *( uint32_t* )5 ) ) >> 8;
-    id[0] = ( ( *( uint32_t* )5 ) );
+    id[7] = 0xDE;
+    id[6] = 0xAD;
+    id[5] = 0xBE;
+    id[4] = 0xEF;
+    id[3] = 0xDE;
+    id[2] = 0xAD;
+    id[1] = 0xBE;
+    id[0] = 0xEF;
 }
 
 
