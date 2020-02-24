@@ -14,6 +14,25 @@
     |___/ |_/_/ \_\___|_|\_\_| \___/|_|_\\___|___|
     embedded.connectivity.solutions===============
 
+
+## Simulator Branch Notes
+
+To build, 
+
+```
+LoRaMAC-node/$ mkdir build
+LoRaMAC-node/$ cd build
+LoRaMAC-node/build$ cmake -DAPPLICATION="LoRaMac" -DSUB_PROJECT="classC" -DBOARD="Simul" -DRADIO="radio-simul" ..
+LoRaMAC-node/build$ make
+
+```
+
+To run:
+
+```
+LoRaMAC-node/build$ src/apps/LoRaMac/LoRaMac-classC
+```
+
 ## Introduction
 
 The aim of this project is to show an example of the endpoint LoRaWAN stack implementation.
