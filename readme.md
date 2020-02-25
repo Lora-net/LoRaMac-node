@@ -22,7 +22,7 @@ To build,
 ```
 LoRaMAC-node/$ mkdir build
 LoRaMAC-node/$ cd build
-LoRaMAC-node/build$ cmake -DAPPLICATION="LoRaMac" -DSUB_PROJECT="classC" -DBOARD="Simul" -DRADIO="radio-simul" ..
+LoRaMAC-node/build$ cmake -DAPPLICATION="LoRaMac" -DSUB_PROJECT="classA" -DBOARD="Simul" -DRADIO="radio-simul" ..
 LoRaMAC-node/build$ make
 
 ```
