@@ -30,13 +30,13 @@
 #include "Commissioning.h"
 #include "NvmCtxMgmt.h"
 
-//#ifndef ACTIVE_REGION
+#ifndef ACTIVE_REGION
 
-#warning "No active region defined, LORAMAC_REGION_US915 will be used as default."
+#warning "No active region defined, LORAMAC_REGION_EU868 will be used as default."
 
-#define ACTIVE_REGION LORAMAC_REGION_US915
+#define ACTIVE_REGION LORAMAC_REGION_EU868
 
-//#endif
+#endif
 
 /*!
  * Defines the application data transmission duty cycle. 5s, value in [ms].
@@ -925,17 +925,16 @@ int main( void )
     macCallbacks.GetTemperatureLevel = NULL;
     macCallbacks.NvmContextChange = NvmCtxMgmtEvent;
     macCallbacks.MacProcessNotify = OnMacProcessNotify;
-    printf("Initializing LoRaWAN Stack\r\n");
+
     status = LoRaMacInitialization( &macPrimitives, &macCallbacks, ACTIVE_REGION );
     if ( status != LORAMAC_STATUS_OK )
     {
-        printf( "LoRaMac wasn't properly initialized, error: %s\r\n", MacStatusStrings[status] );
+        printf( "LoRaMac wasn't properly initialized, error: %s", MacStatusStrings[status] );
         // Fatal error, endless loop.
         while ( 1 )
         {
         }
     }
-    printf("Stack Initialized\r\n");
 
     DeviceState = DEVICE_STATE_RESTORE;
 
