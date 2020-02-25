@@ -30,7 +30,7 @@ LoRaMAC-node/build$ make
 To run:
 
 ```
-LoRaMAC-node/build$ src/apps/LoRaMac/LoRaMac-classC
+LoRaMAC-node/build$ src/apps/LoRaMac/LoRaMac-classA
 ```
 ```
 {"txpk":{"imme":true, "freq":861.3, "rfch":0, "power":12, "modu":"FSK", "datr":50000, "fdev":3000, "size":17, "data":"IGMwaRINjbqvd4TSfHId/j0="}}
