@@ -250,7 +250,7 @@ const char* TimerString[8] =
     "OnRxWindow1TimerEvent",
     "OnRxWindow2TimerEvent",
     "OnAckTimeoutTimerEvent",
-    "Unlabelled 5",
+    "TxNextPacketTimer",
     "Unlabelled 6",
     "Unlabelled 7",
     "Unlabelled 8",
@@ -258,6 +258,7 @@ const char* TimerString[8] =
 
 TimerEvent_t * timer[8];
 uint num_timers = 0;
+static uint trigger_win2 = 0;
 
 void poll_timers() {
     int ret, res;
@@ -268,12 +269,22 @@ void poll_timers() {
             if(ts.it_value.tv_sec == 0 && ts.it_value.tv_nsec == 0){
                 // fire the timer
                 if(timer[i]->Callback!=NULL){
-                    printf("fire the cb %p\n", timer[i]->t);
+                    //printf("Firing callback: %s\n", TimerString[i]);
                     (*timer[i]->Callback)(timer[i]->Context);
                 }
                 TimerStart(timer[i]);
             }
         }
+    }
+
+    if (trigger_win2) {
+        trigger_win2++;
+        if(trigger_win2 == 2) {
+            //printf("Firing callback: %s\n", TimerString[2]);
+            (*timer[2]->Callback)(timer[2]->Context);
+            trigger_win2 = 0;
+        }
+        
     }
 }
 
@@ -293,7 +304,13 @@ void TimerInit( TimerEvent_t *obj, void ( *callback )( void *context ) )
     timer[num_timers] = obj;
     obj->sev.sigev_notify = SIGEV_NONE;
     timer_create(CLOCK_REALTIME, &obj->sev, &obj->t);
-    printf("Creating timer %s : %p\r\n", TimerString[num_timers], obj->t);
+    int i = get_timer_index(obj);
+    if(!i){
+        //printf("!!!!Index query failed: %u\r\n", num_timers);
+    } else {
+        //printf("Creating timer %s : %p\r\n", TimerString[num_timers], obj->t);
+    }
+
 
     obj->Timestamp = 0;
     obj->ReloadValue = 0;
@@ -312,33 +329,36 @@ void TimerSetContext( TimerEvent_t *obj, void* context )
 
 void TimerStart( TimerEvent_t *obj )
 {
-
     int i = get_timer_index(obj);
     if(!i){
-        printf("Index query failed\r\n");
+        printf("TimerStart: Index query failed %u\r\n");
         return;
     }
 
-    if(TimerString[i] == "OnRxWindow1TimerEvent" || TimerString[i] == "OnRxWindow2TimerEvent") {
+    //if(TimerString[i] == "OnRxWindow1TimerEvent") {
+        //printf("Immediately firing timer %s\r\n", TimerString[i]);
         (*timer[i]->Callback)(timer[i]->Context);
-    } else {
-        printf("Starting timer %s for %u ms\r\n", TimerString[i], obj->ReloadValue);
-        struct itimerspec ts;
+    // } else if (TimerString[i] == "OnRxWindow2TimerEvent"){
+    //     //printf("Signalling RxWindow2TimerEvent for next poll\r\n");
+    //     trigger_win2 = 1;
+    // } else {
+    //     //printf("Starting timer %s for %u ms\r\n", TimerString[i], obj->ReloadValue);
+    //     struct itimerspec ts;
 
-        ts.it_value.tv_sec = obj->ReloadValue/1000.0;
-        ts.it_value.tv_nsec = (obj->ReloadValue % 1000) * 1000;
+    //     ts.it_value.tv_sec = obj->ReloadValue/1000.0;
+    //     ts.it_value.tv_nsec = (obj->ReloadValue % 1000) * 1000;
 
-        // we will manually rearm the timer
-        ts.it_interval.tv_sec = 0;
-        ts.it_interval.tv_nsec = 0;
+    //     // we will manually rearm the timer
+    //     ts.it_interval.tv_sec = 0;
+    //     ts.it_interval.tv_nsec = 0;
       
-        obj->IsStarted = true;
+    //     obj->IsStarted = true;
 
-        if (timer_settime(obj->t, 0, &ts, NULL) < 0) {
-            printf("timer_settime() failed");
-            return;
-        }
-    }
+    //     if (timer_settime(obj->t, 0, &ts, NULL) < 0) {
+    //         printf("timer_settime() failed");
+    //         return;
+    //     }
+    // }
 }
 
 static void TimerInsertTimer( TimerEvent_t *obj )
@@ -361,11 +381,16 @@ void TimerIrqHandler( void )
 void TimerStop( TimerEvent_t *obj )
 {
     int i = get_timer_index(obj);
-    if(!i){
-        printf("Index query failed\r\n");
-        return;
+    // if(!i){
+    //     printf("Index query failed\r\n");
+    //     //return;
+    // }
+
+    if (TimerString[i] == "OnRxWindow2TimerEvent"){
+        trigger_win2 = 0;
     }
-    printf("Stopping timer %s\r\n", TimerString[i]);
+
+    //printf("Stopping timer %s\r\n", TimerString[i]);
     struct itimerspec ts;
 
     ts.it_value.tv_sec = 0;
@@ -393,7 +418,6 @@ void TimerReset( TimerEvent_t *obj )
 // given in 
 void TimerSetValue( TimerEvent_t *obj, uint32_t value )
 {
-    printf("setting timervalue\r\n");
     uint32_t minValue = 0;
 
     TimerStop( obj );
@@ -409,7 +433,7 @@ TimerTime_t TimerGetCurrentTime( void )
 
 TimerTime_t TimerGetElapsedTime( TimerTime_t past )
 {
-
+    return 1000000;
 }
 
 static void TimerSetTimeout( TimerEvent_t *obj )

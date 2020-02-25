@@ -792,8 +792,6 @@ struct
 
 static void OnRadioTxDone( void )
 {
-    printf("OnRadioTxDone\r\n");
-
     TxDoneParams.CurTime = TimerGetCurrentTime( );
     MacCtx.LastTxSysTime = SysTimeGet( );
 
@@ -865,7 +863,6 @@ static void UpdateRxSlotIdleState( void )
 
 static void ProcessRadioTxDone( void )
 {
-    printf("ProcessRadioTxDone\r\n");
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;
     SetBandTxDoneParams_t txDone;
@@ -1660,7 +1657,6 @@ void LoRaMacProcess( void )
     // MAC proceeded a state and is ready to check
     if( MacCtx.MacFlags.Bits.MacDone == 1 )
     {
-        printf("MacCtx.MacFlags.Bits.MacDone == 1\r\n");
         LoRaMacEnableRequests( LORAMAC_REQUEST_HANDLING_OFF );
         LoRaMacCheckForRxAbort( );
 
@@ -1688,7 +1684,6 @@ void LoRaMacProcess( void )
 
 static void OnTxDelayedTimerEvent( void* context )
 {
-    printf("OnTxDelayedTimerEvent\r\n");
     TimerStop( &MacCtx.TxDelayedTimer );
     MacCtx.MacState &= ~LORAMAC_TX_DELAYED;
 
@@ -1715,7 +1710,6 @@ static void OnTxDelayedTimerEvent( void* context )
 
 static void OnRxWindow1TimerEvent( void* context )
 {
-    printf("OnRxWindow1TimerEvent\r\n");
     MacCtx.RxWindow1Config.Channel = MacCtx.Channel;
     MacCtx.RxWindow1Config.DrOffset = MacCtx.NvmCtx->MacParams.Rx1DrOffset;
     MacCtx.RxWindow1Config.DownlinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
@@ -1728,8 +1722,6 @@ static void OnRxWindow1TimerEvent( void* context )
 
 static void OnRxWindow2TimerEvent( void* context )
 {
-    printf("OnRxWindow1TimerEvent\r\n");
-
     // Check if we are processing Rx1 window.
     // If yes, we don't setup the Rx2 window.
     if( MacCtx.RxSlot == RX_SLOT_WIN_1 )
@@ -1748,8 +1740,6 @@ static void OnRxWindow2TimerEvent( void* context )
 
 static void OnAckTimeoutTimerEvent( void* context )
 {
-    printf("OnAckTimeoutTimerEvent\r\n");
-
     TimerStop( &MacCtx.AckTimeoutTimer );
 
     if( MacCtx.NodeAckRequested == true )
@@ -3289,13 +3279,9 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     MacCtx.NvmCtx->AggregatedTimeOff = 0;
 
     // Initialize timers
-    printf("TimerInit OnTxDelayedTimerEvent ");
     TimerInit( &MacCtx.TxDelayedTimer, OnTxDelayedTimerEvent );
-    printf("TimerInit OnRxWindow1TimerEvent ");
     TimerInit( &MacCtx.RxWindowTimer1, OnRxWindow1TimerEvent );
-    printf("TimerInit OnRxWindow2TimerEvent ");
     TimerInit( &MacCtx.RxWindowTimer2, OnRxWindow2TimerEvent );
-    printf("TimerInit OnAckTimeoutTimerEvent ");
     TimerInit( &MacCtx.AckTimeoutTimer, OnAckTimeoutTimerEvent );
 
     // Store the current initialization time
@@ -4484,19 +4470,16 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
     if( LoRaMacIsBusy( ) == true )
-    {   printf("1!\r\n");
-
+    {
         return LORAMAC_STATUS_BUSY;
     }
     if( LoRaMacConfirmQueueIsFull( ) == true )
-    {   printf("2!\r\n");
-
+    {   
         return LORAMAC_STATUS_BUSY;
     }
 
     if( LoRaMacConfirmQueueGetCnt( ) == 0 )
-    {   printf("3!\r\n");
-
+    {   
         memset1( ( uint8_t* ) &MacCtx.MlmeConfirm, 0, sizeof( MacCtx.MlmeConfirm ) );
     }
     MacCtx.MlmeConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
@@ -4514,7 +4497,6 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
             {
                 return LORAMAC_STATUS_BUSY;
             }
-   printf("4!\r\n");
 
             ResetMacParameters( );
 

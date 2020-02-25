@@ -464,7 +464,7 @@ void RadioSetRxConfig( RadioModems_t modem, uint32_t bandwidth,
                          bool crcOn, bool freqHopOn, uint8_t hopPeriod,
                          bool iqInverted, bool rxContinuous )
 {
-    printf("set rx config\r\n");
+    //TODO store RX config so we can use it to evaluate capture input
 }
 
 void RadioSetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
@@ -691,7 +691,6 @@ unsigned char *base64_decode(const char *data,
         if (j < *output_length) decoded_data[j++] = (triple >> 1 * 8) & 0xFF;
         if (j < *output_length) decoded_data[j++] = (triple >> 0 * 8) & 0xFF;
     }
-    printf("its decoded\r\n");
     return decoded_data;
 }
 
@@ -752,9 +751,9 @@ uint8_t rx_buffer[512];
 
 void RadioRx( uint32_t timeout )
 {
-   printf("timeout %u", timeout);
+   printf("Radio Rx with timeout %u\r\n", timeout);
    char in[1024];
-   printf("Rx <<");
+   printf("Rx << ");
    fgets(in, 1024, stdin);
 
    /* JSON parsing variables */
@@ -766,28 +765,26 @@ void RadioRx( uint32_t timeout )
    root_val = json_parse_string(in);
 
    if(root_val != NULL){
-    printf("root value OK\r\n");
     /* look for JSON sub-object 'txpk' */
     txpk_obj = json_object_get_object(json_value_get_object(root_val), "txpk");
     if (txpk_obj != NULL) {
 
-        printf("txpk_obj OK\r\n");
         str = json_object_get_string(txpk_obj, "data");
-        printf("data %s\r\n", str);
-
+        //printf("data %s\r\n", str);
         size_t output_length;
-        printf("str length = %u\r\n", strlen(str));
-
+        //printf("str length = %u\r\n", strlen(str));
         uint8_t * rx_buffer2 = base64_decode(str, strlen(str), &output_length);
-        printf("output length = %u\r\n", output_length);
+        //printf("output length = %u\r\n", output_length);
         PrintHexBuffer(rx_buffer2, output_length);
-
         RadioEvents->RxDone(rx_buffer2, output_length, -110, 5);
+        json_value_free(root_val);
 
+        return;
     }
    }
+   //printf("\r\nRxTimeout Firing\r\n");
    json_value_free(root_val);
-
+   RadioEvents->RxTimeout();
 }
 
 void RadioRxBoosted( uint32_t timeout )

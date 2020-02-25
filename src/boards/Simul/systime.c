@@ -131,7 +131,6 @@ void SysTimeSet( SysTime_t sysTime )
 
 SysTime_t SysTimeGet( void )
 {
-    printf("SysTimeGet");
     uint16_t ms; // Milliseconds
     uint32_t s;  // Seconds
     struct timespec spec;

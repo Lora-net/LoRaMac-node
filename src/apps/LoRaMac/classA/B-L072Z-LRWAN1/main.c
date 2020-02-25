@@ -132,6 +132,9 @@ static uint8_t AppDataBuffer[LORAWAN_APP_DATA_MAX_SIZE];
  */
 static uint8_t IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
 
+#define CONFIRM_EVERY 2
+static uint8_t TxConfirmCount = 0;
+
 /*!
  * Defines the application data transmission duty cycle
  */
@@ -395,9 +398,10 @@ static bool SendFrame( void )
 {
     McpsReq_t mcpsReq;
     LoRaMacTxInfo_t txInfo;
-
+    printf("AM I EVEN HERE!!???\r\n");
     if( LoRaMacQueryTxPossible( AppDataSize, &txInfo ) != LORAMAC_STATUS_OK )
     {
+        printf("Sending empty frame\r\n");
         // Send empty frame in order to flush MAC commands
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fBuffer = NULL;
@@ -406,8 +410,9 @@ static bool SendFrame( void )
     }
     else
     {
-        if( IsTxConfirmed == false )
+        if( IsTxConfirmed == false || ++TxConfirmCount != CONFIRM_EVERY)
         {
+            printf("Always Unconfirmed\r\n");
             mcpsReq.Type = MCPS_UNCONFIRMED;
             mcpsReq.Req.Unconfirmed.fPort = AppPort;
             mcpsReq.Req.Unconfirmed.fBuffer = AppDataBuffer;
@@ -422,6 +427,7 @@ static bool SendFrame( void )
             mcpsReq.Req.Confirmed.fBufferSize = AppDataSize;
             mcpsReq.Req.Confirmed.NbTrials = 8;
             mcpsReq.Req.Confirmed.Datarate = LORAWAN_DEFAULT_DATARATE;
+            TxConfirmCount = 0;
         }
     }
 

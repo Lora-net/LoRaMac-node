@@ -111,6 +111,9 @@ static uint8_t AppDataBuffer[LORAWAN_APP_DATA_MAX_SIZE];
  */
 static uint8_t IsTxConfirmed = LORAWAN_CONFIRMED_MSG_ON;
 
+#define CONFIRM_EVERY 2
+static uint8_t TxConfirmCount = 0;
+
 /*!
  * Defines the application data transmission duty cycle
  */
@@ -362,11 +365,18 @@ static void PrepareTxFrame( uint8_t port )
  */
 static bool SendFrame( void )
 {
+    if(++TxConfirmCount == CONFIRM_EVERY) {
+        IsTxConfirmed = true;
+        TxConfirmCount = 0;
+    } else { 
+        IsTxConfirmed = false;
+    }
     McpsReq_t mcpsReq;
     LoRaMacTxInfo_t txInfo;
-
+    printf("Sending Frame\r\n");
     if( LoRaMacQueryTxPossible( AppDataSize, &txInfo ) != LORAMAC_STATUS_OK )
     {
+        printf("!= LORAMAC_STATUS_OK\r\n");
         // Send empty frame in order to flush MAC commands
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fBuffer = NULL;
@@ -376,7 +386,8 @@ static bool SendFrame( void )
     else
     {
         if( IsTxConfirmed == false )
-        {
+        {   
+            printf("Sending Unconfirmed Packet\r\n");
             mcpsReq.Type = MCPS_UNCONFIRMED;
             mcpsReq.Req.Unconfirmed.fPort = AppPort;
             mcpsReq.Req.Unconfirmed.fBuffer = AppDataBuffer;
@@ -385,12 +396,14 @@ static bool SendFrame( void )
         }
         else
         {
+            printf("Sending Confirmed Packet\r\n");
             mcpsReq.Type = MCPS_CONFIRMED;
             mcpsReq.Req.Confirmed.fPort = AppPort;
             mcpsReq.Req.Confirmed.fBuffer = AppDataBuffer;
             mcpsReq.Req.Confirmed.fBufferSize = AppDataSize;
             mcpsReq.Req.Confirmed.NbTrials = 8;
             mcpsReq.Req.Confirmed.Datarate = LORAWAN_DEFAULT_DATARATE;
+            TxConfirmCount = 0;
         }
     }
 
@@ -1015,7 +1028,6 @@ int main( void )
 
             case DEVICE_STATE_START:
             {
-                printf("TimerInit( &TxNextPacketTimer, OnTxNextPacketTimerEvent )");
                 TimerInit( &TxNextPacketTimer, OnTxNextPacketTimerEvent );
 
                 mibReq.Type = MIB_PUBLIC_NETWORK;
