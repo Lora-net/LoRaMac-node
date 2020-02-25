@@ -103,11 +103,23 @@ SysTime_t SysTimeSub( SysTime_t a, SysTime_t b )
 
 void SysTimeSet( SysTime_t sysTime )
 {
+
+    uint16_t ms; // Milliseconds
+    uint32_t s;  // Seconds
+    struct timespec spec;
+
+    clock_gettime(CLOCK_REALTIME, &spec);
+
+    s  = spec.tv_sec;
+    ms = round(spec.tv_nsec / 1.0e6); // Convert nanoseconds to milliseconds
+    if (ms > 999) {
+        s++;
+        ms = 0;
+    }
+
     SysTime_t deltaTime;
   
-    SysTime_t calendarTime = { .Seconds = 0, .SubSeconds = 0 };
-
-    calendarTime.Seconds = RtcGetCalendarTime( ( uint16_t* )&calendarTime.SubSeconds );
+    SysTime_t calendarTime = { .Seconds = s, .SubSeconds = ms };
 
     // sysTime is epoch
     deltaTime = SysTimeSub( sysTime, calendarTime );
@@ -115,19 +127,26 @@ void SysTimeSet( SysTime_t sysTime )
     RtcBkupWrite( deltaTime.Seconds, ( uint32_t )deltaTime.SubSeconds );
 }
 
+#include <sys/time.h>
+
 SysTime_t SysTimeGet( void )
 {
-    SysTime_t calendarTime = { .Seconds = 0, .SubSeconds = 0 };
-    SysTime_t sysTime = { .Seconds = 0, .SubSeconds = 0 };
-    SysTime_t deltaTime;
+    printf("SysTimeGet");
+    uint16_t ms; // Milliseconds
+    uint32_t s;  // Seconds
+    struct timespec spec;
 
-    calendarTime.Seconds = RtcGetCalendarTime( ( uint16_t* )&calendarTime.SubSeconds );
+    clock_gettime(CLOCK_REALTIME, &spec);
 
-    RtcBkupRead( &deltaTime.Seconds, ( uint32_t* )&deltaTime.SubSeconds );
+    s  = spec.tv_sec;
+    ms = round(spec.tv_nsec / 1.0e6); // Convert nanoseconds to milliseconds
+    if (ms > 999) {
+        s++;
+        ms = 0;
+    }
 
-    sysTime = SysTimeAdd( deltaTime, calendarTime );
-
-    return sysTime;
+    SysTime_t time = { .Seconds = s, .SubSeconds = ms };
+    return time;
 }
 
 SysTime_t SysTimeGetMcuTime( void )

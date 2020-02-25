@@ -31,19 +31,21 @@ extern "C"
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-
+#include <signal.h>
+#include <time.h>
 /*!
  * \brief Timer object description
  */
 typedef struct TimerEvent_s
 {
+    timer_t t;                             //! Timer File Descriptor
+    struct sigevent sev;
     uint32_t Timestamp;                  //! Current timer value
     uint32_t ReloadValue;                //! Timer delay value
     bool IsStarted;                      //! Is the timer currently running
     bool IsNext2Expire;                  //! Is the next timer to expire
     void ( *Callback )( void* context ); //! Timer IRQ callback function
     void *Context;                       //! User defined data object pointer to pass back
-    struct TimerEvent_s *Next;           //! Pointer to the next Timer object.
 }TimerEvent_t;
 
 /*!

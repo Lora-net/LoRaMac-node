@@ -23,6 +23,8 @@
 
 #include "board.h"
 #include <stdlib.h>
+#include "timer.h"
+#include <stdio.h>
 
 /*!
  * Initializes the unused GPIO to a know status
@@ -193,21 +195,6 @@ int32_t randr( int32_t min, int32_t max )
     return ( int32_t )rand1( ) % ( max - min + 1 ) + min;
 }
 
-
-/*!
- * \brief Timer object description
- */
-typedef struct TimerEvent_s
-{
-    uint32_t Timestamp;                  //! Current timer value
-    uint32_t ReloadValue;                //! Timer delay value
-    bool IsStarted;                      //! Is the timer currently running
-    bool IsNext2Expire;                  //! Is the next timer to expire
-    void ( *Callback )( void* context ); //! Timer IRQ callback function
-    void *Context;                       //! User defined data object pointer to pass back
-    struct TimerEvent_s *Next;           //! Pointer to the next Timer object.
-}TimerEvent_t;
-
 typedef uint32_t TimerTime_t;
 
 
@@ -253,16 +240,69 @@ static void TimerSetTimeout( TimerEvent_t *obj );
  */
 static bool TimerExists( TimerEvent_t *obj );
 
+
+TimerEvent_t * timer[32];
+uint num_timers = 0;
+
+void poll_timers() {
+    int ret, res;
+    struct itimerspec ts;
+    for(uint i=0; i<num_timers; i++) {
+        if(timer[i]->IsStarted) {
+            uint time = timer_gettime(timer[i]->t, &ts);
+
+            if(ts.it_value.tv_sec == 0 && ts.it_value.tv_nsec == 0){
+                // fire the timer
+                if(timer[i]->Callback!=NULL){
+                    printf("fire the cb %p\n", timer[i]->t);
+                    (*timer[i]->Callback)(timer[i]->Context);
+                }
+                TimerStart(timer[i]);
+            }
+        }
+
+    }
+}
+
+
 void TimerInit( TimerEvent_t *obj, void ( *callback )( void *context ) )
 {
+    timer[num_timers++] = obj;
+    obj->sev.sigev_notify = SIGEV_NONE;
+    timer_create(CLOCK_REALTIME, &obj->sev, &obj->t);
+    printf("Creating timer %p\r\n", obj->t);
+
+    obj->Timestamp = 0;
+    obj->ReloadValue = 0;
+    obj->IsStarted = false;
+    obj->IsNext2Expire = false;
+    obj->Callback = callback;
+    obj->Context = NULL;
 }
 
 void TimerSetContext( TimerEvent_t *obj, void* context )
 {
+    obj->Context = context;
 }
 
 void TimerStart( TimerEvent_t *obj )
 {
+    printf("Starting timer %p for %u ms\r\n", obj->t, obj->ReloadValue);
+    struct itimerspec ts;
+
+    ts.it_value.tv_sec = obj->ReloadValue/1000.0;
+    ts.it_value.tv_nsec = (obj->ReloadValue % 1000) * 1000;
+
+    // we will manually rearm the timer
+    ts.it_interval.tv_sec = 0;
+    ts.it_interval.tv_nsec = 0;
+  
+    obj->IsStarted = true;
+
+    if (timer_settime(obj->t, 0, &ts, NULL) < 0) {
+        printf("timer_settime() failed");
+        return;
+    }
 }
 
 static void TimerInsertTimer( TimerEvent_t *obj )
@@ -275,6 +315,7 @@ static void TimerInsertNewHeadTimer( TimerEvent_t *obj )
 
 bool TimerIsStarted( TimerEvent_t *obj )
 {
+
 }
 
 void TimerIrqHandler( void )
@@ -283,6 +324,20 @@ void TimerIrqHandler( void )
 
 void TimerStop( TimerEvent_t *obj )
 {
+    printf("Stopping timer %p\r\n", obj->t);
+    struct itimerspec ts;
+
+    ts.it_value.tv_sec = 0;
+    ts.it_value.tv_nsec = 0;
+    ts.it_interval.tv_sec = 0;
+    ts.it_interval.tv_nsec = 0;
+  
+    obj->IsStarted = false;
+
+    if (timer_settime(obj->t, 0, &ts, NULL) < 0) {
+        printf("timer_settime() failed");
+        return;
+    }
 }
 
 static bool TimerExists( TimerEvent_t *obj )
@@ -291,11 +346,19 @@ static bool TimerExists( TimerEvent_t *obj )
 
 void TimerReset( TimerEvent_t *obj )
 {
+
 }
 
+// given in 
 void TimerSetValue( TimerEvent_t *obj, uint32_t value )
 {
+    printf("setting timervalue\r\n");
+    uint32_t minValue = 0;
 
+    TimerStop( obj );
+
+    obj->Timestamp = value;
+    obj->ReloadValue = value;
 }
 
 TimerTime_t TimerGetCurrentTime( void )

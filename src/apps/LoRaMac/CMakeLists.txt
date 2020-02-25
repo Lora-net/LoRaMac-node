@@ -169,8 +169,9 @@ target_include_directories(${PROJECT_NAME}-${SUB_PROJECT} PUBLIC
 
 set_property(TARGET ${PROJECT_NAME}-${SUB_PROJECT} PROPERTY C_STANDARD 11)
 
-target_link_libraries(${PROJECT_NAME}-${SUB_PROJECT} m)
-
+# link to linux timer
+find_library(LIBRT rt)
+target_link_libraries(${PROJECT_NAME}-${SUB_PROJECT} m ${LIBRT})
 
 if(NOT BOARD STREQUAL Simul) 
 #---------------------------------------------------------------------------------------

@@ -84,6 +84,8 @@
  */
 #define LORAWAN_APP_PORT                            2
 
+#define OVER_THE_AIR_ACTIVATION 1
+
 #if( ABP_ACTIVATION_LRWAN_VERSION == ABP_ACTIVATION_LRWAN_VERSION_V10x )
 static uint8_t GenAppKey[] = LORAWAN_GEN_APP_KEY;
 #else
@@ -440,6 +442,8 @@ static bool SendFrame( void )
  */
 static void OnTxNextPacketTimerEvent( void* context )
 {
+
+    printf("I fired!\r\n");
     MibRequestConfirm_t mibReq;
     LoRaMacStatus_t status;
 
@@ -631,6 +635,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
 
     if( mcpsIndication->RxData == true )
     {
+        printf("Hit Rx area\r\n");
         switch( mcpsIndication->Port )
         {
         case 1: // The application LED can be controlled on port 1 or 2
@@ -936,7 +941,7 @@ int main( void )
     printf( "###### ===== ClassC demo application v1.0.0 ==== ######\r\n\r\n" );
 
     while( 1 )
-    {
+    {   
         // Process Radio IRQ
         if( Radio.IrqProcess != NULL )
         {
@@ -959,7 +964,7 @@ int main( void )
                 else
                 {
 #if( OVER_THE_AIR_ACTIVATION == 0 )
-                    printf("OTAA\r\n");
+                    printf("!OTAA\r\n");
 
                     // Tell the MAC layer which network server version are we connecting too.
                     mibReq.Type = MIB_ABP_LORAWAN_VERSION;
@@ -976,12 +981,9 @@ int main( void )
                     mibReq.Param.AppKey = AppKey;
                     LoRaMacMibSetRequestConfirm( &mibReq );
 #endif
-                    printf("1\r\n");
-
                     mibReq.Type = MIB_NWK_KEY;
                     mibReq.Param.NwkKey = NwkKey;
                     LoRaMacMibSetRequestConfirm( &mibReq );
-                    printf("2\r\n");
 
                     // Initialize LoRaMac device unique ID if not already defined in Commissioning.h
                     if( ( devEui[0] == 0 ) && ( devEui[1] == 0 ) &&
@@ -991,7 +993,6 @@ int main( void )
                     {
                         BoardGetUniqueId( devEui );
                     }
-                    printf("3\r\n");
 
                     mibReq.Type = MIB_DEV_EUI;
                     mibReq.Param.DevEui = devEui;
@@ -1036,7 +1037,6 @@ int main( void )
                     mibReq.Type = MIB_APP_S_KEY;
                     mibReq.Param.AppSKey = AppSKey;
                     LoRaMacMibSetRequestConfirm( &mibReq );
-                    printf("ded\r\n");
 
 #endif
                 }
@@ -1137,6 +1137,7 @@ int main( void )
             {
                 if( NextTx == true )
                 {
+                    printf("NextTx == true");
                     mibReq.Type = MIB_DEVICE_CLASS;
                     LoRaMacMibGetRequestConfirm( &mibReq );
 
@@ -1199,5 +1200,7 @@ int main( void )
                 break;
             }
         }
+
+        sleep(1);
     }
 }

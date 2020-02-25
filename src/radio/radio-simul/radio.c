@@ -410,7 +410,21 @@ static uint8_t RadioGetFskBandwidthRegValue( uint32_t bandwidth )
 
 void RadioInit( RadioEvents_t *events )
 {
+    RadioEvents = events;
 
+    //SX126xInit( RadioOnDioIrq );
+    //SX126xSetStandby( STDBY_RC );
+    //SX126xSetRegulatorMode( USE_DCDC );
+
+    //SX126xSetBufferBaseAddress( 0x00, 0x00 );
+    //SX126xSetTxParams( 0, RADIO_RAMP_200_US );
+    //SX126xSetDioIrqParams( IRQ_RADIO_ALL, IRQ_RADIO_ALL, IRQ_RADIO_NONE, IRQ_RADIO_NONE );
+
+    // Initialize driver timeout timers
+    //TimerInit( &TxTimeoutTimer, RadioOnTxTimeoutIrq );
+    //TimerInit( &RxTimeoutTimer, RadioOnRxTimeoutIrq );
+
+    IrqFired = false;
 }
 
 RadioState_t RadioGetStatus( void )
@@ -536,7 +550,6 @@ switch( modem )
     }
 
     TxTimeout = timeout;
-    printf("set tx config\r\n");
 }
 
 bool RadioCheckRfFrequency( uint32_t frequency )
@@ -643,7 +656,7 @@ void RadioSend( uint8_t *buffer, uint8_t size )
 {
     char buff[256];
     time_t now = time (0);
-    strftime (buff, 256, "%Y-%m-%dT%H:%M:%S.000000Z", localtime (&now));
+    strftime (buff, 256, "%Y-%m-%dT%H:%M:%S.000000Z", localtime(&now));
 
     size_t output_length;
     char * data = base64_encode(data, size, &output_length);
@@ -669,7 +682,9 @@ void RadioSend( uint8_t *buffer, uint8_t size )
 \"lsnr\":5.1,\
 \"size\":%u,\
 \"data\":\"%s\"\
-}", buff, millis, frequency, size, data);
+}\r\n", buff, millis, frequency, size, data);
+
+    RadioEvents->TxDone( );
 }
 
 void RadioSleep( void )
@@ -680,9 +695,50 @@ void RadioStandby( void )
 {
 }
 
+/*
+{"txpk":{
+    "imme":true,
+    "freq":861.3,
+    "rfch":0,
+    "powe":12,
+    "modu":"FSK",
+    "datr":50000,
+    "fdev":3000,
+    "size":32,
+    "data":"H3P3N2i9qc4yt7rK7ldqoeCVJGBybzPY5h1Dd7P7p8v"
+}}
+*/
+
+#include "parson.h"
+
 void RadioRx( uint32_t timeout )
 {
-   printf("Rx!");
+   printf("timeout %u", timeout);
+   char in[1024];
+   printf("Rx <<");
+   fgets(in, 1024, stdin);
+
+   /* JSON parsing variables */
+   JSON_Value *root_val = NULL;
+   JSON_Object *txpk_obj = NULL;
+   JSON_Value *val = NULL; /* needed to detect the absence of some fields */
+   const char *str; /* pointer to sub-strings in the JSON data */
+
+   root_val = json_parse_string(in);
+
+   if(root_val != NULL){
+    printf("root value OK\r\n");
+    /* look for JSON sub-object 'txpk' */
+    txpk_obj = json_object_get_object(json_value_get_object(root_val), "txpk");
+    if (txpk_obj != NULL) {
+
+        printf("txpk_obj OK\r\n");
+        str = json_object_get_string(txpk_obj, "data");
+        printf("data %s\r\n", str);
+    }
+   }
+   json_value_free(root_val);
+
 }
 
 void RadioRxBoosted( uint32_t timeout )
@@ -794,7 +850,9 @@ void MockSetOperatingMode( RadioOperatingModes_t mode )
 
 
 void RadioIrqProcess( void )
-{
+{   
+    poll_timers();
+
      if( IrqFired == true )
     {
         CRITICAL_SECTION_BEGIN( );
@@ -803,7 +861,7 @@ void RadioIrqProcess( void )
         CRITICAL_SECTION_END( );
 
         // TODO: stuff IRQs better
-        uint16_t irqRegs = IRQ_TX_DONE;
+        uint16_t irqRegs = 0;
 
         if( ( irqRegs & IRQ_TX_DONE ) == IRQ_TX_DONE )
         {

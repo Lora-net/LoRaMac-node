@@ -25,10 +25,10 @@ enable_language(ASM)
 
 list(APPEND ${PROJECT_NAME}_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/aes.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/board.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/cmac.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/soft-se.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/systime.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/board.c"
 )
 
 add_library(${PROJECT_NAME} OBJECT EXCLUDE_FROM_ALL ${${PROJECT_NAME}_SOURCES})
