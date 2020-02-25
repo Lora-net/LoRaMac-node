@@ -319,27 +319,25 @@ void TimerStart( TimerEvent_t *obj )
         return;
     }
 
-    if(TimerString[i] == "OnRxWindow1TimerEvent") {
+    if(TimerString[i] == "OnRxWindow1TimerEvent" || TimerString[i] == "OnRxWindow2TimerEvent") {
         (*timer[i]->Callback)(timer[i]->Context);
     } else {
+        printf("Starting timer %s for %u ms\r\n", TimerString[i], obj->ReloadValue);
+        struct itimerspec ts;
 
-    }
+        ts.it_value.tv_sec = obj->ReloadValue/1000.0;
+        ts.it_value.tv_nsec = (obj->ReloadValue % 1000) * 1000;
 
-    printf("Starting timer %p for %u ms\r\n", obj->t, obj->ReloadValue);
-    struct itimerspec ts;
+        // we will manually rearm the timer
+        ts.it_interval.tv_sec = 0;
+        ts.it_interval.tv_nsec = 0;
+      
+        obj->IsStarted = true;
 
-    ts.it_value.tv_sec = obj->ReloadValue/1000.0;
-    ts.it_value.tv_nsec = (obj->ReloadValue % 1000) * 1000;
-
-    // we will manually rearm the timer
-    ts.it_interval.tv_sec = 0;
-    ts.it_interval.tv_nsec = 0;
-  
-    obj->IsStarted = true;
-
-    if (timer_settime(obj->t, 0, &ts, NULL) < 0) {
-        printf("timer_settime() failed");
-        return;
+        if (timer_settime(obj->t, 0, &ts, NULL) < 0) {
+            printf("timer_settime() failed");
+            return;
+        }
     }
 }
 
@@ -362,7 +360,12 @@ void TimerIrqHandler( void )
 
 void TimerStop( TimerEvent_t *obj )
 {
-    printf("Stopping timer %p\r\n", obj->t);
+    int i = get_timer_index(obj);
+    if(!i){
+        printf("Index query failed\r\n");
+        return;
+    }
+    printf("Stopping timer %s\r\n", TimerString[i]);
     struct itimerspec ts;
 
     ts.it_value.tv_sec = 0;

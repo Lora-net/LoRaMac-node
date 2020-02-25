@@ -16,6 +16,8 @@
 
 #endif
 
+#define OVER_THE_AIR_ACTIVATION 1
+
 /*!
  * Defines the application data transmission duty cycle. 5s, value in [ms].
  */
