@@ -23,8 +23,8 @@ cmake_minimum_required(VERSION 3.6)
 #---------------------------------------------------------------------------------------
 
 # Allow selection of region
-option(REGION_EU868 "Region EU868" ON)
-option(REGION_US915 "Region US915" OFF)
+option(REGION_EU868 "Region EU868" OFF)
+option(REGION_US915 "Region US915" ON)
 option(REGION_CN779 "Region CN779" OFF)
 option(REGION_EU433 "Region EU433" OFF)
 option(REGION_AU915 "Region AU915" OFF)
