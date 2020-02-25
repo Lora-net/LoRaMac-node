@@ -647,6 +647,55 @@ char *base64_encode(const unsigned char *data,
     return encoded_data;
 }
 
+void build_decoding_table() {
+
+    decoding_table = malloc(256);
+
+    for (int i = 0; i < 64; i++)
+        decoding_table[(unsigned char) encoding_table[i]] = i;
+}
+
+
+void base64_cleanup() {
+    free(decoding_table);
+}
+
+unsigned char *base64_decode(const char *data,
+                             size_t input_length,
+                             size_t *output_length) {
+
+    if (decoding_table == NULL) build_decoding_table();
+
+    if (input_length % 4 != 0) return NULL;
+
+    *output_length = input_length / 4 * 3;
+    if (data[input_length - 1] == '=') (*output_length)--;
+    if (data[input_length - 2] == '=') (*output_length)--;
+
+    unsigned char *decoded_data = malloc(*output_length);
+    if (decoded_data == NULL) return NULL;
+
+    for (int i = 0, j = 0; i < input_length;) {
+
+        uint32_t sextet_a = data[i] == '=' ? 0 & i++ : decoding_table[data[i++]];
+        uint32_t sextet_b = data[i] == '=' ? 0 & i++ : decoding_table[data[i++]];
+        uint32_t sextet_c = data[i] == '=' ? 0 & i++ : decoding_table[data[i++]];
+        uint32_t sextet_d = data[i] == '=' ? 0 & i++ : decoding_table[data[i++]];
+
+        uint32_t triple = (sextet_a << 3 * 6)
+        + (sextet_b << 2 * 6)
+        + (sextet_c << 1 * 6)
+        + (sextet_d << 0 * 6);
+
+        if (j < *output_length) decoded_data[j++] = (triple >> 2 * 8) & 0xFF;
+        if (j < *output_length) decoded_data[j++] = (triple >> 1 * 8) & 0xFF;
+        if (j < *output_length) decoded_data[j++] = (triple >> 0 * 8) & 0xFF;
+    }
+    printf("its decoded\r\n");
+    return decoded_data;
+}
+
+
 #include <stdio.h>
 #include <sys/time.h>
 #include <time.h>
@@ -659,8 +708,8 @@ void RadioSend( uint8_t *buffer, uint8_t size )
     strftime (buff, 256, "%Y-%m-%dT%H:%M:%S.000000Z", localtime(&now));
 
     size_t output_length;
-    char * data = base64_encode(data, size, &output_length);
-
+    char * data = base64_encode(buffer, size, &output_length);
+    data[output_length] = '\0';
     struct timeval tv;
 
     gettimeofday(&tv, NULL);
@@ -695,21 +744,11 @@ void RadioStandby( void )
 {
 }
 
-/*
-{"txpk":{
-    "imme":true,
-    "freq":861.3,
-    "rfch":0,
-    "powe":12,
-    "modu":"FSK",
-    "datr":50000,
-    "fdev":3000,
-    "size":32,
-    "data":"H3P3N2i9qc4yt7rK7ldqoeCVJGBybzPY5h1Dd7P7p8v"
-}}
-*/
-
 #include "parson.h"
+
+
+uint8_t rx_buffer[512];
+
 
 void RadioRx( uint32_t timeout )
 {
@@ -735,6 +774,16 @@ void RadioRx( uint32_t timeout )
         printf("txpk_obj OK\r\n");
         str = json_object_get_string(txpk_obj, "data");
         printf("data %s\r\n", str);
+
+        size_t output_length;
+        printf("str length = %u\r\n", strlen(str));
+
+        uint8_t * rx_buffer2 = base64_decode(str, strlen(str), &output_length);
+        printf("output length = %u\r\n", output_length);
+        PrintHexBuffer(rx_buffer2, output_length);
+
+        RadioEvents->RxDone(rx_buffer2, output_length, -110, 5);
+
     }
    }
    json_value_free(root_val);

@@ -241,7 +241,22 @@ static void TimerSetTimeout( TimerEvent_t *obj );
 static bool TimerExists( TimerEvent_t *obj );
 
 
-TimerEvent_t * timer[32];
+/*!
+ * These are hard-coded to help make debug more readable
+ */
+const char* TimerString[8] =
+{ 
+    "OnTxDelayedTimerEvent",
+    "OnRxWindow1TimerEvent",
+    "OnRxWindow2TimerEvent",
+    "OnAckTimeoutTimerEvent",
+    "Unlabelled 5",
+    "Unlabelled 6",
+    "Unlabelled 7",
+    "Unlabelled 8",
+};
+
+TimerEvent_t * timer[8];
 uint num_timers = 0;
 
 void poll_timers() {
@@ -250,7 +265,6 @@ void poll_timers() {
     for(uint i=0; i<num_timers; i++) {
         if(timer[i]->IsStarted) {
             uint time = timer_gettime(timer[i]->t, &ts);
-
             if(ts.it_value.tv_sec == 0 && ts.it_value.tv_nsec == 0){
                 // fire the timer
                 if(timer[i]->Callback!=NULL){
@@ -260,17 +274,26 @@ void poll_timers() {
                 TimerStart(timer[i]);
             }
         }
-
     }
 }
+
+int get_timer_index(TimerEvent_t *obj) {
+    for(uint i=0; i<num_timers; i++) {
+        if(timer[i] == obj){
+            return i;
+        }
+    }
+    return -1;
+}
+
 
 
 void TimerInit( TimerEvent_t *obj, void ( *callback )( void *context ) )
 {
-    timer[num_timers++] = obj;
+    timer[num_timers] = obj;
     obj->sev.sigev_notify = SIGEV_NONE;
     timer_create(CLOCK_REALTIME, &obj->sev, &obj->t);
-    printf("Creating timer %p\r\n", obj->t);
+    printf("Creating timer %s : %p\r\n", TimerString[num_timers], obj->t);
 
     obj->Timestamp = 0;
     obj->ReloadValue = 0;
@@ -278,6 +301,8 @@ void TimerInit( TimerEvent_t *obj, void ( *callback )( void *context ) )
     obj->IsNext2Expire = false;
     obj->Callback = callback;
     obj->Context = NULL;
+
+    num_timers++;
 }
 
 void TimerSetContext( TimerEvent_t *obj, void* context )
@@ -287,6 +312,19 @@ void TimerSetContext( TimerEvent_t *obj, void* context )
 
 void TimerStart( TimerEvent_t *obj )
 {
+
+    int i = get_timer_index(obj);
+    if(!i){
+        printf("Index query failed\r\n");
+        return;
+    }
+
+    if(TimerString[i] == "OnRxWindow1TimerEvent") {
+        (*timer[i]->Callback)(timer[i]->Context);
+    } else {
+
+    }
+
     printf("Starting timer %p for %u ms\r\n", obj->t, obj->ReloadValue);
     struct itimerspec ts;
 
