@@ -232,20 +232,20 @@ uint32_t SX126xGetRandom( void )
     uint8_t regAnaMixer = 0;
 
     regAnaLna = SX126xReadRegister( REG_ANA_LNA );
-    WriteRegister( REG_ANA_LNA, regAnaLna & ~( 1 << 0 ) );
+    SX126xWriteRegister( REG_ANA_LNA, regAnaLna & ~( 1 << 0 ) );
 
     regAnaMixer = SX126xReadRegister( REG_ANA_MIXER );
-    WriteRegister( REG_ANA_MIXER, regAnaMixer & ~( 1 << 7 ) );
+    SX126xWriteRegister( REG_ANA_MIXER, regAnaMixer & ~( 1 << 7 ) );
 
     // Set radio in continuous reception
     SX126xSetRx( 0xFFFFFF ); // Rx Continuous
 
     SX126xReadRegisters( RANDOM_NUMBER_GENERATORBASEADDR, ( uint8_t* )&number, 4 );
 
-    RadioStandby( );
+    SX126xSetStandby( STDBY_RC );
 
-    WriteRegister( SX126X_REG_ANA_LNA, regAnaLna );
-    WriteRegister( SX126X_REG_ANA_MIXER, regAnaMixer );
+    SX126xWriteRegister( REG_ANA_LNA, regAnaLna );
+    SX126xWriteRegister( REG_ANA_MIXER, regAnaMixer );
 
     return number;
 }
