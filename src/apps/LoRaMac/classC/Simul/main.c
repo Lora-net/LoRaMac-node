@@ -1137,7 +1137,7 @@ int main( void )
             {
                 if( NextTx == true )
                 {
-                    printf("NextTx == true");
+                    printf("NextTx == true\r\n");
                     mibReq.Type = MIB_DEVICE_CLASS;
                     LoRaMacMibGetRequestConfirm( &mibReq );
 
