@@ -1,6 +1,7 @@
 #include "radio.h"
 #include "board.h"
 #include <stdio.h>
+#include <poll.h>
 #include "mock_radio.h"
 
 
@@ -410,6 +411,7 @@ static uint8_t RadioGetFskBandwidthRegValue( uint32_t bandwidth )
 
 void RadioInit( RadioEvents_t *events )
 {
+    setbuf(stdout, NULL);
     RadioEvents = events;
 
     //SX126xInit( RadioOnDioIrq );
@@ -730,7 +732,7 @@ void RadioSend( uint8_t *buffer, uint8_t size )
 \"lsnr\":5.1,\
 \"size\":%u,\
 \"data\":\"%s\"\
-}\r\n", buff, millis, frequency, size, data);
+}]}\r\n", buff, millis, frequency, size, data);
 
     RadioEvents->TxDone( );
 }
@@ -754,7 +756,16 @@ void RadioRx( uint32_t timeout )
    printf("Radio Rx with timeout %u\r\n", timeout);
    char in[1024];
    printf("Rx << ");
-   fgets(in, 1024, stdin);
+   // poll stdin for pending data
+   struct pollfd input[1] = {{fd: 0, events: POLLIN}};
+   if (poll(input, 1, -1) != 1) {
+       // anything other than 1 input being ready to read is probably bad
+       exit(0);
+   }
+   if (fgets(in, 1024, stdin) == NULL) {
+       // End of input
+       exit(0);
+   }
 
    /* JSON parsing variables */
    JSON_Value *root_val = NULL;
