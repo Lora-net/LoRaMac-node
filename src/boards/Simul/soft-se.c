@@ -337,6 +337,7 @@ SecureElementStatus_t SecureElementAesEncrypt( uint8_t* buffer, uint16_t size, K
     }
     return retval;
 }
+#include <stdio.h>
 
 SecureElementStatus_t SecureElementDeriveAndStoreKey( Version_t version, uint8_t* input, KeyIdentifier_t rootKeyID, KeyIdentifier_t targetKeyID )
 {
@@ -369,6 +370,39 @@ SecureElementStatus_t SecureElementDeriveAndStoreKey( Version_t version, uint8_t
     if( retval != SECURE_ELEMENT_SUCCESS )
     {
         return retval;
+    }
+    switch(targetKeyID){
+        case GEN_APP_KEY:
+        printf("GEN_APP_KEY          : ");
+        PrintHexBuffer(key, 16 );
+        break;
+
+        case MC_ROOT_KEY:
+        printf("MC_ROOT_KEY          : ");
+        PrintHexBuffer(key, 16 );
+        break;
+
+        case APP_S_KEY:
+        printf("APP_S_KEY            : ");
+        PrintHexBuffer(key, 16 );
+        break;
+
+        case NWK_S_ENC_KEY:
+        printf("NWK_S_ENC_KEY        : ");
+        PrintHexBuffer(key, 16 );
+        break;
+
+        case F_NWK_S_INT_KEY:
+        printf("F_NWK_S_INT_KEY      : ");
+        PrintHexBuffer(key, 16 );
+        break;
+
+        case S_NWK_S_INT_KEY:
+        printf("S_NWK_S_INT_KEY      : ");
+        PrintHexBuffer(key, 16 );
+        break;
+        default:
+        break;
     }
 
     return SECURE_ELEMENT_SUCCESS;
