@@ -1103,6 +1103,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareJoinRequest( LoRaMacMessageJoinRequest
 #if ( USE_RANDOM_DEV_NONCE == 1 )
     uint32_t devNonce = 0;
     SecureElementRandomNumber( &devNonce );
+    printf("Join DevNonce = %u\r\n", devNonce);
     CryptoCtx.NvmCtx->DevNonce = devNonce;
 #else
     CryptoCtx.NvmCtx->DevNonce++;
