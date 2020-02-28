@@ -574,8 +574,8 @@ uint8_t LoRaMacCommandsGetCmdSize( uint8_t cid )
         }
         case SRV_MAC_RX_PARAM_SETUP_REQ:
         {
-            // cid + DLsettings + Frequency (4)
-            cidSize = 4;
+            // cid + DLsettings + Frequency (3)
+            cidSize = 5;
             break;
         }
         case SRV_MAC_DEV_STATUS_REQ:
