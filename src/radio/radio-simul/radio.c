@@ -663,7 +663,7 @@ void RadioRx( uint32_t timeout )
 {
    printf("Radio Rx with timeout %u\r\n", timeout);
    char in[1024];
-   printf("Rx << ");
+   /*printf("Rx << ");*/
    // poll stdin for pending data
    struct pollfd input[1] = {{fd: 0, events: POLLIN}};
    if (poll(input, 1, -1) != 1) {
