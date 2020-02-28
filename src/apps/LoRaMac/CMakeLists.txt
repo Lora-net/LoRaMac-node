@@ -169,9 +169,11 @@ target_include_directories(${PROJECT_NAME}-${SUB_PROJECT} PUBLIC
 
 set_property(TARGET ${PROJECT_NAME}-${SUB_PROJECT} PROPERTY C_STANDARD 11)
 
-# link to linux timer
-find_library(LIBRT rt)
-target_link_libraries(${PROJECT_NAME}-${SUB_PROJECT} m ${LIBRT})
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    # link to linux timer
+    find_library(LIBRT rt)
+    target_link_libraries(${PROJECT_NAME}-${SUB_PROJECT} m ${LIBRT})
+endif()
 
 if(NOT BOARD STREQUAL Simul) 
 #---------------------------------------------------------------------------------------
