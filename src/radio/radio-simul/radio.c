@@ -640,6 +640,8 @@ void RadioSend( uint8_t *buffer, uint8_t size )
 \"data\":\"%s\"\
 }]}\r\n", time_str, millis, frequency, size, data);
 
+    free(data);
+
     RadioEvents->TxDone( );
 }
 
