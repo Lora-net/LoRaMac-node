@@ -46,6 +46,13 @@
 
 #include "LoRaMac.h"
 
+#ifndef LORAMAC_VERSION
+/*!
+ * LORaWAN version definition.
+ */
+#define LORAMAC_VERSION                             0x01010100
+#endif
+
 /*!
  * Maximum PHY layer payload size
  */
@@ -3556,12 +3563,8 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     MacCtx.NvmCtx->DeviceClass = CLASS_A;
     MacCtx.NvmCtx->RepeaterSupport = false;
 
-    Version_t lrWanVersion;
-    lrWanVersion.Fields.Major    = 1;
-    lrWanVersion.Fields.Minor    = 1;
-    lrWanVersion.Fields.Revision = 1;
-    lrWanVersion.Fields.Rfu      = 0;
-    MacCtx.NvmCtx->Version = lrWanVersion;
+    // Setup version
+    MacCtx.NvmCtx->Version.Value = LORAMAC_VERSION;
 
     // Reset to defaults
     getPhy.Attribute = PHY_DUTY_CYCLE;
@@ -4048,6 +4051,12 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t* mibGet )
         case MIB_DEFAULT_ANTENNA_GAIN:
         {
             mibGet->Param.DefaultAntennaGain = MacCtx.NvmCtx->MacParamsDefaults.AntennaGain;
+            break;
+        }
+        case MIB_LORAWAN_VERSION:
+        {
+            mibGet->Param.LrWanVersion.LoRaWan = MacCtx.NvmCtx->Version;
+            mibGet->Param.LrWanVersion.LoRaWanRegion = RegionGetVersion( );
             break;
         }
         case MIB_REJOIN_0_CYCLE:

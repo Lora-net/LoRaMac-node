@@ -710,6 +710,7 @@ void RadioSetRxConfig( RadioModems_t modem, uint32_t bandwidth,
             SX126x.PacketParams.Params.LoRa.CrcMode = ( RadioLoRaCrcModes_t )crcOn;
             SX126x.PacketParams.Params.LoRa.InvertIQ = ( RadioLoRaIQModes_t )iqInverted;
 
+            RadioStandby( );
             RadioSetModem( ( SX126x.ModulationParams.PacketType == PACKET_TYPE_GFSK ) ? MODEM_FSK : MODEM_LORA );
             SX126xSetModulationParams( &SX126x.ModulationParams );
             SX126xSetPacketParams( &SX126x.PacketParams );
@@ -1101,39 +1102,41 @@ void RadioIrqProcess( void )
 
         if( ( irqRegs & IRQ_RX_DONE ) == IRQ_RX_DONE )
         {
-            uint8_t size;
-
-            TimerStop( &RxTimeoutTimer );
-            if( RxContinuous == false )
+            if( ( irqRegs & IRQ_CRC_ERROR ) == IRQ_CRC_ERROR )
             {
-                //!< Update operating mode state to a value lower than \ref MODE_STDBY_XOSC
-                SX126xSetOperatingMode( MODE_STDBY_RC );
-
-                // WORKAROUND - Implicit Header Mode Timeout Behavior, see DS_SX1261-2_V1.2 datasheet chapter 15.3
-                // RegRtcControl = @address 0x0902
-                SX126xWriteRegister( 0x0902, 0x00 );
-                // RegEventMask = @address 0x0944
-                SX126xWriteRegister( 0x0944, SX126xReadRegister( 0x0944 ) | ( 1 << 1 ) );
-                // WORKAROUND END
+                if( RxContinuous == false )
+                {
+                    //!< Update operating mode state to a value lower than \ref MODE_STDBY_XOSC
+                    SX126xSetOperatingMode( MODE_STDBY_RC );
+                }
+                if( ( RadioEvents != NULL ) && ( RadioEvents->RxError ) )
+                {
+                    RadioEvents->RxError( );
+                }
             }
-            SX126xGetPayload( RadioRxPayload, &size , 255 );
-            SX126xGetPacketStatus( &RadioPktStatus );
-            if( ( RadioEvents != NULL ) && ( RadioEvents->RxDone != NULL ) )
+            else
             {
-                RadioEvents->RxDone( RadioRxPayload, size, RadioPktStatus.Params.LoRa.RssiPkt, RadioPktStatus.Params.LoRa.SnrPkt );
-            }
-        }
+                uint8_t size;
 
-        if( ( irqRegs & IRQ_CRC_ERROR ) == IRQ_CRC_ERROR )
-        {
-            if( RxContinuous == false )
-            {
-                //!< Update operating mode state to a value lower than \ref MODE_STDBY_XOSC
-                SX126xSetOperatingMode( MODE_STDBY_RC );
-            }
-            if( ( RadioEvents != NULL ) && ( RadioEvents->RxError ) )
-            {
-                RadioEvents->RxError( );
+                TimerStop( &RxTimeoutTimer );
+                if( RxContinuous == false )
+                {
+                    //!< Update operating mode state to a value lower than \ref MODE_STDBY_XOSC
+                    SX126xSetOperatingMode( MODE_STDBY_RC );
+
+                    // WORKAROUND - Implicit Header Mode Timeout Behavior, see DS_SX1261-2_V1.2 datasheet chapter 15.3
+                    // RegRtcControl = @address 0x0902
+                    SX126xWriteRegister( 0x0902, 0x00 );
+                    // RegEventMask = @address 0x0944
+                    SX126xWriteRegister( 0x0944, SX126xReadRegister( 0x0944 ) | ( 1 << 1 ) );
+                    // WORKAROUND END
+                }
+                SX126xGetPayload( RadioRxPayload, &size , 255 );
+                SX126xGetPacketStatus( &RadioPktStatus );
+                if( ( RadioEvents != NULL ) && ( RadioEvents->RxDone != NULL ) )
+                {
+                    RadioEvents->RxDone( RadioRxPayload, size, RadioPktStatus.Params.LoRa.RssiPkt, RadioPktStatus.Params.LoRa.SnrPkt );
+                }
             }
         }
 

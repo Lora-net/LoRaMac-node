@@ -321,8 +321,8 @@ int main( void )
     TimerInit( &LedBeaconTimer, OnLedBeaconTimerEvent );
     TimerSetValue( &LedBeaconTimer, 5000 );
 
-    const Version_t appVersion = { .Fields.Major = 1, .Fields.Minor = 0, .Fields.Revision = 0 };
-    const Version_t gitHubVersion = { .Fields.Major = 5, .Fields.Minor = 0, .Fields.Revision = 0 };
+    const Version_t appVersion = { .Fields.Major = 1, .Fields.Minor = 0, .Fields.Patch = 0 };
+    const Version_t gitHubVersion = { .Fields.Major = 5, .Fields.Minor = 0, .Fields.Patch = 0 };
     DisplayAppInfo( "fuota-test-01", 
                     &appVersion,
                     &gitHubVersion );

@@ -1267,7 +1267,8 @@ typedef struct sMlmeIndication
  * \ref MIB_ANTENNA_GAIN                         | YES | YES
  * \ref MIB_DEFAULT_ANTENNA_GAIN                 | YES | YES
  * \ref MIB_NVM_CTXS                             | YES | YES
- * \ref MIB_ABP_LORAWAN_VERSION                  | YES | YES
+ * \ref MIB_ABP_LORAWAN_VERSION                  | NO  | YES
+ * \ref MIB_LORAWAN_VERSION                      | YES | NO
  * \ref MIB_REJOIN_0_CYCLE                       | YES | YES
  * \ref MIB_REJOIN_1_CYCLE                       | YES | YES
  * \ref MIB_REJOIN_2_CYCLE                       | YES | NO
@@ -1627,6 +1628,10 @@ typedef enum eMib
      * LoRaWAN MAC layer operating version when activated by ABP.
      */
     MIB_ABP_LORAWAN_VERSION,
+    /*!
+     * LoRaWAN MAC and regional parameter version.
+     */
+    MIB_LORAWAN_VERSION,
     /*!
      * Time between periodic transmission of a Type 0 Rejoin request.
      */
@@ -2034,6 +2039,16 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_ABP_LORAWAN_VERSION
      */
     Version_t AbpLrWanVersion;
+    /*
+     * LoRaWAN MAC regional parameter version.
+     *
+     * Related MIB type: \ref MIB_LORAWAN_VERSION
+     */
+    struct sLrWanVersion
+    {
+        Version_t LoRaWan;
+        Version_t LoRaWanRegion;
+    }LrWanVersion;
     /*!
      * Time in seconds between cyclic transmission of Type 0 Rejoin requests.
      */
