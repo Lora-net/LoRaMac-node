@@ -29,8 +29,8 @@ extern "C"
 {
 #endif
 
-#include <stddef.h>   /* size_t */
-
+#include <stddef.h>
+  
 /* Types and enums */
 typedef struct json_object_t JSON_Object;
 typedef struct json_array_t  JSON_Array;
