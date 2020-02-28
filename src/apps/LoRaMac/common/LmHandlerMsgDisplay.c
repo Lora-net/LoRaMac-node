@@ -440,7 +440,7 @@ void DisplayAppInfo( const char* appName, const Version_t* appVersion, const Ver
 {
     printf( "\r\n###### ===================================== ######\r\n\r\n" );
     printf( "Application name   : %s\r\n", appName );
-    printf( "Application version: %d.%d.%d\r\n", appVersion->Fields.Major, appVersion->Fields.Minor, appVersion->Fields.Revision );
-    printf( "GitHub base version: %d.%d.%d\r\n", gitHubVersion->Fields.Major, gitHubVersion->Fields.Minor, gitHubVersion->Fields.Revision );
+    printf( "Application version: %d.%d.%d\r\n", appVersion->Fields.Major, appVersion->Fields.Minor, appVersion->Fields.Patch );
+    printf( "GitHub base version: %d.%d.%d\r\n", gitHubVersion->Fields.Major, gitHubVersion->Fields.Minor, gitHubVersion->Fields.Patch );
     printf( "\r\n###### ===================================== ######\r\n\r\n" );
 }

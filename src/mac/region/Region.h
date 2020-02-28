@@ -68,6 +68,13 @@ extern "C"
  */
 #define LC( channelIndex )                          ( uint16_t )( 1 << ( channelIndex - 1 ) )
 
+#ifndef REGION_VERSION
+/*!
+ * Regional parameters version definition.
+ */
+#define REGION_VERSION                              0x00010003
+#endif
+
 /*!
  * Region       | SF
  * ------------ | :-----:
@@ -1696,6 +1703,13 @@ uint8_t RegionApplyDrOffset( LoRaMacRegion_t region, uint8_t downlinkDwellTime, 
  * \param [out] outDr Datarate used to receive the beacon
  */
 void RegionRxBeaconSetup( LoRaMacRegion_t region, RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
+
+/*!
+ * \brief Gets the version of the regional parameters implementation.
+ *
+ * \retval Version of the regional parameters.
+ */
+Version_t RegionGetVersion( void );
 
 /*! \} defgroup REGION */
 

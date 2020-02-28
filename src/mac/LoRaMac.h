@@ -1278,7 +1278,8 @@ typedef struct sMlmeIndication
  * \ref MIB_ANTENNA_GAIN                         | YES | YES
  * \ref MIB_DEFAULT_ANTENNA_GAIN                 | YES | YES
  * \ref MIB_NVM_CTXS                             | YES | YES
- * \ref MIB_ABP_LORAWAN_VERSION                  | YES | YES
+ * \ref MIB_ABP_LORAWAN_VERSION                  | NO  | YES
+ * \ref MIB_LORAWAN_VERSION                      | YES | NO
  *
  * The following table provides links to the function implementations of the
  * related MIB primitives:
@@ -1635,6 +1636,10 @@ typedef enum eMib
      * LoRaWAN MAC layer operating version when activated by ABP.
      */
     MIB_ABP_LORAWAN_VERSION,
+    /*!
+     * LoRaWAN MAC and regional parameter version.
+     */
+    MIB_LORAWAN_VERSION,
     /*!
      * Beacon interval in ms
      */
@@ -2030,6 +2035,16 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_ABP_LORAWAN_VERSION
      */
     Version_t AbpLrWanVersion;
+    /*
+     * LoRaWAN MAC regional parameter version.
+     *
+     * Related MIB type: \ref MIB_LORAWAN_VERSION
+     */
+    struct sLrWanVersion
+    {
+        Version_t LoRaWan;
+        Version_t LoRaWanRegion;
+    }LrWanVersion;
     /*!
      * Beacon interval in ms
      *

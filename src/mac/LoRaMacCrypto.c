@@ -953,8 +953,8 @@ LoRaMacCryptoStatus_t LoRaMacCryptoInit( LoRaMacCryptoNvmEvent cryptoNvmCtxChang
     // Set default LoRaWAN version
     CryptoCtx.NvmCtx->LrWanVersion.Fields.Major = 1;
     CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor = 1;
-    CryptoCtx.NvmCtx->LrWanVersion.Fields.Revision = 1;
-    CryptoCtx.NvmCtx->LrWanVersion.Fields.Rfu = 0;
+    CryptoCtx.NvmCtx->LrWanVersion.Fields.Patch = 1;
+    CryptoCtx.NvmCtx->LrWanVersion.Fields.Revision = 0;
 
     // Reset frame counters
     ResetFCnts( );

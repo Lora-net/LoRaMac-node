@@ -78,8 +78,8 @@ typedef union Version_u
 {
     struct Version_s
     {
-        uint8_t Rfu;
         uint8_t Revision;
+        uint8_t Patch;
         uint8_t Minor;
         uint8_t Major;
     }Fields;
