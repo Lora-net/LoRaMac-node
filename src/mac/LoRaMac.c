@@ -1168,7 +1168,7 @@ static void ProcessRadioRxDone( void )
                 PrepareRxDoneAbort( );
                 return;
             }
-
+            printf("Downlink Frame has been Unsecured!\r\n");
             // Frame is valid
             MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_OK;
             MacCtx.McpsIndication.Multicast = multicast;

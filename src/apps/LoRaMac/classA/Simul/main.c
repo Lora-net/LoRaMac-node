@@ -625,7 +625,6 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
             printf("\r\n\r\nDataRx: ");
             PrintHexBuffer(mcpsIndication->Buffer, mcpsIndication->BufferSize);
             printf("\r\nDataRx: ");
-
             break;
         case 224:
             if( ComplianceTest.Running == false )
