@@ -798,7 +798,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
 
     if( mcpsIndication->BufferSize != 0 )
     {
-        printf( "RX DATA     : \r\n" );
+        printf( "RX DATA     :" );
         PrintHexBuffer( mcpsIndication->Buffer, mcpsIndication->BufferSize );
     }
 
