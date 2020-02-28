@@ -696,10 +696,10 @@ void RadioRx( uint32_t timeout )
         //printf("data %s\r\n", str);
         size_t output_length;
         //printf("str length = %u\r\n", strlen(str));
-        uint8_t * rx_buffer2 = base64_decode(str, strlen(str), &output_length);
+        base64_decode(str, strlen(str), rx_buffer, &output_length);
         //printf("output length = %u\r\n", output_length);
-        PrintHexBuffer(rx_buffer2, output_length);
-        RadioEvents->RxDone(rx_buffer2, output_length, -110, 5);
+        PrintHexBuffer(rx_buffer, output_length);
+        RadioEvents->RxDone(rx_buffer, output_length, -110, 5);
         json_value_free(root_val);
         return;
     }

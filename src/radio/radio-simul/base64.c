@@ -56,6 +56,7 @@ void base64_cleanup() {
 
 unsigned char *base64_decode(const char *data,
                              size_t input_length,
+                             char *out_data,
                              size_t *output_length) {
 
     if (decoding_table == NULL) build_decoding_table();
@@ -66,7 +67,7 @@ unsigned char *base64_decode(const char *data,
     if (data[input_length - 1] == '=') (*output_length)--;
     if (data[input_length - 2] == '=') (*output_length)--;
 
-    unsigned char *decoded_data = malloc(*output_length);
+    unsigned char *decoded_data = out_data;
     if (decoded_data == NULL) return NULL;
 
     for (int i = 0, j = 0; i < input_length;) {
