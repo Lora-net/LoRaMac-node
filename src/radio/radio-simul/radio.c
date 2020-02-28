@@ -4,7 +4,12 @@
 #include <poll.h>
 #include "mock_radio.h"
 #include "base64.h"
-
+#include <stdint.h>
+#include <stdlib.h>
+#include <sys/time.h>
+#include <time.h>
+#include <math.h>
+#include <string.h>
 /*!
  * Radio hardware and global parameters
  */
@@ -604,21 +609,11 @@ uint32_t RadioTimeOnAir( RadioModems_t modem, uint8_t pktLen )
     return airTime;
 }
 
-#include <stdint.h>
-#include <stdlib.h>
-
-
-
-#include <stdio.h>
-#include <sys/time.h>
-#include <time.h>
-#include <math.h>
-
 void RadioSend( uint8_t *buffer, uint8_t size )
 {
-    char buff[256];
+    char time_str[256];
     time_t now = time (0);
-    strftime (buff, 256, "%Y-%m-%dT%H:%M:%S.000000Z", localtime(&now));
+    strftime (time_str, 256, "%Y-%m-%dT%H:%M:%S.000000Z", localtime(&now));
 
     size_t output_length;
     char * data = base64_encode(buffer, size, &output_length);
@@ -644,7 +639,7 @@ void RadioSend( uint8_t *buffer, uint8_t size )
 \"lsnr\":5.1,\
 \"size\":%u,\
 \"data\":\"%s\"\
-}]}\r\n", buff, millis, frequency, size, data);
+}]}\r\n", time_str, millis, frequency, size, data);
 
     RadioEvents->TxDone( );
 }

@@ -25,12 +25,14 @@
 #include <stdlib.h>
 #include "timer.h"
 #include <stdio.h>
+#include <string.h>
+
+void poll_timers( void );
 
 /*!
  * Initializes the unused GPIO to a know status
  */
 static void BoardUnusedIoInit( void );
-
 /*!
  * System Clock Configuration
  */
@@ -331,7 +333,7 @@ void TimerStart( TimerEvent_t *obj )
 {
     int i = get_timer_index(obj);
     if(!i){
-        printf("TimerStart: Index query failed %u\r\n");
+        printf("TimerStart: Index query failed %u\r\n", i);
         return;
     }
 
