@@ -622,10 +622,10 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         {
         case 1: // The application LED can be controlled on port 1 or 2
         case 2:
-            if( mcpsIndication->BufferSize == 1 )
-            {
-                AppLedStateOn = mcpsIndication->Buffer[0] & 0x01;
-            }
+            printf("\r\n\r\nDataRx: ");
+            PrintHexBuffer(mcpsIndication->Buffer, mcpsIndication->BufferSize);
+            printf("\r\nDataRx: ");
+
             break;
         case 224:
             if( ComplianceTest.Running == false )
