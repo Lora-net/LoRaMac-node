@@ -617,7 +617,6 @@ void RadioSend( uint8_t *buffer, uint8_t size )
 
     size_t output_length;
     char * data = base64_encode(buffer, size, &output_length);
-    data[output_length] = '\0';
     struct timeval tv;
 
     gettimeofday(&tv, NULL);
