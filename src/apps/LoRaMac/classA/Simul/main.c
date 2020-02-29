@@ -787,7 +787,13 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
 
     if( mcpsIndication->BufferSize != 0 )
     {
-        printf( "RX DATA     : " );
+
+        if( mcpsIndication->McpsIndication == MCPS_CONFIRMED ) {
+            printf( "RX CONFIRMED DATA     : " );
+        } else {
+            printf( "RX DATA     : " );
+        }
+        printf("%02hhX ", mcpsIndication->Port);
         PrintHexBuffer( mcpsIndication->Buffer, mcpsIndication->BufferSize );
     }
 
