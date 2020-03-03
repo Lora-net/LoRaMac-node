@@ -116,7 +116,7 @@ static MlmeConfirmQueue_t* GetElement( Mlme_t request, MlmeConfirmQueue_t* buffe
 {
     MlmeConfirmQueue_t* element = bufferStart;
 
-    while( element != bufferEnd )
+    do
     {
         if( element->Request == request )
         {
@@ -127,7 +127,8 @@ static MlmeConfirmQueue_t* GetElement( Mlme_t request, MlmeConfirmQueue_t* buffe
         {
             element = IncreaseBufferPointer( element );
         }
-    }
+    }while( element != bufferStart );
+
     return NULL;
 }
 
