@@ -59,7 +59,7 @@
  * When set to 1 the application uses the Over-the-Air activation procedure
  * When set to 0 the application uses the Personalization activation procedure
  */
-#define OVER_THE_AIR_ACTIVATION                            0
+#define OVER_THE_AIR_ACTIVATION                            1
 
 /*!
  * When using ABP activation the MAC layer must know in advance to which server
