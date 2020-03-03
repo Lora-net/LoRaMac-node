@@ -482,7 +482,7 @@ static bool SendFrame( void )
 
     if( status == LORAMAC_STATUS_DUTYCYCLE_RESTRICTED )
     {
-        TimerTime_t nextTxInIn = 0;
+        TimerTime_t nextTxIn = 0;
         LoRaMacQueryNextTxDelay( LORAWAN_DEFAULT_DATARATE, &nextTxIn );
         printf( "Next Tx in  : ~%lu second(s)\r\n", ( nextTxIn / 1000 ) );
     }
