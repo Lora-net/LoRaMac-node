@@ -19,8 +19,6 @@
  * \author    Miguel Luis ( Semtech )
  *
  * \author    Gregory Cristian ( Semtech )
- *
- * \author    Marten Lootsma(TWTG) on behalf of Microchip/Atmel (c)2017
  */
 #ifndef __LORA_COMMISSIONING_H__
 #define __LORA_COMMISSIONING_H__
@@ -61,7 +59,7 @@
  * When set to 1 the application uses the Over-the-Air activation procedure
  * When set to 0 the application uses the Personalization activation procedure
  */
-#define OVER_THE_AIR_ACTIVATION                            0
+#define OVER_THE_AIR_ACTIVATION                            1
 
 /*!
  * When using ABP activation the MAC layer must know in advance to which server
