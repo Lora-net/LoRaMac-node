@@ -3396,6 +3396,11 @@ LoRaMacStatus_t LoRaMacQueryNextTxDelay( int8_t datarate, TimerTime_t* time )
     uint32_t adrAckCounter = MacCtx.NvmCtx->AdrAckCounter;
     int8_t txPower = MacCtx.NvmCtx->MacParamsDefaults.ChannelsTxPower;
 
+    if( time == NULL )
+    {
+        return LORAMAC_STATUS_PARAMETER_INVALID;
+    }
+
     if( MacCtx.NvmCtx->LastTxDoneTime == 0 )
     {
         *time = 0;
