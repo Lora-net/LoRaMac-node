@@ -1032,7 +1032,6 @@ static void LoRaMacClassBProcessPingSlot( void )
 
                 pingSlotRxConfig.Datarate = Ctx.NvmCtx->PingSlotCtx.Datarate;
                 pingSlotRxConfig.DownlinkDwellTime = Ctx.LoRaMacClassBParams.LoRaMacParams->DownlinkDwellTime;
-                pingSlotRxConfig.RepeaterSupport = Ctx.LoRaMacClassBParams.LoRaMacParams->RepeaterSupport;
                 pingSlotRxConfig.Frequency = frequency;
                 pingSlotRxConfig.RxContinuous = false;
                 pingSlotRxConfig.RxSlot = RX_SLOT_WIN_CLASS_B_PING_SLOT;
@@ -1186,7 +1185,6 @@ static void LoRaMacClassBProcessMulticastSlot( void )
 
             multicastSlotRxConfig.Datarate = Ctx.PingSlotCtx.NextMulticastChannel->ChannelParams.RxParams.ClassB.Datarate;
             multicastSlotRxConfig.DownlinkDwellTime = Ctx.LoRaMacClassBParams.LoRaMacParams->DownlinkDwellTime;
-            multicastSlotRxConfig.RepeaterSupport = Ctx.LoRaMacClassBParams.LoRaMacParams->RepeaterSupport;
             multicastSlotRxConfig.Frequency = frequency;
             multicastSlotRxConfig.RxContinuous = false;
             multicastSlotRxConfig.RxSlot = RX_SLOT_WIN_CLASS_B_MULTICAST_SLOT;

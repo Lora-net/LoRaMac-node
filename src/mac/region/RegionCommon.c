@@ -475,6 +475,7 @@ LoRaMacStatus_t RegionCommonIdentifyChannels( RegionCommonIdentifyChannelsParam_
 
     if( *nbEnabledChannels > 0 )
     {
+        *nextTxDelay = 0;
         return LORAMAC_STATUS_OK;
     }
     else if( *nbRestrictedChannels > 0 )

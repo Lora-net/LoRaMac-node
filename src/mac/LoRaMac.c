@@ -165,10 +165,6 @@ typedef struct sLoRaMacNvmCtx
      */
     uint8_t LastTxChannel;
     /*
-     * Holds the current rx window slot
-     */
-    bool RepeaterSupport;
-    /*
      * Buffer containing the MAC layer commands
      */
     uint8_t MacCommandsBuffer[LORA_MAC_COMMAND_MAX_LENGTH];
@@ -1195,12 +1191,6 @@ static void ProcessRadioRxDone( void )
             getPhy.UplinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
             getPhy.Datarate = MacCtx.McpsIndication.RxDatarate;
             getPhy.Attribute = PHY_MAX_PAYLOAD;
-
-            // Get the maximum payload length
-            if( MacCtx.NvmCtx->RepeaterSupport == true )
-            {
-                getPhy.Attribute = PHY_MAX_PAYLOAD_REPEATER;
-            }
             phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
             if( MAX( 0, ( int16_t )( ( int16_t ) size - ( int16_t ) LORA_MAC_FRMPAYLOAD_OVERHEAD ) ) > ( int16_t )phyParam.Value )
             {
@@ -1852,7 +1842,6 @@ static void OnRxWindow1TimerEvent( void* context )
     MacCtx.RxWindow1Config.Channel = MacCtx.Channel;
     MacCtx.RxWindow1Config.DrOffset = MacCtx.NvmCtx->MacParams.Rx1DrOffset;
     MacCtx.RxWindow1Config.DownlinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
-    MacCtx.RxWindow1Config.RepeaterSupport = MacCtx.NvmCtx->RepeaterSupport;
     MacCtx.RxWindow1Config.RxContinuous = false;
     MacCtx.RxWindow1Config.RxSlot = RX_SLOT_WIN_1;
 
@@ -1870,7 +1859,6 @@ static void OnRxWindow2TimerEvent( void* context )
     MacCtx.RxWindow2Config.Channel = MacCtx.Channel;
     MacCtx.RxWindow2Config.Frequency = MacCtx.NvmCtx->MacParams.Rx2Channel.Frequency;
     MacCtx.RxWindow2Config.DownlinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
-    MacCtx.RxWindow2Config.RepeaterSupport = MacCtx.NvmCtx->RepeaterSupport;
     MacCtx.RxWindow2Config.RxContinuous = false;
     MacCtx.RxWindow2Config.RxSlot = RX_SLOT_WIN_2;
 
@@ -1983,7 +1971,6 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
                         MacCtx.RxWindowCConfig.Channel = MacCtx.Channel;
                         MacCtx.RxWindowCConfig.Frequency = MacCtx.NvmCtx->MacParams.RxCChannel.Frequency;
                         MacCtx.RxWindowCConfig.DownlinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
-                        MacCtx.RxWindowCConfig.RepeaterSupport = MacCtx.NvmCtx->RepeaterSupport;
                         MacCtx.RxWindowCConfig.RxSlot = RX_SLOT_WIN_CLASS_C_MULTICAST;
                         MacCtx.RxWindowCConfig.RxContinuous = true;
                         break;
@@ -2049,12 +2036,6 @@ static uint8_t GetMaxAppPayloadWithoutFOptsLength( int8_t datarate )
     getPhy.UplinkDwellTime = MacCtx.NvmCtx->MacParams.UplinkDwellTime;
     getPhy.Datarate = datarate;
     getPhy.Attribute = PHY_MAX_PAYLOAD;
-
-    // Get the maximum payload length
-    if( MacCtx.NvmCtx->RepeaterSupport == true )
-    {
-        getPhy.Attribute = PHY_MAX_PAYLOAD_REPEATER;
-    }
     phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
 
     return phyParam.Value;
@@ -2988,7 +2969,6 @@ static void ResetMacParameters( void )
     MacCtx.RxWindow2Config.Channel = MacCtx.Channel;
     MacCtx.RxWindow2Config.Frequency = MacCtx.NvmCtx->MacParams.Rx2Channel.Frequency;
     MacCtx.RxWindow2Config.DownlinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
-    MacCtx.RxWindow2Config.RepeaterSupport = MacCtx.NvmCtx->RepeaterSupport;
     MacCtx.RxWindow2Config.RxContinuous = false;
     MacCtx.RxWindow2Config.RxSlot = RX_SLOT_WIN_2;
 
@@ -3286,7 +3266,6 @@ LoRaMacStatus_t RestoreCtxs( LoRaMacCtxs_t* contexts )
     MacCtx.RxWindowCConfig.Channel = MacCtx.Channel;
     MacCtx.RxWindowCConfig.Frequency = MacCtx.NvmCtx->MacParams.RxCChannel.Frequency;
     MacCtx.RxWindowCConfig.DownlinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
-    MacCtx.RxWindowCConfig.RepeaterSupport = MacCtx.NvmCtx->RepeaterSupport;
     MacCtx.RxWindowCConfig.RxContinuous = true;
     MacCtx.RxWindowCConfig.RxSlot = RX_SLOT_WIN_CLASS_C;
 
@@ -3561,7 +3540,6 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     // Set non zero variables to its default value
     MacCtx.NvmCtx->Region = region;
     MacCtx.NvmCtx->DeviceClass = CLASS_A;
-    MacCtx.NvmCtx->RepeaterSupport = false;
 
     // Setup version
     MacCtx.NvmCtx->Version.Value = LORAMAC_VERSION;
@@ -3776,6 +3754,11 @@ LoRaMacStatus_t LoRaMacQueryNextTxDelay( int8_t datarate, TimerTime_t* time )
     uint32_t adrAckCounter = MacCtx.NvmCtx->AdrAckCounter;
     int8_t txPower = MacCtx.NvmCtx->MacParamsDefaults.ChannelsTxPower;
 
+    if( time == NULL )
+    {
+        return LORAMAC_STATUS_PARAMETER_INVALID;
+    }
+
     if( MacCtx.NvmCtx->LastTxDoneTime == 0 )
     {
         *time = 0;
@@ -3927,11 +3910,6 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t* mibGet )
         case MIB_PUBLIC_NETWORK:
         {
             mibGet->Param.EnablePublicNetwork = MacCtx.NvmCtx->PublicNetwork;
-            break;
-        }
-        case MIB_REPEATER_SUPPORT:
-        {
-            mibGet->Param.EnableRepeaterSupport = MacCtx.NvmCtx->RepeaterSupport;
             break;
         }
         case MIB_CHANNELS:
@@ -4482,11 +4460,6 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
         {
             MacCtx.NvmCtx->PublicNetwork = mibSet->Param.EnablePublicNetwork;
             Radio.SetPublicNetwork( MacCtx.NvmCtx->PublicNetwork );
-            break;
-        }
-        case MIB_REPEATER_SUPPORT:
-        {
-            MacCtx.NvmCtx->RepeaterSupport = mibSet->Param.EnableRepeaterSupport;
             break;
         }
         case MIB_RX2_CHANNEL:

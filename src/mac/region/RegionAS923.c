@@ -198,18 +198,6 @@ PhyParam_t RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
             }
             break;
         }
-        case PHY_MAX_PAYLOAD_REPEATER:
-        {
-            if( getPhy->UplinkDwellTime == 0 )
-            {
-                phyParam.Value = MaxPayloadOfDatarateRepeaterDwell0AS923[getPhy->Datarate];
-            }
-            else
-            {
-                phyParam.Value = MaxPayloadOfDatarateDwell1UpAS923[getPhy->Datarate];
-            }
-            break;
-        }
         case PHY_DUTY_CYCLE:
         {
             phyParam.Value = AS923_DUTY_CYCLE_ENABLED;
@@ -552,7 +540,6 @@ bool RegionAS923RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
 {
     RadioModems_t modem;
     int8_t dr = rxConfig->Datarate;
-    uint8_t maxPayload = 0;
     int8_t phyDr = 0;
     uint32_t frequency = rxConfig->Frequency;
 
@@ -589,17 +576,7 @@ bool RegionAS923RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
         Radio.SetRxConfig( modem, rxConfig->Bandwidth, phyDr, 1, 0, 8, rxConfig->WindowTimeout, false, 0, false, 0, 0, true, rxConfig->RxContinuous );
     }
 
-    // Check for repeater support
-    if( rxConfig->RepeaterSupport == true )
-    {
-        maxPayload = MaxPayloadOfDatarateRepeaterDwell0AS923[dr];
-    }
-    else
-    {
-        maxPayload = MaxPayloadOfDatarateDwell0AS923[dr];
-    }
-
-    Radio.SetMaxPayloadLength( modem, maxPayload + LORA_MAC_FRMPAYLOAD_OVERHEAD );
+    Radio.SetMaxPayloadLength( modem, MaxPayloadOfDatarateDwell0AS923[dr] + LORA_MAC_FRMPAYLOAD_OVERHEAD );
 
     *datarate = (uint8_t) dr;
     return true;

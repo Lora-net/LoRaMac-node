@@ -647,10 +647,6 @@ typedef enum ePhyAttribute
      */
     PHY_MAX_PAYLOAD,
     /*!
-     * Maximum payload possible when repeater support is enabled.
-     */
-    PHY_MAX_PAYLOAD_REPEATER,
-    /*!
      * Duty cycle.
      */
     PHY_DUTY_CYCLE,
@@ -904,21 +900,21 @@ typedef struct sGetPhyParams
     /*!
      * Datarate.
      * The parameter is needed for the following queries:
-     * PHY_MAX_PAYLOAD, PHY_MAX_PAYLOAD_REPEATER, PHY_NEXT_LOWER_TX_DR.
+     * PHY_MAX_PAYLOAD, PHY_NEXT_LOWER_TX_DR.
      */
     int8_t Datarate;
     /*!
      * Uplink dwell time. This parameter must be set to query:
-     * PHY_MAX_PAYLOAD, PHY_MAX_PAYLOAD_REPEATER, PHY_MIN_TX_DR.
+     * PHY_MAX_PAYLOAD, PHY_MIN_TX_DR.
      * The parameter is needed for the following queries:
-     * PHY_MIN_TX_DR, PHY_MAX_PAYLOAD, PHY_MAX_PAYLOAD_REPEATER, PHY_NEXT_LOWER_TX_DR.
+     * PHY_MIN_TX_DR, PHY_MAX_PAYLOAD, PHY_NEXT_LOWER_TX_DR.
      */
     uint8_t UplinkDwellTime;
     /*!
      * Downlink dwell time. This parameter must be set to query:
-     * PHY_MAX_PAYLOAD, PHY_MAX_PAYLOAD_REPEATER, PHY_MIN_RX_DR.
+     * PHY_MAX_PAYLOAD, PHY_MIN_RX_DR.
      * The parameter is needed for the following queries:
-     * PHY_MIN_RX_DR, PHY_MAX_PAYLOAD, PHY_MAX_PAYLOAD_REPEATER.
+     * PHY_MIN_RX_DR, PHY_MAX_PAYLOAD.
      */
     uint8_t DownlinkDwellTime;
 }GetPhyParams_t;
@@ -1073,10 +1069,6 @@ typedef struct sRxConfigParams
      * Downlink dwell time.
      */
     uint8_t DownlinkDwellTime;
-    /*!
-     * Set to true, if a repeater is supported.
-     */
-    bool RepeaterSupport;
     /*!
      * Set to true, if RX should be continuous.
      */
