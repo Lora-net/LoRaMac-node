@@ -170,11 +170,6 @@ PhyParam_t RegionCN779GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = MaxPayloadOfDatarateCN779[getPhy->Datarate];
             break;
         }
-        case PHY_MAX_PAYLOAD_REPEATER:
-        {
-            phyParam.Value = MaxPayloadOfDatarateRepeaterCN779[getPhy->Datarate];
-            break;
-        }
         case PHY_DUTY_CYCLE:
         {
             phyParam.Value = CN779_DUTY_CYCLE_ENABLED;
@@ -501,7 +496,6 @@ bool RegionCN779RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
 {
     RadioModems_t modem;
     int8_t dr = rxConfig->Datarate;
-    uint8_t maxPayload = 0;
     int8_t phyDr = 0;
     uint32_t frequency = rxConfig->Frequency;
 
@@ -538,15 +532,7 @@ bool RegionCN779RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
         Radio.SetRxConfig( modem, rxConfig->Bandwidth, phyDr, 1, 0, 8, rxConfig->WindowTimeout, false, 0, false, 0, 0, true, rxConfig->RxContinuous );
     }
 
-    if( rxConfig->RepeaterSupport == true )
-    {
-        maxPayload = MaxPayloadOfDatarateRepeaterCN779[dr];
-    }
-    else
-    {
-        maxPayload = MaxPayloadOfDatarateCN779[dr];
-    }
-    Radio.SetMaxPayloadLength( modem, maxPayload + LORA_MAC_FRMPAYLOAD_OVERHEAD );
+    Radio.SetMaxPayloadLength( modem, MaxPayloadOfDatarateCN779[dr] + LORA_MAC_FRMPAYLOAD_OVERHEAD );
 
     *datarate = (uint8_t) dr;
     return true;

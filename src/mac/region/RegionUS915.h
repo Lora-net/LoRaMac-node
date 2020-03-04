@@ -271,14 +271,9 @@ static const int8_t DatarateOffsetsUS915[5][4] =
 };
 
 /*!
- * Maximum payload with respect to the datarate index. Cannot operate with repeater.
+ * Maximum payload with respect to the datarate index.
  */
 static const uint8_t MaxPayloadOfDatarateUS915[] = { 11, 53, 125, 242, 242, 0, 0, 0, 53, 129, 242, 242, 242, 242, 0, 0 };
-
-/*!
- * Maximum payload with respect to the datarate index. Can operate with repeater.
- */
-static const uint8_t MaxPayloadOfDatarateRepeaterUS915[] = { 11, 53, 125, 242, 242, 0, 0, 0, 33, 109, 222, 222, 222, 222, 0, 0 };
 
 /*!
  * \brief The function gets a value of a specific phy attribute.

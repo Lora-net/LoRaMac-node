@@ -163,7 +163,7 @@ extern "C"
 /*!
  * FRMPayload overhead to be used when setting the Radio.SetMaxPayloadLength
  * in RxWindowSetup function.
- * Maximum PHYPayload = MaxPayloadOfDatarate/MaxPayloadOfDatarateRepeater + LORA_MAC_FRMPAYLOAD_OVERHEAD
+ * Maximum PHYPayload = MaxPayloadOfDatarate + LORA_MAC_FRMPAYLOAD_OVERHEAD
  */
 #define LORA_MAC_FRMPAYLOAD_OVERHEAD                13 // MHDR(1) + FHDR(7) + Port(1) + MIC(4)
 
@@ -445,10 +445,6 @@ typedef struct sLoRaMacParams
      * Antenna gain of the node
      */
     float AntennaGain;
-    /*!
-     * Indicates if the node supports repeaters
-     */
-    bool RepeaterSupport;
 }LoRaMacParams_t;
 
 /*!
@@ -1243,7 +1239,6 @@ typedef struct sMlmeIndication
  * \ref MIB_MC_APP_S_KEY_3                       | NO  | YES
  * \ref MIB_MC_NWK_S_KEY_3                       | NO  | YES
  * \ref MIB_PUBLIC_NETWORK                       | YES | YES
- * \ref MIB_REPEATER_SUPPORT                     | YES | YES
  * \ref MIB_CHANNELS                             | YES | NO
  * \ref MIB_RX2_CHANNEL                          | YES | YES
  * \ref MIB_RX2_DFAULT_CHANNEL                   | YES | YES
@@ -1475,14 +1470,6 @@ typedef enum eMib
      * [true: public network, false: private network]
      */
     MIB_PUBLIC_NETWORK,
-    /*!
-     * Support the operation with repeaters
-     *
-     * LoRaWAN Regional Parameters V1.0.2rB
-     *
-     * [true: repeater support enabled, false: repeater support disabled]
-     */
-    MIB_REPEATER_SUPPORT,
     /*!
      * Communication channels. A get request will return a
      * pointer which references the first entry of the channel list. The
@@ -1885,12 +1872,6 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_PUBLIC_NETWORK
      */
     bool EnablePublicNetwork;
-    /*!
-     * Enable or disable repeater support
-     *
-     * Related MIB type: \ref MIB_REPEATER_SUPPORT
-     */
-    bool EnableRepeaterSupport;
     /*!
      * LoRaWAN Channel
      *

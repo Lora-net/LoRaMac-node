@@ -305,11 +305,6 @@ PhyParam_t RegionUS915GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = MaxPayloadOfDatarateUS915[getPhy->Datarate];
             break;
         }
-        case PHY_MAX_PAYLOAD_REPEATER:
-        {
-            phyParam.Value = MaxPayloadOfDatarateRepeaterUS915[getPhy->Datarate];
-            break;
-        }
         case PHY_DUTY_CYCLE:
         {
             phyParam.Value = US915_DUTY_CYCLE_ENABLED;
@@ -649,7 +644,6 @@ void RegionUS915ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
 bool RegionUS915RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
 {
     int8_t dr = rxConfig->Datarate;
-    uint8_t maxPayload = 0;
     int8_t phyDr = 0;
     uint32_t frequency = rxConfig->Frequency;
 
@@ -672,15 +666,7 @@ bool RegionUS915RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
     // Radio configuration
     Radio.SetRxConfig( MODEM_LORA, rxConfig->Bandwidth, phyDr, 1, 0, 8, rxConfig->WindowTimeout, false, 0, false, 0, 0, true, rxConfig->RxContinuous );
 
-    if( rxConfig->RepeaterSupport == true )
-    {
-        maxPayload = MaxPayloadOfDatarateRepeaterUS915[dr];
-    }
-    else
-    {
-        maxPayload = MaxPayloadOfDatarateUS915[dr];
-    }
-    Radio.SetMaxPayloadLength( MODEM_LORA, maxPayload + LORA_MAC_FRMPAYLOAD_OVERHEAD );
+    Radio.SetMaxPayloadLength( MODEM_LORA, MaxPayloadOfDatarateUS915[dr] + LORA_MAC_FRMPAYLOAD_OVERHEAD );
 
     *datarate = (uint8_t) dr;
     return true;

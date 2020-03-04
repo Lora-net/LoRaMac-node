@@ -278,14 +278,9 @@ static const uint8_t DataratesCN779[]  = { 12, 11, 10,  9,  8,  7,  7, 50 };
 static const uint32_t BandwidthsCN779[] = { 125000, 125000, 125000, 125000, 125000, 125000, 250000, 0 };
 
 /*!
- * Maximum payload with respect to the datarate index. Cannot operate with repeater.
+ * Maximum payload with respect to the datarate index.
  */
 static const uint8_t MaxPayloadOfDatarateCN779[] = { 51, 51, 51, 115, 242, 242, 242, 242 };
-
-/*!
- * Maximum payload with respect to the datarate index. Can operate with repeater.
- */
-static const uint8_t MaxPayloadOfDatarateRepeaterCN779[] = { 51, 51, 51, 115, 222, 222, 222, 222 };
 
 /*!
  * \brief The function gets a value of a specific phy attribute.
