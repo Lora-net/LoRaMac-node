@@ -281,6 +281,7 @@ static bool IsSticky( uint8_t cid )
         case MOTE_MAC_DL_CHANNEL_ANS:
         case MOTE_MAC_RX_PARAM_SETUP_ANS:
         case MOTE_MAC_RX_TIMING_SETUP_ANS:
+        case MOTE_MAC_TX_PARAM_SETUP_ANS:
             return true;
         default:
             return false;
