@@ -18,19 +18,45 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ),
             Daniel Jaeckle ( STACKFORCE ),  Johannes Bruder ( STACKFORCE )
 */
-#include "secure-element.h"
-
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "LoRaMacCrypto.h"
 #include "utilities.h"
 #include "aes.h"
 #include "cmac.h"
 #include "radio.h"
 
-#define NUM_OF_KEYS      24
-#define KEY_SIZE         16
+#include "LoRaMacHeaderTypes.h"
+
+#include "secure-element.h"
+
+/*!
+ * Number of supported crypto keys
+ */
+#define NUM_OF_KEYS 24
+
+/*!
+ * Crypto keys size in bytes
+ */
+#define KEY_SIZE 16
+
+/*!
+ * Size of JoinReqType is field for integrity check
+ * \remark required for 1.1.x support
+ */
+#define JOIN_REQ_TYPE_SIZE 1
+
+/*!
+ * Size of DevNonce is field for integrity check
+ * \remark required for 1.1.x support
+ */
+#define DEV_NONCE_SIZE 2
+
+/*!
+ * MIC computation offset
+ * \remark required for 1.1.x support
+ */
+#define CRYPTO_MIC_COMPUTATION_OFFSET ( JOIN_REQ_TYPE_SIZE + LORAMAC_JOIN_EUI_FIELD_SIZE + DEV_NONCE_SIZE + LORAMAC_MHDR_FIELD_SIZE )
 
 /*!
  * Identifier value pair type for Keys
@@ -88,13 +114,11 @@ static SecureElementNvmEvent SeNvmCtxChanged;
 /*
  * Gets key item from key list.
  *
- *  cmac = aes128_cmac(keyID, B0 | msg)
- *
  * \param[IN]  keyID          - Key identifier
  * \param[OUT] keyItem        - Key item reference
  * \retval                    - Status of the operation
  */
-SecureElementStatus_t GetKeyByID( KeyIdentifier_t keyID, Key_t** keyItem )
+static SecureElementStatus_t GetKeyByID( KeyIdentifier_t keyID, Key_t** keyItem )
 {
     for( uint8_t i = 0; i < NUM_OF_KEYS; i++ )
     {
@@ -274,7 +298,7 @@ SecureElementStatus_t SecureElementComputeAesCmac( uint8_t *micBxBuffer, uint8_t
 {
     if( keyID >= LORAMAC_CRYPTO_MULTICAST_KEYS )
     {
-        //Never accept multicast key identifier for cmac computation
+        // Never accept multicast key identifier for cmac computation
         return SECURE_ELEMENT_ERROR_INVALID_KEY_ID;
     }
 
@@ -369,6 +393,63 @@ SecureElementStatus_t SecureElementDeriveAndStoreKey( Version_t version, uint8_t
     if( retval != SECURE_ELEMENT_SUCCESS )
     {
         return retval;
+    }
+
+    return SECURE_ELEMENT_SUCCESS;
+}
+
+SecureElementStatus_t SecureElementProcessJoinAccept( KeyIdentifier_t encKeyID, KeyIdentifier_t micKeyID,
+                                                      uint8_t versionMinor, uint8_t* micHeader, uint8_t* encJoinAccept,
+                                                      uint8_t encJoinAcceptSize, uint8_t* decJoinAccept )
+{
+    if( ( micHeader == NULL ) || ( encJoinAccept == NULL ) || ( decJoinAccept == NULL ) )
+    {
+        return SECURE_ELEMENT_ERROR_NPE;
+    }
+
+    // Decrypt header, skip MHDR
+    memcpy1( decJoinAccept, encJoinAccept, encJoinAcceptSize );
+
+    if( SecureElementAesEncrypt( encJoinAccept + LORAMAC_MHDR_FIELD_SIZE, encJoinAcceptSize - LORAMAC_MHDR_FIELD_SIZE,
+                                 encKeyID, decJoinAccept + LORAMAC_MHDR_FIELD_SIZE ) != SECURE_ELEMENT_SUCCESS )
+    {
+        return SECURE_ELEMENT_FAIL_ENCRYPT;
+    }
+
+    uint32_t mic = 0;
+
+    mic = ( ( uint32_t ) decJoinAccept[encJoinAcceptSize - LORAMAC_MIC_FIELD_SIZE] << 0 );
+    mic |= ( ( uint32_t ) decJoinAccept[encJoinAcceptSize - LORAMAC_MIC_FIELD_SIZE + 1] << 8 );
+    mic |= ( ( uint32_t ) decJoinAccept[encJoinAcceptSize - LORAMAC_MIC_FIELD_SIZE + 2] << 16 );
+    mic |= ( ( uint32_t ) decJoinAccept[encJoinAcceptSize - LORAMAC_MIC_FIELD_SIZE + 3] << 24 );
+
+    // Verify mic
+    if( versionMinor == 0 )
+    {
+        // For LoRaWAN 1.0.x
+        //   cmac = aes128_cmac(NwkKey, MHDR |  JoinNonce | NetID | DevAddr | DLSettings | RxDelay | CFList | CFListType)
+        if( SecureElementVerifyAesCmac( decJoinAccept, ( encJoinAcceptSize - LORAMAC_MIC_FIELD_SIZE ), mic, micKeyID ) != SECURE_ELEMENT_SUCCESS )
+        {
+            return SECURE_ELEMENT_FAIL_CMAC;
+        }
+    }
+    else if( versionMinor == 1 )
+    {
+        // For LoRaWAN 1.1.x and later:
+        //   cmac = aes128_cmac(JSIntKey, JoinReqType | JoinEUI | DevNonce | MHDR | JoinNonce | NetID | DevAddr | DLSettings | RxDelay | CFList | CFListType)
+        // Prepare the msg for integrity check (adding JoinReqType, JoinEUI and DevNonce)
+        uint8_t localBuffer[32 + CRYPTO_MIC_COMPUTATION_OFFSET] = { 0 };
+        memcpy1( localBuffer, micHeader, CRYPTO_MIC_COMPUTATION_OFFSET );
+        memcpy1( localBuffer + CRYPTO_MIC_COMPUTATION_OFFSET, decJoinAccept, encJoinAcceptSize - LORAMAC_MIC_FIELD_SIZE );
+
+        if( SecureElementVerifyAesCmac( localBuffer, encJoinAcceptSize + CRYPTO_MIC_COMPUTATION_OFFSET - LORAMAC_MIC_FIELD_SIZE, mic, micKeyID ) != SECURE_ELEMENT_SUCCESS )
+        {
+            return SECURE_ELEMENT_FAIL_CMAC;
+        }
+    }
+    else
+    {
+        return SECURE_ELEMENT_ERROR_INVALID_LORAWAM_SPEC_VERSION;
     }
 
     return SECURE_ELEMENT_SUCCESS;
