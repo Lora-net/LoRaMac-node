@@ -1334,7 +1334,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
         }
         else
         {
-            devNonceForKeyDerivation = ( uint8_t* )&CryptoCtx.NvmCtx->RJcount1;
+            devNonceForKeyDerivation = ( uint8_t* )&CryptoCtx.NvmCtx->FCntList.RJcount1;
         }
     }
 
