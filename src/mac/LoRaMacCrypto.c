@@ -1573,12 +1573,15 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
 #if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     if( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor == 1 )
     {
-        // Decrypt FOpts
-        retval = FOptsEncrypt( macMsg->FHDR.FCtrl.Bits.FOptsLen, address, DOWNLINK, fCntID, fCntDown, macMsg->FHDR.FOpts );
-        if( retval != LORAMAC_CRYPTO_SUCCESS )
+        if( addrID == UNICAST_DEV_ADDR )
         {
-            return retval;
-        }
+            // Decrypt FOpts
+            retval = FOptsEncrypt( macMsg->FHDR.FCtrl.Bits.FOptsLen, address, DOWNLINK, fCntID, fCntDown, macMsg->FHDR.FOpts );
+            if( retval != LORAMAC_CRYPTO_SUCCESS )
+            {
+                return retval;
+            }
+        } 
     }
 #endif
 
