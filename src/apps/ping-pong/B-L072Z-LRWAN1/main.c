@@ -197,6 +197,8 @@ int main( void )
                                    LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
                                    0, true, 0, 0, LORA_IQ_INVERSION_ON, true );
 
+    Radio.SetMaxPayloadLength( MODEM_LORA, BUFFER_SIZE );
+
 #elif defined( USE_MODEM_FSK )
 
     Radio.SetTxConfig( MODEM_FSK, TX_OUTPUT_POWER, FSK_FDEV, 0,
@@ -208,6 +210,8 @@ int main( void )
                                   0, FSK_AFC_BANDWIDTH, FSK_PREAMBLE_LENGTH,
                                   0, FSK_FIX_LENGTH_PAYLOAD_ON, 0, true,
                                   0, 0,false, true );
+
+    Radio.SetMaxPayloadLength( MODEM_FSK, BUFFER_SIZE );
 
 #else
     #error "Please define a frequency band in the compiler options."
