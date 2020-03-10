@@ -231,6 +231,25 @@ SecureElementStatus_t SecureElementSetJoinEui( uint8_t* joinEui );
  */
 uint8_t* SecureElementGetJoinEui( void );
 
+/*!
+ * Initialization of AES driver
+ */
+extern void LORAMAC_AESStart(void);
+/*!
+ * De-initialization/Cleanup of AES driver
+ */
+extern void LORAMAC_AESStop(void);
+
+/*!
+ * Process AES encryption of a block of memory using with 128 bits key
+ * \param[OUT]	encBuffer		Encrypted output buffer
+ * \param[IN] 	buffer			Input buffer to encrypt
+ * \param[IN] 	size			Size of buffer to encrypt
+ * \param[IN] 	key				AES Key used to encrypt (NULL to continue with current key context for CBC)
+ * \param[IN] 	iv				Initialization Vector to XOR with input buffer before first round (for CBC)
+ */
+extern void LORAMAC_AES_128bits(uint8_t *encBuffer, const uint8_t *buffer, uint16_t size, const uint8_t *key, const uint8_t *iv );
+
 /*! \} defgroup SECUREELEMENT */
 
 #ifdef __cplusplus
