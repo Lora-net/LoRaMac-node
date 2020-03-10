@@ -138,6 +138,67 @@ static void DummyCB( void )
 {
     return;
 }
+/*
+ * Derives K1 or K2 key for CMAC encryption
+ * \param[IN/OUT] K	Initial vector modified as K1 or K2 result
+ * \remark	All keys are big endian
+ * \remark 	This function shall be called with all zeros buffer encrypted using AESCBC128Bits
+ * to derive initial K1, or with K1 to derive K2 from K1.
+ */
+static void ComputeK1K2(uint8_t *K) {
+uint8_t XOR = (K[0] & 0x80) ? 0x87 : 0;
+	for (int k=KEY_SIZE-1; k ; k--, K++) {
+		*K <<= 1;
+		*K |= (*(K+1)) >> 7;
+	}
+	*K <<= 1;
+	*K ^= XOR;
+}
+/*
+ * Performs an XOR between b1 and b2, giving the result in b1
+ * \param[IN/OUT] 	b1	Input/Output buffer 1
+ * \param[IN] 		b2	Input buffer 2
+ * \param[IN] 		len	Length of the buffers
+ */
+static void XORBuffers( uint8_t* b1, const uint8_t *b2, int len ) {
+	while ( len-- )
+		*( b1++ ) ^= *( b2++ );
+}
+
+#define USE_SOFT_AES	( 1 )
+#if USE_SOFT_AES
+#include "aes.h"
+/*
+ * AES computation context variable
+ */
+aes_context AesContext;
+
+void LORAMAC_AESStart(void) {
+    memset1( AesContext.ksch, '\0', 240 );
+}
+void LORAMAC_AESStop(void) {
+
+}
+
+void LORAMAC_AES_128bits(uint8_t *encBuffer, const uint8_t *buffer, uint16_t size, const uint8_t *key, const uint8_t *iv ) {
+uint8_t tmp[KEY_SIZE];
+	if (key) aes_set_key( key, KEY_SIZE, &AesContext );
+
+	if (iv) memcpy1(tmp, iv, KEY_SIZE);		// Introduce iv in context for first round (used by AES-CBC)
+
+	uint8_t block = 0;
+
+    while( size != 0 )
+    {
+    	if (iv) XORBuffers(tmp, &buffer[block], KEY_SIZE);
+    	else memcpy1(tmp,&buffer[block],KEY_SIZE);
+        aes_encrypt( tmp, &encBuffer[block], &AesContext );
+        block = block + KEY_SIZE;
+        size = size - KEY_SIZE;
+    }
+}
+
+#endif
 
 /*
  * Computes a CMAC of a message using provided initial Bx block
@@ -158,32 +219,53 @@ static SecureElementStatus_t ComputeCmac( uint8_t *micBxBuffer, uint8_t *buffer,
         return SECURE_ELEMENT_ERROR_NPE;
     }
 
-    uint8_t Cmac[16];
-
-    AES_CMAC_Init( SeNvmCtx.AesCmacCtx );
-
+    uint8_t Cmac[KEY_SIZE];
+    memset1(Cmac,0,sizeof(Cmac));
     Key_t* keyItem;
     SecureElementStatus_t retval = GetKeyByID( keyID, &keyItem );
 
     if( retval == SECURE_ELEMENT_SUCCESS )
     {
-        AES_CMAC_SetKey( SeNvmCtx.AesCmacCtx, keyItem->KeyValue );
-
-        if( micBxBuffer != NULL )
+    	LORAMAC_AESStart();
+    	bool bFirstPass = true;
+        uint8_t K[KEY_SIZE];
+        memset1(K,0,sizeof(K));
+		LORAMAC_AES_128bits( K, K, KEY_SIZE, keyItem->KeyValue, K );
+		if( micBxBuffer != NULL )
         {
-            AES_CMAC_Update( SeNvmCtx.AesCmacCtx, micBxBuffer, 16 );
+			// WARNING: We assume micBxBuffer is KEY_SIZE length
+    		LORAMAC_AES_128bits( Cmac, micBxBuffer, KEY_SIZE, keyItem->KeyValue, Cmac );
+    		bFirstPass = false;
         }
-
-        AES_CMAC_Update( SeNvmCtx.AesCmacCtx, buffer, size );
-
-        AES_CMAC_Final( Cmac, SeNvmCtx.AesCmacCtx );
-
+        while ( size ) {
+    		if ( size <= KEY_SIZE ) {
+    			// If last block is exactly KEY_SIZE, XOR last block remaining bytes with K1
+    			ComputeK1K2( K );
+    			if (size < KEY_SIZE) {
+    				// Recompute K1 as K2 and prepare it for 0x80..00 buffer append
+    				ComputeK1K2( K );
+    				K[size] ^= 0x80;
+    			}
+    			XORBuffers( K, buffer, size ); // Modify K to keep source buffer intact
+    			LORAMAC_AES_128bits( Cmac, K, KEY_SIZE, ( bFirstPass ) ? keyItem->KeyValue : NULL, Cmac );
+    			break;	// We have finished
+    		}
+   			else {
+   				// Make CBC chain by re-injecting ciphered output
+   				LORAMAC_AES_128bits( Cmac, buffer, KEY_SIZE,  ( bFirstPass ) ? keyItem->KeyValue : NULL, Cmac );
+   			}
+    		bFirstPass = false;
+    		size -= KEY_SIZE;
+    		buffer += KEY_SIZE;
+        }
+        LORAMAC_AESStop();
         // Bring into the required format
         *cmac = ( uint32_t )( ( uint32_t ) Cmac[3] << 24 | ( uint32_t ) Cmac[2] << 16 | ( uint32_t ) Cmac[1] << 8 | ( uint32_t ) Cmac[0] );
     }
 
     return retval;
 }
+
 
 /*
  * API functions
@@ -348,16 +430,9 @@ SecureElementStatus_t SecureElementAesEncrypt( uint8_t* buffer, uint16_t size, K
 
     if( retval == SECURE_ELEMENT_SUCCESS )
     {
-        aes_set_key( pItem->KeyValue, 16, &SeNvmCtx.AesContext );
-
-        uint8_t block = 0;
-
-        while( size != 0 )
-        {
-            aes_encrypt( &buffer[block], &encBuffer[block], &SeNvmCtx.AesContext );
-            block = block + 16;
-            size = size - 16;
-        }
+        LORAMAC_AESStart();
+		LORAMAC_AES_128bits( encBuffer, buffer, size, pItem->KeyValue, NULL );
+	    LORAMAC_AESStop();
     }
     return retval;
 }
