@@ -59,6 +59,11 @@ extern "C"
 #define CRC_CCITT_SEED                              0x1D0F
 
 /*!
+ * \brief LFSR initial value to compute BUYPASS type CRC
+ */
+#define CRC_BUYPASS_SEED                            0x0000
+
+/*!
  * \brief Polynomial used to compute IBM CRC
  */
 #define CRC_POLYNOMIAL_IBM                          0x8005
@@ -67,6 +72,11 @@ extern "C"
  * \brief Polynomial used to compute CCIT CRC
  */
 #define CRC_POLYNOMIAL_CCITT                        0x1021
+
+/*!
+ * \brief Polynomial used to compute BUYPASS CRC
+ */
+#define CRC_POLYNOMIAL_BUYPASS                      0x8005
 
 /*!
  * \brief The address of the register holding the first byte defining the CRC seed
@@ -395,6 +405,7 @@ typedef enum
     RADIO_CRC_2_BYTES_INV                   = 0x06,
     RADIO_CRC_2_BYTES_IBM                   = 0xF1,
     RADIO_CRC_2_BYTES_CCIT                  = 0xF2,
+    RADIO_CRC_2_BYTES_BUYPASS               = 0xF3,
 }RadioCrcTypes_t;
 
 /*!

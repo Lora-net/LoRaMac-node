@@ -602,6 +602,12 @@ void SX126xSetPacketParams( PacketParams_t *packetParams )
             SX126xSetCrcPolynomial( CRC_POLYNOMIAL_CCITT );
             crcVal = RADIO_CRC_2_BYTES_INV;
         }
+        else if( packetParams->Params.Gfsk.CrcLength == RADIO_CRC_2_BYTES_BUYPASS )
+        {
+            SX126xSetCrcSeed( CRC_BUYPASS_SEED );
+            SX126xSetCrcPolynomial( CRC_POLYNOMIAL_BUYPASS );
+            crcVal = RADIO_CRC_2_BYTES;
+        }
         else
         {
             crcVal = packetParams->Params.Gfsk.CrcLength;
