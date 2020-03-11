@@ -2397,11 +2397,8 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
     nextChan.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
     nextChan.DutyCycleEnabled = MacCtx.NvmCtx->DutyCycleOn;
     nextChan.QueryNextTxDelayOnly = false;
-    if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
-    {
-        nextChan.Joined = false;
-    }
-    else
+    nextChan.Joined = false;
+    if( MacCtx.NvmCtx->NetworkActivation != ACTIVATION_TYPE_NONE )
     {
         nextChan.Joined = true;
     }
@@ -2534,7 +2531,8 @@ static void CalculateBackOff( uint8_t channel )
     calcBackOff.ElapsedTime = SysTimeSub( SysTimeGetMcuTime( ), MacCtx.NvmCtx->InitializationTime );
     calcBackOff.TxTimeOnAir = MacCtx.TxTimeOnAir;
     calcBackOff.LastTxIsJoinRequest = false;
-    if( ( MacCtx.MacFlags.Bits.MlmeReq == 1 ) && ( LoRaMacConfirmQueueIsCmdActive( MLME_JOIN ) == true ) )
+
+    if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
     {
         calcBackOff.LastTxIsJoinRequest = true;
     }
