@@ -1241,6 +1241,16 @@ static void ProcessRadioRxDone( void )
                 }
             }
 
+            // Filter messages according to multicast downlink exceptions
+            if( ( multicast == 1 ) && ( ( fType != FRAME_TYPE_D ) ||
+                                        ( macMsgData.FHDR.FCtrl.Bits.Ack == true ) ||
+                                        ( macMsgData.FHDR.FCtrl.Bits.AdrAckReq == true ) ) )
+            {
+                MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+                PrepareRxDoneAbort( );
+                return;
+            }
+
             // Get maximum allowed counter difference
             getPhy.Attribute = PHY_MAX_FCNT_GAP;
             phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
