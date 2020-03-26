@@ -587,17 +587,17 @@ bool RegionEU868TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
     { // High Speed FSK channel
         modem = MODEM_FSK;
         Radio.SetTxConfig( modem, phyTxPower, 25000, bandwidth, phyDr * 1000, 0, 5, false, true, 0, 0, false, 4000 );
+        *txTimeOnAir = Radio.TimeOnAir( modem, bandwidth, phyDr * 1000, 0, 5, false, txConfig->PktLen, true );
     }
     else
     {
         modem = MODEM_LORA;
         Radio.SetTxConfig( modem, phyTxPower, 0, bandwidth, phyDr, 1, 8, false, true, 0, 0, false, 4000 );
+        *txTimeOnAir = Radio.TimeOnAir( modem, bandwidth, phyDr, 1, 8, false, txConfig->PktLen, true );
     }
 
     // Setup maximum payload lenght of the radio driver
     Radio.SetMaxPayloadLength( modem, txConfig->PktLen );
-    // Get the time-on-air of the next tx frame
-    *txTimeOnAir = Radio.TimeOnAir( modem, txConfig->PktLen );
 
     *txPower = txPowerLimited;
     return true;
