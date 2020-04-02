@@ -136,6 +136,12 @@ void DisplayNetworkParametersUpdate( CommissioningParams_t *commissioningParams 
     {
         printf( "-%02X", commissioningParams->JoinEui[i] );
     }
+    printf( "\n" );
+    printf( "Pin         : %02X", commissioningParams->SePin[0] );
+    for( int i = 1; i < 4; i++ )
+    {
+        printf( "-%02X", commissioningParams->SePin[i] );
+    }
     printf( "\n\n" );
 }
 
