@@ -1131,7 +1131,6 @@ static uint32_t FindPage(EE_Find_type Operation)
           return EE_NO_PAGE_FOUND;   /* No active Page */
         }
       }
-      break;
 
     case FIND_READ_PAGE:  /* ---- Read operation ---- */
       if (currentpagestatus == STATE_PAGE_ACTIVE)
@@ -1149,7 +1148,6 @@ static uint32_t FindPage(EE_Find_type Operation)
           return EE_NO_PAGE_FOUND;   /* No active Page */
         }
       }
-      break;
 
     case FIND_ERASE_PAGE: /* ---- Return the erased page */
       if (followingpagestatus == STATE_PAGE_ERASED)
@@ -1160,7 +1158,6 @@ static uint32_t FindPage(EE_Find_type Operation)
       {
         return EE_NO_PAGE_FOUND;  /* No erased Page */
       }
-      break;
 
     default:
       ;

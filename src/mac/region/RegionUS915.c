@@ -388,7 +388,7 @@ PhyParam_t RegionUS915GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_DEF_MAX_EIRP:
         {
-            phyParam.fValue = US915_DEFAULT_MAX_ERP + 2.15;
+            phyParam.fValue = US915_DEFAULT_MAX_ERP + 2.15f;
             break;
         }
         case PHY_DEF_ANTENNA_GAIN:

@@ -174,7 +174,7 @@ void RtcStartAlarm( uint32_t timeout )
     RtcTimerContext.Delay = timeout;
 
 #if( RTC_DEBUG_PRINTF_STATE == RTC_DEBUG_ENABLE )
-    printf( "TIMEOUT \t%010ld\t%010ld\r\n", RtcTimerContext.Time, RtcTimerContext.Delay );
+    printf( "TIMEOUT \t%010ld\t%010ld\n", RtcTimerContext.Time, RtcTimerContext.Delay );
 #endif
 #if( RTC_DEBUG_GPIO_STATE == RTC_DEBUG_ENABLE )
     GpioWrite( &DbgRtcPin0, 0 );

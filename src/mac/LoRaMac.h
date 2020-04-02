@@ -1202,6 +1202,7 @@ typedef struct sMlmeIndication
  * \ref MIB_NETWORK_ACTIVATION                   | YES | YES
  * \ref MIB_DEV_EUI                              | YES | YES
  * \ref MIB_JOIN_EUI                             | YES | YES
+ * \ref MIB_SE_PIN                               | YES | YES
  * \ref MIB_ADR                                  | YES | YES
  * \ref MIB_NET_ID                               | YES | YES
  * \ref MIB_DEV_ADDR                             | YES | YES
@@ -1302,6 +1303,10 @@ typedef enum eMib
      * LoRaWAN Specification V1.0.2
      */
     MIB_JOIN_EUI,
+    /*!
+     * Secure-element pin
+     */
+    MIB_SE_PIN,
     /*!
      * Adaptive data rate
      *
@@ -1709,17 +1714,23 @@ typedef union uMibParam
      */
     ActivationType_t NetworkActivation;
     /*!
-     * LoRaWAN device class
+     * LoRaWAN device EUI
      *
      * Related MIB type: \ref MIB_DEV_EUI
      */
     uint8_t* DevEui;
     /*!
-     * LoRaWAN device class
+     * LoRaWAN Join server EUI
      *
      * Related MIB type: \ref MIB_JOIN_EUI
      */
     uint8_t* JoinEui;
+    /*!
+     * Secure-element pin
+     *
+     * Related MIB type: \ref MIB_SE_PIN
+     */
+    uint8_t* SePin;
     /*!
      * Activation state of ADR
      *

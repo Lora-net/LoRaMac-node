@@ -469,7 +469,7 @@ void RtcSetMcuWakeUpTime( void )
 
         mcuWakeUpTime = ( int16_t )( ( now - hit ) );
         McuWakeUpTimeCal += mcuWakeUpTime;
-        //PRINTF( 3, "Cal=%d, %d\n\r", McuWakeUpTimeCal, mcuWakeUpTime);
+        //PRINTF( 3, "Cal=%d, %d\n", McuWakeUpTimeCal, mcuWakeUpTime);
     }
 }
 
@@ -591,10 +591,10 @@ TimerTime_t RtcTempCompensation( TimerTime_t period, float temperature )
     float kDev = RTC_TEMP_DEV_COEFFICIENT;
     float t = RTC_TEMP_TURNOVER;
     float tDev = RTC_TEMP_DEV_TURNOVER;
-    float interim = 0.0;
-    float ppm = 0.0;
+    float interim = 0.0f;
+    float ppm = 0.0f;
 
-    if( k < 0.0 )
+    if( k < 0.0f )
     {
         ppm = ( k - kDev );
     }
@@ -606,12 +606,12 @@ TimerTime_t RtcTempCompensation( TimerTime_t period, float temperature )
     ppm *=  interim * interim;
 
     // Calculate the drift in time
-    interim = ( ( float ) period * ppm ) / 1e6;
+    interim = ( ( float ) period * ppm ) / 1000000.0f;
     // Calculate the resulting time period
     interim += period;
     interim = floor( interim );
 
-    if( interim < 0.0 )
+    if( interim < 0.0f )
     {
         interim = ( float )period;
     }

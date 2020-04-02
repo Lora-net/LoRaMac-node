@@ -123,12 +123,6 @@ typedef struct LmHandlerCallbacks_s
      */
     float ( *GetTemperature )( void );
     /*!
-     * Gets the board 64 bits unique ID
-     *
-     * \param [IN] id Pointer to an array that will contain the Unique ID
-     */
-    void ( *GetUniqueId )( uint8_t *id );
-    /*!
      * Returns a pseudo random seed generated using the MCU Unique ID
      *
      * \retval seed Generated pseudo random seed

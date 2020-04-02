@@ -97,7 +97,7 @@ void PrintHexBuffer( uint8_t *buffer, uint8_t size )
     {
         if( newline != 0 )
         {
-            printf( "\r\n" );
+            printf( "\n" );
             newline = 0;
         }
 
@@ -108,18 +108,18 @@ void PrintHexBuffer( uint8_t *buffer, uint8_t size )
             newline = 1;
         }
     }
-    printf( "\r\n" );
+    printf( "\n" );
 }
 
 void DisplayNvmContextChange( LmHandlerNvmContextStates_t state )
 {
     if( state == LORAMAC_HANDLER_NVM_STORE )
     {
-        printf( "\r\n###### ============ CTXS STORED ============ ######\r\n\r\n" );
+        printf( "\n###### ============ CTXS STORED ============ ######\n\n" );
     }
     else
     {
-        printf( "\r\n###### =========== CTXS RESTORED =========== ######\r\n\r\n" );
+        printf( "\n###### =========== CTXS RESTORED =========== ######\n\n" );
     }
 }
 
@@ -130,20 +130,19 @@ void DisplayNetworkParametersUpdate( CommissioningParams_t *commissioningParams 
     {
         printf( "-%02X", commissioningParams->DevEui[i] );
     }
-    printf( "\r\n" );
-    printf( "AppEui      : %02X", commissioningParams->JoinEui[0] );
+    printf( "\n" );
+    printf( "JoinEui     : %02X", commissioningParams->JoinEui[0] );
     for( int i = 1; i < 8; i++ )
     {
         printf( "-%02X", commissioningParams->JoinEui[i] );
     }
-    printf( "\r\n" );
-    // For 1.0.x devices the AppKey corresponds to NwkKey
-    printf( "AppKey      : %02X", commissioningParams->NwkKey[0] );
-    for( int i = 1; i < 16; i++ )
+    printf( "\n" );
+    printf( "Pin         : %02X", commissioningParams->SePin[0] );
+    for( int i = 1; i < 4; i++ )
     {
-        printf( " %02X", commissioningParams->NwkKey[i] );
+        printf( "-%02X", commissioningParams->SePin[i] );
     }
-    printf( "\n\r\n" );
+    printf( "\n\n" );
 }
 
 void DisplayMacMcpsRequestUpdate( LoRaMacStatus_t status, McpsReq_t *mcpsReq, TimerTime_t nextTxIn )
@@ -152,37 +151,37 @@ void DisplayMacMcpsRequestUpdate( LoRaMacStatus_t status, McpsReq_t *mcpsReq, Ti
     {
         case MCPS_CONFIRMED:
         {
-            printf( "\r\n###### =========== MCPS-Request ============ ######\r\n" );
-            printf( "######            MCPS_CONFIRMED             ######\r\n");
-            printf( "###### ===================================== ######\r\n");
+            printf( "\n###### =========== MCPS-Request ============ ######\n" );
+            printf( "######            MCPS_CONFIRMED             ######\n");
+            printf( "###### ===================================== ######\n");
             break;
         }
         case MCPS_UNCONFIRMED:
         {
-            printf( "\r\n###### =========== MCPS-Request ============ ######\r\n" );
-            printf( "######           MCPS_UNCONFIRMED            ######\r\n");
-            printf( "###### ===================================== ######\r\n");
+            printf( "\n###### =========== MCPS-Request ============ ######\n" );
+            printf( "######           MCPS_UNCONFIRMED            ######\n");
+            printf( "###### ===================================== ######\n");
             break;
         }
         case MCPS_PROPRIETARY:
         {
-            printf( "\r\n###### =========== MCPS-Request ============ ######\r\n" );
-            printf( "######           MCPS_PROPRIETARY            ######\r\n");
-            printf( "###### ===================================== ######\r\n");
+            printf( "\n###### =========== MCPS-Request ============ ######\n" );
+            printf( "######           MCPS_PROPRIETARY            ######\n");
+            printf( "###### ===================================== ######\n");
             break;
         }
         default:
         {
-            printf( "\r\n###### =========== MCPS-Request ============ ######\r\n" );
-            printf( "######                MCPS_ERROR             ######\r\n");
-            printf( "###### ===================================== ######\r\n");
+            printf( "\n###### =========== MCPS-Request ============ ######\n" );
+            printf( "######                MCPS_ERROR             ######\n");
+            printf( "###### ===================================== ######\n");
             break;
         }
     }
-    printf( "STATUS      : %s\r\n", MacStatusStrings[status] );
+    printf( "STATUS      : %s\n", MacStatusStrings[status] );
     if( status == LORAMAC_STATUS_DUTYCYCLE_RESTRICTED )
     {
-        printf( "Next Tx in  : ~%lu second(s)\r\n", ( nextTxIn / 1000 ) );
+        printf( "Next Tx in  : ~%lu second(s)\n", ( nextTxIn / 1000 ) );
     }
 }
 
@@ -192,51 +191,51 @@ void DisplayMacMlmeRequestUpdate( LoRaMacStatus_t status, MlmeReq_t *mlmeReq, Ti
     {
         case MLME_JOIN:
         {
-            printf( "\r\n###### =========== MLME-Request ============ ######\r\n" );
-            printf( "######               MLME_JOIN               ######\r\n");
-            printf( "###### ===================================== ######\r\n");
+            printf( "\n###### =========== MLME-Request ============ ######\n" );
+            printf( "######               MLME_JOIN               ######\n");
+            printf( "###### ===================================== ######\n");
             break;
         }
         case MLME_LINK_CHECK:
         {
-            printf( "\r\n###### =========== MLME-Request ============ ######\r\n" );
-            printf( "######            MLME_LINK_CHECK            ######\r\n");
-            printf( "###### ===================================== ######\r\n");
+            printf( "\n###### =========== MLME-Request ============ ######\n" );
+            printf( "######            MLME_LINK_CHECK            ######\n");
+            printf( "###### ===================================== ######\n");
             break;
         }
         case MLME_DEVICE_TIME:
         {
-            printf( "\r\n###### =========== MLME-Request ============ ######\r\n" );
-            printf( "######            MLME_DEVICE_TIME           ######\r\n");
-            printf( "###### ===================================== ######\r\n");
+            printf( "\n###### =========== MLME-Request ============ ######\n" );
+            printf( "######            MLME_DEVICE_TIME           ######\n");
+            printf( "###### ===================================== ######\n");
             break;
         }
         case MLME_TXCW:
         {
-            printf( "\r\n###### =========== MLME-Request ============ ######\r\n" );
-            printf( "######               MLME_TXCW               ######\r\n");
-            printf( "###### ===================================== ######\r\n");
+            printf( "\n###### =========== MLME-Request ============ ######\n" );
+            printf( "######               MLME_TXCW               ######\n");
+            printf( "###### ===================================== ######\n");
             break;
         }
         case MLME_TXCW_1:
         {
-            printf( "\r\n###### =========== MLME-Request ============ ######\r\n" );
-            printf( "######               MLME_TXCW_1             ######\r\n");
-            printf( "###### ===================================== ######\r\n");
+            printf( "\n###### =========== MLME-Request ============ ######\n" );
+            printf( "######               MLME_TXCW_1             ######\n");
+            printf( "###### ===================================== ######\n");
             break;
         }
         default:
         {
-            printf( "\r\n###### =========== MLME-Request ============ ######\r\n" );
-            printf( "######              MLME_UNKNOWN             ######\r\n");
-            printf( "###### ===================================== ######\r\n");
+            printf( "\n###### =========== MLME-Request ============ ######\n" );
+            printf( "######              MLME_UNKNOWN             ######\n");
+            printf( "###### ===================================== ######\n");
             break;
         }
     }
-    printf( "STATUS      : %s\r\n", MacStatusStrings[status] );
+    printf( "STATUS      : %s\n", MacStatusStrings[status] );
     if( status == LORAMAC_STATUS_DUTYCYCLE_RESTRICTED )
     {
-        printf( "Next Tx in  : ~%lu second(s)\r\n", ( nextTxIn / 1000 ) );
+        printf( "Next Tx in  : ~%lu second(s)\n", ( nextTxIn / 1000 ) );
     }
 }
 
@@ -246,31 +245,20 @@ void DisplayJoinRequestUpdate( LmHandlerJoinParams_t *params )
     {
         if( params->Status == LORAMAC_HANDLER_SUCCESS )
         {
-            printf( "###### ===========   JOINED     ============ ######\r\n" );
-            printf( "\r\nOTAA\r\n\r\n" );
-            printf( "DevAddr     :  %08lX\r\n", params->CommissioningParams->DevAddr );
-            printf( "\r\n\r\n" );
-            printf( "DATA RATE   : DR_%d\r\n\r\n", params->Datarate );
+            printf( "###### ===========   JOINED     ============ ######\n" );
+            printf( "\nOTAA\n\n" );
+            printf( "DevAddr     :  %08lX\n", params->CommissioningParams->DevAddr );
+            printf( "\n\n" );
+            printf( "DATA RATE   : DR_%d\n\n", params->Datarate );
         }
     }
 #if ( OVER_THE_AIR_ACTIVATION == 0 )
     else
     {
-        printf( "###### ===========   JOINED     ============ ######\r\n" );
-        printf( "\r\nABP\r\n\r\n" );
-        printf( "DevAddr     : %08lX\r\n", params->CommissioningParams->DevAddr );
-        printf( "NwkSKey     : %02X", params->CommissioningParams->FNwkSIntKey[0] );
-        for( int i = 1; i < 16; i++ )
-        {
-            printf( " %02X", params->CommissioningParams->FNwkSIntKey[i] );
-        }
-        printf( "\r\n" );
-        printf( "AppSKey     : %02X", params->CommissioningParams->AppSKey[0] );
-        for( int i = 1; i < 16; i++ )
-        {
-            printf( " %02X", params->CommissioningParams->AppSKey[i] );
-        }
-        printf( "\n\r\n" );
+        printf( "###### ===========   JOINED     ============ ######\n" );
+        printf( "\nABP\n\n" );
+        printf( "DevAddr     : %08lX\n", params->CommissioningParams->DevAddr );
+        printf( "\n\n" );
     }
 #endif
 }
@@ -281,45 +269,45 @@ void DisplayTxUpdate( LmHandlerTxParams_t *params )
 
     if( params->IsMcpsConfirm == 0 )
     {
-        printf( "\r\n###### =========== MLME-Confirm ============ ######\r\n" );
-        printf( "STATUS      : %s\r\n", EventInfoStatusStrings[params->Status] );
+        printf( "\n###### =========== MLME-Confirm ============ ######\n" );
+        printf( "STATUS      : %s\n", EventInfoStatusStrings[params->Status] );
         return;
     }
 
-    printf( "\r\n###### =========== MCPS-Confirm ============ ######\r\n" );
-    printf( "STATUS      : %s\r\n", EventInfoStatusStrings[params->Status] );
+    printf( "\n###### =========== MCPS-Confirm ============ ######\n" );
+    printf( "STATUS      : %s\n", EventInfoStatusStrings[params->Status] );
 
-    printf( "\r\n###### =====   UPLINK FRAME %8lu   ===== ######\r\n", params->UplinkCounter );
-    printf( "\r\n" );
+    printf( "\n###### =====   UPLINK FRAME %8lu   ===== ######\n", params->UplinkCounter );
+    printf( "\n" );
 
-    printf( "CLASS       : %c\r\n", "ABC"[LmHandlerGetCurrentClass( )] );
-    printf( "\r\n" );
-    printf( "TX PORT     : %d\r\n", params->AppData.Port );
+    printf( "CLASS       : %c\n", "ABC"[LmHandlerGetCurrentClass( )] );
+    printf( "\n" );
+    printf( "TX PORT     : %d\n", params->AppData.Port );
 
     if( params->AppData.BufferSize != 0 )
     {
         printf( "TX DATA     : " );
         if( params->MsgType == LORAMAC_HANDLER_CONFIRMED_MSG )
         {
-            printf( "CONFIRMED - %s\r\n", ( params->AckReceived != 0 ) ? "ACK" : "NACK" );
+            printf( "CONFIRMED - %s\n", ( params->AckReceived != 0 ) ? "ACK" : "NACK" );
         }
         else
         {
-            printf( "UNCONFIRMED\r\n" );
+            printf( "UNCONFIRMED\n" );
         }
         PrintHexBuffer( params->AppData.Buffer, params->AppData.BufferSize );
     }
 
-    printf( "\r\n" );
-    printf( "DATA RATE   : DR_%d\r\n", params->Datarate );
+    printf( "\n" );
+    printf( "DATA RATE   : DR_%d\n", params->Datarate );
 
     mibGet.Type  = MIB_CHANNELS;
     if( LoRaMacMibGetRequestConfirm( &mibGet ) == LORAMAC_STATUS_OK )
     {
-        printf( "U/L FREQ    : %lu\r\n", mibGet.Param.ChannelList[params->Channel].Frequency );
+        printf( "U/L FREQ    : %lu\n", mibGet.Param.ChannelList[params->Channel].Frequency );
     }
 
-    printf( "TX POWER    : %d\r\n", params->TxPower );
+    printf( "TX POWER    : %d\n", params->TxPower );
 
     mibGet.Type  = MIB_CHANNELS_MASK;
     if( LoRaMacMibGetRequestConfirm( &mibGet ) == LORAMAC_STATUS_OK )
@@ -350,14 +338,14 @@ void DisplayTxUpdate( LmHandlerTxParams_t *params )
             }
             default:
             {
-                printf( "\r\n###### ========= Unknown Region ============ ######" );
+                printf( "\n###### ========= Unknown Region ============ ######" );
                 break;
             }
         }
-        printf("\r\n");
+        printf("\n");
     }
 
-    printf( "\r\n" );
+    printf( "\n" );
 }
 
 void DisplayRxUpdate( LmHandlerAppData_t *appData, LmHandlerRxParams_t *params )
@@ -366,32 +354,32 @@ void DisplayRxUpdate( LmHandlerAppData_t *appData, LmHandlerRxParams_t *params )
 
     if( params->IsMcpsIndication == 0 )
     {
-        printf( "\r\n###### ========== MLME-Indication ========== ######\r\n" );
-        printf( "STATUS      : %s\r\n", EventInfoStatusStrings[params->Status] );
+        printf( "\n###### ========== MLME-Indication ========== ######\n" );
+        printf( "STATUS      : %s\n", EventInfoStatusStrings[params->Status] );
         return;
     }
 
-    printf( "\r\n###### ========== MCPS-Indication ========== ######\r\n" );
-    printf( "STATUS      : %s\r\n", EventInfoStatusStrings[params->Status] );
+    printf( "\n###### ========== MCPS-Indication ========== ######\n" );
+    printf( "STATUS      : %s\n", EventInfoStatusStrings[params->Status] );
 
-    printf( "\r\n###### =====  DOWNLINK FRAME %8lu  ===== ######\r\n", params->DownlinkCounter );
+    printf( "\n###### =====  DOWNLINK FRAME %8lu  ===== ######\n", params->DownlinkCounter );
 
-    printf( "RX WINDOW   : %s\r\n", slotStrings[params->RxSlot] );
+    printf( "RX WINDOW   : %s\n", slotStrings[params->RxSlot] );
     
-    printf( "RX PORT     : %d\r\n", appData->Port );
+    printf( "RX PORT     : %d\n", appData->Port );
 
     if( appData->BufferSize != 0 )
     {
-        printf( "RX DATA     : \r\n" );
+        printf( "RX DATA     : \n" );
         PrintHexBuffer( appData->Buffer, appData->BufferSize );
     }
 
-    printf( "\r\n" );
-    printf( "DATA RATE   : DR_%d\r\n", params->Datarate );
-    printf( "RX RSSI     : %d\r\n", params->Rssi );
-    printf( "RX SNR      : %d\r\n", params->Snr );
+    printf( "\n" );
+    printf( "DATA RATE   : DR_%d\n", params->Datarate );
+    printf( "RX RSSI     : %d\n", params->Rssi );
+    printf( "RX SNR      : %d\n", params->Snr );
 
-    printf( "\r\n" );
+    printf( "\n" );
 }
 
 void DisplayBeaconUpdate( LoRaMAcHandlerBeaconParams_t *params )
@@ -401,31 +389,31 @@ void DisplayBeaconUpdate( LoRaMAcHandlerBeaconParams_t *params )
         default:
         case LORAMAC_HANDLER_BEACON_ACQUIRING:
         {
-            printf( "\r\n###### ========= BEACON ACQUIRING ========== ######\r\n" );
+            printf( "\n###### ========= BEACON ACQUIRING ========== ######\n" );
             break;
         }
         case LORAMAC_HANDLER_BEACON_LOST:
         {
-            printf( "\r\n###### ============ BEACON LOST ============ ######\r\n" );
+            printf( "\n###### ============ BEACON LOST ============ ######\n" );
             break;
         }
         case LORAMAC_HANDLER_BEACON_RX:
         {
-            printf( "\r\n###### ===== BEACON %8lu ==== ######\r\n", params->Info.Time.Seconds );
-            printf( "GW DESC     : %d\r\n", params->Info.GwSpecific.InfoDesc );
+            printf( "\n###### ===== BEACON %8lu ==== ######\n", params->Info.Time.Seconds );
+            printf( "GW DESC     : %d\n", params->Info.GwSpecific.InfoDesc );
             printf( "GW INFO     : " );
             PrintHexBuffer( params->Info.GwSpecific.Info, 6 );
-            printf( "\r\n" );
-            printf( "FREQ        : %lu\r\n", params->Info.Frequency );
-            printf( "DATA RATE   : DR_%d\r\n", params->Info.Datarate );
-            printf( "RX RSSI     : %d\r\n", params->Info.Rssi );
-            printf( "RX SNR      : %d\r\n", params->Info.Snr );
-            printf( "\r\n" );
+            printf( "\n" );
+            printf( "FREQ        : %lu\n", params->Info.Frequency );
+            printf( "DATA RATE   : DR_%d\n", params->Info.Datarate );
+            printf( "RX RSSI     : %d\n", params->Info.Rssi );
+            printf( "RX SNR      : %d\n", params->Info.Snr );
+            printf( "\n" );
             break;
         }
         case LORAMAC_HANDLER_BEACON_NRX:
         {
-            printf( "\r\n###### ======== BEACON NOT RECEIVED ======== ######\r\n" );
+            printf( "\n###### ======== BEACON NOT RECEIVED ======== ######\n" );
             break;
         }
     }
@@ -433,14 +421,14 @@ void DisplayBeaconUpdate( LoRaMAcHandlerBeaconParams_t *params )
 
 void DisplayClassUpdate( DeviceClass_t deviceClass )
 {
-    printf( "\r\n\r\n###### ===== Switch to Class %c done.  ===== ######\r\n\r\n", "ABC"[deviceClass] );
+    printf( "\n\n###### ===== Switch to Class %c done.  ===== ######\n\n", "ABC"[deviceClass] );
 }
 
 void DisplayAppInfo( const char* appName, const Version_t* appVersion, const Version_t* gitHubVersion )
 {
-    printf( "\r\n###### ===================================== ######\r\n\r\n" );
-    printf( "Application name   : %s\r\n", appName );
-    printf( "Application version: %d.%d.%d\r\n", appVersion->Fields.Major, appVersion->Fields.Minor, appVersion->Fields.Patch );
-    printf( "GitHub base version: %d.%d.%d\r\n", gitHubVersion->Fields.Major, gitHubVersion->Fields.Minor, gitHubVersion->Fields.Patch );
-    printf( "\r\n###### ===================================== ######\r\n\r\n" );
+    printf( "\n###### ===================================== ######\n\n" );
+    printf( "Application name   : %s\n", appName );
+    printf( "Application version: %d.%d.%d\n", appVersion->Fields.Major, appVersion->Fields.Minor, appVersion->Fields.Patch );
+    printf( "GitHub base version: %d.%d.%d\n", gitHubVersion->Fields.Major, gitHubVersion->Fields.Minor, gitHubVersion->Fields.Patch );
+    printf( "\n###### ===================================== ######\n\n" );
 }

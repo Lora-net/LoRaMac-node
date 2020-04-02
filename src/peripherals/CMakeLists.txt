@@ -22,17 +22,24 @@ cmake_minimum_required(VERSION 3.6)
 # Target
 #---------------------------------------------------------------------------------------
 
-file(GLOB ${PROJECT_NAME}_SOURCES "*.c"
-                                  "soft-se/*.c")
+if(${SECURE_ELEMENT} MATCHES SOFT_SE)
+    file(GLOB ${PROJECT_NAME}_SOURCES "*.c" "soft-se/*.c")
+else()
+    message(FATAL_ERROR "No secure-element selected.")
+endif()
 
 add_library(${PROJECT_NAME} OBJECT EXCLUDE_FROM_ALL ${${PROJECT_NAME}_SOURCES})
 
+if(${SECURE_ELEMENT} MATCHES SOFT_SE)
+    target_include_directories( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/soft-se)
+endif()
+
 target_include_directories( ${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/soft-se
     $<TARGET_PROPERTY:board,INTERFACE_INCLUDE_DIRECTORIES>
     $<TARGET_PROPERTY:system,INTERFACE_INCLUDE_DIRECTORIES>
     $<TARGET_PROPERTY:mac,INTERFACE_INCLUDE_DIRECTORIES>
+    $<TARGET_PROPERTY:radio,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 11)
