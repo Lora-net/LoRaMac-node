@@ -3520,6 +3520,11 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t* mibGet )
             mibGet->Param.JoinEui = SecureElementGetJoinEui( );
             break;
         }
+        case MIB_SE_PIN:
+        {
+            mibGet->Param.JoinEui = SecureElementGetPin( );
+            break;
+        }
         case MIB_ADR:
         {
             mibGet->Param.AdrEnable = MacCtx.NvmCtx->AdrCtrlOn;
@@ -3719,6 +3724,14 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
         case MIB_JOIN_EUI:
         {
             if( SecureElementSetJoinEui( mibSet->Param.JoinEui ) != SECURE_ELEMENT_SUCCESS )
+            {
+                status = LORAMAC_STATUS_PARAMETER_INVALID;
+            }
+            break;
+        }
+        case MIB_SE_PIN:
+        {
+            if( SecureElementSetPin( mibSet->Param.SePin ) != SECURE_ELEMENT_SUCCESS )
             {
                 status = LORAMAC_STATUS_PARAMETER_INVALID;
             }

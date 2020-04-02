@@ -121,6 +121,10 @@ typedef struct sSecureElementNvCtx
      */
     uint8_t JoinEui[SE_EUI_SIZE];
     /*
+     * Pin storage
+     */
+    uint8_t Pin[SE_PIN_SIZE];
+    /*
      * AES computation context variable
      */
     aes_context AesContext;
@@ -150,6 +154,10 @@ static SecureElementNvCtx_t SeNvmCtx =
      * App/Join server IEEE EUI (big endian)
      */
     .JoinEui = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
+    /*!
+     * Secure-element pin (big endian)
+     */
+    .Pin = { 0x12, 0x34, 0x56, 0x78 },
     .KeyList = 
     {
         {
@@ -688,4 +696,21 @@ SecureElementStatus_t SecureElementSetJoinEui( uint8_t* joinEui )
 uint8_t* SecureElementGetJoinEui( void )
 {
     return SeNvmCtx.JoinEui;
+}
+
+SecureElementStatus_t SecureElementSetPin( uint8_t* pin )
+{
+    if( pin == NULL )
+    {
+        return SECURE_ELEMENT_ERROR_NPE;
+    }
+
+    memcpy1( SeNvmCtx.Pin, pin, SE_PIN_SIZE );
+    SeNvmCtxChanged( );
+    return SECURE_ELEMENT_SUCCESS;
+}
+
+uint8_t* SecureElementGetPin( void )
+{
+    return SeNvmCtx.Pin;
 }
