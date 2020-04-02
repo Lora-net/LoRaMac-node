@@ -131,17 +131,10 @@ void DisplayNetworkParametersUpdate( CommissioningParams_t *commissioningParams 
         printf( "-%02X", commissioningParams->DevEui[i] );
     }
     printf( "\n" );
-    printf( "AppEui      : %02X", commissioningParams->JoinEui[0] );
+    printf( "JoinEui     : %02X", commissioningParams->JoinEui[0] );
     for( int i = 1; i < 8; i++ )
     {
         printf( "-%02X", commissioningParams->JoinEui[i] );
-    }
-    printf( "\n" );
-    // For 1.0.x devices the AppKey corresponds to NwkKey
-    printf( "AppKey      : %02X", commissioningParams->NwkKey[0] );
-    for( int i = 1; i < 16; i++ )
-    {
-        printf( " %02X", commissioningParams->NwkKey[i] );
     }
     printf( "\n\n" );
 }
@@ -259,17 +252,6 @@ void DisplayJoinRequestUpdate( LmHandlerJoinParams_t *params )
         printf( "###### ===========   JOINED     ============ ######\n" );
         printf( "\nABP\n\n" );
         printf( "DevAddr     : %08lX\n", params->CommissioningParams->DevAddr );
-        printf( "NwkSKey     : %02X", params->CommissioningParams->FNwkSIntKey[0] );
-        for( int i = 1; i < 16; i++ )
-        {
-            printf( " %02X", params->CommissioningParams->FNwkSIntKey[i] );
-        }
-        printf( "\n" );
-        printf( "AppSKey     : %02X", params->CommissioningParams->AppSKey[0] );
-        for( int i = 1; i < 16; i++ )
-        {
-            printf( " %02X", params->CommissioningParams->AppSKey[i] );
-        }
         printf( "\n\n" );
     }
 #endif

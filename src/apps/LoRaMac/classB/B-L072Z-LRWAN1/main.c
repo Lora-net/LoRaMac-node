@@ -1451,33 +1451,16 @@ int main( void )
                 printf( "\n" );
                 mibReq.Type = MIB_JOIN_EUI;
                 LoRaMacMibGetRequestConfirm( &mibReq );
-                printf( "AppEui      : %02X", mibReq.Param.JoinEui[0] );
+                printf( "JoinEui     : %02X", mibReq.Param.JoinEui[0] );
                 for( int i = 1; i < 8; i++ )
                 {
                     printf( "-%02X", mibReq.Param.JoinEui[i] );
-                }
-                printf( "\n" );
-                printf( "AppKey      : %02X", NwkKey[0] );
-                for( int i = 1; i < 16; i++ )
-                {
-                    printf( " %02X", NwkKey[i] );
                 }
                 printf( "\n\n" );
 #if( OVER_THE_AIR_ACTIVATION == 0 )
                 printf( "###### ===== JOINED ==== ######\n" );
                 printf( "\nABP\n\n" );
                 printf( "DevAddr     : %08lX\n", DevAddr );
-                printf( "NwkSKey     : %02X", FNwkSIntKey[0] );
-                for( int i = 1; i < 16; i++ )
-                {
-                    printf( " %02X", FNwkSIntKey[i] );
-                }
-                printf( "\n" );
-                printf( "AppSKey     : %02X", AppSKey[0] );
-                for( int i = 1; i < 16; i++ )
-                {
-                    printf( " %02X", AppSKey[i] );
-                }
                 printf( "\n\n" );
 
                 mibReq.Type = MIB_NETWORK_ACTIVATION;
