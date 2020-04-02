@@ -39,6 +39,9 @@ if((SUB_PROJECT STREQUAL classB OR SUB_PROJECT STREQUAL periodic-uplink-lpp OR S
     message(FATAL_ERROR "Please turn on Class B support of LoRaMac ( CLASSB_ENABLED=ON ) to use Class B, periodic-uplink-lpp, fuota-test-01 sub projects")
 endif()
 
+# Allow selection of secure-element provisioning method
+option(SECURE_ELEMENT_PRE_PROVISIONED "Secure-element pre-provisioning" ON)
+
 if(SUB_PROJECT STREQUAL periodic-uplink-lpp)
 
     #---------------------------------------------------------------------------------------
@@ -138,7 +141,9 @@ add_executable(${PROJECT_NAME}-${SUB_PROJECT}
 
 target_compile_definitions(${PROJECT_NAME}-${SUB_PROJECT} PRIVATE $<$<BOOL:${CLASSB_ENABLED}>:LORAMAC_CLASSB_ENABLED>)
 target_compile_definitions(${PROJECT_NAME}-${SUB_PROJECT} PRIVATE ACTIVE_REGION=${ACTIVE_REGION})
-
+if(${SECURE_ELEMENT_PRE_PROVISIONED} MATCHES ON)
+    target_compile_definitions(${PROJECT_NAME}-${SUB_PROJECT} PRIVATE -DSECURE_ELEMENT_PRE_PROVISIONED)
+endif()
 target_compile_definitions(${PROJECT_NAME}-${SUB_PROJECT}  PUBLIC
     $<BUILD_INTERFACE:$<TARGET_PROPERTY:mac,INTERFACE_COMPILE_DEFINITIONS>>
 )
