@@ -52,6 +52,13 @@
         // SX1272MB2DAS, SX1276MB1LAS, SX1276MB1MAS, SX1261MBXBAS(Default), SX1262MBXCAS, SX1262MBXDAS.
         "MBED_RADIO_SHIELD":"SX1261MBXBAS",
 
+        // Secure element type selection the follwing are supported
+        // SOFT_SE(Default)
+        "SECURE_ELEMENT":"SOFT_SE",
+
+        // Secure element is pre-provisioned
+        "SECURE_ELEMENT_PRE_PROVISIONED":"ON",
+
         // Region support activation, Select the ones you want to support.
         // By default only REGION_EU868 support is enabled.
         "REGION_EU868":"ON",
