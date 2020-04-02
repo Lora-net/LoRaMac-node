@@ -24,6 +24,8 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ),
 #include "utilities.h"
 #include "aes.h"
 #include "cmac.h"
+
+#include "board.h"
 #include "radio.h"
 
 #include "LoRaMacHeaderTypes.h"
@@ -425,6 +427,8 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmEvent seNvmCtxChanged )
         SeNvmCtxChanged = DummyCB;
     }
 
+    // Get a DevEUI from MCU unique ID
+    BoardGetUniqueId( SeNvmCtx.DevEui );
     return SECURE_ELEMENT_SUCCESS;
 }
 
