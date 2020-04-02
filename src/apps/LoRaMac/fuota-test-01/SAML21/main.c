@@ -485,12 +485,12 @@ static void OnFragProgress( uint16_t fragCounter, uint16_t fragNb, uint8_t fragS
     GpioWrite( &Led1, 0 );
     TimerStart( &Led1Timer );
 
-    printf( "\r\n###### =========== FRAG_DECODER ============ ######\r\n" );
-    printf( "######               PROGRESS                ######\r\n");
-    printf( "###### ===================================== ######\r\n");
-    printf( "RECEIVED    : %5d / %5d Fragments\r\n", fragCounter, fragNb );
-    printf( "              %5d / %5d Bytes\r\n", fragCounter * fragSize, fragNb * fragSize );
-    printf( "LOST        :       %7d Fragments\r\n\r\n", fragNbLost );
+    printf( "\n###### =========== FRAG_DECODER ============ ######\n" );
+    printf( "######               PROGRESS                ######\n");
+    printf( "###### ===================================== ######\n");
+    printf( "RECEIVED    : %5d / %5d Fragments\n", fragCounter, fragNb );
+    printf( "              %5d / %5d Bytes\n", fragCounter * fragSize, fragNb * fragSize );
+    printf( "LOST        :       %7d Fragments\n\n", fragNbLost );
 }
 
 #if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
@@ -501,11 +501,11 @@ static void OnFragDone( int32_t status, uint32_t size )
     // Switch LED 1 OFF
     GpioWrite( &Led1, 0 );
 
-    printf( "\r\n###### =========== FRAG_DECODER ============ ######\r\n" );
-    printf( "######               FINISHED                ######\r\n");
-    printf( "###### ===================================== ######\r\n");
-    printf( "STATUS      : %ld\r\n", status );
-    printf( "CRC         : %08lX\r\n\r\n", FileRxCrc );
+    printf( "\n###### =========== FRAG_DECODER ============ ######\n" );
+    printf( "######               FINISHED                ######\n");
+    printf( "###### ===================================== ######\n");
+    printf( "STATUS      : %ld\n", status );
+    printf( "CRC         : %08lX\n\n", FileRxCrc );
 }
 #else
 static void OnFragDone( int32_t status, uint8_t *file, uint32_t size )
@@ -515,11 +515,11 @@ static void OnFragDone( int32_t status, uint8_t *file, uint32_t size )
     // Switch LED 1 OFF
     GpioWrite( &Led1, 0 );
 
-    printf( "\r\n###### =========== FRAG_DECODER ============ ######\r\n" );
-    printf( "######               FINISHED                ######\r\n");
-    printf( "###### ===================================== ######\r\n");
-    printf( "STATUS      : %ld\r\n", status );
-    printf( "CRC         : %08lX\r\n\r\n", FileRxCrc );
+    printf( "\n###### =========== FRAG_DECODER ============ ######\n" );
+    printf( "######               FINISHED                ######\n");
+    printf( "###### ===================================== ######\n");
+    printf( "STATUS      : %ld\n", status );
+    printf( "CRC         : %08lX\n\n", FileRxCrc );
 }
 #endif
 

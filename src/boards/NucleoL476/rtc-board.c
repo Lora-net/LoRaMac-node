@@ -468,7 +468,7 @@ void RtcSetMcuWakeUpTime( void )
 
         mcuWakeUpTime = ( int16_t )( ( now - hit ) );
         McuWakeUpTimeCal += mcuWakeUpTime;
-        //PRINTF( 3, "Cal=%d, %d\n\r", McuWakeUpTimeCal, mcuWakeUpTime);
+        //PRINTF( 3, "Cal=%d, %d\n", McuWakeUpTimeCal, mcuWakeUpTime);
     }
 }
 

@@ -654,9 +654,9 @@ static void FragFindMissingFrags( uint16_t counter )
     {
         FragDecoder.Status.FragNbLastRx = FragDecoder.FragNb + 1;
     }
-    DBG( "RECEIVED    : %5d / %5d Fragments\r\n", FragDecoder.Status.FragNbRx, FragDecoder.FragNb );
-    DBG( "              %5d / %5d Bytes\r\n", FragDecoder.Status.FragNbRx * FragDecoder.FragSize, FragDecoder.FragNb * FragDecoder.FragSize );
-    DBG( "LOST        :       %7d Fragments\r\n\r\n", FragDecoder.Status.FragNbLost );
+    DBG( "RECEIVED    : %5d / %5d Fragments\n", FragDecoder.Status.FragNbRx, FragDecoder.FragNb );
+    DBG( "              %5d / %5d Bytes\n", FragDecoder.Status.FragNbRx * FragDecoder.FragSize, FragDecoder.FragNb * FragDecoder.FragSize );
+    DBG( "LOST        :       %7d Fragments\n\n", FragDecoder.Status.FragNbLost );
 }
 
 /*!
