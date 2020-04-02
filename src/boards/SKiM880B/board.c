@@ -565,6 +565,8 @@ int _read( int fd, const void *buf, size_t count )
 
 #else
 
+#include <stdio.h>
+
 // Keil compiler
 int fputc( int c, FILE *stream )
 {
@@ -584,6 +586,9 @@ int fgetc( FILE *stream )
 #endif
 
 #ifdef USE_FULL_ASSERT
+
+#include <stdio.h>
+
 /*
  * Function Name  : assert_failed
  * Description    : Reports the name of the source file and the source line number

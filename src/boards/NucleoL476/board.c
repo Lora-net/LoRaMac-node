@@ -561,6 +561,8 @@ int _read( int fd, const void *buf, size_t count )
 
 #else
 
+#include <stdio.h>
+
 // Keil compiler
 int fputc( int c, FILE *stream )
 {

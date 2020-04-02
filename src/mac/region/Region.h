@@ -62,6 +62,7 @@ extern "C"
 #include "utilities.h"
 #include "LoRaMac.h"
 #include "timer.h"
+#include "RegionCommon.h"
 
 /*!
  * Macro to compute bit of a channel index.

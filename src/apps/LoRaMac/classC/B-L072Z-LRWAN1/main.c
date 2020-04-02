@@ -1017,8 +1017,11 @@ int main( void )
         .Address = localMcAddress,
         .McKeys =
         {
-            .McAppSKey = localMcAppSKey,
-            .McNwkSKey = localMcNwkSKey,
+            .Session =
+            {
+                .McAppSKey = localMcAppSKey,
+                .McNwkSKey = localMcNwkSKey,
+            },
         },
         .FCountMin = 0,
         .FCountMax = UINT32_MAX,

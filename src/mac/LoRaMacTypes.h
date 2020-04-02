@@ -375,7 +375,7 @@ typedef struct sMcChannelParams
              * Multicast network session key
              */
             uint8_t *McNwkSKey;
-        };
+        }Session;
     }McKeys;
     /*!
      * Minimum multicast frame counter value
