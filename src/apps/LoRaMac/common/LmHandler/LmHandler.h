@@ -309,6 +309,15 @@ int8_t LmHandlerGetCurrentDatarate( void );
  */
 LoRaMacRegion_t LmHandlerGetActiveRegion( void );
 
+/*!
+ * Set system maximum tolerated rx error in milliseconds
+ *
+ * \param [IN] maxErrorInMs Maximum tolerated error in milliseconds
+ *
+ * \retval status Returns \ref LORAMAC_HANDLER_SUCCESS if request has been
+ *                processed else \ref LORAMAC_HANDLER_ERROR
+ */
+LmHandlerErrorStatus_t LmHandlerSetSystemMaxRxError( uint32_t maxErrorInMs );
 
 /*
  *=============================================================================

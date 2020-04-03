@@ -320,6 +320,9 @@ int main( void )
         }
     }
 
+    // Set system maximum tolerated rx error in milliseconds
+    LmHandlerSetSystemMaxRxError( 20 );
+
     // The LoRa-Alliance Compliance protocol package should always be
     // initialized and activated.
     LmHandlerPackageRegister( PACKAGE_ID_COMPLIANCE, &LmhpComplianceParams );
@@ -374,7 +377,7 @@ static void OnNetworkParametersChange( CommissioningParams_t* params )
 
 static void OnMacMcpsRequest( LoRaMacStatus_t status, McpsReq_t *mcpsReq, TimerTime_t nextTxIn )
 {
-    DisplayMacMcpsRequestUpdate( status, mcpsReq, nextTxIn);
+    DisplayMacMcpsRequestUpdate( status, mcpsReq, nextTxIn );
 }
 
 static void OnMacMlmeRequest( LoRaMacStatus_t status, MlmeReq_t *mlmeReq, TimerTime_t nextTxIn )
