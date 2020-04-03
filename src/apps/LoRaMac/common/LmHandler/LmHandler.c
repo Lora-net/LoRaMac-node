@@ -302,10 +302,6 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
 
     LoRaMacTestSetDutyCycleOn( LmHandlerParams->DutyCycleEnabled );
 
-    mibReq.Type = MIB_SYSTEM_MAX_RX_ERROR;
-    mibReq.Param.SystemMaxRxError = 20;
-    LoRaMacMibSetRequestConfirm( &mibReq );
-
     LoRaMacStart( );
 
     mibReq.Type = MIB_NETWORK_ACTIVATION;
@@ -658,6 +654,19 @@ int8_t LmHandlerGetCurrentDatarate( void )
 LoRaMacRegion_t LmHandlerGetActiveRegion( void )
 {
     return LmHandlerParams->Region;
+}
+
+LmHandlerErrorStatus_t LmHandlerSetSystemMaxRxError( uint32_t maxErrorInMs )
+{
+    MibRequestConfirm_t mibReq;
+
+    mibReq.Type = MIB_SYSTEM_MAX_RX_ERROR;
+    mibReq.Param.SystemMaxRxError = maxErrorInMs;
+    if( LoRaMacMibSetRequestConfirm( &mibReq ) != LORAMAC_STATUS_OK )
+    {
+        return LORAMAC_HANDLER_ERROR;
+    }
+    return LORAMAC_HANDLER_SUCCESS;
 }
 
 /*
