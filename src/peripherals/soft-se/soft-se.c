@@ -30,8 +30,6 @@
 #include "aes.h"
 #include "cmac.h"
 
-#include "radio.h"
-
 #include "LoRaMacHeaderTypes.h"
 
 #include "secure-element.h"
@@ -472,7 +470,7 @@ SecureElementStatus_t SecureElementRandomNumber( uint32_t* randomNum )
     {
         return SECURE_ELEMENT_ERROR_NPE;
     }
-    *randomNum = Radio.Random( );
+    *randomNum = SoftSeHalGetRandomNumber( );
     return SECURE_ELEMENT_SUCCESS;
 }
 
