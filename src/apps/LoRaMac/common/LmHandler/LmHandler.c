@@ -49,8 +49,9 @@
 static CommissioningParams_t CommissioningParams =
 {
     .IsOtaaActivation = OVER_THE_AIR_ACTIVATION,
-    .DevEui = LORAWAN_DEVICE_EUI,
-    .JoinEui = LORAWAN_JOIN_EUI,
+    .DevEui = { 0 },  // Automatically filed from secure-element
+    .JoinEui = { 0 }, // Automatically filed from secure-element
+    .SePin = { 0 },   // Automatically filed from secure-element
     .NetworkId = LORAWAN_NETWORK_ID,
     .DevAddr = LORAWAN_DEVICE_ADDRESS,
 };
@@ -240,35 +241,18 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
     }
     else
     {
-#if defined( SECURE_ELEMENT_PRE_PROVISIONED )
+        // Read secure-element DEV_EUI, JOI_EUI and SE_PIN values.
+        mibReq.Type = MIB_DEV_EUI;
+        LoRaMacMibGetRequestConfirm( &mibReq );
+        memcpy1( CommissioningParams.DevEui, mibReq.Param.DevEui, 8 );
 
-    mibReq.Type = MIB_DEV_EUI;
-    LoRaMacMibGetRequestConfirm( &mibReq );
-    memcpy1( CommissioningParams.DevEui, mibReq.Param.DevEui, 8 );
+        mibReq.Type = MIB_JOIN_EUI;
+        LoRaMacMibGetRequestConfirm( &mibReq );
+        memcpy1( CommissioningParams.JoinEui, mibReq.Param.JoinEui, 8 );
 
-    mibReq.Type = MIB_JOIN_EUI;
-    LoRaMacMibGetRequestConfirm( &mibReq );
-    memcpy1( CommissioningParams.JoinEui, mibReq.Param.JoinEui, 8 );
-
-    mibReq.Type = MIB_SE_PIN;
-    LoRaMacMibGetRequestConfirm( &mibReq );
-    memcpy1( CommissioningParams.SePin, mibReq.Param.SePin, 4 );
-
-#else
-
-    mibReq.Type = MIB_DEV_EUI;
-    mibReq.Param.DevEui = CommissioningParams.DevEui;
-    LoRaMacMibSetRequestConfirm( &mibReq );
-
-    mibReq.Type = MIB_JOIN_EUI;
-    mibReq.Param.JoinEui = CommissioningParams.JoinEui;
-    LoRaMacMibSetRequestConfirm( &mibReq );
-
-    mibReq.Type = MIB_SE_PIN;
-    mibReq.Param.SePin = CommissioningParams.SePin;
-    LoRaMacMibSetRequestConfirm( &mibReq );
-
-#endif // #if defined( SECURE_ELEMENT_PRE_PROVISIONED )
+        mibReq.Type = MIB_SE_PIN;
+        LoRaMacMibGetRequestConfirm( &mibReq );
+        memcpy1( CommissioningParams.SePin, mibReq.Param.SePin, 4 );
 
 #if( OVER_THE_AIR_ACTIVATION == 0 )
         // Tell the MAC layer which network server version are we connecting too.

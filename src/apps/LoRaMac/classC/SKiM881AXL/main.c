@@ -963,9 +963,9 @@ int main( void )
     LoRaMacCallback_t macCallbacks;
     MibRequestConfirm_t mibReq;
     LoRaMacStatus_t status;
-    uint8_t devEui[] = LORAWAN_DEVICE_EUI;
-    uint8_t joinEui[] = LORAWAN_JOIN_EUI;
-    uint8_t sePin[] = SECURE_ELEMENT_PIN;
+    uint8_t devEui[] = { 0 };  // Automatically filed from secure-element
+    uint8_t joinEui[] = { 0 }; // Automatically filed from secure-element
+    uint8_t sePin[] = { 0 };   // Automatically filed from secure-element
 
     BoardInitMcu( );
     BoardInitPeriph( );
@@ -1110,8 +1110,7 @@ int main( void )
                 }
                 else
                 {
-#if defined( SECURE_ELEMENT_PRE_PROVISIONED )
-
+                    // Read secure-element DEV_EUI, JOI_EUI and SE_PIN values.
                     mibReq.Type = MIB_DEV_EUI;
                     LoRaMacMibGetRequestConfirm( &mibReq );
                     memcpy1( devEui, mibReq.Param.DevEui, 8 );
@@ -1123,21 +1122,6 @@ int main( void )
                     mibReq.Type = MIB_SE_PIN;
                     LoRaMacMibGetRequestConfirm( &mibReq );
                     memcpy1( sePin, mibReq.Param.SePin, 4 );
-
-#else
-                    mibReq.Type = MIB_DEV_EUI;
-                    mibReq.Param.DevEui = devEui;
-                    LoRaMacMibSetRequestConfirm( &mibReq );
-
-                    mibReq.Type = MIB_JOIN_EUI;
-                    mibReq.Param.JoinEui = joinEui;
-                    LoRaMacMibSetRequestConfirm( &mibReq );
-
-                    mibReq.Type = MIB_SE_PIN;
-                    mibReq.Param.SePin = sePin;
-                    LoRaMacMibSetRequestConfirm( &mibReq );
-#endif // #if defined( SECURE_ELEMENT_PRE_PROVISIONED )
-
 #if( OVER_THE_AIR_ACTIVATION == 0 )
                     // Tell the MAC layer which network server version are we connecting too.
                     mibReq.Type = MIB_ABP_LORAWAN_VERSION;

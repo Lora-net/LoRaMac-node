@@ -47,6 +47,11 @@ extern "C"
 #include "LoRaMacCrypto.h"
 
 /*!
+ * Secure-element keys size in bytes
+ */
+#define SE_KEY_SIZE             16
+
+/*!
  * Secure-element EUI size in bytes
  */
 #define SE_EUI_SIZE             8
