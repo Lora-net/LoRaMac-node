@@ -27,12 +27,14 @@
  The LoRaWAN AES128 keys are stored and provisionned on secure-elements.
  
  This project providdes a software emulated secure-element.
- The LoRaWAN AES128 keys SHALL be updated under src/peripherals/soft-se.c file.
+ The LoRaWAN AES128 keys SHALL be updated under 
+ src/peripherals/<secure-element name>-se\se-identity.h file.
 
  ******************************************************************************
  ******************************************************************************
  ******************************************************************************
  */
+#include "se-identity.h"
 
 /*!
  * When set to 1 the application uses the Over-the-Air activation procedure
@@ -55,43 +57,8 @@
 #define LORAWAN_PUBLIC_NETWORK                             true
 
 /*!
- * end-device IEEE EUI (big endian)
- *
- * \remark If SOFT_SE and SECURE_ELEMENT_PRE_PROVISIONED are defined the device
- *         EUI is generated from BoardUniqueId value.
- */
-#define LORAWAN_DEVICE_EUI                                 { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
-
-/*!
- * App/Join server IEEE EUI (big endian)
- */
-#define LORAWAN_JOIN_EUI                                   { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
-
-/*!
- * Secure-element pin
- */
-#define SECURE_ELEMENT_PIN                                 { 0x00, 0x00, 0x00, 0x00 }
-
-/*!
  * Current network ID
  */
 #define LORAWAN_NETWORK_ID                                 ( uint32_t )0
-
-/*!
- * When set to 1 DevAdd is LORAWAN_DEVICE_ADDRESS
- * When set to 0 DevAdd is automatically generated using
- *         a pseudo random generator seeded with a value derived from
- *         BoardUniqueId value
- */
-#define STATIC_DEVICE_ADDRESS                              0
-
-/*!
- * Device address on the network (big endian)
- *
- * \remark In this application the value is automatically generated using
- *         a pseudo random generator seeded with a value derived from
- *         BoardUniqueId value if LORAWAN_DEVICE_ADDRESS is set to 0
- */
-#define LORAWAN_DEVICE_ADDRESS                             ( uint32_t )0x00000000
 
 #endif // __COMMISSIONING_H__
