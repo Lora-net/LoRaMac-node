@@ -167,11 +167,6 @@ typedef enum eKeyIdentifier
      */
     APP_KEY = 0,
     /*!
-     * Application root key
-     * Used to derive McRootKey for 1.0.x devices
-     */
-    GEN_APP_KEY,
-    /*!
      * Network root key
      */
     NWK_KEY,

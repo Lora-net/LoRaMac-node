@@ -285,15 +285,15 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSecureMessage( uint32_t fCntUp, uint8_t txDr,
 LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, uint32_t address, FCntIdentifier_t fCntID, uint32_t fCntDown, LoRaMacMessageData_t* macMsg );
 
 /*!
- * Derives the McRootKey from the GenAppKey or AppKey.
+ * Derives the McRootKey from the AppKey.
  *
  * 1.0.x
- * McRootKey = aes128_encrypt(GenAppKey , 0x00 | pad16)
+ * McRootKey = aes128_encrypt(AppKey, 0x00 | pad16)
  *
  * 1.1.x
- * McRootKey = aes128_encrypt(AppKey , 0x20 | pad16)
+ * McRootKey = aes128_encrypt(AppKey, 0x20 | pad16)
  *
- * \param[IN]     keyID           - Key identifier of the root key to use to perform the derivation ( GenAppKey or AppKey )
+ * \param[IN]     keyID           - Key identifier of the root key to use to perform the derivation ( AppKey )
  * \retval                        - Status of the operation
  */
 LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcRootKey( KeyIdentifier_t keyID );

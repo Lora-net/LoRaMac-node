@@ -1075,7 +1075,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSetKey( KeyIdentifier_t keyID, uint8_t* key )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
-    if( ( keyID == GEN_APP_KEY ) || ( keyID == APP_KEY ) )
+    if( keyID == APP_KEY )
     {
         // Derive lifetime keys
         if( LoRaMacCryptoDeriveMcRootKey( keyID ) != LORAMAC_CRYPTO_SUCCESS )
@@ -1362,7 +1362,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
 #endif
     {
         // Operating in LoRaWAN 1.0.x mode
-        retval = LoRaMacCryptoDeriveMcRootKey( GEN_APP_KEY );
+        retval = LoRaMacCryptoDeriveMcRootKey( APP_KEY );
         if( retval != LORAMAC_CRYPTO_SUCCESS )
         {
             return retval;
@@ -1592,9 +1592,8 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
 
 LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcRootKey( KeyIdentifier_t keyID )
 {
-    // Prevent other keys than GenAppKey for LoRaWAN 1.0.x or AppKey for LoRaWAN 1.1 or later
-    if( ( ( keyID == APP_KEY ) && ( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor == 0 ) ) ||
-        ( ( keyID == GEN_APP_KEY ) && ( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor == 1 ) ) )
+    // Prevent other keys than AppKey
+    if( keyID != APP_KEY )
     {
         return LORAMAC_CRYPTO_ERROR_INVALID_KEY_ID;
     }

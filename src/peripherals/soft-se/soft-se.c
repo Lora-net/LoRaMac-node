@@ -39,7 +39,7 @@
 /*!
  * Number of supported crypto keys
  */
-#define NUM_OF_KEYS 24
+#define NUM_OF_KEYS 23
 
 /*!
  * Size of JoinReqType is field for integrity check
@@ -375,10 +375,10 @@ SecureElementStatus_t SecureElementDeriveAndStoreKey( Version_t version, uint8_t
     SecureElementStatus_t retval  = SECURE_ELEMENT_ERROR;
     uint8_t               key[16] = { 0 };
 
-    // In case of MC_KE_KEY, prevent other keys than NwkKey or AppKey for LoRaWAN 1.1 or later
+    // In case of MC_KE_KEY, only McRootKey can be used as root key
     if( targetKeyID == MC_KE_KEY )
     {
-        if( ( ( rootKeyID == APP_KEY ) && ( version.Fields.Minor == 0 ) ) || ( rootKeyID == NWK_KEY ) )
+        if( rootKeyID != MC_ROOT_KEY )
         {
             return SECURE_ELEMENT_ERROR_INVALID_KEY_ID;
         }
