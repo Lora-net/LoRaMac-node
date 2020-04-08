@@ -63,10 +63,13 @@ extern "C" {
  */
 
 /*!
+ * When set to 1 DevEui is LORAWAN_DEVICE_EUI
+ * When set to 0 DevEui is automatically set with a value provided by MCU platform
+ */
+#define STATIC_DEVICE_EUI                                  0
+
+/*!
  * end-device IEEE EUI (big endian)
- *
- * \remark If SOFT_SE and SECURE_ELEMENT_PRE_PROVISIONED are defined the device
- *         EUI is generated from BoardUniqueId value.
  */
 #define LORAWAN_DEVICE_EUI                                 { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
 
@@ -81,19 +84,14 @@ extern "C" {
 #define SECURE_ELEMENT_PIN                                 { 0x00, 0x00, 0x00, 0x00 }
 
 /*!
- * When set to 1 DevAdd is LORAWAN_DEVICE_ADDRESS
- * When set to 0 DevAdd is automatically generated using
- *         a pseudo random generator seeded with a value derived from
- *         BoardUniqueId value
+ * When set to 1 DevAddr is LORAWAN_DEVICE_ADDRESS
+ * When set to 0 DevAddr is automatically set with a value provided by a pseudo
+ *      random generator seeded with a value provided by the MCU platform
  */
 #define STATIC_DEVICE_ADDRESS                              0
 
 /*!
  * Device address on the network (big endian)
- *
- * \remark In this application the value is automatically generated using
- *         a pseudo random generator seeded with a value derived from
- *         BoardUniqueId value if LORAWAN_DEVICE_ADDRESS is set to 0
  */
 #define LORAWAN_DEVICE_ADDRESS                             ( uint32_t )0x00000000
 
