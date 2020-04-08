@@ -231,9 +231,11 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmEvent seNvmCtxChanged )
     }
 
 #if !defined( SECURE_ELEMENT_PRE_PROVISIONED )
+#if( STATIC_DEVICE_EUI == 0 )
     // Get a DevEUI from MCU unique ID
     SoftSeHalGetUniqueId( SeNvmCtx.DevEui );
     SecureElementSetDevEui( SeNvmCtx.DevEui );
+#endif
 #endif
     return SECURE_ELEMENT_SUCCESS;
 }
