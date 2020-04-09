@@ -53,7 +53,7 @@
         "MBED_RADIO_SHIELD":"SX1261MBXBAS",
 
         // Secure element type selection the follwing are supported
-        // SOFT_SE(Default), LR1110_SE
+        // SOFT_SE(Default), LR1110_SE, ATECC608A_TNGLORA_SE
         "SECURE_ELEMENT":"SOFT_SE",
 
         // Secure element is pre-provisioned
