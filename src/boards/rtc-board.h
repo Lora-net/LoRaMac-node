@@ -35,22 +35,22 @@ extern "C"
 /*!
  * \brief Temperature coefficient of the clock source
  */
-#define RTC_TEMP_COEFFICIENT                            ( -0.035 )
+#define RTC_TEMP_COEFFICIENT                            ( -0.035f )
 
 /*!
  * \brief Temperature coefficient deviation of the clock source
  */
-#define RTC_TEMP_DEV_COEFFICIENT                        ( 0.0035 )
+#define RTC_TEMP_DEV_COEFFICIENT                        ( 0.0035f )
 
 /*!
  * \brief Turnover temperature of the clock source
  */
-#define RTC_TEMP_TURNOVER                               ( 25.0 )
+#define RTC_TEMP_TURNOVER                               ( 25.0f )
 
 /*!
  * \brief Turnover temperature deviation of the clock source
  */
-#define RTC_TEMP_DEV_TURNOVER                           ( 5.0 )
+#define RTC_TEMP_DEV_TURNOVER                           ( 5.0f )
 
 /*!
  * \brief Initializes the RTC timer

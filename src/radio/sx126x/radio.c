@@ -262,7 +262,7 @@ int16_t RadioRssi( RadioModems_t modem );
  * \param [IN]: addr Register address
  * \param [IN]: data New register value
  */
-void RadioWrite( uint16_t addr, uint8_t data );
+void RadioWrite( uint32_t addr, uint8_t data );
 
 /*!
  * \brief Reads the radio register at the specified address
@@ -270,7 +270,7 @@ void RadioWrite( uint16_t addr, uint8_t data );
  * \param [IN]: addr Register address
  * \retval data Register value
  */
-uint8_t RadioRead( uint16_t addr );
+uint8_t RadioRead( uint32_t addr );
 
 /*!
  * \brief Writes multiple radio registers starting at address
@@ -279,7 +279,7 @@ uint8_t RadioRead( uint16_t addr );
  * \param [IN] buffer Buffer containing the new register's values
  * \param [IN] size   Number of registers to be written
  */
-void RadioWriteBuffer( uint16_t addr, uint8_t *buffer, uint8_t size );
+void RadioWriteBuffer( uint32_t addr, uint8_t *buffer, uint8_t size );
 
 /*!
  * \brief Reads multiple radio registers starting at address
@@ -288,7 +288,7 @@ void RadioWriteBuffer( uint16_t addr, uint8_t *buffer, uint8_t size );
  * \param [OUT] buffer Buffer where to copy the registers data
  * \param [IN] size Number of registers to be read
  */
-void RadioReadBuffer( uint16_t addr, uint8_t *buffer, uint8_t size );
+void RadioReadBuffer( uint32_t addr, uint8_t *buffer, uint8_t size );
 
 /*!
  * \brief Sets the maximum payload length.
@@ -1123,22 +1123,22 @@ int16_t RadioRssi( RadioModems_t modem )
     return SX126xGetRssiInst( );
 }
 
-void RadioWrite( uint16_t addr, uint8_t data )
+void RadioWrite( uint32_t addr, uint8_t data )
 {
     SX126xWriteRegister( addr, data );
 }
 
-uint8_t RadioRead( uint16_t addr )
+uint8_t RadioRead( uint32_t addr )
 {
     return SX126xReadRegister( addr );
 }
 
-void RadioWriteBuffer( uint16_t addr, uint8_t *buffer, uint8_t size )
+void RadioWriteBuffer( uint32_t addr, uint8_t *buffer, uint8_t size )
 {
     SX126xWriteRegisters( addr, buffer, size );
 }
 
-void RadioReadBuffer( uint16_t addr, uint8_t *buffer, uint8_t size )
+void RadioReadBuffer( uint32_t addr, uint8_t *buffer, uint8_t size )
 {
     SX126xReadRegisters( addr, buffer, size );
 }

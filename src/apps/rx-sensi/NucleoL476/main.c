@@ -104,6 +104,11 @@
 #define FSK_BANDWIDTH                               100000    // Hz >> DSB in sx126x
 #define FSK_AFC_BANDWIDTH                           166666    // Hz >> Unused in sx126x
 
+#elif defined( LR1110MB1XXS )
+
+#define FSK_BANDWIDTH                               100000    // Hz >> DSB in LR1110
+#define FSK_AFC_BANDWIDTH                           166666    // Hz >> Unused in LR1110
+
 #else
     #error "Please define a mbed shield in the compiler options."
 #endif

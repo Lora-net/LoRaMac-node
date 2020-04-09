@@ -11,6 +11,10 @@ The following mbed shields may be used with NucleoLxxx platforms:
 * [SX1276MB1MAS](https://os.mbed.com/components/SX1276MB1xAS/)
 * [SX1261MB2BAS](https://os.mbed.com/components/SX126xMB2xAS/)
 * [SX1262MB2CAS](https://os.mbed.com/components/SX126xMB2xAS/)
+* [LR1110MB1DIS]()
+* [LR1110MB1DJS]()
+* [LR1110MB1GIS]()
+* [LR1110MB1GJS]()
 
 Development kit:
 
@@ -21,6 +25,12 @@ Development kit:
   * Other variants can also be used but require some adjustments
 
 _**Note**_: The MBX abbreviation used by the shield name variables(i.e: SX1261MBXBAS) on this project means that the shields named SX126xMB1xAS (SX126xDVK1xAS development kit only) and SX126xMB2xAS (standalone shields) are supported.
+
+
+* [LR1110DVK1TXKS]()
+  * LR1110DVK1TBKS uses a LR1110MB1DIS or LR1110MB1DJS shield
+  * LR1110DVK1TCKS uses a LR1110MB1DIS or LR1110MB1DJS shield
+  * LR1110DVK1TGKS uses a LR1110MB1GJS or LR1110MB1GJS shield
 
 # Discovery kit platform support documents
 

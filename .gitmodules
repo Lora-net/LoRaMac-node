@@ -1,0 +1,3 @@
+[submodule "src/radio/lr1110/lr1110_driver"]
+	path = src/radio/lr1110/lr1110_driver
+	url = https://github.com/Lora-net/lr1110_driver.git
