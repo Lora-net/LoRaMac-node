@@ -48,6 +48,7 @@
  */
 Gpio_t Led1;
 Uart_t Uart1;
+I2c_t I2c;
 
 /*!
  * Flag to indicate if the MCU is Initialized
@@ -85,6 +86,7 @@ void BoardInitMcu( void )
 
     SpiInit( &SX1276.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX1276IoInit( );
+    I2cInit( &I2c, I2C_1, I2C_SCL, I2C_SDA );
 
     McuInitialized = true;
     SX1276IoDbgInit( );

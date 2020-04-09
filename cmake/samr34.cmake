@@ -17,7 +17,7 @@
 ##           Marten Lootsma(TWTG) on behalf of Microchip/Atmel (c)2017
 ##
 ##
-## SAML21 target specific CMake file
+## SAMR34 target specific CMake file
 ##
 
 if(NOT DEFINED LINKER_SCRIPT)

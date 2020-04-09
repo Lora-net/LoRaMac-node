@@ -411,6 +411,11 @@
 #define PINMUX_PB23A_EIC_EXTINT7   ((PIN_PB23A_EIC_EXTINT7 << 16) | MUX_PB23A_EIC_EXTINT7)
 #define PORT_PB23A_EIC_EXTINT7  (_UL(1) << 23)
 #define PIN_PB23A_EIC_EXTINT_NUM        _L(7) /**< \brief EIC signal: PIN_PB23 External Interrupt Line */
+#define PIN_PA28A_EIC_EXTINT8          _L(28) /**< \brief EIC signal: EXTINT8 on PA28 mux A */
+#define MUX_PA28A_EIC_EXTINT8           _L(0)
+#define PINMUX_PA28A_EIC_EXTINT8   ((PIN_PA28A_EIC_EXTINT8 << 16) | MUX_PA28A_EIC_EXTINT8)
+#define PORT_PA28A_EIC_EXTINT8  (_UL(1) << 28)
+#define PIN_PA28A_EIC_EXTINT_NUM        _L_(8) /**< \brief EIC signal: PIN_PA28 External Interrupt Line */
 #define PIN_PB08A_EIC_EXTINT8          _L(40) /**< \brief EIC signal: EXTINT8 on PB08 mux A */
 #define MUX_PB08A_EIC_EXTINT8           _L(0)
 #define PINMUX_PB08A_EIC_EXTINT8   ((PIN_PB08A_EIC_EXTINT8 << 16) | MUX_PB08A_EIC_EXTINT8)
@@ -732,6 +737,18 @@
 #define MUX_PB15C_SERCOM4_PAD3          _L(2)
 #define PINMUX_PB15C_SERCOM4_PAD3  ((PIN_PB15C_SERCOM4_PAD3 << 16) | MUX_PB15C_SERCOM4_PAD3)
 #define PORT_PB15C_SERCOM4_PAD3  (_UL(1) << 15)
+#define PIN_PC19F_SERCOM4_PAD0            83L  /**< \brief SERCOM4 signal: PAD0 on PC19 mux F */
+#define MUX_PC19F_SERCOM4_PAD0            5L
+#define PINMUX_PC19F_SERCOM4_PAD0  ((PIN_PC19F_SERCOM4_PAD0 << 16) | MUX_PC19F_SERCOM4_PAD0)
+#define PORT_PC19F_SERCOM4_PAD0    (1ul << 19)
+#define PIN_PC18F_SERCOM4_PAD3            82L  /**< \brief SERCOM4 signal: PAD3 on PC18 mux F */
+#define MUX_PC18F_SERCOM4_PAD3             5L
+#define PINMUX_PC18F_SERCOM4_PAD3  ((PIN_PC18F_SERCOM4_PAD3 << 16) | MUX_PC18F_SERCOM4_PAD3)
+#define PORT_PC18F_SERCOM4_PAD3    (1ul << 18)
+#define PIN_PB30F_SERCOM4_PAD2            62L  /**< \brief SERCOM4 signal: PAD2 on PB30 mux F */
+#define MUX_PB30F_SERCOM4_PAD2             5L
+#define PINMUX_PB30F_SERCOM4_PAD2  ((PIN_PB30F_SERCOM4_PAD2 << 16) | MUX_PB30F_SERCOM4_PAD2)
+#define PORT_PB30F_SERCOM4_PAD2    (1ul << 30)
 /* ========== PORT definition for TCC0 peripheral ========== */
 #define PIN_PA04E_TCC0_WO0              _L(4) /**< \brief TCC0 signal: WO0 on PA04 mux E */
 #define MUX_PA04E_TCC0_WO0              _L(4)

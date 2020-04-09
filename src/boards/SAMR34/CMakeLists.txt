@@ -16,7 +16,7 @@
 ## Authors:  Johannes Bruder (STACKFORCE), Miguel Luis (Semtech) and 
 ##           Marten Lootsma(TWTG) on behalf of Microchip/Atmel (c)2017
 ##
-project(SAML21)
+project(SAMR34)
 cmake_minimum_required(VERSION 3.6)
 enable_language(ASM)
 
@@ -33,6 +33,7 @@ list(APPEND ${PROJECT_NAME}_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/spi-board.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/sx1276-board.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/uart-board.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/i2c-board.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/utilities.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/saml21/hw_timer.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/saml21/saml21b/gcc/gcc/startup_saml21.c"
@@ -46,6 +47,7 @@ list(APPEND ${PROJECT_NAME}_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/saml21/hal/src/hal_sleep.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/saml21/hal/src/hal_spi_m_sync.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/saml21/hal/src/hal_usart_sync.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/saml21/hal/src/hal_i2c_m_sync.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/saml21/hal/utils/src/utils_assert.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/saml21/hal/utils/src/utils_syscalls.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/saml21/hal/utils/src/utils_event.c"
