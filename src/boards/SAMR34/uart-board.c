@@ -36,16 +36,16 @@ void UartMcuInit( Uart_t *obj, uint8_t uartId, PinNames tx, PinNames rx )
     obj->UartId = uartId;
 
     // Clock initialization
-    hri_gclk_write_PCHCTRL_reg( GCLK, SERCOM3_GCLK_ID_CORE, CONF_GCLK_SERCOM3_CORE_SRC | ( 1 << GCLK_PCHCTRL_CHEN_Pos ) );
-    hri_gclk_write_PCHCTRL_reg( GCLK, SERCOM3_GCLK_ID_SLOW, CONF_GCLK_SERCOM3_SLOW_SRC | ( 1 << GCLK_PCHCTRL_CHEN_Pos ) );
-    hri_mclk_set_APBCMASK_SERCOM3_bit( MCLK );
+    hri_gclk_write_PCHCTRL_reg( GCLK, SERCOM0_GCLK_ID_CORE, CONF_GCLK_SERCOM0_CORE_SRC | ( 1 << GCLK_PCHCTRL_CHEN_Pos ) );
+    hri_gclk_write_PCHCTRL_reg( GCLK, SERCOM0_GCLK_ID_SLOW, CONF_GCLK_SERCOM0_SLOW_SRC | ( 1 << GCLK_PCHCTRL_CHEN_Pos ) );
+    hri_mclk_set_APBCMASK_SERCOM0_bit( MCLK );
 
     // USART initialization
-    usart_sync_init( &Usart0, SERCOM3, ( void * )NULL );
+    usart_sync_init( &Usart0, SERCOM0, ( void * )NULL );
 
     // UASRT GPIO initialization
-    gpio_set_pin_function( tx, PINMUX_PA22C_SERCOM3_PAD0 );
-    gpio_set_pin_function( rx, PINMUX_PA23C_SERCOM3_PAD1 );
+    gpio_set_pin_function( tx, PINMUX_PA04D_SERCOM0_PAD0 );
+    gpio_set_pin_function( rx, PINMUX_PA05D_SERCOM0_PAD1 );
 
     usart_sync_enable( &Usart0 );
 }

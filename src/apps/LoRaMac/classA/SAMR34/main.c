@@ -23,7 +23,7 @@
  * \author    Marten Lootsma(TWTG) on behalf of Microchip/Atmel (c)2017
  */
 
-/*! \file classA/SAML21/main.c */
+/*! \file classA/SAMR34/main.c */
 
 #include <stdio.h>
 #include "utilities.h"

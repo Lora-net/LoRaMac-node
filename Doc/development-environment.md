@@ -117,7 +117,7 @@ Alternatively one can use a graphical interface to configure CMake, drop down me
      * NucleoL073 (default)
      * NucleoL152
      * NucleoL476
-     * SAML21
+     * SAMR34
      * SKiM880B
      * SKiM980A
      * SKiM881AXL
@@ -151,7 +151,7 @@ Alternatively one can use a graphical interface to configure CMake, drop down me
     * NucleoL073 + STLinkV2-1 (On board debugger):  
     `openocd -f interface/stlink-v2-1.cfg  -f target/stm32l0.cfg`
 
-    * SAML21 Xplained Pro (On board debugger, tested with openocd 0.10, did not work with 0.9):
+    * SAMR34 Xplained Pro (On board debugger, tested with openocd 0.10, did not work with 0.9):
     `openocd -f interface/cmsis-dap.cfg -f target/at91samdXX.cfg`
 
 2. GDB  

@@ -23,7 +23,7 @@ cmake_minimum_required(VERSION 3.6)
 #---------------------------------------------------------------------------------------
 
 # Allow switching of target platform
-set(BOARD_LIST NAMote72 NucleoL073 NucleoL152 NucleoL476 SAML21 SKiM880B SKiM980A SKiM881AXL B-L072Z-LRWAN1)
+set(BOARD_LIST NAMote72 NucleoL073 NucleoL152 NucleoL476 SAMR34 SKiM880B SKiM980A SKiM881AXL B-L072Z-LRWAN1)
 set(BOARD NucleoL073 CACHE STRING "Default target platform is NucleoL073")
 set_property(CACHE BOARD PROPERTY STRINGS ${BOARD_LIST})
 
@@ -129,13 +129,13 @@ elseif(BOARD STREQUAL NucleoL476)
         message(STATUS "Please specify the MBED_RADIO_SHIELD!\nPossible values are: SX1272MB2DAS, SX1276MB1LAS, SX1276MB1MAS, SX1261MBXBAS, SX1262MBXCAS, SX1262MBXDAS and  LR1110MB1XXS.")
     endif()
 
-elseif(BOARD STREQUAL SAML21)
-    # Configure toolchain for SAML21
+elseif(BOARD STREQUAL SAMR34)
+    # Configure toolchain for SAMR34
     set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/boards/mcu/saml21/saml21b/gcc/gcc/saml21j18b_flash.ld)
-    include(saml21)
+    include(samr34)
 
     # Build platform specific board implementation
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/SAML21)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/SAMR34)
 
     # Configure radio
     set(RADIO sx1276 CACHE INTERNAL "Radio sx1276 selected")

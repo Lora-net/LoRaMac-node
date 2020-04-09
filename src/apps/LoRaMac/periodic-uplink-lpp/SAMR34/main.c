@@ -1,7 +1,7 @@
 /*!
  * \file      main.c
  *
- * \brief     FUOTA interop tests - test 01
+ * \brief     Performs a periodic uplink
  *
  * \copyright Revised BSD License, see section \ref LICENSE.
  *
@@ -19,7 +19,7 @@
  * \author    Miguel Luis ( Semtech )
  */
 
-/*! \file fuota-test-01/SAML21/main.c */
+/*! \file periodic-uplink/SAMR34/main.c */
 
 #include <stdio.h>
 #include "utilities.h"
@@ -29,9 +29,7 @@
 #include "Commissioning.h"
 #include "LmHandler.h"
 #include "LmhpCompliance.h"
-#include "LmhpClockSync.h"
-#include "LmhpRemoteMcastSetup.h"
-#include "LmhpFragmentation.h"
+#include "CayenneLpp.h"
 #include "LmHandlerMsgDisplay.h"
 
 #ifndef ACTIVE_REGION
@@ -48,15 +46,15 @@
 #define LORAWAN_DEFAULT_CLASS                       CLASS_A
 
 /*!
- * Defines the application data transmission duty cycle. 30s, value in [ms].
+ * Defines the application data transmission duty cycle. 5s, value in [ms].
  */
-#define APP_TX_DUTYCYCLE                            40000
+#define APP_TX_DUTYCYCLE                            5000
 
 /*!
- * Defines a random delay for application data transmission duty cycle. 5s,
+ * Defines a random delay for application data transmission duty cycle. 1s,
  * value in [ms].
  */
-#define APP_TX_DUTYCYCLE_RND                        5000
+#define APP_TX_DUTYCYCLE_RND                        1000
 
 /*!
  * LoRaWAN Adaptive Data Rate
@@ -70,7 +68,7 @@
  *
  * \remark Please note that LORAWAN_DEFAULT_DATARATE is used only when ADR is disabled 
  */
-#define LORAWAN_DEFAULT_DATARATE                    DR_3
+#define LORAWAN_DEFAULT_DATARATE                    DR_0
 
 /*!
  * LoRaWAN confirmed messages
@@ -87,7 +85,13 @@
  *
  * \remark Please note that ETSI mandates duty cycled transmissions. Use only for test purposes
  */
-#define LORAWAN_DUTYCYCLE_ON                        false
+#define LORAWAN_DUTYCYCLE_ON                        true
+
+/*!
+ * LoRaWAN application port
+ * @remark The allowed port range is from 1 up to 223. Other values are reserved.
+ */
+#define LORAWAN_APP_PORT                            2
 
 /*!
  *
@@ -104,6 +108,21 @@ typedef enum
 static uint8_t AppDataBuffer[LORAWAN_APP_DATA_BUFFER_MAX_SIZE];
 
 /*!
+ * User application data structure
+ */
+static LmHandlerAppData_t AppData =
+{
+    .Buffer = AppDataBuffer,
+    .BufferSize = 0,
+    .Port = 0
+};
+
+/*!
+ * Specifies the state of the application LED
+ */
+static bool AppLedStateOn = false;
+
+/*!
  * Timer to handle the application data transmission duty cycle
  */
 static TimerEvent_t TxTimer;
@@ -112,6 +131,16 @@ static TimerEvent_t TxTimer;
  * Timer to handle the state of LED1
  */
 static TimerEvent_t Led1Timer;
+
+/*!
+ * Timer to handle the state of LED2
+ */
+static TimerEvent_t Led2Timer;
+
+/*!
+ * Timer to handle the state of LED beacon indicator
+ */
+static TimerEvent_t LedBeaconTimer;
 
 static void OnMacProcessNotify( void );
 static void OnNvmContextChange( LmHandlerNvmContextStates_t state );
@@ -123,33 +152,10 @@ static void OnTxData( LmHandlerTxParams_t* params );
 static void OnRxData( LmHandlerAppData_t* appData, LmHandlerRxParams_t* params );
 static void OnClassChange( DeviceClass_t deviceClass );
 static void OnBeaconStatusChange( LoRaMAcHandlerBeaconParams_t* params );
-#if( LMH_SYS_TIME_UPDATE_NEW_API == 1 )
-static void OnSysTimeUpdate( bool isSynchronized, int32_t timeCorrection );
-#else
-static void OnSysTimeUpdate( void );
-#endif
-#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
-static uint8_t FragDecoderWrite( uint32_t addr, uint8_t *data, uint32_t size );
-static uint8_t FragDecoderRead( uint32_t addr, uint8_t *data, uint32_t size );
-#endif
-static void OnFragProgress( uint16_t fragCounter, uint16_t fragNb, uint8_t fragSize, uint16_t fragNbLost );
-#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
-static void OnFragDone( int32_t status, uint32_t size );
-#else
-static void OnFragDone( int32_t status, uint8_t *file, uint32_t size );
-#endif
+
+static void PrepareTxFrame( void );
 static void StartTxProcess( LmHandlerTxEvents_t txEvent );
 static void UplinkProcess( void );
-
-/*!
- * Computes a CCITT 32 bits CRC
- *
- * \param [IN] buffer   Data buffer used to compute the CRC
- * \param [IN] length   Data buffer length
- * 
- * \retval crc          The computed buffer of length CRC
- */
-static uint32_t Crc32( uint8_t *buffer, uint16_t length );
 
 /*!
  * Function executed on TxTimer event
@@ -160,6 +166,16 @@ static void OnTxTimerEvent( void* context );
  * Function executed on Led 1 Timeout event
  */
 static void OnLed1TimerEvent( void* context );
+
+/*!
+ * Function executed on Led 2 Timeout event
+ */
+static void OnLed2TimerEvent( void* context );
+
+/*!
+ * \brief Function executed on Beacon timer Timeout event
+ */
+static void OnLedBeaconTimerEvent( void* context );
 
 static LmHandlerCallbacks_t LmHandlerCallbacks =
 {
@@ -175,8 +191,7 @@ static LmHandlerCallbacks_t LmHandlerCallbacks =
     .OnTxData = OnTxData,
     .OnRxData = OnRxData,
     .OnClassChange= OnClassChange,
-    .OnBeaconStatusChange = OnBeaconStatusChange,
-    .OnSysTimeUpdate = OnSysTimeUpdate
+    .OnBeaconStatusChange = OnBeaconStatusChange
 };
 
 static LmHandlerParams_t LmHandlerParams =
@@ -199,41 +214,6 @@ static LmhpComplianceParams_t LmhpComplianceParams =
 };
 
 /*!
- * Defines the maximum size for the buffer receiving the fragmentation result.
- *
- * \remark By default FragDecoder.h defines:
- *         \ref FRAG_MAX_NB   21
- *         \ref FRAG_MAX_SIZE 50
- *
- *         FileSize = FRAG_MAX_NB * FRAG_MAX_SIZE
- *
- *         If bigger file size is to be received or is fragmented differently
- *         one must update those parameters.
- */
-#define UNFRAGMENTED_DATA_SIZE                     ( 21 * 50 )
-
-/*
- * Un-fragmented data storage.
- */
-static uint8_t UnfragmentedData[UNFRAGMENTED_DATA_SIZE];
-
-static LmhpFragmentationParams_t FragmentationParams =
-{
-#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
-    .DecoderCallbacks = 
-    {
-        .FragDecoderWrite = FragDecoderWrite,
-        .FragDecoderRead = FragDecoderRead,
-    },
-#else
-    .Buffer = UnfragmentedData,
-    .BufferSize = UNFRAGMENTED_DATA_SIZE,
-#endif
-    .OnProgress = OnFragProgress,
-    .OnDone = OnFragDone
-};
-
-/*!
  * Indicates if LoRaMacProcess call is pending.
  * 
  * \warning If variable is equal to 0 then the MCU can be set in low power mode
@@ -242,30 +222,10 @@ static volatile uint8_t IsMacProcessPending = 0;
 
 static volatile uint8_t IsTxFramePending = 0;
 
-/*
- * Indicates if the system time has been synchronized
- */
-static volatile bool IsClockSynched = false;
-
-/*
- * MC Session Started
- */
-static volatile bool IsMcSessionStarted = false;
-
-/*
- * Indicates if the file transfer is done
- */
-static volatile bool IsFileTransferDone = false;
-
-/*
- *  Received file computed CRC32
- */
-static volatile uint32_t FileRxCrc = 0;
-
 /*!
  * LED GPIO pins objects
  */
-extern Gpio_t Led1; // Rx
+extern Gpio_t Led1; // Tx
 
 /*!
  * Main application entry point.
@@ -276,11 +236,17 @@ int main( void )
     BoardInitPeriph( );
 
     TimerInit( &Led1Timer, OnLed1TimerEvent );
-    TimerSetValue( &Led1Timer, 100 );
+    TimerSetValue( &Led1Timer, 25 );
+
+    TimerInit( &Led2Timer, OnLed2TimerEvent );
+    TimerSetValue( &Led2Timer, 25 );
+
+    TimerInit( &LedBeaconTimer, OnLedBeaconTimerEvent );
+    TimerSetValue( &LedBeaconTimer, 5000 );
 
     const Version_t appVersion = { .Fields.Major = 1, .Fields.Minor = 0, .Fields.Patch = 0 };
     const Version_t gitHubVersion = { .Fields.Major = 4, .Fields.Minor = 4, .Fields.Patch = 3 };
-    DisplayAppInfo( "fuota-test-01", 
+    DisplayAppInfo( "periodic-uplink-lpp", 
                     &appVersion,
                     &gitHubVersion );
 
@@ -299,12 +265,6 @@ int main( void )
     // The LoRa-Alliance Compliance protocol package should always be
     // initialized and activated.
     LmHandlerPackageRegister( PACKAGE_ID_COMPLIANCE, &LmhpComplianceParams );
-    LmHandlerPackageRegister( PACKAGE_ID_CLOCK_SYNC, NULL );
-    LmHandlerPackageRegister( PACKAGE_ID_REMOTE_MCAST_SETUP, NULL );
-    LmHandlerPackageRegister( PACKAGE_ID_FRAGMENTATION, &FragmentationParams );
-
-    IsClockSynched = false;
-    IsFileTransferDone = false;
 
     LmHandlerJoin( );
 
@@ -382,41 +342,36 @@ static void OnTxData( LmHandlerTxParams_t* params )
 static void OnRxData( LmHandlerAppData_t* appData, LmHandlerRxParams_t* params )
 {
     DisplayRxUpdate( appData, params );
+
+    switch( appData->Port )
+    {
+    case 1: // The application LED can be controlled on port 1 or 2
+    case LORAWAN_APP_PORT:
+        {
+            AppLedStateOn = appData->Buffer[0] & 0x01;
+        }
+        break;
+    default:
+        break;
+    }
+
+    // Switch LED 1 ON for each received downlink
+    GpioWrite( &Led1, 1 );
+    TimerStart( &Led2Timer );
 }
 
 static void OnClassChange( DeviceClass_t deviceClass )
 {
     DisplayClassUpdate( deviceClass );
 
-    switch( deviceClass )
+    // Inform the server as soon as possible that the end-device has switched to ClassB
+    LmHandlerAppData_t appData =
     {
-        default:
-        case CLASS_A:
-        {
-            IsMcSessionStarted = false;
-            break;
-        }
-        case CLASS_B:
-        {
-            // Inform the server as soon as possible that the end-device has switched to ClassB
-            LmHandlerAppData_t appData =
-            {
-                .Buffer = NULL,
-                .BufferSize = 0,
-                .Port = 0
-            };
-            LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
-            IsMcSessionStarted = true;
-            break;
-        }
-        case CLASS_C:
-        {
-            IsMcSessionStarted = true;
-            // Switch LED 1 ON
-            GpioWrite( &Led1, 1 );
-            break;
-        }
-    }
+        .Buffer = NULL,
+        .BufferSize = 0,
+        .Port = 0
+    };
+    LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
 }
 
 static void OnBeaconStatusChange( LoRaMAcHandlerBeaconParams_t* params )
@@ -425,11 +380,13 @@ static void OnBeaconStatusChange( LoRaMAcHandlerBeaconParams_t* params )
     {
         case LORAMAC_HANDLER_BEACON_RX:
         {
+            TimerStart( &LedBeaconTimer );
             break;
         }
         case LORAMAC_HANDLER_BEACON_LOST:
         case LORAMAC_HANDLER_BEACON_NRX:
         {
+            TimerStop( &LedBeaconTimer );
             break;
         }
         default:
@@ -441,89 +398,34 @@ static void OnBeaconStatusChange( LoRaMAcHandlerBeaconParams_t* params )
     DisplayBeaconUpdate( params );
 }
 
-#if( LMH_SYS_TIME_UPDATE_NEW_API == 1 )
-static void OnSysTimeUpdate( bool isSynchronized, int32_t timeCorrection )
+/*!
+ * Prepares the payload of the frame and transmits it.
+ */
+static void PrepareTxFrame( void )
 {
-    IsClockSynched = isSynchronized;
-}
-#else
-static void OnSysTimeUpdate( void )
-{
-    IsClockSynched = true;
-}
-#endif
-
-#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
-static uint8_t FragDecoderWrite( uint32_t addr, uint8_t *data, uint32_t size )
-{
-    if( size >= UNFRAGMENTED_DATA_SIZE )
+    if( LmHandlerIsBusy( ) == true )
     {
-        return -1; // Fail
+        return;
     }
-    for(uint32_t i = 0; i < size; i++ )
+
+    uint8_t channel = 0;
+
+    AppData.Port = LORAWAN_APP_PORT;
+
+    CayenneLppReset( );
+    CayenneLppAddDigitalInput( channel++, AppLedStateOn );
+    CayenneLppAddAnalogInput( channel++, BoardGetBatteryLevel( ) * 100 / 254 );
+
+    CayenneLppCopy( AppData.Buffer );
+    AppData.BufferSize = CayenneLppGetSize( );
+
+    if( LmHandlerSend( &AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE ) == LORAMAC_HANDLER_SUCCESS )
     {
-        UnfragmentedData[addr + i] = data[i];
+        // Switch LED 1 ON
+        GpioWrite( &Led1, 0 );
+        TimerStart( &Led1Timer );
     }
-    return 0; // Success
 }
-
-static uint8_t FragDecoderRead( uint32_t addr, uint8_t *data, uint32_t size )
-{
-    if( size >= UNFRAGMENTED_DATA_SIZE )
-    {
-        return -1; // Fail
-    }
-    for(uint32_t i = 0; i < size; i++ )
-    {
-        data[i] = UnfragmentedData[addr + i];
-    }
-    return 0; // Success
-}
-#endif
-
-static void OnFragProgress( uint16_t fragCounter, uint16_t fragNb, uint8_t fragSize, uint16_t fragNbLost )
-{
-    // Switch LED 1 OFF for each received downlink
-    GpioWrite( &Led1, 0 );
-    TimerStart( &Led1Timer );
-
-    printf( "\n###### =========== FRAG_DECODER ============ ######\n" );
-    printf( "######               PROGRESS                ######\n");
-    printf( "###### ===================================== ######\n");
-    printf( "RECEIVED    : %5d / %5d Fragments\n", fragCounter, fragNb );
-    printf( "              %5d / %5d Bytes\n", fragCounter * fragSize, fragNb * fragSize );
-    printf( "LOST        :       %7d Fragments\n\n", fragNbLost );
-}
-
-#if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
-static void OnFragDone( int32_t status, uint32_t size )
-{
-    FileRxCrc = Crc32( UnfragmentedData, size );
-    IsFileTransferDone = true;
-    // Switch LED 1 OFF
-    GpioWrite( &Led1, 0 );
-
-    printf( "\n###### =========== FRAG_DECODER ============ ######\n" );
-    printf( "######               FINISHED                ######\n");
-    printf( "###### ===================================== ######\n");
-    printf( "STATUS      : %ld\n", status );
-    printf( "CRC         : %08lX\n\n", FileRxCrc );
-}
-#else
-static void OnFragDone( int32_t status, uint8_t *file, uint32_t size )
-{
-    FileRxCrc = Crc32( file, size );
-    IsFileTransferDone = true;
-    // Switch LED 1 OFF
-    GpioWrite( &Led1, 0 );
-
-    printf( "\n###### =========== FRAG_DECODER ============ ######\n" );
-    printf( "######               FINISHED                ######\n");
-    printf( "###### ===================================== ######\n");
-    printf( "STATUS      : %ld\n", status );
-    printf( "CRC         : %08lX\n\n", FileRxCrc );
-}
-#endif
 
 static void StartTxProcess( LmHandlerTxEvents_t txEvent )
 {
@@ -548,11 +450,6 @@ static void StartTxProcess( LmHandlerTxEvents_t txEvent )
 
 static void UplinkProcess( void )
 {
-    if( LmHandlerIsBusy( ) == true )
-    {
-        return;
-    }
-
     uint8_t isPending = 0;
     CRITICAL_SECTION_BEGIN( );
     isPending = IsTxFramePending;
@@ -560,45 +457,7 @@ static void UplinkProcess( void )
     CRITICAL_SECTION_END( );
     if( isPending == 1 )
     {
-        if( IsMcSessionStarted == false )
-        {
-            if( IsFileTransferDone == false )
-            {
-                if( IsClockSynched == false )
-                {
-                    LmhpClockSyncAppTimeReq( );
-                }
-                else
-                {
-                    AppDataBuffer[0] = randr( 0, 255 );
-                    // Send random packet
-                    LmHandlerAppData_t appData =
-                    {
-                        .Buffer = AppDataBuffer,
-                        .BufferSize = 1,
-                        .Port = 1
-                    };
-                    LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
-                }
-            }
-            else
-            {
-                AppDataBuffer[0] = 0x05; // FragDataBlockAuthReq
-                AppDataBuffer[1] = FileRxCrc & 0x000000FF;
-                AppDataBuffer[2] = ( FileRxCrc >> 8 ) & 0x000000FF;
-                AppDataBuffer[3] = ( FileRxCrc >> 16 ) & 0x000000FF;
-                AppDataBuffer[4] = ( FileRxCrc >> 24 ) & 0x000000FF;
-
-                // Send FragAuthReq
-                LmHandlerAppData_t appData =
-                {
-                    .Buffer = AppDataBuffer,
-                    .BufferSize = 5,
-                    .Port = 201
-                };
-                LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
-            }
-        }
+        PrepareTxFrame( );
     }
 }
 
@@ -622,31 +481,27 @@ static void OnTxTimerEvent( void* context )
 static void OnLed1TimerEvent( void* context )
 {
     TimerStop( &Led1Timer );
-    // Switch LED 1 ON
-    GpioWrite( &Led1, 1 );
+    // Switch LED 1 OFF
+    GpioWrite( &Led1, 0 );
 }
 
-static uint32_t Crc32( uint8_t *buffer, uint16_t length )
+/*!
+ * Function executed on Led 2 Timeout event
+ */
+static void OnLed2TimerEvent( void* context )
 {
-    // The CRC calculation follows CCITT - 0x04C11DB7
-    const uint32_t reversedPolynom = 0xEDB88320;
+    TimerStop( &Led1Timer );
+    // Switch LED 1 OFF
+    GpioWrite( &Led1, 0 );
+}
 
-    // CRC initial value
-    uint32_t crc = 0xFFFFFFFF;
+/*!
+ * \brief Function executed on Beacon timer Timeout event
+ */
+static void OnLedBeaconTimerEvent( void* context )
+{
+    GpioWrite( &Led1, 1 );
+    TimerStart( &Led2Timer );
 
-    if( buffer == NULL )
-    {
-        return 0;
-    }
-
-    for( uint16_t i = 0; i < length; ++i )
-    {
-        crc ^= ( uint32_t )buffer[i];
-        for( uint16_t i = 0; i < 8; i++ )
-        {
-            crc = ( crc >> 1 ) ^ ( reversedPolynom & ~( ( crc & 0x01 ) - 1 ) );
-        }
-    }
-
-    return ~crc;
+    TimerStart( &LedBeaconTimer );
 }

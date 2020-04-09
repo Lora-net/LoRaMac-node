@@ -22,6 +22,7 @@
                 { "text": "target extended-remote localhost:3333", "description": "connect to target", "ignoreFailures": false },
                 { "text": "monitor reset halt", "description": "perform a reset and halt the target", "ignoreFailures": false },
                 { "text": "load", "description": "flash target", "ignoreFailures": false },
+                { "text": "monitor reset init", "description": "perform a reset and init the target", "ignoreFailures": false },
                 { "text": "set output-radix 16", "description": "set the default numeric base to 16", "ignoreFailures": false }
             ],
             "logging": {

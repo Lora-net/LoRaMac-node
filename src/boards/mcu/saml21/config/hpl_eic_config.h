@@ -54,7 +54,7 @@
 // <e> Interrupt 0 Settings
 // <id> eic_arch_enable_irq_setting0
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING0
-#define CONF_EIC_ENABLE_IRQ_SETTING0 0
+#define CONF_EIC_ENABLE_IRQ_SETTING0 1
 #endif
 
 // <q> External Interrupt 0 Filter Enable
@@ -81,14 +81,14 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense0
 #ifndef CONF_EIC_SENSE0
-#define CONF_EIC_SENSE0 EIC_NMICTRL_NMISENSE_NONE_Val
+#define CONF_EIC_SENSE0 EIC_NMICTRL_NMISENSE_RISE_Val
 #endif
 
 // <q> External Interrupt 0 Asynchronous Edge Detection Mode
 // <i> Indicates the external interrupt 0 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch0
 #ifndef CONF_EIC_ASYNCH0
-#define CONF_EIC_ASYNCH0 0
+#define CONF_EIC_ASYNCH0 1
 #endif
 
 // </e>
@@ -96,7 +96,7 @@
 // <e> Interrupt 1 Settings
 // <id> eic_arch_enable_irq_setting1
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING1
-#define CONF_EIC_ENABLE_IRQ_SETTING1 0
+#define CONF_EIC_ENABLE_IRQ_SETTING1 1
 #endif
 
 // <q> External Interrupt 1 Filter Enable
@@ -123,14 +123,14 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense1
 #ifndef CONF_EIC_SENSE1
-#define CONF_EIC_SENSE1 EIC_NMICTRL_NMISENSE_NONE_Val
+#define CONF_EIC_SENSE1 EIC_NMICTRL_NMISENSE_RISE_Val
 #endif
 
 // <q> External Interrupt 1 Asynchronous Edge Detection Mode
 // <i> Indicates the external interrupt 1 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch1
 #ifndef CONF_EIC_ASYNCH1
-#define CONF_EIC_ASYNCH1 0
+#define CONF_EIC_ASYNCH1 1
 #endif
 
 // </e>
@@ -222,7 +222,7 @@
 // <e> Interrupt 4 Settings
 // <id> eic_arch_enable_irq_setting4
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING4
-#define CONF_EIC_ENABLE_IRQ_SETTING4 1
+#define CONF_EIC_ENABLE_IRQ_SETTING4 0
 #endif
 
 // <q> External Interrupt 4 Filter Enable
@@ -249,14 +249,14 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense4
 #ifndef CONF_EIC_SENSE4
-#define CONF_EIC_SENSE4 EIC_NMICTRL_NMISENSE_RISE_Val
+#define CONF_EIC_SENSE4 EIC_NMICTRL_NMISENSE_NONE_Val
 #endif
 
 // <q> External Interrupt 4 Asynchronous Edge Detection Mode
 // <i> Indicates the external interrupt 4 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch4
 #ifndef CONF_EIC_ASYNCH4
-#define CONF_EIC_ASYNCH4 1
+#define CONF_EIC_ASYNCH4 0
 #endif
 
 // </e>
@@ -264,7 +264,7 @@
 // <e> Interrupt 5 Settings
 // <id> eic_arch_enable_irq_setting5
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING5
-#define CONF_EIC_ENABLE_IRQ_SETTING5 1
+#define CONF_EIC_ENABLE_IRQ_SETTING5 0
 #endif
 
 // <q> External Interrupt 5 Filter Enable
@@ -291,14 +291,14 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense5
 #ifndef CONF_EIC_SENSE5
-#define CONF_EIC_SENSE5 EIC_NMICTRL_NMISENSE_RISE_Val
+#define CONF_EIC_SENSE5 EIC_NMICTRL_NMISENSE_NONE_Val
 #endif
 
 // <q> External Interrupt 5 Asynchronous Edge Detection Mode
 // <i> Indicates the external interrupt 5 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch5
 #ifndef CONF_EIC_ASYNCH5
-#define CONF_EIC_ASYNCH5 1
+#define CONF_EIC_ASYNCH5 0
 #endif
 
 // </e>
@@ -516,7 +516,7 @@
 // <e> Interrupt 11 Settings
 // <id> eic_arch_enable_irq_setting11
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING11
-#define CONF_EIC_ENABLE_IRQ_SETTING11 0
+#define CONF_EIC_ENABLE_IRQ_SETTING11 1
 #endif
 
 // <q> External Interrupt 11 Filter Enable
@@ -543,14 +543,14 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense11
 #ifndef CONF_EIC_SENSE11
-#define CONF_EIC_SENSE11 EIC_NMICTRL_NMISENSE_NONE_Val
+#define CONF_EIC_SENSE11 EIC_NMICTRL_NMISENSE_RISE_Val
 #endif
 
 // <q> External Interrupt 11 Asynchronous Edge Detection Mode
 // <i> Indicates the external interrupt 11 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch11
 #ifndef CONF_EIC_ASYNCH11
-#define CONF_EIC_ASYNCH11 0
+#define CONF_EIC_ASYNCH11 1
 #endif
 
 // </e>
@@ -600,7 +600,7 @@
 // <e> Interrupt 13 Settings
 // <id> eic_arch_enable_irq_setting13
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING13
-#define CONF_EIC_ENABLE_IRQ_SETTING13 1
+#define CONF_EIC_ENABLE_IRQ_SETTING13 0
 #endif
 
 // <q> External Interrupt 13 Filter Enable
@@ -627,14 +627,14 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense13
 #ifndef CONF_EIC_SENSE13
-#define CONF_EIC_SENSE13 EIC_NMICTRL_NMISENSE_RISE_Val
+#define CONF_EIC_SENSE13 EIC_NMICTRL_NMISENSE_NONE_Val
 #endif
 
 // <q> External Interrupt 13 Asynchronous Edge Detection Mode
 // <i> Indicates the external interrupt 13 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch13
 #ifndef CONF_EIC_ASYNCH13
-#define CONF_EIC_ASYNCH13 1
+#define CONF_EIC_ASYNCH13 0
 #endif
 
 // </e>
@@ -642,7 +642,7 @@
 // <e> Interrupt 14 Settings
 // <id> eic_arch_enable_irq_setting14
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING14
-#define CONF_EIC_ENABLE_IRQ_SETTING14 1
+#define CONF_EIC_ENABLE_IRQ_SETTING14 0
 #endif
 
 // <q> External Interrupt 14 Filter Enable
@@ -669,14 +669,14 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense14
 #ifndef CONF_EIC_SENSE14
-#define CONF_EIC_SENSE14 EIC_NMICTRL_NMISENSE_RISE_Val
+#define CONF_EIC_SENSE14 EIC_NMICTRL_NMISENSE_NONE_Val
 #endif
 
 // <q> External Interrupt 14 Asynchronous Edge Detection Mode
 // <i> Indicates the external interrupt 14 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch14
 #ifndef CONF_EIC_ASYNCH14
-#define CONF_EIC_ASYNCH14 1
+#define CONF_EIC_ASYNCH14 0
 #endif
 
 // </e>
@@ -684,7 +684,7 @@
 // <e> Interrupt 15 Settings
 // <id> eic_arch_enable_irq_setting15
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING15
-#define CONF_EIC_ENABLE_IRQ_SETTING15 1
+#define CONF_EIC_ENABLE_IRQ_SETTING15 0
 #endif
 
 // <q> External Interrupt 15 Filter Enable
@@ -711,20 +711,20 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense15
 #ifndef CONF_EIC_SENSE15
-#define CONF_EIC_SENSE15 EIC_NMICTRL_NMISENSE_RISE_Val
+#define CONF_EIC_SENSE15 EIC_NMICTRL_NMISENSE_NONE_Val
 #endif
 
 // <q> External Interrupt 15 Asynchronous Edge Detection Mode
 // <i> Indicates the external interrupt 15 detection mode operated synchronously or asynchronousl
 // <id> eic_arch_asynch15
 #ifndef CONF_EIC_ASYNCH15
-#define CONF_EIC_ASYNCH15 1
+#define CONF_EIC_ASYNCH15 0
 #endif
 
 // </e>
 
 #define CONFIG_EIC_EXTINT_MAP                                                                                          \
-	{4, PIN_PA20}, {5, PIN_PA21}, {12, PIN_PB12}, {13, PIN_PB13}, {14, PIN_PB14}, {15, PIN_PB15},
+	{0, PIN_PB16}, {11, PIN_PA11}, {12, PIN_PA12}, {1, PIN_PB17},
 
 // <<< end of configuration section >>>
 

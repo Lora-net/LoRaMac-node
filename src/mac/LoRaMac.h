@@ -81,14 +81,14 @@
  * \example   classC/NucleoL476/main.c
  *            LoRaWAN class C application example for the NucleoL476.
  *
- * \example   classA/SAML21/main.c
- *            LoRaWAN class A application example for the SAML21.
+ * \example   classA/SAMR34/main.c
+ *            LoRaWAN class A application example for the SAMR34.
  *
- * \example   classB/SAML21/main.c
- *            LoRaWAN class B application example for the SAML21.
+ * \example   classB/SAMR34/main.c
+ *            LoRaWAN class B application example for the SAMR34.
  *
- * \example   classC/SAML21/main.c
- *            LoRaWAN class C application example for the SAML21.
+ * \example   classC/SAMR34/main.c
+ *            LoRaWAN class C application example for the SAMR34.
  *
  * \example   classA/SKiM880B/main.c
  *            LoRaWAN class A application example for the SKiM880B.
