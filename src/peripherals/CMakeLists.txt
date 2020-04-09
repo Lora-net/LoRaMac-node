@@ -25,13 +25,21 @@ cmake_minimum_required(VERSION 3.6)
 if(${SECURE_ELEMENT} MATCHES SOFT_SE)
     file(GLOB ${PROJECT_NAME}_SOURCES "*.c" "soft-se/*.c")
 else()
-    message(FATAL_ERROR "No secure-element selected.")
+    if((${SECURE_ELEMENT} MATCHES LR1110_SE) AND (${RADIO} MATCHES lr1110))
+        file(GLOB ${PROJECT_NAME}_SOURCES "*.c" "lr1110-se/*.c")
+    else()
+        message(FATAL_ERROR "LR1110_SE secure elemeent can only be used when LR1110 radio is selected.")
+    endif()
 endif()
 
 add_library(${PROJECT_NAME} OBJECT EXCLUDE_FROM_ALL ${${PROJECT_NAME}_SOURCES})
 
 if(${SECURE_ELEMENT} MATCHES SOFT_SE)
     target_include_directories( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/soft-se)
+else()
+    if((${SECURE_ELEMENT} MATCHES LR1110_SE) AND (${RADIO} MATCHES lr1110))
+        target_include_directories( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lr1110-se)
+    endif()
 endif()
 
 target_include_directories( ${PROJECT_NAME} PUBLIC

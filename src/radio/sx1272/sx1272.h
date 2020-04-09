@@ -391,7 +391,7 @@ int16_t SX1272ReadRssi( RadioModems_t modem );
  * \param [IN]: addr Register address
  * \param [IN]: data New register value
  */
-void SX1272Write( uint16_t addr, uint8_t data );
+void SX1272Write( uint32_t addr, uint8_t data );
 
 /*!
  * \brief Reads the radio register at the specified address
@@ -399,7 +399,7 @@ void SX1272Write( uint16_t addr, uint8_t data );
  * \param [IN]: addr Register address
  * \retval data Register value
  */
-uint8_t SX1272Read( uint16_t addr );
+uint8_t SX1272Read( uint32_t addr );
 
 /*!
  * \brief Writes multiple radio registers starting at address
@@ -408,7 +408,7 @@ uint8_t SX1272Read( uint16_t addr );
  * \param [IN] buffer Buffer containing the new register's values
  * \param [IN] size   Number of registers to be written
  */
-void SX1272WriteBuffer( uint16_t addr, uint8_t *buffer, uint8_t size );
+void SX1272WriteBuffer( uint32_t addr, uint8_t *buffer, uint8_t size );
 
 /*!
  * \brief Reads multiple radio registers starting at address
@@ -417,7 +417,7 @@ void SX1272WriteBuffer( uint16_t addr, uint8_t *buffer, uint8_t size );
  * \param [OUT] buffer Buffer where to copy the registers data
  * \param [IN] size Number of registers to be read
  */
-void SX1272ReadBuffer( uint16_t addr, uint8_t *buffer, uint8_t size );
+void SX1272ReadBuffer( uint32_t addr, uint8_t *buffer, uint8_t size );
 
 /*!
  * \brief Sets the maximum payload length.

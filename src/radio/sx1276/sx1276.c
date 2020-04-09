@@ -1309,19 +1309,19 @@ void SX1276SetModem( RadioModems_t modem )
     }
 }
 
-void SX1276Write( uint16_t addr, uint8_t data )
+void SX1276Write( uint32_t addr, uint8_t data )
 {
     SX1276WriteBuffer( addr, &data, 1 );
 }
 
-uint8_t SX1276Read( uint16_t addr )
+uint8_t SX1276Read( uint32_t addr )
 {
     uint8_t data;
     SX1276ReadBuffer( addr, &data, 1 );
     return data;
 }
 
-void SX1276WriteBuffer( uint16_t addr, uint8_t *buffer, uint8_t size )
+void SX1276WriteBuffer( uint32_t addr, uint8_t *buffer, uint8_t size )
 {
     uint8_t i;
 
@@ -1338,7 +1338,7 @@ void SX1276WriteBuffer( uint16_t addr, uint8_t *buffer, uint8_t size )
     GpioWrite( &SX1276.Spi.Nss, 1 );
 }
 
-void SX1276ReadBuffer( uint16_t addr, uint8_t *buffer, uint8_t size )
+void SX1276ReadBuffer( uint32_t addr, uint8_t *buffer, uint8_t size )
 {
     uint8_t i;
 

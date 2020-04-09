@@ -74,6 +74,19 @@ extern "C"
 #define RADIO_DBG_PIN_TX                            PB_6
 #define RADIO_DBG_PIN_RX                            PC_7
 
+#elif defined( LR1110MB1XXS )
+
+#define RADIO_NSS                                   PA_8
+#define RADIO_BUSY                                  PB_3
+#define RADIO_DIO_1                                 PB_4
+
+#define LED_1                                       PC_1
+#define LED_2                                       PC_0
+
+// Debug pins definition.
+#define RADIO_DBG_PIN_TX                            PB_6
+#define RADIO_DBG_PIN_RX                            PC_7
+
 #elif defined( SX1272MB2DAS) || defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
 
 #define RADIO_NSS                                   PB_6
