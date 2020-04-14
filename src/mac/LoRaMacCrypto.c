@@ -1247,44 +1247,16 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
     }
 
     LoRaMacCryptoStatus_t retval = LORAMAC_CRYPTO_ERROR;
+    uint8_t decJoinAccept[33] = { 0 };
 
-    // 1st trial for LoRaWAN 1.0.x
-    uint8_t micHeader10[1] = { 0x20 };
-    uint8_t macMsgBufferDec[33] = { 0 };
-    //   mic = aes128_cmac(NwkKey, MHDR |  JoinNonce | NetID | DevAddr | DLSettings | RxDelay | CFList | CFListType)
-    if( SecureElementProcessJoinAccept( NWK_KEY, NWK_KEY, 0, micHeader10, macMsg->Buffer, macMsg->BufSize, macMsgBufferDec ) != SECURE_ELEMENT_SUCCESS )
+    if( SecureElementProcessJoinAccept( joinReqType, joinEUI, CryptoCtx.NvmCtx->DevNonce, macMsg->Buffer,
+                                        macMsg->BufSize, decJoinAccept,
+                                        &CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor ) != SECURE_ELEMENT_SUCCESS )
     {
-#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
-        //   mic = aes128_cmac(JSIntKey, JoinReqType | JoinEUI | DevNonce | MHDR | JoinNonce | NetID | DevAddr | DLSettings | RxDelay | CFList | CFListType)
-        // Prepare the msg for integrity check (adding JoinReqType, JoinEUI and DevNonce)
-        uint8_t micHeader11[CRYPTO_MIC_COMPUTATION_OFFSET];
-        uint16_t bufItr = 0;
-        micHeader11[bufItr++] = ( uint8_t )joinReqType;
-
-        memcpyr( micHeader11 + bufItr, joinEUI, LORAMAC_JOIN_EUI_FIELD_SIZE );
-        bufItr += LORAMAC_JOIN_EUI_FIELD_SIZE;
-
-        micHeader11[bufItr++] = CryptoCtx.NvmCtx->DevNonce & 0xFF;
-        micHeader11[bufItr++] = ( CryptoCtx.NvmCtx->DevNonce >> 8 ) & 0xFF;
-
-        micHeader11[bufItr++] = 0x20;
-
-        // 2nd trial for LoRaWAN 1.1.x
-        if( SecureElementProcessJoinAccept( J_S_ENC_KEY, J_S_INT_KEY, 1, micHeader11, macMsg->Buffer, macMsg->BufSize, macMsgBufferDec ) != SECURE_ELEMENT_SUCCESS )
-        {
-            return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
-        }
-        CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor = 1;
-#else
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
-#endif
-    }
-    else
-    {
-        CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor = 0;
     }
 
-    memcpy1( macMsg->Buffer, macMsgBufferDec, macMsg->BufSize );
+    memcpy1( macMsg->Buffer, decJoinAccept, macMsg->BufSize );
 
     // Parse the message
     if( LoRaMacParserJoinAccept( macMsg ) != LORAMAC_PARSER_SUCCESS )

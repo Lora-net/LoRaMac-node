@@ -71,10 +71,6 @@ typedef enum eSecureElementStatus
      */
     SECURE_ELEMENT_SUCCESS = 0,
     /*!
-     * Failed to encrypt
-     */
-    SECURE_ELEMENT_FAIL_ENCRYPT,
-    /*!
      * CMAC does not match
      */
     SECURE_ELEMENT_FAIL_CMAC,
@@ -98,6 +94,10 @@ typedef enum eSecureElementStatus
      * Undefined Error occurred
      */
     SECURE_ELEMENT_ERROR,
+    /*!
+     * Failed to encrypt
+     */
+    SECURE_ELEMENT_FAIL_ENCRYPT,
 }SecureElementStatus_t;
 
 /*!
@@ -189,22 +189,18 @@ SecureElementStatus_t SecureElementDeriveAndStoreKey( Version_t version, uint8_t
 /*!
  * Process JoinAccept message.
  *
- * \param[IN]  encKeyID          - Key identifier of the key which will be used to decrypt the JoinAccept message
- * \param[IN]  micKeyID          - Key identifier of the key which will be used to compute the JoinAccept message MIC
- * \param[IN]  versionMinor      - LoRaWAN specification version minor field which will be used to perform the processing.
- *                                     - 0 -> LoRaWAN 1.0.x
- *                                     - 1 -> LoRaWAN 1.1.x
- * \param[IN]  micHeader         - Header buffer to be used for MIC computation
- *                                     - LoRaWAN 1.0.x : micHeader = [MHDR(1)]
- *                                     - LoRaWAN 1.1.x : micHeader = [JoinReqType(1), JoinEUI(8), DevNonce(2), MHDR(1)]
  * \param[IN]  encJoinAccept     - Received encrypted JoinAccept message
  * \param[IN]  encJoinAcceptSize - Received encrypted JoinAccept message Size
- * \param[IN]  decJoinAccept     - Decrypted and validated JoinAccept message
+ * \param[OUT] decJoinAccept     - Decrypted and validated JoinAccept message
+ * \param[OUT] versionMinor      - Detected LoRaWAN specification version minor field.
+ *                                     - 0 -> LoRaWAN 1.0.x
+ *                                     - 1 -> LoRaWAN 1.1.x
  * \retval                       - Status of the operation
  */
-SecureElementStatus_t SecureElementProcessJoinAccept( KeyIdentifier_t encKeyID, KeyIdentifier_t micKeyID, uint8_t versionMinor,
-                                                      uint8_t *micHeader, uint8_t *encJoinAccept, uint8_t encJoinAcceptSize,
-                                                      uint8_t *decJoinAccept );
+SecureElementStatus_t SecureElementProcessJoinAccept( JoinReqIdentifier_t joinReqType, uint8_t* joinEui,
+                                                      uint16_t devNonce, uint8_t* encJoinAccept,
+                                                      uint8_t encJoinAcceptSize, uint8_t* decJoinAccept,
+                                                      uint8_t* versionMinor );
 
 /*!
  * Generates a random number

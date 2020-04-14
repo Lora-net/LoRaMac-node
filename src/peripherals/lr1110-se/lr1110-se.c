@@ -50,6 +50,25 @@
 #define CRYPTO_BUFFER_SIZE CRYPTO_MAXMESSAGE_SIZE + MIC_BLOCK_BX_SIZE
 
 /*!
+ * Size of JoinReqType is field for integrity check
+ * \remark required for 1.1.x support
+ */
+#define JOIN_REQ_TYPE_SIZE 1
+
+/*!
+ * Size of DevNonce is field for integrity check
+ * \remark required for 1.1.x support
+ */
+#define DEV_NONCE_SIZE 2
+
+/*!
+ * MIC computation offset
+ * \remark required for 1.1.x support
+ */
+#define CRYPTO_MIC_COMPUTATION_OFFSET \
+    ( JOIN_REQ_TYPE_SIZE + LORAMAC_JOIN_EUI_FIELD_SIZE + DEV_NONCE_SIZE + LORAMAC_MHDR_FIELD_SIZE )
+
+/*!
  * Identifier value pair type for Keys
  */
 typedef struct sKey
@@ -121,7 +140,7 @@ static lr1110_crypto_keys_idx_t convert_key_id_from_se_to_lr1110( KeyIdentifier_
 SecureElementStatus_t SecureElementInit( SecureElementNvmEvent seNvmCtxChanged )
 {
     lr1110_crypto_status_t status = LR1110_CRYPTO_STATUS_ERROR;
- 
+
     lr1110_crypto_restore_from_flash( &LR1110, &status );
 
 #if defined( SECURE_ELEMENT_PRE_PROVISIONED )
@@ -278,22 +297,63 @@ SecureElementStatus_t SecureElementDeriveAndStoreKey( Version_t version, uint8_t
     return status;
 }
 
-SecureElementStatus_t SecureElementProcessJoinAccept( KeyIdentifier_t encKeyID, KeyIdentifier_t micKeyID,
-                                                      uint8_t version, uint8_t* micHeader, uint8_t* encJoinAccept,
-                                                      uint8_t encJoinAcceptSize, uint8_t* decJoinAccept )
+SecureElementStatus_t SecureElementProcessJoinAccept( JoinReqIdentifier_t joinReqType, uint8_t* joinEui,
+                                                      uint16_t devNonce, uint8_t* encJoinAccept,
+                                                      uint8_t encJoinAcceptSize, uint8_t* decJoinAccept,
+                                                      uint8_t* versionMinor )
 {
     SecureElementStatus_t status = SECURE_ELEMENT_ERROR;
 
-    if( ( micHeader == NULL ) || ( encJoinAccept == NULL ) || ( decJoinAccept == NULL ) )
+    if( ( encJoinAccept == NULL ) || ( decJoinAccept == NULL ) || ( versionMinor == NULL ) )
     {
         return SECURE_ELEMENT_ERROR_NPE;
     }
 
+    // Determine decryption key
+    KeyIdentifier_t encKeyID = NWK_KEY;
+
+    if( joinReqType != JOIN_REQ )
+    {
+        encKeyID = J_S_ENC_KEY;
+    }
+
+    //  - Header buffer to be used for MIC computation
+    //        - LoRaWAN 1.0.x : micHeader = [MHDR(1)]
+    //        - LoRaWAN 1.1.x : micHeader = [JoinReqType(1), JoinEUI(8), DevNonce(2), MHDR(1)]
+
+    // Try first to process LoRaWAN 1.0.x JoinAccept
+    uint8_t micHeader10[1] = { 0x20 };
+
+    //   cmac = aes128_cmac(NwkKey, MHDR |  JoinNonce | NetID | DevAddr | DLSettings | RxDelay | CFList |
+    //   CFListType)
     lr1110_crypto_process_join_accept(
         &LR1110, ( lr1110_crypto_status_t* ) &status, convert_key_id_from_se_to_lr1110( encKeyID ),
-        convert_key_id_from_se_to_lr1110( micKeyID ), ( lr1110_crypto_lorawan_version_t ) version, micHeader,
+        convert_key_id_from_se_to_lr1110( NWK_KEY ), ( lr1110_crypto_lorawan_version_t ) 0, micHeader10,
         encJoinAccept + 1, encJoinAcceptSize - 1, decJoinAccept + 1 );
 
+    if( status != SECURE_ELEMENT_SUCCESS )
+    {  // Then try to process LoRaWAN 1.1.x and later JoinAccept
+        uint8_t  micHeader11[CRYPTO_MIC_COMPUTATION_OFFSET] = { 0 };
+        uint16_t bufItr                                     = 0;
+
+        //   cmac = aes128_cmac(JSIntKey, JoinReqType | JoinEUI | DevNonce | MHDR | JoinNonce | NetID | DevAddr |
+        //   DLSettings | RxDelay | CFList | CFListType)
+        micHeader11[bufItr++] = ( uint8_t ) joinReqType;
+
+        memcpyr( micHeader11 + bufItr, joinEui, LORAMAC_JOIN_EUI_FIELD_SIZE );
+        bufItr += LORAMAC_JOIN_EUI_FIELD_SIZE;
+
+        micHeader11[bufItr++] = devNonce & 0xFF;
+        micHeader11[bufItr++] = ( devNonce >> 8 ) & 0xFF;
+
+        micHeader11[bufItr++] = 0x20;
+
+        lr1110_crypto_process_join_accept(
+            &LR1110, ( lr1110_crypto_status_t* ) &status, convert_key_id_from_se_to_lr1110( encKeyID ),
+            convert_key_id_from_se_to_lr1110( J_S_INT_KEY ), ( lr1110_crypto_lorawan_version_t ) 1, micHeader11,
+            encJoinAccept + 1, encJoinAcceptSize - 1, decJoinAccept + 1 );
+    }
+    *versionMinor = ( ( decJoinAccept[11] & 0x80 ) == 0x80 ) ? 1 : 0;
     return status;
 }
 

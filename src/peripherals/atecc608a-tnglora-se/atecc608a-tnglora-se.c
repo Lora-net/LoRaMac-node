@@ -6,7 +6,7 @@
  * @remark    Current implementation only supports LoRaWAN 1.0.x version
  *
  * @copyright Copyright (c) 2020 The Things Industries B.V.
- * 
+ *
  * Revised BSD License
  * Copyright The Things Industries B.V 2020. All rights reserved.
  *
@@ -128,7 +128,7 @@ static SecureElementNvCtx_t SeNvmCtx = {
     /*!
      * Secure-element pin (big endian)
      */
-    .Pin     = SECURE_ELEMENT_PIN,
+    .Pin = SECURE_ELEMENT_PIN,
     /*!
      * LoRaWAN key list
      */
@@ -512,23 +512,34 @@ SecureElementStatus_t SecureElementDeriveAndStoreKey( Version_t version, uint8_t
     }
 }
 
-SecureElementStatus_t SecureElementProcessJoinAccept( KeyIdentifier_t encKeyID, KeyIdentifier_t micKeyID,
-                                                      uint8_t versionMinor, uint8_t* micHeader, uint8_t* encJoinAccept,
-                                                      uint8_t encJoinAcceptSize, uint8_t* decJoinAccept )
+SecureElementStatus_t SecureElementProcessJoinAccept( JoinReqIdentifier_t joinReqType, uint8_t* joinEui,
+                                                      uint16_t devNonce, uint8_t* encJoinAccept,
+                                                      uint8_t encJoinAcceptSize, uint8_t* decJoinAccept,
+                                                      uint8_t* versionMinor )
 {
-    if( ( micHeader == NULL ) || ( encJoinAccept == NULL ) || ( decJoinAccept == NULL ) )
+    if( ( encJoinAccept == NULL ) || ( decJoinAccept == NULL ) || ( versionMinor == NULL ) )
     {
         return SECURE_ELEMENT_ERROR_NPE;
     }
 
-    // Decrypt header, skip MHDR
+    // Determine decryption key
+    KeyIdentifier_t encKeyID = NWK_KEY;
+
+    if( joinReqType != JOIN_REQ )
+    {
+        encKeyID = J_S_ENC_KEY;
+    }
+
     memcpy1( decJoinAccept, encJoinAccept, encJoinAcceptSize );
 
+    // Decrypt JoinAccept, skip MHDR
     if( SecureElementAesEncrypt( encJoinAccept + LORAMAC_MHDR_FIELD_SIZE, encJoinAcceptSize - LORAMAC_MHDR_FIELD_SIZE,
                                  encKeyID, decJoinAccept + LORAMAC_MHDR_FIELD_SIZE ) != SECURE_ELEMENT_SUCCESS )
     {
         return SECURE_ELEMENT_FAIL_ENCRYPT;
     }
+
+    *versionMinor = ( ( decJoinAccept[11] & 0x80 ) == 0x80 ) ? 1 : 0;
 
     uint32_t mic = 0;
 
@@ -537,32 +548,48 @@ SecureElementStatus_t SecureElementProcessJoinAccept( KeyIdentifier_t encKeyID, 
     mic |= ( ( uint32_t ) decJoinAccept[encJoinAcceptSize - LORAMAC_MIC_FIELD_SIZE + 2] << 16 );
     mic |= ( ( uint32_t ) decJoinAccept[encJoinAcceptSize - LORAMAC_MIC_FIELD_SIZE + 3] << 24 );
 
+    //  - Header buffer to be used for MIC computation
+    //        - LoRaWAN 1.0.x : micHeader = [MHDR(1)]
+    //        - LoRaWAN 1.1.x : micHeader = [JoinReqType(1), JoinEUI(8), DevNonce(2), MHDR(1)]
+
     // Verify mic
-    if( versionMinor == 0 )
+    if( *versionMinor == 0 )
     {
         // For LoRaWAN 1.0.x
         //   cmac = aes128_cmac(NwkKey, MHDR |  JoinNonce | NetID | DevAddr | DLSettings | RxDelay | CFList |
         //   CFListType)
-        if( SecureElementVerifyAesCmac( decJoinAccept, ( encJoinAcceptSize - LORAMAC_MIC_FIELD_SIZE ), mic,
-                                        micKeyID ) != SECURE_ELEMENT_SUCCESS )
+        if( SecureElementVerifyAesCmac( decJoinAccept, ( encJoinAcceptSize - LORAMAC_MIC_FIELD_SIZE ), mic, NWK_KEY ) !=
+            SECURE_ELEMENT_SUCCESS )
         {
             return SECURE_ELEMENT_FAIL_CMAC;
         }
     }
-    else if( versionMinor == 1 )
+    else if( *versionMinor == 1 )
     {
+        uint8_t  micHeader11[CRYPTO_MIC_COMPUTATION_OFFSET] = { 0 };
+        uint16_t bufItr                                     = 0;
+
+        micHeader11[bufItr++] = ( uint8_t ) joinReqType;
+
+        memcpyr( micHeader11 + bufItr, joinEui, LORAMAC_JOIN_EUI_FIELD_SIZE );
+        bufItr += LORAMAC_JOIN_EUI_FIELD_SIZE;
+
+        micHeader11[bufItr++] = devNonce & 0xFF;
+        micHeader11[bufItr++] = ( devNonce >> 8 ) & 0xFF;
+
         // For LoRaWAN 1.1.x and later:
         //   cmac = aes128_cmac(JSIntKey, JoinReqType | JoinEUI | DevNonce | MHDR | JoinNonce | NetID | DevAddr |
         //   DLSettings | RxDelay | CFList | CFListType)
         // Prepare the msg for integrity check (adding JoinReqType, JoinEUI and DevNonce)
-        uint8_t localBuffer[32 + CRYPTO_MIC_COMPUTATION_OFFSET] = { 0 };
-        memcpy1( localBuffer, micHeader, CRYPTO_MIC_COMPUTATION_OFFSET );
-        memcpy1( localBuffer + CRYPTO_MIC_COMPUTATION_OFFSET, decJoinAccept,
-                 encJoinAcceptSize - LORAMAC_MIC_FIELD_SIZE );
+        uint8_t localBuffer[33 + CRYPTO_MIC_COMPUTATION_OFFSET] = { 0 };
 
-        if( SecureElementVerifyAesCmac( localBuffer,
-                                        encJoinAcceptSize + CRYPTO_MIC_COMPUTATION_OFFSET - LORAMAC_MIC_FIELD_SIZE, mic,
-                                        micKeyID ) != SECURE_ELEMENT_SUCCESS )
+        memcpy1( localBuffer, micHeader11, CRYPTO_MIC_COMPUTATION_OFFSET );
+        memcpy1( localBuffer + CRYPTO_MIC_COMPUTATION_OFFSET - 1, decJoinAccept, encJoinAcceptSize );
+
+        if( SecureElementVerifyAesCmac(
+                localBuffer,
+                encJoinAcceptSize + CRYPTO_MIC_COMPUTATION_OFFSET - LORAMAC_MHDR_FIELD_SIZE - LORAMAC_MIC_FIELD_SIZE,
+                mic, J_S_INT_KEY ) != SECURE_ELEMENT_SUCCESS )
         {
             return SECURE_ELEMENT_FAIL_CMAC;
         }
