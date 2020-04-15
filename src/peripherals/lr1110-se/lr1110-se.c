@@ -69,21 +69,6 @@
     ( JOIN_REQ_TYPE_SIZE + LORAMAC_JOIN_EUI_FIELD_SIZE + DEV_NONCE_SIZE + LORAMAC_MHDR_FIELD_SIZE )
 
 /*!
- * Identifier value pair type for Keys
- */
-typedef struct sKey
-{
-    /*
-     * Key identifier
-     */
-    KeyIdentifier_t KeyID;
-    /*
-     * Key value
-     */
-    uint8_t KeyValue[SE_KEY_SIZE];
-} Key_t;
-
-/*!
  * Secure-element LoRaWAN identity local storage.
  */
 typedef struct sSecureElementNvCtx
@@ -100,16 +85,9 @@ typedef struct sSecureElementNvCtx
      * PIN of the LR1110
      */
     uint8_t Pin[SE_PIN_SIZE];
-#if !defined( SECURE_ELEMENT_PRE_PROVISIONED )
-    /*
-     * LoRaWAN key list
-     */
-    Key_t KeyList[NUM_OF_KEYS];
-#endif
 } SecureElementNvCtx_t;
 
-static SecureElementNvCtx_t SeContext =
-{
+static SecureElementNvCtx_t SeContext = {
     /*!
      * end-device IEEE EUI (big endian)
      *
@@ -125,21 +103,45 @@ static SecureElementNvCtx_t SeContext =
      * Secure-element pin (big endian)
      */
     .Pin = SECURE_ELEMENT_PIN,
-#if !defined( SECURE_ELEMENT_PRE_PROVISIONED )
-    /*!
-     * LoRaWAN key list
-     */
-    .KeyList = LR1110_SE_KEY_LIST
-#endif
 };
 
+static SecureElementNvmEvent SeNvmCtxChanged;
+
+/*!
+ * LR1110 radio context
+ */
 extern lr1110_t LR1110;
 
+/*!
+ * Converts key ids from SecureElement to LR1110
+ *
+ * \param [IN] key_id SecureElement key id to be converted
+ *
+ * \retval key_id Converted LR1110 key id
+ */
 static lr1110_crypto_keys_idx_t convert_key_id_from_se_to_lr1110( KeyIdentifier_t key_id );
+
+/*!
+ * Dummy callback in case if the user provides NULL function pointer
+ */
+static void DummyCB( void )
+{
+    return;
+}
 
 SecureElementStatus_t SecureElementInit( SecureElementNvmEvent seNvmCtxChanged )
 {
     lr1110_crypto_status_t status = LR1110_CRYPTO_STATUS_ERROR;
+
+    // Assign callback
+    if( seNvmCtxChanged != 0 )
+    {
+        SeNvmCtxChanged = seNvmCtxChanged;
+    }
+    else
+    {
+        SeNvmCtxChanged = DummyCB;
+    }
 
     lr1110_crypto_restore_from_flash( &LR1110, &status );
 
@@ -148,26 +150,15 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmEvent seNvmCtxChanged )
     lr1110_system_read_uid( &LR1110, SeContext.DevEui );
     lr1110_system_read_join_eui( &LR1110, SeContext.JoinEui );
     lr1110_system_read_pin( &LR1110, SeContext.Pin );
-    // Store default LR1110 pre-provisioned identity
-    SecureElementSetDevEui( SeContext.DevEui );
-    SecureElementSetJoinEui( SeContext.JoinEui );
-    SecureElementSetPin( SeContext.Pin );
 #else
 #if( STATIC_DEVICE_EUI == 0 )
     // Get a DevEUI from MCU unique ID
     LR1110SeHalGetUniqueId( SeContext.DevEui );
 #endif
-    SecureElementSetDevEui( SeContext.DevEui );
-    SecureElementSetJoinEui( SeContext.JoinEui );
-    SecureElementSetPin( SeContext.Pin );
-    SecureElementSetKey( APP_KEY, SeContext.KeyList[APP_KEY].KeyValue );
-    SecureElementSetKey( NWK_KEY, SeContext.KeyList[NWK_KEY].KeyValue );
-    SecureElementSetKey( F_NWK_S_INT_KEY, SeContext.KeyList[F_NWK_S_INT_KEY].KeyValue );
-    SecureElementSetKey( S_NWK_S_INT_KEY, SeContext.KeyList[S_NWK_S_INT_KEY].KeyValue );
-    SecureElementSetKey( NWK_S_ENC_KEY, SeContext.KeyList[NWK_S_ENC_KEY].KeyValue );
-    SecureElementSetKey( APP_S_KEY, SeContext.KeyList[APP_S_KEY].KeyValue );
-    SecureElementSetKey( SLOT_RAND_ZERO_KEY, SeContext.KeyList[SLOT_RAND_ZERO_KEY].KeyValue );
 #endif
+
+    SeNvmCtxChanged( );
+
     return ( SecureElementStatus_t ) status;
 }
 
@@ -175,15 +166,24 @@ SecureElementStatus_t SecureElementRestoreNvmCtx( void* seNvmCtx )
 {
     lr1110_crypto_status_t status = LR1110_CRYPTO_STATUS_ERROR;
 
+    if( seNvmCtx == NULL )
+    {
+        return SECURE_ELEMENT_ERROR_NPE;
+    }
+
     // Restore lr1110 crypto context
     lr1110_crypto_restore_from_flash( &LR1110, &status );
+
+    // Restore nvm context
+    memcpy1( ( uint8_t* ) &SeContext, ( uint8_t* ) seNvmCtx, sizeof( SeContext ) );
+
     return ( SecureElementStatus_t ) status;
 }
 
 void* SecureElementGetNvmCtx( size_t* seNvmCtxSize )
 {
-    *seNvmCtxSize = 0;
-    return NULL;
+    *seNvmCtxSize = sizeof( SeContext );
+    return &SeContext;
 }
 
 SecureElementStatus_t SecureElementSetKey( KeyIdentifier_t keyID, uint8_t* key )
@@ -331,29 +331,49 @@ SecureElementStatus_t SecureElementProcessJoinAccept( JoinReqIdentifier_t joinRe
         convert_key_id_from_se_to_lr1110( NWK_KEY ), ( lr1110_crypto_lorawan_version_t ) 0, micHeader10,
         encJoinAccept + 1, encJoinAcceptSize - 1, decJoinAccept + 1 );
 
-    if( status != SECURE_ELEMENT_SUCCESS )
-    {  // Then try to process LoRaWAN 1.1.x and later JoinAccept
-        uint8_t  micHeader11[CRYPTO_MIC_COMPUTATION_OFFSET] = { 0 };
-        uint16_t bufItr                                     = 0;
-
-        //   cmac = aes128_cmac(JSIntKey, JoinReqType | JoinEUI | DevNonce | MHDR | JoinNonce | NetID | DevAddr |
-        //   DLSettings | RxDelay | CFList | CFListType)
-        micHeader11[bufItr++] = ( uint8_t ) joinReqType;
-
-        memcpyr( micHeader11 + bufItr, joinEui, LORAMAC_JOIN_EUI_FIELD_SIZE );
-        bufItr += LORAMAC_JOIN_EUI_FIELD_SIZE;
-
-        micHeader11[bufItr++] = devNonce & 0xFF;
-        micHeader11[bufItr++] = ( devNonce >> 8 ) & 0xFF;
-
-        micHeader11[bufItr++] = 0x20;
-
-        lr1110_crypto_process_join_accept(
-            &LR1110, ( lr1110_crypto_status_t* ) &status, convert_key_id_from_se_to_lr1110( encKeyID ),
-            convert_key_id_from_se_to_lr1110( J_S_INT_KEY ), ( lr1110_crypto_lorawan_version_t ) 1, micHeader11,
-            encJoinAccept + 1, encJoinAcceptSize - 1, decJoinAccept + 1 );
+    if( status == SECURE_ELEMENT_SUCCESS )
+    {
+        *versionMinor = ( ( decJoinAccept[11] & 0x80 ) == 0x80 ) ? 1 : 0;
+        if( *versionMinor == 0 )
+        {
+            // Network server is operating according to LoRaWAN 1.0.x
+            return SECURE_ELEMENT_SUCCESS;
+        }
     }
-    *versionMinor = ( ( decJoinAccept[11] & 0x80 ) == 0x80 ) ? 1 : 0;
+
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
+    // 1.0.x trial failed. Trying to process LoRaWAN 1.1.x JoinAccept
+    uint8_t  micHeader11[CRYPTO_MIC_COMPUTATION_OFFSET] = { 0 };
+    uint16_t bufItr                                     = 0;
+
+    //   cmac = aes128_cmac(JSIntKey, JoinReqType | JoinEUI | DevNonce | MHDR | JoinNonce | NetID | DevAddr |
+    //   DLSettings | RxDelay | CFList | CFListType)
+    micHeader11[bufItr++] = ( uint8_t ) joinReqType;
+
+    memcpyr( micHeader11 + bufItr, joinEui, LORAMAC_JOIN_EUI_FIELD_SIZE );
+    bufItr += LORAMAC_JOIN_EUI_FIELD_SIZE;
+
+    micHeader11[bufItr++] = devNonce & 0xFF;
+    micHeader11[bufItr++] = ( devNonce >> 8 ) & 0xFF;
+
+    micHeader11[bufItr++] = 0x20;
+
+    lr1110_crypto_process_join_accept(
+        &LR1110, ( lr1110_crypto_status_t* ) &status, convert_key_id_from_se_to_lr1110( encKeyID ),
+        convert_key_id_from_se_to_lr1110( J_S_INT_KEY ), ( lr1110_crypto_lorawan_version_t ) 1, micHeader11,
+        encJoinAccept + 1, encJoinAcceptSize - 1, decJoinAccept + 1 );
+
+    if( status == SECURE_ELEMENT_SUCCESS )
+    {
+        *versionMinor = ( ( decJoinAccept[11] & 0x80 ) == 0x80 ) ? 1 : 0;
+        if( *versionMinor == 1 )
+        {
+            // Network server is operating according to LoRaWAN 1.1.x
+            return SECURE_ELEMENT_SUCCESS;
+        }
+    }
+#endif
+
     return status;
 }
 
@@ -369,85 +389,50 @@ SecureElementStatus_t SecureElementRandomNumber( uint32_t* randomNum )
 
 SecureElementStatus_t SecureElementSetDevEui( uint8_t* devEui )
 {
-    SecureElementStatus_t status = SECURE_ELEMENT_ERROR;
-
     if( devEui == NULL )
     {
         return SECURE_ELEMENT_ERROR_NPE;
     }
-
     memcpy1( SeContext.DevEui, devEui, SE_EUI_SIZE );
-
-    lr1110_crypto_set_parameter( &LR1110, ( lr1110_crypto_status_t* ) &status, 0, devEui );
-    lr1110_crypto_set_parameter( &LR1110, ( lr1110_crypto_status_t* ) &status, 1, devEui + 4 );
-    lr1110_crypto_store_to_flash( &LR1110, ( lr1110_crypto_status_t* ) &status );
-
-    return status;
+    SeNvmCtxChanged( );
+    return SECURE_ELEMENT_SUCCESS;
 }
 
 uint8_t* SecureElementGetDevEui( void )
 {
-    SecureElementStatus_t status = SECURE_ELEMENT_ERROR;
-
-    lr1110_crypto_get_parameter( &LR1110, ( lr1110_crypto_status_t* ) &status, 0, SeContext.DevEui );
-    lr1110_crypto_get_parameter( &LR1110, ( lr1110_crypto_status_t* ) &status, 1, SeContext.DevEui + 4 );
-
     return SeContext.DevEui;
 }
 
 SecureElementStatus_t SecureElementSetJoinEui( uint8_t* joinEui )
 {
-    SecureElementStatus_t status = SECURE_ELEMENT_ERROR;
-
     if( joinEui == NULL )
     {
         return SECURE_ELEMENT_ERROR_NPE;
     }
-
     memcpy1( SeContext.JoinEui, joinEui, SE_EUI_SIZE );
-
-    lr1110_crypto_set_parameter( &LR1110, ( lr1110_crypto_status_t* ) &status, 2, joinEui );
-    lr1110_crypto_set_parameter( &LR1110, ( lr1110_crypto_status_t* ) &status, 3, joinEui + 4 );
-
-    lr1110_crypto_store_to_flash( &LR1110, ( lr1110_crypto_status_t* ) &status );
-
-    return status;
+    SeNvmCtxChanged( );
+    return SECURE_ELEMENT_SUCCESS;
 }
 
 uint8_t* SecureElementGetJoinEui( void )
 {
-    SecureElementStatus_t status = SECURE_ELEMENT_ERROR;
-
-    lr1110_crypto_get_parameter( &LR1110, ( lr1110_crypto_status_t* ) &status, 2, SeContext.JoinEui );
-    lr1110_crypto_get_parameter( &LR1110, ( lr1110_crypto_status_t* ) &status, 3, SeContext.JoinEui + 4 );
-
     return SeContext.JoinEui;
 }
 
 SecureElementStatus_t SecureElementSetPin( uint8_t* pin )
 {
-    SecureElementStatus_t status = SECURE_ELEMENT_ERROR;
-
     if( pin == NULL )
     {
         return SECURE_ELEMENT_ERROR_NPE;
     }
 
     memcpy1( SeContext.Pin, pin, SE_PIN_SIZE );
-
-    lr1110_crypto_set_parameter( &LR1110, ( lr1110_crypto_status_t* ) &status, 4, pin );
-
-    lr1110_crypto_store_to_flash( &LR1110, ( lr1110_crypto_status_t* ) &status );
-
-    return status;
+    SeNvmCtxChanged( );
+    return SECURE_ELEMENT_SUCCESS;
 }
 
 uint8_t* SecureElementGetPin( void )
 {
-    SecureElementStatus_t status = SECURE_ELEMENT_ERROR;
-
-    lr1110_crypto_get_parameter( &LR1110, ( lr1110_crypto_status_t* ) &status, 4, SeContext.Pin );
-
     return SeContext.Pin;
 }
 
@@ -457,78 +442,78 @@ static lr1110_crypto_keys_idx_t convert_key_id_from_se_to_lr1110( KeyIdentifier_
 
     switch( key_id )
     {
-    case APP_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_APP_KEY;
-        break;
-    case NWK_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_NWK_KEY;
-        break;
-    case J_S_INT_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_J_S_INT_KEY;
-        break;
-    case J_S_ENC_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_J_S_ENC_KEY;
-        break;
-    case F_NWK_S_INT_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_F_NWK_S_INT_KEY;
-        break;
-    case S_NWK_S_INT_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_S_NWK_S_INT_KEY;
-        break;
-    case NWK_S_ENC_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_NWK_S_ENC_KEY;
-        break;
-    case APP_S_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_APP_S_KEY;
-        break;
-    case MC_ROOT_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_GP_KE_KEY_5;
-        break;
-    case MC_KE_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_GP_KE_KEY_4;
-        break;
-    case MC_KEY_0:
-        id = LR1110_CRYPTO_KEYS_IDX_GP_KE_KEY_0;
-        break;
-    case MC_APP_S_KEY_0:
-        id = LR1110_CRYPTO_KEYS_IDX_MC_APP_S_KEY_0;
-        break;
-    case MC_NWK_S_KEY_0:
-        id = LR1110_CRYPTO_KEYS_IDX_MC_NWK_S_KEY_0;
-        break;
-    case MC_KEY_1:
-        id = LR1110_CRYPTO_KEYS_IDX_GP_KE_KEY_1;
-        break;
-    case MC_APP_S_KEY_1:
-        id = LR1110_CRYPTO_KEYS_IDX_MC_APP_S_KEY_1;
-        break;
-    case MC_NWK_S_KEY_1:
-        id = LR1110_CRYPTO_KEYS_IDX_MC_NWK_S_KEY_1;
-        break;
-    case MC_KEY_2:
-        id = LR1110_CRYPTO_KEYS_IDX_GP_KE_KEY_2;
-        break;
-    case MC_APP_S_KEY_2:
-        id = LR1110_CRYPTO_KEYS_IDX_MC_APP_S_KEY_2;
-        break;
-    case MC_NWK_S_KEY_2:
-        id = LR1110_CRYPTO_KEYS_IDX_MC_NWK_S_KEY_2;
-        break;
-    case MC_KEY_3:
-        id = LR1110_CRYPTO_KEYS_IDX_GP_KE_KEY_3;
-        break;
-    case MC_APP_S_KEY_3:
-        id = LR1110_CRYPTO_KEYS_IDX_MC_APP_S_KEY_3;
-        break;
-    case MC_NWK_S_KEY_3:
-        id = LR1110_CRYPTO_KEYS_IDX_MC_NWK_S_KEY_3;
-        break;
-    case SLOT_RAND_ZERO_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_GP0;
-        break;
-    default:
-        id = LR1110_CRYPTO_KEYS_IDX_GP1;
-        break;
+        case APP_KEY:
+            id = LR1110_CRYPTO_KEYS_IDX_APP_KEY;
+            break;
+        case NWK_KEY:
+            id = LR1110_CRYPTO_KEYS_IDX_NWK_KEY;
+            break;
+        case J_S_INT_KEY:
+            id = LR1110_CRYPTO_KEYS_IDX_J_S_INT_KEY;
+            break;
+        case J_S_ENC_KEY:
+            id = LR1110_CRYPTO_KEYS_IDX_J_S_ENC_KEY;
+            break;
+        case F_NWK_S_INT_KEY:
+            id = LR1110_CRYPTO_KEYS_IDX_F_NWK_S_INT_KEY;
+            break;
+        case S_NWK_S_INT_KEY:
+            id = LR1110_CRYPTO_KEYS_IDX_S_NWK_S_INT_KEY;
+            break;
+        case NWK_S_ENC_KEY:
+            id = LR1110_CRYPTO_KEYS_IDX_NWK_S_ENC_KEY;
+            break;
+        case APP_S_KEY:
+            id = LR1110_CRYPTO_KEYS_IDX_APP_S_KEY;
+            break;
+        case MC_ROOT_KEY:
+            id = LR1110_CRYPTO_KEYS_IDX_GP_KE_KEY_5;
+            break;
+        case MC_KE_KEY:
+            id = LR1110_CRYPTO_KEYS_IDX_GP_KE_KEY_4;
+            break;
+        case MC_KEY_0:
+            id = LR1110_CRYPTO_KEYS_IDX_GP_KE_KEY_0;
+            break;
+        case MC_APP_S_KEY_0:
+            id = LR1110_CRYPTO_KEYS_IDX_MC_APP_S_KEY_0;
+            break;
+        case MC_NWK_S_KEY_0:
+            id = LR1110_CRYPTO_KEYS_IDX_MC_NWK_S_KEY_0;
+            break;
+        case MC_KEY_1:
+            id = LR1110_CRYPTO_KEYS_IDX_GP_KE_KEY_1;
+            break;
+        case MC_APP_S_KEY_1:
+            id = LR1110_CRYPTO_KEYS_IDX_MC_APP_S_KEY_1;
+            break;
+        case MC_NWK_S_KEY_1:
+            id = LR1110_CRYPTO_KEYS_IDX_MC_NWK_S_KEY_1;
+            break;
+        case MC_KEY_2:
+            id = LR1110_CRYPTO_KEYS_IDX_GP_KE_KEY_2;
+            break;
+        case MC_APP_S_KEY_2:
+            id = LR1110_CRYPTO_KEYS_IDX_MC_APP_S_KEY_2;
+            break;
+        case MC_NWK_S_KEY_2:
+            id = LR1110_CRYPTO_KEYS_IDX_MC_NWK_S_KEY_2;
+            break;
+        case MC_KEY_3:
+            id = LR1110_CRYPTO_KEYS_IDX_GP_KE_KEY_3;
+            break;
+        case MC_APP_S_KEY_3:
+            id = LR1110_CRYPTO_KEYS_IDX_MC_APP_S_KEY_3;
+            break;
+        case MC_NWK_S_KEY_3:
+            id = LR1110_CRYPTO_KEYS_IDX_MC_NWK_S_KEY_3;
+            break;
+        case SLOT_RAND_ZERO_KEY:
+            id = LR1110_CRYPTO_KEYS_IDX_GP0;
+            break;
+        default:
+            id = LR1110_CRYPTO_KEYS_IDX_GP1;
+            break;
     }
     return id;
 }

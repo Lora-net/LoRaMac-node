@@ -234,9 +234,11 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmEvent seNvmCtxChanged )
 #if( STATIC_DEVICE_EUI == 0 )
     // Get a DevEUI from MCU unique ID
     SoftSeHalGetUniqueId( SeNvmCtx.DevEui );
-    SecureElementSetDevEui( SeNvmCtx.DevEui );
 #endif
 #endif
+
+    SeNvmCtxChanged( );
+
     return SECURE_ELEMENT_SUCCESS;
 }
 
@@ -455,6 +457,7 @@ SecureElementStatus_t SecureElementProcessJoinAccept( JoinReqIdentifier_t joinRe
             return SECURE_ELEMENT_FAIL_CMAC;
         }
     }
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     else if( *versionMinor == 1 )
     {
         uint8_t  micHeader11[CRYPTO_MIC_COMPUTATION_OFFSET] = { 0 };
@@ -485,6 +488,7 @@ SecureElementStatus_t SecureElementProcessJoinAccept( JoinReqIdentifier_t joinRe
             return SECURE_ELEMENT_FAIL_CMAC;
         }
     }
+#endif
     else
     {
         return SECURE_ELEMENT_ERROR_INVALID_LORAWAM_SPEC_VERSION;
