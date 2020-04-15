@@ -120,11 +120,11 @@ static SecureElementNvCtx_t SeNvmCtx = {
     /*!
      * end-device IEEE EUI (big endian)
      */
-    .DevEui = LORAWAN_DEVICE_EUI,
+    .DevEui = { 0 },
     /*!
      * App/Join server IEEE EUI (big endian)
      */
-    .JoinEui = LORAWAN_JOIN_EUI,
+    .JoinEui = { 0 },
     /*!
      * Secure-element pin (big endian)
      */
@@ -336,19 +336,15 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmEvent seNvmCtxChanged )
         return SECURE_ELEMENT_ERROR;
     }
 
-#if ( STATIC_DEVICE_EUI == 0 )
     if( atcab_read_devEUI( SeNvmCtx.DevEui ) != ATCA_SUCCESS )
     {
         return SECURE_ELEMENT_ERROR;
     }
-#endif
 
-#if ( STATIC_JOIN_EUI == 0 )
     if( atcab_read_joinEUI( SeNvmCtx.JoinEui ) != ATCA_SUCCESS )
     {
         return SECURE_ELEMENT_ERROR;
     }
-#endif
 
     // Assign callback
     if( seNvmCtxChanged != 0 )
@@ -564,6 +560,7 @@ SecureElementStatus_t SecureElementProcessJoinAccept( JoinReqIdentifier_t joinRe
             return SECURE_ELEMENT_FAIL_CMAC;
         }
     }
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     else if( *versionMinor == 1 )
     {
         uint8_t  micHeader11[CRYPTO_MIC_COMPUTATION_OFFSET] = { 0 };
@@ -594,6 +591,7 @@ SecureElementStatus_t SecureElementProcessJoinAccept( JoinReqIdentifier_t joinRe
             return SECURE_ELEMENT_FAIL_CMAC;
         }
     }
+#endif
     else
     {
         return SECURE_ELEMENT_ERROR_INVALID_LORAWAM_SPEC_VERSION;
