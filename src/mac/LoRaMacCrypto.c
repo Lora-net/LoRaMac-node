@@ -41,16 +41,6 @@
 #include "LoRaMacSerializer.h"
 #include "LoRaMacCrypto.h"
 
-/*!
- * Indicates if LoRaWAN 1.1.x crypto scheme is enabled
- */
-#define USE_LRWAN_1_1_X_CRYPTO                      0
-
-/*!
- * Indicates if a random devnonce must be used or not
- */
-#define USE_RANDOM_DEV_NONCE                        1
-
 /*
  * Frame direction definition for uplink communications
  */
@@ -146,6 +136,12 @@ typedef struct sFCntList
      * Multicast downlink counter for index 3
      */
     uint32_t McFCntDown3;
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
+    /*
+     * RJcount1 is a counter incremented with every Rejoin request Type 1 frame transmitted.
+     */
+    uint16_t RJcount1;
+#endif
 }FCntList_t;
 
 /*
@@ -173,10 +169,6 @@ typedef struct sLoRaMacCryptoNvmCtx
      */
     FCntList_t FCntList;
     /*
-     * RJcount1 is a counter incremented with every Rejoin request Type 1 frame transmitted.
-     */
-    uint16_t RJcount1;
-    /*
      * LastDownFCnt stores the information which frame counter was used to unsecure the last frame.
      * This information is needed to compute ConfFCnt in B1 block for the MIC.
      */
@@ -188,10 +180,12 @@ typedef struct sLoRaMacCryptoNvmCtx
  */
 typedef struct sLoRaMacCryptoCtx
 {
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     /*
      * RJcount0 is a counter incremented with every Type 0 or 2 Rejoin frame transmitted.
      */
     uint16_t RJcount0;
+#endif
     /*
      * Non volatile module context structure
      */
@@ -1054,6 +1048,28 @@ LoRaMacCryptoStatus_t LoRaMacCryptoGetFCntDown( FCntIdentifier_t fCntID, uint16_
     return LORAMAC_CRYPTO_SUCCESS;
 }
 
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
+LoRaMacCryptoStatus_t LoRaMacCryptoGetRJcount( FCntIdentifier_t fCntID, uint16_t* rJcount )
+{
+    if( rJcount == 0 )
+    {
+        return LORAMAC_CRYPTO_ERROR_NPE;
+    }
+    switch( fCntID )
+    {
+        case RJ_COUNT_0:
+            *rJcount = CryptoCtx.RJcount0 + 1;
+            break;
+        case RJ_COUNT_1:
+            *rJcount = CryptoCtx.NvmCtx->FCntList.RJcount1 + 1;
+            break;
+        default:
+            return LORAMAC_CRYPTO_FAIL_FCNT_ID;
+    }
+    return LORAMAC_CRYPTO_SUCCESS;
+}
+#endif
+
 LoRaMacCryptoStatus_t LoRaMacCryptoSetMulticastReference( MulticastCtx_t* multicastList )
 {
     if( multicastList == NULL )
@@ -1142,6 +1158,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareJoinRequest( LoRaMacMessageJoinRequest
     return LORAMAC_CRYPTO_SUCCESS;
 }
 
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
 LoRaMacCryptoStatus_t LoRaMacCryptoPrepareReJoinType1( LoRaMacMessageReJoinType1_t* macMsg )
 {
     if( macMsg == 0 )
@@ -1150,7 +1167,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareReJoinType1( LoRaMacMessageReJoinType1
     }
 
     // Check for RJcount1 overflow
-    if( CryptoCtx.NvmCtx->RJcount1 == 65535 )
+    if( CryptoCtx.NvmCtx->FCntList.RJcount1 == 65535 )
     {
         return LORAMAC_CRYPTO_ERROR_RJCOUNT1_OVERFLOW;
     }
@@ -1175,7 +1192,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareReJoinType1( LoRaMacMessageReJoinType1
     }
 
     // Increment RJcount1
-    CryptoCtx.NvmCtx->RJcount1++;
+    CryptoCtx.NvmCtx->FCntList.RJcount1++;
     CryptoCtx.EventCryptoNvmCtxChanged( );
 
     return LORAMAC_CRYPTO_SUCCESS;
@@ -1218,6 +1235,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareReJoinType0or2( LoRaMacMessageReJoinTy
 
     return LORAMAC_CRYPTO_SUCCESS;
 }
+#endif
 
 LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReqType, uint8_t* joinEUI, LoRaMacMessageJoinAccept_t* macMsg )
 {
@@ -1244,25 +1262,22 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
         return LORAMAC_CRYPTO_ERROR_PARSER;
     }
 
-#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
-    if( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor == 1 )
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 ) || ( USE_JOIN_NONCE_COUNTER_CHECK == 1 )
+    // Check if the JoinNonce is greater as the previous one
+    uint32_t currentJoinNonce = 0;
+
+    currentJoinNonce = ( uint32_t )macMsg->JoinNonce[0];
+    currentJoinNonce |= ( ( uint32_t )macMsg->JoinNonce[1] << 8 );
+    currentJoinNonce |= ( ( uint32_t )macMsg->JoinNonce[2] << 16 );
+
+    if( currentJoinNonce > CryptoCtx.NvmCtx->JoinNonce )
     {
-        // Check if the JoinNonce is greater as the previous one
-        uint32_t currentJoinNonce = 0;
-
-        currentJoinNonce = ( uint32_t )macMsg->JoinNonce[0];
-        currentJoinNonce |= ( ( uint32_t )macMsg->JoinNonce[1] << 8 );
-        currentJoinNonce |= ( ( uint32_t )macMsg->JoinNonce[2] << 16 );
-
-        if( currentJoinNonce > CryptoCtx.NvmCtx->JoinNonce )
-        {
-            CryptoCtx.NvmCtx->JoinNonce = currentJoinNonce;
-            CryptoCtx.EventCryptoNvmCtxChanged( );
-        }
-        else
-        {
-            return LORAMAC_CRYPTO_FAIL_JOIN_NONCE;
-        }
+        CryptoCtx.NvmCtx->JoinNonce = currentJoinNonce;
+        CryptoCtx.EventCryptoNvmCtxChanged( );
+    }
+    else
+    {
+        return LORAMAC_CRYPTO_FAIL_JOIN_NONCE;
     }
 #endif
 
@@ -1286,7 +1301,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
         }
         else
         {
-            devNonceForKeyDerivation = ( uint8_t* )&CryptoCtx.NvmCtx->RJcount1;
+            devNonceForKeyDerivation = ( uint8_t* )&CryptoCtx.NvmCtx->FCntList.RJcount1;
         }
     }
 
@@ -1372,7 +1387,9 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
     }
 
     // Join-Accept is successfully processed, reset frame counters
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     CryptoCtx.RJcount0 = 0;
+#endif
     CryptoCtx.NvmCtx->FCntList.FCntUp = 0;
     CryptoCtx.NvmCtx->FCntList.FCntDown = FCNT_DOWN_INITAL_VALUE;
     CryptoCtx.NvmCtx->FCntList.NFCntDown = FCNT_DOWN_INITAL_VALUE;

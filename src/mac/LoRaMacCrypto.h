@@ -49,7 +49,22 @@ extern "C"
 #include "LoRaMacTypes.h"
 #include "LoRaMacMessageTypes.h"
 
-/*
+/*!
+ * Indicates if LoRaWAN 1.1.x crypto scheme is enabled
+ */
+#define USE_LRWAN_1_1_X_CRYPTO                      0
+
+/*!
+ * Indicates if a random devnonce must be used or not
+ */
+#define USE_RANDOM_DEV_NONCE                        1
+
+/*!
+ * Indicates if JoinNonce is counter based and requires to be checked
+ */
+#define USE_JOIN_NONCE_COUNTER_CHECK                0
+
+/*!
  * Initial value of the frame counters
  */
 #define FCNT_DOWN_INITAL_VALUE          0xFFFFFFFF
