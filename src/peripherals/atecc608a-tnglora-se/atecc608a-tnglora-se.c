@@ -499,6 +499,12 @@ SecureElementStatus_t SecureElementProcessJoinAccept( JoinReqIdentifier_t joinRe
         return SECURE_ELEMENT_ERROR_NPE;
     }
 
+    // Check that frame size isn't bigger than a JoinAccept with CFList size
+    if( encJoinAcceptSize > LORAMAC_JOIN_ACCEPT_FRAME_MAX_SIZE )
+    {
+        return SECURE_ELEMENT_ERROR_BUF_SIZE;
+    }
+
     // Determine decryption key
     KeyIdentifier_t encKeyID = NWK_KEY;
 
