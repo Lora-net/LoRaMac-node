@@ -549,7 +549,7 @@ bool RegionIN865RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
         Radio.SetRxConfig( modem, rxConfig->Bandwidth, phyDr, 1, 0, 8, rxConfig->WindowTimeout, false, 0, false, 0, 0, true, rxConfig->RxContinuous );
     }
 
-    Radio.SetMaxPayloadLength( modem, MaxPayloadOfDatarateIN865[dr] + LORA_MAC_FRMPAYLOAD_OVERHEAD );
+    Radio.SetMaxPayloadLength( modem, MaxPayloadOfDatarateIN865[dr] + LORAMAC_FRAME_PAYLOAD_OVERHEAD_SIZE );
 
     *datarate = (uint8_t) dr;
     return true;

@@ -49,25 +49,6 @@
 #define DEV_EUI_ASCII_SIZE_BYTE 16U
 
 /*!
- * Size of JoinReqType is field for integrity check
- * \remark required for 1.1.x support
- */
-#define JOIN_REQ_TYPE_SIZE 1
-
-/*!
- * Size of DevNonce is field for integrity check
- * \remark required for 1.1.x support
- */
-#define DEV_NONCE_SIZE 2
-
-/*!
- * MIC computation offset
- * \remark required for 1.1.x support
- */
-#define CRYPTO_MIC_COMPUTATION_OFFSET \
-    ( JOIN_REQ_TYPE_SIZE + LORAMAC_JOIN_EUI_FIELD_SIZE + DEV_NONCE_SIZE + LORAMAC_MHDR_FIELD_SIZE )
-
-/*!
  * Identifier value pair type for Keys
  */
 typedef struct sKey
@@ -321,7 +302,7 @@ static SecureElementStatus_t ComputeCmac( uint8_t* micBxBuffer, uint8_t* buffer,
 SecureElementStatus_t SecureElementInit( SecureElementNvmEvent seNvmCtxChanged )
 {
 #if !defined( SECURE_ELEMENT_PRE_PROVISIONED )
-    #error "ATECC608A is always pre-provisioned. Please set SECURE_ELEMENT_PRE_PROVISIONED to ON"
+#error "ATECC608A is always pre-provisioned. Please set SECURE_ELEMENT_PRE_PROVISIONED to ON"
 #endif
     atecc608_i2c_config.iface_type            = ATCA_I2C_IFACE;
     atecc608_i2c_config.atcai2c.baud          = ATCA_HAL_ATECC608A_I2C_FREQUENCY;
@@ -563,8 +544,8 @@ SecureElementStatus_t SecureElementProcessJoinAccept( JoinReqIdentifier_t joinRe
 #if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     else if( *versionMinor == 1 )
     {
-        uint8_t  micHeader11[CRYPTO_MIC_COMPUTATION_OFFSET] = { 0 };
-        uint16_t bufItr                                     = 0;
+        uint8_t  micHeader11[JOIN_ACCEPT_MIC_COMPUTATION_OFFSET] = { 0 };
+        uint16_t bufItr                                          = 0;
 
         micHeader11[bufItr++] = ( uint8_t ) joinReqType;
 
@@ -578,15 +559,15 @@ SecureElementStatus_t SecureElementProcessJoinAccept( JoinReqIdentifier_t joinRe
         //   cmac = aes128_cmac(JSIntKey, JoinReqType | JoinEUI | DevNonce | MHDR | JoinNonce | NetID | DevAddr |
         //   DLSettings | RxDelay | CFList | CFListType)
         // Prepare the msg for integrity check (adding JoinReqType, JoinEUI and DevNonce)
-        uint8_t localBuffer[33 + CRYPTO_MIC_COMPUTATION_OFFSET] = { 0 };
+        uint8_t localBuffer[LORAMAC_JOIN_ACCEPT_FRAME_MAX_SIZE + JOIN_ACCEPT_MIC_COMPUTATION_OFFSET] = { 0 };
 
-        memcpy1( localBuffer, micHeader11, CRYPTO_MIC_COMPUTATION_OFFSET );
-        memcpy1( localBuffer + CRYPTO_MIC_COMPUTATION_OFFSET - 1, decJoinAccept, encJoinAcceptSize );
+        memcpy1( localBuffer, micHeader11, JOIN_ACCEPT_MIC_COMPUTATION_OFFSET );
+        memcpy1( localBuffer + JOIN_ACCEPT_MIC_COMPUTATION_OFFSET - 1, decJoinAccept, encJoinAcceptSize );
 
-        if( SecureElementVerifyAesCmac(
-                localBuffer,
-                encJoinAcceptSize + CRYPTO_MIC_COMPUTATION_OFFSET - LORAMAC_MHDR_FIELD_SIZE - LORAMAC_MIC_FIELD_SIZE,
-                mic, J_S_INT_KEY ) != SECURE_ELEMENT_SUCCESS )
+        if( SecureElementVerifyAesCmac( localBuffer,
+                                        encJoinAcceptSize + JOIN_ACCEPT_MIC_COMPUTATION_OFFSET -
+                                            LORAMAC_MHDR_FIELD_SIZE - LORAMAC_MIC_FIELD_SIZE,
+                                        mic, J_S_INT_KEY ) != SECURE_ELEMENT_SUCCESS )
         {
             return SECURE_ELEMENT_FAIL_CMAC;
         }

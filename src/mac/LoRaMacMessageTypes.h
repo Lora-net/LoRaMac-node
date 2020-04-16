@@ -45,40 +45,6 @@ extern "C"
 #include <stdint.h>
 #include "LoRaMacHeaderTypes.h"
 
-
-/*! MAC header field size */
-#define LORAMAC_MHDR_FIELD_SIZE             1
-
-/*! Join EUI field size */
-#define LORAMAC_JOIN_EUI_FIELD_SIZE         8
-
-/*! Device EUI field size */
-#define LORAMAC_DEV_EUI_FIELD_SIZE          8
-
-/*! Join-server nonce field size */
-#define LORAMAC_JOIN_NONCE_FIELD_SIZE        3
-
-/*! Network ID field size */
-#define LORAMAC_NET_ID_FIELD_SIZE           3
-
-/*! Port field size */
-#define LORAMAC_F_PORT_FIELD_SIZE           1
-
-/*! CFList field size */
-#define LORAMAC_C_FLIST_FIELD_SIZE          16
-
-/*! MIC field size */
-#define LORAMAC_MIC_FIELD_SIZE              4
-
-/*! Join-request message size */
-#define LORAMAC_JOIN_REQ_MSG_SIZE           23
-
-/*! ReJoin-request type 1 message size */
-#define LORAMAC_RE_JOIN_1_MSG_SIZE          24
-
-/*! ReJoin-request type 0 or 2 message size */
-#define LORAMAC_RE_JOIN_0_2_MSG_SIZE        19
-
 /*!
  * LoRaMac type for Join-request message
  */

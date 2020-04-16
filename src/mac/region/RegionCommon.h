@@ -43,6 +43,7 @@ extern "C"
 #endif
 
 #include "LoRaMacTypes.h"
+#include "LoRaMacHeaderTypes.h"
 #include "region/Region.h"
 
 /*!
