@@ -57,16 +57,6 @@
 #define MIC_BLOCK_BX_SIZE               16
 
 /*
- * Size of JoinReqType is field for integrity check
- */
-#define JOIN_REQ_TYPE_SIZE              1
-
-/*
- * Size of DevNonce is field for integrity check
- */
-#define DEV_NONCE_SIZE                  2
-
-/*
  * Number of security context entries
  */
 #define NUM_OF_SEC_CTX                  5
@@ -90,11 +80,6 @@
  * Maximum size of the buffer for crypto operations
  */
 #define CRYPTO_BUFFER_SIZE              CRYPTO_MAXMESSAGE_SIZE + MIC_BLOCK_BX_SIZE
-
-/*
- * MIC computation offset
- */
-#define CRYPTO_MIC_COMPUTATION_OFFSET   JOIN_REQ_TYPE_SIZE + LORAMAC_JOIN_EUI_FIELD_SIZE + DEV_NONCE_SIZE + LORAMAC_MHDR_FIELD_SIZE
 
 /*!
  * LoRaWAN Frame counter list.

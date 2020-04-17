@@ -50,25 +50,6 @@
 #define CRYPTO_BUFFER_SIZE CRYPTO_MAXMESSAGE_SIZE + MIC_BLOCK_BX_SIZE
 
 /*!
- * Size of JoinReqType is field for integrity check
- * \remark required for 1.1.x support
- */
-#define JOIN_REQ_TYPE_SIZE 1
-
-/*!
- * Size of DevNonce is field for integrity check
- * \remark required for 1.1.x support
- */
-#define DEV_NONCE_SIZE 2
-
-/*!
- * MIC computation offset
- * \remark required for 1.1.x support
- */
-#define CRYPTO_MIC_COMPUTATION_OFFSET \
-    ( JOIN_REQ_TYPE_SIZE + LORAMAC_JOIN_EUI_FIELD_SIZE + DEV_NONCE_SIZE + LORAMAC_MHDR_FIELD_SIZE )
-
-/*!
  * Secure-element LoRaWAN identity local storage.
  */
 typedef struct sSecureElementNvCtx
@@ -309,6 +290,12 @@ SecureElementStatus_t SecureElementProcessJoinAccept( JoinReqIdentifier_t joinRe
         return SECURE_ELEMENT_ERROR_NPE;
     }
 
+    // Check that frame size isn't bigger than a JoinAccept with CFList size
+    if( encJoinAcceptSize > LORAMAC_JOIN_ACCEPT_FRAME_MAX_SIZE )
+    {
+        return SECURE_ELEMENT_ERROR_BUF_SIZE;
+    }
+
     // Determine decryption key
     KeyIdentifier_t encKeyID = NWK_KEY;
 
@@ -343,7 +330,7 @@ SecureElementStatus_t SecureElementProcessJoinAccept( JoinReqIdentifier_t joinRe
 
 #if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     // 1.0.x trial failed. Trying to process LoRaWAN 1.1.x JoinAccept
-    uint8_t  micHeader11[CRYPTO_MIC_COMPUTATION_OFFSET] = { 0 };
+    uint8_t  micHeader11[JOIN_ACCEPT_MIC_COMPUTATION_OFFSET] = { 0 };
     uint16_t bufItr                                     = 0;
 
     //   cmac = aes128_cmac(JSIntKey, JoinReqType | JoinEUI | DevNonce | MHDR | JoinNonce | NetID | DevAddr |

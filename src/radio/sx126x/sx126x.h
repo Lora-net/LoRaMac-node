@@ -96,6 +96,11 @@ extern "C"
 #define REG_LR_PAYLOADLENGTH                        0x0702
 
 /*!
+ * \brief The address of the register holding the re-calculated number of symbols
+ */
+#define REG_LR_SYNCH_TIMEOUT                        0x0706
+
+/*!
  * \brief The addresses of the registers holding SyncWords values
  */
 #define REG_LR_SYNCWORDBASEADDRESS                  0x06C0

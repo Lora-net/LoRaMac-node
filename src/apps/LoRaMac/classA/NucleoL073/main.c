@@ -941,9 +941,9 @@ int main( void )
     LoRaMacCallback_t macCallbacks;
     MibRequestConfirm_t mibReq;
     LoRaMacStatus_t status;
-    uint8_t devEui[] = { 0 };  // Automatically filed from secure-element
-    uint8_t joinEui[] = { 0 }; // Automatically filed from secure-element
-    uint8_t sePin[] = { 0 };   // Automatically filed from secure-element
+    uint8_t devEui[8] = { 0 };  // Automatically filed from secure-element
+    uint8_t joinEui[8] = { 0 }; // Automatically filed from secure-element
+    uint8_t sePin[4] = { 0 };   // Automatically filed from secure-element
 
     BoardInitMcu( );
     BoardInitPeriph( );
