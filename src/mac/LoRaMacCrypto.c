@@ -1231,10 +1231,11 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
 
     LoRaMacCryptoStatus_t retval = LORAMAC_CRYPTO_ERROR;
     uint8_t decJoinAccept[33] = { 0 };
+    uint8_t versionMinor = 0;
 
     if( SecureElementProcessJoinAccept( joinReqType, joinEUI, CryptoCtx.NvmCtx->DevNonce, macMsg->Buffer,
                                         macMsg->BufSize, decJoinAccept,
-                                        &CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor ) != SECURE_ELEMENT_SUCCESS )
+                                        &versionMinor ) != SECURE_ELEMENT_SUCCESS )
     {
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
@@ -1290,7 +1291,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
         }
     }
 
-    if( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor == 1 )
+    if( versionMinor == 1 )
     {
         // Operating in LoRaWAN 1.1.x mode
         // Derive lifetime keys
@@ -1371,7 +1372,11 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
         }
     }
 
-    // Join-Accept is successfully processed, reset frame counters
+    // Join-Accept is successfully processed
+    // Save LoRaWAN specification version
+    CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor = versionMinor;
+
+    // Reset frame counters
 #if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     CryptoCtx.RJcount0 = 0;
 #endif
@@ -1379,6 +1384,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
     CryptoCtx.NvmCtx->FCntList.FCntDown = FCNT_DOWN_INITAL_VALUE;
     CryptoCtx.NvmCtx->FCntList.NFCntDown = FCNT_DOWN_INITAL_VALUE;
     CryptoCtx.NvmCtx->FCntList.AFCntDown = FCNT_DOWN_INITAL_VALUE;
+
     CryptoCtx.EventCryptoNvmCtxChanged( );
 
     return LORAMAC_CRYPTO_SUCCESS;
