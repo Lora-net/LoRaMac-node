@@ -76,6 +76,13 @@ extern "C"
 #define REGION_VERSION                              0x01010101
 #endif
 
+#ifndef DUTY_CYCLE_TIME_PERIOD
+/*!
+ * Default duty cycle time period is 1 hour = 3600000 ms
+ */
+#define DUTY_CYCLE_TIME_PERIOD                      3600000
+#endif
+
 /*!
  * Region       | SF
  * ------------ | :-----:
@@ -804,7 +811,11 @@ typedef enum ePhyAttribute
     /*!
      * The datarate of a ping slot channel.
      */
-    PHY_PING_SLOT_CHANNEL_DR
+    PHY_PING_SLOT_CHANNEL_DR,
+    /*!
+     * The equivalent spreading factor value from datarate
+     */
+    PHY_SF_FROM_DR
 }PhyAttribute_t;
 
 /*!
@@ -887,6 +898,10 @@ typedef union uPhyParam
      * Beacon format
      */
     BeaconFormat_t BeaconFormat;
+    /*!
+     * Duty Cycle Period
+     */
+    TimerTime_t DutyCycleTimePeriod;
 }PhyParam_t;
 
 /*!
@@ -901,7 +916,7 @@ typedef struct sGetPhyParams
     /*!
      * Datarate.
      * The parameter is needed for the following queries:
-     * PHY_MAX_PAYLOAD, PHY_NEXT_LOWER_TX_DR.
+     * PHY_MAX_PAYLOAD, PHY_NEXT_LOWER_TX_DR, PHY_SF_FROM_DR.
      */
     int8_t Datarate;
     /*!
@@ -937,6 +952,10 @@ typedef struct sSetBandTxDoneParams
      * Last TX done time.
      */
     TimerTime_t LastTxDoneTime;
+    /*!
+     * Time-on-air of the last transmission.
+     */
+    TimerTime_t LastTxAirTime;
 }SetBandTxDoneParams_t;
 
 /*!
@@ -1234,37 +1253,6 @@ typedef enum eAlternateDrType
 }AlternateDrType_t;
 
 /*!
- * Parameter structure for the function RegionCalcBackOff.
- */
-typedef struct sCalcBackOffParams
-{
-    /*!
-     * Set to true, if the node has already joined a network, otherwise false.
-     */
-    bool Joined;
-    /*!
-     * Joined Set to true, if the last uplink was a join request
-     */
-    bool LastTxIsJoinRequest;
-    /*!
-     * Set to true, if the duty cycle is enabled, otherwise false.
-     */
-    bool DutyCycleEnabled;
-    /*!
-     * Current channel index.
-     */
-    uint8_t Channel;
-    /*!
-     * Elapsed time since the start of the node.
-     */
-    SysTime_t ElapsedTime;
-    /*!
-     * Time-on-air of the last transmission.
-     */
-    TimerTime_t TxTimeOnAir;
-}CalcBackOffParams_t;
-
-/*!
  * Parameter structure for the function RegionNextChannel.
  */
 typedef struct sNextChanParams
@@ -1290,10 +1278,17 @@ typedef struct sNextChanParams
      */
     bool DutyCycleEnabled;
     /*!
-     * Set to true, if the function shall only provide the time
-     * for the next transmission.
+     * Elapsed time since the start of the node.
      */
-    bool QueryNextTxDelayOnly;
+    SysTime_t ElapsedTime;
+    /*!
+     * Joined Set to true, if the last uplink was a join request
+     */
+    bool LastTxIsJoinRequest;
+    /*!
+     * Payload length of the next frame
+     */
+    uint16_t PktLen;
 }NextChanParams_t;
 
 /*!
@@ -1618,15 +1613,6 @@ uint8_t RegionDlChannelReq( LoRaMacRegion_t region, DlChannelReqParams_t* dlChan
  * \retval Datarate to apply.
  */
 int8_t RegionAlternateDr( LoRaMacRegion_t region, int8_t currentDr, AlternateDrType_t type );
-
-/*!
- * \brief Calculates the back-off time.
- *
- * \param [IN] region LoRaWAN region.
- *
- * \param [IN] calcBackOff Pointer to the function parameters.
- */
-void RegionCalcBackOff( LoRaMacRegion_t region, CalcBackOffParams_t* calcBackOff );
 
 /*!
  * \brief Searches and set the next random available channel

@@ -241,9 +241,9 @@ extern "C"
 
 /*!
  * Band 0 definition
- * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
+ * Band = { DutyCycle, TxMaxPower, LastBandUpdateTime, TimeCredits, MaxTimeCredits, ReadyForTransmission }
  */
-#define EU433_BAND0                                 { 100, EU433_MAX_TX_POWER, 0, 0, 0 } //  1.0 %
+#define EU433_BAND0                                 { 100, EU433_MAX_TX_POWER, 0, 0, 0, 0 } //  1.0 %
 
 /*!
  * LoRaMac default channel 1
@@ -439,13 +439,6 @@ uint8_t RegionEU433DlChannelReq( DlChannelReqParams_t* dlChannelReq );
 int8_t RegionEU433AlternateDr( int8_t currentDr, AlternateDrType_t type );
 
 /*!
- * \brief Calculates the back-off time.
- *
- * \param [IN] calcBackOff Pointer to the function parameters.
- */
-void RegionEU433CalcBackOff( CalcBackOffParams_t* calcBackOff );
-
-/*!
  * \brief Searches and set the next random available channel
  *
  * \param [OUT] channel Next channel to use for TX.
@@ -502,7 +495,7 @@ uint8_t RegionEU433ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t d
  *
  * \param [IN] rxBeaconSetup Pointer to the function parameters
  */
- void RegionEU433RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
+void RegionEU433RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
 
 /*! \} defgroup REGIONEU433 */
 

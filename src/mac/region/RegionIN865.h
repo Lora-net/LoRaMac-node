@@ -137,7 +137,7 @@ extern "C"
 /*!
  * Enabled or disabled the duty cycle
  */
-#define IN865_DUTY_CYCLE_ENABLED                    1
+#define IN865_DUTY_CYCLE_ENABLED                    0
 
 /*!
  * Maximum RX window duration
@@ -238,9 +238,9 @@ extern "C"
 
 /*!
  * Band 0 definition
- * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
+ * Band = { DutyCycle, TxMaxPower, LastBandUpdateTime, TimeCredits, MaxTimeCredits, ReadyForTransmission }
  */
-#define IN865_BAND0                                 { 1 , IN865_MAX_TX_POWER, 0, 0, 0 } //  100.0 %
+#define IN865_BAND0                                 { 1 , IN865_MAX_TX_POWER, 0, 0, 0, 0 } //  100.0 %
 
 /*!
  * LoRaMac default channel 1
@@ -439,13 +439,6 @@ uint8_t RegionIN865DlChannelReq( DlChannelReqParams_t* dlChannelReq );
  * \retval Datarate to apply.
  */
 int8_t RegionIN865AlternateDr( int8_t currentDr, AlternateDrType_t type );
-
-/*!
- * \brief Calculates the back-off time.
- *
- * \param [IN] calcBackOff Pointer to the function parameters.
- */
-void RegionIN865CalcBackOff( CalcBackOffParams_t* calcBackOff );
 
 /*!
  * \brief Searches and set the next random available channel

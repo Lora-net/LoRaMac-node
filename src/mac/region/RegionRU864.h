@@ -231,9 +231,9 @@ extern "C"
 
 /*!
  * Band 0 definition
- * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
+ * Band = { DutyCycle, TxMaxPower, LastBandUpdateTime, TimeCredits, MaxTimeCredits, ReadyForTransmission }
  */
-#define RU864_BAND0                                 { 100 , RU864_MAX_TX_POWER, 0, 0, 0 } //  1.0 %
+#define RU864_BAND0                                 { 100 , RU864_MAX_TX_POWER, 0, 0, 0, 0 } //  1.0 %
 
 /*!
  * LoRaMac default channel 1
@@ -422,13 +422,6 @@ uint8_t RegionRU864DlChannelReq( DlChannelReqParams_t* dlChannelReq );
  * \retval Datarate to apply.
  */
 int8_t RegionRU864AlternateDr( int8_t currentDr, AlternateDrType_t type );
-
-/*!
- * \brief Calculates the back-off time.
- *
- * \param [IN] calcBackOff Pointer to the function parameters.
- */
-void RegionRU864CalcBackOff( CalcBackOffParams_t* calcBackOff );
 
 /*!
  * \brief Searches and set the next random available channel
