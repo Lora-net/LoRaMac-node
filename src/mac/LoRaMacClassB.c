@@ -1283,6 +1283,10 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
                 getPhy.Attribute = PHY_BEACON_CHANNEL_DR;
                 phyParam = RegionGetPhyParam( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &getPhy );
 
+                getPhy.Attribute = PHY_SF_FROM_DR;
+                getPhy.Datarate = phyParam.Value;
+                phyParam = RegionGetPhyParam( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &getPhy );
+
                 TimerTime_t time = Radio.TimeOnAir( MODEM_LORA, 0, phyParam.Value, 1, 8, false, size, true );
                 SysTime_t timeOnAir;
                 timeOnAir.Seconds = time / 1000;

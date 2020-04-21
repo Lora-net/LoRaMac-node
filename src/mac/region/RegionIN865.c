@@ -304,6 +304,10 @@ PhyParam_t RegionIN865GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = IN865_PING_SLOT_CHANNEL_DR;
             break;
         }
+        case PHY_SF_FROM_DR:
+        {
+            phyParam.Value = DataratesIN865[getPhy->Datarate];
+        }
         default:
         {
             break;

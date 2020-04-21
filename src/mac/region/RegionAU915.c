@@ -354,6 +354,10 @@ PhyParam_t RegionAU915GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = AU915_PING_SLOT_CHANNEL_DR;
             break;
         }
+        case PHY_SF_FROM_DR:
+        {
+            phyParam.Value = DataratesAU915[getPhy->Datarate];
+        }
         default:
         {
             break;

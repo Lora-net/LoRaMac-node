@@ -332,6 +332,10 @@ PhyParam_t RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = AS923_PING_SLOT_CHANNEL_DR;
             break;
         }
+        case PHY_SF_FROM_DR:
+        {
+            phyParam.Value = DataratesAS923[getPhy->Datarate];
+        }
         default:
         {
             break;

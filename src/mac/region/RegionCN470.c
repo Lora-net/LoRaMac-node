@@ -305,6 +305,10 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = CN470_PING_SLOT_CHANNEL_DR;
             break;
         }
+        case PHY_SF_FROM_DR:
+        {
+            phyParam.Value = DataratesCN470[getPhy->Datarate];
+        }
         default:
         {
             break;
