@@ -2152,42 +2152,50 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
             }
             case SRV_MAC_DEVICE_TIME_ANS:
             {
-                SysTime_t gpsEpochTime = { 0 };
-                SysTime_t sysTime = { 0 };
-                SysTime_t sysTimeCurrent = { 0 };
+                if( LoRaMacConfirmQueueIsCmdActive( MLME_DEVICE_TIME ) == true )
+                {
+                    LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_OK, MLME_DEVICE_TIME );
+                    SysTime_t gpsEpochTime = { 0 };
+                    SysTime_t sysTime = { 0 };
+                    SysTime_t sysTimeCurrent = { 0 };
 
-                gpsEpochTime.Seconds = ( uint32_t )payload[macIndex++];
-                gpsEpochTime.Seconds |= ( uint32_t )payload[macIndex++] << 8;
-                gpsEpochTime.Seconds |= ( uint32_t )payload[macIndex++] << 16;
-                gpsEpochTime.Seconds |= ( uint32_t )payload[macIndex++] << 24;
-                gpsEpochTime.SubSeconds = payload[macIndex++];
+                    gpsEpochTime.Seconds = ( uint32_t )payload[macIndex++];
+                    gpsEpochTime.Seconds |= ( uint32_t )payload[macIndex++] << 8;
+                    gpsEpochTime.Seconds |= ( uint32_t )payload[macIndex++] << 16;
+                    gpsEpochTime.Seconds |= ( uint32_t )payload[macIndex++] << 24;
+                    gpsEpochTime.SubSeconds = payload[macIndex++];
 
-                // Convert the fractional second received in ms
-                // round( pow( 0.5, 8.0 ) * 1000 ) = 3.90625
-                gpsEpochTime.SubSeconds = ( int16_t )( ( ( int32_t )gpsEpochTime.SubSeconds * 1000 ) >> 8 );
+                    // Convert the fractional second received in ms
+                    // round( pow( 0.5, 8.0 ) * 1000 ) = 3.90625
+                    gpsEpochTime.SubSeconds = ( int16_t )( ( ( int32_t )gpsEpochTime.SubSeconds * 1000 ) >> 8 );
 
-                // Copy received GPS Epoch time into system time
-                sysTime = gpsEpochTime;
-                // Add Unix to Gps epcoh offset. The system time is based on Unix time.
-                sysTime.Seconds += UNIX_GPS_EPOCH_OFFSET;
+                    // Copy received GPS Epoch time into system time
+                    sysTime = gpsEpochTime;
+                    // Add Unix to Gps epcoh offset. The system time is based on Unix time.
+                    sysTime.Seconds += UNIX_GPS_EPOCH_OFFSET;
 
-                // Compensate time difference between Tx Done time and now
-                sysTimeCurrent = SysTimeGet( );
-                sysTime = SysTimeAdd( sysTimeCurrent, SysTimeSub( sysTime, MacCtx.LastTxSysTime ) );
+                    // Compensate time difference between Tx Done time and now
+                    sysTimeCurrent = SysTimeGet( );
+                    sysTime = SysTimeAdd( sysTimeCurrent, SysTimeSub( sysTime, MacCtx.LastTxSysTime ) );
 
-                // Apply the new system time.
-                SysTimeSet( sysTime );
-                LoRaMacClassBDeviceTimeAns( );
-                MacCtx.McpsIndication.DeviceTimeAnsReceived = true;
+                    // Apply the new system time.
+                    SysTimeSet( sysTime );
+                    LoRaMacClassBDeviceTimeAns( );
+                    MacCtx.McpsIndication.DeviceTimeAnsReceived = true;
+                }
                 break;
             }
             case SRV_MAC_PING_SLOT_INFO_ANS:
             {
-                // According to the specification, it is not allowed to process this answer in
-                // a ping or multicast slot
-                if( ( MacCtx.RxSlot != RX_SLOT_WIN_CLASS_B_PING_SLOT ) && ( MacCtx.RxSlot != RX_SLOT_WIN_CLASS_B_MULTICAST_SLOT ) )
+                if( LoRaMacConfirmQueueIsCmdActive( MLME_PING_SLOT_INFO ) == true )
                 {
-                    LoRaMacClassBPingSlotInfoAns( );
+                    LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_OK, MLME_PING_SLOT_INFO );
+                    // According to the specification, it is not allowed to process this answer in
+                    // a ping or multicast slot
+                    if( ( MacCtx.RxSlot != RX_SLOT_WIN_CLASS_B_PING_SLOT ) && ( MacCtx.RxSlot != RX_SLOT_WIN_CLASS_B_MULTICAST_SLOT ) )
+                    {
+                        LoRaMacClassBPingSlotInfoAns( );
+                    }
                 }
                 break;
             }
@@ -2210,14 +2218,18 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
             }
             case SRV_MAC_BEACON_TIMING_ANS:
             {
-                uint16_t beaconTimingDelay = 0;
-                uint8_t beaconTimingChannel = 0;
+                if( LoRaMacConfirmQueueIsCmdActive( MLME_BEACON_TIMING ) == true )
+                {
+                    LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_OK, MLME_BEACON_TIMING );
+                    uint16_t beaconTimingDelay = 0;
+                    uint8_t beaconTimingChannel = 0;
 
-                beaconTimingDelay = ( uint16_t )payload[macIndex++];
-                beaconTimingDelay |= ( uint16_t )payload[macIndex++] << 8;
-                beaconTimingChannel = payload[macIndex++];
+                    beaconTimingDelay = ( uint16_t )payload[macIndex++];
+                    beaconTimingDelay |= ( uint16_t )payload[macIndex++] << 8;
+                    beaconTimingChannel = payload[macIndex++];
 
-                LoRaMacClassBBeaconTimingAns( beaconTimingDelay, beaconTimingChannel, RxDoneParams.LastRxDone );
+                    LoRaMacClassBBeaconTimingAns( beaconTimingDelay, beaconTimingChannel, RxDoneParams.LastRxDone );
+                }
                 break;
             }
             case SRV_MAC_BEACON_FREQ_REQ:
