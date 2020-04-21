@@ -234,9 +234,9 @@ extern "C"
 
 /*!
  * Band 0 definition
- * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
+ * Band = { DutyCycle, TxMaxPower, LastBandUpdateTime, TimeCredits, MaxTimeCredits, ReadyForTransmission }
  */
-#define CN470_BAND0                                 { 1, CN470_MAX_TX_POWER, 0, 0, 0 } //  100.0 %
+#define CN470_BAND0                                 { 1, CN470_MAX_TX_POWER, 0, 0, 0, 0 } //  100.0 %
 
 /*!
  * Defines the first channel for RX window 1 for CN470 band
@@ -422,13 +422,6 @@ uint8_t RegionCN470DlChannelReq( DlChannelReqParams_t* dlChannelReq );
  * \retval Datarate to apply.
  */
 int8_t RegionCN470AlternateDr( int8_t currentDr, AlternateDrType_t type );
-
-/*!
- * \brief Calculates the back-off time.
- *
- * \param [IN] calcBackOff Pointer to the function parameters.
- */
-void RegionCN470CalcBackOff( CalcBackOffParams_t* calcBackOff );
 
 /*!
  * \brief Searches and set the next random available channel

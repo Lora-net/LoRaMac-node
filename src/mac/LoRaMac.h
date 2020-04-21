@@ -670,6 +670,19 @@ typedef enum eMcps
 }Mcps_t;
 
 /*!
+ * Structure which defines return parameters for requests.
+ */
+typedef struct sRequestReturnParam
+{
+    /*!
+     * This value reports the time in milliseconds which
+     * an application must wait before its possible to send
+     * the next uplink.
+     */
+    TimerTime_t DutyCycleWaitTime;
+}RequestReturnParam_t;
+
+/*!
  * LoRaMAC MCPS-Request for an unconfirmed frame
  */
 typedef struct sMcpsReqUnconfirmed
@@ -789,6 +802,11 @@ typedef struct sMcpsReq
          */
         McpsReqProprietary_t Proprietary;
     }Req;
+
+    /*!
+     * MCPS-Request return parameters
+     */
+    RequestReturnParam_t ReqReturn;
 }McpsReq_t;
 
 /*!
@@ -1126,6 +1144,11 @@ typedef struct sMlmeReq
          */
         MlmeReqDeriveMcSessionKeyPair_t DeriveMcSessionKeyPair;
     }Req;
+
+    /*!
+     * MLME-Request return parameters
+     */
+    RequestReturnParam_t ReqReturn;
 }MlmeReq_t;
 
 /*!
@@ -2177,7 +2200,17 @@ typedef enum eLoRaMacStatus
      */
     LORAMAC_STATUS_SKIPPED_APP_DATA,
     /*!
-     * ToDo
+     * An MCPS or MLME request can return this status. In this case,
+     * the MAC cannot send the frame, as the duty cycle limits all
+     * available bands. When a request returns this value, the
+     * variable "DutyCycleWaitTime" in "ReqReturn" of the input
+     * parameters contains the remaining time to wait. If the
+     * value is constant and does not change, the expected time
+     * on air for this frame is exceeding the maximum permitted
+     * time according to the duty cycle time period, defined
+     * in Region.h, DUTY_CYCLE_TIME_PERIOD. By default this time
+     * is 1 hour, and a band with 1% duty cycle is then allowed
+     * to use an air time of 36 seconds.
      */
     LORAMAC_STATUS_DUTYCYCLE_RESTRICTED,
     /*!
@@ -2374,7 +2407,7 @@ typedef struct sLoRaMacCallback
     /*!
      *\brief    Will be called each time a Radio IRQ is handled by the MAC
      *          layer.
-     * 
+     *
      *\warning  Runs in a IRQ context. Should only change variables state.
      */
     void ( *MacProcessNotify )( void );
@@ -2430,7 +2463,7 @@ LoRaMacStatus_t LoRaMacStop( void );
 
 /*!
  * \brief Returns a value indicating if the MAC layer is busy or not.
- * 
+ *
  * \retval isBusy Mac layer is busy.
  */
 bool LoRaMacIsBusy( void );
@@ -2441,30 +2474,6 @@ bool LoRaMacIsBusy( void );
  * \remark This function must be called in the main loop.
  */
 void LoRaMacProcess( void );
-
-/*!
- * \brief   Queries the LoRaMAC if it is possible to send the next frame with
- *          a given datarate.
- *
- * \param   [IN] datarate - The datarate which should be used for the next uplink. Please
- *                          note that in case ADR is enabled, the function will utilize
- *                          the datarate defined by ADR and will disregard this input parameter.
- *
- * \param   [OUT] time    - The remaining time for which the next uplink tranmission
- *                          is restricted. Will be 0, if the MAC is able to perform
- *                          a transmission without duty cycle restriction resp. delay.
- *
- * \retval  LoRaMacStatus_t Status of the operation. When the parameters are
- *          not valid, the function returns \ref LORAMAC_STATUS_PARAMETER_INVALID.
- *          In case the MAC is limited due to a duty cycle restriction, the function
- *          returns \ref LORAMAC_STATUS_DUTYCYCLE_RESTRICTED. If the MAC has not found
- *          a valid channel for the given datarate, it returns \ref LORAMAC_STATUS_NO_CHANNEL_FOUND.
- *          In the latter case, this function does not reenable default channels
- *          automatically.
- *          In case there is no delay due to the duty cycle,
- *          the function returns \ref LORAMAC_STATUS_OK.
- */
-LoRaMacStatus_t LoRaMacQueryNextTxDelay( int8_t datarate, TimerTime_t* time );
 
 /*!
  * \brief   Queries the LoRaMAC if it is possible to send the next frame with

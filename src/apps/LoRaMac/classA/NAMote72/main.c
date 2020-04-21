@@ -330,9 +330,7 @@ static void JoinNetwork( void )
     {
         if( status == LORAMAC_STATUS_DUTYCYCLE_RESTRICTED )
         {
-            TimerTime_t nextTxIn = 0;
-            LoRaMacQueryNextTxDelay( LORAWAN_DEFAULT_DATARATE, &nextTxIn );
-            printf( "Next Tx in  : ~%lu second(s)\n", ( nextTxIn / 1000 ) );
+            printf( "Next Tx in  : ~%lu second(s)\n", ( mlmeReq.ReqReturn.DutyCycleWaitTime / 1000 ) );
         }
         DeviceState = DEVICE_STATE_CYCLE;
     }
@@ -521,9 +519,7 @@ static bool SendFrame( void )
 
     if( status == LORAMAC_STATUS_DUTYCYCLE_RESTRICTED )
     {
-        TimerTime_t nextTxIn = 0;
-        LoRaMacQueryNextTxDelay( LORAWAN_DEFAULT_DATARATE, &nextTxIn );
-        printf( "Next Tx in  : ~%lu second(s)\n", ( nextTxIn / 1000 ) );
+        printf( "Next Tx in  : ~%lu second(s)\n", ( mcpsReq.ReqReturn.DutyCycleWaitTime / 1000 ) );
     }
 
     if( status == LORAMAC_STATUS_OK )

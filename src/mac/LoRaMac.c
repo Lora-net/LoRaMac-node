@@ -43,6 +43,7 @@
 #include "LoRaMacParser.h"
 #include "LoRaMacCommands.h"
 #include "LoRaMacAdr.h"
+#include "LoRaMacSerializer.h"
 
 #include "LoRaMac.h"
 
@@ -160,10 +161,6 @@ typedef struct sLoRaMacNvmCtx
     * Enables/Disables duty cycle management (Test only)
     */
     bool DutyCycleOn;
-    /*
-     * Current channel index
-     */
-    uint8_t LastTxChannel;
     /*
      * Buffer containing the MAC layer commands
      */
@@ -341,6 +338,10 @@ typedef struct sLoRaMacCtx
     * Non-volatile module context structure
     */
     LoRaMacNvmCtx_t* NvmCtx;
+    /*
+    * Duty cycle wait time
+    */
+    TimerTime_t DutyCycleWaitTime;
 }LoRaMacCtx_t;
 
 /*
@@ -550,11 +551,9 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx );
 static LoRaMacStatus_t SecureFrame( uint8_t txDr, uint8_t txCh );
 
 /*
- * \brief Calculates the back-off time for the band of a channel.
- *
- * \param [IN] channel     The last Tx channel index
+ * \brief Calculates the aggregated back off time.
  */
-static void CalculateBackOff( uint8_t channel );
+static void CalculateBackOff( void );
 
 /*
  * \brief Function to remove pending MAC commands
@@ -888,8 +887,9 @@ static void ProcessRadioTxDone( void )
         TimerStart( &MacCtx.AckTimeoutTimer );
     }
 
-    // Store last Tx channel
-    MacCtx.NvmCtx->LastTxChannel = MacCtx.Channel;
+    // Update Aggregated last tx done time
+    MacCtx.NvmCtx->LastTxDoneTime = TxDoneParams.CurTime;
+
     // Update last tx done time for the current channel
     txDone.Channel = MacCtx.Channel;
     if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
@@ -901,9 +901,8 @@ static void ProcessRadioTxDone( void )
         txDone.Joined  = true;
     }
     txDone.LastTxDoneTime = TxDoneParams.CurTime;
+    txDone.LastTxAirTime = MacCtx.TxTimeOnAir;
     RegionSetBandTxDone( MacCtx.NvmCtx->Region, &txDone );
-    // Update Aggregated last tx done time
-    MacCtx.NvmCtx->LastTxDoneTime = TxDoneParams.CurTime;
 
     if( MacCtx.NodeAckRequested == false )
     {
@@ -2393,62 +2392,14 @@ static LoRaMacStatus_t CheckForClassBCollision( void )
     return LORAMAC_STATUS_OK;
 }
 
-static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
+static void ComputeRxWindowParameters( void )
 {
-    LoRaMacStatus_t status = LORAMAC_STATUS_PARAMETER_INVALID;
-    TimerTime_t dutyCycleTimeOff = 0;
-    NextChanParams_t nextChan;
-    size_t macCmdsSize = 0;
-
-    // Check class b collisions
-    status = CheckForClassBCollision( );
-
-    if( status != LORAMAC_STATUS_OK )
-    {
-        return status;
-    }
-
-    // Update back-off
-    CalculateBackOff( MacCtx.NvmCtx->LastTxChannel );
-
-    nextChan.AggrTimeOff = MacCtx.NvmCtx->AggregatedTimeOff;
-    nextChan.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
-    nextChan.DutyCycleEnabled = MacCtx.NvmCtx->DutyCycleOn;
-    nextChan.QueryNextTxDelayOnly = false;
-    nextChan.Joined = false;
-    if( MacCtx.NvmCtx->NetworkActivation != ACTIVATION_TYPE_NONE )
-    {
-        nextChan.Joined = true;
-    }
-    nextChan.LastAggrTx = MacCtx.NvmCtx->LastTxDoneTime;
-
-    // Select channel
-    status = RegionNextChannel( MacCtx.NvmCtx->Region, &nextChan, &MacCtx.Channel, &dutyCycleTimeOff, &MacCtx.NvmCtx->AggregatedTimeOff );
-
-    if( status != LORAMAC_STATUS_OK )
-    {
-        if( ( status == LORAMAC_STATUS_DUTYCYCLE_RESTRICTED ) &&
-            ( allowDelayedTx == true ) )
-        {
-            // Allow delayed transmissions. We have to allow it in case
-            // the MAC must retransmit a frame with the frame repetitions
-            if( dutyCycleTimeOff != 0 )
-            {// Send later - prepare timer
-                MacCtx.MacState |= LORAMAC_TX_DELAYED;
-                TimerSetValue( &MacCtx.TxDelayedTimer, dutyCycleTimeOff );
-                TimerStart( &MacCtx.TxDelayedTimer );
-            }
-            return LORAMAC_STATUS_OK;
-        }
-        else
-        {// State where the MAC cannot send a frame
-            return status;
-        }
-    }
-
     // Compute Rx1 windows parameters
     RegionComputeRxWindowParameters( MacCtx.NvmCtx->Region,
-                                     RegionApplyDrOffset( MacCtx.NvmCtx->Region, MacCtx.NvmCtx->MacParams.DownlinkDwellTime, MacCtx.NvmCtx->MacParams.ChannelsDatarate, MacCtx.NvmCtx->MacParams.Rx1DrOffset ),
+                                     RegionApplyDrOffset( MacCtx.NvmCtx->Region,
+                                                          MacCtx.NvmCtx->MacParams.DownlinkDwellTime,
+                                                          MacCtx.NvmCtx->MacParams.ChannelsDatarate,
+                                                          MacCtx.NvmCtx->MacParams.Rx1DrOffset ),
                                      MacCtx.NvmCtx->MacParams.MinRxSymbols,
                                      MacCtx.NvmCtx->MacParams.SystemMaxRxError,
                                      &MacCtx.RxWindow1Config );
@@ -2459,12 +2410,22 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
                                      MacCtx.NvmCtx->MacParams.SystemMaxRxError,
                                      &MacCtx.RxWindow2Config );
 
+    // Default setup, in case the device joined
+    MacCtx.RxWindow1Delay = MacCtx.NvmCtx->MacParams.ReceiveDelay1 + MacCtx.RxWindow1Config.WindowOffset;
+    MacCtx.RxWindow2Delay = MacCtx.NvmCtx->MacParams.ReceiveDelay2 + MacCtx.RxWindow2Config.WindowOffset;
+
     if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
     {
         MacCtx.RxWindow1Delay = MacCtx.NvmCtx->MacParams.JoinAcceptDelay1 + MacCtx.RxWindow1Config.WindowOffset;
         MacCtx.RxWindow2Delay = MacCtx.NvmCtx->MacParams.JoinAcceptDelay2 + MacCtx.RxWindow2Config.WindowOffset;
     }
-    else
+}
+
+static LoRaMacStatus_t VerifyTxFrame( void )
+{
+    size_t macCmdsSize = 0;
+
+    if( MacCtx.NvmCtx->NetworkActivation != ACTIVATION_TYPE_NONE )
     {
         if( LoRaMacCommandsGetSizeSerializedCmds( &macCmdsSize ) != LORAMAC_COMMANDS_SUCCESS )
         {
@@ -2475,15 +2436,117 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
         {
             return LORAMAC_STATUS_LENGTH_ERROR;
         }
-        MacCtx.RxWindow1Delay = MacCtx.NvmCtx->MacParams.ReceiveDelay1 + MacCtx.RxWindow1Config.WindowOffset;
-        MacCtx.RxWindow2Delay = MacCtx.NvmCtx->MacParams.ReceiveDelay2 + MacCtx.RxWindow2Config.WindowOffset;
+    }
+    return LORAMAC_STATUS_OK;
+}
+
+static LoRaMacStatus_t SerializeTxFrame( void )
+{
+    LoRaMacSerializerStatus_t serializeStatus;
+
+    switch( MacCtx.TxMsg.Type )
+    {
+        case LORAMAC_MSG_TYPE_JOIN_REQUEST:
+            serializeStatus = LoRaMacSerializerJoinRequest( &MacCtx.TxMsg.Message.JoinReq );
+            if( LORAMAC_SERIALIZER_SUCCESS != serializeStatus )
+            {
+                return LORAMAC_STATUS_CRYPTO_ERROR;
+            }
+            MacCtx.PktBufferLen = MacCtx.TxMsg.Message.JoinReq.BufSize;
+            break;
+        case LORAMAC_MSG_TYPE_DATA:
+            serializeStatus = LoRaMacSerializerData( &MacCtx.TxMsg.Message.Data );
+            if( LORAMAC_SERIALIZER_SUCCESS != serializeStatus )
+            {
+                return LORAMAC_STATUS_CRYPTO_ERROR;
+            }
+            MacCtx.PktBufferLen = MacCtx.TxMsg.Message.Data.BufSize;
+            break;
+        case LORAMAC_MSG_TYPE_JOIN_ACCEPT:
+        case LORAMAC_MSG_TYPE_UNDEF:
+        default:
+            return LORAMAC_STATUS_PARAMETER_INVALID;
+    }
+    return LORAMAC_STATUS_OK;
+}
+
+static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
+{
+    LoRaMacStatus_t status = LORAMAC_STATUS_PARAMETER_INVALID;
+    NextChanParams_t nextChan;
+
+    // Check class b collisions
+    status = CheckForClassBCollision( );
+    if( status != LORAMAC_STATUS_OK )
+    {
+        return status;
+    }
+
+    // Update back-off
+    CalculateBackOff( );
+
+    // Serialize frame
+    status = SerializeTxFrame( );
+    if( status != LORAMAC_STATUS_OK )
+    {
+        return status;
+    }
+
+    nextChan.AggrTimeOff = MacCtx.NvmCtx->AggregatedTimeOff;
+    nextChan.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
+    nextChan.DutyCycleEnabled = MacCtx.NvmCtx->DutyCycleOn;
+    nextChan.ElapsedTime = SysTimeSub( SysTimeGetMcuTime( ), MacCtx.NvmCtx->InitializationTime );
+    nextChan.LastAggrTx = MacCtx.NvmCtx->LastTxDoneTime;
+    nextChan.LastTxIsJoinRequest = false;
+    nextChan.Joined = true;
+    nextChan.PktLen = MacCtx.PktBufferLen;
+
+    // Setup the parameters based on the join status
+    if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
+    {
+        nextChan.LastTxIsJoinRequest = true;
+        nextChan.Joined = false;
+    }
+
+    // Select channel
+    status = RegionNextChannel( MacCtx.NvmCtx->Region, &nextChan, &MacCtx.Channel, &MacCtx.DutyCycleWaitTime, &MacCtx.NvmCtx->AggregatedTimeOff );
+
+    if( status != LORAMAC_STATUS_OK )
+    {
+        if( ( status == LORAMAC_STATUS_DUTYCYCLE_RESTRICTED ) &&
+            ( allowDelayedTx == true ) )
+        {
+            // Allow delayed transmissions. We have to allow it in case
+            // the MAC must retransmit a frame with the frame repetitions
+            if( MacCtx.DutyCycleWaitTime != 0 )
+            {// Send later - prepare timer
+                MacCtx.MacState |= LORAMAC_TX_DELAYED;
+                TimerSetValue( &MacCtx.TxDelayedTimer, MacCtx.DutyCycleWaitTime );
+                TimerStart( &MacCtx.TxDelayedTimer );
+            }
+            return LORAMAC_STATUS_OK;
+        }
+        else
+        {// State where the MAC cannot send a frame
+            return status;
+        }
+    }
+
+    // Compute window parameters, offsets, rx symbols, system errors etc.
+    ComputeRxWindowParameters( );
+
+    // Verify TX frame
+    status = VerifyTxFrame( );
+    if( status != LORAMAC_STATUS_OK )
+    {
+        return status;
     }
 
     // Secure frame
-    LoRaMacStatus_t retval = SecureFrame( MacCtx.NvmCtx->MacParams.ChannelsDatarate, MacCtx.Channel );
-    if( retval != LORAMAC_STATUS_OK )
+    status = SecureFrame( MacCtx.NvmCtx->MacParams.ChannelsDatarate, MacCtx.Channel );
+    if( status != LORAMAC_STATUS_OK )
     {
-        return retval;
+        return status;
     }
 
     // Try to send now
@@ -2532,35 +2595,16 @@ static LoRaMacStatus_t SecureFrame( uint8_t txDr, uint8_t txCh )
     return LORAMAC_STATUS_OK;
 }
 
-static void CalculateBackOff( uint8_t channel )
+static void CalculateBackOff( void )
 {
-    CalcBackOffParams_t calcBackOff;
-
-    if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
+    // Make sure that the calculation of the backoff time for the aggregated time off will only be done in
+    // case the value is zero. It will be set to zero in the function RegionNextChannel.
+    if( MacCtx.NvmCtx->AggregatedTimeOff == 0 )
     {
-        calcBackOff.Joined = false;
+        // Update aggregated time-off. This must be an assignment and no incremental
+        // update as we do only calculate the time-off based on the last transmission
+        MacCtx.NvmCtx->AggregatedTimeOff = ( MacCtx.TxTimeOnAir * MacCtx.NvmCtx->AggregatedDCycle - MacCtx.TxTimeOnAir );
     }
-    else
-    {
-        calcBackOff.Joined = true;
-    }
-    calcBackOff.DutyCycleEnabled = MacCtx.NvmCtx->DutyCycleOn;
-    calcBackOff.Channel = channel;
-    calcBackOff.ElapsedTime = SysTimeSub( SysTimeGetMcuTime( ), MacCtx.NvmCtx->InitializationTime );
-    calcBackOff.TxTimeOnAir = MacCtx.TxTimeOnAir;
-    calcBackOff.LastTxIsJoinRequest = false;
-
-    if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
-    {
-        calcBackOff.LastTxIsJoinRequest = true;
-    }
-
-    // Update regional back-off
-    RegionCalcBackOff( MacCtx.NvmCtx->Region, &calcBackOff );
-
-    // Update aggregated time-off. This must be an assignment and no incremental
-    // update as we do only calculate the time-off based on the last transmission
-    MacCtx.NvmCtx->AggregatedTimeOff = ( MacCtx.TxTimeOnAir * MacCtx.NvmCtx->AggregatedDCycle - MacCtx.TxTimeOnAir );
 }
 
 static void RemoveMacCommands( LoRaMacRxSlot_t rxSlot, LoRaMacFrameCtrl_t fCtrl, Mcps_t request )
@@ -2620,7 +2664,6 @@ static void ResetMacParameters( void )
 
     // Initialize channel index.
     MacCtx.Channel = 0;
-    MacCtx.NvmCtx->LastTxChannel = MacCtx.Channel;
 
     // Initialize Rx2 config parameters.
     MacCtx.RxWindow2Config.Channel = MacCtx.Channel;
@@ -3379,62 +3422,6 @@ LoRaMacStatus_t LoRaMacStop( void )
         return LORAMAC_STATUS_OK;
     }
     return LORAMAC_STATUS_BUSY;
-}
-
-LoRaMacStatus_t LoRaMacQueryNextTxDelay( int8_t datarate, TimerTime_t* time )
-{
-    NextChanParams_t nextChan;
-    uint8_t channel = 0;
-
-    CalcNextAdrParams_t adrNext;
-    uint32_t adrAckCounter = MacCtx.NvmCtx->AdrAckCounter;
-    int8_t txPower = MacCtx.NvmCtx->MacParamsDefaults.ChannelsTxPower;
-
-    if( time == NULL )
-    {
-        return LORAMAC_STATUS_PARAMETER_INVALID;
-    }
-
-    if( MacCtx.NvmCtx->LastTxDoneTime == 0 )
-    {
-        *time = 0;
-        return LORAMAC_STATUS_OK;
-    }
-
-    // Update back-off
-    CalculateBackOff( MacCtx.NvmCtx->LastTxChannel );
-
-    nextChan.AggrTimeOff = MacCtx.NvmCtx->AggregatedTimeOff;
-    nextChan.Datarate = datarate;
-    nextChan.DutyCycleEnabled = MacCtx.NvmCtx->DutyCycleOn;
-    nextChan.QueryNextTxDelayOnly = true;
-    nextChan.Joined = true;
-    nextChan.LastAggrTx = MacCtx.NvmCtx->LastTxDoneTime;
-
-    if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
-    {
-        nextChan.Joined = false;
-    }
-    if( MacCtx.NvmCtx->AdrCtrlOn == true )
-    {
-        // Setup ADR request
-        adrNext.UpdateChanMask = false;
-        adrNext.AdrEnabled = MacCtx.NvmCtx->AdrCtrlOn;
-        adrNext.AdrAckCounter = MacCtx.NvmCtx->AdrAckCounter;
-        adrNext.AdrAckLimit = MacCtx.AdrAckLimit;
-        adrNext.AdrAckDelay = MacCtx.AdrAckDelay;
-        adrNext.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
-        adrNext.TxPower = MacCtx.NvmCtx->MacParams.ChannelsTxPower;
-        adrNext.UplinkDwellTime = MacCtx.NvmCtx->MacParams.UplinkDwellTime;
-        adrNext.Region = MacCtx.NvmCtx->Region;
-
-        // We call the function for information purposes only. We don't want to
-        // apply the datarate, the tx power and the ADR ack counter.
-        LoRaMacAdrCalcNext( &adrNext, &nextChan.Datarate, &txPower, &adrAckCounter );
-    }
-
-    // Select channel
-    return RegionNextChannel( MacCtx.NvmCtx->Region, &nextChan, &channel, time, &MacCtx.NvmCtx->AggregatedTimeOff );
 }
 
 LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo )
@@ -4434,7 +4421,7 @@ LoRaMacStatus_t LoRaMacMcChannelDelete( AddressIdentifier_t groupID )
         return LORAMAC_STATUS_BUSY;
     }
 
-    if( ( groupID >= LORAMAC_MAX_MC_CTX ) || 
+    if( ( groupID >= LORAMAC_MAX_MC_CTX ) ||
         ( MacCtx.NvmCtx->MulticastChannelList[groupID].ChannelParams.IsEnabled == false ) )
     {
         return LORAMAC_STATUS_MC_GROUP_UNDEFINED;
@@ -4479,7 +4466,7 @@ LoRaMacStatus_t LoRaMacMcChannelSetupRxParams( AddressIdentifier_t groupID, McRx
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
 
-    if( ( groupID >= LORAMAC_MAX_MC_CTX ) || 
+    if( ( groupID >= LORAMAC_MAX_MC_CTX ) ||
         ( MacCtx.NvmCtx->MulticastChannelList[groupID].ChannelParams.IsEnabled == false ) )
     {
         return LORAMAC_STATUS_MC_GROUP_UNDEFINED;
@@ -4663,6 +4650,9 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
             break;
     }
 
+    // Fill return structure
+    mlmeRequest->ReqReturn.DutyCycleWaitTime = MacCtx.DutyCycleWaitTime;
+
     if( status != LORAMAC_STATUS_OK )
     {
         if( LoRaMacConfirmQueueGetCnt( ) == 0 )
@@ -4779,6 +4769,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
         {
             MacCtx.McpsConfirm.McpsRequest = mcpsRequest->Type;
             MacCtx.MacFlags.Bits.McpsReq = 1;
+            EventMacNvmCtxChanged( );
         }
         else
         {
@@ -4786,7 +4777,9 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
         }
     }
 
-    EventMacNvmCtxChanged( );
+    // Fill return structure
+    mcpsRequest->ReqReturn.DutyCycleWaitTime = MacCtx.DutyCycleWaitTime;
+
     return status;
 }
 
