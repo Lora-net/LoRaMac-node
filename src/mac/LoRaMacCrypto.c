@@ -1426,8 +1426,6 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSecureMessage( uint32_t fCntUp, uint8_t txDr,
         }
 #endif
     }
-    CryptoCtx.NvmCtx->FCntList.FCntUp = fCntUp;
-    CryptoCtx.EventCryptoNvmCtxChanged( );
 
     // Serialize message
     if( LoRaMacSerializerData( macMsg ) != LORAMAC_SERIALIZER_SUCCESS )
@@ -1474,6 +1472,9 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSecureMessage( uint32_t fCntUp, uint8_t txDr,
     {
         return LORAMAC_CRYPTO_ERROR_SERIALIZER;
     }
+
+    CryptoCtx.NvmCtx->FCntList.FCntUp = fCntUp;
+    CryptoCtx.EventCryptoNvmCtxChanged( );
 
     return LORAMAC_CRYPTO_SUCCESS;
 }

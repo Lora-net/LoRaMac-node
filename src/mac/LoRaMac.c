@@ -2554,13 +2554,6 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
         return status;
     }
 
-    // Secure frame
-    status = SecureFrame( MacCtx.NvmCtx->MacParams.ChannelsDatarate, MacCtx.Channel );
-    if( status != LORAMAC_STATUS_OK )
-    {
-        return status;
-    }
-
     // Try to send now
     return SendFrameOnChannel( MacCtx.Channel );
 }
@@ -2840,6 +2833,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t* macHdr, LoRaMacFrameCtrl_t* fCtrl
 
 LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
 {
+    LoRaMacStatus_t status = LORAMAC_STATUS_PARAMETER_INVALID;
     TxConfigParams_t txConfig;
     int8_t txPower = 0;
 
@@ -2880,6 +2874,13 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
     }
 
     LoRaMacClassBHaltBeaconing( );
+
+    // Secure frame
+    status = SecureFrame( MacCtx.NvmCtx->MacParams.ChannelsDatarate, MacCtx.Channel );
+    if( status != LORAMAC_STATUS_OK )
+    {
+        return status;
+    }
 
     MacCtx.MacState |= LORAMAC_TX_RUNNING;
     if( MacCtx.NodeAckRequested == false )
