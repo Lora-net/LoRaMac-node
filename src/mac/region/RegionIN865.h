@@ -137,7 +137,7 @@ extern "C"
 /*!
  * Enabled or disabled the duty cycle
  */
-#define IN865_DUTY_CYCLE_ENABLED                    1
+#define IN865_DUTY_CYCLE_ENABLED                    0
 
 /*!
  * Maximum RX window duration
