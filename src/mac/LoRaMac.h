@@ -950,6 +950,10 @@ typedef struct sMcpsIndication
 typedef enum eMlme
 {
     /*!
+     * An unknown MLME service
+     */
+    MLME_UNKNOWN,
+    /*!
      * Initiates the Over-the-Air activation
      *
      * LoRaWAN Specification V1.0.2, chapter 6.2
