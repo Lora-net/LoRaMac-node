@@ -139,18 +139,15 @@ static MlmeConfirmQueue_t* GetElement( Mlme_t request, MlmeConfirmQueue_t* buffe
         return NULL;
     }
 
-    do
+    for( uint8_t elementCnt = 0; elementCnt < ConfirmQueueCtx.ConfirmQueueNvmCtx->MlmeConfirmQueueCnt; elementCnt++ )
     {
         if( element->Request == request )
         {
             // We have found the element
             return element;
         }
-        else
-        {
-            element = IncreaseBufferPointer( element );
-        }
-    }while( element != bufferStart );
+        element = IncreaseBufferPointer( element );
+    }
 
     return NULL;
 }
