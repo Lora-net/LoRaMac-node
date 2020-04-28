@@ -205,6 +205,11 @@ extern "C"
 #define CN779_BEACON_CHANNEL_FREQ                   785000000
 
 /*!
+ * Ping slot channel frequency
+ */
+#define CN779_PING_SLOT_CHANNEL_FREQ                785000000
+
+/*!
  * Payload size of a beacon frame
  */
 #define CN779_BEACON_SIZE                           17

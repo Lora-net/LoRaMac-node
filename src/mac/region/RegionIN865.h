@@ -202,6 +202,11 @@ extern "C"
 #define IN865_BEACON_CHANNEL_FREQ                   866550000
 
 /*!
+ * Ping slot channel frequency
+ */
+#define IN865_PING_SLOT_CHANNEL_FREQ                866550000
+
+/*!
  * Payload size of a beacon frame
  */
 #define IN865_BEACON_SIZE                           19

@@ -200,6 +200,11 @@ extern "C"
 #define RU864_BEACON_CHANNEL_FREQ                   869100000
 
 /*!
+ * Ping slot channel frequency
+ */
+#define RU864_PING_SLOT_CHANNEL_FREQ                868900000
+
+/*!
  * Payload size of a beacon frame
  */
 #define RU864_BEACON_SIZE                           17
@@ -223,6 +228,11 @@ extern "C"
  * Bandwith of the beacon channel (Index of BandwidthsRU864[])
  */
 #define RU864_BEACON_CHANNEL_BW                     0
+
+/*!
+ * Datarate of the ping slot channel
+ */
+#define RU864_PING_SLOT_CHANNEL_DR                  DR_3
 
 /*!
  * Maximum number of bands

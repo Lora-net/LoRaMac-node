@@ -296,6 +296,21 @@ PhyParam_t RegionRU864GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = RU864_BEACON_CHANNEL_DR;
             break;
         }
+        case PHY_PING_SLOT_CHANNEL_FREQ:
+        {
+            phyParam.Value = RU864_PING_SLOT_CHANNEL_FREQ;
+            break;
+        }
+        case PHY_PING_SLOT_CHANNEL_DR:
+        {
+            phyParam.Value = RU864_PING_SLOT_CHANNEL_DR;
+            break;
+        }
+        case PHY_SF_FROM_DR:
+        {
+            phyParam.Value = DataratesRU864[getPhy->Datarate];
+            break;
+        }
         default:
         {
             break;

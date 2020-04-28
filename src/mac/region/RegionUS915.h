@@ -188,6 +188,11 @@ extern "C"
 #define US915_BEACON_CHANNEL_STEPWIDTH              600000
 
 /*!
+ * Ping slot channel frequency
+ */
+#define US915_PING_SLOT_CHANNEL_FREQ                923300000
+
+/*!
  * Number of possible beacon channels
  */
 #define US915_BEACON_NB_CHANNELS                    8

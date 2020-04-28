@@ -278,6 +278,11 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.fValue = CN470_DEFAULT_ANTENNA_GAIN;
             break;
         }
+        case PHY_BEACON_CHANNEL_FREQ:
+        {
+            phyParam.Value = CN470_BEACON_CHANNEL_FREQ;
+            break;
+        }
         case PHY_BEACON_FORMAT:
         {
             phyParam.BeaconFormat.BeaconSize = CN470_BEACON_SIZE;
@@ -300,6 +305,11 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = CN470_BEACON_NB_CHANNELS;
             break;
         }
+        case PHY_PING_SLOT_CHANNEL_FREQ:
+        {
+            phyParam.Value = CN470_PING_SLOT_CHANNEL_FREQ;
+            break;
+        }
         case PHY_PING_SLOT_CHANNEL_DR:
         {
             phyParam.Value = CN470_PING_SLOT_CHANNEL_DR;
@@ -308,6 +318,7 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
         case PHY_SF_FROM_DR:
         {
             phyParam.Value = DataratesCN470[getPhy->Datarate];
+            break;
         }
         default:
         {

@@ -193,6 +193,11 @@ extern "C"
 #define CN470_BEACON_CHANNEL_STEPWIDTH              200000
 
 /*!
+ * Ping slot channel frequency
+ */
+#define CN470_PING_SLOT_CHANNEL_FREQ                508300000
+
+/*!
  * Number of possible beacon channels
  */
 #define CN470_BEACON_NB_CHANNELS                    8

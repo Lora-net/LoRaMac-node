@@ -406,7 +406,7 @@ PhyParam_t RegionUS915GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_BEACON_CHANNEL_FREQ:
         {
-            phyParam.Value = US915_BEACON_CHANNEL_FREQ;
+            phyParam.Value = US915_BEACON_CHANNEL_FREQ + ( getPhy->Channel * US915_BEACON_CHANNEL_STEPWIDTH );
             break;
         }
         case PHY_BEACON_FORMAT:
@@ -431,6 +431,11 @@ PhyParam_t RegionUS915GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = US915_BEACON_NB_CHANNELS;
             break;
         }
+        case PHY_PING_SLOT_CHANNEL_FREQ:
+        {
+            phyParam.Value = US915_PING_SLOT_CHANNEL_FREQ + ( getPhy->Channel * US915_BEACON_CHANNEL_STEPWIDTH );
+            break;
+        }
         case PHY_PING_SLOT_CHANNEL_DR:
         {
             phyParam.Value = US915_PING_SLOT_CHANNEL_DR;
@@ -439,6 +444,7 @@ PhyParam_t RegionUS915GetPhyParam( GetPhyParams_t* getPhy )
         case PHY_SF_FROM_DR:
         {
             phyParam.Value = DataratesUS915[getPhy->Datarate];
+            break;
         }
         default:
         {

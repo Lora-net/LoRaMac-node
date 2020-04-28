@@ -218,6 +218,11 @@ extern "C"
 #define AS923_BEACON_CHANNEL_FREQ                   923400000
 
 /*!
+ * Ping slot channel frequency
+ */
+#define AS923_PING_SLOT_CHANNEL_FREQ                923400000
+
+/*!
  * Payload size of a beacon frame
  */
 #define AS923_BEACON_SIZE                           17
