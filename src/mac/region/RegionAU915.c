@@ -324,7 +324,7 @@ PhyParam_t RegionAU915GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_BEACON_CHANNEL_FREQ:
         {
-            phyParam.Value = AU915_BEACON_CHANNEL_FREQ;
+            phyParam.Value = AU915_BEACON_CHANNEL_FREQ + ( getPhy->Channel * AU915_BEACON_CHANNEL_STEPWIDTH );
             break;
         }
         case PHY_BEACON_FORMAT:
@@ -349,6 +349,11 @@ PhyParam_t RegionAU915GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = AU915_BEACON_NB_CHANNELS;
             break;
         }
+        case PHY_PING_SLOT_CHANNEL_FREQ:
+        {
+            phyParam.Value = AU915_PING_SLOT_CHANNEL_FREQ + ( getPhy->Channel * AU915_BEACON_CHANNEL_STEPWIDTH );
+            break;
+        }
         case PHY_PING_SLOT_CHANNEL_DR:
         {
             phyParam.Value = AU915_PING_SLOT_CHANNEL_DR;
@@ -357,6 +362,7 @@ PhyParam_t RegionAU915GetPhyParam( GetPhyParams_t* getPhy )
         case PHY_SF_FROM_DR:
         {
             phyParam.Value = DataratesAU915[getPhy->Datarate];
+            break;
         }
         default:
         {
@@ -385,6 +391,20 @@ void RegionAU915InitDefaults( InitDefaultsParams_t* params )
         {
             // Initialize bands
             memcpy1( ( uint8_t* )NvmCtx.Bands, ( uint8_t* )bands, sizeof( Band_t ) * AU915_MAX_NB_BANDS );
+
+            // Initialize channels default mask
+            NvmCtx.ChannelsDefaultMask[0] = 0xFFFF;
+            NvmCtx.ChannelsDefaultMask[1] = 0xFFFF;
+            NvmCtx.ChannelsDefaultMask[2] = 0xFFFF;
+            NvmCtx.ChannelsDefaultMask[3] = 0xFFFF;
+            NvmCtx.ChannelsDefaultMask[4] = 0x00FF;
+            NvmCtx.ChannelsDefaultMask[5] = 0x0000;
+
+            // Copy channels default mask
+            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 6 );
+
+            // Copy into channels mask remaining
+            RegionCommonChanMaskCopy( NvmCtx.ChannelsMaskRemaining, NvmCtx.ChannelsMask, 6 );
             break;
         }
         case INIT_TYPE_INIT:
@@ -404,20 +424,6 @@ void RegionAU915InitDefaults( InitDefaultsParams_t* params )
                 NvmCtx.Channels[i].DrRange.Value = ( DR_6 << 4 ) | DR_6;
                 NvmCtx.Channels[i].Band = 0;
             }
-
-            // Initialize channels default mask
-            NvmCtx.ChannelsDefaultMask[0] = 0xFFFF;
-            NvmCtx.ChannelsDefaultMask[1] = 0xFFFF;
-            NvmCtx.ChannelsDefaultMask[2] = 0xFFFF;
-            NvmCtx.ChannelsDefaultMask[3] = 0xFFFF;
-            NvmCtx.ChannelsDefaultMask[4] = 0x00FF;
-            NvmCtx.ChannelsDefaultMask[5] = 0x0000;
-
-            // Copy channels default mask
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 6 );
-
-            // Copy into channels mask remaining
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMaskRemaining, NvmCtx.ChannelsMask, 6 );
             break;
         }
         case INIT_TYPE_RESTORE_CTX:

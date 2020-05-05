@@ -809,9 +809,17 @@ typedef enum ePhyAttribute
      */
     PHY_BEACON_NB_CHANNELS,
     /*!
+     * Ping slot channel frequency.
+     */
+    PHY_PING_SLOT_CHANNEL_FREQ,
+    /*!
      * The datarate of a ping slot channel.
      */
     PHY_PING_SLOT_CHANNEL_DR,
+    /*
+     * The number of channels for the ping slot reception.
+     */
+    PHY_PING_SLOT_NB_CHANNELS,
     /*!
      * The equivalent spreading factor value from datarate
      */
@@ -933,6 +941,12 @@ typedef struct sGetPhyParams
      * PHY_MIN_RX_DR, PHY_MAX_PAYLOAD.
      */
     uint8_t DownlinkDwellTime;
+    /*!
+     * Specification of the downlink channel. Used in Class B only.
+     * The parameter is needed for the following queries:
+     * PHY_BEACON_CHANNEL_FREQ, PHY_PING_SLOT_CHANNEL_FREQ
+     */
+    uint8_t Channel;
 }GetPhyParams_t;
 
 /*!

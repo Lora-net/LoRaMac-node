@@ -1752,16 +1752,9 @@ static void LoRaMacHandleMlmeRequest( void )
     // Handle join request
     if( MacCtx.MacFlags.Bits.MlmeReq == 1 )
     {
-        if( ( LoRaMacConfirmQueueIsCmdActive( MLME_JOIN ) == true ) )
-        {
-            if( LoRaMacConfirmQueueGetStatus( MLME_JOIN ) == LORAMAC_EVENT_INFO_STATUS_OK )
-            {// Node joined successfully
-                MacCtx.ChannelsNbTransCounter = 0;
-            }
-            MacCtx.MacState &= ~LORAMAC_TX_RUNNING;
-        }
-        else if( ( LoRaMacConfirmQueueIsCmdActive( MLME_TXCW ) == true ) ||
-                 ( LoRaMacConfirmQueueIsCmdActive( MLME_TXCW_1 ) == true ) )
+        if( ( LoRaMacConfirmQueueIsCmdActive( MLME_JOIN ) == true ) ||
+            ( LoRaMacConfirmQueueIsCmdActive( MLME_TXCW ) == true ) ||
+            ( LoRaMacConfirmQueueIsCmdActive( MLME_TXCW_1 ) == true ) )
         {
             MacCtx.MacState &= ~LORAMAC_TX_RUNNING;
         }

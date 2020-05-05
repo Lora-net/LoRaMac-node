@@ -223,51 +223,64 @@ static void ComputePingOffset( uint64_t beaconTime, uint32_t address, uint16_t p
  *
  * \param [IN] channel The channel according to the channel plan.
  *
+ * \param [IN] isBeacon Set to true, if the function shall
+ *                      calculate the frequency for a beacon.
+ *
  * \retval The downlink frequency
  */
-static uint32_t CalcDownlinkFrequency( uint8_t channel )
+static uint32_t CalcDownlinkFrequency( uint8_t channel, bool isBeacon )
 {
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;
-    uint32_t frequency = 0;
-    uint32_t stepwidth = 0;
 
-    getPhy.Attribute = PHY_BEACON_CHANNEL_FREQ;
+    getPhy.Attribute = PHY_PING_SLOT_CHANNEL_FREQ;
+
+    if( isBeacon == true )
+    {
+        getPhy.Attribute = PHY_BEACON_CHANNEL_FREQ;
+    }
+    getPhy.Channel = channel;
     phyParam = RegionGetPhyParam( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    frequency = phyParam.Value;
 
-    getPhy.Attribute = PHY_BEACON_CHANNEL_STEPWIDTH;
-    phyParam = RegionGetPhyParam( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    stepwidth = phyParam.Value;
-
-    // Calculate the frequency
-    return frequency + ( channel * stepwidth );
+    return phyParam.Value;
 }
 
 /*!
  * \brief Calculates the downlink channel for the beacon and for
  *        ping slot downlinks.
  *
- * \param [IN] devAddr The address of the device
+ * \param [IN] devAddr The address of the device. Assign 0 if its a beacon.
  *
  * \param [IN] beaconTime The beacon time of the beacon.
  *
- * \param [IN] beaconInterval The beacon interval
+ * \param [IN] beaconInterval The beacon interval.
+ *
+ * \param [IN] isBeacon Set to true, if the function shall
+ *                      calculate the frequency for a beacon.
  *
  * \retval The downlink channel
  */
-static uint32_t CalcDownlinkChannelAndFrequency( uint32_t devAddr, TimerTime_t beaconTime, TimerTime_t beaconInterval )
+static uint32_t CalcDownlinkChannelAndFrequency( uint32_t devAddr, TimerTime_t beaconTime,
+                                                 TimerTime_t beaconInterval, bool isBeacon )
 {
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;
     uint32_t channel = 0;
     uint8_t nbChannels = 0;
-    uint32_t frequency = 0;
 
-    getPhy.Attribute = PHY_BEACON_NB_CHANNELS;
+    // Default initialization - ping slot channels
+    getPhy.Attribute = PHY_PING_SLOT_NB_CHANNELS;
+
+    if( isBeacon == true )
+    {
+        // Beacon channels
+        getPhy.Attribute = PHY_BEACON_NB_CHANNELS;
+    }
     phyParam = RegionGetPhyParam( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    nbChannels = (uint8_t) phyParam.Value;
+    nbChannels = ( uint8_t ) phyParam.Value;
 
+    // nbChannels is > 1, when the channel plan requires more than one possible channel
+    // defined by the calculation below.
     if( nbChannels > 1 )
     {
         // Calculate the channel for the next downlink
@@ -275,11 +288,9 @@ static uint32_t CalcDownlinkChannelAndFrequency( uint32_t devAddr, TimerTime_t b
         channel = channel % nbChannels;
     }
 
-    // Calculate the frequency for the next downlink
-    frequency = CalcDownlinkFrequency( channel );
-
-    // Calculate the frequency for the next downlink
-    return frequency;
+    // Calculate the frequency for the next downlink. This holds
+    // for beacons and ping slots.
+    return CalcDownlinkFrequency( channel, isBeacon );
 }
 
 /*!
@@ -302,13 +313,13 @@ static void RxBeaconSetup( TimerTime_t rxTime, bool activateDefaultChannel )
     {
         // This is the default frequency in case we don't know when the next
         // beacon will be transmitted. We select channel 0 as default.
-        frequency = CalcDownlinkFrequency( 0 );
+        frequency = CalcDownlinkFrequency( 0, true );
     }
     else
     {
         // This is the frequency according to the channel plan
         frequency = CalcDownlinkChannelAndFrequency( 0, Ctx.BeaconCtx.BeaconTime.Seconds + ( CLASSB_BEACON_INTERVAL / 1000 ),
-                                                     CLASSB_BEACON_INTERVAL );
+                                                     CLASSB_BEACON_INTERVAL, true );
     }
 
     if( Ctx.NvmCtx->BeaconCtx.Ctrl.CustomFreq == 1 )
@@ -321,7 +332,7 @@ static void RxBeaconSetup( TimerTime_t rxTime, bool activateDefaultChannel )
     {
         // Set the frequency which was provided by BeaconTimingAns MAC command
         Ctx.BeaconCtx.Ctrl.BeaconChannelSet = 0;
-        frequency = CalcDownlinkFrequency( Ctx.BeaconCtx.BeaconTimingChannel );
+        frequency = CalcDownlinkFrequency( Ctx.BeaconCtx.BeaconTimingChannel, true );
     }
 
     if( ( Ctx.BeaconCtx.Ctrl.BeaconAcquired == 1 ) || ( Ctx.BeaconCtx.Ctrl.AcquisitionPending == 1 ) )
@@ -1021,7 +1032,8 @@ static void LoRaMacClassBProcessPingSlot( void )
             if( Ctx.NvmCtx->PingSlotCtx.Ctrl.CustomFreq == 0 )
             {
                 // Restore floor plan
-                frequency = CalcDownlinkChannelAndFrequency( *Ctx.LoRaMacClassBParams.LoRaMacDevAddr, Ctx.BeaconCtx.BeaconTime.Seconds, CLASSB_BEACON_INTERVAL );
+                frequency = CalcDownlinkChannelAndFrequency( *Ctx.LoRaMacClassBParams.LoRaMacDevAddr, Ctx.BeaconCtx.BeaconTime.Seconds,
+                                                             CLASSB_BEACON_INTERVAL, false );
             }
 
             // Open the ping slot window only, if there is no multicast ping slot
@@ -1178,7 +1190,8 @@ static void LoRaMacClassBProcessMulticastSlot( void )
             if( frequency == 0 )
             {
                 // Restore floor plan
-                frequency = CalcDownlinkChannelAndFrequency( Ctx.PingSlotCtx.NextMulticastChannel->ChannelParams.Address, Ctx.BeaconCtx.BeaconTime.Seconds, CLASSB_BEACON_INTERVAL );
+                frequency = CalcDownlinkChannelAndFrequency( Ctx.PingSlotCtx.NextMulticastChannel->ChannelParams.Address,
+                                                             Ctx.BeaconCtx.BeaconTime.Seconds, CLASSB_BEACON_INTERVAL, false );
             }
 
             Ctx.MulticastSlotState = PINGSLOT_STATE_RX;

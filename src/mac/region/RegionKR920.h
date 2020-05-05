@@ -207,6 +207,11 @@ extern "C"
 #define KR920_BEACON_CHANNEL_FREQ                   923100000
 
 /*!
+ * Ping slot channel frequency
+ */
+#define KR920_PING_SLOT_CHANNEL_FREQ                923100000
+
+/*!
  * Payload size of a beacon frame
  */
 #define KR920_BEACON_SIZE                           17

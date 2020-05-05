@@ -202,6 +202,11 @@ extern "C"
 #define EU868_BEACON_CHANNEL_FREQ                   869525000
 
 /*!
+ * Ping slot channel frequency
+ */
+#define EU868_PING_SLOT_CHANNEL_FREQ                869525000
+
+/*!
  * Payload size of a beacon frame
  */
 #define EU868_BEACON_SIZE                           17
