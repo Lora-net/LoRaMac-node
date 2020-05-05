@@ -473,16 +473,30 @@ void RegionUS915InitDefaults( InitDefaultsParams_t* params )
         {
             // Initialize bands
             memcpy1( ( uint8_t* )NvmCtx.Bands, ( uint8_t* )bands, sizeof( Band_t ) * US915_MAX_NB_BANDS );
-            break;
-        }
-        case INIT_TYPE_INIT:
-        {
+
             // Initialize 8 bit channel groups index
             NvmCtx.JoinChannelGroupsCurrentIndex = 0;
 
             // Initialize the join trials counter
             NvmCtx.JoinTrialsCounter = 0;
 
+            // ChannelsMask
+            NvmCtx.ChannelsDefaultMask[0] = 0xFFFF;
+            NvmCtx.ChannelsDefaultMask[1] = 0xFFFF;
+            NvmCtx.ChannelsDefaultMask[2] = 0xFFFF;
+            NvmCtx.ChannelsDefaultMask[3] = 0xFFFF;
+            NvmCtx.ChannelsDefaultMask[4] = 0x00FF;
+            NvmCtx.ChannelsDefaultMask[5] = 0x0000;
+
+            // Copy channels default mask
+            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 6 );
+
+            // Copy into channels mask remaining
+            RegionCommonChanMaskCopy( NvmCtx.ChannelsMaskRemaining, NvmCtx.ChannelsMask, 6 );
+            break;
+        }
+        case INIT_TYPE_INIT:
+        {
             // Channels
             // 125 kHz channels
             for( uint8_t i = 0; i < US915_MAX_NB_CHANNELS - 8; i++ )
@@ -498,20 +512,6 @@ void RegionUS915InitDefaults( InitDefaultsParams_t* params )
                 NvmCtx.Channels[i].DrRange.Value = ( DR_4 << 4 ) | DR_4;
                 NvmCtx.Channels[i].Band = 0;
             }
-
-            // ChannelsMask
-            NvmCtx.ChannelsDefaultMask[0] = 0xFFFF;
-            NvmCtx.ChannelsDefaultMask[1] = 0xFFFF;
-            NvmCtx.ChannelsDefaultMask[2] = 0xFFFF;
-            NvmCtx.ChannelsDefaultMask[3] = 0xFFFF;
-            NvmCtx.ChannelsDefaultMask[4] = 0x00FF;
-            NvmCtx.ChannelsDefaultMask[5] = 0x0000;
-
-            // Copy channels default mask
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 6 );
-
-            // Copy into channels mask remaining
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMaskRemaining, NvmCtx.ChannelsMask, 6 );
             break;
         }
         case INIT_TYPE_RESTORE_CTX:
