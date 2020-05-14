@@ -157,7 +157,11 @@ static void OnTxData( LmHandlerTxParams_t* params );
 static void OnRxData( LmHandlerAppData_t* appData, LmHandlerRxParams_t* params );
 static void OnClassChange( DeviceClass_t deviceClass );
 static void OnBeaconStatusChange( LoRaMAcHandlerBeaconParams_t* params );
-
+#if( LMH_SYS_TIME_UPDATE_NEW_API == 1 )
+static void OnSysTimeUpdate( bool isSynchronized, int32_t timeCorrection );
+#else
+static void OnSysTimeUpdate( void );
+#endif
 static void PrepareTxFrame( void );
 static void StartTxProcess( LmHandlerTxEvents_t txEvent );
 static void UplinkProcess( void );
@@ -201,7 +205,8 @@ static LmHandlerCallbacks_t LmHandlerCallbacks =
     .OnTxData = OnTxData,
     .OnRxData = OnRxData,
     .OnClassChange= OnClassChange,
-    .OnBeaconStatusChange = OnBeaconStatusChange
+    .OnBeaconStatusChange = OnBeaconStatusChange,
+    .OnSysTimeUpdate = OnSysTimeUpdate,
 };
 
 static LmHandlerParams_t LmHandlerParams =
@@ -411,6 +416,18 @@ static void OnBeaconStatusChange( LoRaMAcHandlerBeaconParams_t* params )
 
     DisplayBeaconUpdate( params );
 }
+
+#if( LMH_SYS_TIME_UPDATE_NEW_API == 1 )
+static void OnSysTimeUpdate( bool isSynchronized, int32_t timeCorrection )
+{
+
+}
+#else
+static void OnSysTimeUpdate( void )
+{
+
+}
+#endif
 
 /*!
  * Prepares the payload of the frame and transmits it.
