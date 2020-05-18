@@ -231,7 +231,7 @@ typedef struct sRegionCommonIdentifyChannelsParam
     /*!
      * Elapsed time since the start of the node.
      */
-    SysTime_t ElapsedTime;
+    SysTime_t ElapsedTimeSinceStartUp;
     /*!
      * Joined Set to true, if the last uplink was a join request
      */
@@ -354,8 +354,12 @@ void RegionCommonChanMaskCopy( uint16_t* channelsMaskDest, uint16_t* channelsMas
  * \param [IN] band The band to be updated.
  *
  * \param [IN] lastTxAirTime The time on air of the last TX frame.
+ *
+ * \param [IN] joined Set to true if the device has joined.
+ *
+ * \param [IN] elapsedTimeSinceStartup Elapsed time since initialization.
  */
-void RegionCommonSetBandTxDone( Band_t* band, TimerTime_t lastTxAirTime );
+void RegionCommonSetBandTxDone( Band_t* band, TimerTime_t lastTxAirTime, bool joined, SysTime_t elapsedTimeSinceStartup );
 
 /*!
  * \brief Updates the time-offs of the bands.

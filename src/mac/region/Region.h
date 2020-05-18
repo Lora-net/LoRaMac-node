@@ -76,12 +76,7 @@ extern "C"
 #define REGION_VERSION                              0x01010101
 #endif
 
-#ifndef DUTY_CYCLE_TIME_PERIOD
-/*!
- * Default duty cycle time period is 1 hour = 3600000 ms
- */
-#define DUTY_CYCLE_TIME_PERIOD                      3600000
-#endif
+
 
 /*!
  * Region       | SF
@@ -823,7 +818,11 @@ typedef enum ePhyAttribute
     /*!
      * The equivalent spreading factor value from datarate
      */
-    PHY_SF_FROM_DR
+    PHY_SF_FROM_DR,
+    /*!
+     * The equivalent bandwith index from datarate
+     */
+    PHY_BW_FROM_DR,
 }PhyAttribute_t;
 
 /*!
@@ -924,7 +923,7 @@ typedef struct sGetPhyParams
     /*!
      * Datarate.
      * The parameter is needed for the following queries:
-     * PHY_MAX_PAYLOAD, PHY_NEXT_LOWER_TX_DR, PHY_SF_FROM_DR.
+     * PHY_MAX_PAYLOAD, PHY_NEXT_LOWER_TX_DR, PHY_SF_FROM_DR, PHY_BW_FROM_DR.
      */
     int8_t Datarate;
     /*!
@@ -970,6 +969,10 @@ typedef struct sSetBandTxDoneParams
      * Time-on-air of the last transmission.
      */
     TimerTime_t LastTxAirTime;
+    /*!
+     * Elapsed time since initialization.
+     */
+    SysTime_t ElapsedTimeSinceStartUp;
 }SetBandTxDoneParams_t;
 
 /*!
@@ -1294,7 +1297,7 @@ typedef struct sNextChanParams
     /*!
      * Elapsed time since the start of the node.
      */
-    SysTime_t ElapsedTime;
+    SysTime_t ElapsedTimeSinceStartUp;
     /*!
      * Joined Set to true, if the last uplink was a join request
      */

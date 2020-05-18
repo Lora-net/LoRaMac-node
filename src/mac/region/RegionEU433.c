@@ -310,6 +310,11 @@ PhyParam_t RegionEU433GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = DataratesEU433[getPhy->Datarate];
             break;
         }
+        case PHY_BW_FROM_DR:
+        {
+            phyParam.Value = GetBandwidth( getPhy->Datarate );
+            break;
+        }
         default:
         {
             break;
@@ -321,7 +326,8 @@ PhyParam_t RegionEU433GetPhyParam( GetPhyParams_t* getPhy )
 
 void RegionEU433SetBandTxDone( SetBandTxDoneParams_t* txDone )
 {
-    RegionCommonSetBandTxDone( &NvmCtx.Bands[NvmCtx.Channels[txDone->Channel].Band], txDone->LastTxAirTime );
+    RegionCommonSetBandTxDone( &NvmCtx.Bands[NvmCtx.Channels[txDone->Channel].Band],
+                               txDone->LastTxAirTime, txDone->Joined, txDone->ElapsedTimeSinceStartUp );
 }
 
 void RegionEU433InitDefaults( InitDefaultsParams_t* params )
@@ -847,7 +853,7 @@ LoRaMacStatus_t RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_
     identifyChannelsParam.DutyCycleEnabled = nextChanParams->DutyCycleEnabled;
     identifyChannelsParam.MaxBands = EU433_MAX_NB_BANDS;
 
-    identifyChannelsParam.ElapsedTime = nextChanParams->ElapsedTime;
+    identifyChannelsParam.ElapsedTimeSinceStartUp = nextChanParams->ElapsedTimeSinceStartUp;
     identifyChannelsParam.LastTxIsJoinRequest = nextChanParams->LastTxIsJoinRequest;
     identifyChannelsParam.ExpectedTimeOnAir = GetTimeOnAir( nextChanParams->Datarate, nextChanParams->PktLen );
 

@@ -1293,14 +1293,22 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
             // Reset beacon variables, if one of the crc is valid
             if( beaconProcessed == true )
             {
+                uint32_t spreadingFactor = 0;
+                uint32_t bandwith = 0;
+
                 getPhy.Attribute = PHY_BEACON_CHANNEL_DR;
                 phyParam = RegionGetPhyParam( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &getPhy );
 
                 getPhy.Attribute = PHY_SF_FROM_DR;
                 getPhy.Datarate = phyParam.Value;
                 phyParam = RegionGetPhyParam( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &getPhy );
+                spreadingFactor = phyParam.Value;
 
-                TimerTime_t time = Radio.TimeOnAir( MODEM_LORA, 0, phyParam.Value, 1, 8, false, size, true );
+                getPhy.Attribute = PHY_BW_FROM_DR;
+                phyParam = RegionGetPhyParam( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &getPhy );
+                bandwith = phyParam.Value;
+
+                TimerTime_t time = Radio.TimeOnAir( MODEM_LORA, bandwith, spreadingFactor, 1, 10, true, size, false );
                 SysTime_t timeOnAir;
                 timeOnAir.Seconds = time / 1000;
                 timeOnAir.SubSeconds = time - timeOnAir.Seconds * 1000;
