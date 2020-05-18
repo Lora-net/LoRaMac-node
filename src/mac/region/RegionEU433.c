@@ -310,6 +310,11 @@ PhyParam_t RegionEU433GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = DataratesEU433[getPhy->Datarate];
             break;
         }
+        case PHY_BW_FROM_DR:
+        {
+            phyParam.Value = GetBandwidth( getPhy->Datarate );
+            break;
+        }
         default:
         {
             break;

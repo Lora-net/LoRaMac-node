@@ -342,6 +342,11 @@ PhyParam_t RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = DataratesAS923[getPhy->Datarate];
             break;
         }
+        case PHY_BW_FROM_DR:
+        {
+            phyParam.Value = GetBandwidth( getPhy->Datarate );
+            break;
+        }
         default:
         {
             break;

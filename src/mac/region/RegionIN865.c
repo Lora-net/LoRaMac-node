@@ -314,6 +314,11 @@ PhyParam_t RegionIN865GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = DataratesIN865[getPhy->Datarate];
             break;
         }
+        case PHY_BW_FROM_DR:
+        {
+            phyParam.Value = GetBandwidth( getPhy->Datarate );
+            break;
+        }
         default:
         {
             break;

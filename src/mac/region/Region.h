@@ -823,7 +823,11 @@ typedef enum ePhyAttribute
     /*!
      * The equivalent spreading factor value from datarate
      */
-    PHY_SF_FROM_DR
+    PHY_SF_FROM_DR,
+    /*!
+     * The equivalent bandwith index from datarate
+     */
+    PHY_BW_FROM_DR,
 }PhyAttribute_t;
 
 /*!
@@ -924,7 +928,7 @@ typedef struct sGetPhyParams
     /*!
      * Datarate.
      * The parameter is needed for the following queries:
-     * PHY_MAX_PAYLOAD, PHY_NEXT_LOWER_TX_DR, PHY_SF_FROM_DR.
+     * PHY_MAX_PAYLOAD, PHY_NEXT_LOWER_TX_DR, PHY_SF_FROM_DR, PHY_BW_FROM_DR.
      */
     int8_t Datarate;
     /*!
