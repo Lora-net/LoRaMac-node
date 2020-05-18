@@ -33,19 +33,27 @@
 #include "utilities.h"
 #include "RegionCommon.h"
 
-#define BACKOFF_DC_1_HOUR       100
-#define BACKOFF_DC_10_HOURS     1000
-#define BACKOFF_DC_24_HOURS     10000
+#define BACKOFF_DC_1_HOUR                   100
+#define BACKOFF_DC_10_HOURS                 1000
+#define BACKOFF_DC_24_HOURS                 10000
+#define BACKOFF_DC_TIMER_PERIOD_FACTOR      100
 
-static uint16_t SetMaxTimeCredits( Band_t* band, bool joined, SysTime_t elapsedTime )
+#ifndef DUTY_CYCLE_TIME_PERIOD
+/*!
+ * Default duty cycle time period is 1 hour = 3600000 ms
+ */
+#define DUTY_CYCLE_TIME_PERIOD              3600000
+#endif
+
+static uint16_t GetDutyCycle( Band_t* band, bool joined, SysTime_t elapsedTimeSinceStartup )
 {
-    uint16_t joinDutyCycle = RegionCommonGetJoinDc( elapsedTime );
+    uint16_t joinDutyCycle = RegionCommonGetJoinDc( elapsedTimeSinceStartup );
     uint16_t dutyCycle = band->DCycle;
 
     if( joined == false )
     {
         // Get the join duty cycle which depends on the runtime
-        joinDutyCycle = RegionCommonGetJoinDc( elapsedTime );
+        joinDutyCycle = RegionCommonGetJoinDc( elapsedTimeSinceStartup );
         // Take the most restrictive duty cycle
         dutyCycle = MAX( dutyCycle, joinDutyCycle );
     }
@@ -56,14 +64,32 @@ static uint16_t SetMaxTimeCredits( Band_t* band, bool joined, SysTime_t elapsedT
         dutyCycle = 1;
     }
 
+    return dutyCycle;
+}
+
+static uint16_t SetMaxTimeCredits( Band_t* band, bool joined, SysTime_t elapsedTimeSinceStartup )
+{
+    uint16_t dutyCycle = band->DCycle;
+    uint8_t timePeriodFactor = 1;
+
+    // Get the band duty cycle. If not joined, the function either returns the join duty cycle
+    // or the band duty cycle, whichever is more restrictive.
+    dutyCycle = GetDutyCycle( band, joined, elapsedTimeSinceStartup );
+
+    if( joined == false )
+    {
+        // Apply a factor to increase the maximum time period of observation
+        timePeriodFactor = dutyCycle / BACKOFF_DC_TIMER_PERIOD_FACTOR;
+    }
+
     // Setup the maximum allowed credits
-    band->MaxTimeCredits = DUTY_CYCLE_TIME_PERIOD / dutyCycle;
+    band->MaxTimeCredits = DUTY_CYCLE_TIME_PERIOD * timePeriodFactor;
 
     // In case if it is the first time, update also the current
     // time credits
     if( band->LastBandUpdateTime == 0 )
     {
-        band->TimeCredits = DUTY_CYCLE_TIME_PERIOD / dutyCycle;
+        band->TimeCredits = band->MaxTimeCredits;
     }
 
     return dutyCycle;
@@ -96,7 +122,7 @@ static uint16_t UpdateTimeCredits( Band_t* band, bool joined, bool dutyCycleEnab
     }
 
     // Get the difference between now and the last update
-    band->TimeCredits += ( TimerGetElapsedTime( band->LastBandUpdateTime ) / dutyCycle );
+    band->TimeCredits += TimerGetElapsedTime( band->LastBandUpdateTime );
 
     // Limit band credits to maximum
     if( band->TimeCredits > band->MaxTimeCredits )
@@ -220,13 +246,17 @@ void RegionCommonChanMaskCopy( uint16_t* channelsMaskDest, uint16_t* channelsMas
     }
 }
 
-void RegionCommonSetBandTxDone( Band_t* band, TimerTime_t lastTxAirTime )
+void RegionCommonSetBandTxDone( Band_t* band, TimerTime_t lastTxAirTime, bool joined, SysTime_t elapsedTimeSinceStartup )
 {
+    // Get the band duty cycle. If not joined, the function either returns the join duty cycle
+    // or the band duty cycle, whichever is more restrictive.
+    uint16_t dutyCycle = GetDutyCycle( band, joined, elapsedTimeSinceStartup );
+
     // Reduce with transmission time
-    if( band->TimeCredits > lastTxAirTime )
+    if( band->TimeCredits > ( lastTxAirTime * dutyCycle ) )
     {
         // Reduce time credits by the time of air
-        band->TimeCredits -= lastTxAirTime;
+        band->TimeCredits -= ( lastTxAirTime * dutyCycle );
     }
     else
     {
@@ -239,56 +269,64 @@ TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, Band_t* bands,
                                            bool lastTxIsJoinRequest, SysTime_t elapsedTimeSinceStartup,
                                            TimerTime_t expectedTimeOnAir )
 {
-    TimerTime_t maxCredits = 0;
+    TimerTime_t minTimeToWait = TIMERTIME_T_MAX;
     TimerTime_t currentTime = TimerGetCurrentTime( );
+    TimerTime_t creditCosts = 0;
     uint16_t dutyCycle = 1;
-    uint16_t maxDutyCycle = 0;
+    uint8_t validBands = 0;
 
-    // Update bands
     for( uint8_t i = 0; i < nbBands; i++ )
     {
-        // Synchronization
+        // Synchronization of bands and credits
         dutyCycle = UpdateTimeCredits( &bands[i], joined, dutyCycleEnabled,
                                        lastTxIsJoinRequest, elapsedTimeSinceStartup,
                                        currentTime );
 
+        // Calculate the credit costs for the next transmission
+        // with the duty cycle and the expected time on air
+        creditCosts = expectedTimeOnAir * dutyCycle;
+
         // Check if the band is ready for transmission. Its ready,
         // when the duty cycle is off, or the TimeCredits of the band
-        // is higher than the expected time on air.
-        if( ( bands[i].TimeCredits > expectedTimeOnAir ) ||
+        // is higher than the credit costs for the transmission.
+        if( ( bands[i].TimeCredits > creditCosts ) ||
             ( dutyCycleEnabled == false ) )
         {
             bands[i].ReadyForTransmission = true;
+            // This band is a potential candidate for an
+            // upcoming transmission, so increase the counter.
+            validBands++;
         }
         else
         {
+            // In this case, the band has not enough credits
+            // for the next transmission.
             bands[i].ReadyForTransmission = false;
+
+            if( bands[i].MaxTimeCredits > creditCosts )
+            {
+                // The band can only be taken into account, if the maximum credits
+                // of the band are higher than the credit costs.
+                // We calculate the minTimeToWait among the bands which are not
+                // ready for transmission and which are potentially available
+                // for a transmission in the future.
+                minTimeToWait = MIN( minTimeToWait, ( creditCosts - bands[i].TimeCredits ) );
+                // This band is a potential candidate for an
+                // upcoming transmission (even if its time credits are not enough
+                // at the moment), so increase the counter.
+                validBands++;
+            }
         }
-
-        // Get the band with the maximum credits
-        if( ( maxCredits < bands[i].TimeCredits ) &&
-            ( bands[i].TimeCredits != bands[i].MaxTimeCredits ) )
-        {
-            maxCredits = bands[i].TimeCredits;
-            maxDutyCycle = dutyCycle;
-        }
     }
 
-    // Calculate the difference to the expected time on air, if the
-    // expected time on air is greater than the credits of the band with highest
-    // time credit value
-    if( maxCredits < expectedTimeOnAir )
+
+    if( validBands == 0 )
     {
-        maxCredits = expectedTimeOnAir - maxCredits;
+        // There is no valid band available to handle a transmission
+        // in the given DUTY_CYCLE_TIME_PERIOD.
+        return TIMERTIME_T_MAX;
     }
-    else
-    {
-        maxCredits = 0;
-    }
-
-    // Calculate the return value which shall be
-    // the waiting time for the next transmission
-    return maxCredits * maxDutyCycle;
+    return minTimeToWait;
 }
 
 uint8_t RegionCommonParseLinkAdrReq( uint8_t* payload, RegionCommonLinkAdrParams_t* linkAdrParams )
@@ -490,7 +528,7 @@ LoRaMacStatus_t RegionCommonIdentifyChannels( RegionCommonIdentifyChannelsParam_
                                                       identifyChannelsParam->MaxBands,
                                                       identifyChannelsParam->DutyCycleEnabled,
                                                       identifyChannelsParam->LastTxIsJoinRequest,
-                                                      identifyChannelsParam->ElapsedTime,
+                                                      identifyChannelsParam->ElapsedTimeSinceStartUp,
                                                       identifyChannelsParam->ExpectedTimeOnAir );
 
         RegionCommonCountNbOfEnabledChannels( identifyChannelsParam->CountNbOfEnabledChannelsParam, enabledChannels,

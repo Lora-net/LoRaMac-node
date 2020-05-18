@@ -76,12 +76,7 @@ extern "C"
 #define REGION_VERSION                              0x00010003
 #endif
 
-#ifndef DUTY_CYCLE_TIME_PERIOD
-/*!
- * Default duty cycle time period is 1 hour = 3600000 ms
- */
-#define DUTY_CYCLE_TIME_PERIOD                      3600000
-#endif
+
 
 /*!
  * Region       | SF
@@ -974,6 +969,10 @@ typedef struct sSetBandTxDoneParams
      * Time-on-air of the last transmission.
      */
     TimerTime_t LastTxAirTime;
+    /*!
+     * Elapsed time since initialization.
+     */
+    SysTime_t ElapsedTimeSinceStartUp;
 }SetBandTxDoneParams_t;
 
 /*!
@@ -1298,7 +1297,7 @@ typedef struct sNextChanParams
     /*!
      * Elapsed time since the start of the node.
      */
-    SysTime_t ElapsedTime;
+    SysTime_t ElapsedTimeSinceStartUp;
     /*!
      * Joined Set to true, if the last uplink was a join request
      */

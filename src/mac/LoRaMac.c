@@ -892,16 +892,15 @@ static void ProcessRadioTxDone( void )
 
     // Update last tx done time for the current channel
     txDone.Channel = MacCtx.Channel;
+    txDone.LastTxDoneTime = TxDoneParams.CurTime;
+    txDone.ElapsedTimeSinceStartUp = SysTimeSub( SysTimeGetMcuTime( ), MacCtx.NvmCtx->InitializationTime );
+    txDone.LastTxAirTime = MacCtx.TxTimeOnAir;
+    txDone.Joined  = true;
     if( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_NONE )
     {
         txDone.Joined  = false;
     }
-    else
-    {
-        txDone.Joined  = true;
-    }
-    txDone.LastTxDoneTime = TxDoneParams.CurTime;
-    txDone.LastTxAirTime = MacCtx.TxTimeOnAir;
+
     RegionSetBandTxDone( MacCtx.NvmCtx->Region, &txDone );
 
     if( MacCtx.NodeAckRequested == false )
@@ -2507,7 +2506,7 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
     nextChan.AggrTimeOff = MacCtx.NvmCtx->AggregatedTimeOff;
     nextChan.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
     nextChan.DutyCycleEnabled = MacCtx.NvmCtx->DutyCycleOn;
-    nextChan.ElapsedTime = SysTimeSub( SysTimeGetMcuTime( ), MacCtx.NvmCtx->InitializationTime );
+    nextChan.ElapsedTimeSinceStartUp = SysTimeSub( SysTimeGetMcuTime( ), MacCtx.NvmCtx->InitializationTime );
     nextChan.LastAggrTx = MacCtx.NvmCtx->LastTxDoneTime;
     nextChan.LastTxIsJoinRequest = false;
     nextChan.Joined = true;
