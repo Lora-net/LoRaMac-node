@@ -682,7 +682,7 @@ void RadioSetRxConfig( RadioModems_t modem, uint32_t bandwidth,
             break;
 
         case MODEM_LORA:
-            SX126xSetStopRxTimerOnPreambleDetect( false );            
+            SX126xSetStopRxTimerOnPreambleDetect( false );
             SX126x.ModulationParams.PacketType = PACKET_TYPE_LORA;
             SX126x.ModulationParams.Params.LoRa.SpreadingFactor = ( RadioLoRaSpreadingFactors_t )datarate;
             SX126x.ModulationParams.Params.LoRa.Bandwidth = Bandwidths[bandwidth];
