@@ -74,14 +74,6 @@ typedef struct sSecureElementNvCtx
      */
     uint8_t Pin[SE_PIN_SIZE];
     /*
-     * AES computation context variable
-     */
-    aes_context AesContext;
-    /*
-     * CMAC computation context variable
-     */
-    AES_CMAC_CTX AesCmacCtx[1];
-    /*
      * Key List
      */
     Key_t KeyList[NUM_OF_KEYS];
@@ -167,24 +159,25 @@ static SecureElementStatus_t ComputeCmac( uint8_t* micBxBuffer, uint8_t* buffer,
     }
 
     uint8_t Cmac[16];
+    AES_CMAC_CTX aesCmacCtx[1];
 
-    AES_CMAC_Init( SeNvmCtx.AesCmacCtx );
+    AES_CMAC_Init( aesCmacCtx );
 
     Key_t*                keyItem;
     SecureElementStatus_t retval = GetKeyByID( keyID, &keyItem );
 
     if( retval == SECURE_ELEMENT_SUCCESS )
     {
-        AES_CMAC_SetKey( SeNvmCtx.AesCmacCtx, keyItem->KeyValue );
+        AES_CMAC_SetKey( aesCmacCtx, keyItem->KeyValue );
 
         if( micBxBuffer != NULL )
         {
-            AES_CMAC_Update( SeNvmCtx.AesCmacCtx, micBxBuffer, 16 );
+            AES_CMAC_Update( aesCmacCtx, micBxBuffer, 16 );
         }
 
-        AES_CMAC_Update( SeNvmCtx.AesCmacCtx, buffer, size );
+        AES_CMAC_Update( aesCmacCtx, buffer, size );
 
-        AES_CMAC_Final( Cmac, SeNvmCtx.AesCmacCtx );
+        AES_CMAC_Final( Cmac, aesCmacCtx );
 
         // Bring into the required format
         *cmac = ( uint32_t )( ( uint32_t ) Cmac[3] << 24 | ( uint32_t ) Cmac[2] << 16 | ( uint32_t ) Cmac[1] << 8 |
@@ -327,20 +320,21 @@ SecureElementStatus_t SecureElementAesEncrypt( uint8_t* buffer, uint16_t size, K
         return SECURE_ELEMENT_ERROR_BUF_SIZE;
     }
 
-    memset1( SeNvmCtx.AesContext.ksch, '\0', 240 );
+    aes_context aesContext;
+    memset1( aesContext.ksch, '\0', 240 );
 
     Key_t*                pItem;
     SecureElementStatus_t retval = GetKeyByID( keyID, &pItem );
 
     if( retval == SECURE_ELEMENT_SUCCESS )
     {
-        aes_set_key( pItem->KeyValue, 16, &SeNvmCtx.AesContext );
+        aes_set_key( pItem->KeyValue, 16, &aesContext );
 
         uint8_t block = 0;
 
         while( size != 0 )
         {
-            aes_encrypt( &buffer[block], &encBuffer[block], &SeNvmCtx.AesContext );
+            aes_encrypt( &buffer[block], &encBuffer[block], &aesContext );
             block = block + 16;
             size  = size - 16;
         }
