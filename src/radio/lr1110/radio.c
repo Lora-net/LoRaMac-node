@@ -1079,12 +1079,14 @@ void RadioTx( uint32_t timeout )
 
 void RadioSetTxContinuousWave( uint32_t freq, int8_t power, uint16_t time )
 {
+    uint32_t timeout = ( uint32_t )time * 1000;
+
     lr1110_radio_set_rf_frequency( &LR1110, freq );
     lr1110_board_set_rf_tx_power( &LR1110, power );
     lr1110_radio_set_tx_cw( &LR1110 );
     lr1110_hal_set_operating_mode( &LR1110, LR1110_HAL_OP_MODE_TX );
 
-    TimerSetValue( &TxTimeoutTimer, time * 1e3 );
+    TimerSetValue( &TxTimeoutTimer, timeout );
     TimerStart( &TxTimeoutTimer );
 }
 
