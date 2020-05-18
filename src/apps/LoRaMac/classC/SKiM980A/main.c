@@ -334,7 +334,7 @@ static void JoinNetwork( void )
     {
         if( status == LORAMAC_STATUS_DUTYCYCLE_RESTRICTED )
         {
-            printf( "Next Tx in  : %lu [ms]\n", ( mlmeReq.ReqReturn.DutyCycleWaitTime );
+            printf( "Next Tx in  : %lu [ms]\n", mlmeReq.ReqReturn.DutyCycleWaitTime );
         }
         DeviceState = DEVICE_STATE_CYCLE;
     }
