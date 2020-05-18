@@ -85,10 +85,6 @@ typedef struct sSecureElementNvCtx
      */
     uint8_t Pin[SE_PIN_SIZE];
     /*!
-     * CMAC computation context variable
-     */
-    atca_aes_cmac_ctx_t AtcaAesCmacCtx;
-    /*!
      * LoRaWAN key list
      */
     Key_t KeyList[NUM_OF_KEYS];
@@ -275,19 +271,20 @@ static SecureElementStatus_t ComputeCmac( uint8_t* micBxBuffer, uint8_t* buffer,
         return retval;
     }
 
-    ATCA_STATUS status =
-        atcab_aes_cmac_init( &SeNvmCtx.AtcaAesCmacCtx, keyItem->KeySlotNumber, keyItem->KeyBlockIndex );
+    atca_aes_cmac_ctx_t atcaAesCmacCtx;
+    ATCA_STATUS         status =
+        atcab_aes_cmac_init( &atcaAesCmacCtx, keyItem->KeySlotNumber, keyItem->KeyBlockIndex );
 
     if( ATCA_SUCCESS == status )
     {
         if( micBxBuffer != NULL )
         {
-            atcab_aes_cmac_update( &SeNvmCtx.AtcaAesCmacCtx, micBxBuffer, 16 );
+            atcab_aes_cmac_update( &atcaAesCmacCtx, micBxBuffer, 16 );
         }
 
-        atcab_aes_cmac_update( &SeNvmCtx.AtcaAesCmacCtx, buffer, size );
+        atcab_aes_cmac_update( &atcaAesCmacCtx, buffer, size );
 
-        atcab_aes_cmac_finish( &SeNvmCtx.AtcaAesCmacCtx, Cmac, 16 );
+        atcab_aes_cmac_finish( &atcaAesCmacCtx, Cmac, 16 );
 
         *cmac = ( uint32_t )( ( uint32_t ) Cmac[3] << 24 | ( uint32_t ) Cmac[2] << 16 | ( uint32_t ) Cmac[1] << 8 |
                               ( uint32_t ) Cmac[0] );
