@@ -181,7 +181,7 @@ void DisplayMacMcpsRequestUpdate( LoRaMacStatus_t status, McpsReq_t *mcpsReq, Ti
     printf( "STATUS      : %s\n", MacStatusStrings[status] );
     if( status == LORAMAC_STATUS_DUTYCYCLE_RESTRICTED )
     {
-        printf( "Next Tx in  : ~%lu second(s)\n", ( nextTxIn / 1000 ) );
+        printf( "Next Tx in  : %lu [ms]\n", nextTxIn );
     }
 }
 
@@ -235,7 +235,7 @@ void DisplayMacMlmeRequestUpdate( LoRaMacStatus_t status, MlmeReq_t *mlmeReq, Ti
     printf( "STATUS      : %s\n", MacStatusStrings[status] );
     if( status == LORAMAC_STATUS_DUTYCYCLE_RESTRICTED )
     {
-        printf( "Next Tx in  : ~%lu second(s)\n", ( nextTxIn / 1000 ) );
+        printf( "Next Tx in  : %lu [ms]\n", nextTxIn );
     }
 }
 

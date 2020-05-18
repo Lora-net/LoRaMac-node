@@ -334,7 +334,7 @@ static void JoinNetwork( void )
     {
         if( status == LORAMAC_STATUS_DUTYCYCLE_RESTRICTED )
         {
-            printf( "Next Tx in  : ~%lu second(s)\n", ( mlmeReq.ReqReturn.DutyCycleWaitTime / 1000 ) );
+            printf( "Next Tx in  : %lu [ms]\n", ( mlmeReq.ReqReturn.DutyCycleWaitTime );
         }
         DeviceState = DEVICE_STATE_CYCLE;
     }
@@ -448,7 +448,7 @@ static bool SendFrame( void )
 
     if( status == LORAMAC_STATUS_DUTYCYCLE_RESTRICTED )
     {
-        printf( "Next Tx in  : ~%lu second(s)\n", ( mcpsReq.ReqReturn.DutyCycleWaitTime / 1000 ) );
+        printf( "Next Tx in  : %lu [ms]\n", mcpsReq.ReqReturn.DutyCycleWaitTime );
     }
 
     if( status == LORAMAC_STATUS_OK )
