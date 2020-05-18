@@ -343,7 +343,7 @@ LoRaMacCommandStatus_t LoRaMacCommandsAddCmd( uint8_t cid, uint8_t* payload, siz
     // Allocate a memory slot
     newCmd = MallocNewMacCommandSlot( );
 
-    if( newCmd == 0 )
+    if( newCmd == NULL )
     {
         return LORAMAC_COMMANDS_ERROR_MEMORY;
     }
