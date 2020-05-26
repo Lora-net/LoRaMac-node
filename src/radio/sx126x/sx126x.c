@@ -368,7 +368,10 @@ void SX126xSetLoRaSymbNumTimeout( uint8_t SymbNum )
     }
 
     reg = exp + ( mant << 3 );
-    SX126xWriteRegister( REG_LR_SYNCH_TIMEOUT, reg );
+    if( reg != 0 )
+    {
+        SX126xWriteRegister( REG_LR_SYNCH_TIMEOUT, reg );
+    }
 }
 
 void SX126xSetRegulatorMode( RadioRegulatorMode_t mode )
