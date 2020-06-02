@@ -69,7 +69,7 @@ For Windows platforms the prefix has to be provided anyway and additionally the 
 The possibility to choose the application, target board and more options can be done using the provided configuration options.
 
 These configuration options can be set through additional commandline parameters, for example:  
-    `cmake -DCMAKE_TOOLCHAIN_FILE="cmake/toolchain-arm-none-eabi.cmake" -DAPPLICATION="LoRaMac" -DSUB_PROJECT="classC" ..`
+    `cmake -DCMAKE_TOOLCHAIN_FILE="cmake/toolchain-arm-none-eabi.cmake" -DAPPLICATION="LoRaMac" -DSUB_PROJECT="periodic-uplink-lpp" ..`
 
 Alternatively one can use a graphical interface to configure CMake, drop down menus and check boxes will provide to the user the possible options.
 
@@ -87,9 +87,6 @@ Alternatively one can use a graphical interface to configure CMake, drop down me
 * `SUB_PROJECT` - LoRaMac sub project example choice.  
    **Note**: Only applicable to LoRaMac `APPLICATION` choice.  
    The possible choices are:  
-     * classA
-     * classB
-     * classC
      * periodic-uplink-lpp
      * fuota-test-01
 * `ACTIVE_REGION` - Active region for which the stack will be initialized.  

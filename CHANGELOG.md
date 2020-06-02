@@ -13,8 +13,12 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 
 ### General
 
-- Release based on "LoRaWAN specification 1.0.3" and "LoRaWAN Regional Parameters v1.0.3revA"
-- GitHub reported issues corrections. Please refer to [Release Version 4.4.4](https://github.com/Lora-net/LoRaMac-node/milestone/6)
+- Release based on "LoRaWAN specification 1.0.4"/"LoRaWAN specification 1.1.1" and "LoRaWAN Regional Parameters 2-1.0.1"
+- GitHub reported issues corrections. Please refer to [Release Version 5.0.0](https://github.com/Lora-net/LoRaMac-node/milestone/3)
+
+### Removed
+
+- Removed ClassA, ClassB and ClassC examples.
 
 ### Fixed
 
