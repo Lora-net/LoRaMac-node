@@ -62,6 +62,10 @@ typedef struct sLoRaMacClassBPingSlotNvmCtx
      * Datarate of the ping slot
      */
     int8_t Datarate;
+    /*!
+     * Set to 1, if the FPending bit is set
+     */
+    uint8_t FPendingSet;
 } LoRaMacClassBPingSlotNvmCtx_t;
 
 /*
@@ -144,7 +148,7 @@ typedef struct sLoRaMacClassBCtx
     * in class b operation.
     */
     LoRaMacClassBParams_t LoRaMacClassBParams;
-    /*
+    /*!
      * Callback function to notify the upper layer about context change
      */
     LoRaMacClassBNvmEvent LoRaMacClassBNvmEvent;
@@ -469,7 +473,10 @@ static void InitClassB( void )
     // Setup default ping slot datarate
     getPhy.Attribute = PHY_PING_SLOT_CHANNEL_DR;
     phyParam = RegionGetPhyParam( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    Ctx.NvmCtx->PingSlotCtx.Datarate = (int8_t)( phyParam.Value );
+    Ctx.NvmCtx->PingSlotCtx.Datarate = ( int8_t )( phyParam.Value );
+
+    // Setup default FPending bit
+    Ctx.NvmCtx->PingSlotCtx.FPendingSet = 0;
 
     // Setup default states
     Ctx.BeaconState = BEACON_STATE_ACQUISITION;
@@ -606,6 +613,48 @@ static void NvmContextChange( void )
     {
         Ctx.LoRaMacClassBNvmEvent( );
     }
+}
+
+static bool CheckSlotPriority( uint32_t currentAddress, uint8_t currentFPendingSet, uint8_t currentIsMulticast,
+                               uint32_t address, uint8_t fPendingSet, uint8_t isMulticast )
+{
+    if( currentFPendingSet != fPendingSet )
+    {
+        if( currentFPendingSet < fPendingSet )
+        {
+            // New slot sequence has priority. It does not matter
+            // which type it is
+            return true;
+        }
+        return false;
+    }
+    else
+    {
+        // FPendingSet has the same priority level, decide
+        // based on multicast or unicast setting
+        if( currentIsMulticast != isMulticast )
+        {
+            if( currentIsMulticast < isMulticast )
+            {
+                // New slot sequence has priority. Multicasts have
+                // more priority than unicasts
+                return true;
+            }
+            return false;
+        }
+        else
+        {
+            // IsMulticast has the same priority level, decide
+            // based on the highest address
+            if( currentAddress < address )
+            {
+                // New slot sequence has priority. The sequence with
+                // the highest address has priority
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 #endif // LORAMAC_CLASSB_ENABLED
@@ -984,6 +1033,8 @@ static void LoRaMacClassBProcessPingSlot( void )
 {
     static RxConfigParams_t pingSlotRxConfig;
     TimerTime_t pingSlotTime = 0;
+    uint32_t maxRxError = 0;
+    bool slotHasPriority = false;
 
     switch( Ctx.PingSlotState )
     {
@@ -1002,12 +1053,17 @@ static void LoRaMacClassBProcessPingSlot( void )
             {
                 if( Ctx.BeaconCtx.Ctrl.BeaconAcquired == 1 )
                 {
+                    // Compare and assign the maximum between the region specific rx error window time
+                    // and time precision received from beacon frame format.
+                    maxRxError = MAX( Ctx.LoRaMacClassBParams.LoRaMacParams->SystemMaxRxError ,
+                                      ( uint32_t ) Ctx.BeaconCtx.BeaconTimePrecision.SubSeconds );
+
                     // Compute the symbol timeout. Apply it only, if the beacon is acquired
                     // Otherwise, take the enlargement of the symbols into account.
                     RegionComputeRxWindowParameters( *Ctx.LoRaMacClassBParams.LoRaMacRegion,
                                                      Ctx.NvmCtx->PingSlotCtx.Datarate,
                                                      Ctx.LoRaMacClassBParams.LoRaMacParams->MinRxSymbols,
-                                                     Ctx.LoRaMacClassBParams.LoRaMacParams->SystemMaxRxError,
+                                                     maxRxError,
                                                      &pingSlotRxConfig );
                     Ctx.PingSlotCtx.SymbolTimeout = pingSlotRxConfig.WindowTimeout;
 
@@ -1036,10 +1092,26 @@ static void LoRaMacClassBProcessPingSlot( void )
                                                              CLASSB_BEACON_INTERVAL, false );
             }
 
-            // Open the ping slot window only, if there is no multicast ping slot
-            // open. Multicast ping slots have always priority
-            if( Ctx.MulticastSlotState != PINGSLOT_STATE_RX )
+            if( Ctx.PingSlotCtx.NextMulticastChannel != NULL )
             {
+                // Verify, if the unicast has priority.
+                slotHasPriority = CheckSlotPriority( *Ctx.LoRaMacClassBParams.LoRaMacDevAddr, Ctx.NvmCtx->PingSlotCtx.FPendingSet, 0,
+                                                     Ctx.PingSlotCtx.NextMulticastChannel->ChannelParams.Address, Ctx.PingSlotCtx.NextMulticastChannel->FPendingSet, 1 );
+            }
+
+            // Open the ping slot window only, if there is no multicast ping slot
+            // open or if the unicast has priority.
+            if( ( Ctx.MulticastSlotState != PINGSLOT_STATE_RX ) || ( slotHasPriority == true ) )
+            {
+                if( Ctx.MulticastSlotState == PINGSLOT_STATE_RX )
+                {
+                    // Close multicast slot window, if necessary. Multicast slots have priority
+                    Radio.Standby( );
+                    Ctx.MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+                    TimerSetValue( &Ctx.MulticastSlotTimer, CLASSB_PING_SLOT_WINDOW );
+                    TimerStart( &Ctx.MulticastSlotTimer );
+                }
+
                 Ctx.PingSlotState = PINGSLOT_STATE_RX;
 
                 pingSlotRxConfig.Datarate = Ctx.NvmCtx->PingSlotCtx.Datarate;
@@ -1095,8 +1167,9 @@ static void LoRaMacClassBProcessMulticastSlot( void )
     static RxConfigParams_t multicastSlotRxConfig;
     TimerTime_t multicastSlotTime = 0;
     TimerTime_t slotTime = 0;
+    uint32_t maxRxError = 0;
     MulticastCtx_t *cur = Ctx.LoRaMacClassBParams.MulticastChannels;
-
+    bool slotHasPriority = false;
 
     if( cur == NULL )
     {
@@ -1130,7 +1203,7 @@ static void LoRaMacClassBProcessMulticastSlot( void )
             cur = Ctx.LoRaMacClassBParams.MulticastChannels;
             Ctx.PingSlotCtx.NextMulticastChannel = NULL;
 
-            for( uint8_t i = 0; i < 4; i++ )
+            for( uint8_t i = 0; i < LORAMAC_MAX_MC_CTX; i++ )
             {
                 // Calculate the next slot time for every multicast slot
                 if( CalcNextSlotTime( cur->PingOffset, cur->PingPeriod, cur->PingNb, &slotTime ) == true )
@@ -1150,10 +1223,16 @@ static void LoRaMacClassBProcessMulticastSlot( void )
             {
                 if( Ctx.BeaconCtx.Ctrl.BeaconAcquired == 1 )
                 {
+
+                    // Compare and assign the maximum between the region specific rx error window time
+                    // and time precision received from beacon frame format.
+                    maxRxError = MAX( Ctx.LoRaMacClassBParams.LoRaMacParams->SystemMaxRxError ,
+                                      ( uint32_t ) Ctx.BeaconCtx.BeaconTimePrecision.SubSeconds );
+
                     RegionComputeRxWindowParameters( *Ctx.LoRaMacClassBParams.LoRaMacRegion,
                                                     Ctx.NvmCtx->PingSlotCtx.Datarate,
                                                     Ctx.LoRaMacClassBParams.LoRaMacParams->MinRxSymbols,
-                                                    Ctx.LoRaMacClassBParams.LoRaMacParams->SystemMaxRxError,
+                                                    maxRxError,
                                                     &multicastSlotRxConfig );
                     Ctx.PingSlotCtx.SymbolTimeout = multicastSlotRxConfig.WindowTimeout;
                 }
@@ -1194,32 +1273,49 @@ static void LoRaMacClassBProcessMulticastSlot( void )
                                                              Ctx.BeaconCtx.BeaconTime.Seconds, CLASSB_BEACON_INTERVAL, false );
             }
 
-            Ctx.MulticastSlotState = PINGSLOT_STATE_RX;
+            // Verify, if the unicast has priority.
+            slotHasPriority = CheckSlotPriority( Ctx.PingSlotCtx.NextMulticastChannel->ChannelParams.Address, Ctx.PingSlotCtx.NextMulticastChannel->FPendingSet, 1,
+                                                 *Ctx.LoRaMacClassBParams.LoRaMacDevAddr, Ctx.NvmCtx->PingSlotCtx.FPendingSet, 0 );
 
-            multicastSlotRxConfig.Datarate = Ctx.PingSlotCtx.NextMulticastChannel->ChannelParams.RxParams.ClassB.Datarate;
-            multicastSlotRxConfig.DownlinkDwellTime = Ctx.LoRaMacClassBParams.LoRaMacParams->DownlinkDwellTime;
-            multicastSlotRxConfig.Frequency = frequency;
-            multicastSlotRxConfig.RxContinuous = false;
-            multicastSlotRxConfig.RxSlot = RX_SLOT_WIN_CLASS_B_MULTICAST_SLOT;
-
-            RegionRxConfig( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &multicastSlotRxConfig, ( int8_t* )&Ctx.LoRaMacClassBParams.McpsIndication->RxDatarate );
-
-            if( Ctx.PingSlotState == PINGSLOT_STATE_RX )
+            // Open the ping slot window only, if there is no multicast ping slot
+            // open or if the unicast has priority.
+            if( ( Ctx.PingSlotState != PINGSLOT_STATE_RX ) || ( slotHasPriority == true ) )
             {
-                // Close ping slot window, if necessary. Multicast slots have priority
-                Radio.Standby( );
-                Ctx.PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
-                TimerSetValue( &Ctx.PingSlotTimer, CLASSB_PING_SLOT_WINDOW );
-                TimerStart( &Ctx.PingSlotTimer );
-            }
+                if( Ctx.PingSlotState == PINGSLOT_STATE_RX )
+                {
+                    // Close ping slot window, if necessary. Multicast slots have priority
+                    Radio.Standby( );
+                    Ctx.PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+                    TimerSetValue( &Ctx.PingSlotTimer, CLASSB_PING_SLOT_WINDOW );
+                    TimerStart( &Ctx.PingSlotTimer );
+                }
 
-            if( multicastSlotRxConfig.RxContinuous == false )
-            {
-                Radio.Rx( Ctx.LoRaMacClassBParams.LoRaMacParams->MaxRxWindow );
+                Ctx.MulticastSlotState = PINGSLOT_STATE_RX;
+
+                multicastSlotRxConfig.Datarate = Ctx.PingSlotCtx.NextMulticastChannel->ChannelParams.RxParams.ClassB.Datarate;
+                multicastSlotRxConfig.DownlinkDwellTime = Ctx.LoRaMacClassBParams.LoRaMacParams->DownlinkDwellTime;
+                multicastSlotRxConfig.Frequency = frequency;
+                multicastSlotRxConfig.RxContinuous = false;
+                multicastSlotRxConfig.RxSlot = RX_SLOT_WIN_CLASS_B_MULTICAST_SLOT;
+                multicastSlotRxConfig.NetworkActivation = *Ctx.LoRaMacClassBParams.NetworkActivation;
+
+                RegionRxConfig( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &multicastSlotRxConfig, ( int8_t* )&Ctx.LoRaMacClassBParams.McpsIndication->RxDatarate );
+
+                if( multicastSlotRxConfig.RxContinuous == false )
+                {
+                    Radio.Rx( Ctx.LoRaMacClassBParams.LoRaMacParams->MaxRxWindow );
+                }
+                else
+                {
+                    Radio.Rx( 0 ); // Continuous mode
+                }
             }
             else
             {
-                Radio.Rx( 0 ); // Continuous mode
+                // Unicast slots have priority. Skip Rx
+                Ctx.MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+                TimerSetValue( &Ctx.MulticastSlotTimer, CLASSB_PING_SLOT_WINDOW );
+                TimerStart( &Ctx.MulticastSlotTimer );
             }
             break;
         }
@@ -1762,6 +1858,34 @@ void LoRaMacClassBSetMulticastPeriodicity( MulticastCtx_t* multicastChannel )
         multicastChannel->PingPeriod = CalcPingPeriod( multicastChannel->PingNb );
     }
 #endif // LORAMAC_CLASSB_ENABLED
+}
+
+void LoRaMacClassBSetFPendingBit( uint32_t address, uint8_t fPendingSet )
+{
+#ifdef LORAMAC_CLASSB_ENABLED
+    MulticastCtx_t *cur = Ctx.LoRaMacClassBParams.MulticastChannels;
+
+    if( address == *Ctx.LoRaMacClassBParams.LoRaMacDevAddr )
+    {
+        // Unicast
+        Ctx.NvmCtx->PingSlotCtx.FPendingSet = fPendingSet;
+    }
+    else
+    {
+        for( uint8_t i = 0; i < LORAMAC_MAX_MC_CTX; i++ )
+        {
+            if( cur != NULL )
+            {
+                // Set the fPending bit, if its a multicast
+                if( address == cur->ChannelParams.Address )
+                {
+                    cur->FPendingSet = fPendingSet;
+                }
+            }
+            cur++;
+        }
+    }
+#endif
 }
 
 void LoRaMacClassBProcess( void )

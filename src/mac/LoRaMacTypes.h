@@ -419,6 +419,10 @@ typedef struct sMulticastCtx
      * Ping offset of the multicast channel for Class B
      */
     uint16_t PingOffset;
+    /*!
+     * Set to 1, if the FPending bit is set
+     */
+    uint8_t FPendingSet;
 }MulticastCtx_t;
 
 /*!

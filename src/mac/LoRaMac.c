@@ -989,22 +989,6 @@ static void ProcessRadioRxDone( void )
         MacCtx.MlmeIndication.BeaconInfo.Snr = snr;
         return;
     }
-    // Check if we expect a ping or a multicast slot.
-    if( MacCtx.NvmCtx->DeviceClass == CLASS_B )
-    {
-        if( LoRaMacClassBIsPingExpected( ) == true )
-        {
-            LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
-            LoRaMacClassBPingSlotTimerEvent( NULL );
-            MacCtx.McpsIndication.RxSlot = RX_SLOT_WIN_CLASS_B_PING_SLOT;
-        }
-        else if( LoRaMacClassBIsMulticastExpected( ) == true )
-        {
-            LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
-            LoRaMacClassBMulticastSlotTimerEvent( NULL );
-            MacCtx.McpsIndication.RxSlot = RX_SLOT_WIN_CLASS_B_MULTICAST_SLOT;
-        }
-    }
 
     macHdr.Value = payload[pktHeaderLen++];
 
@@ -1106,6 +1090,26 @@ static void ProcessRadioRxDone( void )
                 MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                 PrepareRxDoneAbort( );
                 return;
+            }
+
+            // Handle Class B
+            // Check if we expect a ping or a multicast slot.
+            if( MacCtx.NvmCtx->DeviceClass == CLASS_B )
+            {
+                if( LoRaMacClassBIsPingExpected( ) == true )
+                {
+                    LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
+                    LoRaMacClassBPingSlotTimerEvent( NULL );
+                    MacCtx.McpsIndication.RxSlot = RX_SLOT_WIN_CLASS_B_PING_SLOT;
+                    LoRaMacClassBSetFPendingBit( macMsgData.FHDR.DevAddr, ( uint8_t ) macMsgData.FHDR.FCtrl.Bits.FPending );
+                }
+                else if( LoRaMacClassBIsMulticastExpected( ) == true )
+                {
+                    LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
+                    LoRaMacClassBMulticastSlotTimerEvent( NULL );
+                    MacCtx.McpsIndication.RxSlot = RX_SLOT_WIN_CLASS_B_MULTICAST_SLOT;
+                    LoRaMacClassBSetFPendingBit( macMsgData.FHDR.DevAddr, ( uint8_t ) macMsgData.FHDR.FCtrl.Bits.FPending );
+                }
             }
 
             // Store device address
