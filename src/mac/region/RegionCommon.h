@@ -46,6 +46,59 @@ extern "C"
 #include "LoRaMacHeaderTypes.h"
 #include "region/Region.h"
 
+// Constants that are common to all the regions.
+
+/*!
+ * Receive delay of 1 second.
+ */
+#define REGION_COMMON_DEFAULT_RECEIVE_DELAY1            1000
+
+/*!
+ * Receive delay of 2 seconds.
+ */
+#define REGION_COMMON_DEFAULT_RECEIVE_DELAY2            ( REGION_COMMON_DEFAULT_RECEIVE_DELAY1 + 1000 )
+
+/*!
+ * Join accept delay of 5 seconds.
+ */
+#define REGION_COMMON_DEFAULT_JOIN_ACCEPT_DELAY1        5000
+
+/*!
+ * Join accept delay of 6 seconds.
+ */
+#define REGION_COMMON_DEFAULT_JOIN_ACCEPT_DELAY2        ( REGION_COMMON_DEFAULT_JOIN_ACCEPT_DELAY1 + 1000 )
+
+/*!
+ * ADR ack limit.
+ */
+#define REGION_COMMON_DEFAULT_ADR_ACK_LIMIT             64
+
+/*!
+ * ADR ack delay.
+ */
+#define REGION_COMMON_DEFAULT_ADR_ACK_DELAY             32
+
+/*!
+ * Retransmission timeout for ACK in milliseconds.
+ */
+#define REGION_COMMON_DEFAULT_RETRANSMIT_TIMEOUT        2000
+
+/*!
+ * Rounding limit for generating random retransmission timeout for ACK.
+ * In milliseconds.
+ */
+#define REGION_COMMON_DEFAULT_RETRANSMIT_TIMEOUT_RND    1000
+
+/*!
+ * Default Rx1 receive datarate offset
+ */
+#define REGION_COMMON_DEFAULT_RX1_DR_OFFSET             0
+
+/*!
+ * Default downlink dwell time configuration
+ */
+#define REGION_COMMON_DEFAULT_DOWNLINK_DWELL_TIME       0
+
 /*!
  * Default ping slots periodicity
  *
@@ -53,6 +106,7 @@ extern "C"
  * Example: 2^7 = 128 seconds. The end-device will open an Rx slot every 128 seconds.
  */
 #define REGION_COMMON_DEFAULT_PING_SLOT_PERIODICITY     7
+
 
 typedef struct sRegionCommonLinkAdrParams
 {

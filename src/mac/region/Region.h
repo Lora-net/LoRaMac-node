@@ -674,10 +674,6 @@ typedef enum ePhyAttribute
      */
     PHY_JOIN_ACCEPT_DELAY2,
     /*!
-     * Maximum frame counter gap.
-     */
-    PHY_MAX_FCNT_GAP,
-    /*!
      * Acknowledgement time out.
      */
     PHY_RETRANSMIT_TIMEOUT,

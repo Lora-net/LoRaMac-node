@@ -52,7 +52,7 @@ extern "C"
 /*!
  * Minimal datarate that can be used by the node
  */
-#define CN470_TX_MIN_DATARATE                       DR_0
+#define CN470_TX_MIN_DATARATE                       DR_1
 
 /*!
  * Maximal datarate that can be used by the node
@@ -62,7 +62,7 @@ extern "C"
 /*!
  * Minimal datarate that can be used by the node
  */
-#define CN470_RX_MIN_DATARATE                       DR_0
+#define CN470_RX_MIN_DATARATE                       DR_1
 
 /*!
  * Maximal datarate that can be used by the node
@@ -72,7 +72,7 @@ extern "C"
 /*!
  * Default datarate used by the node
  */
-#define CN470_DEFAULT_DATARATE                      DR_0
+#define CN470_DEFAULT_DATARATE                      DR_1
 
 /*!
  * Minimal Rx1 receive datarate offset
@@ -115,16 +115,6 @@ extern "C"
 #define CN470_DEFAULT_ANTENNA_GAIN                  2.15f
 
 /*!
- * ADR Ack limit
- */
-#define CN470_ADR_ACK_LIMIT                         64
-
-/*!
- * ADR Ack delay
- */
-#define CN470_ADR_ACK_DELAY                         32
-
-/*!
  * Enabled or disabled the duty cycle
  */
 #define CN470_DUTY_CYCLE_ENABLED                    0
@@ -135,42 +125,7 @@ extern "C"
 #define CN470_MAX_RX_WINDOW                         3000
 
 /*!
- * Receive delay 1
- */
-#define CN470_RECEIVE_DELAY1                        1000
-
-/*!
- * Receive delay 2
- */
-#define CN470_RECEIVE_DELAY2                        2000
-
-/*!
- * Join accept delay 1
- */
-#define CN470_JOIN_ACCEPT_DELAY1                    5000
-
-/*!
- * Join accept delay 2
- */
-#define CN470_JOIN_ACCEPT_DELAY2                    6000
-
-/*!
- * Maximum frame counter gap
- */
-#define CN470_MAX_FCNT_GAP                          16384
-
-/*!
- * Ack timeout
- */
-#define CN470_ACKTIMEOUT                            2000
-
-/*!
- * Random ack timeout limits
- */
-#define CN470_ACK_TIMEOUT_RND                       1000
-
-/*!
- * Second reception window channel frequency definition.
+ * Second reception window channel datarate definition.
  */
 #define CN470_RX_WND_2_FREQ                         505300000
 

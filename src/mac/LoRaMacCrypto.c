@@ -979,7 +979,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoGetFCntUp( uint32_t* currentUp )
     return LORAMAC_CRYPTO_SUCCESS;
 }
 
-LoRaMacCryptoStatus_t LoRaMacCryptoGetFCntDown( FCntIdentifier_t fCntID, uint16_t maxFCntGap, uint32_t frameFcnt, uint32_t* currentDown )
+LoRaMacCryptoStatus_t LoRaMacCryptoGetFCntDown( FCntIdentifier_t fCntID, uint32_t frameFcnt, uint32_t* currentDown )
 {
     uint32_t lastDown = 0;
     int32_t fCntDiff = 0;
@@ -1018,15 +1018,6 @@ LoRaMacCryptoStatus_t LoRaMacCryptoGetFCntDown( FCntIdentifier_t fCntID, uint16_
         else
         {  // Negative difference, assume a roll-over of one uint16_t
             *currentDown = ( lastDown & 0xFFFF0000 ) + 0x10000 + frameFcnt;
-        }
-    }
-
-    // For LoRaWAN 1.0.X only, check maxFCntGap
-    if( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor == 0 )
-    {
-        if( ( ( int64_t )*currentDown - ( int64_t )lastDown ) >= maxFCntGap )
-        {
-            return LORAMAC_CRYPTO_FAIL_MAX_GAP_FCNT;
         }
     }
 

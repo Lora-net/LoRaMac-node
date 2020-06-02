@@ -95,11 +95,6 @@ extern "C"
 #define KR920_MAX_RX1_DR_OFFSET                     5
 
 /*!
- * Default Rx1 receive datarate offset
- */
-#define KR920_DEFAULT_RX1_DR_OFFSET                 0
-
-/*!
  * Minimal Tx output power that can be used by the node
  */
 #define KR920_MIN_TX_POWER                          TX_POWER_7
@@ -130,16 +125,6 @@ extern "C"
 #define KR920_DEFAULT_ANTENNA_GAIN                  2.15f
 
 /*!
- * ADR Ack limit
- */
-#define KR920_ADR_ACK_LIMIT                         64
-
-/*!
- * ADR Ack delay
- */
-#define KR920_ADR_ACK_DELAY                         32
-
-/*!
  * Enabled or disabled the duty cycle
  */
 #define KR920_DUTY_CYCLE_ENABLED                    0
@@ -148,41 +133,6 @@ extern "C"
  * Maximum RX window duration
  */
 #define KR920_MAX_RX_WINDOW                         4000
-
-/*!
- * Receive delay 1
- */
-#define KR920_RECEIVE_DELAY1                        1000
-
-/*!
- * Receive delay 2
- */
-#define KR920_RECEIVE_DELAY2                        2000
-
-/*!
- * Join accept delay 1
- */
-#define KR920_JOIN_ACCEPT_DELAY1                    5000
-
-/*!
- * Join accept delay 2
- */
-#define KR920_JOIN_ACCEPT_DELAY2                    6000
-
-/*!
- * Maximum frame counter gap
- */
-#define KR920_MAX_FCNT_GAP                          16384
-
-/*!
- * Ack timeout
- */
-#define KR920_ACKTIMEOUT                            2000
-
-/*!
- * Random ack timeout limits
- */
-#define KR920_ACK_TIMEOUT_RND                       1000
 
 #if ( KR920_DEFAULT_DATARATE > DR_5 )
 #error "A default DR higher than DR_5 may lead to connectivity loss."
@@ -197,6 +147,11 @@ extern "C"
  * Second reception window channel datarate definition.
  */
 #define KR920_RX_WND_2_DR                           DR_0
+
+/*!
+ * Default uplink dwell time configuration
+ */
+#define KR920_DEFAULT_UPLINK_DWELL_TIME             0
 
 /*
  * CLASS B

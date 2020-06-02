@@ -74,7 +74,6 @@ const char* EventInfoStatusStrings[] =
     "Join failed",                   // LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL
     "Downlink repeated",             // LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED
     "Tx DR payload size error",      // LORAMAC_EVENT_INFO_STATUS_TX_DR_PAYLOAD_SIZE_ERROR
-    "Downlink too many frames loss", // LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS
     "Address fail",                  // LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL
     "MIC fail",                      // LORAMAC_EVENT_INFO_STATUS_MIC_FAIL
     "Multicast fail",                // LORAMAC_EVENT_INFO_STATUS_MULTICAST_FAIL
