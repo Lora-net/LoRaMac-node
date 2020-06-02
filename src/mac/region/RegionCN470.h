@@ -165,7 +165,7 @@ extern "C"
 /*!
  * Size of RFU 1 field
  */
-#define CN470_RFU1_SIZE                             3
+#define CN470_RFU1_SIZE                             2
 
 /*!
  * Size of RFU 2 field

@@ -436,6 +436,17 @@ typedef struct sBeaconInfo
      */
     int8_t Snr;
     /*!
+     * Param
+     * |  Bits | 7:2 |  1:0 |
+     * |-------|-----|------|
+     * | Param | RFU | Prec |
+     *
+     * Prec field is used to interpret the precision of beacon's transmit time
+     * as 10^(-6+prec) and the default value is 0.
+     * RFU will be set to Zero and Prec can take values between 0:3.
+     */
+    uint8_t Param;
+    /*!
      * Data structure for the gateway specific part. The
      * content of the values may differ for each gateway
      */

@@ -172,7 +172,7 @@ extern "C"
 /*!
  * Size of RFU 1 field
  */
-#define CN779_RFU1_SIZE                             2
+#define CN779_RFU1_SIZE                             1
 
 /*!
  * Size of RFU 2 field

@@ -160,7 +160,7 @@ extern "C"
 /*!
  * Size of RFU 1 field
  */
-#define US915_RFU1_SIZE                             5
+#define US915_RFU1_SIZE                             4
 
 /*!
  * Size of RFU 2 field

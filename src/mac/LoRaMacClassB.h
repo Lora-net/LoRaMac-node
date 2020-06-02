@@ -220,6 +220,11 @@ typedef struct sBeaconContext
      */
     TimerTime_t BeaconTimingDelay;
     TimerTime_t TimeStamp;
+    /*!
+     * Beacons transmit time precision determined using
+     * param field of beacon frame format.
+     */
+    SysTime_t BeaconTimePrecision;
 }BeaconContext_t;
 
 /*!

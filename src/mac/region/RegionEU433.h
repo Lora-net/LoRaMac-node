@@ -177,7 +177,7 @@ extern "C"
 /*!
  * Size of RFU 1 field
  */
-#define EU433_RFU1_SIZE                             2
+#define EU433_RFU1_SIZE                             1
 
 /*!
  * Size of RFU 2 field
