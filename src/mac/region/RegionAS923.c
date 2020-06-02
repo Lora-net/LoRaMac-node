@@ -36,6 +36,23 @@
 // Definitions
 #define CHANNELS_MASK_SIZE              1
 
+#ifndef REGION_AS923_DEFAULT_CHANNEL_PLAN
+#define REGION_AS923_DEFAULT_CHANNEL_PLAN CHANNEL_PLAN_GROUP_AS923_1
+#endif
+
+#if( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_1 )
+// Channel plan CHANNEL_PLAN_GROUP_AS923_1
+#define REGION_AS923_FREQ_OFFSET        0
+#elif ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_2 )
+// Channel plan CHANNEL_PLAN_GROUP_AS923_2
+// -1.8MHz
+#define REGION_AS923_FREQ_OFFSET        ( ( ~( 0xFFFFB9B0 ) + 1 ) * 100 )
+#else
+// Channel plan CHANNEL_PLAN_GROUP_AS923_3
+// -6.6MHz
+#define REGION_AS923_FREQ_OFFSET        ( ( ~( 0xFFFEFE30 ) + 1 ) * 100 )
+#endif
+
 /*!
  * Region specific context
  */
@@ -218,7 +235,7 @@ PhyParam_t RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_DEF_RX2_FREQUENCY:
         {
-            phyParam.Value = AS923_RX_WND_2_FREQ;
+            phyParam.Value = AS923_RX_WND_2_FREQ - REGION_AS923_FREQ_OFFSET;
             break;
         }
         case PHY_DEF_RX2_DR:
@@ -268,7 +285,7 @@ PhyParam_t RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_BEACON_CHANNEL_FREQ:
         {
-            phyParam.Value = AS923_BEACON_CHANNEL_FREQ;
+            phyParam.Value = AS923_BEACON_CHANNEL_FREQ - REGION_AS923_FREQ_OFFSET;
             break;
         }
         case PHY_BEACON_FORMAT:
@@ -300,7 +317,7 @@ PhyParam_t RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_BW_FROM_DR:
         {
-            phyParam.Value = GetBandwidth( getPhy->Datarate );
+            phyParam.Value = RegionCommonGetBandwidth( getPhy->Datarate, BandwidthsAS923 );
             break;
         }
         default:
@@ -340,6 +357,10 @@ void RegionAS923InitDefaults( InitDefaultsParams_t* params )
             NvmCtx.Channels[0] = ( ChannelParams_t ) AS923_LC1;
             NvmCtx.Channels[1] = ( ChannelParams_t ) AS923_LC2;
 
+            // Apply frequency offset
+            NvmCtx.Channels[0].Frequency -= REGION_AS923_FREQ_OFFSET;
+            NvmCtx.Channels[1].Frequency -= REGION_AS923_FREQ_OFFSET;
+
             // Initialize the channels default mask
             NvmCtx.ChannelsDefaultMask[0] = LC( 1 ) + LC( 2 );
 
@@ -363,6 +384,10 @@ void RegionAS923InitDefaults( InitDefaultsParams_t* params )
             // Channels
             NvmCtx.Channels[0] = ( ChannelParams_t ) AS923_LC1;
             NvmCtx.Channels[1] = ( ChannelParams_t ) AS923_LC2;
+
+            // Apply frequency offset
+            NvmCtx.Channels[0].Frequency -= REGION_AS923_FREQ_OFFSET;
+            NvmCtx.Channels[1].Frequency -= REGION_AS923_FREQ_OFFSET;
             break;
         }
         default:
