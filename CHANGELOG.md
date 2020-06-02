@@ -11,6 +11,15 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 
 ## [Unreleased]
 
+### General
+
+- Release based on "LoRaWAN specification 1.0.3" and "LoRaWAN Regional Parameters v1.0.3revA"
+- GitHub reported issues corrections. Please refer to [Release Version 4.4.4](https://github.com/Lora-net/LoRaMac-node/milestone/6)
+
+### Fixed
+
+- Fixed SX126xSetLoRaSymbNumTimeout to call the workaround only if the number of symbols is equal to or higher than 64.
+
 ## [4.4.4] - 2020-05-26
 
 ### General
