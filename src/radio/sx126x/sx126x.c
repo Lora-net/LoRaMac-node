@@ -353,22 +353,25 @@ void SX126xSetStopRxTimerOnPreambleDetect( bool enable )
     SX126xWriteCommand( RADIO_SET_STOPRXTIMERONPREAMBLE, ( uint8_t* )&enable, 1 );
 }
 
-void SX126xSetLoRaSymbNumTimeout( uint8_t SymbNum )
+void SX126xSetLoRaSymbNumTimeout( uint8_t symbNum )
 {
-    SX126xWriteCommand( RADIO_SET_LORASYMBTIMEOUT, &SymbNum, 1 );
+    SX126xWriteCommand( RADIO_SET_LORASYMBTIMEOUT, &symbNum, 1 );
 
-    uint8_t mant = SymbNum >> 1;
-    uint8_t exp  = 0;
-    uint8_t reg  = 0;
-
-    while( mant > 31 )
+    if( symbNum >= 64 )
     {
-        mant >>= 2;
-        exp++;
-    }
+        uint8_t mant = symbNum >> 1;
+        uint8_t exp  = 0;
+        uint8_t reg  = 0;
 
-    reg = exp + ( mant << 3 );
-    SX126xWriteRegister( REG_LR_SYNCH_TIMEOUT, reg );
+        while( mant > 31 )
+        {
+            mant >>= 2;
+            exp++;
+        }
+
+        reg = exp + ( mant << 3 );
+        SX126xWriteRegister( REG_LR_SYNCH_TIMEOUT, reg );
+    }
 }
 
 void SX126xSetRegulatorMode( RadioRegulatorMode_t mode )
