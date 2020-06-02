@@ -2168,9 +2168,13 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
             }
             case SRV_MAC_DEVICE_TIME_ANS:
             {
-                if( LoRaMacConfirmQueueIsCmdActive( MLME_DEVICE_TIME ) == true )
+                // The mote time can be updated only when the time is received in classA
+                // receive windows only.
+                if( ( LoRaMacConfirmQueueIsCmdActive( MLME_DEVICE_TIME ) == true ) &&
+                    ( ( rxSlot == RX_SLOT_WIN_1 ) || ( rxSlot == RX_SLOT_WIN_2 ) ) )
                 {
                     LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_OK, MLME_DEVICE_TIME );
+
                     SysTime_t gpsEpochTime = { 0 };
                     SysTime_t sysTime = { 0 };
                     SysTime_t sysTimeCurrent = { 0 };
