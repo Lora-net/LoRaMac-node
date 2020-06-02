@@ -576,6 +576,39 @@ LoRaMacStatus_t RegionCommonIdentifyChannels( RegionCommonIdentifyChannelsParam_
                                               uint8_t* nbEnabledChannels, uint8_t* nbRestrictedChannels,
                                               TimerTime_t* nextTxDelay );
 
+/*!
+ * \brief Selects the next lower datarate.
+ *
+ * \param [IN] dr Current datarate.
+ *
+ * \param [IN] minDr Minimum possible datarate.
+ *
+ * \retval The next lower datarate.
+ */
+int8_t RegionCommonGetNextLowerTxDr( int8_t dr, int8_t minDr );
+
+/*!
+ * \brief Limits the TX power.
+ *
+ * \param [IN] txPower Current TX power.
+ *
+ * \param [IN] maxBandTxPower Maximum possible TX power.
+ *
+ * \retval Limited TX power.
+ */
+int8_t RegionCommonLimitTxPower( int8_t txPower, int8_t maxBandTxPower );
+
+/*!
+ * \brief Gets the bandwidth.
+ *
+ * \param [IN] drIndex Datarate index.
+ *
+ * \param [IN] bandwidths A pointer to the bandwidth table.
+ *
+ * \retval Bandwidth.
+ */
+uint32_t RegionCommonGetBandwidth( uint32_t drIndex, const uint32_t* bandwidths );
+
 /*! \} defgroup REGIONCOMMON */
 
 #ifdef __cplusplus

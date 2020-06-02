@@ -557,3 +557,35 @@ LoRaMacStatus_t RegionCommonIdentifyChannels( RegionCommonIdentifyChannelsParam_
         return LORAMAC_STATUS_NO_CHANNEL_FOUND;
     }
 }
+
+int8_t RegionCommonGetNextLowerTxDr( int8_t dr, int8_t minDr )
+{
+    if( dr == minDr )
+    {
+        return minDr;
+    }
+    else
+    {
+        return( dr - 1 );
+    }
+}
+
+int8_t RegionCommonLimitTxPower( int8_t txPower, int8_t maxBandTxPower )
+{
+    // Limit tx power to the band max
+    return MAX( txPower, maxBandTxPower );
+}
+
+uint32_t RegionCommonGetBandwidth( uint32_t drIndex, const uint32_t* bandwidths )
+{
+    switch( bandwidths[drIndex] )
+    {
+        default:
+        case 125000:
+            return 0;
+        case 250000:
+            return 1;
+        case 500000:
+            return 2;
+    }
+}

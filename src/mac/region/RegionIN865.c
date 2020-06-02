@@ -67,45 +67,14 @@ static RegionIN865NvmCtx_t NvmCtx;
 // Static functions
 static int8_t GetNextLowerTxDr( int8_t dr, int8_t minDr )
 {
-    uint8_t nextLowerDr = 0;
-
-    if( dr == minDr )
+    if( dr == DR_7 )
     {
-        nextLowerDr = minDr;
-    }
-    else if( dr == DR_7 )
-    {
-        nextLowerDr = DR_5;
+        return DR_5;
     }
     else
     {
-        nextLowerDr = dr - 1;
+        return RegionCommonGetNextLowerTxDr( dr, minDr );
     }
-    return nextLowerDr;
-}
-
-static uint32_t GetBandwidth( uint32_t drIndex )
-{
-    switch( BandwidthsIN865[drIndex] )
-    {
-        default:
-        case 125000:
-            return 0;
-        case 250000:
-            return 1;
-        case 500000:
-            return 2;
-    }
-}
-
-static int8_t LimitTxPower( int8_t txPower, int8_t maxBandTxPower, int8_t datarate, uint16_t* channelsMask )
-{
-    int8_t txPowerResult = txPower;
-
-    // Limit tx power to the band max
-    txPowerResult =  MAX( txPower, maxBandTxPower );
-
-    return txPowerResult;
 }
 
 static bool VerifyRfFreq( uint32_t freq )
@@ -126,7 +95,7 @@ static bool VerifyRfFreq( uint32_t freq )
 static TimerTime_t GetTimeOnAir( int8_t datarate, uint16_t pktLen )
 {
     int8_t phyDr = DataratesIN865[datarate];
-    uint32_t bandwidth = GetBandwidth( datarate );
+    uint32_t bandwidth = RegionCommonGetBandwidth( datarate, BandwidthsIN865 );
     TimerTime_t timeOnAir = 0;
 
     if( datarate == DR_7 )
@@ -315,7 +284,7 @@ PhyParam_t RegionIN865GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_BW_FROM_DR:
         {
-            phyParam.Value = GetBandwidth( getPhy->Datarate );
+            phyParam.Value = RegionCommonGetBandwidth( getPhy->Datarate, BandwidthsIN865 );
             break;
         }
         default:
@@ -528,7 +497,7 @@ void RegionIN865ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
 
     // Get the datarate, perform a boundary check
     rxConfigParams->Datarate = MIN( datarate, IN865_RX_MAX_DATARATE );
-    rxConfigParams->Bandwidth = GetBandwidth( rxConfigParams->Datarate );
+    rxConfigParams->Bandwidth = RegionCommonGetBandwidth( rxConfigParams->Datarate, BandwidthsIN865 );
 
     if( rxConfigParams->Datarate == DR_7 )
     { // FSK
@@ -592,8 +561,8 @@ bool RegionIN865TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
 {
     RadioModems_t modem;
     int8_t phyDr = DataratesIN865[txConfig->Datarate];
-    int8_t txPowerLimited = LimitTxPower( txConfig->TxPower, NvmCtx.Bands[NvmCtx.Channels[txConfig->Channel].Band].TxMaxPower, txConfig->Datarate, NvmCtx.ChannelsMask );
-    uint32_t bandwidth = GetBandwidth( txConfig->Datarate );
+    int8_t txPowerLimited = RegionCommonLimitTxPower( txConfig->TxPower, NvmCtx.Bands[NvmCtx.Channels[txConfig->Channel].Band].TxMaxPower );
+    uint32_t bandwidth = RegionCommonGetBandwidth( txConfig->Datarate, BandwidthsIN865 );
     int8_t phyTxPower = 0;
 
     // Calculate physical TX power
@@ -746,13 +715,17 @@ uint8_t RegionIN865RxParamSetupReq( RxParamSetupReqParams_t* rxParamSetupReq )
     }
 
     // Verify datarate
-    if( RegionCommonValueInRange( rxParamSetupReq->Datarate, IN865_RX_MIN_DATARATE, IN865_RX_MAX_DATARATE ) == false )
+    if( ( RegionCommonValueInRange( rxParamSetupReq->Datarate, IN865_RX_MIN_DATARATE, IN865_RX_MAX_DATARATE ) == false ) ||
+        // DR_6 is not supported by this region
+        ( rxParamSetupReq->Datarate == DR_6 ) )
     {
         status &= 0xFD; // Datarate KO
     }
 
     // Verify datarate offset
-    if( RegionCommonValueInRange( rxParamSetupReq->DrOffset, IN865_MIN_RX1_DR_OFFSET, IN865_MAX_RX1_DR_OFFSET ) == false )
+    if( ( RegionCommonValueInRange( rxParamSetupReq->DrOffset, IN865_MIN_RX1_DR_OFFSET, IN865_MAX_RX1_DR_OFFSET ) == false ) ||
+        // DR_6 is not supported by this region
+        ( rxParamSetupReq->DrOffset == DR_6 ) )
     {
         status &= 0xFB; // Rx1DrOffset range KO
     }
