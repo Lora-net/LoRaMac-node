@@ -1611,8 +1611,7 @@ static void LoRaMacHandleMlmeRequest( void )
             }
             MacCtx.MacState &= ~LORAMAC_TX_RUNNING;
         }
-        else if( ( LoRaMacConfirmQueueIsCmdActive( MLME_TXCW ) == true ) ||
-                 ( LoRaMacConfirmQueueIsCmdActive( MLME_TXCW_1 ) == true ) )
+        else if( LoRaMacConfirmQueueIsCmdActive( MLME_TXCW ) == true )
         {
             MacCtx.MacState &= ~LORAMAC_TX_RUNNING;
         }
@@ -2916,25 +2915,7 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
     return LORAMAC_STATUS_OK;
 }
 
-LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout )
-{
-    ContinuousWaveParams_t continuousWave;
-
-    continuousWave.Channel = MacCtx.Channel;
-    continuousWave.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
-    continuousWave.TxPower = MacCtx.NvmCtx->MacParams.ChannelsTxPower;
-    continuousWave.MaxEirp = MacCtx.NvmCtx->MacParams.MaxEirp;
-    continuousWave.AntennaGain = MacCtx.NvmCtx->MacParams.AntennaGain;
-    continuousWave.Timeout = timeout;
-
-    RegionSetContinuousWave( MacCtx.NvmCtx->Region, &continuousWave );
-
-    MacCtx.MacState |= LORAMAC_TX_RUNNING;
-
-    return LORAMAC_STATUS_OK;
-}
-
-LoRaMacStatus_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint8_t power )
+LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout, uint32_t frequency, uint8_t power )
 {
     Radio.SetTxContinuousWave( frequency, power, timeout );
 
@@ -4596,13 +4577,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
         }
         case MLME_TXCW:
         {
-            status = SetTxContinuousWave( mlmeRequest->Req.TxCw.Timeout );
-            break;
-        }
-        case MLME_TXCW_1:
-        {
-
-            status = SetTxContinuousWave1( mlmeRequest->Req.TxCw.Timeout, mlmeRequest->Req.TxCw.Frequency, mlmeRequest->Req.TxCw.Power );
+            status = SetTxContinuousWave( mlmeRequest->Req.TxCw.Timeout, mlmeRequest->Req.TxCw.Frequency, mlmeRequest->Req.TxCw.Power );
             break;
         }
         case MLME_DEVICE_TIME:

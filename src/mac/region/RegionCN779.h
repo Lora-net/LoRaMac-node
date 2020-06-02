@@ -430,13 +430,6 @@ LoRaMacStatus_t RegionCN779ChannelAdd( ChannelAddParams_t* channelAdd );
 bool RegionCN779ChannelsRemove( ChannelRemoveParams_t* channelRemove  );
 
 /*!
- * \brief Sets the radio into continuous wave mode.
- *
- * \param [IN] continuousWave Pointer to the function parameters.
- */
-void RegionCN779SetContinuousWave( ContinuousWaveParams_t* continuousWave );
-
-/*!
  * \brief Computes new datarate according to the given offset
  *
  * \param [IN] downlinkDwellTime Downlink dwell time configuration. 0: No limit, 1: 400ms

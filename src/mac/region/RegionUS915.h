@@ -425,13 +425,6 @@ LoRaMacStatus_t RegionUS915ChannelAdd( ChannelAddParams_t* channelAdd );
 bool RegionUS915ChannelsRemove( ChannelRemoveParams_t* channelRemove  );
 
 /*!
- * \brief Sets the radio into continuous wave mode.
- *
- * \param [IN] continuousWave Pointer to the function parameters.
- */
-void RegionUS915SetContinuousWave( ContinuousWaveParams_t* continuousWave );
-
-/*!
  * \brief Computes new datarate according to the given offset
  *
  * \param [IN] downlinkDwellTime Downlink dwell time configuration. 0: No limit, 1: 400ms

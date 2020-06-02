@@ -1331,37 +1331,6 @@ typedef struct sChannelRemoveParams
 }ChannelRemoveParams_t;
 
 /*!
- * Parameter structure for the function RegionContinuousWave.
- */
-typedef struct sContinuousWaveParams
-{
-    /*!
-     * Current channel index.
-     */
-    uint8_t Channel;
-    /*!
-     * Datarate. Used to limit the TX power.
-     */
-    int8_t Datarate;
-    /*!
-     * The TX power to setup.
-     */
-    int8_t TxPower;
-    /*!
-     * Max EIRP, if applicable.
-     */
-    float MaxEirp;
-    /*!
-     * The antenna gain, if applicable.
-     */
-    float AntennaGain;
-    /*!
-     * Specifies the time the radio will stay in CW mode.
-     */
-    uint16_t Timeout;
-}ContinuousWaveParams_t;
-
-/*!
  * Parameter structure for the function RegionRxBeaconSetup
  */
 typedef struct sRxBeaconSetupParams
@@ -1664,15 +1633,6 @@ LoRaMacStatus_t RegionChannelAdd( LoRaMacRegion_t region, ChannelAddParams_t* ch
  * \retval Returns true, if the channel was removed successfully.
  */
 bool RegionChannelsRemove( LoRaMacRegion_t region, ChannelRemoveParams_t* channelRemove );
-
-/*!
- * \brief Sets the radio into continuous wave mode.
- *
- * \param [IN] region LoRaWAN region.
- *
- * \param [IN] continuousWave Pointer to the function parameters.
- */
-void RegionSetContinuousWave( LoRaMacRegion_t region, ContinuousWaveParams_t* continuousWave );
 
 /*!
  * \brief Computes new datarate according to the given offset

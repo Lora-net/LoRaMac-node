@@ -216,13 +216,6 @@ void DisplayMacMlmeRequestUpdate( LoRaMacStatus_t status, MlmeReq_t *mlmeReq, Ti
             printf( "###### ===================================== ######\n");
             break;
         }
-        case MLME_TXCW_1:
-        {
-            printf( "\n###### =========== MLME-Request ============ ######\n" );
-            printf( "######               MLME_TXCW_1             ######\n");
-            printf( "###### ===================================== ######\n");
-            break;
-        }
         default:
         {
             printf( "\n###### =========== MLME-Request ============ ######\n" );

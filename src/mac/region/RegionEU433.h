@@ -431,13 +431,6 @@ LoRaMacStatus_t RegionEU433ChannelAdd( ChannelAddParams_t* channelAdd );
 bool RegionEU433ChannelsRemove( ChannelRemoveParams_t* channelRemove  );
 
 /*!
- * \brief Sets the radio into continuous wave mode.
- *
- * \param [IN] continuousWave Pointer to the function parameters.
- */
-void RegionEU433SetContinuousWave( ContinuousWaveParams_t* continuousWave );
-
-/*!
  * \brief Computes new datarate according to the given offset
  *
  * \param [IN] downlinkDwellTime Downlink dwell time configuration. 0: No limit, 1: 400ms

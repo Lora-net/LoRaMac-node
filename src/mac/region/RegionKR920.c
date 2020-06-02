@@ -915,23 +915,6 @@ bool RegionKR920ChannelsRemove( ChannelRemoveParams_t* channelRemove  )
     return RegionCommonChanDisable( NvmCtx.ChannelsMask, id, KR920_MAX_NB_CHANNELS );
 }
 
-void RegionKR920SetContinuousWave( ContinuousWaveParams_t* continuousWave )
-{
-    int8_t txPowerLimited = LimitTxPower( continuousWave->TxPower, NvmCtx.Bands[NvmCtx.Channels[continuousWave->Channel].Band].TxMaxPower, continuousWave->Datarate, NvmCtx.ChannelsMask );
-    float maxEIRP = GetMaxEIRP( NvmCtx.Channels[continuousWave->Channel].Frequency );
-    int8_t phyTxPower = 0;
-    uint32_t frequency = NvmCtx.Channels[continuousWave->Channel].Frequency;
-
-    // Take the minimum between the maxEIRP and continuousWave->MaxEirp.
-    // The value of continuousWave->MaxEirp could have changed during runtime, e.g. due to a MAC command.
-    maxEIRP = MIN( continuousWave->MaxEirp, maxEIRP );
-
-    // Calculate physical TX power
-    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, maxEIRP, continuousWave->AntennaGain );
-
-    Radio.SetTxContinuousWave( frequency, phyTxPower, continuousWave->Timeout );
-}
-
 uint8_t RegionKR920ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset )
 {
     int8_t datarate = dr - drOffset;
