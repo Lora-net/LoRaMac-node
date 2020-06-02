@@ -50,10 +50,6 @@ extern "C"
 typedef struct sCalcNextAdrParams
 {
     /*!
-     * LoRaWAN Minor Version 1.X
-     */
-    Version_t Version;
-    /*!
      * Set to true, if the function should update the channels mask.
      */
     bool UpdateChanMask;
@@ -82,6 +78,10 @@ typedef struct sCalcNextAdrParams
      */
     int8_t TxPower;
     /*!
+     * NbTrans counter used currently.
+     */
+    uint8_t NbTrans;
+    /*!
      * UplinkDwellTime
      */
     uint8_t UplinkDwellTime;
@@ -94,17 +94,30 @@ typedef struct sCalcNextAdrParams
 /*!
  * \brief Calculates the next datarate to set, when ADR is on or off.
  *
+ * \details Here is a summary of the actions:
+ *
+ * | ADR_ACK_CNT | Action                                                    |
+ * | ----------- | --------------------------------------------------------- |
+ * | 0... 63     | Do nothing                                                |
+ * | 64...95     | Set ADR ack bit                                           |
+ * | 96...127    | Set TX power to default (if already default, do nothing)  |
+ * | 128...159   | Set data rate to default (if already default, do nothing) |
+ * | >=160       | Set NbTrans to 1, re-enable default channels              |
+ *
  * \param [IN] adrNext Pointer to the function parameters.
  *
  * \param [OUT] drOut The calculated datarate for the next TX.
  *
  * \param [OUT] txPowOut The TX power for the next TX.
  *
+ * \param [OUT] nbTransOut The NbTrans counter.
+ *
  * \param [OUT] adrAckCounter The calculated ADR acknowledgement counter.
  *
  * \retval Returns true, if an ADR request should be performed.
  */
-bool LoRaMacAdrCalcNext( CalcNextAdrParams_t* adrNext, int8_t* drOut, int8_t* txPowOut, uint32_t* adrAckCounter );
+bool LoRaMacAdrCalcNext( CalcNextAdrParams_t* adrNext, int8_t* drOut, int8_t* txPowOut,
+                         uint8_t* nbTransOut, uint32_t* adrAckCounter );
 
 #ifdef __cplusplus
 }

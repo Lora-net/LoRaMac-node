@@ -372,14 +372,22 @@ uint8_t RegionCommonLinkAdrReqVerifyParams( RegionCommonLinkAdrReqVerifyParams_t
     if( status != 0 )
     {
         // Verify datarate. The variable phyParam. Value contains the minimum allowed datarate.
-        if( RegionCommonChanVerifyDr( verifyParams->NbChannels, verifyParams->ChannelsMask, datarate,
+        if( datarate == 0x0F )
+        { // 0xF means that the device MUST ignore that field, and keep the current parameter value.
+            datarate =  verifyParams->CurrentDatarate;
+        }
+        else if( RegionCommonChanVerifyDr( verifyParams->NbChannels, verifyParams->ChannelsMask, datarate,
                                       verifyParams->MinDatarate, verifyParams->MaxDatarate, verifyParams->Channels  ) == false )
         {
             status &= 0xFD; // Datarate KO
         }
 
         // Verify tx power
-        if( RegionCommonValueInRange( txPower, verifyParams->MaxTxPower, verifyParams->MinTxPower ) == 0 )
+        if( txPower == 0x0F )
+        { // 0xF means that the device MUST ignore that field, and keep the current parameter value.
+            txPower =  verifyParams->CurrentTxPower;
+        }
+        else if( RegionCommonValueInRange( txPower, verifyParams->MaxTxPower, verifyParams->MinTxPower ) == 0 )
         {
             // Verify if the maximum TX power is exceeded
             if( verifyParams->MaxTxPower > txPower )
@@ -397,7 +405,7 @@ uint8_t RegionCommonLinkAdrReqVerifyParams( RegionCommonLinkAdrReqVerifyParams_t
     if( status == 0x07 )
     {
         if( nbRepetitions == 0 )
-        { // Restore the default value according to the LoRaWAN specification
+        { // Set nbRep to the default value of 1.
             nbRepetitions = 1;
         }
     }
