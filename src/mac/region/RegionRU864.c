@@ -223,7 +223,7 @@ PhyParam_t RegionRU864GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = RU864_MAX_FCNT_GAP;
             break;
         }
-        case PHY_ACK_TIMEOUT:
+        case PHY_RETRANSMIT_TIMEOUT:
         {
             phyParam.Value = ( RU864_ACKTIMEOUT + randr( -RU864_ACK_TIMEOUT_RND, RU864_ACK_TIMEOUT_RND ) );
             break;

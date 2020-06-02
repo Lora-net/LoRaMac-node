@@ -680,7 +680,7 @@ typedef enum ePhyAttribute
     /*!
      * Acknowledgement time out.
      */
-    PHY_ACK_TIMEOUT,
+    PHY_RETRANSMIT_TIMEOUT,
     /*!
      * Default datarate offset for window 1.
      */

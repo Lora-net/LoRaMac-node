@@ -222,7 +222,7 @@ PhyParam_t RegionEU433GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = EU433_MAX_FCNT_GAP;
             break;
         }
-        case PHY_ACK_TIMEOUT:
+        case PHY_RETRANSMIT_TIMEOUT:
         {
             phyParam.Value = ( EU433_ACKTIMEOUT + randr( -EU433_ACK_TIMEOUT_RND, EU433_ACK_TIMEOUT_RND ) );
             break;

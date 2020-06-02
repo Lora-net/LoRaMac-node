@@ -222,7 +222,7 @@ PhyParam_t RegionCN779GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = CN779_MAX_FCNT_GAP;
             break;
         }
-        case PHY_ACK_TIMEOUT:
+        case PHY_RETRANSMIT_TIMEOUT:
         {
             phyParam.Value = ( CN779_ACKTIMEOUT + randr( -CN779_ACK_TIMEOUT_RND, CN779_ACK_TIMEOUT_RND ) );
             break;

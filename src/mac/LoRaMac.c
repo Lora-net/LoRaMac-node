@@ -281,23 +281,15 @@ typedef struct sLoRaMacCtx
     /*
     * Acknowledge timeout timer. Used for packet retransmissions.
     */
-    TimerEvent_t AckTimeoutTimer;
+    TimerEvent_t RetransmitTimeoutTimer;
     /*
      * Uplink messages repetitions counter
      */
     uint8_t ChannelsNbTransCounter;
     /*
-     * Number of trials to get a frame acknowledged
-     */
-    uint8_t AckTimeoutRetries;
-    /*
-     * Number of trials to get a frame acknowledged
-     */
-    uint8_t AckTimeoutRetriesCounter;
-    /*
      * Indicates if the AckTimeout timer has expired or not
      */
-    bool AckTimeoutRetry;
+    bool RetransmitTimeoutRetry;
     /*
      * If the node has sent a FRAME_TYPE_DATA_CONFIRMED_UP this variable indicates
      * if the nodes needs to manage the server acknowledgement.
@@ -436,7 +428,7 @@ static void OnRxWindow2TimerEvent( void* context );
 /*!
  * \brief Function executed on AckTimeout timer event
  */
-static void OnAckTimeoutTimerEvent( void* context );
+static void OnRetransmitTimeoutTimerEvent( void* context );
 
 /*!
  * \brief Configures the events to trigger an MLME-Indication with
@@ -654,6 +646,16 @@ LoRaMacStatus_t RestoreCtxs( LoRaMacCtxs_t* contexts );
  *          \ref LORAMAC_STATUS_PARAMETER_INVALID,
  */
 LoRaMacStatus_t DetermineFrameType( LoRaMacMessageData_t* macMsg, FType_t* fType );
+
+/*!
+ * \brief Verifies, if the retransmission counter has reached the limit
+ *
+ * \param [IN] counter Current retransmission counter
+ * \param [IN] limit Retransmission counter limit
+ *
+ * \retval Returns true if the number of retransmissions have reached the limit.
+ */
+static bool CheckRetrans( uint8_t counter, uint8_t limit );
 
 /*!
  * \brief Checks if the retransmission should be stopped in case of a unconfirmed uplink
@@ -894,12 +896,17 @@ static void ProcessRadioTxDone( void )
     TimerSetValue( &MacCtx.RxWindowTimer2, MacCtx.RxWindow2Delay );
     TimerStart( &MacCtx.RxWindowTimer2 );
 
-    if( ( MacCtx.NvmCtx->DeviceClass == CLASS_C ) || ( MacCtx.NodeAckRequested == true ) )
+    if( MacCtx.NodeAckRequested == true )
     {
-        getPhy.Attribute = PHY_ACK_TIMEOUT;
+        getPhy.Attribute = PHY_RETRANSMIT_TIMEOUT;
         phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
-        TimerSetValue( &MacCtx.AckTimeoutTimer, MacCtx.RxWindow2Delay + phyParam.Value );
-        TimerStart( &MacCtx.AckTimeoutTimer );
+        TimerSetValue( &MacCtx.RetransmitTimeoutTimer, MacCtx.RxWindow2Delay + phyParam.Value );
+        TimerStart( &MacCtx.RetransmitTimeoutTimer );
+    }
+    else
+    {
+        // Transmission successful, setup status directly
+        MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
     }
 
     // Update Aggregated last tx done time
@@ -917,11 +924,6 @@ static void ProcessRadioTxDone( void )
     }
 
     RegionSetBandTxDone( MacCtx.NvmCtx->Region, &txDone );
-
-    if( MacCtx.NodeAckRequested == false )
-    {
-        MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
-    }
 }
 
 static void PrepareRxDoneAbort( void )
@@ -930,7 +932,7 @@ static void PrepareRxDoneAbort( void )
 
     if( MacCtx.NodeAckRequested == true )
     {
-        OnAckTimeoutTimerEvent( NULL );
+        OnRetransmitTimeoutTimerEvent( NULL );
     }
 
     MacCtx.MacFlags.Bits.McpsInd = 1;
@@ -1160,15 +1162,6 @@ static void ProcessRadioRxDone( void )
                 {
                     // Catch the case of repeated downlink frame counter
                     MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
-                    if( ( MacCtx.NvmCtx->Version.Fields.Minor == 0 ) && ( macHdr.Bits.MType == FRAME_TYPE_DATA_CONFIRMED_DOWN ) && ( MacCtx.NvmCtx->LastRxMic == macMsgData.MIC ) )
-                    {
-                        MacCtx.NvmCtx->SrvAckRequested = true;
-                    }
-                }
-                else if( macCryptoStatus == LORAMAC_CRYPTO_FAIL_MAX_GAP_FCNT )
-                {
-                    // Lost too many frames
-                    MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS;
                 }
                 else
                 {
@@ -1327,19 +1320,12 @@ static void ProcessRadioRxDone( void )
             break;
     }
 
-    // Verify if we need to disable the AckTimeoutTimer
+    // Verify if we need to disable the RetransmitTimeoutTimer
     if( MacCtx.NodeAckRequested == true )
     {
         if( MacCtx.McpsConfirm.AckReceived == true )
         {
-            OnAckTimeoutTimerEvent( NULL );
-        }
-    }
-    else
-    {
-        if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
-        {
-            OnAckTimeoutTimerEvent( NULL );
+            OnRetransmitTimeoutTimerEvent( NULL );
         }
     }
     MacCtx.MacFlags.Bits.MacDone = 1;
@@ -1359,7 +1345,7 @@ static void ProcessRadioTxTimeout( void )
     LoRaMacConfirmQueueSetStatusCmn( LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT );
     if( MacCtx.NodeAckRequested == true )
     {
-        MacCtx.AckTimeoutRetry = true;
+        MacCtx.RetransmitTimeoutRetry = true;
     }
     MacCtx.MacFlags.Bits.MacDone = 1;
 }
@@ -1418,11 +1404,7 @@ static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStat
                 MacCtx.McpsConfirm.Status = rx2EventInfoStatus;
             }
             LoRaMacConfirmQueueSetStatusCmn( rx2EventInfoStatus );
-
-            if( MacCtx.NvmCtx->DeviceClass != CLASS_C )
-            {
-                MacCtx.MacFlags.Bits.MacDone = 1;
-            }
+            MacCtx.MacFlags.Bits.MacDone = 1;
         }
     }
 
@@ -1590,21 +1572,9 @@ static void LoRaMacHandleMcpsRequest( void )
         }
         else if( MacCtx.McpsConfirm.McpsRequest == MCPS_CONFIRMED )
         {
-            if( MacCtx.AckTimeoutRetry == true )
+            if( MacCtx.RetransmitTimeoutRetry == true )
             {
                 stopRetransmission = CheckRetransConfirmedUplink( );
-
-                if( MacCtx.NvmCtx->Version.Fields.Minor == 0 )
-                {
-                    if( stopRetransmission == false )
-                    {
-                        AckTimeoutRetriesProcess( );
-                    }
-                    else
-                    {
-                        AckTimeoutRetriesFinalize( );
-                    }
-                }
             }
             else
             {
@@ -1622,7 +1592,7 @@ static void LoRaMacHandleMcpsRequest( void )
         {// Arrange further retransmission
             MacCtx.MacFlags.Bits.MacDone = 0;
             // Reset the state of the AckTimeout
-            MacCtx.AckTimeoutRetry = false;
+            MacCtx.RetransmitTimeoutRetry = false;
             // Sends the same frame again
             OnTxDelayedTimerEvent( NULL );
         }
@@ -1727,7 +1697,7 @@ static void OnTxDelayedTimerEvent( void* context )
         {
             // Stop retransmission attempt
             MacCtx.McpsConfirm.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
-            MacCtx.McpsConfirm.NbRetries = MacCtx.AckTimeoutRetriesCounter;
+            MacCtx.McpsConfirm.NbTrans = MacCtx.ChannelsNbTransCounter;
             MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_TX_DR_PAYLOAD_SIZE_ERROR;
             LoRaMacConfirmQueueSetStatusCmn( LORAMAC_EVENT_INFO_STATUS_TX_DR_PAYLOAD_SIZE_ERROR );
             StopRetransmission( );
@@ -1764,17 +1734,13 @@ static void OnRxWindow2TimerEvent( void* context )
     RxWindowSetup( &MacCtx.RxWindowTimer2, &MacCtx.RxWindow2Config );
 }
 
-static void OnAckTimeoutTimerEvent( void* context )
+static void OnRetransmitTimeoutTimerEvent( void* context )
 {
-    TimerStop( &MacCtx.AckTimeoutTimer );
+    TimerStop( &MacCtx.RetransmitTimeoutTimer );
 
     if( MacCtx.NodeAckRequested == true )
     {
-        MacCtx.AckTimeoutRetry = true;
-    }
-    if( MacCtx.NvmCtx->DeviceClass == CLASS_C )
-    {
-        MacCtx.MacFlags.Bits.MacDone = 1;
+        MacCtx.RetransmitTimeoutRetry = true;
     }
     if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
     {
@@ -2636,7 +2602,7 @@ static LoRaMacStatus_t SecureFrame( uint8_t txDr, uint8_t txCh )
                 return LORAMAC_STATUS_FCNT_HANDLER_ERROR;
             }
 
-            if( ( MacCtx.ChannelsNbTransCounter >= 1 ) || ( MacCtx.AckTimeoutRetriesCounter > 1 ) )
+            if( MacCtx.ChannelsNbTransCounter >= 1 )
             {
                 fCntUp -= 1;
             }
@@ -2697,9 +2663,7 @@ static void ResetMacParameters( void )
     MacCtx.NvmCtx->AdrAckCounter = 0;
 
     MacCtx.ChannelsNbTransCounter = 0;
-    MacCtx.AckTimeoutRetries = 1;
-    MacCtx.AckTimeoutRetriesCounter = 1;
-    MacCtx.AckTimeoutRetry = false;
+    MacCtx.RetransmitTimeoutRetry = false;
 
     MacCtx.NvmCtx->MaxDCycle = 0;
     MacCtx.NvmCtx->AggregatedDCycle = 1;
@@ -2822,7 +2786,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t* macHdr, LoRaMacFrameCtrl_t* fCtrl
             MacCtx.TxMsg.Message.Data.FHDR.FCnt = ( uint16_t )fCntUp;
 
             // Reset confirm parameters
-            MacCtx.McpsConfirm.NbRetries = 0;
+            MacCtx.McpsConfirm.NbTrans = 0;
             MacCtx.McpsConfirm.AckReceived = false;
             MacCtx.McpsConfirm.UpLinkCounter = fCntUp;
 
@@ -2939,10 +2903,9 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
     }
 
     MacCtx.MacState |= LORAMAC_TX_RUNNING;
-    if( MacCtx.NodeAckRequested == false )
-    {
-        MacCtx.ChannelsNbTransCounter++;
-    }
+
+    MacCtx.ChannelsNbTransCounter++;
+    MacCtx.McpsConfirm.NbTrans = MacCtx.ChannelsNbTransCounter;
 
     // Send now
     Radio.Send( MacCtx.PktBuffer, MacCtx.PktBufferLen );
@@ -3100,27 +3063,32 @@ LoRaMacStatus_t DetermineFrameType( LoRaMacMessageData_t* macMsg, FType_t* fType
     return LORAMAC_STATUS_OK;
 }
 
-static bool CheckRetransUnconfirmedUplink( void )
+static bool CheckRetrans( uint8_t counter, uint8_t limit )
 {
-    // Unconfirmed uplink, when all retransmissions are done.
-    if( MacCtx.ChannelsNbTransCounter >=
-        MacCtx.NvmCtx->MacParams.ChannelsNbTrans )
+    if( counter >= limit )
     {
         return true;
     }
-    else if( MacCtx.MacFlags.Bits.McpsInd == 1 )
+    return false;
+}
+
+static bool CheckRetransUnconfirmedUplink( void )
+{
+    // Verify, if the max number of retransmissions have been reached
+    if( CheckRetrans( MacCtx.ChannelsNbTransCounter,
+                      MacCtx.NvmCtx->MacParams.ChannelsNbTrans ) == true )
     {
-        // For Class A stop in each case
-        if( MacCtx.NvmCtx->DeviceClass == CLASS_A )
+        return true;
+    }
+
+    if( MacCtx.MacFlags.Bits.McpsInd == 1 )
+    {
+        // Stop the retransmissions, if a valid downlink is received
+        // a class A RX window. This holds also for class B and C.
+        if( ( MacCtx.McpsIndication.RxSlot == RX_SLOT_WIN_1 ) ||
+            ( MacCtx.McpsIndication.RxSlot == RX_SLOT_WIN_2 ) )
         {
             return true;
-        }
-        else
-        {// For Class B & C stop only if the frame was received in RX1 window
-            if( MacCtx.McpsIndication.RxSlot == RX_SLOT_WIN_1 )
-            {
-                return true;
-            }
         }
     }
     return false;
@@ -3128,13 +3096,14 @@ static bool CheckRetransUnconfirmedUplink( void )
 
 static bool CheckRetransConfirmedUplink( void )
 {
-    // Confirmed uplink, when all retransmissions ( tries to get a ack ) are done.
-    if( MacCtx.AckTimeoutRetriesCounter >=
-        MacCtx.AckTimeoutRetries )
+    // Verify, if the max number of retransmissions have been reached
+    if( CheckRetrans( MacCtx.ChannelsNbTransCounter,
+                      MacCtx.NvmCtx->MacParams.ChannelsNbTrans ) == true )
     {
         return true;
     }
-    else if( MacCtx.MacFlags.Bits.McpsInd == 1 )
+
+    if( MacCtx.MacFlags.Bits.McpsInd == 1 )
     {
         if( MacCtx.McpsConfirm.AckReceived == true )
         {
@@ -3168,44 +3137,10 @@ static bool StopRetransmission( void )
 
     MacCtx.ChannelsNbTransCounter = 0;
     MacCtx.NodeAckRequested = false;
-    MacCtx.AckTimeoutRetry = false;
+    MacCtx.RetransmitTimeoutRetry = false;
     MacCtx.MacState &= ~LORAMAC_TX_RUNNING;
 
     return true;
-}
-
-static void AckTimeoutRetriesProcess( void )
-{
-    if( MacCtx.AckTimeoutRetriesCounter < MacCtx.AckTimeoutRetries )
-    {
-        MacCtx.AckTimeoutRetriesCounter++;
-        if( ( MacCtx.AckTimeoutRetriesCounter % 2 ) == 1 )
-        {
-            GetPhyParams_t getPhy;
-            PhyParam_t phyParam;
-
-            getPhy.Attribute = PHY_NEXT_LOWER_TX_DR;
-            getPhy.UplinkDwellTime = MacCtx.NvmCtx->MacParams.UplinkDwellTime;
-            getPhy.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
-            phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
-            MacCtx.NvmCtx->MacParams.ChannelsDatarate = phyParam.Value;
-        }
-    }
-}
-
-static void AckTimeoutRetriesFinalize( void )
-{
-    if( MacCtx.McpsConfirm.AckReceived == false )
-    {
-        InitDefaultsParams_t params;
-        params.Type = INIT_TYPE_RESTORE_DEFAULT_CHANNELS;
-        params.NvmCtx = Contexts.RegionNvmCtx;
-        RegionInitDefaults( MacCtx.NvmCtx->Region, &params );
-
-        MacCtx.NodeAckRequested = false;
-        MacCtx.McpsConfirm.AckReceived = false;
-    }
-    MacCtx.McpsConfirm.NbRetries = MacCtx.AckTimeoutRetriesCounter;
 }
 
 static void CallNvmCtxCallback( LoRaMacNvmCtxModule_t module )
@@ -3297,8 +3232,6 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     MacCtx.NvmCtx = &NvmMacCtx;
 
     // Set non zero variables to its default value
-    MacCtx.AckTimeoutRetriesCounter = 1;
-    MacCtx.AckTimeoutRetries = 1;
     MacCtx.NvmCtx->Region = region;
     MacCtx.NvmCtx->DeviceClass = CLASS_A;
 
@@ -4774,15 +4707,11 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
     memset1( ( uint8_t* ) &MacCtx.McpsConfirm, 0, sizeof( MacCtx.McpsConfirm ) );
     MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
 
-    // AckTimeoutRetriesCounter must be reset every time a new request (unconfirmed or confirmed) is performed.
-    MacCtx.AckTimeoutRetriesCounter = 1;
-
     switch( mcpsRequest->Type )
     {
         case MCPS_UNCONFIRMED:
         {
             readyToSend = true;
-            MacCtx.AckTimeoutRetries = 1;
 
             macHdr.Bits.MType = FRAME_TYPE_DATA_UNCONFIRMED_UP;
             fPort = mcpsRequest->Req.Unconfirmed.fPort;
@@ -4794,7 +4723,6 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
         case MCPS_CONFIRMED:
         {
             readyToSend = true;
-            MacCtx.AckTimeoutRetries = MIN( mcpsRequest->Req.Confirmed.NbTrials, MAX_ACK_RETRIES );
 
             macHdr.Bits.MType = FRAME_TYPE_DATA_CONFIRMED_UP;
             fPort = mcpsRequest->Req.Confirmed.fPort;
@@ -4806,7 +4734,6 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
         case MCPS_PROPRIETARY:
         {
             readyToSend = true;
-            MacCtx.AckTimeoutRetries = 1;
 
             macHdr.Bits.MType = FRAME_TYPE_PROPRIETARY;
             fBuffer = mcpsRequest->Req.Proprietary.fBuffer;
