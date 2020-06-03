@@ -678,20 +678,6 @@ static uint32_t IncreaseAdrAckCounter( uint32_t counter );
 static bool StopRetransmission( void );
 
 /*!
- * \brief Handles the ACK retries algorithm.
- *        Increments the re-tries counter up until the specified number of
- *        trials or the allowed maximum. Decrease the uplink datarate every 2
- *        trials.
- */
-static void AckTimeoutRetriesProcess( void );
-
-/*!
- * \brief Finalizes the ACK retries algorithm.
- *        If no ACK is received restores the default channels
- */
-static void AckTimeoutRetriesFinalize( void );
-
-/*!
  * \brief Calls the callback to indicate that a context changed
  */
 static void CallNvmCtxCallback( LoRaMacNvmCtxModule_t module );
@@ -3319,7 +3305,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     TimerInit( &MacCtx.TxDelayedTimer, OnTxDelayedTimerEvent );
     TimerInit( &MacCtx.RxWindowTimer1, OnRxWindow1TimerEvent );
     TimerInit( &MacCtx.RxWindowTimer2, OnRxWindow2TimerEvent );
-    TimerInit( &MacCtx.AckTimeoutTimer, OnAckTimeoutTimerEvent );
+    TimerInit( &MacCtx.RetransmitTimeoutTimer, OnRetransmitTimeoutTimerEvent );
 
     // Store the current initialization time
     MacCtx.NvmCtx->InitializationTime = SysTimeGetMcuTime( );
@@ -4778,7 +4764,6 @@ LoRaMacStatus_t LoRaMacDeInitialization( void )
         TimerStop( &MacCtx.TxDelayedTimer );
         TimerStop( &MacCtx.RxWindowTimer1 );
         TimerStop( &MacCtx.RxWindowTimer2 );
-        TimerStop( &MacCtx.AckTimeoutTimer );
 
         // Take care about class B
         LoRaMacClassBHaltBeaconing( );
