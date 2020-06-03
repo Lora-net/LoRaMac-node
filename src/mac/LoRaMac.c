@@ -577,21 +577,11 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel );
  * \remark Uses the radio parameters set on the previous transmission.
  *
  * \param [IN] timeout     Time in seconds while the radio is kept in continuous wave mode
- * \retval status          Status of the operation.
- */
-LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout );
-
-/*!
- * \brief Sets the radio in continuous transmission mode
- *
- * \remark Uses the radio parameters set on the previous transmission.
- *
- * \param [IN] timeout     Time in seconds while the radio is kept in continuous wave mode
  * \param [IN] frequency   RF frequency to be set.
  * \param [IN] power       RF output power to be set.
  * \retval status          Status of the operation.
  */
-LoRaMacStatus_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint8_t power );
+LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout, uint32_t frequency, uint8_t power );
 
 /*!
  * \brief Resets MAC specific parameters to default
