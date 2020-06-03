@@ -312,10 +312,6 @@ bool LmHandlerIsBusy( void )
         return true;
     }
 
-    if( LmHandlerPackages[PACKAGE_ID_COMPLIANCE]->IsRunning( ) == true )
-    {
-        return true;
-    }
     return false;
 }
 
@@ -419,11 +415,6 @@ LmHandlerErrorStatus_t LmHandlerSend( LmHandlerAppData_t *appData, LmHandlerMsgT
     {
         // The network isn't joined, try again.
         LmHandlerJoinRequest( CommissioningParams.IsOtaaActivation );
-        return LORAMAC_HANDLER_ERROR;
-    }
-
-    if( ( LmHandlerPackages[PACKAGE_ID_COMPLIANCE]->IsRunning( ) == true ) && ( appData->Port != LmHandlerPackages[PACKAGE_ID_COMPLIANCE]->Port ) && ( appData->Port != 0 ) )
-    {
         return LORAMAC_HANDLER_ERROR;
     }
 
@@ -827,10 +818,7 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
                 .Port = 0
             };
 
-            if( LmHandlerPackages[PACKAGE_ID_COMPLIANCE]->IsRunning( ) == false )
-            {
-                LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
-            }
+            LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
         }
         break;
     case MLME_BEACON_LOST:
@@ -938,18 +926,6 @@ bool LmHandlerPackageIsInitialized( uint8_t id )
     }
 }
 
-bool LmHandlerPackageIsRunning( uint8_t id )
-{
-    if( LmHandlerPackages[id]->IsRunning != NULL )
-    {
-        return LmHandlerPackages[id]->IsRunning( );
-    }
-    else
-    {
-        return false;
-    }
-}
-
 static void LmHandlerPackagesNotify( PackageNotifyTypes_t notifyType, void *params )
 {
     for( int8_t i = 0; i < PKG_MAX_NUMBER; i++ )
@@ -968,8 +944,7 @@ static void LmHandlerPackagesNotify( PackageNotifyTypes_t notifyType, void *para
                 }
                 case PACKAGE_MCPS_INDICATION:
                 {
-                    if( ( LmHandlerPackages[i]->OnMcpsIndicationProcess != NULL ) &&
-                        ( LmHandlerPackages[i]->Port == ( ( McpsIndication_t* )params )->Port ) )
+                    if( LmHandlerPackages[i]->OnMcpsIndicationProcess != NULL )
                     {
                         LmHandlerPackages[i]->OnMcpsIndicationProcess( params );
                     }

@@ -326,7 +326,6 @@ LmHandlerErrorStatus_t LmHandlerSetSystemMaxRxError( uint32_t maxErrorInMs );
  */
 LmHandlerErrorStatus_t LmHandlerPackageRegister( uint8_t id, void *params );
 bool LmHandlerPackageIsInitialized( uint8_t id );
-bool LmHandlerPackageIsRunning( uint8_t id );
 
 #ifdef __cplusplus
 }

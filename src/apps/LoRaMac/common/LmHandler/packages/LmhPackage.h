@@ -117,7 +117,7 @@ typedef struct LmhPackage_s
     * Join a LoRa Network in classA
     *
     * \Note if the device is ABP, this is a pass through function
-    * 
+    *
     * \param [IN] isOtaa Indicates which activation mode must be used
     */
     void ( *OnJoinRequest )( bool isOtaa );

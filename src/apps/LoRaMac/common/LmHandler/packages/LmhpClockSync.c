@@ -37,7 +37,6 @@
 typedef struct LmhpClockSyncState_s
 {
     bool Initialized;
-    bool IsRunning;
     uint8_t DataBufferMaxSize;
     uint8_t *DataBuffer;
     union
@@ -91,14 +90,6 @@ static void LmhpClockSyncInit( void *params, uint8_t *dataBuffer, uint8_t dataBu
 static bool LmhpClockSyncIsInitialized( void );
 
 /*!
- * Returns the package operation status.
- *
- * \retval status Package operation status
- *                [true: Running, false: Not running]
- */
-static bool LmhpClockSyncIsRunning( void );
-
-/*!
  * Processes the internal package events.
  */
 static void LmhpClockSyncProcess( void );
@@ -133,7 +124,6 @@ static LmhPackage_t LmhpClockSyncPackage =
     .Port = CLOCK_SYNC_PORT,
     .Init = LmhpClockSyncInit,
     .IsInitialized = LmhpClockSyncIsInitialized,
-    .IsRunning = LmhpClockSyncIsRunning,
     .Process = LmhpClockSyncProcess,
     .OnMcpsConfirmProcess = LmhpClockSyncOnMcpsConfirm,
     .OnMcpsIndicationProcess = LmhpClockSyncOnMcpsIndication,
@@ -159,11 +149,9 @@ static void LmhpClockSyncInit( void * params, uint8_t *dataBuffer, uint8_t dataB
         LmhpClockSyncState.DataBuffer = dataBuffer;
         LmhpClockSyncState.DataBufferMaxSize = dataBufferMaxSize;
         LmhpClockSyncState.Initialized = true;
-        LmhpClockSyncState.IsRunning = true;
     }
     else
     {
-        LmhpClockSyncState.IsRunning = false;
         LmhpClockSyncState.Initialized = false;
     }
 }
@@ -171,16 +159,6 @@ static void LmhpClockSyncInit( void * params, uint8_t *dataBuffer, uint8_t dataB
 static bool LmhpClockSyncIsInitialized( void )
 {
     return LmhpClockSyncState.Initialized;
-}
-
-static bool LmhpClockSyncIsRunning( void )
-{
-    if( LmhpClockSyncState.Initialized == false )
-    {
-        return false;
-    }
-
-    return LmhpClockSyncState.IsRunning;
 }
 
 static void LmhpClockSyncProcess( void )
