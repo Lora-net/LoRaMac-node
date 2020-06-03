@@ -161,6 +161,9 @@ static void PrepareTxFrame( void );
 static void StartTxProcess( LmHandlerTxEvents_t txEvent );
 static void UplinkProcess( void );
 
+static void OnTxPeriodicityChanged( uint32_t periodicity );
+static void OnTxFrameCtrlChanged( bool isTxConfirmed );
+
 /*!
  * Function executed on TxTimer event
  */
@@ -212,10 +215,12 @@ static LmHandlerParams_t LmHandlerParams =
 
 static LmhpComplianceParams_t LmhpComplianceParams =
 {
-    .AdrEnabled = LORAWAN_ADR_STATE,
-    .DutyCycleEnabled = LORAWAN_DUTYCYCLE_ON,
-    .StopPeripherals = NULL,
-    .StartPeripherals = NULL,
+    .IsDutFPort224On = true,
+    .FwVersion.Value = 0x01000000,
+    .LrwanVersion.Value = 0x01000400,
+    .LrwanRpVersion.Value = 0x02010001,
+    .OnTxPeriodicityChanged = OnTxPeriodicityChanged,
+    .OnTxFrameCtrlChanged = OnTxFrameCtrlChanged,
 };
 
 /*!
@@ -226,6 +231,10 @@ static LmhpComplianceParams_t LmhpComplianceParams =
 static volatile uint8_t IsMacProcessPending = 0;
 
 static volatile uint8_t IsTxFramePending = 0;
+
+static volatile uint32_t TxPeriodicity = 0;
+
+static volatile bool IsTxConfirmed = LORAWAN_DEFAULT_CONFIRMED_MSG_STATE;
 
 /*!
  * LED GPIO pins objects
@@ -250,8 +259,14 @@ int main( void )
     TimerInit( &LedBeaconTimer, OnLedBeaconTimerEvent );
     TimerSetValue( &LedBeaconTimer, 5000 );
 
+    // Initialize transmission periodicity variable
+    TxPeriodicity = APP_TX_DUTYCYCLE + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND );
+
+    // Initialize variable indicating if uplink frames are confirmed or unconfirmed.
+    IsTxConfirmed = LORAWAN_DEFAULT_CONFIRMED_MSG_STATE;
+
     const Version_t appVersion = { .Fields.Major = 1, .Fields.Minor = 0, .Fields.Patch = 0 };
-    const Version_t gitHubVersion = { .Fields.Major = 4, .Fields.Minor = 4, .Fields.Patch = 3 };
+    const Version_t gitHubVersion = { .Fields.Major = 4, .Fields.Minor = 5, .Fields.Patch = 0 };
     DisplayAppInfo( "periodic-uplink-lpp", 
                     &appVersion,
                     &gitHubVersion );
@@ -434,7 +449,7 @@ static void PrepareTxFrame( void )
     CayenneLppCopy( AppData.Buffer );
     AppData.BufferSize = CayenneLppGetSize( );
 
-    if( LmHandlerSend( &AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE ) == LORAMAC_HANDLER_SUCCESS )
+    if( LmHandlerSend( &AppData, IsTxConfirmed ) == LORAMAC_HANDLER_SUCCESS )
     {
         // Switch LED 1 ON
         GpioWrite( &Led1, 1 );
@@ -452,7 +467,7 @@ static void StartTxProcess( LmHandlerTxEvents_t txEvent )
         {
             // Schedule 1st packet transmission
             TimerInit( &TxTimer, OnTxTimerEvent );
-            TimerSetValue( &TxTimer, APP_TX_DUTYCYCLE  + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND ) );
+            TimerSetValue( &TxTimer, TxPeriodicity );
             OnTxTimerEvent( NULL );
         }
         break;
@@ -476,6 +491,21 @@ static void UplinkProcess( void )
     }
 }
 
+static void OnTxPeriodicityChanged( uint32_t periodicity )
+{
+    TxPeriodicity = periodicity;
+
+    if( TxPeriodicity == 0 )
+    { // Revert to application default periodicity
+        TxPeriodicity = APP_TX_DUTYCYCLE + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND );
+    }
+}
+
+static void OnTxFrameCtrlChanged( bool isTxConfirmed )
+{
+    IsTxConfirmed = isTxConfirmed;
+}
+
 /*!
  * Function executed on TxTimer event
  */
@@ -486,7 +516,7 @@ static void OnTxTimerEvent( void* context )
     IsTxFramePending = 1;
 
     // Schedule next transmission
-    TimerSetValue( &TxTimer, APP_TX_DUTYCYCLE + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND ) );
+    TimerSetValue( &TxTimer, TxPeriodicity );
     TimerStart( &TxTimer );
 }
 
