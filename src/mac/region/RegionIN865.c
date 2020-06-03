@@ -946,22 +946,15 @@ bool RegionIN865ChannelsRemove( ChannelRemoveParams_t* channelRemove  )
     return RegionCommonChanDisable( NvmCtx.ChannelsMask, id, IN865_MAX_NB_CHANNELS );
 }
 
-void RegionIN865SetContinuousWave( ContinuousWaveParams_t* continuousWave )
-{
-    int8_t txPowerLimited = LimitTxPower( continuousWave->TxPower, NvmCtx.Bands[NvmCtx.Channels[continuousWave->Channel].Band].TxMaxPower, continuousWave->Datarate, NvmCtx.ChannelsMask );
-    int8_t phyTxPower = 0;
-    uint32_t frequency = NvmCtx.Channels[continuousWave->Channel].Frequency;
-
-    // Calculate physical TX power
-    phyTxPower = RegionCommonComputeTxPower( txPowerLimited, continuousWave->MaxEirp, continuousWave->AntennaGain );
-
-    Radio.SetTxContinuousWave( frequency, phyTxPower, continuousWave->Timeout );
-}
-
 uint8_t RegionIN865ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset )
 {
-    // Apply offset formula
-    return MIN( DR_5, MAX( DR_0, dr - EffectiveRx1DrOffsetIN865[drOffset] ) );
+    int8_t datarate = EffectiveRx1DrOffsetIN865[dr][drOffset];
+
+    if( ( datarate < 0 ) || ( dr == DR_6 ) )
+    {
+        datarate = DR_0;
+    }
+    return datarate;
 }
 
 void RegionIN865RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr )
