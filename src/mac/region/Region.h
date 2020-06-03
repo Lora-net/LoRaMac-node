@@ -72,8 +72,9 @@ extern "C"
 #ifndef REGION_VERSION
 /*!
  * Regional parameters version definition.
+ * RP002-1.0.1
  */
-#define REGION_VERSION                              0x00010003
+#define REGION_VERSION                              0x02010001
 #endif
 
 
