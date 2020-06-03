@@ -32,6 +32,7 @@
 
 #include "RegionCommon.h"
 #include "RegionAU915.h"
+#include "RegionBaseUS.h"
 
 // Definitions
 #define CHANNELS_MASK_SIZE              6
@@ -64,6 +65,14 @@ typedef struct sRegionAU915NvmCtx
      * LoRaMac channels default mask
      */
     uint16_t ChannelsDefaultMask[ CHANNELS_MASK_SIZE ];
+    /*!
+     * Index of current in use 8 bit group (0: bit 0 - 7, 1: bit 8 - 15, ..., 7: bit 56 - 63)
+     */
+    uint8_t JoinChannelGroupsCurrentIndex;
+    /*!
+     * Counter of join trials needed to alternate between DR2 and DR6, see \ref RegionAU915AlternateDr
+     */
+    uint8_t JoinTrialsCounter;
 }RegionAU915NvmCtx_t;
 
 /*
@@ -383,6 +392,12 @@ void RegionAU915InitDefaults( InitDefaultsParams_t* params )
         }
         case INIT_TYPE_INIT:
         {
+            // Initialize 8 bit channel groups index
+            NvmCtx.JoinChannelGroupsCurrentIndex = 0;
+
+            // Initialize the join trials counter
+            NvmCtx.JoinTrialsCounter = 0;
+
             // Channels
             // 125 kHz channels
             for( uint8_t i = 0; i < AU915_MAX_NB_CHANNELS - 8; i++ )
@@ -812,20 +827,26 @@ uint8_t RegionAU915DlChannelReq( DlChannelReqParams_t* dlChannelReq )
 
 int8_t RegionAU915AlternateDr( int8_t currentDr, AlternateDrType_t type )
 {
-    static int8_t trialsCount = 0;
-
-    // Re-enable 500 kHz default channels
-    NvmCtx.ChannelsMask[4] = CHANNELS_MASK_500KHZ_MASK;
-
-    if( ( trialsCount & 0x01 ) == 0x01 )
+    // Alternates the data rate according to the channel sequence:
+    // Eight times a 125kHz DR_2 and then one 500kHz DR_6 channel
+    if( type == ALTERNATE_DR )
     {
+        NvmCtx.JoinTrialsCounter++;
+    }
+    else
+    {
+        NvmCtx.JoinTrialsCounter--;
+    }
+
+    if( NvmCtx.JoinTrialsCounter % 9 == 0 )
+    {
+        // Use DR_6 every 9th times.
         currentDr = DR_6;
     }
     else
     {
         currentDr = DR_2;
     }
-    trialsCount++;
     return currentDr;
 }
 
@@ -842,6 +863,8 @@ LoRaMacStatus_t RegionAU915NextChannel( NextChanParams_t* nextChanParams, uint8_
     if( RegionCommonCountChannels( NvmCtx.ChannelsMaskRemaining, 0, 4 ) == 0 )
     { // Reactivate default channels
         RegionCommonChanMaskCopy( NvmCtx.ChannelsMaskRemaining, NvmCtx.ChannelsMask, 4  );
+
+        NvmCtx.JoinChannelGroupsCurrentIndex = 0;
     }
     // Check other channels
     if( nextChanParams->Datarate >= DR_6 )
@@ -859,7 +882,7 @@ LoRaMacStatus_t RegionAU915NextChannel( NextChanParams_t* nextChanParams, uint8_
     countChannelsParams.Channels = NvmCtx.Channels;
     countChannelsParams.Bands = NvmCtx.Bands;
     countChannelsParams.MaxNbChannels = AU915_MAX_NB_CHANNELS;
-    countChannelsParams.JoinChannels = 0;
+    countChannelsParams.JoinChannels = NULL;
 
     identifyChannelsParam.AggrTimeOff = nextChanParams->AggrTimeOff;
     identifyChannelsParam.LastAggrTx = nextChanParams->LastAggrTx;
@@ -877,8 +900,40 @@ LoRaMacStatus_t RegionAU915NextChannel( NextChanParams_t* nextChanParams, uint8_
 
     if( status == LORAMAC_STATUS_OK )
     {
-        // We found a valid channel
-        *channel = enabledChannels[randr( 0, nbEnabledChannels - 1 )];
+        if( nextChanParams->Joined == true )
+        {
+            // Choose randomly on of the remaining channels
+            *channel = enabledChannels[randr( 0, nbEnabledChannels - 1 )];
+        }
+        else
+        {
+            // For rapid network acquisition in mixed gateway channel plan environments, the device
+            // follow a random channel selection sequence. It probes alternating one out of a
+            // group of eight 125 kHz channels followed by probing one 500 kHz channel each pass.
+            // Each time a 125 kHz channel will be selected from another group.
+
+            // 125kHz Channels (0 - 63) DR2
+            if( nextChanParams->Datarate == DR_2 )
+            {
+                if( RegionBaseUSComputeNext125kHzJoinChannel( ( uint16_t* ) NvmCtx.ChannelsMaskRemaining,
+                    &NvmCtx.JoinChannelGroupsCurrentIndex, channel ) == LORAMAC_STATUS_PARAMETER_INVALID )
+                {
+                    return LORAMAC_STATUS_PARAMETER_INVALID;
+                }
+            }
+            // 500kHz Channels (64 - 71) DR6
+            else
+            {
+                // Choose the next available channel
+                uint8_t i = 0;
+                while( ( ( NvmCtx.ChannelsMaskRemaining[4] & CHANNELS_MASK_500KHZ_MASK ) & ( 1 << i ) ) == 0 )
+                {
+                    i++;
+                }
+                *channel = 64 + i;
+            }
+        }
+
         // Disable the channel in the mask
         RegionCommonChanDisable( NvmCtx.ChannelsMaskRemaining, *channel, AU915_MAX_NB_CHANNELS - 8 );
     }

@@ -488,9 +488,9 @@ void RegionCommonCountNbOfEnabledChannels( RegionCommonCountNbOfEnabledChannelsP
                     continue;
                 }
                 if( ( countNbOfEnabledChannelsParams->Joined == false ) &&
-                    ( countNbOfEnabledChannelsParams->JoinChannels > 0 ) )
+                    ( countNbOfEnabledChannelsParams->JoinChannels != NULL ) )
                 {
-                    if( ( countNbOfEnabledChannelsParams->JoinChannels & ( 1 << j ) ) == 0 )
+                    if( ( countNbOfEnabledChannelsParams->JoinChannels[k] & ( 1 << j ) ) == 0 )
                     {
                         continue;
                     }

@@ -793,6 +793,7 @@ LoRaMacStatus_t RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_
     RegionCommonIdentifyChannelsParam_t identifyChannelsParam;
     RegionCommonCountNbOfEnabledChannelsParams_t countChannelsParams;
     LoRaMacStatus_t status = LORAMAC_STATUS_NO_CHANNEL_FOUND;
+    uint16_t joinChannels = EU433_JOIN_CHANNELS;
 
     if( RegionCommonCountChannels( NvmCtx.ChannelsMask, 0, 1 ) == 0 )
     { // Reactivate default channels
@@ -806,7 +807,7 @@ LoRaMacStatus_t RegionEU433NextChannel( NextChanParams_t* nextChanParams, uint8_
     countChannelsParams.Channels = NvmCtx.Channels;
     countChannelsParams.Bands = NvmCtx.Bands;
     countChannelsParams.MaxNbChannels = EU433_MAX_NB_CHANNELS;
-    countChannelsParams.JoinChannels = EU433_JOIN_CHANNELS;
+    countChannelsParams.JoinChannels = &joinChannels;
 
     identifyChannelsParam.AggrTimeOff = nextChanParams->AggrTimeOff;
     identifyChannelsParam.LastAggrTx = nextChanParams->LastAggrTx;

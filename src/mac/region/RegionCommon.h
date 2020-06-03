@@ -259,9 +259,11 @@ typedef struct sRegionCommonCountNbOfEnabledChannelsParams
      */
     uint16_t MaxNbChannels;
     /*!
-     * A bitmask containing the join channels.
+     * A pointer to the bitmask containing the
+     * join channels. Shall have the same dimension as the
+     * ChannelsMask with a number of MaxNbChannels channels.
      */
-    uint16_t JoinChannels;
+    uint16_t* JoinChannels;
 }RegionCommonCountNbOfEnabledChannelsParams_t;
 
 typedef struct sRegionCommonIdentifyChannelsParam
