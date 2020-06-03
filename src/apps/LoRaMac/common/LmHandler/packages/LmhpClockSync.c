@@ -111,7 +111,6 @@ static void LmhpClockSyncOnMcpsIndication( McpsIndication_t *mcpsIndication );
 static LmhpClockSyncState_t LmhpClockSyncState =
 {
     .Initialized = false,
-    .IsRunning = false,
     .TimeReqParam.Value = 0,
     .AppTimeReqPending = false,
     .AdrEnabledPrev = false,
