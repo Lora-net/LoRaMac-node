@@ -294,11 +294,6 @@ PhyParam_t RegionUS915GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = US915_BEACON_CHANNEL_DR;
             break;
         }
-        case PHY_BEACON_CHANNEL_STEPWIDTH:
-        {
-            phyParam.Value = US915_BEACON_CHANNEL_STEPWIDTH;
-            break;
-        }
         case PHY_BEACON_NB_CHANNELS:
         {
             phyParam.Value = US915_BEACON_NB_CHANNELS;
@@ -314,6 +309,11 @@ PhyParam_t RegionUS915GetPhyParam( GetPhyParams_t* getPhy )
         case PHY_PING_SLOT_CHANNEL_DR:
         {
             phyParam.Value = US915_PING_SLOT_CHANNEL_DR;
+            break;
+        }
+        case PHY_PING_SLOT_NB_CHANNELS:
+        {
+            phyParam.Value = US915_BEACON_NB_CHANNELS;
             break;
         }
         case PHY_SF_FROM_DR:

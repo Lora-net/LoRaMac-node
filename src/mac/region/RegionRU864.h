@@ -190,6 +190,11 @@ extern "C"
 #define RU864_PING_SLOT_CHANNEL_DR                  DR_3
 
 /*!
+ * Ping slot channel datarate
+ */
+#define RU864_PING_SLOT_CHANNEL_DR                  DR_3
+
+/*!
  * Maximum number of bands
  */
 #define RU864_MAX_NB_BANDS                          1

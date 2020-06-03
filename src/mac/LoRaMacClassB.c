@@ -279,6 +279,7 @@ static uint32_t CalcDownlinkChannelAndFrequency( uint32_t devAddr, TimerTime_t b
     PhyParam_t phyParam;
     uint32_t channel = 0;
     uint8_t nbChannels = 0;
+    uint8_t offset = 0;
 
     // Default initialization - ping slot channels
     getPhy.Attribute = PHY_PING_SLOT_NB_CHANNELS;
@@ -295,9 +296,14 @@ static uint32_t CalcDownlinkChannelAndFrequency( uint32_t devAddr, TimerTime_t b
     // defined by the calculation below.
     if( nbChannels > 1 )
     {
+        getPhy.Attribute = PHY_BEACON_CHANNEL_OFFSET;
+        phyParam = RegionGetPhyParam( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &getPhy );
+        offset = ( uint8_t ) phyParam.Value;
+
         // Calculate the channel for the next downlink
         channel = devAddr + ( beaconTime / ( beaconInterval / 1000 ) );
         channel = channel % nbChannels;
+        channel += offset;
     }
 
     // Calculate the frequency for the next downlink. This holds
