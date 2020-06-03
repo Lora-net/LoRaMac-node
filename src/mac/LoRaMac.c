@@ -2184,6 +2184,11 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     LoRaMacClassBDeviceTimeAns( );
                     MacCtx.McpsIndication.DeviceTimeAnsReceived = true;
                 }
+                else
+                {
+                    // Incase of other receive windows the Device Time Answer is not received.
+                    MacCtx.McpsIndication.DeviceTimeAnsReceived = false;
+                }
                 break;
             }
             case SRV_MAC_PING_SLOT_INFO_ANS:
