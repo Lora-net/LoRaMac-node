@@ -2170,7 +2170,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
 
                     // Copy received GPS Epoch time into system time
                     sysTime = gpsEpochTime;
-                    // Add Unix to Gps epcoh offset. The system time is based on Unix time.
+                    // Add Unix to Gps epoch offset. The system time is based on Unix time.
                     sysTime.Seconds += UNIX_GPS_EPOCH_OFFSET;
 
                     // Compensate time difference between Tx Done time and now
