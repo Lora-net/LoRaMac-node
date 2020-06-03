@@ -215,10 +215,10 @@ static LmHandlerParams_t LmHandlerParams =
 
 static LmhpComplianceParams_t LmhpComplianceParams =
 {
-    .AdrEnabled = LORAWAN_ADR_STATE,
-    .DutyCycleEnabled = LORAWAN_DUTYCYCLE_ON,
-    .StopPeripherals = GpsStop,
-    .StartPeripherals = GpsStart
+    .IsDutFPort224On = true,
+    .FwVersion.Value = 0x01000000,
+    .LrwanVersion.Value = 0x01000400,
+    .LrwanRpVersion.Value = 0x02010001,
 };
 
 /*!
@@ -310,7 +310,7 @@ int main( void )
     TimerSetValue( &LedBeaconTimer, 5000 );
 
     const Version_t appVersion = { .Fields.Major = 1, .Fields.Minor = 0, .Fields.Patch = 0 };
-    const Version_t gitHubVersion = { .Fields.Major = 4, .Fields.Minor = 4, .Fields.Patch = 3 };
+    const Version_t gitHubVersion = { .Fields.Major = 4, .Fields.Minor = 5, .Fields.Patch = 0 };
     DisplayAppInfo( "fuota-test-01", 
                     &appVersion,
                     &gitHubVersion );
