@@ -1020,6 +1020,8 @@ static void ProcessRadioRxDone( void )
                 applyCFList.Payload = macMsgJoinAccept.CFList;
                 // Size of the regular payload is 12. Plus 1 byte MHDR and 4 bytes MIC
                 applyCFList.Size = size - 17;
+                // Apply the last tx channel
+                applyCFList.JoinChannel = MacCtx.Channel;
 
                 RegionApplyCFList( MacCtx.NvmCtx->Region, &applyCFList );
 

@@ -1040,6 +1040,7 @@ typedef union uVerifyParams
  */
 typedef struct sApplyCFListParams
 {
+    uint8_t JoinChannel;
     /*!
      * Payload which contains the CF list.
      */
