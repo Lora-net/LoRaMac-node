@@ -268,13 +268,13 @@ static const uint32_t BandwidthsAS923[] = { 125000, 125000, 125000, 125000, 1250
  * Maximum payload with respect to the datarate index.
  * The table is valid for the dwell time configuration of 0 for uplinks and downlinks.
  */
-static const uint8_t MaxPayloadOfDatarateDwell0AS923[] = { 51, 51, 51, 115, 242, 242, 242, 242 };
+static const uint8_t MaxPayloadOfDatarateDwell0AS923[] = { 59, 59, 123, 123, 250, 250, 250, 250 };
 
 /*!
  * Maximum payload with respect to the datarate index.
  * The table is only valid for uplinks.
  */
-static const uint8_t MaxPayloadOfDatarateDwell1UpAS923[] = { 0, 0, 11, 53, 125, 242, 242, 242 };
+static const uint8_t MaxPayloadOfDatarateDwell1AS923[] = { 0, 0, 19, 61, 133, 250, 250, 250 };
 
 /*!
  * Maximum payload with respect to the datarate index.
@@ -283,9 +283,34 @@ static const uint8_t MaxPayloadOfDatarateDwell1UpAS923[] = { 0, 0, 11, 53, 125, 
 static const uint8_t MaxPayloadOfDatarateDwell1DownAS923[] = { 0, 0, 11, 53, 126, 242, 242, 242 };
 
 /*!
- * Effective datarate offsets for receive window 1.
+ * Effective datarate offsets for receive window 1 when downlink dwell time is zero.
  */
-static const int8_t EffectiveRx1DrOffsetAS923[] = { 0, 1, 2, 3, 4, 5, -1, -2 };
+static const int8_t EffectiveRx1DrOffsetDownlinkDwell0AS923[8][8] =
+    {
+        { DR_0 , DR_0 , DR_0 , DR_0 , DR_0 , DR_0 , DR_1 , DR_2  }, // DR_0
+        { DR_1 , DR_0 , DR_0 , DR_0 , DR_0 , DR_0 , DR_2 , DR_3  }, // DR_1
+        { DR_2 , DR_1 , DR_0 , DR_0 , DR_0 , DR_0 , DR_3 , DR_4  }, // DR_2
+        { DR_3 , DR_2 , DR_1 , DR_0 , DR_0 , DR_0 , DR_4 , DR_5  }, // DR_3
+        { DR_4 , DR_3 , DR_2 , DR_1 , DR_0 , DR_0 , DR_5 , DR_6  }, // DR_4
+        { DR_5 , DR_4 , DR_3 , DR_2 , DR_1 , DR_0 , DR_6 , DR_7  }, // DR_5
+        { DR_6 , DR_5 , DR_4 , DR_3 , DR_2 , DR_1 , DR_7 , DR_7  }, // DR_6
+        { DR_7 , DR_6 , DR_5 , DR_4 , DR_3 , DR_2 , DR_7 , DR_7  }, // DR_7
+    };
+
+/*!
+ * Effective datarate offsets for receive window 1 when downlink dwell time is one.
+ */
+static const int8_t EffectiveRx1DrOffsetDownlinkDwell1AS923[8][8] =
+    {
+        { DR_2 , DR_2 , DR_2 , DR_2 , DR_2 , DR_2 , DR_2 , DR_2  }, // DR_0
+        { DR_2 , DR_2 , DR_2 , DR_2 , DR_2 , DR_2 , DR_2 , DR_3  }, // DR_1
+        { DR_2 , DR_2 , DR_2 , DR_2 , DR_2 , DR_2 , DR_3 , DR_4  }, // DR_2
+        { DR_3 , DR_2 , DR_2 , DR_2 , DR_2 , DR_2 , DR_4 , DR_5  }, // DR_3
+        { DR_4 , DR_3 , DR_2 , DR_2 , DR_2 , DR_2 , DR_5 , DR_6  }, // DR_4
+        { DR_5 , DR_4 , DR_3 , DR_2 , DR_2 , DR_2 , DR_6 , DR_7  }, // DR_5
+        { DR_6 , DR_5 , DR_4 , DR_3 , DR_2 , DR_2 , DR_7 , DR_7  }, // DR_6
+        { DR_7 , DR_6 , DR_5 , DR_4 , DR_3 , DR_2 , DR_7 , DR_7  }, // DR_7
+    };
 
 /*!
  * \brief The function gets a value of a specific phy attribute.

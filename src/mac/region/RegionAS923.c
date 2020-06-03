@@ -189,7 +189,7 @@ PhyParam_t RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
             }
             else
             {
-                phyParam.Value = MaxPayloadOfDatarateDwell1UpAS923[getPhy->Datarate];
+                phyParam.Value = MaxPayloadOfDatarateDwell1AS923[getPhy->Datarate];
             }
             break;
         }
@@ -995,17 +995,21 @@ bool RegionAS923ChannelsRemove( ChannelRemoveParams_t* channelRemove  )
 
 uint8_t RegionAS923ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset )
 {
-    // Initialize minDr for a downlink dwell time configuration of 0
-    int8_t minDr = DR_0;
+    // Initialize minDr
+    int8_t minDr;
 
-    // Update the minDR for a downlink dwell time configuration of 1
-    if( downlinkDwellTime == 1 )
+    if( downlinkDwellTime == 0 )
     {
-        minDr = AS923_DWELL_LIMIT_DATARATE;
+        // Update the minDR for a downlink dwell time configuration of 0
+        minDr = EffectiveRx1DrOffsetDownlinkDwell0AS923[dr][drOffset];
+    }
+    else
+    {
+        // Update the minDR for a downlink dwell time configuration of 1
+        minDr = EffectiveRx1DrOffsetDownlinkDwell1AS923[dr][drOffset];
     }
 
-    // Apply offset formula
-    return MIN( DR_5, MAX( minDr, dr - EffectiveRx1DrOffsetAS923[drOffset] ) );
+    return minDr;
 }
 
 void RegionAS923RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr )
