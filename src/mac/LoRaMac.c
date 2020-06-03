@@ -51,7 +51,7 @@
 /*!
  * LORaWAN version definition.
  */
-#define LORAMAC_VERSION                             0x01000300
+#define LORAMAC_VERSION                             0x01000400
 #endif
 
 /*!
