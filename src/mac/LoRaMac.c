@@ -3100,7 +3100,7 @@ static bool StopRetransmission( void )
         // Only process the case when the MAC did not receive a downlink.
         if( MacCtx.NvmCtx->AdrCtrlOn == true )
         {
-            MacCtx.NvmCtx->AdrAckCounter++;
+            MacCtx.NvmCtx->AdrAckCounter = IncreaseAdrAckCounter( MacCtx.NvmCtx->AdrAckCounter );
         }
     }
 
