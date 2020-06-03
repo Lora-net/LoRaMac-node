@@ -54,7 +54,6 @@
 #define AS923_NEXT_CHANNEL( )                      AS923_CASE { return RegionAS923NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define AS923_CHANNEL_ADD( )                       AS923_CASE { return RegionAS923ChannelAdd( channelAdd ); }
 #define AS923_CHANNEL_REMOVE( )                    AS923_CASE { return RegionAS923ChannelsRemove( channelRemove ); }
-#define AS923_SET_CONTINUOUS_WAVE( )               AS923_CASE { RegionAS923SetContinuousWave( continuousWave ); break; }
 #define AS923_APPLY_DR_OFFSET( )                   AS923_CASE { return RegionAS923ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
 #define AS923_RX_BEACON_SETUP( )                   AS923_CASE { RegionAS923RxBeaconSetup( rxBeaconSetup, outDr ); break; }
 #else
@@ -78,7 +77,6 @@
 #define AS923_NEXT_CHANNEL( )
 #define AS923_CHANNEL_ADD( )
 #define AS923_CHANNEL_REMOVE( )
-#define AS923_SET_CONTINUOUS_WAVE( )
 #define AS923_APPLY_DR_OFFSET( )
 #define AS923_RX_BEACON_SETUP( )
 #endif
@@ -106,7 +104,6 @@
 #define AU915_NEXT_CHANNEL( )                      AU915_CASE { return RegionAU915NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define AU915_CHANNEL_ADD( )                       AU915_CASE { return RegionAU915ChannelAdd( channelAdd ); }
 #define AU915_CHANNEL_REMOVE( )                    AU915_CASE { return RegionAU915ChannelsRemove( channelRemove ); }
-#define AU915_SET_CONTINUOUS_WAVE( )               AU915_CASE { RegionAU915SetContinuousWave( continuousWave ); break; }
 #define AU915_APPLY_DR_OFFSET( )                   AU915_CASE { return RegionAU915ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
 #define AU915_RX_BEACON_SETUP( )                   AU915_CASE { RegionAU915RxBeaconSetup( rxBeaconSetup, outDr ); break; }
 #else
@@ -130,7 +127,6 @@
 #define AU915_NEXT_CHANNEL( )
 #define AU915_CHANNEL_ADD( )
 #define AU915_CHANNEL_REMOVE( )
-#define AU915_SET_CONTINUOUS_WAVE( )
 #define AU915_APPLY_DR_OFFSET( )
 #define AU915_RX_BEACON_SETUP( )
 #endif
@@ -158,7 +154,6 @@
 #define CN470_NEXT_CHANNEL( )                      CN470_CASE { return RegionCN470NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define CN470_CHANNEL_ADD( )                       CN470_CASE { return RegionCN470ChannelAdd( channelAdd ); }
 #define CN470_CHANNEL_REMOVE( )                    CN470_CASE { return RegionCN470ChannelsRemove( channelRemove ); }
-#define CN470_SET_CONTINUOUS_WAVE( )               CN470_CASE { RegionCN470SetContinuousWave( continuousWave ); break; }
 #define CN470_APPLY_DR_OFFSET( )                   CN470_CASE { return RegionCN470ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
 #define CN470_RX_BEACON_SETUP( )                   CN470_CASE { RegionCN470RxBeaconSetup( rxBeaconSetup, outDr ); break; }
 #else
@@ -182,7 +177,6 @@
 #define CN470_NEXT_CHANNEL( )
 #define CN470_CHANNEL_ADD( )
 #define CN470_CHANNEL_REMOVE( )
-#define CN470_SET_CONTINUOUS_WAVE( )
 #define CN470_APPLY_DR_OFFSET( )
 #define CN470_RX_BEACON_SETUP( )
 #endif
@@ -210,7 +204,6 @@
 #define CN779_NEXT_CHANNEL( )                      CN779_CASE { return RegionCN779NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define CN779_CHANNEL_ADD( )                       CN779_CASE { return RegionCN779ChannelAdd( channelAdd ); }
 #define CN779_CHANNEL_REMOVE( )                    CN779_CASE { return RegionCN779ChannelsRemove( channelRemove ); }
-#define CN779_SET_CONTINUOUS_WAVE( )               CN779_CASE { RegionCN779SetContinuousWave( continuousWave ); break; }
 #define CN779_APPLY_DR_OFFSET( )                   CN779_CASE { return RegionCN779ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
 #define CN779_RX_BEACON_SETUP( )                   CN779_CASE { RegionCN779RxBeaconSetup( rxBeaconSetup, outDr ); break; }
 #else
@@ -234,7 +227,6 @@
 #define CN779_NEXT_CHANNEL( )
 #define CN779_CHANNEL_ADD( )
 #define CN779_CHANNEL_REMOVE( )
-#define CN779_SET_CONTINUOUS_WAVE( )
 #define CN779_APPLY_DR_OFFSET( )
 #define CN779_RX_BEACON_SETUP( )
 #endif
@@ -262,7 +254,6 @@
 #define EU433_NEXT_CHANNEL( )                      EU433_CASE { return RegionEU433NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define EU433_CHANNEL_ADD( )                       EU433_CASE { return RegionEU433ChannelAdd( channelAdd ); }
 #define EU433_CHANNEL_REMOVE( )                    EU433_CASE { return RegionEU433ChannelsRemove( channelRemove ); }
-#define EU433_SET_CONTINUOUS_WAVE( )               EU433_CASE { RegionEU433SetContinuousWave( continuousWave ); break; }
 #define EU433_APPLY_DR_OFFSET( )                   EU433_CASE { return RegionEU433ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
 #define EU433_RX_BEACON_SETUP( )                   EU433_CASE { RegionEU433RxBeaconSetup( rxBeaconSetup, outDr ); break; }
 #else
@@ -286,7 +277,6 @@
 #define EU433_NEXT_CHANNEL( )
 #define EU433_CHANNEL_ADD( )
 #define EU433_CHANNEL_REMOVE( )
-#define EU433_SET_CONTINUOUS_WAVE( )
 #define EU433_APPLY_DR_OFFSET( )
 #define EU433_RX_BEACON_SETUP( )
 #endif
@@ -314,7 +304,6 @@
 #define EU868_NEXT_CHANNEL( )                      EU868_CASE { return RegionEU868NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define EU868_CHANNEL_ADD( )                       EU868_CASE { return RegionEU868ChannelAdd( channelAdd ); }
 #define EU868_CHANNEL_REMOVE( )                    EU868_CASE { return RegionEU868ChannelsRemove( channelRemove ); }
-#define EU868_SET_CONTINUOUS_WAVE( )               EU868_CASE { RegionEU868SetContinuousWave( continuousWave ); break; }
 #define EU868_APPLY_DR_OFFSET( )                   EU868_CASE { return RegionEU868ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
 #define EU868_RX_BEACON_SETUP( )                   EU868_CASE { RegionEU868RxBeaconSetup( rxBeaconSetup, outDr ); break; }
 #else
@@ -338,7 +327,6 @@
 #define EU868_NEXT_CHANNEL( )
 #define EU868_CHANNEL_ADD( )
 #define EU868_CHANNEL_REMOVE( )
-#define EU868_SET_CONTINUOUS_WAVE( )
 #define EU868_APPLY_DR_OFFSET( )
 #define EU868_RX_BEACON_SETUP( )
 #endif
@@ -366,7 +354,6 @@
 #define KR920_NEXT_CHANNEL( )                      KR920_CASE { return RegionKR920NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define KR920_CHANNEL_ADD( )                       KR920_CASE { return RegionKR920ChannelAdd( channelAdd ); }
 #define KR920_CHANNEL_REMOVE( )                    KR920_CASE { return RegionKR920ChannelsRemove( channelRemove ); }
-#define KR920_SET_CONTINUOUS_WAVE( )               KR920_CASE { RegionKR920SetContinuousWave( continuousWave ); break; }
 #define KR920_APPLY_DR_OFFSET( )                   KR920_CASE { return RegionKR920ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
 #define KR920_RX_BEACON_SETUP( )                   KR920_CASE { RegionKR920RxBeaconSetup( rxBeaconSetup, outDr ); break; }
 #else
@@ -390,7 +377,6 @@
 #define KR920_NEXT_CHANNEL( )
 #define KR920_CHANNEL_ADD( )
 #define KR920_CHANNEL_REMOVE( )
-#define KR920_SET_CONTINUOUS_WAVE( )
 #define KR920_APPLY_DR_OFFSET( )
 #define KR920_RX_BEACON_SETUP( )
 #endif
@@ -418,7 +404,6 @@
 #define IN865_NEXT_CHANNEL( )                      IN865_CASE { return RegionIN865NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define IN865_CHANNEL_ADD( )                       IN865_CASE { return RegionIN865ChannelAdd( channelAdd ); }
 #define IN865_CHANNEL_REMOVE( )                    IN865_CASE { return RegionIN865ChannelsRemove( channelRemove ); }
-#define IN865_SET_CONTINUOUS_WAVE( )               IN865_CASE { RegionIN865SetContinuousWave( continuousWave ); break; }
 #define IN865_APPLY_DR_OFFSET( )                   IN865_CASE { return RegionIN865ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
 #define IN865_RX_BEACON_SETUP( )                   IN865_CASE { RegionIN865RxBeaconSetup( rxBeaconSetup, outDr ); break; }
 #else
@@ -442,7 +427,6 @@
 #define IN865_NEXT_CHANNEL( )
 #define IN865_CHANNEL_ADD( )
 #define IN865_CHANNEL_REMOVE( )
-#define IN865_SET_CONTINUOUS_WAVE( )
 #define IN865_APPLY_DR_OFFSET( )
 #define IN865_RX_BEACON_SETUP( )
 #endif
@@ -470,7 +454,6 @@
 #define US915_NEXT_CHANNEL( )                      US915_CASE { return RegionUS915NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define US915_CHANNEL_ADD( )                       US915_CASE { return RegionUS915ChannelAdd( channelAdd ); }
 #define US915_CHANNEL_REMOVE( )                    US915_CASE { return RegionUS915ChannelsRemove( channelRemove ); }
-#define US915_SET_CONTINUOUS_WAVE( )               US915_CASE { RegionUS915SetContinuousWave( continuousWave ); break; }
 #define US915_APPLY_DR_OFFSET( )                   US915_CASE { return RegionUS915ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
 #define US915_RX_BEACON_SETUP( )                   US915_CASE { RegionUS915RxBeaconSetup( rxBeaconSetup, outDr ); break; }
 #else
@@ -494,7 +477,6 @@
 #define US915_NEXT_CHANNEL( )
 #define US915_CHANNEL_ADD( )
 #define US915_CHANNEL_REMOVE( )
-#define US915_SET_CONTINUOUS_WAVE( )
 #define US915_APPLY_DR_OFFSET( )
 #define US915_RX_BEACON_SETUP( )
 #endif
@@ -522,7 +504,6 @@
 #define RU864_NEXT_CHANNEL( )                      RU864_CASE { return RegionRU864NextChannel( nextChanParams, channel, time, aggregatedTimeOff ); }
 #define RU864_CHANNEL_ADD( )                       RU864_CASE { return RegionRU864ChannelAdd( channelAdd ); }
 #define RU864_CHANNEL_REMOVE( )                    RU864_CASE { return RegionRU864ChannelsRemove( channelRemove ); }
-#define RU864_SET_CONTINUOUS_WAVE( )               RU864_CASE { RegionRU864SetContinuousWave( continuousWave ); break; }
 #define RU864_APPLY_DR_OFFSET( )                   RU864_CASE { return RegionRU864ApplyDrOffset( downlinkDwellTime, dr, drOffset ); }
 #define RU864_RX_BEACON_SETUP( )                   RU864_CASE { RegionRU864RxBeaconSetup( rxBeaconSetup, outDr ); break; }
 #else
@@ -546,7 +527,6 @@
 #define RU864_NEXT_CHANNEL( )
 #define RU864_CHANNEL_ADD( )
 #define RU864_CHANNEL_REMOVE( )
-#define RU864_SET_CONTINUOUS_WAVE( )
 #define RU864_APPLY_DR_OFFSET( )
 #define RU864_RX_BEACON_SETUP( )
 #endif
@@ -968,27 +948,6 @@ bool RegionChannelsRemove( LoRaMacRegion_t region, ChannelRemoveParams_t* channe
         default:
         {
             return false;
-        }
-    }
-}
-
-void RegionSetContinuousWave( LoRaMacRegion_t region, ContinuousWaveParams_t* continuousWave )
-{
-    switch( region )
-    {
-        AS923_SET_CONTINUOUS_WAVE( );
-        AU915_SET_CONTINUOUS_WAVE( );
-        CN470_SET_CONTINUOUS_WAVE( );
-        CN779_SET_CONTINUOUS_WAVE( );
-        EU433_SET_CONTINUOUS_WAVE( );
-        EU868_SET_CONTINUOUS_WAVE( );
-        KR920_SET_CONTINUOUS_WAVE( );
-        IN865_SET_CONTINUOUS_WAVE( );
-        US915_SET_CONTINUOUS_WAVE( );
-        RU864_SET_CONTINUOUS_WAVE( );
-        default:
-        {
-            break;
         }
     }
 }

@@ -59,7 +59,6 @@ typedef enum LmhpRemoteMcastSetupSessionStates_e
 typedef struct LmhpRemoteMcastSetupState_s
 {
     bool Initialized;
-    bool IsRunning;
     LmhpRemoteMcastSetupSessionStates_t SessionState;
     uint8_t DataBufferMaxSize;
     uint8_t *DataBuffer;
@@ -103,14 +102,6 @@ static void LmhpRemoteMcastSetupInit( void *params, uint8_t *dataBuffer, uint8_t
 static bool LmhpRemoteMcastSetupIsInitialized( void );
 
 /*!
- * Returns the package operation status.
- *
- * \retval status Package operation status
- *                [true: Running, false: Not running]
- */
-static bool LmhpRemoteMcastSetupIsRunning( void );
-
-/*!
  * Processes the internal package events.
  */
 static void LmhpRemoteMcastSetupProcess( void );
@@ -129,7 +120,6 @@ static void OnSessionStopTimer( void *context );
 static LmhpRemoteMcastSetupState_t LmhpRemoteMcastSetupState =
 {
     .Initialized = false,
-    .IsRunning = false,
     .SessionState = REMOTE_MCAST_SETUP_SESSION_STATE_IDLE,
 };
 
@@ -182,7 +172,6 @@ static LmhPackage_t LmhpRemoteMcastSetupPackage =
     .Port = REMOTE_MCAST_SETUP_PORT,
     .Init = LmhpRemoteMcastSetupInit,
     .IsInitialized = LmhpRemoteMcastSetupIsInitialized,
-    .IsRunning = LmhpRemoteMcastSetupIsRunning,
     .Process = LmhpRemoteMcastSetupProcess,
     .OnMcpsConfirmProcess = NULL,                              // Not used in this package
     .OnMcpsIndicationProcess = LmhpRemoteMcastSetupOnMcpsIndication,
@@ -208,13 +197,11 @@ static void LmhpRemoteMcastSetupInit( void * params, uint8_t *dataBuffer, uint8_
         LmhpRemoteMcastSetupState.DataBuffer = dataBuffer;
         LmhpRemoteMcastSetupState.DataBufferMaxSize = dataBufferMaxSize;
         LmhpRemoteMcastSetupState.Initialized = true;
-        LmhpRemoteMcastSetupState.IsRunning = true;
         TimerInit( &SessionStartTimer, OnSessionStartTimer );
         TimerInit( &SessionStopTimer, OnSessionStopTimer );
     }
     else
     {
-        LmhpRemoteMcastSetupState.IsRunning = false;
         LmhpRemoteMcastSetupState.Initialized = false;
     }
 }
@@ -222,16 +209,6 @@ static void LmhpRemoteMcastSetupInit( void * params, uint8_t *dataBuffer, uint8_
 static bool LmhpRemoteMcastSetupIsInitialized( void )
 {
     return LmhpRemoteMcastSetupState.Initialized;
-}
-
-static bool LmhpRemoteMcastSetupIsRunning( void )
-{
-    if( LmhpRemoteMcastSetupState.Initialized == false )
-    {
-        return false;
-    }
-
-    return LmhpRemoteMcastSetupState.IsRunning;
 }
 
 static void LmhpRemoteMcastSetupProcess( void )

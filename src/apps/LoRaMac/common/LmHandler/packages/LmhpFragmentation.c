@@ -50,7 +50,6 @@ typedef enum LmhpFragmentationTxDelayStates_e
 typedef struct LmhpFragmentationState_s
 {
     bool Initialized;
-    bool IsRunning;
     LmhpFragmentationTxDelayStates_t TxDelayState;
     uint8_t DataBufferMaxSize;
     uint8_t *DataBuffer;
@@ -97,14 +96,6 @@ static void LmhpFragmentationInit( void *params, uint8_t *dataBuffer, uint8_t da
 static bool LmhpFragmentationIsInitialized( void );
 
 /*!
- * Returns the package operation status.
- *
- * \retval status Package operation status
- *                [true: Running, false: Not running]
- */
-static bool LmhpFragmentationIsRunning( void );
-
-/*!
  * Processes the internal package events.
  */
 static void LmhpFragmentationProcess( void );
@@ -119,7 +110,6 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
 static LmhpFragmentationState_t LmhpFragmentationState =
 {
     .Initialized = false,
-    .IsRunning = false,
     .TxDelayState = FRAGMENTATION_TX_DELAY_STATE_IDLE,
 };
 
@@ -169,7 +159,6 @@ static LmhPackage_t LmhpFragmentationPackage =
     .Port = FRAGMENTATION_PORT,
     .Init = LmhpFragmentationInit,
     .IsInitialized = LmhpFragmentationIsInitialized,
-    .IsRunning = LmhpFragmentationIsRunning,
     .Process = LmhpFragmentationProcess,
     .OnMcpsConfirmProcess = NULL,                              // Not used in this package
     .OnMcpsIndicationProcess = LmhpFragmentationOnMcpsIndication,
@@ -213,7 +202,6 @@ static void LmhpFragmentationInit( void *params, uint8_t *dataBuffer, uint8_t da
         LmhpFragmentationState.DataBuffer = dataBuffer;
         LmhpFragmentationState.DataBufferMaxSize = dataBufferMaxSize;
         LmhpFragmentationState.Initialized = true;
-        LmhpFragmentationState.IsRunning = true;
         // Initialize Fragmentation delay time.
         TxDelayTime = 0;
         // Initialize Fragmentation delay timer.
@@ -222,7 +210,6 @@ static void LmhpFragmentationInit( void *params, uint8_t *dataBuffer, uint8_t da
     else
     {
         LmhpFragmentationParams = NULL;
-        LmhpFragmentationState.IsRunning = false;
         LmhpFragmentationState.Initialized = false;
     }
 }
@@ -230,16 +217,6 @@ static void LmhpFragmentationInit( void *params, uint8_t *dataBuffer, uint8_t da
 static bool LmhpFragmentationIsInitialized( void )
 {
     return LmhpFragmentationState.Initialized;
-}
-
-static bool LmhpFragmentationIsRunning( void )
-{
-    if( LmhpFragmentationState.Initialized == false )
-    {
-        return false;
-    }
-
-    return LmhpFragmentationState.IsRunning;
 }
 
 static void LmhpFragmentationProcess( void )

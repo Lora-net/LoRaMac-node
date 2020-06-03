@@ -215,10 +215,10 @@ static LmHandlerParams_t LmHandlerParams =
 
 static LmhpComplianceParams_t LmhpComplianceParams =
 {
-    .AdrEnabled = LORAWAN_ADR_STATE,
-    .DutyCycleEnabled = LORAWAN_DUTYCYCLE_ON,
-    .StopPeripherals = GpsStop,
-    .StartPeripherals = GpsStart
+    .IsDutFPort224On = true,
+    .FwVersion.Value = 0x01000000,
+    .LrwanVersion.Value = 0x01000400,
+    .LrwanRpVersion.Value = 0x02010001,
 };
 
 /*!

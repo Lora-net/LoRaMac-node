@@ -36,87 +36,32 @@
  *            layer and the supported features.
  * \{
  *
- * \example   classA/B-L072Z-LRWAN1/main.c
- *            LoRaWAN class A application example for the B-L072Z-LRWAN1.
+ * \example   periodic-uplink-lpp/B-L072Z-LRWAN1/main.c
+ *            LoRaWAN class A/B/C application example for the B-L072Z-LRWAN1.
  *
- * \example   classB/B-L072Z-LRWAN1/main.c
- *            LoRaWAN class B application example for the B-L072Z-LRWAN1.
+ * \example   periodic-uplink-lpp/NAMote72/main.c
+ *            LoRaWAN class A/B/C application example for the NAMote72.
  *
- * \example   classC/B-L072Z-LRWAN1/main.c
- *            LoRaWAN class C application example for the B-L072Z-LRWAN1.
+ * \example   periodic-uplink-lpp/NucleoL073/main.c
+ *            LoRaWAN class A/B/C application example for the NucleoL073.
  *
- * \example   classA/NAMote72/main.c
- *            LoRaWAN class A application example for the NAMote72.
+ * \example   periodic-uplink-lpp/NucleoL152/main.c
+ *            LoRaWAN class A/B/C application example for the NucleoL152.
  *
- * \example   classB/NAMote72/main.c
- *            LoRaWAN class B application example for the NAMote72.
+ * \example   periodic-uplink-lpp/NucleoL476/main.c
+ *            LoRaWAN class A/B/C application example for the NucleoL476.
  *
- * \example   classC/NAMote72/main.c
- *            LoRaWAN class C application example for the NAMote72.
+ * \example   periodic-uplink-lpp/SAMR34/main.c
+ *            LoRaWAN class A/B/C application example for the SAMR34.
  *
- * \example   classA/NucleoL073/main.c
- *            LoRaWAN class A application example for the NucleoL073.
+ * \example   periodic-uplink-lpp/SKiM880B/main.c
+ *            LoRaWAN class A/B/C application example for the SKiM880B.
  *
- * \example   classB/NucleoL073/main.c
- *            LoRaWAN class B application example for the NucleoL073.
+ * \example   periodic-uplink-lpp/SKiM881AXL/main.c
+ *            LoRaWAN class A/B/C application example for the SKiM881AXL.
  *
- * \example   classC/NucleoL073/main.c
- *            LoRaWAN class C application example for the NucleoL073.
- *
- * \example   classA/NucleoL152/main.c
- *            LoRaWAN class A application example for the NucleoL152.
- *
- * \example   classB/NucleoL152/main.c
- *            LoRaWAN class B application example for the NucleoL152.
- *
- * \example   classC/NucleoL152/main.c
- *            LoRaWAN class C application example for the NucleoL152.
- *
- * \example   classA/NucleoL476/main.c
- *            LoRaWAN class A application example for the NucleoL476.
- *
- * \example   classB/NucleoL476/main.c
- *            LoRaWAN class B application example for the NucleoL476.
- *
- * \example   classC/NucleoL476/main.c
- *            LoRaWAN class C application example for the NucleoL476.
- *
- * \example   classA/SAMR34/main.c
- *            LoRaWAN class A application example for the SAMR34.
- *
- * \example   classB/SAMR34/main.c
- *            LoRaWAN class B application example for the SAMR34.
- *
- * \example   classC/SAMR34/main.c
- *            LoRaWAN class C application example for the SAMR34.
- *
- * \example   classA/SKiM880B/main.c
- *            LoRaWAN class A application example for the SKiM880B.
- *
- * \example   classB/SKiM880B/main.c
- *            LoRaWAN class B application example for the SKiM880B.
- *
- * \example   classC/SKiM880B/main.c
- *            LoRaWAN class C application example for the SKiM880B.
- *
- * \example   classA/SKiM881AXL/main.c
- *            LoRaWAN class A application example for the SKiM881AXL.
- *
- * \example   classB/SKiM881AXL/main.c
- *            LoRaWAN class B application example for the SKiM881AXL.
- *
- * \example   classC/SKiM881AXL/main.c
- *            LoRaWAN class C application example for the SKiM881AXL.
- *
- * \example   classA/SKiM980A/main.c
- *            LoRaWAN class A application example for the SKiM980A.
- *
- * \example   classB/SKiM980A/main.c
- *            LoRaWAN class B application example for the SKiM980A.
- *
- * \example   classC/SKiM980A/main.c
- *            LoRaWAN class C application example for the SKiM980A.
- *
+ * \example   periodic-uplink-lpp/SKiM980A/main.c
+ *            LoRaWAN class A/B/C application example for the SKiM980A.
  */
 #ifndef __LORAMAC_H__
 #define __LORAMAC_H__
@@ -491,6 +436,17 @@ typedef struct sBeaconInfo
      */
     int8_t Snr;
     /*!
+     * Param
+     * |  Bits | 7:2 |  1:0 |
+     * |-------|-----|------|
+     * | Param | RFU | Prec |
+     *
+     * Prec field is used to interpret the precision of beacon's transmit time
+     * as 10^(-6+prec) and the default value is 0.
+     * RFU will be set to Zero and Prec can take values between 0:3.
+     */
+    uint8_t Param;
+    /*!
      * Data structure for the gateway specific part. The
      * content of the values may differ for each gateway
      */
@@ -555,10 +511,6 @@ typedef enum eLoRaMacEventInfoStatus
      * payload size is not applicable for the datarate.
      */
     LORAMAC_EVENT_INFO_STATUS_TX_DR_PAYLOAD_SIZE_ERROR,
-    /*!
-     * The node has lost MAX_FCNT_GAP or more frames.
-     */
-    LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS,
     /*!
      * An address error occurred
      */
@@ -965,12 +917,6 @@ typedef enum eMlme
      * LoRaWAN end-device certification
      */
     MLME_TXCW,
-    /*!
-     * Sets Tx continuous wave mode (new LoRa-Alliance CC definition)
-     *
-     * LoRaWAN end-device certification
-     */
-    MLME_TXCW_1,
     /*!
      * Indicates that the application shall perform an uplink as
      * soon as possible.

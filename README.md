@@ -29,12 +29,6 @@ This project fully implements ClassA, ClassB and ClassC end-device classes and i
 
 For each currently supported platform example applications are provided.
 
-* **LoRaMac/classA**: ClassA end-device example application.
-
-* **LoRaMac/classB**: ClassB end-device example application.
-
-* **LoRaMac/classC**: ClassC end-device example application.
-
 * **LoRaMac/fuota-test-01**: FUOTA test scenario 01 end-device example application. (Based on provided application common packages)
 
 * **LoRaMac/periodic-uplink-lpp**: ClassA/B/C end-device example application. Periodically uplinks a frame using the Cayenne LPP protocol. (Based on provided application common packages)
@@ -223,7 +217,7 @@ $ make
         "APPLICATION":"LoRaMac",
 
         // Select LoRaMac sub project. You can choose between:
-        // classA, classB or classC, periodic-uplink-lpp, fuota-test-01.
+        // periodic-uplink-lpp, fuota-test-01.
         "SUB_PROJECT":"periodic-uplink-lpp",
 
         // Switch for Class B support of LoRaMac:
@@ -324,7 +318,7 @@ $ make
         "APPLICATION":"ping-pong",
 
         // Select LoRaMac sub project. You can choose between:
-        // classA, classB or classC, periodic-uplink-lpp, fuota-test-01.
+        // periodic-uplink-lpp, fuota-test-01.
         "SUB_PROJECT":"periodic-uplink-lpp",
 
         // Switch for Class B support of LoRaMac:

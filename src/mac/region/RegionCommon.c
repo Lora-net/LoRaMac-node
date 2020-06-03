@@ -363,16 +363,16 @@ uint8_t RegionCommonLinkAdrReqVerifyParams( RegionCommonLinkAdrReqVerifyParams_t
     // Handle the case when ADR is off.
     if( verifyParams->AdrEnabled == false )
     {
-        // When ADR is disable juts ignore all parameters except the channel mask
-        datarate = verifyParams->CurrentDatarate;
-        txPower = verifyParams->CurrentTxPower;
+        // When ADR is off, we are allowed to change the channels mask
         nbRepetitions = verifyParams->CurrentNbRep;
+        datarate =  verifyParams->CurrentDatarate;
+        txPower =  verifyParams->CurrentTxPower;
     }
 
     if( status != 0 )
     {
         // Verify datarate. The variable phyParam. Value contains the minimum allowed datarate.
-        if( ( verifyParams->Version.Fields.Minor >= 1 ) && ( datarate == 0xF ) )
+        if( datarate == 0x0F )
         { // 0xF means that the device MUST ignore that field, and keep the current parameter value.
             datarate =  verifyParams->CurrentDatarate;
         }
@@ -383,7 +383,7 @@ uint8_t RegionCommonLinkAdrReqVerifyParams( RegionCommonLinkAdrReqVerifyParams_t
         }
 
         // Verify tx power
-        if( (  verifyParams->Version.Fields.Minor >= 1 ) && ( txPower == 0xF ) )
+        if( txPower == 0x0F )
         { // 0xF means that the device MUST ignore that field, and keep the current parameter value.
             txPower =  verifyParams->CurrentTxPower;
         }
@@ -404,19 +404,9 @@ uint8_t RegionCommonLinkAdrReqVerifyParams( RegionCommonLinkAdrReqVerifyParams_t
     // If the status is ok, verify the NbRep
     if( status == 0x07 )
     {
-        if( verifyParams->Version.Fields.Minor < 1 )
-        {
-            if( nbRepetitions == 0 )
-            { // Restore the default value.
-                nbRepetitions = 1;
-            }
-        }
-        else
-        {
-            if( nbRepetitions == 0 )
-            {  // Keep the current NbTrans value unchanged.
-                nbRepetitions = verifyParams->CurrentNbRep;
-            }
+        if( nbRepetitions == 0 )
+        { // Set nbRep to the default value of 1.
+            nbRepetitions = 1;
         }
     }
 
@@ -498,9 +488,9 @@ void RegionCommonCountNbOfEnabledChannels( RegionCommonCountNbOfEnabledChannelsP
                     continue;
                 }
                 if( ( countNbOfEnabledChannelsParams->Joined == false ) &&
-                    ( countNbOfEnabledChannelsParams->JoinChannels > 0 ) )
+                    ( countNbOfEnabledChannelsParams->JoinChannels != NULL ) )
                 {
-                    if( ( countNbOfEnabledChannelsParams->JoinChannels & ( 1 << j ) ) == 0 )
+                    if( ( countNbOfEnabledChannelsParams->JoinChannels[k] & ( 1 << j ) ) == 0 )
                     {
                         continue;
                     }
@@ -565,5 +555,37 @@ LoRaMacStatus_t RegionCommonIdentifyChannels( RegionCommonIdentifyChannelsParam_
     else
     {
         return LORAMAC_STATUS_NO_CHANNEL_FOUND;
+    }
+}
+
+int8_t RegionCommonGetNextLowerTxDr( int8_t dr, int8_t minDr )
+{
+    if( dr == minDr )
+    {
+        return minDr;
+    }
+    else
+    {
+        return( dr - 1 );
+    }
+}
+
+int8_t RegionCommonLimitTxPower( int8_t txPower, int8_t maxBandTxPower )
+{
+    // Limit tx power to the band max
+    return MAX( txPower, maxBandTxPower );
+}
+
+uint32_t RegionCommonGetBandwidth( uint32_t drIndex, const uint32_t* bandwidths )
+{
+    switch( bandwidths[drIndex] )
+    {
+        default:
+        case 125000:
+            return 0;
+        case 250000:
+            return 1;
+        case 500000:
+            return 2;
     }
 }

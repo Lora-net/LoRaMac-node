@@ -46,6 +46,59 @@ extern "C"
 #include "LoRaMacHeaderTypes.h"
 #include "region/Region.h"
 
+// Constants that are common to all the regions.
+
+/*!
+ * Receive delay of 1 second.
+ */
+#define REGION_COMMON_DEFAULT_RECEIVE_DELAY1            1000
+
+/*!
+ * Receive delay of 2 seconds.
+ */
+#define REGION_COMMON_DEFAULT_RECEIVE_DELAY2            ( REGION_COMMON_DEFAULT_RECEIVE_DELAY1 + 1000 )
+
+/*!
+ * Join accept delay of 5 seconds.
+ */
+#define REGION_COMMON_DEFAULT_JOIN_ACCEPT_DELAY1        5000
+
+/*!
+ * Join accept delay of 6 seconds.
+ */
+#define REGION_COMMON_DEFAULT_JOIN_ACCEPT_DELAY2        ( REGION_COMMON_DEFAULT_JOIN_ACCEPT_DELAY1 + 1000 )
+
+/*!
+ * ADR ack limit.
+ */
+#define REGION_COMMON_DEFAULT_ADR_ACK_LIMIT             64
+
+/*!
+ * ADR ack delay.
+ */
+#define REGION_COMMON_DEFAULT_ADR_ACK_DELAY             32
+
+/*!
+ * Retransmission timeout for ACK in milliseconds.
+ */
+#define REGION_COMMON_DEFAULT_RETRANSMIT_TIMEOUT        2000
+
+/*!
+ * Rounding limit for generating random retransmission timeout for ACK.
+ * In milliseconds.
+ */
+#define REGION_COMMON_DEFAULT_RETRANSMIT_TIMEOUT_RND    1000
+
+/*!
+ * Default Rx1 receive datarate offset
+ */
+#define REGION_COMMON_DEFAULT_RX1_DR_OFFSET             0
+
+/*!
+ * Default downlink dwell time configuration
+ */
+#define REGION_COMMON_DEFAULT_DOWNLINK_DWELL_TIME       0
+
 /*!
  * Default ping slots periodicity
  *
@@ -53,6 +106,7 @@ extern "C"
  * Example: 2^7 = 128 seconds. The end-device will open an Rx slot every 128 seconds.
  */
 #define REGION_COMMON_DEFAULT_PING_SLOT_PERIODICITY     7
+
 
 typedef struct sRegionCommonLinkAdrParams
 {
@@ -205,9 +259,11 @@ typedef struct sRegionCommonCountNbOfEnabledChannelsParams
      */
     uint16_t MaxNbChannels;
     /*!
-     * A bitmask containing the join channels.
+     * A pointer to the bitmask containing the
+     * join channels. Shall have the same dimension as the
+     * ChannelsMask with a number of MaxNbChannels channels.
      */
-    uint16_t JoinChannels;
+    uint16_t* JoinChannels;
 }RegionCommonCountNbOfEnabledChannelsParams_t;
 
 typedef struct sRegionCommonIdentifyChannelsParam
@@ -521,6 +577,39 @@ LoRaMacStatus_t RegionCommonIdentifyChannels( RegionCommonIdentifyChannelsParam_
                                               TimerTime_t* aggregatedTimeOff, uint8_t* enabledChannels,
                                               uint8_t* nbEnabledChannels, uint8_t* nbRestrictedChannels,
                                               TimerTime_t* nextTxDelay );
+
+/*!
+ * \brief Selects the next lower datarate.
+ *
+ * \param [IN] dr Current datarate.
+ *
+ * \param [IN] minDr Minimum possible datarate.
+ *
+ * \retval The next lower datarate.
+ */
+int8_t RegionCommonGetNextLowerTxDr( int8_t dr, int8_t minDr );
+
+/*!
+ * \brief Limits the TX power.
+ *
+ * \param [IN] txPower Current TX power.
+ *
+ * \param [IN] maxBandTxPower Maximum possible TX power.
+ *
+ * \retval Limited TX power.
+ */
+int8_t RegionCommonLimitTxPower( int8_t txPower, int8_t maxBandTxPower );
+
+/*!
+ * \brief Gets the bandwidth.
+ *
+ * \param [IN] drIndex Datarate index.
+ *
+ * \param [IN] bandwidths A pointer to the bandwidth table.
+ *
+ * \retval Bandwidth.
+ */
+uint32_t RegionCommonGetBandwidth( uint32_t drIndex, const uint32_t* bandwidths );
 
 /*! \} defgroup REGIONCOMMON */
 

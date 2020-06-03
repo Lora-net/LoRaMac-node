@@ -27,7 +27,7 @@
         "APPLICATION":"LoRaMac",
 
         // Select LoRaMac sub project. You can choose between:
-        // classA, classB or classC, periodic-uplink-lpp, fuota-test-01.
+        // periodic-uplink-lpp, fuota-test-01.
         "SUB_PROJECT":"periodic-uplink-lpp",
 
         // Switch for Class B support of LoRaMac:
@@ -70,6 +70,14 @@
         "REGION_CN470":"OFF",
         "REGION_KR920":"OFF",
         "REGION_IN865":"OFF",
-        "REGION_RU864":"OFF"
+        "REGION_RU864":"OFF",
+
+        // Default channel plan for region AS923. Possible selections:
+        // CHANNEL_PLAN_GROUP_AS923_1, CHANNEL_PLAN_GROUP_AS923_2, CHANNEL_PLAN_GROUP_AS923_3
+        "REGION_AS923_DEFAULT_CHANNEL_PLAN":"CHANNEL_PLAN_GROUP_AS923_3",
+
+        // Default channel plan for region CN470. Possible selections:
+        // CHANNEL_PLAN_20MHZ_TYPE_A, CHANNEL_PLAN_20MHZ_TYPE_B, CHANNEL_PLAN_26MHZ_TYPE_A, CHANNEL_PLAN_26MHZ_TYPE_B
+        "REGION_CN470_DEFAULT_CHANNEL_PLAN":"CHANNEL_PLAN_20MHZ_TYPE_A"
     }
 }

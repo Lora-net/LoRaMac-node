@@ -24,16 +24,10 @@
  *
  */
 #include "board.h"
-#include "radio.h"
 
 #include "soft-se-hal.h"
 
 void SoftSeHalGetUniqueId( uint8_t *id )
 {
     BoardGetUniqueId( id );
-}
-
-uint32_t SoftSeHalGetRandomNumber( void )
-{
-    return Radio.Random( );
 }

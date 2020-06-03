@@ -40,15 +40,6 @@ extern "C" {
  */
 void SoftSeHalGetUniqueId( uint8_t *id );
 
-/*!
- * \brief Get a random number
- *
- * \remark The number SHALL NOT be generated using a pseudo random number
- *         generator
- * \retval number 32 bit random value
- */
-uint32_t SoftSeHalGetRandomNumber( void );
-
 #ifdef __cplusplus
 }
 #endif

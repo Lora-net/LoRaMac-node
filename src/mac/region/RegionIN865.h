@@ -95,11 +95,6 @@ extern "C"
 #define IN865_MAX_RX1_DR_OFFSET                     7
 
 /*!
- * Default Rx1 receive datarate offset
- */
-#define IN865_DEFAULT_RX1_DR_OFFSET                 0
-
-/*!
  * Minimal Tx output power that can be used by the node
  */
 #define IN865_MIN_TX_POWER                          TX_POWER_10
@@ -125,16 +120,6 @@ extern "C"
 #define IN865_DEFAULT_ANTENNA_GAIN                  2.15f
 
 /*!
- * ADR Ack limit
- */
-#define IN865_ADR_ACK_LIMIT                         64
-
-/*!
- * ADR Ack delay
- */
-#define IN865_ADR_ACK_DELAY                         32
-
-/*!
  * Enabled or disabled the duty cycle
  */
 #define IN865_DUTY_CYCLE_ENABLED                    0
@@ -143,41 +128,6 @@ extern "C"
  * Maximum RX window duration
  */
 #define IN865_MAX_RX_WINDOW                         3000
-
-/*!
- * Receive delay 1
- */
-#define IN865_RECEIVE_DELAY1                        1000
-
-/*!
- * Receive delay 2
- */
-#define IN865_RECEIVE_DELAY2                        2000
-
-/*!
- * Join accept delay 1
- */
-#define IN865_JOIN_ACCEPT_DELAY1                    5000
-
-/*!
- * Join accept delay 2
- */
-#define IN865_JOIN_ACCEPT_DELAY2                    6000
-
-/*!
- * Maximum frame counter gap
- */
-#define IN865_MAX_FCNT_GAP                          16384
-
-/*!
- * Ack timeout
- */
-#define IN865_ACKTIMEOUT                            2000
-
-/*!
- * Random ack timeout limits
- */
-#define IN865_ACK_TIMEOUT_RND                       1000
 
 #if ( IN865_DEFAULT_DATARATE > DR_5 )
 #error "A default DR higher than DR_5 may lead to connectivity loss."
@@ -192,6 +142,11 @@ extern "C"
  * Second reception window channel datarate definition.
  */
 #define IN865_RX_WND_2_DR                           DR_2
+
+/*!
+ * Default uplink dwell time configuration
+ */
+#define IN865_DEFAULT_UPLINK_DWELL_TIME             0
 
 /*
  * CLASS B
@@ -214,7 +169,7 @@ extern "C"
 /*!
  * Size of RFU 1 field
  */
-#define IN865_RFU1_SIZE                             1
+#define IN865_RFU1_SIZE                             0
 
 /*!
  * Size of RFU 2 field
@@ -271,6 +226,11 @@ extern "C"
 #define IN865_JOIN_CHANNELS                         ( uint16_t )( LC( 1 ) | LC( 2 ) | LC( 3 ) )
 
 /*!
+ * RFU value
+ */
+#define IN865_DR_RFU_VALUE                          { 0, 0, 0, 0, 0, 0, 0, 0 }
+
+/*!
  * Data rates table definition
  */
 static const uint8_t DataratesIN865[]  = { 12, 11, 10,  9,  8,  7,  7, 50 };
@@ -288,7 +248,17 @@ static const uint8_t MaxPayloadOfDatarateIN865[] = { 51, 51, 51, 115, 242, 242, 
 /*!
  * Effective datarate offsets for receive window 1.
  */
-static const int8_t EffectiveRx1DrOffsetIN865[] = { 0, 1, 2, 3, 4, 5, -1, -2 };
+static const int8_t EffectiveRx1DrOffsetIN865[8][8] =
+{
+    { DR_0 , DR_0 , DR_0 , DR_0 , DR_0 , DR_0 , DR_1 , DR_2  }, // DR_0
+    { DR_1 , DR_0 , DR_0 , DR_0 , DR_0 , DR_0 , DR_2 , DR_3  }, // DR_1
+    { DR_2 , DR_1 , DR_0 , DR_0 , DR_0 , DR_0 , DR_3 , DR_4  }, // DR_2
+    { DR_3 , DR_2 , DR_1 , DR_0 , DR_0 , DR_0 , DR_4 , DR_5  }, // DR_3
+    { DR_4 , DR_3 , DR_2 , DR_1 , DR_0 , DR_0 , DR_5 , DR_5  }, // DR_4
+    { DR_5 , DR_4 , DR_3 , DR_2 , DR_1 , DR_0 , DR_5 , DR_7  }, // DR_5
+                     IN865_DR_RFU_VALUE                       , // DR_6
+    { DR_7 , DR_5 , DR_5 , DR_4 , DR_3 , DR_2 , DR_7 , DR_7  }, // DR_7
+};
 
 /*!
  * \brief The function gets a value of a specific phy attribute.
@@ -476,13 +446,6 @@ LoRaMacStatus_t RegionIN865ChannelAdd( ChannelAddParams_t* channelAdd );
  * \retval Returns true, if the channel was removed successfully.
  */
 bool RegionIN865ChannelsRemove( ChannelRemoveParams_t* channelRemove  );
-
-/*!
- * \brief Sets the radio into continuous wave mode.
- *
- * \param [IN] continuousWave Pointer to the function parameters.
- */
-void RegionIN865SetContinuousWave( ContinuousWaveParams_t* continuousWave );
 
 /*!
  * \brief Computes new datarate according to the given offset

@@ -203,14 +203,6 @@ SecureElementStatus_t SecureElementProcessJoinAccept( JoinReqIdentifier_t joinRe
                                                       uint8_t* versionMinor );
 
 /*!
- * Generates a random number
- *
- * \param[OUT] randomNum      - 32 bit random number
- * \retval                    - Status of the operation
- */
-SecureElementStatus_t SecureElementRandomNumber( uint32_t* randomNum );
-
-/*!
  * Sets the DevEUI
  *
  * \param[IN] devEui          - Pointer to the 8-byte devEUI

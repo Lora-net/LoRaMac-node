@@ -95,11 +95,6 @@ extern "C"
 #define EU868_MAX_RX1_DR_OFFSET                     5
 
 /*!
- * Default Rx1 receive datarate offset
- */
-#define EU868_DEFAULT_RX1_DR_OFFSET                 0
-
-/*!
  * Minimal Tx output power that can be used by the node
  */
 #define EU868_MIN_TX_POWER                          TX_POWER_7
@@ -125,16 +120,6 @@ extern "C"
 #define EU868_DEFAULT_ANTENNA_GAIN                  2.15f
 
 /*!
- * ADR Ack limit
- */
-#define EU868_ADR_ACK_LIMIT                         64
-
-/*!
- * ADR Ack delay
- */
-#define EU868_ADR_ACK_DELAY                         32
-
-/*!
  * Enabled or disabled the duty cycle
  */
 #define EU868_DUTY_CYCLE_ENABLED                    1
@@ -143,41 +128,6 @@ extern "C"
  * Maximum RX window duration
  */
 #define EU868_MAX_RX_WINDOW                         3000
-
-/*!
- * Receive delay 1
- */
-#define EU868_RECEIVE_DELAY1                        1000
-
-/*!
- * Receive delay 2
- */
-#define EU868_RECEIVE_DELAY2                        2000
-
-/*!
- * Join accept delay 1
- */
-#define EU868_JOIN_ACCEPT_DELAY1                    5000
-
-/*!
- * Join accept delay 2
- */
-#define EU868_JOIN_ACCEPT_DELAY2                    6000
-
-/*!
- * Maximum frame counter gap
- */
-#define EU868_MAX_FCNT_GAP                          16384
-
-/*!
- * Ack timeout
- */
-#define EU868_ACKTIMEOUT                            2000
-
-/*!
- * Random ack timeout limits
- */
-#define EU868_ACK_TIMEOUT_RND                       1000
 
 #if ( EU868_DEFAULT_DATARATE > DR_5 )
 #error "A default DR higher than DR_5 may lead to connectivity loss."
@@ -192,6 +142,11 @@ extern "C"
  * Second reception window channel datarate definition.
  */
 #define EU868_RX_WND_2_DR                           DR_0
+
+/*!
+ * Default uplink dwell time configuration
+ */
+#define EU868_DEFAULT_UPLINK_DWELL_TIME             0
 
 /*
  * CLASS B
@@ -214,7 +169,7 @@ extern "C"
 /*!
  * Size of RFU 1 field
  */
-#define EU868_RFU1_SIZE                             2
+#define EU868_RFU1_SIZE                             1
 
 /*!
  * Size of RFU 2 field
@@ -502,13 +457,6 @@ LoRaMacStatus_t RegionEU868ChannelAdd( ChannelAddParams_t* channelAdd );
  * \retval Returns true, if the channel was removed successfully.
  */
 bool RegionEU868ChannelsRemove( ChannelRemoveParams_t* channelRemove  );
-
-/*!
- * \brief Sets the radio into continuous wave mode.
- *
- * \param [IN] continuousWave Pointer to the function parameters.
- */
-void RegionEU868SetContinuousWave( ContinuousWaveParams_t* continuousWave );
 
 /*!
  * \brief Computes new datarate according to the given offset

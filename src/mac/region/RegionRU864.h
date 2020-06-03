@@ -93,11 +93,6 @@ extern "C"
 #define RU864_MAX_RX1_DR_OFFSET                     5
 
 /*!
- * Default Rx1 receive datarate offset
- */
-#define RU864_DEFAULT_RX1_DR_OFFSET                 0
-
-/*!
  * Minimal Tx output power that can be used by the node
  */
 #define RU864_MIN_TX_POWER                          TX_POWER_7
@@ -123,16 +118,6 @@ extern "C"
 #define RU864_DEFAULT_ANTENNA_GAIN                  2.15f
 
 /*!
- * ADR Ack limit
- */
-#define RU864_ADR_ACK_LIMIT                         64
-
-/*!
- * ADR Ack delay
- */
-#define RU864_ADR_ACK_DELAY                         32
-
-/*!
  * Enabled or disabled the duty cycle
  */
 #define RU864_DUTY_CYCLE_ENABLED                    1
@@ -141,41 +126,6 @@ extern "C"
  * Maximum RX window duration
  */
 #define RU864_MAX_RX_WINDOW                         3000 //TODO
-
-/*!
- * Receive delay 1
- */
-#define RU864_RECEIVE_DELAY1                        1000
-
-/*!
- * Receive delay 2
- */
-#define RU864_RECEIVE_DELAY2                        2000
-
-/*!
- * Join accept delay 1
- */
-#define RU864_JOIN_ACCEPT_DELAY1                    5000
-
-/*!
- * Join accept delay 2
- */
-#define RU864_JOIN_ACCEPT_DELAY2                    6000
-
-/*!
- * Maximum frame counter gap
- */
-#define RU864_MAX_FCNT_GAP                          16384
-
-/*!
- * Ack timeout
- */
-#define RU864_ACKTIMEOUT                            2000
-
-/*!
- * Random ack timeout limits
- */
-#define RU864_ACK_TIMEOUT_RND                       1000
 
 #if ( RU864_DEFAULT_DATARATE > DR_5 )
 #error "A default DR higher than DR_5 may lead to connectivity loss."
@@ -190,6 +140,11 @@ extern "C"
  * Second reception window channel datarate definition.
  */
 #define RU864_RX_WND_2_DR                           DR_0
+
+/*!
+ * Default uplink dwell time configuration
+ */
+#define RU864_DEFAULT_UPLINK_DWELL_TIME             0
 
 /*
  * CLASS B
@@ -212,7 +167,7 @@ extern "C"
 /*!
  * Size of RFU 1 field
  */
-#define RU864_RFU1_SIZE                             2
+#define RU864_RFU1_SIZE                             1
 
 /*!
  * Size of RFU 2 field
@@ -231,6 +186,11 @@ extern "C"
 
 /*!
  * Datarate of the ping slot channel
+ */
+#define RU864_PING_SLOT_CHANNEL_DR                  DR_3
+
+/*!
+ * Ping slot channel datarate
  */
 #define RU864_PING_SLOT_CHANNEL_DR                  DR_3
 
@@ -464,13 +424,6 @@ LoRaMacStatus_t RegionRU864ChannelAdd( ChannelAddParams_t* channelAdd );
  * \retval Returns true, if the channel was removed successfully.
  */
 bool RegionRU864ChannelsRemove( ChannelRemoveParams_t* channelRemove  );
-
-/*!
- * \brief Sets the radio into continuous wave mode.
- *
- * \param [IN] continuousWave Pointer to the function parameters.
- */
-void RegionRU864SetContinuousWave( ContinuousWaveParams_t* continuousWave );
 
 /*!
  * \brief Computes new datarate according to the given offset

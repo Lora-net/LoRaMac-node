@@ -220,6 +220,11 @@ typedef struct sBeaconContext
      */
     TimerTime_t BeaconTimingDelay;
     TimerTime_t TimeStamp;
+    /*!
+     * Beacons transmit time precision determined using
+     * param field of beacon frame format.
+     */
+    SysTime_t BeaconTimePrecision;
 }BeaconContext_t;
 
 /*!
@@ -279,6 +284,10 @@ typedef struct sLoRaMacClassBParams
      * Pointer to the multicast channel list
      */
     MulticastCtx_t *MulticastChannels;
+    /*!
+     * Pointer to the activation type
+     */
+    ActivationType_t *NetworkActivation;
 }LoRaMacClassBParams_t;
 
 /*!
@@ -530,6 +539,19 @@ void LoRaMacClassBStartRxSlots( void );
  */
 void LoRaMacClassBSetMulticastPeriodicity( MulticastCtx_t* multicastChannel );
 
+/*!
+ * \brief Sets the FPending bit status of the related downlink slot
+ *
+ * \param [IN] address Slot address, could be unicast or multicast
+ *
+ * \param [IN] fPendingSet Set to 1, if the fPending bit in the
+ *             sequence is set, otherwise 0.
+ */
+void LoRaMacClassBSetFPendingBit( uint32_t address, uint8_t fPendingSet );
+
+/*!
+ * \brief Class B process function.
+ */
 void LoRaMacClassBProcess( void );
 
 #ifdef __cplusplus
