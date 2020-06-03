@@ -82,27 +82,22 @@ extern "C"
 /*!
  * Maximal Rx1 receive datarate offset
  */
-#define CN470_MAX_RX1_DR_OFFSET                     3
-
-/*!
- * Default Rx1 receive datarate offset
- */
-#define CN470_DEFAULT_RX1_DR_OFFSET                 0
+#define CN470_MAX_RX1_DR_OFFSET                     5
 
 /*!
  * Minimal Tx output power that can be used by the node
  */
-#define CN470_MIN_TX_POWER                        TX_POWER_7
+#define CN470_MIN_TX_POWER                          TX_POWER_7
 
 /*!
  * Maximal Tx output power that can be used by the node
  */
-#define CN470_MAX_TX_POWER                        TX_POWER_0
+#define CN470_MAX_TX_POWER                          TX_POWER_0
 
 /*!
  * Default Tx output power used by the node
  */
-#define CN470_DEFAULT_TX_POWER                    TX_POWER_0
+#define CN470_DEFAULT_TX_POWER                      TX_POWER_0
 
 /*!
  * Default Max EIRP
@@ -127,35 +122,16 @@ extern "C"
 /*!
  * Second reception window channel datarate definition.
  */
-#define CN470_RX_WND_2_FREQ                         505300000
+#define CN470_RX_WND_2_DR                           DR_1
 
 /*!
- * Second reception window channel datarate definition.
+ * Default uplink dwell time configuration
  */
-#define CN470_RX_WND_2_DR                           DR_0
+#define CN470_DEFAULT_UPLINK_DWELL_TIME             0
 
 /*
  * CLASS B
  */
-/*!
- * Beacon frequency
- */
-#define CN470_BEACON_CHANNEL_FREQ                   508300000
-
-/*!
- * Beacon frequency channel stepwidth
- */
-#define CN470_BEACON_CHANNEL_STEPWIDTH              200000
-
-/*!
- * Ping slot channel frequency
- */
-#define CN470_PING_SLOT_CHANNEL_FREQ                508300000
-
-/*!
- * Number of possible beacon channels
- */
-#define CN470_BEACON_NB_CHANNELS                    8
 
 /*!
  * Payload size of a beacon frame
@@ -213,20 +189,68 @@ extern "C"
  */
 #define CN470_STEPWIDTH_RX1_CHANNEL                 ( (uint32_t) 200000 )
 
+#define CN470_DEFAULT_DR_RANGE                      { .Value = ( CN470_TX_MAX_DATARATE << 4 ) | CN470_TX_MIN_DATARATE }
+
+#define CN470_COMMON_JOIN_CHANNELS \
+{ \
+    { .Frequency = 470900000, .Rx1Frequency = 484500000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+    { .Frequency = 472500000, .Rx1Frequency = 486100000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+    { .Frequency = 474100000, .Rx1Frequency = 487700000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+    { .Frequency = 475700000, .Rx1Frequency = 489300000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+    { .Frequency = 504100000, .Rx1Frequency = 490900000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+    { .Frequency = 505700000, .Rx1Frequency = 492500000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+    { .Frequency = 507300000, .Rx1Frequency = 494100000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+    { .Frequency = 508900000, .Rx1Frequency = 495700000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+\
+    { .Frequency = 479900000, .Rx1Frequency = 479900000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+    { .Frequency = 499900000, .Rx1Frequency = 499900000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+\
+    { .Frequency = 470300000, .Rx1Frequency = 492500000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+    { .Frequency = 472300000, .Rx1Frequency = 492500000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+    { .Frequency = 474300000, .Rx1Frequency = 492500000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+    { .Frequency = 476300000, .Rx1Frequency = 492500000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+    { .Frequency = 478300000, .Rx1Frequency = 492500000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+\
+    { .Frequency = 480300000, .Rx1Frequency = 502500000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+    { .Frequency = 482300000, .Rx1Frequency = 502500000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+    { .Frequency = 484300000, .Rx1Frequency = 502500000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+    { .Frequency = 486300000, .Rx1Frequency = 502500000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+    { .Frequency = 488300000, .Rx1Frequency = 502500000, CN470_DEFAULT_DR_RANGE, .Band = 0 }, \
+}
+
+#define CN470_COMMON_JOIN_CHANNELS_SIZE             20
+
+#define CN470_JOIN_CHANNELS                         { 0xFFFF, 0x000F }
+
 /*!
  * Data rates table definition
  */
-static const uint8_t DataratesCN470[]  = { 12, 11, 10,  9,  8,  7 };
+static const uint8_t DataratesCN470[]  = { 12, 11, 10,  9,  8,  7, 7, 50 };
 
 /*!
  * Bandwidths table definition in Hz
  */
-static const uint32_t BandwidthsCN470[] = { 125000, 125000, 125000, 125000, 125000, 125000 };
+static const uint32_t BandwidthsCN470[] = { 125000, 125000, 125000, 125000, 125000, 125000, 500000, 0 };
 
 /*!
- * Maximum payload with respect to the datarate index.
+ * Up/Down link data rates offset definition
  */
-static const uint8_t MaxPayloadOfDatarateCN470[] = { 51, 51, 51, 115, 242, 242 };
+static const int8_t DatarateOffsetsCN470[8][6] =
+{
+    { DR_0, DR_0, DR_0, DR_0, DR_0, DR_0 }, // DR_0
+    { DR_1, DR_1, DR_1, DR_1, DR_1, DR_1 }, // DR_1
+    { DR_2, DR_1, DR_1, DR_1, DR_1, DR_1 }, // DR_2
+    { DR_3, DR_2, DR_1, DR_1, DR_1, DR_1 }, // DR_3
+    { DR_4, DR_3, DR_2, DR_1, DR_1, DR_1 }, // DR_4
+    { DR_5, DR_4, DR_3, DR_2, DR_1, DR_1 }, // DR_5
+    { DR_6, DR_5, DR_4, DR_3, DR_2, DR_1 }, // DR_6
+    { DR_7, DR_6, DR_5, DR_4, DR_3, DR_2 }, // DR_7
+};
+
+/*!
+ * Maximum payload with respect to the datarate index. Cannot operate with repeater.
+ */
+static const uint8_t MaxPayloadOfDatarateCN470[] = { 0, 23, 86, 184, 242, 242, 242, 242 };
 
 /*!
  * \brief The function gets a value of a specific phy attribute.
