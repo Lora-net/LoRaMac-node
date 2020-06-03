@@ -915,12 +915,6 @@ typedef enum eMlme
      */
     MLME_TXCW,
     /*!
-     * Sets Tx continuous wave mode (new LoRa-Alliance CC definition)
-     *
-     * LoRaWAN end-device certification
-     */
-    MLME_TXCW_1,
-    /*!
      * Indicates that the application shall perform an uplink as
      * soon as possible.
      */
