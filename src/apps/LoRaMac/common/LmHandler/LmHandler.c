@@ -759,7 +759,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             {
                 // Beacon has been acquired
                 // Request server for ping slot
-                LmHandlerPingSlotReq( 0 );
+                LmHandlerPingSlotReq( REGION_COMMON_DEFAULT_PING_SLOT_PERIODICITY );
             }
             else
             {
@@ -785,7 +785,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             }
             else
             {
-                LmHandlerPingSlotReq( 0 );
+                LmHandlerPingSlotReq( REGION_COMMON_DEFAULT_PING_SLOT_PERIODICITY );
             }
         }
         break;
