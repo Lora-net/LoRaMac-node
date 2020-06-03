@@ -44,6 +44,25 @@ extern "C"
 
 #include "region/Region.h"
 
+
+/*!
+ * Channel plan group AS923-1
+ * AS923_FREQ_OFFSET = 0
+ */
+#define CHANNEL_PLAN_GROUP_AS923_1                  1
+
+/*!
+ * Channel plan group AS923-2
+ * AS923_FREQ_OFFSET = -1.8MHz
+ */
+#define CHANNEL_PLAN_GROUP_AS923_2                  2
+
+/*!
+ * Channel plan group AS923-3
+ * AS923_FREQ_OFFSET = -6.6MHz
+ */
+#define CHANNEL_PLAN_GROUP_AS923_3                  3
+
 /*!
  * LoRaMac maximum number of channels
  */
