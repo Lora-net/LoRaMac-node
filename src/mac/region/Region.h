@@ -1110,6 +1110,13 @@ typedef struct sRxConfigParams
      * Sets the RX window.
      */
     LoRaMacRxSlot_t RxSlot;
+    /*!
+     * LoRaWAN Network End-Device Activation ( ACTIVATION_TYPE_NONE, ACTIVATION_TYPE_ABP
+     * or ACTIVATION_TYPE_OTTA )
+     *
+     * Related MIB type: \ref MIB_NETWORK_ACTIVATION
+     */
+    ActivationType_t NetworkActivation;
 }RxConfigParams_t;
 
 /*!

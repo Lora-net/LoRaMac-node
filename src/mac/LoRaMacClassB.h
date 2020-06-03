@@ -284,6 +284,10 @@ typedef struct sLoRaMacClassBParams
      * Pointer to the multicast channel list
      */
     MulticastCtx_t *MulticastChannels;
+    /*!
+     * Pointer to the activation type
+     */
+    ActivationType_t *NetworkActivation;
 }LoRaMacClassBParams_t;
 
 /*!

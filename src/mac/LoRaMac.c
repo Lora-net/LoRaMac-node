@@ -1687,6 +1687,7 @@ static void OnRxWindow1TimerEvent( void* context )
     MacCtx.RxWindow1Config.DownlinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
     MacCtx.RxWindow1Config.RxContinuous = false;
     MacCtx.RxWindow1Config.RxSlot = RX_SLOT_WIN_1;
+    MacCtx.RxWindow1Config.NetworkActivation = MacCtx.NvmCtx->NetworkActivation;
 
     RxWindowSetup( &MacCtx.RxWindowTimer1, &MacCtx.RxWindow1Config );
 }
@@ -1704,6 +1705,7 @@ static void OnRxWindow2TimerEvent( void* context )
     MacCtx.RxWindow2Config.DownlinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
     MacCtx.RxWindow2Config.RxContinuous = false;
     MacCtx.RxWindow2Config.RxSlot = RX_SLOT_WIN_2;
+    MacCtx.RxWindow2Config.NetworkActivation = MacCtx.NvmCtx->NetworkActivation;
 
     RxWindowSetup( &MacCtx.RxWindowTimer2, &MacCtx.RxWindow2Config );
 }
@@ -2674,6 +2676,7 @@ static void ResetMacParameters( void )
     MacCtx.RxWindow2Config.DownlinkDwellTime = MacCtx.NvmCtx->MacParams.DownlinkDwellTime;
     MacCtx.RxWindow2Config.RxContinuous = false;
     MacCtx.RxWindow2Config.RxSlot = RX_SLOT_WIN_2;
+    MacCtx.RxWindow2Config.NetworkActivation = MacCtx.NvmCtx->NetworkActivation;
 
     // Initialize RxC config parameters.
     MacCtx.RxWindowCConfig = MacCtx.RxWindow2Config;
@@ -2712,6 +2715,7 @@ static void OpenContinuousRxCWindow( void )
                                      &MacCtx.RxWindowCConfig );
 
     MacCtx.RxWindowCConfig.RxSlot = RX_SLOT_WIN_CLASS_C;
+    MacCtx.RxWindowCConfig.NetworkActivation = MacCtx.NvmCtx->NetworkActivation;
     // Setup continuous listening
     MacCtx.RxWindowCConfig.RxContinuous = true;
 
@@ -3367,6 +3371,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     classBParams.LoRaMacRegion = &MacCtx.NvmCtx->Region;
     classBParams.LoRaMacParams = &MacCtx.NvmCtx->MacParams;
     classBParams.MulticastChannels = &MacCtx.NvmCtx->MulticastChannelList[0];
+    classBParams.NetworkActivation = &MacCtx.NvmCtx->NetworkActivation;
 
     LoRaMacClassBInit( &classBParams, &classBCallbacks, &EventClassBNvmCtxChanged );
 
