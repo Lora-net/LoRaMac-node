@@ -1125,8 +1125,8 @@ static void ProcessRadioRxDone( void )
 
             // Filter messages according to multicast downlink exceptions
             if( ( multicast == 1 ) && ( ( fType != FRAME_TYPE_D ) ||
-                                        ( macMsgData.FHDR.FCtrl.Bits.Ack == true ) ||
-                                        ( macMsgData.FHDR.FCtrl.Bits.AdrAckReq == true ) ) )
+                                        ( macMsgData.FHDR.FCtrl.Bits.Ack != 0 ) ||
+                                        ( macMsgData.FHDR.FCtrl.Bits.AdrAckReq != 0 ) ) )
             {
                 MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                 PrepareRxDoneAbort( );
