@@ -828,18 +828,22 @@ typedef enum ePhyAttribute
 typedef enum eInitType
 {
     /*!
-     * Initializes the band definitions.
+     * Initializes the regional default settings for the band,
+     * channel and default channels mask. Some regions also initiate
+     * other default configurations. In general, this type is intended
+     * to be called once during the initialization.
      */
-    INIT_TYPE_BANDS,
+    INIT_TYPE_DEFAULTS,
     /*!
-     * Initializes the region specific data to defaults, according to the
-     * LoRaWAN specification.
+     * Resets the channels mask to the default channels. Deactivates
+     * all other channels.
      */
-    INIT_TYPE_INIT,
+    INIT_TYPE_RESET_TO_DEFAULT_CHANNELS,
     /*!
-     * Restores default channels defined by the LoRaWAN specification only.
+     * Activates the default channels. Leaves all other active channels
+     * active.
      */
-    INIT_TYPE_RESTORE_DEFAULT_CHANNELS,
+    INIT_TYPE_ACTIVATE_DEFAULT_CHANNELS,
     /*!
      * Restores internal context from passed pointer.
      */

@@ -590,9 +590,9 @@ void RegionCN470InitDefaults( InitDefaultsParams_t* params )
 
     switch( params->Type )
     {
-        case INIT_TYPE_BANDS:
+        case INIT_TYPE_DEFAULTS:
         {
-            // Initialize bands
+            // Default bands
             memcpy1( ( uint8_t* )NvmCtx.Bands, ( uint8_t* )bands, sizeof( Band_t ) * CN470_MAX_NB_BANDS );
 
             // Verify that a default channel plan is available
@@ -606,27 +606,24 @@ void RegionCN470InitDefaults( InitDefaultsParams_t* params )
             // Apply the channel plan configuration
             ApplyChannelPlanConfig( NvmCtx.ChannelPlan, &ChannelPlanCtx );
 
-            // Init channels masks
+            // Default channels
+            ChannelPlanCtx.InitializeChannels( NvmCtx.Channels );
+
+            // Default ChannelsMask
             ChannelPlanCtx.InitializeChannelsMask( NvmCtx.ChannelsDefaultMask );
+
+            // Copy channels default mask
             RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, CHANNELS_MASK_SIZE );
+
+            // Copy into channels mask remaining
             RegionCommonChanMaskCopy( NvmCtx.ChannelsMaskRemaining, NvmCtx.ChannelsMask, CHANNELS_MASK_SIZE );
             break;
         }
-        case INIT_TYPE_INIT:
+        case INIT_TYPE_RESET_TO_DEFAULT_CHANNELS:
         {
-            // Initialize channels
-            ChannelPlanCtx.InitializeChannels( NvmCtx.Channels );
-            break;
+            // Intentional fallthrough
         }
-        case INIT_TYPE_RESTORE_CTX:
-        {
-            if( params->NvmCtx != 0 )
-            {
-                memcpy1( (uint8_t*) &NvmCtx, (uint8_t*) params->NvmCtx, sizeof( NvmCtx ) );
-            }
-            break;
-        }
-        case INIT_TYPE_RESTORE_DEFAULT_CHANNELS:
+        case INIT_TYPE_ACTIVATE_DEFAULT_CHANNELS:
         {
             // Restore channels default mask
             RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, CHANNELS_MASK_SIZE );
@@ -634,6 +631,14 @@ void RegionCN470InitDefaults( InitDefaultsParams_t* params )
             for( uint8_t i = 0; i < CHANNELS_MASK_SIZE; i++ )
             { // Copy-And the channels mask
                 NvmCtx.ChannelsMaskRemaining[i] &= NvmCtx.ChannelsMask[i];
+            }
+            break;
+        }
+        case INIT_TYPE_RESTORE_CTX:
+        {
+            if( params->NvmCtx != 0 )
+            {
+                memcpy1( (uint8_t*) &NvmCtx, (uint8_t*) params->NvmCtx, sizeof( NvmCtx ) );
             }
             break;
         }

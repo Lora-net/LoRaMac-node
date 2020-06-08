@@ -344,16 +344,12 @@ void RegionAS923InitDefaults( InitDefaultsParams_t* params )
 
     switch( params->Type )
     {
-        case INIT_TYPE_BANDS:
+        case INIT_TYPE_DEFAULTS:
         {
-            // Initialize bands
+            // Default bands
             memcpy1( ( uint8_t* )NvmCtx.Bands, ( uint8_t* )bands, sizeof( Band_t ) * AS923_MAX_NB_BANDS );
-            break;
-        }
-        case INIT_TYPE_INIT:
-        {
 
-            // Channels
+            // Default channels
             NvmCtx.Channels[0] = ( ChannelParams_t ) AS923_LC1;
             NvmCtx.Channels[1] = ( ChannelParams_t ) AS923_LC2;
 
@@ -361,11 +357,23 @@ void RegionAS923InitDefaults( InitDefaultsParams_t* params )
             NvmCtx.Channels[0].Frequency -= REGION_AS923_FREQ_OFFSET;
             NvmCtx.Channels[1].Frequency -= REGION_AS923_FREQ_OFFSET;
 
-            // Initialize the channels default mask
+            // Default ChannelsMask
             NvmCtx.ChannelsDefaultMask[0] = LC( 1 ) + LC( 2 );
 
             // Update the channels mask
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 1 );
+            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, CHANNELS_MASK_SIZE );
+            break;
+        }
+        case INIT_TYPE_RESET_TO_DEFAULT_CHANNELS:
+        {
+            // Update the channels mask
+            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, CHANNELS_MASK_SIZE );
+            break;
+        }
+        case INIT_TYPE_ACTIVATE_DEFAULT_CHANNELS:
+        {
+            // Activate channels default mask
+            NvmCtx.ChannelsMask[0] |= NvmCtx.ChannelsDefaultMask[0];
             break;
         }
         case INIT_TYPE_RESTORE_CTX:
@@ -374,20 +382,6 @@ void RegionAS923InitDefaults( InitDefaultsParams_t* params )
             {
                 memcpy1( (uint8_t*) &NvmCtx, (uint8_t*) params->NvmCtx, sizeof( NvmCtx ) );
             }
-            break;
-        }
-        case INIT_TYPE_RESTORE_DEFAULT_CHANNELS:
-        {
-            // Restore channels default mask
-            NvmCtx.ChannelsMask[0] |= NvmCtx.ChannelsDefaultMask[0];
-
-            // Channels
-            NvmCtx.Channels[0] = ( ChannelParams_t ) AS923_LC1;
-            NvmCtx.Channels[1] = ( ChannelParams_t ) AS923_LC2;
-
-            // Apply frequency offset
-            NvmCtx.Channels[0].Frequency -= REGION_AS923_FREQ_OFFSET;
-            NvmCtx.Channels[1].Frequency -= REGION_AS923_FREQ_OFFSET;
             break;
         }
         default:
