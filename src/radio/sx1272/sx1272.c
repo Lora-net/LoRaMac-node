@@ -1619,9 +1619,9 @@ void SX1272OnDio2Irq( void* context )
 
                     SX1272.Settings.FskPacketHandler.RssiValue = -( SX1272Read( REG_RSSIVALUE ) >> 1 );
 
-                    SX1272.Settings.FskPacketHandler.AfcValue = ( int32_t )( double )( ( ( uint16_t )SX1272Read( REG_AFCMSB ) << 8 ) |
-                                                                           ( uint16_t )SX1272Read( REG_AFCLSB ) ) *
-                                                                           ( double )FREQ_STEP;
+                    SX1272.Settings.FskPacketHandler.AfcValue = ( int32_t )( ( double )( ( ( uint16_t )SX1272Read( REG_AFCMSB ) << 8 ) |
+                                                                             ( uint16_t )SX1272Read( REG_AFCLSB ) ) *
+                                                                             ( double )FREQ_STEP );
                     SX1272.Settings.FskPacketHandler.RxGain = ( SX1272Read( REG_LNA ) >> 5 ) & 0x07;
                 }
                 break;
