@@ -1769,7 +1769,7 @@ void SX1276OnDio2Irq( void* context )
                     SX1276.Settings.FskPacketHandler.PreambleDetected = true;
                 }
 
-                if( ( SX1276.Settings.FskPacketHandler.PreambleDetected == true ) && ( SX1276.Settings.FskPacketHandler.SyncWordDetected == false ) )
+                if( ( SX1276.Settings.FskPacketHandler.PreambleDetected != 0 ) && ( SX1276.Settings.FskPacketHandler.SyncWordDetected == 0 ) )
                 {
                     TimerStop( &RxTimeoutSyncWord );
 
@@ -1777,9 +1777,9 @@ void SX1276OnDio2Irq( void* context )
 
                     SX1276.Settings.FskPacketHandler.RssiValue = -( SX1276Read( REG_RSSIVALUE ) >> 1 );
 
-                    SX1276.Settings.FskPacketHandler.AfcValue = ( int32_t )( double )( ( ( uint16_t )SX1276Read( REG_AFCMSB ) << 8 ) |
-                                                                           ( uint16_t )SX1276Read( REG_AFCLSB ) ) *
-                                                                           ( double )FREQ_STEP;
+                    SX1276.Settings.FskPacketHandler.AfcValue = ( int32_t )( ( double )( ( ( uint16_t )SX1276Read( REG_AFCMSB ) << 8 ) |
+                                                                             ( uint16_t )SX1276Read( REG_AFCLSB ) ) *
+                                                                             ( double )FREQ_STEP );
                     SX1276.Settings.FskPacketHandler.RxGain = ( SX1276Read( REG_LNA ) >> 5 ) & 0x07;
                 }
                 break;
