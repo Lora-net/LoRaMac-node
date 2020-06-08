@@ -37,7 +37,7 @@ DEALINGS WITH THE SOFTWARE
 #define _CMAC_H_
 
 #ifdef __cplusplus
-extern "C"
+extern "C" {
 #endif
 
 #include "aes.h" 
