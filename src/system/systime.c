@@ -45,7 +45,7 @@
 
 
 /* 365.25 = (366 + 365 + 365 + 365)/4 */
-#define DIV_365_25( X )                               ( ( ( X ) * 91867 + 22750 ) >> 25 )
+#define DIV_365_25( X )                             ( ( ( X ) * 91867 + 22750 ) >> 25 )
 
 #define DIV_APPROX_86400( X )                       ( ( ( X ) >> 18 ) + ( ( X ) >> 17 ) )
 
@@ -150,7 +150,7 @@ uint32_t SysTimeToMs( SysTime_t sysTime )
 SysTime_t SysTimeFromMs( uint32_t timeMs )
 {
     uint32_t seconds = timeMs / 1000;
-    SysTime_t sysTime = { .Seconds = seconds, .SubSeconds =  timeMs - seconds * 1000 };
+    SysTime_t sysTime = { .Seconds = seconds, .SubSeconds = ( int16_t )( timeMs - seconds * 1000 ) };
     SysTime_t deltaTime = { 0 };
     RtcBkupRead( &deltaTime.Seconds, ( uint32_t* )&deltaTime.SubSeconds );
 
