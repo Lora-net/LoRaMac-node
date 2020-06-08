@@ -350,18 +350,34 @@ void RegionUS915InitDefaults( InitDefaultsParams_t* params )
 
     switch( params->Type )
     {
-        case INIT_TYPE_BANDS:
+        case INIT_TYPE_DEFAULTS:
         {
-            // Initialize bands
-            memcpy1( ( uint8_t* )NvmCtx.Bands, ( uint8_t* )bands, sizeof( Band_t ) * US915_MAX_NB_BANDS );
-
             // Initialize 8 bit channel groups index
             NvmCtx.JoinChannelGroupsCurrentIndex = 0;
 
             // Initialize the join trials counter
             NvmCtx.JoinTrialsCounter = 0;
 
-            // ChannelsMask
+            // Default bands
+            memcpy1( ( uint8_t* )NvmCtx.Bands, ( uint8_t* )bands, sizeof( Band_t ) * US915_MAX_NB_BANDS );
+
+            // Default channels
+            for( uint8_t i = 0; i < US915_MAX_NB_CHANNELS - 8; i++ )
+            {
+                // 125 kHz channels
+                NvmCtx.Channels[i].Frequency = 902300000 + i * 200000;
+                NvmCtx.Channels[i].DrRange.Value = ( DR_3 << 4 ) | DR_0;
+                NvmCtx.Channels[i].Band = 0;
+            }
+            for( uint8_t i = US915_MAX_NB_CHANNELS - 8; i < US915_MAX_NB_CHANNELS; i++ )
+            {
+                // 500 kHz channels
+                NvmCtx.Channels[i].Frequency = 903000000 + ( i - ( US915_MAX_NB_CHANNELS - 8 ) ) * 1600000;
+                NvmCtx.Channels[i].DrRange.Value = ( DR_4 << 4 ) | DR_4;
+                NvmCtx.Channels[i].Band = 0;
+            }
+
+            // Default ChannelsMask
             NvmCtx.ChannelsDefaultMask[0] = 0xFFFF;
             NvmCtx.ChannelsDefaultMask[1] = 0xFFFF;
             NvmCtx.ChannelsDefaultMask[2] = 0xFFFF;
@@ -376,22 +392,18 @@ void RegionUS915InitDefaults( InitDefaultsParams_t* params )
             RegionCommonChanMaskCopy( NvmCtx.ChannelsMaskRemaining, NvmCtx.ChannelsMask, 6 );
             break;
         }
-        case INIT_TYPE_INIT:
+        case INIT_TYPE_RESET_TO_DEFAULT_CHANNELS:
         {
-            // Channels
-            // 125 kHz channels
-            for( uint8_t i = 0; i < US915_MAX_NB_CHANNELS - 8; i++ )
-            {
-                NvmCtx.Channels[i].Frequency = 902300000 + i * 200000;
-                NvmCtx.Channels[i].DrRange.Value = ( DR_3 << 4 ) | DR_0;
-                NvmCtx.Channels[i].Band = 0;
-            }
-            // 500 kHz channels
-            for( uint8_t i = US915_MAX_NB_CHANNELS - 8; i < US915_MAX_NB_CHANNELS; i++ )
-            {
-                NvmCtx.Channels[i].Frequency = 903000000 + ( i - ( US915_MAX_NB_CHANNELS - 8 ) ) * 1600000;
-                NvmCtx.Channels[i].DrRange.Value = ( DR_4 << 4 ) | DR_4;
-                NvmCtx.Channels[i].Band = 0;
+            // Intentional fallthrough
+        }
+        case INIT_TYPE_ACTIVATE_DEFAULT_CHANNELS:
+        {
+            // Copy channels default mask
+            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 6 );
+
+            for( uint8_t i = 0; i < 6; i++ )
+            { // Copy-And the channels mask
+                NvmCtx.ChannelsMaskRemaining[i] &= NvmCtx.ChannelsMask[i];
             }
             break;
         }
@@ -400,17 +412,6 @@ void RegionUS915InitDefaults( InitDefaultsParams_t* params )
             if( params->NvmCtx != 0 )
             {
                 memcpy1( (uint8_t*) &NvmCtx, (uint8_t*) params->NvmCtx, sizeof( NvmCtx ) );
-            }
-            break;
-        }
-        case INIT_TYPE_RESTORE_DEFAULT_CHANNELS:
-        {
-            // Copy channels default mask
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 6 );
-
-            for( uint8_t i = 0; i < 6; i++ )
-            { // Copy-And the channels mask
-                NvmCtx.ChannelsMaskRemaining[i] &= NvmCtx.ChannelsMask[i];
             }
             break;
         }
