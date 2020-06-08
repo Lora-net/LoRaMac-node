@@ -208,6 +208,16 @@ Set the CMake path:
     "cmake.cmakePath": "path/to/cmake.exe"
 ```
 
+Set toolchain prefix in .vscode/settings.json:
+```
+"TOOLCHAIN_PREFIX":"c:/Program Files (x86)/GNU Arm Embedded Toolchain/9 2020-q2-update/",
+```
+
+In case your OpenOCD is not installed under the default path, set the path in .vscode/settings.json:
+```
+"OPENOCD_BIN":"C:/openocd/bin/openocd.exe",
+```
+
 ### Usage
 
 1. Open the directory of the cloned repository.  
