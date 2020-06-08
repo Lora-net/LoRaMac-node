@@ -280,7 +280,8 @@ void FragDecoderInit( uint16_t fragNb, uint8_t fragSize, uint8_t *file, uint32_t
 #if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
         if( ( FragDecoder.Callbacks != NULL ) && ( FragDecoder.Callbacks->FragDecoderWrite != NULL ) )
         {
-            FragDecoder.Callbacks->FragDecoderWrite( i, ( uint8_t[] ){ 0xFF }, 1 );
+            uint8_t buffer[1] = { 0xFF };
+            FragDecoder.Callbacks->FragDecoderWrite( i, buffer, 1 );
         }
 #else
         FragDecoder.File[i] = 0xFF;
