@@ -20,9 +20,15 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 
 - Removed ClassA, ClassB and ClassC examples.
 
+### Changed
+
+- Refactored function RegionXXInitDefaults. Fixes an issue on US based bands where the channels mask was not being reset.
+
 ### Fixed
 
 - Fixed SX126xSetLoRaSymbNumTimeout to call the workaround only if the number of symbols is equal to or higher than 64.
+- Fixed IAR C++ compiler warnings
+- Fixed missing `{` after `extern "C"` in `cmac.h` file
 
 ## [4.4.4] - 2020-05-26
 
