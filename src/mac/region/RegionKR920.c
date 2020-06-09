@@ -353,25 +353,33 @@ void RegionKR920InitDefaults( InitDefaultsParams_t* params )
 
     switch( params->Type )
     {
-        case INIT_TYPE_BANDS:
+        case INIT_TYPE_DEFAULTS:
         {
             // Initialize bands
             memcpy1( ( uint8_t* )NvmCtx.Bands, ( uint8_t* )bands, sizeof( Band_t ) * KR920_MAX_NB_BANDS );
-            break;
-        }
-        case INIT_TYPE_INIT:
-        {
 
-            // Channels
+            // Default channels
             NvmCtx.Channels[0] = ( ChannelParams_t ) KR920_LC1;
             NvmCtx.Channels[1] = ( ChannelParams_t ) KR920_LC2;
             NvmCtx.Channels[2] = ( ChannelParams_t ) KR920_LC3;
 
-            // Initialize the channels default mask
+            // Default ChannelsMask
             NvmCtx.ChannelsDefaultMask[0] = LC( 1 ) + LC( 2 ) + LC( 3 );
 
             // Update the channels mask
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 1 );
+            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, CHANNELS_MASK_SIZE );
+            break;
+        }
+        case INIT_TYPE_RESET_TO_DEFAULT_CHANNELS:
+        {
+            // Update the channels mask
+            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, CHANNELS_MASK_SIZE );
+            break;
+        }
+        case INIT_TYPE_ACTIVATE_DEFAULT_CHANNELS:
+        {
+            // Restore channels default mask
+            NvmCtx.ChannelsMask[0] |= NvmCtx.ChannelsDefaultMask[0];
             break;
         }
         case INIT_TYPE_RESTORE_CTX:
@@ -380,17 +388,6 @@ void RegionKR920InitDefaults( InitDefaultsParams_t* params )
             {
                 memcpy1( (uint8_t*) &NvmCtx, (uint8_t*) params->NvmCtx, sizeof( NvmCtx ) );
             }
-            break;
-        }
-        case INIT_TYPE_RESTORE_DEFAULT_CHANNELS:
-        {
-            // Restore channels default mask
-            NvmCtx.ChannelsMask[0] |= NvmCtx.ChannelsDefaultMask[0];
-
-            // Channels
-            NvmCtx.Channels[0] = ( ChannelParams_t ) KR920_LC1;
-            NvmCtx.Channels[1] = ( ChannelParams_t ) KR920_LC2;
-            NvmCtx.Channels[2] = ( ChannelParams_t ) KR920_LC3;
             break;
         }
         default:

@@ -349,24 +349,21 @@ void RegionCN470InitDefaults( InitDefaultsParams_t* params )
 
     switch( params->Type )
     {
-        case INIT_TYPE_BANDS:
+        case INIT_TYPE_DEFAULTS:
         {
-            // Initialize bands
+            // Default bands
             memcpy1( ( uint8_t* )NvmCtx.Bands, ( uint8_t* )bands, sizeof( Band_t ) * CN470_MAX_NB_BANDS );
-            break;
-        }
-        case INIT_TYPE_INIT:
-        {
+
             // Channels
-            // 125 kHz channels
             for( uint8_t i = 0; i < CN470_MAX_NB_CHANNELS; i++ )
             {
+                // 125 kHz channels
                 NvmCtx.Channels[i].Frequency = 470300000 + i * 200000;
                 NvmCtx.Channels[i].DrRange.Value = ( DR_5 << 4 ) | DR_0;
                 NvmCtx.Channels[i].Band = 0;
             }
 
-            // Initialize the channels default mask
+            // Initialize channels default mask
             NvmCtx.ChannelsDefaultMask[0] = 0xFFFF;
             NvmCtx.ChannelsDefaultMask[1] = 0xFFFF;
             NvmCtx.ChannelsDefaultMask[2] = 0xFFFF;
@@ -374,8 +371,18 @@ void RegionCN470InitDefaults( InitDefaultsParams_t* params )
             NvmCtx.ChannelsDefaultMask[4] = 0xFFFF;
             NvmCtx.ChannelsDefaultMask[5] = 0xFFFF;
 
-            // Update the channels mask
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 6 );
+            // Copy channels default mask
+            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, CHANNELS_MASK_SIZE );
+            break;
+        }
+        case INIT_TYPE_RESET_TO_DEFAULT_CHANNELS:
+        {
+            // Intentional fallthrough
+        }
+        case INIT_TYPE_ACTIVATE_DEFAULT_CHANNELS:
+        {
+            // Copy channels default mask
+            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, CHANNELS_MASK_SIZE );
             break;
         }
         case INIT_TYPE_RESTORE_CTX:
@@ -384,12 +391,6 @@ void RegionCN470InitDefaults( InitDefaultsParams_t* params )
             {
                 memcpy1( (uint8_t*) &NvmCtx, (uint8_t*) params->NvmCtx, sizeof( NvmCtx ) );
             }
-            break;
-        }
-        case INIT_TYPE_RESTORE_DEFAULT_CHANNELS:
-        {
-            // Restore channels default mask
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, 6 );
             break;
         }
         default:
