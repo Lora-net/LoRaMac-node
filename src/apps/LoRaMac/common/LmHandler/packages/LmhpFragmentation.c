@@ -288,9 +288,9 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
                     ( ( participants == 0 ) && ( FragSessionData[fragIndex].FragDecoderStatus.FragNbLost > 0 ) ) )
                 {
                     LmhpFragmentationState.DataBuffer[dataBufferIndex++] = FRAGMENTATION_FRAG_STATUS_ANS;
-                    LmhpFragmentationState.DataBuffer[dataBufferIndex++] = ( fragIndex << 14 ) |
-                                                                           ( ( FragSessionData[fragIndex].FragDecoderStatus.FragNbRx >> 8 ) & 0x3F );
                     LmhpFragmentationState.DataBuffer[dataBufferIndex++] = FragSessionData[fragIndex].FragDecoderStatus.FragNbRx & 0xFF;
+                    LmhpFragmentationState.DataBuffer[dataBufferIndex++] = ( fragIndex << 6 ) |
+                                                                           ( ( FragSessionData[fragIndex].FragDecoderStatus.FragNbRx >> 8 ) & 0x3F );
                     LmhpFragmentationState.DataBuffer[dataBufferIndex++] = FragSessionData[fragIndex].FragDecoderStatus.FragNbLost;
                     LmhpFragmentationState.DataBuffer[dataBufferIndex++] = FragSessionData[fragIndex].FragDecoderStatus.MatrixError & 0x01;
 
@@ -332,12 +332,16 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
                 }
 
 #if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
-                if( ( fragSessionData.FragGroupData.FragNb * fragSessionData.FragGroupData.FragSize ) > FragDecoderGetMaxFileSize( ) )
+                if( ( fragSessionData.FragGroupData.FragNb > FRAG_MAX_NB ) || 
+                    ( fragSessionData.FragGroupData.FragSize > FRAG_MAX_SIZE ) ||
+                    ( ( fragSessionData.FragGroupData.FragNb * fragSessionData.FragGroupData.FragSize ) > FragDecoderGetMaxFileSize( ) ) )
                 {
                     status |= 0x02; // Not enough Memory
                 }
 #else
-                if( ( fragSessionData.FragGroupData.FragNb * fragSessionData.FragGroupData.FragSize ) > LmhpFragmentationParams->BufferSize )
+                if( ( fragSessionData.FragGroupData.FragNb > FRAG_MAX_NB ) || 
+                    ( fragSessionData.FragGroupData.FragSize > FRAG_MAX_SIZE ) ||
+                    ( ( fragSessionData.FragGroupData.FragNb * fragSessionData.FragGroupData.FragSize ) > LmhpFragmentationParams->BufferSize ) )
                 {
                     status |= 0x02; // Not enough Memory
                 }
