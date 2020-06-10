@@ -48,7 +48,7 @@
 #define LORAWAN_DEFAULT_CLASS                       CLASS_A
 
 /*!
- * Defines the application data transmission duty cycle. 30s, value in [ms].
+ * Defines the application data transmission duty cycle. 40s, value in [ms].
  */
 #define APP_TX_DUTYCYCLE                            40000
 
@@ -151,6 +151,9 @@ static void OnFragDone( int32_t status, uint8_t *file, uint32_t size );
 static void StartTxProcess( LmHandlerTxEvents_t txEvent );
 static void UplinkProcess( void );
 
+static void OnTxPeriodicityChanged( uint32_t periodicity );
+static void OnTxFrameCtrlChanged( bool isTxConfirmed );
+
 /*!
  * Computes a CCITT 32 bits CRC
  *
@@ -196,7 +199,7 @@ static LmHandlerCallbacks_t LmHandlerCallbacks =
     .OnRxData = OnRxData,
     .OnClassChange= OnClassChange,
     .OnBeaconStatusChange = OnBeaconStatusChange,
-    .OnSysTimeUpdate = OnSysTimeUpdate
+    .OnSysTimeUpdate = OnSysTimeUpdate,
 };
 
 static LmHandlerParams_t LmHandlerParams =
@@ -214,6 +217,8 @@ static LmhpComplianceParams_t LmhpComplianceParams =
 {
     .IsDutFPort224On = true,
     .FwVersion.Value = 0x01000000,
+    .OnTxPeriodicityChanged = OnTxPeriodicityChanged,
+    .OnTxFrameCtrlChanged = OnTxFrameCtrlChanged,
 };
 
 /*!
@@ -260,6 +265,10 @@ static volatile uint8_t IsMacProcessPending = 0;
 
 static volatile uint8_t IsTxFramePending = 0;
 
+static volatile uint32_t TxPeriodicity = 0;
+
+static volatile bool IsTxConfirmed = LORAWAN_DEFAULT_CONFIRMED_MSG_STATE;
+
 /*
  * Indicates if the system time has been synchronized
  */
@@ -302,6 +311,12 @@ int main( void )
 
     TimerInit( &LedBeaconTimer, OnLedBeaconTimerEvent );
     TimerSetValue( &LedBeaconTimer, 5000 );
+
+    // Initialize transmission periodicity variable
+    TxPeriodicity = APP_TX_DUTYCYCLE + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND );
+
+    // Initialize variable indicating if uplink frames are confirmed or unconfirmed.
+    IsTxConfirmed = LORAWAN_DEFAULT_CONFIRMED_MSG_STATE;
 
     const Version_t appVersion = { .Fields.Major = 1, .Fields.Minor = 0, .Fields.Patch = 0 };
     const Version_t gitHubVersion = { .Fields.Major = 4, .Fields.Minor = 5, .Fields.Patch = 0 };
@@ -559,7 +574,7 @@ static void StartTxProcess( LmHandlerTxEvents_t txEvent )
         {
             // Schedule 1st packet transmission
             TimerInit( &TxTimer, OnTxTimerEvent );
-            TimerSetValue( &TxTimer, APP_TX_DUTYCYCLE  + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND ) );
+            TimerSetValue( &TxTimer, TxPeriodicity );
             OnTxTimerEvent( NULL );
         }
         break;
@@ -604,7 +619,7 @@ static void UplinkProcess( void )
                         .BufferSize = 1,
                         .Port = 1
                     };
-                    status = LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+                    status = LmHandlerSend( &appData, IsTxConfirmed );
                 }
             }
             else
@@ -622,7 +637,7 @@ static void UplinkProcess( void )
                     .BufferSize = 5,
                     .Port = 201
                 };
-                status = LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+                status = LmHandlerSend( &appData, IsTxConfirmed );
             }
             if( status == LORAMAC_HANDLER_SUCCESS )
             {
@@ -632,6 +647,21 @@ static void UplinkProcess( void )
             }
         }
     }
+}
+
+static void OnTxPeriodicityChanged( uint32_t periodicity )
+{
+    TxPeriodicity = periodicity;
+
+    if( TxPeriodicity == 0 )
+    { // Revert to application default periodicity
+        TxPeriodicity = APP_TX_DUTYCYCLE + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND );
+    }
+}
+
+static void OnTxFrameCtrlChanged( bool isTxConfirmed )
+{
+    IsTxConfirmed = isTxConfirmed;
 }
 
 /*!
@@ -644,7 +674,7 @@ static void OnTxTimerEvent( void* context )
     IsTxFramePending = 1;
 
     // Schedule next transmission
-    TimerSetValue( &TxTimer, APP_TX_DUTYCYCLE + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND ) );
+    TimerSetValue( &TxTimer, TxPeriodicity );
     TimerStart( &TxTimer );
 }
 
