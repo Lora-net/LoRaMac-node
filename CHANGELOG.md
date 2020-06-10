@@ -23,10 +23,12 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 ### Added
 
 - Added to FRAGMENTATION_FRAG_SESSION_SETUP_REQ checks which verify `FragNb` and `FragSize` validity.
+- Added GitHUb repository and firmware examples version definitions
 
 ### Changed
 
 - Refactored function RegionXXInitDefaults. Fixes an issue on US based bands where the channels mask was not being reset.
+- Changed fuota-test-01 examples in order to handle the new certification protocol implementation
 
 ### Fixed
 
@@ -34,6 +36,7 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 - Fixed IAR C++ compiler warnings
 - Fixed missing `{` after `extern "C"` in `cmac.h` file
 - Fixed FragSessionStatusAns message construction for `Received&index` field
+- Fixed compliance protocol implementation in order to get current versions from the MAC layer
 
 ## [4.4.4] - 2020-05-26
 
