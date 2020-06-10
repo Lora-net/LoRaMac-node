@@ -22,6 +22,8 @@
 /*! \file periodic-uplink/B-L072Z-LRWAN1/main.c */
 
 #include <stdio.h>
+#include "../firmwareVersion.h"
+#include "../../common/githubVersion.h"
 #include "utilities.h"
 #include "board.h"
 #include "gpio.h"
@@ -226,7 +228,7 @@ static LmHandlerParams_t LmHandlerParams =
 static LmhpComplianceParams_t LmhpComplianceParams =
 {
     .IsDutFPort224On = true,
-    .FwVersion.Value = 0x01000000,
+    .FwVersion.Value = FIRMWARE_VERSION,
     .OnTxPeriodicityChanged = OnTxPeriodicityChanged,
     .OnTxFrameCtrlChanged = OnTxFrameCtrlChanged,
 };
@@ -278,8 +280,8 @@ int main( void )
     // Initialize variable indicating if uplink frames are confirmed or unconfirmed.
     IsTxConfirmed = LORAWAN_DEFAULT_CONFIRMED_MSG_STATE;
 
-    const Version_t appVersion = { .Fields.Major = 1, .Fields.Minor = 0, .Fields.Patch = 0 };
-    const Version_t gitHubVersion = { .Fields.Major = 4, .Fields.Minor = 5, .Fields.Patch = 0 };
+    const Version_t appVersion = { .Value = FIRMWARE_VERSION };
+    const Version_t gitHubVersion = { .Value = GITHUB_VERSION };
     DisplayAppInfo( "periodic-uplink-lpp", 
                     &appVersion,
                     &gitHubVersion );
