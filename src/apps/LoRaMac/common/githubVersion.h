@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-#define GITHUB_VERSION                              0x04050000 // 4.5.0.0
+#define GITHUB_VERSION                              0x05000000 // 5.0.0.0
 
 #ifdef __cplusplus
 }
