@@ -46,14 +46,6 @@ typedef struct LmhpComplianceParams_s
      */
     Version_t FwVersion;
     /*!
-     * Current LoRaWAN specification version
-     */
-    Version_t LrwanVersion;
-    /*!
-     * Current LoRaWAN Regional Parameters specification version
-     */
-    Version_t LrwanRpVersion;
-    /*!
      *
      */
     void ( *OnTxPeriodicityChanged )( uint32_t periodicity );
