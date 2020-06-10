@@ -217,8 +217,6 @@ static LmhpComplianceParams_t LmhpComplianceParams =
 {
     .IsDutFPort224On = true,
     .FwVersion.Value = 0x01000000,
-    .LrwanVersion.Value = 0x01000400,
-    .LrwanRpVersion.Value = 0x02010001,
 };
 
 /*!

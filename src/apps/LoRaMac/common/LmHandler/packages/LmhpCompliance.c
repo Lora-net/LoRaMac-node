@@ -125,7 +125,7 @@ static void LmhpComplianceProcess( void );
  * Processes the MCPS Indication
  *
  * \param [IN] mcpsIndication     MCPS indication primitive data
- */ 
+ */
 static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication );
 
 LmhPackage_t CompliancePackage = {
@@ -359,16 +359,26 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
         }
         case COMPLIANCE_DUT_VERSION_REQ:
         {
+            Version_t           lrwanVersion;
+            Version_t           lrwanRpVersion;
+            MibRequestConfirm_t mibReq;
+
+            mibReq.Type = MIB_LORAWAN_VERSION;
+
+            LoRaMacMibGetRequestConfirm( &mibReq );
+            lrwanVersion   = mibReq.Param.LrWanVersion.LoRaWan;
+            lrwanRpVersion = mibReq.Param.LrWanVersion.LoRaWanRegion;
+
             ComplianceTestState.DataBuffer[dataBufferIndex++] = COMPLIANCE_DUT_VERSION_ANS;
             ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceParams->FwVersion.Fields.Major;
             ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceParams->FwVersion.Fields.Minor;
             ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceParams->FwVersion.Fields.Patch;
-            ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceParams->LrwanVersion.Fields.Major;
-            ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceParams->LrwanVersion.Fields.Minor;
-            ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceParams->LrwanVersion.Fields.Patch;
-            ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceParams->LrwanRpVersion.Fields.Major;
-            ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceParams->LrwanRpVersion.Fields.Minor;
-            ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceParams->LrwanRpVersion.Fields.Patch;
+            ComplianceTestState.DataBuffer[dataBufferIndex++] = lrwanVersion.Fields.Major;
+            ComplianceTestState.DataBuffer[dataBufferIndex++] = lrwanVersion.Fields.Minor;
+            ComplianceTestState.DataBuffer[dataBufferIndex++] = lrwanVersion.Fields.Patch;
+            ComplianceTestState.DataBuffer[dataBufferIndex++] = lrwanRpVersion.Fields.Major;
+            ComplianceTestState.DataBuffer[dataBufferIndex++] = lrwanRpVersion.Fields.Minor;
+            ComplianceTestState.DataBuffer[dataBufferIndex++] = lrwanRpVersion.Fields.Patch;
             break;
         }
         default:
