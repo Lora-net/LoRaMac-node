@@ -355,12 +355,16 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
                 }
 
 #if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
-                if( ( fragSessionData.FragGroupData.FragNb * fragSessionData.FragGroupData.FragSize ) > FragDecoderGetMaxFileSize( ) )
+                if( ( fragSessionData.FragGroupData.FragNb > FRAG_MAX_NB ) || 
+                    ( fragSessionData.FragGroupData.FragSize > FRAG_MAX_SIZE ) ||
+                    ( ( fragSessionData.FragGroupData.FragNb * fragSessionData.FragGroupData.FragSize ) > FragDecoderGetMaxFileSize( ) ) )
                 {
                     status |= 0x02; // Not enough Memory
                 }
 #else
-                if( ( fragSessionData.FragGroupData.FragNb * fragSessionData.FragGroupData.FragSize ) > LmhpFragmentationParams->BufferSize )
+                if( ( fragSessionData.FragGroupData.FragNb > FRAG_MAX_NB ) || 
+                    ( fragSessionData.FragGroupData.FragSize > FRAG_MAX_SIZE ) ||
+                    ( ( fragSessionData.FragGroupData.FragNb * fragSessionData.FragGroupData.FragSize ) > LmhpFragmentationParams->BufferSize ) )
                 {
                     status |= 0x02; // Not enough Memory
                 }
