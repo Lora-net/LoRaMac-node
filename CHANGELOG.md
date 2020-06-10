@@ -16,6 +16,10 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 - Release based on "LoRaWAN specification 1.0.3" and "LoRaWAN Regional Parameters v1.0.3revA"
 - GitHub reported issues corrections. Please refer to [Release Version 4.4.4](https://github.com/Lora-net/LoRaMac-node/milestone/6)
 
+### Added
+
+- Added to FRAGMENTATION_FRAG_SESSION_SETUP_REQ checks which verify `FragNb` and `FragSize` validity.
+
 ### Changed
 
 - Refactored function RegionXXInitDefaults. Fixes an issue on US based bands where the channels mask was not being reset.
@@ -25,6 +29,7 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 - Fixed SX126xSetLoRaSymbNumTimeout to call the workaround only if the number of symbols is equal to or higher than 64.
 - Fixed IAR C++ compiler warnings
 - Fixed missing `{` after `extern "C"` in `cmac.h` file
+- Fixed FragSessionStatusAns message construction for `Received&index` field
 
 ## [4.4.4] - 2020-05-26
 
