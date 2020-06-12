@@ -49,10 +49,15 @@
 
 #ifndef LORAMAC_VERSION
 /*!
- * LORaWAN version definition.
+ * LoRaWAN version definition.
  */
 #define LORAMAC_VERSION                             0x01010100
 #endif
+
+/*!
+ * LoRaWAN fallback version definition.
+ */
+#define LORAMAC_FALLBACK_VERSION                    0x01000400
 
 /*!
  * Maximum PHY layer payload size
@@ -1138,11 +1143,11 @@ static void ProcessRadioRxDone( void )
                 // Is Networkserver's LoRaWAN Version before 1.1.0 ?
                 if( macMsgJoinAccept.DLSettings.Bits.OptNeg == 0 )
                 {
-                    MacCtx.NvmCtx->Version.Fields.Minor = 0;
+                    MacCtx.NvmCtx->Version.Value = LORAMAC_FALLBACK_VERSION;
                 }
                 else
                 {
-                    MacCtx.NvmCtx->Version.Fields.Minor = 1;
+                    MacCtx.NvmCtx->Version.Value = LORAMAC_VERSION;
                 }
 
                 // Apply CF list
@@ -1994,7 +1999,7 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
                 OpenContinuousRxCWindow( );
 
                 // Add a DeviceModeInd MAC Command to indicate the network a device mode change.
-                if( MacCtx.NvmCtx->Version.Fields.Minor == 1 )
+                if( MacCtx.NvmCtx->Version.Fields.Minor >= 1 )
                 {
                     LoRaMacCommandsAddCmd( MOTE_MAC_DEVICE_MODE_IND, ( uint8_t* )&MacCtx.NvmCtx->DeviceClass, 1 );
                 }
@@ -2024,7 +2029,7 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
                 status = LORAMAC_STATUS_OK;
 
                 // Add a DeviceModeInd MAC Command to indicate the network a device mode change.
-                if( MacCtx.NvmCtx->Version.Fields.Minor == 1 )
+                if( MacCtx.NvmCtx->Version.Fields.Minor >= 1 )
                 {
                     LoRaMacCommandsAddCmd( MOTE_MAC_DEVICE_MODE_IND, ( uint8_t* )&MacCtx.NvmCtx->DeviceClass, 1 );
                 }
@@ -2096,7 +2101,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 uint8_t serverMinorVersion = payload[macIndex++];
 
                 // Compare own LoRaWAN Version with server's
-                if( MacCtx.NvmCtx->Version.Fields.Minor == serverMinorVersion )
+                if( MacCtx.NvmCtx->Version.Fields.Minor >= serverMinorVersion )
                 {
                     // If they equal remove the sticky ResetInd MAC-Command.
                     if( LoRaMacCommandsGetCmd( MOTE_MAC_RESET_IND, &macCmd) == LORAMAC_COMMANDS_SUCCESS )
@@ -2330,7 +2335,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 uint8_t serverMinorVersion = payload[macIndex++];
 
                 // Compare own LoRaWAN Version with server's
-                if( MacCtx.NvmCtx->Version.Fields.Minor == serverMinorVersion )
+                if( MacCtx.NvmCtx->Version.Fields.Minor >= serverMinorVersion )
                 {
                     // If they equal remove the sticky RekeyInd MAC-Command.
                     if( LoRaMacCommandsGetCmd( MOTE_MAC_REKEY_IND, &macCmd) == LORAMAC_COMMANDS_SUCCESS )
@@ -3072,7 +3077,9 @@ static void ResetMacParameters( void )
 static bool IsReJoin0Required( )
 {
 
-    if( ( MacCtx.NvmCtx->Rejoin0UplinksLimit == MacCtx.NvmCtx->Rejoin0UplinksCounter ) && ( MacCtx.NvmCtx->Version.Fields.Minor == 1 ) && ( MacCtx.NvmCtx->Rejoin0UplinksLimit != 0 ) )
+    if( ( MacCtx.NvmCtx->Rejoin0UplinksLimit == MacCtx.NvmCtx->Rejoin0UplinksCounter ) && 
+        ( MacCtx.NvmCtx->Version.Fields.Minor >= 1 ) &&
+        ( MacCtx.NvmCtx->Rejoin0UplinksLimit != 0 ) )
     {
         MacCtx.NvmCtx->Rejoin0UplinksCounter = 0;
         return true;
@@ -3379,7 +3386,7 @@ LoRaMacStatus_t RestoreCtxs( LoRaMacCtxs_t* contexts )
     {
         if( LoRaMacCommandsGetCmd( MOTE_MAC_RESET_IND, &macCmd ) != LORAMAC_COMMANDS_SUCCESS )
         {
-            cmdPayload = 0x0F & MacCtx.NvmCtx->Version.Fields.Minor;
+            cmdPayload = MacCtx.NvmCtx->Version.Fields.Minor & 0x0F;
             LoRaMacCommandsAddCmd( MOTE_MAC_RESET_IND, &cmdPayload, 1 );
         }
     }
