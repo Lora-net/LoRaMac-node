@@ -1223,8 +1223,35 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
     LoRaMacCryptoStatus_t retval = LORAMAC_CRYPTO_ERROR;
     uint8_t decJoinAccept[33] = { 0 };
     uint8_t versionMinor = 0;
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
+    uint8_t* nonce = ( uint8_t* )&CryptoCtx.NvmCtx->DevNonce;
+#endif
 
-    if( SecureElementProcessJoinAccept( joinReqType, joinEUI, CryptoCtx.NvmCtx->DevNonce, macMsg->Buffer,
+    // Nonce selection depending on JoinReqType
+    // JOIN_REQ     : CryptoCtx.NvmCtx->DevNonce
+    // REJOIN_REQ_0 : CryptoCtx.RJcount0
+    // REJOIN_REQ_1 : CryptoCtx.RJcount1
+    // REJOIN_REQ_2 : CryptoCtx.RJcount0
+    if( joinReqType == JOIN_REQ )
+    {
+        // Nothing to be done
+    }
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
+    else
+    {
+        // If Join-accept is a reply to a rejoin, the RJcount(0 or 1) replaces DevNonce in the key derivation process.
+        if( ( joinReqType == REJOIN_REQ_0 ) || ( joinReqType == REJOIN_REQ_2 ) )
+        {
+            nonce = ( uint8_t* )&CryptoCtx.RJcount0;
+        }
+        else
+        {
+            nonce = ( uint8_t* )&CryptoCtx.NvmCtx->FCntList.RJcount1;
+        }
+    }
+#endif
+
+    if( SecureElementProcessJoinAccept( joinReqType, joinEUI, ( int16_t )*nonce, macMsg->Buffer,
                                         macMsg->BufSize, decJoinAccept,
                                         &versionMinor ) != SECURE_ELEMENT_SUCCESS )
     {
@@ -1256,31 +1283,6 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
     {
         return LORAMAC_CRYPTO_FAIL_JOIN_NONCE;
     }
-#endif
-
-    // Derive session keys
-#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
-    uint8_t* devNonceForKeyDerivation = ( uint8_t* )&CryptoCtx.NvmCtx->DevNonce;
-#endif
-
-    // Determine decryption key and DevNonce for key derivation
-    if( joinReqType == JOIN_REQ )
-    {
-        // Nothing to be done
-    }
-#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
-    else
-    {
-        // If Join-accept is a reply to a rejoin, the RJcount(0 or 1) replaces DevNonce in the key derivation process.
-        if( ( joinReqType == REJOIN_REQ_0 ) || ( joinReqType == REJOIN_REQ_2 ) )
-        {
-            devNonceForKeyDerivation = ( uint8_t* )&CryptoCtx.RJcount0;
-        }
-        else
-        {
-            devNonceForKeyDerivation = ( uint8_t* )&CryptoCtx.NvmCtx->FCntList.RJcount1;
-        }
-    }
 
     if( versionMinor == 1 )
     {
@@ -1298,25 +1300,25 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
             return retval;
         }
 
-        retval = DeriveSessionKey11x( F_NWK_S_INT_KEY, macMsg->JoinNonce, joinEUI, devNonceForKeyDerivation );
+        retval = DeriveSessionKey11x( F_NWK_S_INT_KEY, macMsg->JoinNonce, joinEUI, nonce );
         if( retval != LORAMAC_CRYPTO_SUCCESS )
         {
             return retval;
         }
 
-        retval = DeriveSessionKey11x( S_NWK_S_INT_KEY, macMsg->JoinNonce, joinEUI, devNonceForKeyDerivation );
+        retval = DeriveSessionKey11x( S_NWK_S_INT_KEY, macMsg->JoinNonce, joinEUI, nonce );
         if( retval != LORAMAC_CRYPTO_SUCCESS )
         {
             return retval;
         }
 
-        retval = DeriveSessionKey11x( NWK_S_ENC_KEY, macMsg->JoinNonce, joinEUI, devNonceForKeyDerivation );
+        retval = DeriveSessionKey11x( NWK_S_ENC_KEY, macMsg->JoinNonce, joinEUI, nonce );
         if( retval != LORAMAC_CRYPTO_SUCCESS )
         {
             return retval;
         }
 
-        retval = DeriveSessionKey11x( APP_S_KEY, macMsg->JoinNonce, joinEUI, devNonceForKeyDerivation );
+        retval = DeriveSessionKey11x( APP_S_KEY, macMsg->JoinNonce, joinEUI, nonce );
         if( retval != LORAMAC_CRYPTO_SUCCESS )
         {
             return retval;
