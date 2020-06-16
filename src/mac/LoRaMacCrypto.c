@@ -1273,7 +1273,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
         return LORAMAC_CRYPTO_ERROR_PARSER;
     }
 
-#if( USE_LRWAN_1_1_X_CRYPTO == 1 ) || ( USE_JOIN_NONCE_COUNTER_CHECK == 1 )
+#if( USE_JOIN_NONCE_COUNTER_CHECK == 1 )
     // Check if the JoinNonce is greater as the previous one
     uint32_t currentJoinNonce = 0;
 
@@ -1290,7 +1290,9 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
     {
         return LORAMAC_CRYPTO_FAIL_JOIN_NONCE;
     }
+#endif
 
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     if( versionMinor == 1 )
     {
         // Operating in LoRaWAN 1.1.x mode
