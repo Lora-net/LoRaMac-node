@@ -373,12 +373,15 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
             ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceParams->FwVersion.Fields.Major;
             ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceParams->FwVersion.Fields.Minor;
             ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceParams->FwVersion.Fields.Patch;
+            ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceParams->FwVersion.Fields.Revision;
             ComplianceTestState.DataBuffer[dataBufferIndex++] = lrwanVersion.Fields.Major;
             ComplianceTestState.DataBuffer[dataBufferIndex++] = lrwanVersion.Fields.Minor;
             ComplianceTestState.DataBuffer[dataBufferIndex++] = lrwanVersion.Fields.Patch;
+            ComplianceTestState.DataBuffer[dataBufferIndex++] = lrwanVersion.Fields.Revision;
             ComplianceTestState.DataBuffer[dataBufferIndex++] = lrwanRpVersion.Fields.Major;
             ComplianceTestState.DataBuffer[dataBufferIndex++] = lrwanRpVersion.Fields.Minor;
             ComplianceTestState.DataBuffer[dataBufferIndex++] = lrwanRpVersion.Fields.Patch;
+            ComplianceTestState.DataBuffer[dataBufferIndex++] = lrwanRpVersion.Fields.Revision;
             break;
         }
         default:
