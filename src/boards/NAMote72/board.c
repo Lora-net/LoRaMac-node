@@ -312,7 +312,7 @@ void BoardGetUniqueId( uint8_t *id )
 
 static uint16_t BatteryVoltage = BATTERY_MAX_LEVEL;
 
-uint16_t BoardBatteryMeasureVolage( void )
+uint16_t BoardBatteryMeasureVoltage( void )
 {
     uint16_t vdd = 0;
     uint16_t vref = VREFINT_CAL;
@@ -350,7 +350,7 @@ uint8_t BoardGetBatteryLevel( void )
 {
     uint8_t batteryLevel = 0;
 
-    BatteryVoltage = BoardBatteryMeasureVolage( );
+    BatteryVoltage = BoardBatteryMeasureVoltage( );
 
     if( GetBoardPowerSource( ) == USB_POWER )
     {
