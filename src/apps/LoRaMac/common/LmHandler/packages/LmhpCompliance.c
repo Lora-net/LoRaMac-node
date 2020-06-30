@@ -294,8 +294,8 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
         case COMPLIANCE_RX_APP_CNT_REQ:
         {
             ComplianceTestState.DataBuffer[dataBufferIndex++] = COMPLIANCE_RX_APP_CNT_ANS;
-            ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceTestState.RxAppCnt >> 8;
             ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceTestState.RxAppCnt;
+            ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceTestState.RxAppCnt >> 8;
             break;
         }
         case COMPLIANCE_RX_APP_CNT_RESET_REQ:
