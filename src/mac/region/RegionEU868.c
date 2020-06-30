@@ -602,9 +602,9 @@ uint8_t RegionEU868LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
     uint8_t nextIndex = 0;
     uint8_t bytesProcessed = 0;
     uint16_t chMask = 0;
-    GetPhyParams_t getPhy = { 0 };
-    PhyParam_t phyParam = { 0 };
-    RegionCommonLinkAdrReqVerifyParams_t linkAdrVerifyParams = { 0 };
+    GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
+    RegionCommonLinkAdrReqVerifyParams_t linkAdrVerifyParams;
 
     while( bytesProcessed < linkAdrReq->PayloadSize )
     {

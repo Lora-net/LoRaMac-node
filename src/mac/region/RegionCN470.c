@@ -853,9 +853,9 @@ uint8_t RegionCN470LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
     uint8_t nextIndex = 0;
     uint8_t bytesProcessed = 0;
     uint16_t channelsMask[CHANNELS_MASK_SIZE] = { 0, 0, 0, 0, 0, 0 };
-    GetPhyParams_t getPhy = { 0 };
-    PhyParam_t phyParam = { 0 };
-    RegionCommonLinkAdrReqVerifyParams_t linkAdrVerifyParams = { 0 };
+    GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
+    RegionCommonLinkAdrReqVerifyParams_t linkAdrVerifyParams;
 
     // Initialize local copy of channels mask
     RegionCommonChanMaskCopy( channelsMask, NvmCtx.ChannelsMask, CHANNELS_MASK_SIZE );
