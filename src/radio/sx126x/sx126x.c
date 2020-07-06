@@ -93,7 +93,9 @@ void SX126xInit( DioIrqHandler dioIrq )
     // Initialize TCXO control
     SX126xIoTcxoInit( );
 
-    SX126xSetDio2AsRfSwitchCtrl( true );
+    // Initialize RF switch control
+    SX126xIoRfSwitchInit( );
+
     SX126xSetOperatingMode( MODE_STDBY_RC );
 }
 

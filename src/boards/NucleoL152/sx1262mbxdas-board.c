@@ -108,6 +108,11 @@ uint32_t SX126xGetBoardTcxoWakeupTime( void )
     return BOARD_TCXO_WAKEUP_TIME;
 }
 
+void SX126xIoRfSwitchInit( void )
+{
+    SX126xSetDio2AsRfSwitchCtrl( true );
+}
+
 RadioOperatingModes_t SX126xGetOperatingMode( void )
 {
     return OperatingMode;

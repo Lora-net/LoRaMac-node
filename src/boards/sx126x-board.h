@@ -57,6 +57,11 @@ void SX126xIoDeInit( void );
 void SX126xIoTcxoInit( void );
 
 /*!
+ * \brief Initializes RF switch control pins.
+ */
+void SX126xIoRfSwitchInit( void );
+
+/*!
  * \brief Initializes the radio debug pins.
  */
 void SX126xIoDbgInit( void );
