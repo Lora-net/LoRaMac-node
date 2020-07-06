@@ -291,7 +291,7 @@ uint8_t BoardGetPotiLevel( void )
 
 static uint16_t BatteryVoltage = BATTERY_MAX_LEVEL;
 
-uint16_t BoardBatteryMeasureVolage( void )
+uint16_t BoardBatteryMeasureVoltage( void )
 {
     uint16_t vref = 0;
     uint32_t batteryVoltage = 0;
@@ -316,7 +316,7 @@ uint8_t BoardGetBatteryLevel( void )
 {
     uint8_t batteryLevel = 0;
 
-    BatteryVoltage = BoardBatteryMeasureVolage( );
+    BatteryVoltage = BoardBatteryMeasureVoltage( );
 
     if( GetBoardPowerSource( ) == USB_POWER )
     {
