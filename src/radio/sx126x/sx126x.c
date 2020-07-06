@@ -38,11 +38,6 @@ typedef struct
 }RadioRegisters_t;
 
 /*!
- * \brief Holds the internal operating mode of the radio
- */
-static RadioOperatingModes_t OperatingMode;
-
-/*!
  * \brief Stores the current packet type set in the radio
  */
 static RadioPacketTypes_t PacketType;
@@ -100,34 +95,6 @@ void SX126xInit( DioIrqHandler dioIrq )
 
     SX126xSetDio2AsRfSwitchCtrl( true );
     SX126xSetOperatingMode( MODE_STDBY_RC );
-}
-
-RadioOperatingModes_t SX126xGetOperatingMode( void )
-{
-    return OperatingMode;
-}
-
-void SX126xSetOperatingMode( RadioOperatingModes_t mode )
-{
-    OperatingMode = mode;
-#if defined( USE_RADIO_DEBUG )
-    switch( mode )
-    {
-        case MODE_TX:
-            SX126xDbgPinTxWrite( 1 );
-            SX126xDbgPinRxWrite( 0 );
-            break;
-        case MODE_RX:
-        case MODE_RX_DC:
-            SX126xDbgPinTxWrite( 0 );
-            SX126xDbgPinRxWrite( 1 );
-            break;
-        default:
-            SX126xDbgPinTxWrite( 0 );
-            SX126xDbgPinRxWrite( 0 );
-            break;
-    }
-#endif
 }
 
 void SX126xCheckDeviceReady( void )

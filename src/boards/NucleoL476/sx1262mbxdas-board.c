@@ -31,6 +31,27 @@
 #include "radio.h"
 #include "sx126x-board.h"
 
+#if defined( USE_RADIO_DEBUG )
+/*!
+ * \brief Writes new Tx debug pin state
+ *
+ * \param [IN] state Debug pin state
+ */
+static void SX126xDbgPinTxWrite( uint8_t state );
+
+/*!
+ * \brief Writes new Rx debug pin state
+ *
+ * \param [IN] state Debug pin state
+ */
+void SX126xDbgPinRxWrite( uint8_t state );
+#endif
+
+/*!
+ * \brief Holds the internal operating mode of the radio
+ */
+static RadioOperatingModes_t OperatingMode;
+
 /*!
  * Antenna switch GPIO pins objects
  */
@@ -85,6 +106,34 @@ void SX126xIoTcxoInit( void )
 uint32_t SX126xGetBoardTcxoWakeupTime( void )
 {
     return BOARD_TCXO_WAKEUP_TIME;
+}
+
+RadioOperatingModes_t SX126xGetOperatingMode( void )
+{
+    return OperatingMode;
+}
+
+void SX126xSetOperatingMode( RadioOperatingModes_t mode )
+{
+    OperatingMode = mode;
+#if defined( USE_RADIO_DEBUG )
+    switch( mode )
+    {
+        case MODE_TX:
+            SX126xDbgPinTxWrite( 1 );
+            SX126xDbgPinRxWrite( 0 );
+            break;
+        case MODE_RX:
+        case MODE_RX_DC:
+            SX126xDbgPinTxWrite( 0 );
+            SX126xDbgPinRxWrite( 1 );
+            break;
+        default:
+            SX126xDbgPinTxWrite( 0 );
+            SX126xDbgPinRxWrite( 0 );
+            break;
+    }
+#endif
 }
 
 void SX126xReset( void )
@@ -281,12 +330,12 @@ bool SX126xCheckRfFrequency( uint32_t frequency )
 }
 
 #if defined( USE_RADIO_DEBUG )
-void SX126xDbgPinTxWrite( uint8_t state )
+static void SX126xDbgPinTxWrite( uint8_t state )
 {
     GpioWrite( &DbgPinTx, state );
 }
 
-void SX126xDbgPinRxWrite( uint8_t state )
+static void SX126xDbgPinRxWrite( uint8_t state )
 {
     GpioWrite( &DbgPinRx, state );
 }
