@@ -38,11 +38,6 @@ typedef struct
 }RadioRegisters_t;
 
 /*!
- * \brief Holds the internal operating mode of the radio
- */
-static RadioOperatingModes_t OperatingMode;
-
-/*!
  * \brief Stores the current packet type set in the radio
  */
 static RadioPacketTypes_t PacketType;
@@ -98,36 +93,10 @@ void SX126xInit( DioIrqHandler dioIrq )
     // Initialize TCXO control
     SX126xIoTcxoInit( );
 
-    SX126xSetDio2AsRfSwitchCtrl( true );
+    // Initialize RF switch control
+    SX126xIoRfSwitchInit( );
+
     SX126xSetOperatingMode( MODE_STDBY_RC );
-}
-
-RadioOperatingModes_t SX126xGetOperatingMode( void )
-{
-    return OperatingMode;
-}
-
-void SX126xSetOperatingMode( RadioOperatingModes_t mode )
-{
-    OperatingMode = mode;
-#if defined( USE_RADIO_DEBUG )
-    switch( mode )
-    {
-        case MODE_TX:
-            SX126xDbgPinTxWrite( 1 );
-            SX126xDbgPinRxWrite( 0 );
-            break;
-        case MODE_RX:
-        case MODE_RX_DC:
-            SX126xDbgPinTxWrite( 0 );
-            SX126xDbgPinRxWrite( 1 );
-            break;
-        default:
-            SX126xDbgPinTxWrite( 0 );
-            SX126xDbgPinRxWrite( 0 );
-            break;
-    }
-#endif
 }
 
 void SX126xCheckDeviceReady( void )
@@ -252,18 +221,18 @@ uint32_t SX126xGetRandom( void )
 
 void SX126xSetSleep( SleepParams_t sleepConfig )
 {
+    SX126xSetOperatingMode( MODE_SLEEP );
+
     SX126xAntSwOff( );
 
     uint8_t value = ( ( ( uint8_t )sleepConfig.Fields.WarmStart << 2 ) |
                       ( ( uint8_t )sleepConfig.Fields.Reset << 1 ) |
                       ( ( uint8_t )sleepConfig.Fields.WakeUpRTC ) );
     SX126xWriteCommand( RADIO_SET_SLEEP, &value, 1 );
-    SX126xSetOperatingMode( MODE_SLEEP );
 }
 
 void SX126xSetStandby( RadioStandbyModes_t standbyConfig )
 {
-    SX126xWriteCommand( RADIO_SET_STANDBY, ( uint8_t* )&standbyConfig, 1 );
     if( standbyConfig == STDBY_RC )
     {
         SX126xSetOperatingMode( MODE_STDBY_RC );
@@ -272,12 +241,13 @@ void SX126xSetStandby( RadioStandbyModes_t standbyConfig )
     {
         SX126xSetOperatingMode( MODE_STDBY_XOSC );
     }
+    SX126xWriteCommand( RADIO_SET_STANDBY, ( uint8_t* )&standbyConfig, 1 );
 }
 
 void SX126xSetFs( void )
 {
-    SX126xWriteCommand( RADIO_SET_FS, 0, 0 );
     SX126xSetOperatingMode( MODE_FS );
+    SX126xWriteCommand( RADIO_SET_FS, 0, 0 );
 }
 
 void SX126xSetTx( uint32_t timeout )
@@ -322,6 +292,8 @@ void SX126xSetRxDutyCycle( uint32_t rxTime, uint32_t sleepTime )
 {
     uint8_t buf[6];
 
+    SX126xSetOperatingMode( MODE_RX_DC );
+
     buf[0] = ( uint8_t )( ( rxTime >> 16 ) & 0xFF );
     buf[1] = ( uint8_t )( ( rxTime >> 8 ) & 0xFF );
     buf[2] = ( uint8_t )( rxTime & 0xFF );
@@ -329,22 +301,23 @@ void SX126xSetRxDutyCycle( uint32_t rxTime, uint32_t sleepTime )
     buf[4] = ( uint8_t )( ( sleepTime >> 8 ) & 0xFF );
     buf[5] = ( uint8_t )( sleepTime & 0xFF );
     SX126xWriteCommand( RADIO_SET_RXDUTYCYCLE, buf, 6 );
-    SX126xSetOperatingMode( MODE_RX_DC );
 }
 
 void SX126xSetCad( void )
 {
-    SX126xWriteCommand( RADIO_SET_CAD, 0, 0 );
     SX126xSetOperatingMode( MODE_CAD );
+    SX126xWriteCommand( RADIO_SET_CAD, 0, 0 );
 }
 
 void SX126xSetTxContinuousWave( void )
 {
+    SX126xSetOperatingMode( MODE_TX );
     SX126xWriteCommand( RADIO_SET_TXCONTINUOUSWAVE, 0, 0 );
 }
 
 void SX126xSetTxInfinitePreamble( void )
 {
+    SX126xSetOperatingMode( MODE_TX );
     SX126xWriteCommand( RADIO_SET_TXCONTINUOUSPREAMBLE, 0, 0 );
 }
 
