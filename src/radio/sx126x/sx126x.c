@@ -340,11 +340,13 @@ void SX126xSetCad( void )
 
 void SX126xSetTxContinuousWave( void )
 {
+    SX126xSetOperatingMode( MODE_TX );
     SX126xWriteCommand( RADIO_SET_TXCONTINUOUSWAVE, 0, 0 );
 }
 
 void SX126xSetTxInfinitePreamble( void )
 {
+    SX126xSetOperatingMode( MODE_TX );
     SX126xWriteCommand( RADIO_SET_TXCONTINUOUSPREAMBLE, 0, 0 );
 }
 
