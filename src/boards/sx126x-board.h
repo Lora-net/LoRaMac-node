@@ -57,6 +57,11 @@ void SX126xIoDeInit( void );
 void SX126xIoTcxoInit( void );
 
 /*!
+ * \brief Initializes RF switch control pins.
+ */
+void SX126xIoRfSwitchInit( void );
+
+/*!
  * \brief Initializes the radio debug pins.
  */
 void SX126xIoDbgInit( void );
@@ -155,18 +160,21 @@ bool SX126xCheckRfFrequency( uint32_t frequency );
 uint32_t SX126xGetBoardTcxoWakeupTime( void );
 
 /*!
- * \brief Writes new Tx debug pin state
+ * \brief Gets the current Radio OperationMode variable
  *
- * \param [IN] state Debug pin state
+ * \retval      RadioOperatingModes_t last operating mode
  */
-void SX126xDbgPinTxWrite( uint8_t state );
+RadioOperatingModes_t SX126xGetOperatingMode( void );
 
 /*!
- * \brief Writes new Rx debug pin state
+ * \brief Sets/Updates the current Radio OperationMode variable.
  *
- * \param [IN] state Debug pin state
+ * \remark WARNING: This function is only required to reflect the current radio
+ *                  operating mode when processing interrupts.
+ *
+ * \param [in] mode           New operating mode
  */
-void SX126xDbgPinRxWrite( uint8_t state );
+void SX126xSetOperatingMode( RadioOperatingModes_t mode );
 
 /*!
  * Radio hardware and global parameters
