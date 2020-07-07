@@ -358,6 +358,9 @@ void RegionRU864InitDefaults( InitDefaultsParams_t* params )
         }
         case INIT_TYPE_RESET_TO_DEFAULT_CHANNELS:
         {
+            // Reset Channels Rx1Frequency to default 0
+            NvmCtx.Channels[0].Rx1Frequency = 0;
+            NvmCtx.Channels[1].Rx1Frequency = 0;
             // Update the channels mask
             RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, CHANNELS_MASK_SIZE );
             break;
