@@ -34,7 +34,13 @@
 #include "RegionAS923.h"
 
 // Definitions
-#define CHANNELS_MASK_SIZE              1
+#define CHANNELS_MASK_SIZE                1
+
+/*!
+ * Specifies the reception bandwidth to be used while executing the LBT
+ * Max channel bandwidth is 200 kHz
+ */
+#define AS923_LBT_RX_BANDWIDTH            200000
 
 /*!
  * Region specific context
@@ -919,7 +925,7 @@ LoRaMacStatus_t RegionAS923NextChannel( NextChanParams_t* nextChanParams, uint8_
 
             // Perform carrier sense for AS923_CARRIER_SENSE_TIME
             // If the channel is free, we can stop the LBT mechanism
-            if( Radio.IsChannelFree( NvmCtx.Channels[channelNext].Frequency, 200000, AS923_RSSI_FREE_TH, AS923_CARRIER_SENSE_TIME ) == true )
+            if( Radio.IsChannelFree( NvmCtx.Channels[channelNext].Frequency, AS923_LBT_RX_BANDWIDTH, AS923_RSSI_FREE_TH, AS923_CARRIER_SENSE_TIME ) == true )
             {
                 // Free channel found
                 *channel = channelNext;

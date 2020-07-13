@@ -34,7 +34,13 @@
 #include "RegionKR920.h"
 
 // Definitions
-#define CHANNELS_MASK_SIZE              1
+#define CHANNELS_MASK_SIZE                1
+
+/*!
+ * Specifies the reception bandwidth to be used while executing the LBT
+ * Max channel bandwidth is 200 kHz
+ */
+#define KR920_LBT_RX_BANDWIDTH            200000
 
 /*!
  * Region specific context
@@ -863,7 +869,7 @@ LoRaMacStatus_t RegionKR920NextChannel( NextChanParams_t* nextChanParams, uint8_
 
             // Perform carrier sense for KR920_CARRIER_SENSE_TIME
             // If the channel is free, we can stop the LBT mechanism
-            if( Radio.IsChannelFree( NvmCtx.Channels[channelNext].Frequency, 200000, KR920_RSSI_FREE_TH, KR920_CARRIER_SENSE_TIME ) == true )
+            if( Radio.IsChannelFree( NvmCtx.Channels[channelNext].Frequency, KR920_LBT_RX_BANDWIDTH, KR920_RSSI_FREE_TH, KR920_CARRIER_SENSE_TIME ) == true )
             {
                 // Free channel found
                 *channel = channelNext;
