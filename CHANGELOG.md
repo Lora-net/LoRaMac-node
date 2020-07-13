@@ -14,22 +14,34 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 ### General
 
 - Release based on "LoRaWAN specification 1.0.3" and "LoRaWAN Regional Parameters v1.0.3revA"
-- GitHub reported issues corrections. Please refer to [Release Version 4.4.4](https://github.com/Lora-net/LoRaMac-node/milestone/6)
+- GitHub reported issues corrections. Please refer to [Release Version 4.4.5](https://github.com/Lora-net/LoRaMac-node/milestone/7)
 
 ### Added
 
-- Added to FRAGMENTATION_FRAG_SESSION_SETUP_REQ checks which verify `FragNb` and `FragSize` validity.
+- Added to `FRAGMENTATION_FRAG_SESSION_SETUP_REQ` checks which verify `FragNb` and `FragSize` validity.
+- Added missing call to `SX126xSetOperatingMode` on `SX126xSetTxContinuousWave` and `SX126xSetTxInfinitePreamble` functions
+- Added new specific board API to initialize the RF switch (`SX126xIoRfSwitchInit`)
+- Add to AS923 and KR920 regions a definition for the Rx bandwidth to be used while executing the LBT algorithm
+- Added support for other AS923 channel sub plan groups.
 
 ### Changed
 
-- Refactored function RegionXXInitDefaults. Fixes an issue on US based bands where the channels mask was not being reset.
+- Refactored function `RegionXXInitDefaults`. Fixes an issue on US based bands where the channels mask was not being reset.
+- Changed hard coded `JoinAccept` max payload size (33) by `LORAMAC_JOIN_ACCEPT_FRAME_MAX_SIZE` definition.
+- Moved radio operating mode management to specific board implementation
+- Changed radio `IsChannelFree API` in order to provide reception bandwidth
 
 ### Fixed
 
-- Fixed SX126xSetLoRaSymbNumTimeout to call the workaround only if the number of symbols is equal to or higher than 64.
+- Fixed `SX126xSetLoRaSymbNumTimeout` to call the workaround only if the number of symbols is equal to or higher than 64.
 - Fixed IAR C++ compiler warnings
 - Fixed missing `{` after `extern "C"` in `cmac.h` file
-- Fixed FragSessionStatusAns message construction for `Received&index` field
+- Fixed `FragSessionStatusAns` message construction for `Received&index` field
+- Fixed `LoRaMacCryptoHandleJoinAccept` function `DevNonce`, `RJCount0` and `RJCount1` handling.
+- Fixed nonce variable declaration
+- Fixed `LoRaMacCrypto.c` conditional pre-processing.
+- Fixed missing `Rx1Frequency` reset for dynamic channel plans
+- Applied Japan ARIB restrictions to the `AS923_1_JP` sub plan
 
 ## [4.4.4] - 2020-05-26
 
