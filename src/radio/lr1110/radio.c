@@ -63,14 +63,16 @@ void RadioSetChannel( uint32_t freq );
 /*!
  * \brief Checks if the channel is free for the given time
  *
- * \param [IN] modem      Radio modem to be used [0: FSK, 1: LoRa]
- * \param [IN] freq       Channel RF frequency
- * \param [IN] rssiThresh RSSI threshold
- * \param [IN] maxCarrierSenseTime Max time while the RSSI is measured
+ * \remark The FSK modem is always used for this task as we can select the Rx bandwidth at will.
+ *
+ * \param [IN] freq                Channel RF frequency in Hertz
+ * \param [IN] rxBandwidth         Rx bandwidth in Hertz
+ * \param [IN] rssiThresh          RSSI threshold in dBm
+ * \param [IN] maxCarrierSenseTime Max time in milliseconds while the RSSI is measured
  *
  * \retval isFree         [true: Channel is free, false: Channel is not free]
  */
-bool RadioIsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh, uint32_t maxCarrierSenseTime );
+bool RadioIsChannelFree( uint32_t freq, uint32_t rxBandwidth, int16_t rssiThresh, uint32_t maxCarrierSenseTime );
 
 /*!
  * \brief Generates a 32 bits random value based on the RSSI readings
@@ -551,21 +553,19 @@ void RadioSetChannel( uint32_t freq )
     lr1110_radio_set_rf_frequency( &LR1110, freq );
 }
 
-bool RadioIsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh, uint32_t maxCarrierSenseTime )
+bool RadioIsChannelFree( uint32_t freq, uint32_t rxBandwidth, int16_t rssiThresh, uint32_t maxCarrierSenseTime )
 {
     bool     status           = true;
     int16_t  rssi             = 0;
     uint32_t carrierSenseTime = 0;
 
-    if( RadioGetStatus( ) != RF_IDLE )
-    {
-        return false;
-    }
-
-    RadioSetModem( modem );
+    RadioSetModem( MODEM_FSK );
 
     RadioSetChannel( freq );
 
+    // Set Rx bandwidth. Other parameters are not used.
+    RadioSetRxConfig( MODEM_FSK, rxBandwidth, 600, 0, rxBandwidth, 3, 0, false,
+                      0, false, 0, 0, false, true );
     RadioRx( 0 );
 
     DelayMs( 1 );
@@ -575,7 +575,7 @@ bool RadioIsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh,
     // Perform carrier sense for maxCarrierSenseTime
     while( TimerGetElapsedTime( carrierSenseTime ) < maxCarrierSenseTime )
     {
-        rssi = RadioRssi( modem );
+        rssi = RadioRssi( MODEM_FSK );
 
         if( rssi > rssiThresh )
         {

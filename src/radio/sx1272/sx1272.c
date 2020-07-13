@@ -254,7 +254,7 @@ void SX1272SetChannel( uint32_t freq )
     SX1272Write( REG_FRFLSB, ( uint8_t )( freq & 0xFF ) );
 }
 
-bool SX1272IsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh, uint32_t maxCarrierSenseTime )
+bool SX1272IsChannelFree( uint32_t freq, uint32_t rxBandwidth, int16_t rssiThresh, uint32_t maxCarrierSenseTime )
 {
     bool status = true;
     int16_t rssi = 0;
@@ -262,9 +262,12 @@ bool SX1272IsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh
 
     SX1272SetSleep( );
 
-    SX1272SetModem( modem );
+    SX1272SetModem( MODEM_FSK );
 
     SX1272SetChannel( freq );
+
+    SX1272Write( REG_RXBW, GetFskBandwidthRegValue( rxBandwidth ) );
+    SX1272Write( REG_AFCBW, GetFskBandwidthRegValue( rxBandwidth ) );
 
     SX1272SetOpMode( RF_OPMODE_RECEIVER );
 
@@ -275,7 +278,7 @@ bool SX1272IsChannelFree( RadioModems_t modem, uint32_t freq, int16_t rssiThresh
     // Perform carrier sense for maxCarrierSenseTime
     while( TimerGetElapsedTime( carrierSenseTime ) < maxCarrierSenseTime )
     {
-        rssi = SX1272ReadRssi( modem );
+        rssi = SX1272ReadRssi( MODEM_FSK );
 
         if( rssi > rssiThresh )
         {
