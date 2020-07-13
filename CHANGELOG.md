@@ -19,6 +19,7 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 ### Removed
 
 - Removed ClassA, ClassB and ClassC examples.
+- Removed AS923 no more used `MaxPayloadOfDatarateDwell1DownAS923` table definition.
 
 ### Added
 
@@ -28,6 +29,7 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 - Added new specific board API to initialize the RF switch (`SX126xIoRfSwitchInit`)
 - Add to AS923 and KR920 regions a definition for the Rx bandwidth to be used while executing the LBT algorithm
 - Added support for other AS923 channel sub plan groups.
+- Added Version_t Revision field to DutVersionAns message.
 
 ### Changed
 
@@ -49,6 +51,8 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 - Fixed `LoRaMacCrypto.c` conditional pre-processing.
 - Fixed missing `Rx1Frequency` reset for dynamic channel plans
 - Applied Japan ARIB restrictions to the `AS923_1_JP` sub plan
+- Fixed `RxAppCnt` parameter endianess handling
+- Fixed AS923 max payload lengths by using N values instead of M values.
 
 ## [4.4.4] - 2020-05-26
 
