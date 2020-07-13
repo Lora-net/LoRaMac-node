@@ -863,7 +863,7 @@ LoRaMacStatus_t RegionKR920NextChannel( NextChanParams_t* nextChanParams, uint8_
 
             // Perform carrier sense for KR920_CARRIER_SENSE_TIME
             // If the channel is free, we can stop the LBT mechanism
-            if( Radio.IsChannelFree( MODEM_LORA, NvmCtx.Channels[channelNext].Frequency, KR920_RSSI_FREE_TH, KR920_CARRIER_SENSE_TIME ) == true )
+            if( Radio.IsChannelFree( NvmCtx.Channels[channelNext].Frequency, 200000, KR920_RSSI_FREE_TH, KR920_CARRIER_SENSE_TIME ) == true )
             {
                 // Free channel found
                 *channel = channelNext;
