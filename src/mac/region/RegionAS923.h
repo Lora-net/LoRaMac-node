@@ -268,13 +268,13 @@ static const uint32_t BandwidthsAS923[] = { 125000, 125000, 125000, 125000, 1250
  * Maximum payload with respect to the datarate index.
  * The table is valid for the dwell time configuration of 0 for uplinks and downlinks.
  */
-static const uint8_t MaxPayloadOfDatarateDwell0AS923[] = { 59, 59, 123, 123, 250, 250, 250, 250 };
+static const uint8_t MaxPayloadOfDatarateDwell0AS923[] = { 51, 51, 115, 115, 242, 242, 242, 242 };
 
 /*!
  * Maximum payload with respect to the datarate index.
  * The table is only valid for uplinks.
  */
-static const uint8_t MaxPayloadOfDatarateDwell1AS923[] = { 0, 0, 19, 61, 133, 250, 250, 250 };
+static const uint8_t MaxPayloadOfDatarateDwell1AS923[] = { 0, 0, 11, 53, 125, 242, 242, 242 };
 
 /*!
  * Maximum payload with respect to the datarate index.
