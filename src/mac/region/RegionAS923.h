@@ -277,12 +277,6 @@ static const uint8_t MaxPayloadOfDatarateDwell0AS923[] = { 51, 51, 115, 115, 242
 static const uint8_t MaxPayloadOfDatarateDwell1AS923[] = { 0, 0, 11, 53, 125, 242, 242, 242 };
 
 /*!
- * Maximum payload with respect to the datarate index.
- * The table is only valid for downlinks.
- */
-static const uint8_t MaxPayloadOfDatarateDwell1DownAS923[] = { 0, 0, 11, 53, 126, 242, 242, 242 };
-
-/*!
  * Effective datarate offsets for receive window 1 when downlink dwell time is zero.
  */
 static const int8_t EffectiveRx1DrOffsetDownlinkDwell0AS923[8][8] =
