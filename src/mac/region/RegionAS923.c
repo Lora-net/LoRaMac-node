@@ -939,7 +939,6 @@ int8_t RegionAS923AlternateDr( int8_t currentDr, AlternateDrType_t type )
 
 LoRaMacStatus_t RegionAS923NextChannel( NextChanParams_t* nextChanParams, uint8_t* channel, TimerTime_t* time, TimerTime_t* aggregatedTimeOff )
 {
-    uint8_t channelNext = 0;
     uint8_t nbEnabledChannels = 0;
     uint8_t nbRestrictedChannels = 0;
     uint8_t enabledChannels[AS923_MAX_NB_CHANNELS] = { 0 };
@@ -977,6 +976,10 @@ LoRaMacStatus_t RegionAS923NextChannel( NextChanParams_t* nextChanParams, uint8_
 
     if( status == LORAMAC_STATUS_OK )
     {
+#if ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_1_JP )
+        // Executes the LBT algorithm when operating in Japan
+        uint8_t channelNext = 0;
+
         for( uint8_t  i = 0, j = randr( 0, nbEnabledChannels - 1 ); i < AS923_MAX_NB_CHANNELS; i++ )
         {
             channelNext = enabledChannels[j];
@@ -994,6 +997,10 @@ LoRaMacStatus_t RegionAS923NextChannel( NextChanParams_t* nextChanParams, uint8_
         // Even if one or more channels are available according to the channel plan, no free channel
         // was found during the LBT procedure.
         status = LORAMAC_STATUS_NO_FREE_CHANNEL_FOUND;
+#else
+        // We found a valid channel
+        *channel = enabledChannels[randr( 0, nbEnabledChannels - 1 )];
+#endif
     }
     else if( status == LORAMAC_STATUS_NO_CHANNEL_FOUND )
     {

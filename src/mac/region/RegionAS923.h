@@ -307,12 +307,12 @@ extern "C"
 /*!
  * RSSI threshold for a free channel [dBm]
  */
-#define AS923_RSSI_FREE_TH                          -85
+#define AS923_RSSI_FREE_TH                          -80
 
 /*!
  * Specifies the time the node performs a carrier sense
  */
-#define AS923_CARRIER_SENSE_TIME                    6
+#define AS923_CARRIER_SENSE_TIME                    5
 
 /*!
  * Data rates table definition
