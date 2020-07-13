@@ -64,6 +64,30 @@ extern "C"
 #define CHANNEL_PLAN_GROUP_AS923_3                  3
 
 /*!
+ * Channel plan group AS923-1
+ * AS923_FREQ_OFFSET = 0
+ */
+#define CHANNEL_PLAN_GROUP_AS923_1                  1
+
+/*!
+ * Channel plan group AS923-2
+ * AS923_FREQ_OFFSET = -1.8MHz
+ */
+#define CHANNEL_PLAN_GROUP_AS923_2                  2
+
+/*!
+ * Channel plan group AS923-3
+ * AS923_FREQ_OFFSET = -6.6MHz
+ */
+#define CHANNEL_PLAN_GROUP_AS923_3                  3
+
+/*!
+ * Channel plan group AS923-1 for Japan
+ * AS923_FREQ_OFFSET = 0
+ */
+#define CHANNEL_PLAN_GROUP_AS923_1_JP               4
+
+/*!
  * LoRaMac maximum number of channels
  */
 #define AS923_MAX_NB_CHANNELS                       16
@@ -247,12 +271,12 @@ extern "C"
 /*!
  * RSSI threshold for a free channel [dBm]
  */
-#define AS923_RSSI_FREE_TH                          -85
+#define AS923_RSSI_FREE_TH                          -80
 
 /*!
  * Specifies the time the node performs a carrier sense
  */
-#define AS923_CARRIER_SENSE_TIME                    6
+#define AS923_CARRIER_SENSE_TIME                    5
 
 /*!
  * Data rates table definition
@@ -268,19 +292,13 @@ static const uint32_t BandwidthsAS923[] = { 125000, 125000, 125000, 125000, 1250
  * Maximum payload with respect to the datarate index.
  * The table is valid for the dwell time configuration of 0 for uplinks and downlinks.
  */
-static const uint8_t MaxPayloadOfDatarateDwell0AS923[] = { 59, 59, 123, 123, 250, 250, 250, 250 };
+static const uint8_t MaxPayloadOfDatarateDwell0AS923[] = { 51, 51, 115, 115, 242, 242, 242, 242 };
 
 /*!
  * Maximum payload with respect to the datarate index.
  * The table is only valid for uplinks.
  */
-static const uint8_t MaxPayloadOfDatarateDwell1AS923[] = { 0, 0, 19, 61, 133, 250, 250, 250 };
-
-/*!
- * Maximum payload with respect to the datarate index.
- * The table is only valid for downlinks.
- */
-static const uint8_t MaxPayloadOfDatarateDwell1DownAS923[] = { 0, 0, 11, 53, 126, 242, 242, 242 };
+static const uint8_t MaxPayloadOfDatarateDwell1AS923[] = { 0, 0, 11, 53, 125, 242, 242, 242 };
 
 /*!
  * Effective datarate offsets for receive window 1 when downlink dwell time is zero.
