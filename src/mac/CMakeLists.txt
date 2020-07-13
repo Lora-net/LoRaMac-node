@@ -35,6 +35,11 @@ option(REGION_IN865 "Region IN865" OFF)
 option(REGION_RU864 "Region RU864" OFF)
 set(REGION_LIST REGION_EU868 REGION_US915 REGION_CN779 REGION_EU433 REGION_AU915 REGION_AS923 REGION_CN470 REGION_KR920 REGION_IN865 REGION_RU864)
 
+# AS923 Channel Plan
+set(REGION_AS923_DEFAULT_CHANNEL_PLAN_LIST CHANNEL_PLAN_GROUP_AS923_1, CHANNEL_PLAN_GROUP_AS923_2, CHANNEL_PLAN_GROUP_AS923_3, CHANNEL_PLAN_GROUP_AS923_1_JP)
+set(REGION_AS923_DEFAULT_CHANNEL_PLAN CHANNEL_PLAN_GROUP_AS923_1 CACHE STRING "Default channel plan for AS923 is CHANNEL_PLAN_GROUP_AS923_1")
+set_property(CACHE REGION_AS923_DEFAULT_CHANNEL_PLAN PROPERTY STRINGS ${REGION_AS923_DEFAULT_CHANNEL_PLAN_LIST})
+
 #---------------------------------------------------------------------------------------
 # Target
 #---------------------------------------------------------------------------------------
@@ -52,6 +57,9 @@ foreach( REGION ${REGION_LIST} )
         target_compile_definitions(${PROJECT_NAME} PUBLIC -D"${REGION}")
     endif()
 endforeach()
+
+# Applies AS923 channel plan
+target_compile_definitions(${PROJECT_NAME} PRIVATE -DREGION_AS923_DEFAULT_CHANNEL_PLAN=${REGION_AS923_DEFAULT_CHANNEL_PLAN})
 
 # Add define if class B is supported
 target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<BOOL:${CLASSB_ENABLED}>:LORAMAC_CLASSB_ENABLED>)

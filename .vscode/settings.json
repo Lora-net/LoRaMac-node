@@ -70,6 +70,10 @@
         "REGION_CN470":"OFF",
         "REGION_KR920":"OFF",
         "REGION_IN865":"OFF",
-        "REGION_RU864":"OFF"
+        "REGION_RU864":"OFF",
+
+        // Default channel plan for region AS923. Possible selections:
+        // CHANNEL_PLAN_GROUP_AS923_1, CHANNEL_PLAN_GROUP_AS923_2, CHANNEL_PLAN_GROUP_AS923_3, CHANNEL_PLAN_GROUP_AS923_1_JP
+        "REGION_AS923_DEFAULT_CHANNEL_PLAN":"CHANNEL_PLAN_GROUP_AS923_1"
     }
 }
