@@ -46,7 +46,7 @@ Gpio_t DbgPinTx;
 Gpio_t DbgPinRx;
 #endif
 
-static void lr1110_baord_init_tcxo_io( const void* context );
+static void lr1110_board_init_tcxo_io( const void* context );
 
 void lr1110_board_init_io( const void* context )
 {
@@ -116,7 +116,7 @@ void lr1110_board_init( const void* context, lr1110_dio_irq_handler dio_irq )
     lr1110_system_clear_errors( context );
 
     // Initialize TCXO control
-    lr1110_baord_init_tcxo_io( context );
+    lr1110_board_init_tcxo_io( context );
 
     // Initialize RF switch control
     lr1110_system_rfswitch_config_t rf_switch_configuration;
@@ -142,7 +142,7 @@ void lr1110_board_init( const void* context, lr1110_dio_irq_handler dio_irq )
     lr1110_radio_set_packet_type( context, packet_type );
 }
 
-static void lr1110_baord_init_tcxo_io( const void* context )
+static void lr1110_board_init_tcxo_io( const void* context )
 {
 #if( LR1110_SHIELD_HAS_TCXO == 1 )
     lr1110_system_set_tcxo_mode( context, LR1110_SYSTEM_TCXO_SUPPLY_VOLTAGE_1_8V,
