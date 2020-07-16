@@ -221,17 +221,17 @@ extern "C"
 /*!
  * Payload size of a beacon frame
  */
-#define AU915_BEACON_SIZE                           19
+#define AU915_BEACON_SIZE                           23
 
 /*!
  * Size of RFU 1 field
  */
-#define AU915_RFU1_SIZE                             3
+#define AU915_RFU1_SIZE                             5
 
 /*!
  * Size of RFU 2 field
  */
-#define AU915_RFU2_SIZE                             1
+#define AU915_RFU2_SIZE                             3
 
 /*!
  * Datarate of the beacon channel
