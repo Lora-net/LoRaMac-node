@@ -1265,6 +1265,9 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
         return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
     }
 
+    // Save LoRaWAN specification version
+    CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor = versionMinor;
+
     memcpy1( macMsg->Buffer, decJoinAccept, macMsg->BufSize );
 
     // Parse the message
@@ -1375,8 +1378,6 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
     }
 
     // Join-Accept is successfully processed
-    // Save LoRaWAN specification version
-    CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor = versionMinor;
 
     // Reset frame counters
 #if( USE_LRWAN_1_1_X_CRYPTO == 1 )
