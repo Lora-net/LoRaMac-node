@@ -72,6 +72,10 @@ extern "C"
 #define I2C_SDA                                     GPIO( GPIO_PORTA, 16 )
 #define I2C_SCL                                     GPIO( GPIO_PORTA, 17 )
 
+// Debug pins definition.
+#define RADIO_DBG_PIN_TX                            NC
+#define RADIO_DBG_PIN_RX                            NC
+
 #ifdef __cplusplus
 }
 #endif
