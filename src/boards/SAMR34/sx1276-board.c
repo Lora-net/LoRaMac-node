@@ -78,14 +78,22 @@ const struct Radio_s Radio =
 };
 
 /*!
+ * TCXO power control pin
+ */
+Gpio_t tcxo_pin;
+
+/*!
+ * Antenna switch GPIO pins objects
+ */
+Gpio_t rfswitch_pin;
+
+/*!
  * Debug GPIO pins objects
  */
 #if defined( USE_RADIO_DEBUG )
 Gpio_t DbgPinTx;
 Gpio_t DbgPinRx;
 #endif
-Gpio_t tcxo_pin;
-Gpio_t rfswitch_pin;
 
 void SX1276IoInit( void )
 {
@@ -195,8 +203,8 @@ void SX1276IoTcxoInit( void )
 
 void SX1276SetBoardTcxo( uint8_t state )
 {
-        GpioWrite( &tcxo_pin, state );
-        DelayMs( BOARD_TCXO_WAKEUP_TIME );
+    GpioWrite( &tcxo_pin, state );
+    DelayMs( BOARD_TCXO_WAKEUP_TIME );
 }
 
 uint32_t SX1276GetBoardTcxoWakeupTime( void )
