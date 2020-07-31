@@ -33,7 +33,6 @@ extern "C"
 #include "LmHandlerTypes.h"
 #include "LmhpCompliance.h"
 
-
 typedef struct LmHandlerJoinParams_s
 {
     CommissioningParams_t *CommissioningParams;
@@ -93,10 +92,10 @@ typedef struct LmHandlerParams_s
      */
     bool PublicNetworkEnable;
     /*!
-    * LoRaWAN ETSI duty cycle control enable/disable
-    *
-    * \remark Please note that ETSI mandates duty cycled transmissions. Use only for test purposes
-    */
+     * LoRaWAN ETSI duty cycle control enable/disable
+     *
+     * \remark Please note that ETSI mandates duty cycled transmissions. Use only for test purposes
+     */
     bool DutyCycleEnabled;
     /*!
      * Application data buffer maximum size
