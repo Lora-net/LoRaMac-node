@@ -145,6 +145,7 @@ static void UplinkProcess( void );
 
 static void OnTxPeriodicityChanged( uint32_t periodicity );
 static void OnTxFrameCtrlChanged( LmHandlerMsgTypes_t isTxConfirmed );
+static void OnPingSlotPeriodicityChanged( uint8_t pingSlotPeriodicity );
 
 /*!
  * Computes a CCITT 32 bits CRC
@@ -194,6 +195,7 @@ static LmHandlerParams_t LmHandlerParams =
     .DutyCycleEnabled = LORAWAN_DUTYCYCLE_ON,
     .DataBufferMaxSize = LORAWAN_APP_DATA_BUFFER_MAX_SIZE,
     .DataBuffer = AppDataBuffer,
+    .PingSlotPeriodicity = REGION_COMMON_DEFAULT_PING_SLOT_PERIODICITY,
 };
 
 static LmhpComplianceParams_t LmhpComplianceParams =
@@ -202,6 +204,7 @@ static LmhpComplianceParams_t LmhpComplianceParams =
     .FwVersion.Value = FIRMWARE_VERSION,
     .OnTxPeriodicityChanged = OnTxPeriodicityChanged,
     .OnTxFrameCtrlChanged = OnTxFrameCtrlChanged,
+    .OnPingSlotPeriodicityChanged = OnPingSlotPeriodicityChanged,
 };
 
 /*!
@@ -626,6 +629,11 @@ static void OnTxPeriodicityChanged( uint32_t periodicity )
 static void OnTxFrameCtrlChanged( LmHandlerMsgTypes_t isTxConfirmed )
 {
     LmHandlerParams.IsTxConfirmed = isTxConfirmed;
+}
+
+static void OnPingSlotPeriodicityChanged( uint8_t pingSlotPeriodicity )
+{
+    LmHandlerParams.PingSlotPeriodicity = pingSlotPeriodicity;
 }
 
 /*!

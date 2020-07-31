@@ -109,6 +109,10 @@ typedef struct LmHandlerParams_s
      * Application data buffer pointer
      */
     uint8_t *DataBuffer;
+    /*!
+     * Class B ping-slot periodicity.
+     */
+    bool PingSlotPeriodicity;
 }LmHandlerParams_t;
 
 typedef struct LmHandlerCallbacks_s

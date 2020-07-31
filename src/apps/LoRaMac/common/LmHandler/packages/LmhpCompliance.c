@@ -39,6 +39,11 @@
 #define COMPLIANCE_ID 6
 #define COMPLIANCE_VERSION 1
 
+typedef struct ClassBStatus_s
+{
+    uint8_t      PingSlotPeriodicity;
+} ClassBStatus_t;
+
 /*!
  * LoRaWAN compliance tests support data
  */
@@ -50,6 +55,7 @@ typedef struct ComplianceTestState_s
     uint8_t             DataBufferSize;
     uint8_t*            DataBuffer;
     uint16_t            RxAppCnt;
+    ClassBStatus_t      ClassBStatus;
 } ComplianceTestState_t;
 
 typedef enum ComplianceMoteCmd_e
@@ -91,12 +97,21 @@ static ComplianceTestState_t ComplianceTestState = {
     .DataBufferSize    = 0,
     .DataBuffer        = NULL,
     .RxAppCnt          = 0,
+    .ClassBStatus      = { 0 },
 };
 
 /*!
  * LoRaWAN compliance tests protocol handler parameters
  */
 static LmhpComplianceParams_t* ComplianceParams;
+
+/*!
+ * Reset Beacon status structure
+ */
+static inline void ClassBStatusReset( void )
+{
+    memset1( ( uint8_t* ) &ComplianceTestState.ClassBStatus, 0, sizeof( ClassBStatus_t ) / sizeof( uint8_t ) );
+}
 
 /*!
  * Initializes the compliance tests with provided parameters
@@ -158,14 +173,14 @@ static void LmhpComplianceInit( void* params, uint8_t* dataBuffer, uint8_t dataB
         ComplianceTestState.DataBuffer        = dataBuffer;
         ComplianceTestState.DataBufferMaxSize = dataBufferMaxSize;
         ComplianceTestState.Initialized       = true;
-        ComplianceTestState.RxAppCnt          = 0;
     }
     else
     {
         ComplianceParams                = NULL;
         ComplianceTestState.Initialized = false;
-        ComplianceTestState.RxAppCnt    = 0;
     }
+    ComplianceTestState.RxAppCnt = 0;
+    ClassBStatusReset( );
 }
 
 static bool LmhpComplianceIsInitialized( void )
@@ -323,12 +338,8 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
         }
         case COMPLIANCE_PING_SLOT_INFO_REQ:
         {
-            MlmeReq_t mlmeReq;
-            mlmeReq.Type                            = MLME_PING_SLOT_INFO;
-            mlmeReq.Req.PingSlotInfo.PingSlot.Value = mcpsIndication->Buffer[cmdIndex++];
-
-            CompliancePackage.OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq,
-                                                mlmeReq.ReqReturn.DutyCycleWaitTime );
+            ComplianceTestState.ClassBStatus.PingSlotPeriodicity = mcpsIndication->Buffer[cmdIndex++];
+            ComplianceParams->OnPingSlotPeriodicityChanged( ComplianceTestState.ClassBStatus.PingSlotPeriodicity );
             break;
         }
         case COMPLIANCE_TX_CW_REQ:
