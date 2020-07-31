@@ -41,8 +41,10 @@
 
 typedef struct ClassBStatus_s
 {
+    bool         IsBeaconRxOn;
     uint8_t      PingSlotPeriodicity;
     uint16_t     BeaconCnt;
+    BeaconInfo_t Info;
 } ClassBStatus_t;
 
 /*!
@@ -61,11 +63,12 @@ typedef struct ComplianceTestState_s
 
 typedef enum ComplianceMoteCmd_e
 {
-    COMPLIANCE_PKG_VERSION_ANS  = 0x00,
-    COMPLIANCE_ECHO_PAYLOAD_ANS = 0x08,
-    COMPLIANCE_RX_APP_CNT_ANS   = 0x09,
-    COMPLIANCE_BEACON_CNT_ANS   = 0x41,
-    COMPLIANCE_DUT_VERSION_ANS  = 0x7F,
+    COMPLIANCE_PKG_VERSION_ANS      = 0x00,
+    COMPLIANCE_ECHO_PAYLOAD_ANS     = 0x08,
+    COMPLIANCE_RX_APP_CNT_ANS       = 0x09,
+    COMPLIANCE_BEACON_RX_STATUS_IND = 0x40,
+    COMPLIANCE_BEACON_CNT_ANS       = 0x41,
+    COMPLIANCE_DUT_VERSION_ANS      = 0x7F,
 } ComplianceMoteCmd_t;
 
 typedef enum ComplianceSrvCmd_e
@@ -147,6 +150,25 @@ static void LmhpComplianceProcess( void );
  */
 static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication );
 
+/*!
+ * Processes the MLME Confirm
+ *
+ * \param [IN] mlmeConfirm MLME confirmation primitive data
+ */
+static void LmhpComplianceOnMlmeConfirm( MlmeConfirm_t *mlmeConfirm );
+
+/*!
+ * Processes the MLME Indication
+ *
+ * \param [IN] mlmeIndication     MLME indication primitive data
+ */
+static void LmhpComplianceOnMlmeIndication( MlmeIndication_t* mlmeIndication );
+
+/*!
+ * Helper function to send the BeaconRxStatusInd message
+ */
+static void SendBeaconRxStatusInd( void );
+
 LmhPackage_t CompliancePackage = {
     .Port                    = COMPLIANCE_PORT,
     .Init                    = LmhpComplianceInit,
@@ -154,8 +176,8 @@ LmhPackage_t CompliancePackage = {
     .Process                 = LmhpComplianceProcess,
     .OnMcpsConfirmProcess    = NULL,  // Not used in this package
     .OnMcpsIndicationProcess = LmhpComplianceOnMcpsIndication,
-    .OnMlmeConfirmProcess    = NULL,  // Not used in this package
-    .OnMlmeIndicationProcess = NULL,  // Not used in this package
+    .OnMlmeConfirmProcess    = LmhpComplianceOnMlmeConfirm,
+    .OnMlmeIndicationProcess = LmhpComplianceOnMlmeIndication,
     .OnMacMcpsRequest        = NULL,  // To be initialized by LmHandler
     .OnMacMlmeRequest        = NULL,  // To be initialized by LmHandler
     .OnJoinRequest           = NULL,  // To be initialized by LmHandler
@@ -416,6 +438,110 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
             break;
         }
     }
+
+    if( dataBufferIndex != 0 )
+    {
+        // Answer commands
+        LmHandlerAppData_t appData = {
+            .Buffer     = ComplianceTestState.DataBuffer,
+            .BufferSize = dataBufferIndex,
+            .Port       = COMPLIANCE_PORT,
+        };
+
+        CompliancePackage.OnSendRequest( &appData, ComplianceTestState.IsTxConfirmed );
+    }
+}
+
+static void LmhpComplianceOnMlmeConfirm( MlmeConfirm_t *mlmeConfirm )
+{
+    switch( mlmeConfirm->MlmeRequest )
+    {
+        case MLME_BEACON_ACQUISITION:
+        {
+            if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
+            {
+                ClassBStatusReset( );
+                ComplianceTestState.ClassBStatus.IsBeaconRxOn = true;
+            }
+            else
+            {
+                ComplianceTestState.ClassBStatus.IsBeaconRxOn = false;
+            }
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+static void LmhpComplianceOnMlmeIndication( MlmeIndication_t* mlmeIndication )
+{
+    if( ComplianceTestState.Initialized == false )
+    {
+        return;
+    }
+
+    if( ComplianceParams->IsDutFPort224On == false )
+    {
+        return;
+    }
+
+    switch( mlmeIndication->MlmeIndication )
+    {
+        case MLME_BEACON_LOST:
+        {
+            ClassBStatusReset( );
+            break;
+        }
+        case MLME_BEACON:
+        {
+            if( mlmeIndication->Status == LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED )
+            {
+                // As we received a beacon ensure that IsBeaconRxOn is set to true
+                if( ComplianceTestState.ClassBStatus.IsBeaconRxOn == false )
+                {
+                    ComplianceTestState.ClassBStatus.IsBeaconRxOn = true;
+                }
+                ComplianceTestState.ClassBStatus.BeaconCnt++;
+            }
+            ComplianceTestState.ClassBStatus.Info = mlmeIndication->BeaconInfo;
+            break;
+        }
+        default:
+            break;
+    }
+
+    SendBeaconRxStatusInd( );
+}
+
+static void SendBeaconRxStatusInd( void )
+{
+    uint8_t dataBufferIndex = 0;
+    uint32_t frequency = ComplianceTestState.ClassBStatus.Info.Frequency / 100;
+
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = COMPLIANCE_BEACON_RX_STATUS_IND;
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( ComplianceTestState.ClassBStatus.IsBeaconRxOn == true ) ? 1 : 0;
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.BeaconCnt );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.BeaconCnt >> 8 );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( frequency );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( frequency >> 8 );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( frequency >> 16 );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceTestState.ClassBStatus.Info.Datarate;
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.Rssi );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.Rssi >> 8 );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.Snr );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.Param );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.Time.Seconds );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.Time.Seconds >> 8 );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.Time.Seconds >> 16 );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.Time.Seconds >> 24 );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.GwSpecific.InfoDesc );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.GwSpecific.Info[0] );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.GwSpecific.Info[1] );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.GwSpecific.Info[2] );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.GwSpecific.Info[3] );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.GwSpecific.Info[4] );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.GwSpecific.Info[5] );
 
     if( dataBufferIndex != 0 )
     {
