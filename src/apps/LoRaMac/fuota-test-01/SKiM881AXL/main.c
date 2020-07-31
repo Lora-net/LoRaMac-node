@@ -129,7 +129,7 @@ static void OnJoinRequest( LmHandlerJoinParams_t* params );
 static void OnTxData( LmHandlerTxParams_t* params );
 static void OnRxData( LmHandlerAppData_t* appData, LmHandlerRxParams_t* params );
 static void OnClassChange( DeviceClass_t deviceClass );
-static void OnBeaconStatusChange( LoRaMAcHandlerBeaconParams_t* params );
+static void OnBeaconStatusChange( LoRaMacHandlerBeaconParams_t* params );
 #if( LMH_SYS_TIME_UPDATE_NEW_API == 1 )
 static void OnSysTimeUpdate( bool isSynchronized, int32_t timeCorrection );
 #else
@@ -447,7 +447,7 @@ static void OnClassChange( DeviceClass_t deviceClass )
     }
 }
 
-static void OnBeaconStatusChange( LoRaMAcHandlerBeaconParams_t* params )
+static void OnBeaconStatusChange( LoRaMacHandlerBeaconParams_t* params )
 {
     switch( params->State )
     {

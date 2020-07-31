@@ -67,12 +67,12 @@ typedef struct LmHandlerRxParams_s
     int8_t RxSlot;
 }LmHandlerRxParams_t;
 
-typedef struct LoRaMAcHandlerBeaconParams_s
+typedef struct LoRaMacHandlerBeaconParams_s
 {
     LoRaMacEventInfoStatus_t Status;
     LmHandlerBeaconState_t State;
     BeaconInfo_t Info;
-}LoRaMAcHandlerBeaconParams_t;
+}LoRaMacHandlerBeaconParams_t;
 
 typedef struct LmHandlerParams_s
 {
@@ -194,7 +194,7 @@ typedef struct LmHandlerCallbacks_s
      *
      * \param [IN] params notification parameters
      */
-    void ( *OnBeaconStatusChange )( LoRaMAcHandlerBeaconParams_t *params );
+    void ( *OnBeaconStatusChange )( LoRaMacHandlerBeaconParams_t *params );
 #if( LMH_SYS_TIME_UPDATE_NEW_API == 1 )
     /*!
      * Notifies the upper layer that the system time has been updated.

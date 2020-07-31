@@ -85,7 +85,7 @@ void DisplayRxUpdate( LmHandlerAppData_t* appData, LmHandlerRxParams_t* params )
  *
  * \param [IN] params Beacon parameters
  */
-void DisplayBeaconUpdate( LoRaMAcHandlerBeaconParams_t* params );
+void DisplayBeaconUpdate( LoRaMacHandlerBeaconParams_t* params );
 
 /*!
  * \brief Displays end-device class update

@@ -111,7 +111,7 @@ static LmHandlerRxParams_t RxParams =
     .RxSlot = -1
 };
 
-static LoRaMAcHandlerBeaconParams_t BeaconParams =
+static LoRaMacHandlerBeaconParams_t BeaconParams =
 {
     .State = LORAMAC_HANDLER_BEACON_ACQUIRING,
     .Info =
