@@ -44,7 +44,7 @@ static void SX126xDbgPinTxWrite( uint8_t state );
  *
  * \param [IN] state Debug pin state
  */
-void SX126xDbgPinRxWrite( uint8_t state );
+static void SX126xDbgPinRxWrite( uint8_t state );
 #endif
 
 /*!
