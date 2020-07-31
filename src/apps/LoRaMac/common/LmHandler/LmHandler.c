@@ -96,10 +96,10 @@ static LmHandlerTxParams_t TxParams =
     {
         .Port = 0,
         .BufferSize = 0,
-        .Buffer = NULL
+        .Buffer = NULL,
     },
     .TxPower = TX_POWER_0,
-    .Channel = 0
+    .Channel = 0,
 };
 
 static LmHandlerRxParams_t RxParams =
@@ -108,10 +108,10 @@ static LmHandlerRxParams_t RxParams =
     .Rssi = 0,
     .Snr = 0,
     .DownlinkCounter = 0,
-    .RxSlot = -1
+    .RxSlot = -1,
 };
 
-static LoRaMAcHandlerBeaconParams_t BeaconParams =
+static LoRaMacHandlerBeaconParams_t BeaconParams =
 {
     .State = LORAMAC_HANDLER_BEACON_ACQUIRING,
     .Info =
@@ -124,9 +124,9 @@ static LoRaMAcHandlerBeaconParams_t BeaconParams =
         .GwSpecific =
         {
             .InfoDesc = 0,
-            .Info = { 0 }
-        }
-    }
+            .Info = { 0 },
+        },
+    },
 };
 
 /*!
@@ -363,7 +363,7 @@ static void LmHandlerJoinRequest( bool isOtaa )
         {
             .CommissioningParams = &CommissioningParams,
             .Datarate = LmHandlerParams->TxDatarate,
-            .Status = LORAMAC_HANDLER_SUCCESS
+            .Status = LORAMAC_HANDLER_SUCCESS,
         };
 
         mibReq.Type = MIB_NETWORK_ACTIVATION;
@@ -418,29 +418,21 @@ LmHandlerErrorStatus_t LmHandlerSend( LmHandlerAppData_t *appData, LmHandlerMsgT
         return LORAMAC_HANDLER_ERROR;
     }
 
+    TxParams.MsgType = isTxConfirmed;
+    mcpsReq.Type = ( isTxConfirmed == LORAMAC_HANDLER_UNCONFIRMED_MSG ) ? MCPS_UNCONFIRMED : MCPS_CONFIRMED;
     mcpsReq.Req.Unconfirmed.Datarate = LmHandlerParams->TxDatarate;
     if( LoRaMacQueryTxPossible( appData->BufferSize, &txInfo ) != LORAMAC_STATUS_OK )
     {
         // Send empty frame in order to flush MAC commands
-        TxParams.MsgType = LORAMAC_HANDLER_UNCONFIRMED_MSG;
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fBuffer = NULL;
         mcpsReq.Req.Unconfirmed.fBufferSize = 0;
     }
     else
     {
-        TxParams.MsgType = isTxConfirmed;
         mcpsReq.Req.Unconfirmed.fPort = appData->Port;
         mcpsReq.Req.Unconfirmed.fBufferSize = appData->BufferSize;
         mcpsReq.Req.Unconfirmed.fBuffer = appData->Buffer;
-        if( isTxConfirmed == LORAMAC_HANDLER_UNCONFIRMED_MSG )
-        {
-            mcpsReq.Type = MCPS_UNCONFIRMED;
-        }
-        else
-        {
-            mcpsReq.Type = MCPS_CONFIRMED;
-        }
     }
 
     TxParams.AppData = *appData;
@@ -518,9 +510,9 @@ LmHandlerErrorStatus_t LmHandlerPingSlotReq( uint8_t periodicity )
         {
             .Buffer = NULL,
             .BufferSize = 0,
-            .Port = 0
+            .Port = 0,
         };
-        return LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+        return LmHandlerSend( &appData, LmHandlerParams->IsTxConfirmed );
     }
     else
     {
@@ -701,9 +693,9 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         {
             .Buffer = NULL,
             .BufferSize = 0,
-            .Port = 0
+            .Port = 0,
         };
-        LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+        LmHandlerSend( &appData, LmHandlerParams->IsTxConfirmed );
     }
 }
 
@@ -759,7 +751,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             {
                 // Beacon has been acquired
                 // Request server for ping slot
-                LmHandlerPingSlotReq( REGION_COMMON_DEFAULT_PING_SLOT_PERIODICITY );
+                LmHandlerPingSlotReq( LmHandlerParams->PingSlotPeriodicity );
             }
             else
             {
@@ -785,7 +777,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             }
             else
             {
-                LmHandlerPingSlotReq( REGION_COMMON_DEFAULT_PING_SLOT_PERIODICITY );
+                LmHandlerPingSlotReq( LmHandlerParams->PingSlotPeriodicity );
             }
         }
         break;
@@ -815,10 +807,10 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
             {
                 .Buffer = NULL,
                 .BufferSize = 0,
-                .Port = 0
+                .Port = 0,
             };
 
-            LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+            LmHandlerSend( &appData, LmHandlerParams->IsTxConfirmed );
         }
         break;
     case MLME_BEACON_LOST:

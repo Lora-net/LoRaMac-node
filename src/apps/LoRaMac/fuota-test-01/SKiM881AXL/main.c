@@ -129,7 +129,7 @@ static void OnJoinRequest( LmHandlerJoinParams_t* params );
 static void OnTxData( LmHandlerTxParams_t* params );
 static void OnRxData( LmHandlerAppData_t* appData, LmHandlerRxParams_t* params );
 static void OnClassChange( DeviceClass_t deviceClass );
-static void OnBeaconStatusChange( LoRaMAcHandlerBeaconParams_t* params );
+static void OnBeaconStatusChange( LoRaMacHandlerBeaconParams_t* params );
 #if( LMH_SYS_TIME_UPDATE_NEW_API == 1 )
 static void OnSysTimeUpdate( bool isSynchronized, int32_t timeCorrection );
 #else
@@ -149,7 +149,8 @@ static void StartTxProcess( LmHandlerTxEvents_t txEvent );
 static void UplinkProcess( void );
 
 static void OnTxPeriodicityChanged( uint32_t periodicity );
-static void OnTxFrameCtrlChanged( bool isTxConfirmed );
+static void OnTxFrameCtrlChanged( LmHandlerMsgTypes_t isTxConfirmed );
+static void OnPingSlotPeriodicityChanged( uint8_t pingSlotPeriodicity );
 
 /*!
  * Computes a CCITT 32 bits CRC
@@ -198,11 +199,13 @@ static LmHandlerParams_t LmHandlerParams =
 {
     .Region = ACTIVE_REGION,
     .AdrEnable = LORAWAN_ADR_STATE,
+    .IsTxConfirmed = LORAWAN_DEFAULT_CONFIRMED_MSG_STATE,
     .TxDatarate = LORAWAN_DEFAULT_DATARATE,
     .PublicNetworkEnable = LORAWAN_PUBLIC_NETWORK,
     .DutyCycleEnabled = LORAWAN_DUTYCYCLE_ON,
     .DataBufferMaxSize = LORAWAN_APP_DATA_BUFFER_MAX_SIZE,
-    .DataBuffer = AppDataBuffer
+    .DataBuffer = AppDataBuffer,
+    .PingSlotPeriodicity = REGION_COMMON_DEFAULT_PING_SLOT_PERIODICITY,
 };
 
 static LmhpComplianceParams_t LmhpComplianceParams =
@@ -211,6 +214,7 @@ static LmhpComplianceParams_t LmhpComplianceParams =
     .FwVersion.Value = FIRMWARE_VERSION,
     .OnTxPeriodicityChanged = OnTxPeriodicityChanged,
     .OnTxFrameCtrlChanged = OnTxFrameCtrlChanged,
+    .OnPingSlotPeriodicityChanged = OnPingSlotPeriodicityChanged,
 };
 
 /*!
@@ -259,8 +263,6 @@ static volatile uint8_t IsTxFramePending = 0;
 
 static volatile uint32_t TxPeriodicity = 0;
 
-static volatile bool IsTxConfirmed = LORAWAN_DEFAULT_CONFIRMED_MSG_STATE;
-
 /*
  * Indicates if the system time has been synchronized
  */
@@ -305,9 +307,6 @@ int main( void )
 
     // Initialize transmission periodicity variable
     TxPeriodicity = APP_TX_DUTYCYCLE + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND );
-
-    // Initialize variable indicating if uplink frames are confirmed or unconfirmed.
-    IsTxConfirmed = LORAWAN_DEFAULT_CONFIRMED_MSG_STATE;
 
     const Version_t appVersion = { .Value = FIRMWARE_VERSION };
     const Version_t gitHubVersion = { .Value = GITHUB_VERSION };
@@ -431,7 +430,7 @@ static void OnClassChange( DeviceClass_t deviceClass )
             {
                 .Buffer = NULL,
                 .BufferSize = 0,
-                .Port = 0
+                .Port = 0,
             };
             LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
             IsMcSessionStarted = true;
@@ -447,7 +446,7 @@ static void OnClassChange( DeviceClass_t deviceClass )
     }
 }
 
-static void OnBeaconStatusChange( LoRaMAcHandlerBeaconParams_t* params )
+static void OnBeaconStatusChange( LoRaMacHandlerBeaconParams_t* params )
 {
     switch( params->State )
     {
@@ -606,9 +605,9 @@ static void UplinkProcess( void )
                     {
                         .Buffer = AppDataBuffer,
                         .BufferSize = 1,
-                        .Port = 1
+                        .Port = 1,
                     };
-                    status = LmHandlerSend( &appData, IsTxConfirmed );
+                    status = LmHandlerSend( &appData, LmHandlerParams.IsTxConfirmed );
                 }
             }
             else
@@ -624,9 +623,9 @@ static void UplinkProcess( void )
                 {
                     .Buffer = AppDataBuffer,
                     .BufferSize = 5,
-                    .Port = 201
+                    .Port = 201,
                 };
-                status = LmHandlerSend( &appData, IsTxConfirmed );
+                status = LmHandlerSend( &appData, LmHandlerParams.IsTxConfirmed );
             }
             if( status == LORAMAC_HANDLER_SUCCESS )
             {
@@ -648,9 +647,14 @@ static void OnTxPeriodicityChanged( uint32_t periodicity )
     }
 }
 
-static void OnTxFrameCtrlChanged( bool isTxConfirmed )
+static void OnTxFrameCtrlChanged( LmHandlerMsgTypes_t isTxConfirmed )
 {
-    IsTxConfirmed = isTxConfirmed;
+    LmHandlerParams.IsTxConfirmed = isTxConfirmed;
+}
+
+static void OnPingSlotPeriodicityChanged( uint8_t pingSlotPeriodicity )
+{
+    LmHandlerParams.PingSlotPeriodicity = pingSlotPeriodicity;
 }
 
 /*!

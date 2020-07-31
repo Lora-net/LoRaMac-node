@@ -39,25 +39,36 @@
 #define COMPLIANCE_ID 6
 #define COMPLIANCE_VERSION 1
 
+typedef struct ClassBStatus_s
+{
+    bool         IsBeaconRxOn;
+    uint8_t      PingSlotPeriodicity;
+    uint16_t     BeaconCnt;
+    BeaconInfo_t Info;
+} ClassBStatus_t;
+
 /*!
  * LoRaWAN compliance tests support data
  */
 typedef struct ComplianceTestState_s
 {
-    bool     Initialized;
-    bool     IsTxConfirmed;
-    uint8_t  DataBufferMaxSize;
-    uint8_t  DataBufferSize;
-    uint8_t* DataBuffer;
-    uint16_t RxAppCnt;
+    bool                Initialized;
+    LmHandlerMsgTypes_t IsTxConfirmed;
+    uint8_t             DataBufferMaxSize;
+    uint8_t             DataBufferSize;
+    uint8_t*            DataBuffer;
+    uint16_t            RxAppCnt;
+    ClassBStatus_t      ClassBStatus;
 } ComplianceTestState_t;
 
 typedef enum ComplianceMoteCmd_e
 {
-    COMPLIANCE_PKG_VERSION_ANS  = 0x00,
-    COMPLIANCE_ECHO_PAYLOAD_ANS = 0x08,
-    COMPLIANCE_RX_APP_CNT_ANS   = 0x09,
-    COMPLIANCE_DUT_VERSION_ANS  = 0x7F,
+    COMPLIANCE_PKG_VERSION_ANS      = 0x00,
+    COMPLIANCE_ECHO_PAYLOAD_ANS     = 0x08,
+    COMPLIANCE_RX_APP_CNT_ANS       = 0x09,
+    COMPLIANCE_BEACON_RX_STATUS_IND = 0x40,
+    COMPLIANCE_BEACON_CNT_ANS       = 0x41,
+    COMPLIANCE_DUT_VERSION_ANS      = 0x7F,
 } ComplianceMoteCmd_t;
 
 typedef enum ComplianceSrvCmd_e
@@ -76,6 +87,8 @@ typedef enum ComplianceSrvCmd_e
     COMPLIANCE_LINK_CHECK_REQ               = 0x20,
     COMPLIANCE_DEVICE_TIME_REQ              = 0x21,
     COMPLIANCE_PING_SLOT_INFO_REQ           = 0x22,
+    COMPLIANCE_BEACON_CNT_REQ               = 0x41,
+    COMPLIANCE_BEACON_CNT_RESET_REQ         = 0x42,
     COMPLIANCE_TX_CW_REQ                    = 0x7D,
     COMPLIANCE_DUT_FPORT_224_DISABLE_REQ    = 0x7E,
     COMPLIANCE_DUT_VERSION_REQ              = 0x7F,
@@ -86,17 +99,26 @@ typedef enum ComplianceSrvCmd_e
  */
 static ComplianceTestState_t ComplianceTestState = {
     .Initialized       = false,
-    .IsTxConfirmed     = false,
+    .IsTxConfirmed     = LORAMAC_HANDLER_UNCONFIRMED_MSG,
     .DataBufferMaxSize = 0,
     .DataBufferSize    = 0,
     .DataBuffer        = NULL,
     .RxAppCnt          = 0,
+    .ClassBStatus      = { 0 },
 };
 
 /*!
  * LoRaWAN compliance tests protocol handler parameters
  */
 static LmhpComplianceParams_t* ComplianceParams;
+
+/*!
+ * Reset Beacon status structure
+ */
+static inline void ClassBStatusReset( void )
+{
+    memset1( ( uint8_t* ) &ComplianceTestState.ClassBStatus, 0, sizeof( ClassBStatus_t ) / sizeof( uint8_t ) );
+}
 
 /*!
  * Initializes the compliance tests with provided parameters
@@ -128,6 +150,25 @@ static void LmhpComplianceProcess( void );
  */
 static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication );
 
+/*!
+ * Processes the MLME Confirm
+ *
+ * \param [IN] mlmeConfirm MLME confirmation primitive data
+ */
+static void LmhpComplianceOnMlmeConfirm( MlmeConfirm_t *mlmeConfirm );
+
+/*!
+ * Processes the MLME Indication
+ *
+ * \param [IN] mlmeIndication     MLME indication primitive data
+ */
+static void LmhpComplianceOnMlmeIndication( MlmeIndication_t* mlmeIndication );
+
+/*!
+ * Helper function to send the BeaconRxStatusInd message
+ */
+static void SendBeaconRxStatusInd( void );
+
 LmhPackage_t CompliancePackage = {
     .Port                    = COMPLIANCE_PORT,
     .Init                    = LmhpComplianceInit,
@@ -135,8 +176,8 @@ LmhPackage_t CompliancePackage = {
     .Process                 = LmhpComplianceProcess,
     .OnMcpsConfirmProcess    = NULL,  // Not used in this package
     .OnMcpsIndicationProcess = LmhpComplianceOnMcpsIndication,
-    .OnMlmeConfirmProcess    = NULL,  // Not used in this package
-    .OnMlmeIndicationProcess = NULL,  // Not used in this package
+    .OnMlmeConfirmProcess    = LmhpComplianceOnMlmeConfirm,
+    .OnMlmeIndicationProcess = LmhpComplianceOnMlmeIndication,
     .OnMacMcpsRequest        = NULL,  // To be initialized by LmHandler
     .OnMacMlmeRequest        = NULL,  // To be initialized by LmHandler
     .OnJoinRequest           = NULL,  // To be initialized by LmHandler
@@ -158,14 +199,14 @@ static void LmhpComplianceInit( void* params, uint8_t* dataBuffer, uint8_t dataB
         ComplianceTestState.DataBuffer        = dataBuffer;
         ComplianceTestState.DataBufferMaxSize = dataBufferMaxSize;
         ComplianceTestState.Initialized       = true;
-        ComplianceTestState.RxAppCnt          = 0;
     }
     else
     {
         ComplianceParams                = NULL;
         ComplianceTestState.Initialized = false;
-        ComplianceTestState.RxAppCnt    = 0;
     }
+    ComplianceTestState.RxAppCnt = 0;
+    ClassBStatusReset( );
 }
 
 static bool LmhpComplianceIsInitialized( void )
@@ -273,7 +314,7 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
 
             if( ( frameType == 1 ) || ( frameType == 2 ) )
             {
-                ComplianceTestState.IsTxConfirmed = ( frameType != 1 ) ? true : false;
+                ComplianceTestState.IsTxConfirmed = ( frameType != 1 ) ? LORAMAC_HANDLER_CONFIRMED_MSG : LORAMAC_HANDLER_UNCONFIRMED_MSG;
 
                 ComplianceParams->OnTxFrameCtrlChanged( ComplianceTestState.IsTxConfirmed );
             }
@@ -323,12 +364,20 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
         }
         case COMPLIANCE_PING_SLOT_INFO_REQ:
         {
-            MlmeReq_t mlmeReq;
-            mlmeReq.Type                            = MLME_PING_SLOT_INFO;
-            mlmeReq.Req.PingSlotInfo.PingSlot.Value = mcpsIndication->Buffer[cmdIndex++];
-
-            CompliancePackage.OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq,
-                                                mlmeReq.ReqReturn.DutyCycleWaitTime );
+            ComplianceTestState.ClassBStatus.PingSlotPeriodicity = mcpsIndication->Buffer[cmdIndex++];
+            ComplianceParams->OnPingSlotPeriodicityChanged( ComplianceTestState.ClassBStatus.PingSlotPeriodicity );
+            break;
+        }
+        case COMPLIANCE_BEACON_CNT_REQ:
+        {
+            ComplianceTestState.DataBuffer[dataBufferIndex++] = COMPLIANCE_BEACON_CNT_ANS;
+            ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceTestState.ClassBStatus.BeaconCnt;
+            ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceTestState.ClassBStatus.BeaconCnt >> 8;
+            break;
+        }
+        case COMPLIANCE_BEACON_CNT_RESET_REQ:
+        {
+            ComplianceTestState.ClassBStatus.BeaconCnt = 0;
             break;
         }
         case COMPLIANCE_TX_CW_REQ:
@@ -399,8 +448,110 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
             .Port       = COMPLIANCE_PORT,
         };
 
-        CompliancePackage.OnSendRequest( &appData, ( ComplianceTestState.IsTxConfirmed == true )
-                                                       ? LORAMAC_HANDLER_CONFIRMED_MSG
-                                                       : LORAMAC_HANDLER_UNCONFIRMED_MSG );
+        CompliancePackage.OnSendRequest( &appData, ComplianceTestState.IsTxConfirmed );
+    }
+}
+
+static void LmhpComplianceOnMlmeConfirm( MlmeConfirm_t *mlmeConfirm )
+{
+    switch( mlmeConfirm->MlmeRequest )
+    {
+        case MLME_BEACON_ACQUISITION:
+        {
+            if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
+            {
+                ClassBStatusReset( );
+                ComplianceTestState.ClassBStatus.IsBeaconRxOn = true;
+            }
+            else
+            {
+                ComplianceTestState.ClassBStatus.IsBeaconRxOn = false;
+            }
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+static void LmhpComplianceOnMlmeIndication( MlmeIndication_t* mlmeIndication )
+{
+    if( ComplianceTestState.Initialized == false )
+    {
+        return;
+    }
+
+    if( ComplianceParams->IsDutFPort224On == false )
+    {
+        return;
+    }
+
+    switch( mlmeIndication->MlmeIndication )
+    {
+        case MLME_BEACON_LOST:
+        {
+            ClassBStatusReset( );
+            break;
+        }
+        case MLME_BEACON:
+        {
+            if( mlmeIndication->Status == LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED )
+            {
+                // As we received a beacon ensure that IsBeaconRxOn is set to true
+                if( ComplianceTestState.ClassBStatus.IsBeaconRxOn == false )
+                {
+                    ComplianceTestState.ClassBStatus.IsBeaconRxOn = true;
+                }
+                ComplianceTestState.ClassBStatus.BeaconCnt++;
+            }
+            ComplianceTestState.ClassBStatus.Info = mlmeIndication->BeaconInfo;
+            break;
+        }
+        default:
+            break;
+    }
+
+    SendBeaconRxStatusInd( );
+}
+
+static void SendBeaconRxStatusInd( void )
+{
+    uint8_t dataBufferIndex = 0;
+    uint32_t frequency = ComplianceTestState.ClassBStatus.Info.Frequency / 100;
+
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = COMPLIANCE_BEACON_RX_STATUS_IND;
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( ComplianceTestState.ClassBStatus.IsBeaconRxOn == true ) ? 1 : 0;
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.BeaconCnt );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.BeaconCnt >> 8 );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( frequency );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( frequency >> 8 );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( frequency >> 16 );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceTestState.ClassBStatus.Info.Datarate;
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.Rssi );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.Rssi >> 8 );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.Snr );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.Param );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.Time.Seconds );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.Time.Seconds >> 8 );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.Time.Seconds >> 16 );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.Time.Seconds >> 24 );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.GwSpecific.InfoDesc );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.GwSpecific.Info[0] );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.GwSpecific.Info[1] );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.GwSpecific.Info[2] );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.GwSpecific.Info[3] );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.GwSpecific.Info[4] );
+    ComplianceTestState.DataBuffer[dataBufferIndex++] = ( uint8_t )( ComplianceTestState.ClassBStatus.Info.GwSpecific.Info[5] );
+
+    if( dataBufferIndex != 0 )
+    {
+        // Answer commands
+        LmHandlerAppData_t appData = {
+            .Buffer     = ComplianceTestState.DataBuffer,
+            .BufferSize = dataBufferIndex,
+            .Port       = COMPLIANCE_PORT,
+        };
+
+        CompliancePackage.OnSendRequest( &appData, ComplianceTestState.IsTxConfirmed );
     }
 }

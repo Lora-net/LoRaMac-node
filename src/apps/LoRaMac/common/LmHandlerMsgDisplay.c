@@ -374,7 +374,7 @@ void DisplayRxUpdate( LmHandlerAppData_t *appData, LmHandlerRxParams_t *params )
     printf( "\n" );
 }
 
-void DisplayBeaconUpdate( LoRaMAcHandlerBeaconParams_t *params )
+void DisplayBeaconUpdate( LoRaMacHandlerBeaconParams_t *params )
 {
     switch( params->State )
     {

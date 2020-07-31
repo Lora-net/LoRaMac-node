@@ -33,7 +33,6 @@ extern "C"
 #include "LmHandlerTypes.h"
 #include "LmhpCompliance.h"
 
-
 typedef struct LmHandlerJoinParams_s
 {
     CommissioningParams_t *CommissioningParams;
@@ -67,12 +66,12 @@ typedef struct LmHandlerRxParams_s
     int8_t RxSlot;
 }LmHandlerRxParams_t;
 
-typedef struct LoRaMAcHandlerBeaconParams_s
+typedef struct LoRaMacHandlerBeaconParams_s
 {
     LoRaMacEventInfoStatus_t Status;
     LmHandlerBeaconState_t State;
     BeaconInfo_t Info;
-}LoRaMAcHandlerBeaconParams_t;
+}LoRaMacHandlerBeaconParams_t;
 
 typedef struct LmHandlerParams_s
 {
@@ -85,6 +84,10 @@ typedef struct LmHandlerParams_s
      */
     bool AdrEnable;
     /*!
+     * Uplink frame type
+     */
+    LmHandlerMsgTypes_t IsTxConfirmed;
+    /*!
      * Uplink datarate, when \ref AdrEnable is OFF
      */
     int8_t TxDatarate;
@@ -93,10 +96,10 @@ typedef struct LmHandlerParams_s
      */
     bool PublicNetworkEnable;
     /*!
-    * LoRaWAN ETSI duty cycle control enable/disable
-    *
-    * \remark Please note that ETSI mandates duty cycled transmissions. Use only for test purposes
-    */
+     * LoRaWAN ETSI duty cycle control enable/disable
+     *
+     * \remark Please note that ETSI mandates duty cycled transmissions. Use only for test purposes
+     */
     bool DutyCycleEnabled;
     /*!
      * Application data buffer maximum size
@@ -106,6 +109,10 @@ typedef struct LmHandlerParams_s
      * Application data buffer pointer
      */
     uint8_t *DataBuffer;
+    /*!
+     * Class B ping-slot periodicity.
+     */
+    bool PingSlotPeriodicity;
 }LmHandlerParams_t;
 
 typedef struct LmHandlerCallbacks_s
@@ -194,7 +201,7 @@ typedef struct LmHandlerCallbacks_s
      *
      * \param [IN] params notification parameters
      */
-    void ( *OnBeaconStatusChange )( LoRaMAcHandlerBeaconParams_t *params );
+    void ( *OnBeaconStatusChange )( LoRaMacHandlerBeaconParams_t *params );
 #if( LMH_SYS_TIME_UPDATE_NEW_API == 1 )
     /*!
      * Notifies the upper layer that the system time has been updated.

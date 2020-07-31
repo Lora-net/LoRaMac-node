@@ -52,7 +52,11 @@ typedef struct LmhpComplianceParams_s
     /*!
      *
      */
-    void ( *OnTxFrameCtrlChanged )( bool isTxConfirmed );
+    void ( *OnTxFrameCtrlChanged )( LmHandlerMsgTypes_t isTxConfirmed );
+    /*!
+     *
+     */
+    void ( *OnPingSlotPeriodicityChanged )( uint8_t pingSlotPeriodicity );
 }LmhpComplianceParams_t;
 
 LmhPackage_t *LmphCompliancePackageFactory( void );
