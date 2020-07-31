@@ -42,6 +42,7 @@
 typedef struct ClassBStatus_s
 {
     uint8_t      PingSlotPeriodicity;
+    uint16_t     BeaconCnt;
 } ClassBStatus_t;
 
 /*!
@@ -63,6 +64,7 @@ typedef enum ComplianceMoteCmd_e
     COMPLIANCE_PKG_VERSION_ANS  = 0x00,
     COMPLIANCE_ECHO_PAYLOAD_ANS = 0x08,
     COMPLIANCE_RX_APP_CNT_ANS   = 0x09,
+    COMPLIANCE_BEACON_CNT_ANS   = 0x41,
     COMPLIANCE_DUT_VERSION_ANS  = 0x7F,
 } ComplianceMoteCmd_t;
 
@@ -82,6 +84,8 @@ typedef enum ComplianceSrvCmd_e
     COMPLIANCE_LINK_CHECK_REQ               = 0x20,
     COMPLIANCE_DEVICE_TIME_REQ              = 0x21,
     COMPLIANCE_PING_SLOT_INFO_REQ           = 0x22,
+    COMPLIANCE_BEACON_CNT_REQ               = 0x41,
+    COMPLIANCE_BEACON_CNT_RESET_REQ         = 0x42,
     COMPLIANCE_TX_CW_REQ                    = 0x7D,
     COMPLIANCE_DUT_FPORT_224_DISABLE_REQ    = 0x7E,
     COMPLIANCE_DUT_VERSION_REQ              = 0x7F,
@@ -340,6 +344,18 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
         {
             ComplianceTestState.ClassBStatus.PingSlotPeriodicity = mcpsIndication->Buffer[cmdIndex++];
             ComplianceParams->OnPingSlotPeriodicityChanged( ComplianceTestState.ClassBStatus.PingSlotPeriodicity );
+            break;
+        }
+        case COMPLIANCE_BEACON_CNT_REQ:
+        {
+            ComplianceTestState.DataBuffer[dataBufferIndex++] = COMPLIANCE_BEACON_CNT_ANS;
+            ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceTestState.ClassBStatus.BeaconCnt;
+            ComplianceTestState.DataBuffer[dataBufferIndex++] = ComplianceTestState.ClassBStatus.BeaconCnt >> 8;
+            break;
+        }
+        case COMPLIANCE_BEACON_CNT_RESET_REQ:
+        {
+            ComplianceTestState.ClassBStatus.BeaconCnt = 0;
             break;
         }
         case COMPLIANCE_TX_CW_REQ:
