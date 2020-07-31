@@ -215,7 +215,7 @@ static LmHandlerParams_t LmHandlerParams =
     .PublicNetworkEnable = LORAWAN_PUBLIC_NETWORK,
     .DutyCycleEnabled = LORAWAN_DUTYCYCLE_ON,
     .DataBufferMaxSize = LORAWAN_APP_DATA_BUFFER_MAX_SIZE,
-    .DataBuffer = AppDataBuffer
+    .DataBuffer = AppDataBuffer,
 };
 
 static LmhpComplianceParams_t LmhpComplianceParams =
@@ -446,7 +446,7 @@ static void OnClassChange( DeviceClass_t deviceClass )
             {
                 .Buffer = NULL,
                 .BufferSize = 0,
-                .Port = 0
+                .Port = 0,
             };
             LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
             IsMcSessionStarted = true;
@@ -623,7 +623,7 @@ static void UplinkProcess( void )
                     {
                         .Buffer = AppDataBuffer,
                         .BufferSize = 1,
-                        .Port = 1
+                        .Port = 1,
                     };
                     status = LmHandlerSend( &appData, IsTxConfirmed );
                 }
@@ -641,7 +641,7 @@ static void UplinkProcess( void )
                 {
                     .Buffer = AppDataBuffer,
                     .BufferSize = 5,
-                    .Port = 201
+                    .Port = 201,
                 };
                 status = LmHandlerSend( &appData, IsTxConfirmed );
             }

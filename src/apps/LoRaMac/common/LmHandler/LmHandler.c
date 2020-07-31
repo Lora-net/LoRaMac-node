@@ -96,10 +96,10 @@ static LmHandlerTxParams_t TxParams =
     {
         .Port = 0,
         .BufferSize = 0,
-        .Buffer = NULL
+        .Buffer = NULL,
     },
     .TxPower = TX_POWER_0,
-    .Channel = 0
+    .Channel = 0,
 };
 
 static LmHandlerRxParams_t RxParams =
@@ -108,7 +108,7 @@ static LmHandlerRxParams_t RxParams =
     .Rssi = 0,
     .Snr = 0,
     .DownlinkCounter = 0,
-    .RxSlot = -1
+    .RxSlot = -1,
 };
 
 static LoRaMacHandlerBeaconParams_t BeaconParams =
@@ -124,9 +124,9 @@ static LoRaMacHandlerBeaconParams_t BeaconParams =
         .GwSpecific =
         {
             .InfoDesc = 0,
-            .Info = { 0 }
-        }
-    }
+            .Info = { 0 },
+        },
+    },
 };
 
 /*!
@@ -363,7 +363,7 @@ static void LmHandlerJoinRequest( bool isOtaa )
         {
             .CommissioningParams = &CommissioningParams,
             .Datarate = LmHandlerParams->TxDatarate,
-            .Status = LORAMAC_HANDLER_SUCCESS
+            .Status = LORAMAC_HANDLER_SUCCESS,
         };
 
         mibReq.Type = MIB_NETWORK_ACTIVATION;
@@ -518,7 +518,7 @@ LmHandlerErrorStatus_t LmHandlerPingSlotReq( uint8_t periodicity )
         {
             .Buffer = NULL,
             .BufferSize = 0,
-            .Port = 0
+            .Port = 0,
         };
         return LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
     }
@@ -701,7 +701,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
         {
             .Buffer = NULL,
             .BufferSize = 0,
-            .Port = 0
+            .Port = 0,
         };
         LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
     }
@@ -815,7 +815,7 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
             {
                 .Buffer = NULL,
                 .BufferSize = 0,
-                .Port = 0
+                .Port = 0,
             };
 
             LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
