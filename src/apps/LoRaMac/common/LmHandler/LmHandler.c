@@ -418,29 +418,21 @@ LmHandlerErrorStatus_t LmHandlerSend( LmHandlerAppData_t *appData, LmHandlerMsgT
         return LORAMAC_HANDLER_ERROR;
     }
 
+    TxParams.MsgType = isTxConfirmed;
+    mcpsReq.Type = ( isTxConfirmed == LORAMAC_HANDLER_UNCONFIRMED_MSG ) ? MCPS_UNCONFIRMED : MCPS_CONFIRMED;
     mcpsReq.Req.Unconfirmed.Datarate = LmHandlerParams->TxDatarate;
     if( LoRaMacQueryTxPossible( appData->BufferSize, &txInfo ) != LORAMAC_STATUS_OK )
     {
         // Send empty frame in order to flush MAC commands
-        TxParams.MsgType = LORAMAC_HANDLER_UNCONFIRMED_MSG;
         mcpsReq.Type = MCPS_UNCONFIRMED;
         mcpsReq.Req.Unconfirmed.fBuffer = NULL;
         mcpsReq.Req.Unconfirmed.fBufferSize = 0;
     }
     else
     {
-        TxParams.MsgType = isTxConfirmed;
         mcpsReq.Req.Unconfirmed.fPort = appData->Port;
         mcpsReq.Req.Unconfirmed.fBufferSize = appData->BufferSize;
         mcpsReq.Req.Unconfirmed.fBuffer = appData->Buffer;
-        if( isTxConfirmed == LORAMAC_HANDLER_UNCONFIRMED_MSG )
-        {
-            mcpsReq.Type = MCPS_UNCONFIRMED;
-        }
-        else
-        {
-            mcpsReq.Type = MCPS_CONFIRMED;
-        }
     }
 
     TxParams.AppData = *appData;

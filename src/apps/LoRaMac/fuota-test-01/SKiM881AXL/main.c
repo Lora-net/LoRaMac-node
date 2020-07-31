@@ -149,7 +149,7 @@ static void StartTxProcess( LmHandlerTxEvents_t txEvent );
 static void UplinkProcess( void );
 
 static void OnTxPeriodicityChanged( uint32_t periodicity );
-static void OnTxFrameCtrlChanged( bool isTxConfirmed );
+static void OnTxFrameCtrlChanged( LmHandlerMsgTypes_t isTxConfirmed );
 
 /*!
  * Computes a CCITT 32 bits CRC
@@ -259,7 +259,7 @@ static volatile uint8_t IsTxFramePending = 0;
 
 static volatile uint32_t TxPeriodicity = 0;
 
-static volatile bool IsTxConfirmed = LORAWAN_DEFAULT_CONFIRMED_MSG_STATE;
+static volatile LmHandlerMsgTypes_t IsTxConfirmed = LORAWAN_DEFAULT_CONFIRMED_MSG_STATE;
 
 /*
  * Indicates if the system time has been synchronized
@@ -648,7 +648,7 @@ static void OnTxPeriodicityChanged( uint32_t periodicity )
     }
 }
 
-static void OnTxFrameCtrlChanged( bool isTxConfirmed )
+static void OnTxFrameCtrlChanged( LmHandlerMsgTypes_t isTxConfirmed )
 {
     IsTxConfirmed = isTxConfirmed;
 }

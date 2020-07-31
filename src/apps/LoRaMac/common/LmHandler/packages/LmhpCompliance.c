@@ -44,12 +44,12 @@
  */
 typedef struct ComplianceTestState_s
 {
-    bool     Initialized;
-    bool     IsTxConfirmed;
-    uint8_t  DataBufferMaxSize;
-    uint8_t  DataBufferSize;
-    uint8_t* DataBuffer;
-    uint16_t RxAppCnt;
+    bool                Initialized;
+    LmHandlerMsgTypes_t IsTxConfirmed;
+    uint8_t             DataBufferMaxSize;
+    uint8_t             DataBufferSize;
+    uint8_t*            DataBuffer;
+    uint16_t            RxAppCnt;
 } ComplianceTestState_t;
 
 typedef enum ComplianceMoteCmd_e
@@ -86,7 +86,7 @@ typedef enum ComplianceSrvCmd_e
  */
 static ComplianceTestState_t ComplianceTestState = {
     .Initialized       = false,
-    .IsTxConfirmed     = false,
+    .IsTxConfirmed     = LORAMAC_HANDLER_UNCONFIRMED_MSG,
     .DataBufferMaxSize = 0,
     .DataBufferSize    = 0,
     .DataBuffer        = NULL,
@@ -273,7 +273,7 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
 
             if( ( frameType == 1 ) || ( frameType == 2 ) )
             {
-                ComplianceTestState.IsTxConfirmed = ( frameType != 1 ) ? true : false;
+                ComplianceTestState.IsTxConfirmed = ( frameType != 1 ) ? LORAMAC_HANDLER_CONFIRMED_MSG : LORAMAC_HANDLER_UNCONFIRMED_MSG;
 
                 ComplianceParams->OnTxFrameCtrlChanged( ComplianceTestState.IsTxConfirmed );
             }
@@ -399,8 +399,6 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
             .Port       = COMPLIANCE_PORT,
         };
 
-        CompliancePackage.OnSendRequest( &appData, ( ComplianceTestState.IsTxConfirmed == true )
-                                                       ? LORAMAC_HANDLER_CONFIRMED_MSG
-                                                       : LORAMAC_HANDLER_UNCONFIRMED_MSG );
+        CompliancePackage.OnSendRequest( &appData, ComplianceTestState.IsTxConfirmed );
     }
 }

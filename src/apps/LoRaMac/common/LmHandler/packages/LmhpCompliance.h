@@ -52,7 +52,7 @@ typedef struct LmhpComplianceParams_s
     /*!
      *
      */
-    void ( *OnTxFrameCtrlChanged )( bool isTxConfirmed );
+    void ( *OnTxFrameCtrlChanged )( LmHandlerMsgTypes_t isTxConfirmed );
 }LmhpComplianceParams_t;
 
 LmhPackage_t *LmphCompliancePackageFactory( void );
