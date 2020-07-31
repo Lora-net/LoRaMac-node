@@ -84,6 +84,10 @@ typedef struct LmHandlerParams_s
      */
     bool AdrEnable;
     /*!
+     * Uplink frame type
+     */
+    LmHandlerMsgTypes_t IsTxConfirmed;
+    /*!
      * Uplink datarate, when \ref AdrEnable is OFF
      */
     int8_t TxDatarate;

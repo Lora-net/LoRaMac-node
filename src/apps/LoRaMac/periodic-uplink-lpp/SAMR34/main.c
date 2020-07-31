@@ -208,6 +208,7 @@ static LmHandlerParams_t LmHandlerParams =
 {
     .Region = ACTIVE_REGION,
     .AdrEnable = LORAWAN_ADR_STATE,
+    .IsTxConfirmed = LORAWAN_DEFAULT_CONFIRMED_MSG_STATE,
     .TxDatarate = LORAWAN_DEFAULT_DATARATE,
     .PublicNetworkEnable = LORAWAN_PUBLIC_NETWORK,
     .DutyCycleEnabled = LORAWAN_DUTYCYCLE_ON,
@@ -234,8 +235,6 @@ static volatile uint8_t IsTxFramePending = 0;
 
 static volatile uint32_t TxPeriodicity = 0;
 
-static volatile LmHandlerMsgTypes_t IsTxConfirmed = LORAWAN_DEFAULT_CONFIRMED_MSG_STATE;
-
 /*!
  * LED GPIO pins objects
  */
@@ -260,9 +259,6 @@ int main( void )
 
     // Initialize transmission periodicity variable
     TxPeriodicity = APP_TX_DUTYCYCLE + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND );
-
-    // Initialize variable indicating if uplink frames are confirmed or unconfirmed.
-    IsTxConfirmed = LORAWAN_DEFAULT_CONFIRMED_MSG_STATE;
 
     const Version_t appVersion = { .Value = FIRMWARE_VERSION };
     const Version_t gitHubVersion = { .Value = GITHUB_VERSION };
@@ -451,7 +447,7 @@ static void PrepareTxFrame( void )
     CayenneLppCopy( AppData.Buffer );
     AppData.BufferSize = CayenneLppGetSize( );
 
-    if( LmHandlerSend( &AppData, IsTxConfirmed ) == LORAMAC_HANDLER_SUCCESS )
+    if( LmHandlerSend( &AppData, LmHandlerParams.IsTxConfirmed ) == LORAMAC_HANDLER_SUCCESS )
     {
         // Switch LED 1 ON
         GpioWrite( &Led1, 0 );
@@ -505,7 +501,7 @@ static void OnTxPeriodicityChanged( uint32_t periodicity )
 
 static void OnTxFrameCtrlChanged( LmHandlerMsgTypes_t isTxConfirmed )
 {
-    IsTxConfirmed = isTxConfirmed;
+    LmHandlerParams.IsTxConfirmed = isTxConfirmed;
 }
 
 /*!

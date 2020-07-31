@@ -512,7 +512,7 @@ LmHandlerErrorStatus_t LmHandlerPingSlotReq( uint8_t periodicity )
             .BufferSize = 0,
             .Port = 0,
         };
-        return LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+        return LmHandlerSend( &appData, LmHandlerParams->IsTxConfirmed );
     }
     else
     {
@@ -695,7 +695,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
             .BufferSize = 0,
             .Port = 0,
         };
-        LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+        LmHandlerSend( &appData, LmHandlerParams->IsTxConfirmed );
     }
 }
 
@@ -810,7 +810,7 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
                 .Port = 0,
             };
 
-            LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+            LmHandlerSend( &appData, LmHandlerParams->IsTxConfirmed );
         }
         break;
     case MLME_BEACON_LOST:
