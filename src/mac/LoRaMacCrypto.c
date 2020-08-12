@@ -1223,7 +1223,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
     LoRaMacCryptoStatus_t retval = LORAMAC_CRYPTO_ERROR;
     uint8_t decJoinAccept[LORAMAC_JOIN_ACCEPT_FRAME_MAX_SIZE] = { 0 };
     uint8_t versionMinor         = 0;
-    uint8_t* nonce               = ( uint8_t* )&CryptoCtx.NvmCtx->DevNonce;
+    uint16_t* nonce               = ( uint16_t* )&CryptoCtx.NvmCtx->DevNonce;
 
     // Nonce selection depending on JoinReqType
     // JOIN_REQ     : CryptoCtx.NvmCtx->DevNonce
