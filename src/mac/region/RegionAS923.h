@@ -125,11 +125,6 @@ extern "C"
 #define AS923_MAX_RX1_DR_OFFSET                     7
 
 /*!
- * Default Rx1 receive datarate offset
- */
-#define AS923_DEFAULT_RX1_DR_OFFSET                 0
-
-/*!
  * Minimal Tx output power that can be used by the node
  */
 #define AS923_MIN_TX_POWER                          TX_POWER_7
@@ -150,11 +145,6 @@ extern "C"
 #define AS923_DEFAULT_UPLINK_DWELL_TIME             1
 
 /*!
- * Default downlink dwell time configuration
- */
-#define AS923_DEFAULT_DOWNLINK_DWELL_TIME           1
-
-/*!
  * Default Max EIRP
  */
 #define AS923_DEFAULT_MAX_EIRP                      16.0f
@@ -165,16 +155,6 @@ extern "C"
 #define AS923_DEFAULT_ANTENNA_GAIN                  2.15f
 
 /*!
- * ADR Ack limit
- */
-#define AS923_ADR_ACK_LIMIT                         64
-
-/*!
- * ADR Ack delay
- */
-#define AS923_ADR_ACK_DELAY                         32
-
-/*!
  * Enabled or disabled the duty cycle
  */
 #define AS923_DUTY_CYCLE_ENABLED                    0
@@ -183,41 +163,6 @@ extern "C"
  * Maximum RX window duration
  */
 #define AS923_MAX_RX_WINDOW                         3000
-
-/*!
- * Receive delay 1
- */
-#define AS923_RECEIVE_DELAY1                        1000
-
-/*!
- * Receive delay 2
- */
-#define AS923_RECEIVE_DELAY2                        2000
-
-/*!
- * Join accept delay 1
- */
-#define AS923_JOIN_ACCEPT_DELAY1                    5000
-
-/*!
- * Join accept delay 2
- */
-#define AS923_JOIN_ACCEPT_DELAY2                    6000
-
-/*!
- * Maximum frame counter gap
- */
-#define AS923_MAX_FCNT_GAP                          16384
-
-/*!
- * Ack timeout
- */
-#define AS923_ACKTIMEOUT                            2000
-
-/*!
- * Random ack timeout limits
- */
-#define AS923_ACK_TIMEOUT_RND                       1000
 
 #if ( AS923_DEFAULT_DATARATE > DR_5 )
 #error "A default DR higher than DR_5 may lead to connectivity loss."
@@ -328,13 +273,13 @@ static const uint32_t BandwidthsAS923[] = { 125000, 125000, 125000, 125000, 1250
  * Maximum payload with respect to the datarate index.
  * The table is valid for the dwell time configuration of 0 for uplinks and downlinks.
  */
-static const uint8_t MaxPayloadOfDatarateDwell0AS923[] = { 51, 51, 51, 115, 242, 242, 242, 242 };
+static const uint8_t MaxPayloadOfDatarateDwell0AS923[] = { 59, 59, 123, 123, 250, 250, 250, 250 };
 
 /*!
  * Maximum payload with respect to the datarate index.
  * The table is only valid for uplinks.
  */
-static const uint8_t MaxPayloadOfDatarateDwell1UpAS923[] = { 0, 0, 11, 53, 125, 242, 242, 242 };
+static const uint8_t MaxPayloadOfDatarateDwell1AS923[] = { 0, 0, 19, 61, 133, 250, 250, 250 };
 
 /*!
  * Maximum payload with respect to the datarate index.

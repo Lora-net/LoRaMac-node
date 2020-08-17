@@ -57,7 +57,7 @@ extern "C"
 /*!
  * Maximal datarate that can be used by the node
  */
-#define AU915_TX_MAX_DATARATE                       DR_13
+#define AU915_TX_MAX_DATARATE                       DR_6
 
 /*!
  * Minimal datarate that can be used by the node
@@ -91,11 +91,6 @@ extern "C"
 #define AU915_MAX_RX1_DR_OFFSET                     6
 
 /*!
- * Default Rx1 receive datarate offset
- */
-#define AU915_DEFAULT_RX1_DR_OFFSET                 0
-
-/*!
  * Minimal Tx output power that can be used by the node
  */
 #define AU915_MIN_TX_POWER                          TX_POWER_14
@@ -116,11 +111,6 @@ extern "C"
 #define AU915_DEFAULT_UPLINK_DWELL_TIME             1
 
 /*!
- * Default downlink dwell time configuration
- */
-#define AU915_DEFAULT_DOWNLINK_DWELL_TIME           0
-
-/*!
  * Default Max EIRP
  */
 #define AU915_DEFAULT_MAX_EIRP                      30.0f
@@ -131,16 +121,6 @@ extern "C"
 #define AU915_DEFAULT_ANTENNA_GAIN                  2.15f
 
 /*!
- * ADR Ack limit
- */
-#define AU915_ADR_ACK_LIMIT                         64
-
-/*!
- * ADR Ack delay
- */
-#define AU915_ADR_ACK_DELAY                         32
-
-/*!
  * Enabled or disabled the duty cycle
  */
 #define AU915_DUTY_CYCLE_ENABLED                    0
@@ -149,41 +129,6 @@ extern "C"
  * Maximum RX window duration
  */
 #define AU915_MAX_RX_WINDOW                         3000
-
-/*!
- * Receive delay 1
- */
-#define AU915_RECEIVE_DELAY1                        1000
-
-/*!
- * Receive delay 2
- */
-#define AU915_RECEIVE_DELAY2                        2000
-
-/*!
- * Join accept delay 1
- */
-#define AU915_JOIN_ACCEPT_DELAY1                    5000
-
-/*!
- * Join accept delay 2
- */
-#define AU915_JOIN_ACCEPT_DELAY2                    6000
-
-/*!
- * Maximum frame counter gap
- */
-#define AU915_MAX_FCNT_GAP                          16384
-
-/*!
- * Ack timeout
- */
-#define AU915_ACKTIMEOUT                            2000
-
-/*!
- * Random ack timeout limits
- */
-#define AU915_ACK_TIMEOUT_RND                       1000
 
 /*!
  * Second reception window channel frequency definition.

@@ -95,11 +95,6 @@ extern "C"
 #define EU433_MAX_RX1_DR_OFFSET                     5
 
 /*!
- * Default Rx1 receive datarate offset
- */
-#define EU433_DEFAULT_RX1_DR_OFFSET                 0
-
-/*!
  * Minimal Tx output power that can be used by the node
  */
 #define EU433_MIN_TX_POWER                          TX_POWER_5
@@ -125,16 +120,6 @@ extern "C"
 #define EU433_DEFAULT_ANTENNA_GAIN                  2.15f
 
 /*!
- * ADR Ack limit
- */
-#define EU433_ADR_ACK_LIMIT                         64
-
-/*!
- * ADR Ack delay
- */
-#define EU433_ADR_ACK_DELAY                         32
-
-/*!
  * Enabled or disabled the duty cycle
  */
 #define EU433_DUTY_CYCLE_ENABLED                    1
@@ -143,41 +128,6 @@ extern "C"
  * Maximum RX window duration
  */
 #define EU433_MAX_RX_WINDOW                         3000
-
-/*!
- * Receive delay 1
- */
-#define EU433_RECEIVE_DELAY1                        1000
-
-/*!
- * Receive delay 2
- */
-#define EU433_RECEIVE_DELAY2                        2000
-
-/*!
- * Join accept delay 1
- */
-#define EU433_JOIN_ACCEPT_DELAY1                    5000
-
-/*!
- * Join accept delay 2
- */
-#define EU433_JOIN_ACCEPT_DELAY2                    6000
-
-/*!
- * Maximum frame counter gap
- */
-#define EU433_MAX_FCNT_GAP                          16384
-
-/*!
- * Ack timeout
- */
-#define EU433_ACKTIMEOUT                            2000
-
-/*!
- * Random ack timeout limits
- */
-#define EU433_ACK_TIMEOUT_RND                       1000
 
 /*!
  * Verification of default datarate
@@ -200,6 +150,11 @@ extern "C"
  * LoRaMac maximum number of bands
  */
 #define EU433_MAX_NB_BANDS                          1
+
+/*!
+ * Default uplink dwell time configuration
+ */
+#define EU433_DEFAULT_UPLINK_DWELL_TIME             0
 
 /*
  * CLASS B

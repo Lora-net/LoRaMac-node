@@ -796,13 +796,13 @@ typedef enum ePhyAttribute
      */
     PHY_BEACON_CHANNEL_DR,
     /*!
-     * The frequency stepwidth between the beacon channels.
-     */
-    PHY_BEACON_CHANNEL_STEPWIDTH,
-    /*!
      * The number of channels for the beacon reception.
      */
     PHY_BEACON_NB_CHANNELS,
+    /*!
+     * The static offset for the downlink channel calculation.
+     */
+    PHY_BEACON_CHANNEL_OFFSET,
     /*!
      * Ping slot channel frequency.
      */
@@ -811,7 +811,7 @@ typedef enum ePhyAttribute
      * The datarate of a ping slot channel.
      */
     PHY_PING_SLOT_CHANNEL_DR,
-    /*
+    /*!
      * The number of channels for the ping slot reception.
      */
     PHY_PING_SLOT_NB_CHANNELS,

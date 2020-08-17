@@ -85,11 +85,6 @@ extern "C"
 #define US915_MAX_RX1_DR_OFFSET                     3
 
 /*!
- * Default Rx1 receive datarate offset
- */
-#define US915_DEFAULT_RX1_DR_OFFSET                 0
-
-/*!
  * Minimal Tx output power that can be used by the node
  */
 #define US915_MIN_TX_POWER                          TX_POWER_14
@@ -110,16 +105,6 @@ extern "C"
 #define US915_DEFAULT_MAX_ERP                      30.0f
 
 /*!
- * ADR Ack limit
- */
-#define US915_ADR_ACK_LIMIT                         64
-
-/*!
- * ADR Ack delay
- */
-#define US915_ADR_ACK_DELAY                         32
-
-/*!
  * Enabled or disabled the duty cycle
  */
 #define US915_DUTY_CYCLE_ENABLED                    0
@@ -130,41 +115,6 @@ extern "C"
 #define US915_MAX_RX_WINDOW                         3000
 
 /*!
- * Receive delay 1
- */
-#define US915_RECEIVE_DELAY1                        1000
-
-/*!
- * Receive delay 2
- */
-#define US915_RECEIVE_DELAY2                        2000
-
-/*!
- * Join accept delay 1
- */
-#define US915_JOIN_ACCEPT_DELAY1                    5000
-
-/*!
- * Join accept delay 2
- */
-#define US915_JOIN_ACCEPT_DELAY2                    6000
-
-/*!
- * Maximum frame counter gap
- */
-#define US915_MAX_FCNT_GAP                          16384
-
-/*!
- * Ack timeout
- */
-#define US915_ACKTIMEOUT                            2000
-
-/*!
- * Random ack timeout limits
- */
-#define US915_ACK_TIMEOUT_RND                       1000
-
-/*!
  * Second reception window channel frequency definition.
  */
 #define US915_RX_WND_2_FREQ                         923300000
@@ -173,6 +123,11 @@ extern "C"
  * Second reception window channel datarate definition.
  */
 #define US915_RX_WND_2_DR                           DR_8
+
+/*!
+ * Default uplink dwell time configuration
+ */
+#define US915_DEFAULT_UPLINK_DWELL_TIME             0
 
 /*
  * CLASS B
