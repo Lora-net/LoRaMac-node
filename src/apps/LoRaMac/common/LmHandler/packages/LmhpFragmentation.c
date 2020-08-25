@@ -283,6 +283,11 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
     // Co-efficient used to calculate delay.
     uint8_t blockAckDelay = 0;
 
+    if( mcpsIndication->Port != FRAGMENTATION_PORT )
+    {
+        return;
+    }
+
     while( cmdIndex < mcpsIndication->BufferSize )
     {
         switch( mcpsIndication->Buffer[cmdIndex++] )
