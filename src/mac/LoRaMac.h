@@ -1071,7 +1071,7 @@ typedef struct sMlmeReqTxCw
     /*!
      * RF output power to set (Only used with new way)
      */
-    uint8_t Power;
+    int8_t Power;
 }MlmeReqTxCw_t;
 
 /*!
