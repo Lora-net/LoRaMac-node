@@ -129,8 +129,8 @@ static void OnSysTimeUpdate( bool isSynchronized, int32_t timeCorrection );
 static void OnSysTimeUpdate( void );
 #endif
 #if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
-static uint8_t FragDecoderWrite( uint32_t addr, uint8_t *data, uint32_t size );
-static uint8_t FragDecoderRead( uint32_t addr, uint8_t *data, uint32_t size );
+static int8_t FragDecoderWrite( uint32_t addr, uint8_t *data, uint32_t size );
+static int8_t FragDecoderRead( uint32_t addr, uint8_t *data, uint32_t size );
 #endif
 static void OnFragProgress( uint16_t fragCounter, uint16_t fragNb, uint8_t fragSize, uint16_t fragNbLost );
 #if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
@@ -454,7 +454,7 @@ static void OnSysTimeUpdate( void )
 #endif
 
 #if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
-static uint8_t FragDecoderWrite( uint32_t addr, uint8_t *data, uint32_t size )
+static int8_t FragDecoderWrite( uint32_t addr, uint8_t *data, uint32_t size )
 {
     if( size >= UNFRAGMENTED_DATA_SIZE )
     {
@@ -467,7 +467,7 @@ static uint8_t FragDecoderWrite( uint32_t addr, uint8_t *data, uint32_t size )
     return 0; // Success
 }
 
-static uint8_t FragDecoderRead( uint32_t addr, uint8_t *data, uint32_t size )
+static int8_t FragDecoderRead( uint32_t addr, uint8_t *data, uint32_t size )
 {
     if( size >= UNFRAGMENTED_DATA_SIZE )
     {
