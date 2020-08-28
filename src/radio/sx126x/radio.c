@@ -655,7 +655,7 @@ void RadioSetRxConfig( RadioModems_t modem, uint32_t bandwidth,
 
             SX126x.ModulationParams.Params.Gfsk.BitRate = datarate;
             SX126x.ModulationParams.Params.Gfsk.ModulationShaping = MOD_SHAPING_G_BT_1;
-            SX126x.ModulationParams.Params.Gfsk.Bandwidth = RadioGetFskBandwidthRegValue( bandwidth );
+            SX126x.ModulationParams.Params.Gfsk.Bandwidth = RadioGetFskBandwidthRegValue( bandwidth ) << 1; // SX126x badwidth is double sided
 
             SX126x.PacketParams.PacketType = PACKET_TYPE_GFSK;
             SX126x.PacketParams.Params.Gfsk.PreambleLength = ( preambleLen << 3 ); // convert byte into bit
@@ -766,7 +766,7 @@ void RadioSetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
             SX126x.ModulationParams.Params.Gfsk.BitRate = datarate;
 
             SX126x.ModulationParams.Params.Gfsk.ModulationShaping = MOD_SHAPING_G_BT_1;
-            SX126x.ModulationParams.Params.Gfsk.Bandwidth = RadioGetFskBandwidthRegValue( bandwidth );
+            SX126x.ModulationParams.Params.Gfsk.Bandwidth = RadioGetFskBandwidthRegValue( bandwidth ) << 1; // SX126x badwidth is double sided
             SX126x.ModulationParams.Params.Gfsk.Fdev = fdev;
 
             SX126x.PacketParams.PacketType = PACKET_TYPE_GFSK;
