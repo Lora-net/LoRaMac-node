@@ -1220,7 +1220,7 @@ void RadioIrqProcess( void )
         CRITICAL_SECTION_END( );
 
         uint16_t irqRegs = SX126xGetIrqStatus( );
-        SX126xClearIrqStatus( IRQ_RADIO_ALL );
+        SX126xClearIrqStatus( irqRegs );
 
         if( ( irqRegs & IRQ_TX_DONE ) == IRQ_TX_DONE )
         {
