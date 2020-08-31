@@ -246,6 +246,11 @@ static void LmhpRemoteMcastSetupOnMcpsIndication( McpsIndication_t *mcpsIndicati
     uint8_t cmdIndex = 0;
     uint8_t dataBufferIndex = 0;
 
+    if( mcpsIndication->Port != REMOTE_MCAST_SETUP_PORT )
+    {
+        return;
+    }
+
     while( cmdIndex < mcpsIndication->BufferSize )
     {
         switch( mcpsIndication->Buffer[cmdIndex++] )

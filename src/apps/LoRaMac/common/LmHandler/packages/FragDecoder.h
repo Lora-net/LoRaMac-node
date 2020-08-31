@@ -76,7 +76,7 @@ typedef struct sFragDecoderCallbacks
      * 
      * \retval status Write operation status [0: Success, -1 Fail]
      */
-    uint8_t ( *FragDecoderWrite )( uint32_t addr, uint8_t *data, uint32_t size );
+    int8_t ( *FragDecoderWrite )( uint32_t addr, uint8_t *data, uint32_t size );
     /*!
      * Reads `data` buffer of `size` starting at address `addr`
      *
@@ -86,7 +86,7 @@ typedef struct sFragDecoderCallbacks
      * 
      * \retval status Read operation status [0: Success, -1 Fail]
      */
-    uint8_t ( *FragDecoderRead )( uint32_t addr, uint8_t *data, uint32_t size );
+    int8_t ( *FragDecoderRead )( uint32_t addr, uint8_t *data, uint32_t size );
 }FragDecoderCallbacks_t;
 #endif
 

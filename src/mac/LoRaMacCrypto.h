@@ -303,10 +303,11 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
  * 1.1.x
  * McRootKey = aes128_encrypt(AppKey, 0x20 | pad16)
  *
+ * \param[IN]     versionMinor    - LoRaWAN specification minor version to be used.
  * \param[IN]     keyID           - Key identifier of the root key to use to perform the derivation ( AppKey )
  * \retval                        - Status of the operation
  */
-LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcRootKey( KeyIdentifier_t keyID );
+LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcRootKey( uint8_t versionMinor, KeyIdentifier_t keyID );
 
 /*!
  * Derives the McKEKey from the McRootKey.

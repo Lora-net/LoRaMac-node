@@ -495,7 +495,7 @@ bool RegionIN865ChanMaskSet( ChanMaskSetParams_t* chanMaskSet )
 
 void RegionIN865ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols, uint32_t rxError, RxConfigParams_t *rxConfigParams )
 {
-    double tSymbol = 0.0;
+    uint32_t tSymbolInUs = 0;
 
     // Get the datarate, perform a boundary check
     rxConfigParams->Datarate = MIN( datarate, IN865_RX_MAX_DATARATE );
@@ -503,14 +503,14 @@ void RegionIN865ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
 
     if( rxConfigParams->Datarate == DR_7 )
     { // FSK
-        tSymbol = RegionCommonComputeSymbolTimeFsk( DataratesIN865[rxConfigParams->Datarate] );
+        tSymbolInUs = RegionCommonComputeSymbolTimeFsk( DataratesIN865[rxConfigParams->Datarate] );
     }
     else
     { // LoRa
-        tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesIN865[rxConfigParams->Datarate], BandwidthsIN865[rxConfigParams->Datarate] );
+        tSymbolInUs = RegionCommonComputeSymbolTimeLoRa( DataratesIN865[rxConfigParams->Datarate], BandwidthsIN865[rxConfigParams->Datarate] );
     }
 
-    RegionCommonComputeRxWindowParameters( tSymbol, minRxSymbols, rxError, Radio.GetWakeupTime( ), &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
+    RegionCommonComputeRxWindowParameters( tSymbolInUs, minRxSymbols, rxError, Radio.GetWakeupTime( ), &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
 }
 
 bool RegionIN865RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
