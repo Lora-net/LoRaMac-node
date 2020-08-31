@@ -1082,7 +1082,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSetKey( KeyIdentifier_t keyID, uint8_t* key )
     if( keyID == APP_KEY )
     {
         // Derive lifetime keys
-        if( LoRaMacCryptoDeriveMcRootKey( keyID ) != LORAMAC_CRYPTO_SUCCESS )
+        if( LoRaMacCryptoDeriveMcRootKey( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor, keyID ) != LORAMAC_CRYPTO_SUCCESS )
         {
             return LORAMAC_CRYPTO_ERROR_SECURE_ELEMENT_FUNC;
         }
@@ -1295,22 +1295,23 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
     }
 #endif
 
+    // Derive lifetime keys
+    retval = LoRaMacCryptoDeriveMcRootKey( versionMinor, APP_KEY );
+    if( retval != LORAMAC_CRYPTO_SUCCESS )
+    {
+        return retval;
+    }
+
+    retval = LoRaMacCryptoDeriveMcKEKey( MC_ROOT_KEY );
+    if( retval != LORAMAC_CRYPTO_SUCCESS )
+    {
+        return retval;
+    }
+
 #if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     if( versionMinor == 1 )
     {
         // Operating in LoRaWAN 1.1.x mode
-        // Derive lifetime keys
-        retval = LoRaMacCryptoDeriveMcRootKey( APP_KEY );
-        if( retval != LORAMAC_CRYPTO_SUCCESS )
-        {
-            return retval;
-        }
-
-        retval = LoRaMacCryptoDeriveMcKEKey( MC_ROOT_KEY );
-        if( retval != LORAMAC_CRYPTO_SUCCESS )
-        {
-            return retval;
-        }
 
         retval = DeriveSessionKey11x( F_NWK_S_INT_KEY, macMsg->JoinNonce, joinEUI, nonce );
         if( retval != LORAMAC_CRYPTO_SUCCESS )
@@ -1340,17 +1341,6 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
 #endif
     {
         // Operating in LoRaWAN 1.0.x mode
-        retval = LoRaMacCryptoDeriveMcRootKey( APP_KEY );
-        if( retval != LORAMAC_CRYPTO_SUCCESS )
-        {
-            return retval;
-        }
-
-        retval = LoRaMacCryptoDeriveMcKEKey( MC_ROOT_KEY );
-        if( retval != LORAMAC_CRYPTO_SUCCESS )
-        {
-            return retval;
-        }
 
         retval = DeriveSessionKey10x( APP_S_KEY, macMsg->JoinNonce, macMsg->NetID, ( uint8_t* )&CryptoCtx.NvmCtx->DevNonce );
         if( retval != LORAMAC_CRYPTO_SUCCESS )
@@ -1576,7 +1566,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoUnsecureMessage( AddressIdentifier_t addrID, 
     return LORAMAC_CRYPTO_SUCCESS;
 }
 
-LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcRootKey( KeyIdentifier_t keyID )
+LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcRootKey( uint8_t versionMinor, KeyIdentifier_t keyID )
 {
     // Prevent other keys than AppKey
     if( keyID != APP_KEY )
@@ -1585,7 +1575,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoDeriveMcRootKey( KeyIdentifier_t keyID )
     }
     uint8_t compBase[16] = { 0 };
 
-    if( CryptoCtx.NvmCtx->LrWanVersion.Fields.Minor == 1 )
+    if( versionMinor == 1 )
     {
         compBase[0] = 0x20;
     }
