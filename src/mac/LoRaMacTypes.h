@@ -55,6 +55,11 @@ extern "C"
 #define LORAMAC_CRYPTO_MULTICAST_KEYS   127
 
 /*!
+ * Maximum number of multicast context
+ */
+#define LORAMAC_MAX_MC_CTX              4
+
+/*!
  * LoRaWAN devices classes definition
  *
  * LoRaWAN Specification V1.0.2, chapter 2.1

@@ -106,21 +106,9 @@ typedef struct sFCntList
      */
     uint32_t FCntDown;
     /*!
-     * Multicast downlink counter for index 0
+     * Multicast downlink counters
      */
-    uint32_t McFCntDown0;
-    /*!
-     * Multicast downlink counter for index 1
-     */
-    uint32_t McFCntDown1;
-    /*!
-     * Multicast downlink counter for index 2
-     */
-    uint32_t McFCntDown2;
-    /*!
-     * Multicast downlink counter for index 3
-     */
-    uint32_t McFCntDown3;
+    uint32_t McFCntDown[LORAMAC_MAX_MC_CTX];
 #if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     /*
      * RJcount1 is a counter incremented with every Rejoin request Type 1 frame transmitted.
@@ -795,18 +783,26 @@ static LoRaMacCryptoStatus_t GetLastFcntDown( FCntIdentifier_t fCntID, uint32_t*
             *lastDown = CryptoCtx.NvmCtx->FCntList.FCntDown;
             CryptoCtx.NvmCtx->LastDownFCnt = &CryptoCtx.NvmCtx->FCntList.FCntDown;
             break;
+#if ( LORAMAC_MAX_MC_CTX > 0 )
         case MC_FCNT_DOWN_0:
-            *lastDown = CryptoCtx.NvmCtx->FCntList.McFCntDown0;
+            *lastDown = CryptoCtx.NvmCtx->FCntList.McFCntDown[0];
             break;
+#endif
+#if ( LORAMAC_MAX_MC_CTX > 1 )
         case MC_FCNT_DOWN_1:
-            *lastDown = CryptoCtx.NvmCtx->FCntList.McFCntDown1;
+            *lastDown = CryptoCtx.NvmCtx->FCntList.McFCntDown[1];
             break;
+#endif
+#if ( LORAMAC_MAX_MC_CTX > 2 )
         case MC_FCNT_DOWN_2:
-            *lastDown = CryptoCtx.NvmCtx->FCntList.McFCntDown2;
+            *lastDown = CryptoCtx.NvmCtx->FCntList.McFCntDown[2];
             break;
+#endif
+#if ( LORAMAC_MAX_MC_CTX > 3 )
         case MC_FCNT_DOWN_3:
-            *lastDown = CryptoCtx.NvmCtx->FCntList.McFCntDown3;
+            *lastDown = CryptoCtx.NvmCtx->FCntList.McFCntDown[3];
             break;
+#endif
         default:
             return LORAMAC_CRYPTO_FAIL_FCNT_ID;
     }
@@ -861,18 +857,26 @@ static void UpdateFCntDown( FCntIdentifier_t fCntID, uint32_t currentDown )
         case FCNT_DOWN:
             CryptoCtx.NvmCtx->FCntList.FCntDown = currentDown;
             break;
+#if ( LORAMAC_MAX_MC_CTX > 0 )
         case MC_FCNT_DOWN_0:
-            CryptoCtx.NvmCtx->FCntList.McFCntDown0 = currentDown;
+            CryptoCtx.NvmCtx->FCntList.McFCntDown[0] = currentDown;
             break;
+#endif
+#if ( LORAMAC_MAX_MC_CTX > 1 )
         case MC_FCNT_DOWN_1:
-            CryptoCtx.NvmCtx->FCntList.McFCntDown1 = currentDown;
+            CryptoCtx.NvmCtx->FCntList.McFCntDown[1] = currentDown;
             break;
+#endif
+#if ( LORAMAC_MAX_MC_CTX > 2 )
         case MC_FCNT_DOWN_2:
-            CryptoCtx.NvmCtx->FCntList.McFCntDown2 = currentDown;
+            CryptoCtx.NvmCtx->FCntList.McFCntDown[2] = currentDown;
             break;
+#endif
+#if ( LORAMAC_MAX_MC_CTX > 3 )
         case MC_FCNT_DOWN_3:
-            CryptoCtx.NvmCtx->FCntList.McFCntDown3 = currentDown;
+            CryptoCtx.NvmCtx->FCntList.McFCntDown[3] = currentDown;
             break;
+#endif
         default:
             break;
     }
@@ -884,17 +888,16 @@ static void UpdateFCntDown( FCntIdentifier_t fCntID, uint32_t currentDown )
  */
 static void ResetFCnts( void )
 {
-
     CryptoCtx.NvmCtx->FCntList.FCntUp = 0;
     CryptoCtx.NvmCtx->FCntList.NFCntDown = FCNT_DOWN_INITAL_VALUE;
     CryptoCtx.NvmCtx->FCntList.AFCntDown = FCNT_DOWN_INITAL_VALUE;
     CryptoCtx.NvmCtx->FCntList.FCntDown = FCNT_DOWN_INITAL_VALUE;
     CryptoCtx.NvmCtx->LastDownFCnt = &CryptoCtx.NvmCtx->FCntList.FCntDown;
 
-    CryptoCtx.NvmCtx->FCntList.McFCntDown0 = FCNT_DOWN_INITAL_VALUE;
-    CryptoCtx.NvmCtx->FCntList.McFCntDown1 = FCNT_DOWN_INITAL_VALUE;
-    CryptoCtx.NvmCtx->FCntList.McFCntDown2 = FCNT_DOWN_INITAL_VALUE;
-    CryptoCtx.NvmCtx->FCntList.McFCntDown3 = FCNT_DOWN_INITAL_VALUE;
+    for( int32_t i = 0; i < LORAMAC_MAX_MC_CTX; i++ )
+    {
+        CryptoCtx.NvmCtx->FCntList.McFCntDown[i] = FCNT_DOWN_INITAL_VALUE;
+    }
 
     CryptoCtx.EventCryptoNvmCtxChanged( );
 }
@@ -1062,10 +1065,10 @@ LoRaMacCryptoStatus_t LoRaMacCryptoSetMulticastReference( MulticastCtx_t* multic
         return LORAMAC_CRYPTO_ERROR_NPE;
     }
 
-    multicastList[0].DownLinkCounter = &CryptoCtx.NvmCtx->FCntList.McFCntDown0;
-    multicastList[1].DownLinkCounter = &CryptoCtx.NvmCtx->FCntList.McFCntDown1;
-    multicastList[2].DownLinkCounter = &CryptoCtx.NvmCtx->FCntList.McFCntDown2;
-    multicastList[3].DownLinkCounter = &CryptoCtx.NvmCtx->FCntList.McFCntDown3;
+    for( int32_t i = 0; i < LORAMAC_MAX_MC_CTX; i++ )
+    {
+        multicastList[i].DownLinkCounter = &CryptoCtx.NvmCtx->FCntList.McFCntDown[i];
+    }
 
     return LORAMAC_CRYPTO_SUCCESS;
 }
