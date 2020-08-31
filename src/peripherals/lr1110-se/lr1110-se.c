@@ -260,7 +260,7 @@ SecureElementStatus_t SecureElementAesEncrypt( uint8_t* buffer, uint16_t size, K
     return status;
 }
 
-SecureElementStatus_t SecureElementDeriveAndStoreKey( Version_t version, uint8_t* input, KeyIdentifier_t rootKeyID,
+SecureElementStatus_t SecureElementDeriveAndStoreKey( uint8_t* input, KeyIdentifier_t rootKeyID,
                                                       KeyIdentifier_t targetKeyID )
 {
     SecureElementStatus_t status = SECURE_ELEMENT_ERROR;
