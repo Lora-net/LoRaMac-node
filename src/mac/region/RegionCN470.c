@@ -452,15 +452,15 @@ bool RegionCN470ChanMaskSet( ChanMaskSetParams_t* chanMaskSet )
 
 void RegionCN470ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols, uint32_t rxError, RxConfigParams_t *rxConfigParams )
 {
-    double tSymbol = 0.0;
+    uint32_t tSymbolInUs = 0;
 
     // Get the datarate, perform a boundary check
     rxConfigParams->Datarate = MIN( datarate, CN470_RX_MAX_DATARATE );
     rxConfigParams->Bandwidth = RegionCommonGetBandwidth( rxConfigParams->Datarate, BandwidthsCN470 );
 
-    tSymbol = RegionCommonComputeSymbolTimeLoRa( DataratesCN470[rxConfigParams->Datarate], BandwidthsCN470[rxConfigParams->Datarate] );
+    tSymbolInUs = RegionCommonComputeSymbolTimeLoRa( DataratesCN470[rxConfigParams->Datarate], BandwidthsCN470[rxConfigParams->Datarate] );
 
-    RegionCommonComputeRxWindowParameters( tSymbol, minRxSymbols, rxError, Radio.GetWakeupTime( ), &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
+    RegionCommonComputeRxWindowParameters( tSymbolInUs, minRxSymbols, rxError, Radio.GetWakeupTime( ), &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
 }
 
 bool RegionCN470RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )

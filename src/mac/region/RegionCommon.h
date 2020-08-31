@@ -483,38 +483,36 @@ uint8_t RegionCommonLinkAdrReqVerifyParams( RegionCommonLinkAdrReqVerifyParams_t
  *
  * \param [IN] bandwidth Bandwidth to use.
  *
- * \retval Returns the symbol time.
+ * \retval Returns the symbol time in microseconds.
  */
-double RegionCommonComputeSymbolTimeLoRa( uint8_t phyDr, uint32_t bandwidth );
+uint32_t RegionCommonComputeSymbolTimeLoRa( uint8_t phyDr, uint32_t bandwidthInHz );
 
 /*!
  * \brief Computes the symbol time for FSK modulation.
  *
  * \param [IN] phyDr Physical datarate to use.
  *
- * \param [IN] bandwidth Bandwidth to use.
- *
- * \retval Returns the symbol time.
+ * \retval Returns the symbol time in microseconds.
  */
-double RegionCommonComputeSymbolTimeFsk( uint8_t phyDr );
+uint32_t RegionCommonComputeSymbolTimeFsk( uint8_t phyDrInKbps );
 
 /*!
  * \brief Computes the RX window timeout and the RX window offset.
  *
- * \param [IN] tSymbol Symbol timeout.
+ * \param [IN] tSymbolInUs Symbol timeout.
  *
  * \param [IN] minRxSymbols Minimum required number of symbols to detect an Rx frame.
  *
- * \param [IN] rxError System maximum timing error of the receiver. In milliseconds
- *                     The receiver will turn on in a [-rxError : +rxError] ms interval around RxOffset.
+ * \param [IN] rxErrorInMs System maximum timing error of the receiver. In milliseconds
+ *                     The receiver will turn on in a [-rxErrorInMs : +rxErrorInMs] ms interval around RxOffset.
  *
- * \param [IN] wakeUpTime Wakeup time of the system.
+ * \param [IN] wakeUpTimeInMs Wakeup time of the system.
  *
- * \param [OUT] windowTimeout RX window timeout.
+ * \param [OUT] windowTimeoutInSymbols RX window timeout.
  *
- * \param [OUT] windowOffset RX window time offset to be applied to the RX delay.
+ * \param [OUT] windowOffsetInMs RX window time offset to be applied to the RX delay.
  */
-void RegionCommonComputeRxWindowParameters( double tSymbol, uint8_t minRxSymbols, uint32_t rxError, uint32_t wakeUpTime, uint32_t* windowTimeout, int32_t* windowOffset );
+void RegionCommonComputeRxWindowParameters( uint32_t tSymbolInUs, uint8_t minRxSymbols, uint32_t rxErrorInMs, uint32_t wakeUpTimeInMs, uint32_t* windowTimeoutInSymbols, int32_t* windowOffsetInMs );
 
 /*!
  * \brief Computes the txPower, based on the max EIRP and the antenna gain.
