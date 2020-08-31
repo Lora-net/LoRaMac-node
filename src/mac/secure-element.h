@@ -178,13 +178,12 @@ SecureElementStatus_t SecureElementAesEncrypt( uint8_t* buffer, uint16_t size, K
 /*!
  * Derives and store a key
  *
- * \param[IN]  version        - LoRaWAN specification version currently in use.
  * \param[IN]  input          - Input data from which the key is derived ( 16 byte )
  * \param[IN]  rootKeyID      - Key identifier of the root key to use to perform the derivation
  * \param[IN]  targetKeyID    - Key identifier of the key which will be derived
  * \retval                    - Status of the operation
  */
-SecureElementStatus_t SecureElementDeriveAndStoreKey( Version_t version, uint8_t* input, KeyIdentifier_t rootKeyID, KeyIdentifier_t targetKeyID );
+SecureElementStatus_t SecureElementDeriveAndStoreKey( uint8_t* input, KeyIdentifier_t rootKeyID, KeyIdentifier_t targetKeyID );
 
 /*!
  * Process JoinAccept message.

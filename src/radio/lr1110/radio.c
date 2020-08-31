@@ -626,7 +626,7 @@ void RadioSetRxConfig( RadioModems_t modem, uint32_t bandwidth, uint32_t datarat
         LR1110.modulation_params.modulation.gfsk.bitrate     = datarate;
         LR1110.modulation_params.modulation.gfsk.pulse_shape = LR1110_RADIO_PULSESHAPE_GAUSSIANBT1;
         LR1110.modulation_params.modulation.gfsk.bandwidth =
-            ( lr1110_radio_gfsk_rx_bw_t ) RadioGetFskBandwidthRegValue( bandwidth );
+            ( lr1110_radio_gfsk_rx_bw_t ) RadioGetFskBandwidthRegValue( bandwidth ) << 1; // LR1110 badwidth is double sided
 
         LR1110.packet_params.packet_type                     = LR1110_RADIO_PACKET_GFSK;
         LR1110.packet_params.packet.gfsk.preamble_length_tx_in_bit = ( preambleLen << 3 );  // convert byte into bit
@@ -723,7 +723,7 @@ void RadioSetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev, uint32_
 
         LR1110.modulation_params.modulation.gfsk.pulse_shape = LR1110_RADIO_PULSESHAPE_GAUSSIANBT1;
         LR1110.modulation_params.modulation.gfsk.bandwidth =
-            ( lr1110_radio_gfsk_rx_bw_t ) RadioGetFskBandwidthRegValue( bandwidth );
+            ( lr1110_radio_gfsk_rx_bw_t ) RadioGetFskBandwidthRegValue( bandwidth ) << 1; // LR1110 badwidth is double sided
         LR1110.modulation_params.modulation.gfsk.fdev = fdev;
 
         LR1110.packet_params.packet_type                     = LR1110_RADIO_PACKET_GFSK;

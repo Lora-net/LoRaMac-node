@@ -100,11 +100,6 @@ extern "C"
 #define LORA_MAC_MLME_CONFIRM_QUEUE_LEN             5
 
 /*!
- * Maximum number of multicast context
- */
-#define   LORAMAC_MAX_MC_CTX       4
-
-/*!
  * Start value for multicast keys enumeration
  */
 #define LORAMAC_CRYPTO_MULTICAST_KEYS   127
@@ -1006,7 +1001,7 @@ typedef struct sMlmeReqTxCw
     /*!
      * RF output power to set (Only used with new way)
      */
-    uint8_t Power;
+    int8_t Power;
 }MlmeReqTxCw_t;
 
 /*!

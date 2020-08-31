@@ -45,6 +45,24 @@
 #define DUTY_CYCLE_TIME_PERIOD              3600000
 #endif
 
+/*!
+ * \brief Returns `N / D` rounded to the smallest integer value greater than or equal to `N / D`
+ *
+ * \warning when `D == 0`, the result is undefined
+ *
+ * \remark `N` and `D` can be signed or unsigned
+ *
+ * \param [IN] N the numerator, which can have any sign
+ * \param [IN] D the denominator, which can have any sign
+ * \retval N / D with any fractional part rounded to the smallest integer value greater than or equal to `N / D`
+ */
+#define DIV_CEIL( N, D )                                                       \
+    (                                                                          \
+        ( N > 0 ) ?                                                            \
+        ( ( ( N ) + ( D ) - 1 ) / ( D ) ) :                                    \
+        ( ( N ) / ( D ) )                                                      \
+    )
+
 static uint16_t GetDutyCycle( Band_t* band, bool joined, SysTime_t elapsedTimeSinceStartup )
 {
     uint16_t joinDutyCycle = RegionCommonGetJoinDc( elapsedTimeSinceStartup );
@@ -418,20 +436,22 @@ uint8_t RegionCommonLinkAdrReqVerifyParams( RegionCommonLinkAdrReqVerifyParams_t
     return status;
 }
 
-double RegionCommonComputeSymbolTimeLoRa( uint8_t phyDr, uint32_t bandwidth )
+uint32_t RegionCommonComputeSymbolTimeLoRa( uint8_t phyDr, uint32_t bandwidthInHz )
 {
-    return ( ( double )( 1 << phyDr ) / ( double )bandwidth ) * 1000;
+    return ( 1 << phyDr ) * 1000000 / bandwidthInHz;
 }
 
-double RegionCommonComputeSymbolTimeFsk( uint8_t phyDr )
+uint32_t RegionCommonComputeSymbolTimeFsk( uint8_t phyDrInKbps )
 {
-    return ( 8.0 / ( double )phyDr ); // 1 symbol equals 1 byte
+    return 8000 / ( uint32_t )phyDrInKbps; // 1 symbol equals 1 byte
 }
 
-void RegionCommonComputeRxWindowParameters( double tSymbol, uint8_t minRxSymbols, uint32_t rxError, uint32_t wakeUpTime, uint32_t* windowTimeout, int32_t* windowOffset )
+void RegionCommonComputeRxWindowParameters( uint32_t tSymbolInUs, uint8_t minRxSymbols, uint32_t rxErrorInMs, uint32_t wakeUpTimeInMs, uint32_t* windowTimeoutInSymbols, int32_t* windowOffsetInMs )
 {
-    *windowTimeout = MAX( ( uint32_t )ceil( ( ( 2 * minRxSymbols - 8 ) * tSymbol + 2 * rxError ) / tSymbol ), minRxSymbols ); // Computed number of symbols
-    *windowOffset = ( int32_t )ceil( ( 4.0 * tSymbol ) - ( ( *windowTimeout * tSymbol ) / 2.0 ) - wakeUpTime );
+    *windowTimeoutInSymbols = MAX( DIV_CEIL( ( ( 2 * minRxSymbols - 8 ) * tSymbolInUs + 2 * ( rxErrorInMs * 1000 ) ),  tSymbolInUs ), minRxSymbols ); // Computed number of symbols
+    *windowOffsetInMs = ( int32_t )DIV_CEIL( ( int32_t )( 4 * tSymbolInUs ) -
+                                               ( int32_t )DIV_CEIL( ( *windowTimeoutInSymbols * tSymbolInUs ), 2 ) -
+                                               ( int32_t )( wakeUpTimeInMs * 1000 ), 1000 );
 }
 
 int8_t RegionCommonComputeTxPower( int8_t txPowerIndex, float maxEirp, float antennaGain )

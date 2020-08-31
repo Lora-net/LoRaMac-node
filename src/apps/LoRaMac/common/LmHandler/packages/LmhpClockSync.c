@@ -201,6 +201,11 @@ static void LmhpClockSyncOnMcpsIndication( McpsIndication_t *mcpsIndication )
     uint8_t cmdIndex = 0;
     uint8_t dataBufferIndex = 0;
 
+    if( mcpsIndication->Port != CLOCK_SYNC_PORT )
+    {
+        return;
+    }
+
     while( cmdIndex < mcpsIndication->BufferSize )
     {
         switch( mcpsIndication->Buffer[cmdIndex++] )
