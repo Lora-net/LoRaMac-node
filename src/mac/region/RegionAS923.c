@@ -71,6 +71,8 @@
 
 // Channel plan CHANNEL_PLAN_GROUP_AS923_1_JP
 
+#define REGION_AS923_FREQ_OFFSET          0
+
 /*!
  * Restrict AS923 frequencies to channels 24 to 38
  * Center frequencies 920.6 MHz to 923.4 MHz @ 200 kHz max bandwidth
@@ -89,12 +91,6 @@
 
 #undef AS923_RX_MAX_DATARATE
 #define AS923_RX_MAX_DATARATE             DR_5
-
-#undef AS923_DEFAULT_UPLINK_DWELL_TIME
-#define AS923_DEFAULT_UPLINK_DWELL_TIME   DR_5
-
-#undef AS923_DEFAULT_DOWNLINK_DWELL_TIME
-#define AS923_DEFAULT_DOWNLINK_DWELL_TIME DR_5
 
 #undef AS923_DEFAULT_MAX_EIRP
 #define AS923_DEFAULT_MAX_EIRP            13.0f
@@ -288,7 +284,7 @@ PhyParam_t RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_DEF_RX2_FREQUENCY:
         {
-            phyParam.Value = AS923_RX_WND_2_FREQ;
+            phyParam.Value = AS923_RX_WND_2_FREQ - REGION_AS923_FREQ_OFFSET;
             break;
         }
         case PHY_DEF_RX2_DR:
@@ -338,7 +334,7 @@ PhyParam_t RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_BEACON_CHANNEL_FREQ:
         {
-            phyParam.Value = AS923_BEACON_CHANNEL_FREQ;
+            phyParam.Value = AS923_BEACON_CHANNEL_FREQ - REGION_AS923_FREQ_OFFSET;
             break;
         }
         case PHY_BEACON_FORMAT:
@@ -405,6 +401,10 @@ void RegionAS923InitDefaults( InitDefaultsParams_t* params )
             // Default channels
             NvmCtx.Channels[0] = ( ChannelParams_t ) AS923_LC1;
             NvmCtx.Channels[1] = ( ChannelParams_t ) AS923_LC2;
+
+            // Apply frequency offset
+            NvmCtx.Channels[0].Frequency -= REGION_AS923_FREQ_OFFSET;
+            NvmCtx.Channels[1].Frequency -= REGION_AS923_FREQ_OFFSET;
 
             // Default ChannelsMask
             NvmCtx.ChannelsDefaultMask[0] = LC( 1 ) + LC( 2 );
