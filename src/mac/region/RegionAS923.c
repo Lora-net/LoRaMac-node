@@ -71,6 +71,8 @@
 
 // Channel plan CHANNEL_PLAN_GROUP_AS923_1_JP
 
+#define REGION_AS923_FREQ_OFFSET          0
+
 /*!
  * Restrict AS923 frequencies to channels 24 to 38
  * Center frequencies 920.6 MHz to 923.4 MHz @ 200 kHz max bandwidth
@@ -89,12 +91,6 @@
 
 #undef AS923_RX_MAX_DATARATE
 #define AS923_RX_MAX_DATARATE             DR_5
-
-#undef AS923_DEFAULT_UPLINK_DWELL_TIME
-#define AS923_DEFAULT_UPLINK_DWELL_TIME   DR_5
-
-#undef AS923_DEFAULT_DOWNLINK_DWELL_TIME
-#define AS923_DEFAULT_DOWNLINK_DWELL_TIME DR_5
 
 #undef AS923_DEFAULT_MAX_EIRP
 #define AS923_DEFAULT_MAX_EIRP            13.0f
