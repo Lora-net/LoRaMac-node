@@ -62,7 +62,7 @@ extern "C"
 /*!
  * Indicates if JoinNonce is counter based and requires to be checked
  */
-#define USE_JOIN_NONCE_COUNTER_CHECK                0
+#define USE_JOIN_NONCE_COUNTER_CHECK                1
 
 /*!
  * Initial value of the frame counters
