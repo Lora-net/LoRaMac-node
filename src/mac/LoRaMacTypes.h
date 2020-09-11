@@ -43,6 +43,7 @@ extern "C"
 #include <stdint.h>
 #include <stdbool.h>
 #include "timer.h"
+#include "systime.h"
 
 /*!
  * Start value for unicast keys enumeration
@@ -605,6 +606,11 @@ typedef struct sBand
      * synchronized with the current time
      */
     TimerTime_t LastBandUpdateTime;
+    /*!
+     * The last time we have assigned the max
+     * credits for the 24h interval.
+     */
+    TimerTime_t LastMaxCreditAssignTime;
     /*!
      * Current time credits which are available. This
      * is a value in ms

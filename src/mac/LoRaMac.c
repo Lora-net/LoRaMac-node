@@ -1977,6 +1977,8 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                             MacCtx.NvmCtx->MacParams.ChannelsDatarate = linkAdrDatarate;
                             MacCtx.NvmCtx->MacParams.ChannelsTxPower = linkAdrTxPower;
                             MacCtx.NvmCtx->MacParams.ChannelsNbTrans = linkAdrNbRep;
+                            EventMacNvmCtxChanged( );
+                            EventRegionNvmCtxChanged( );
                         }
 
                         // Add the answers to the buffer
@@ -2011,6 +2013,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 MacCtx.NvmCtx->MaxDCycle = payload[macIndex++] & 0x0F;
                 MacCtx.NvmCtx->AggregatedDCycle = 1 << MacCtx.NvmCtx->MaxDCycle;
                 LoRaMacCommandsAddCmd( MOTE_MAC_DUTY_CYCLE_ANS, macCmdPayload, 0 );
+                EventMacNvmCtxChanged( );
                 break;
             }
             case SRV_MAC_RX_PARAM_SETUP_REQ:
@@ -2037,6 +2040,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     MacCtx.NvmCtx->MacParams.Rx2Channel.Frequency = rxParamSetupReq.Frequency;
                     MacCtx.NvmCtx->MacParams.RxCChannel.Frequency = rxParamSetupReq.Frequency;
                     MacCtx.NvmCtx->MacParams.Rx1DrOffset = rxParamSetupReq.DrOffset;
+                    EventMacNvmCtxChanged( );
                 }
                 macCmdPayload[0] = status;
                 LoRaMacCommandsAddCmd( MOTE_MAC_RX_PARAM_SETUP_ANS, macCmdPayload, 1 );
@@ -2076,6 +2080,10 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
 
                 macCmdPayload[0] = status;
                 LoRaMacCommandsAddCmd( MOTE_MAC_NEW_CHANNEL_ANS, macCmdPayload, 1 );
+                if( status == 0x03 )
+                {
+                    EventRegionNvmCtxChanged( );
+                }
                 break;
             }
             case SRV_MAC_RX_TIMING_SETUP_REQ:
@@ -2091,6 +2099,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 LoRaMacCommandsAddCmd( MOTE_MAC_RX_TIMING_SETUP_ANS, macCmdPayload, 0 );
                 // Setup indication to inform the application
                 SetMlmeScheduleUplinkIndication( );
+                EventMacNvmCtxChanged( );
                 break;
             }
             case SRV_MAC_TX_PARAM_SETUP_REQ:
@@ -2128,6 +2137,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
 
                     // Add command response
                     LoRaMacCommandsAddCmd( MOTE_MAC_TX_PARAM_SETUP_ANS, macCmdPayload, 0 );
+                    EventMacNvmCtxChanged( );
                 }
                 break;
             }
@@ -2147,6 +2157,10 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 LoRaMacCommandsAddCmd( MOTE_MAC_DL_CHANNEL_ANS, macCmdPayload, 1 );
                 // Setup indication to inform the application
                 SetMlmeScheduleUplinkIndication( );
+                if( status == 0x03 )
+                {
+                    EventRegionNvmCtxChanged( );
+                }
                 break;
             }
             case SRV_MAC_DEVICE_TIME_ANS:
@@ -2644,6 +2658,9 @@ static void RemoveMacCommands( LoRaMacRxSlot_t rxSlot, LoRaMacFrameCtrl_t fCtrl,
 
 static void ResetMacParameters( void )
 {
+    LoRaMacClassBCallback_t classBCallbacks;
+    LoRaMacClassBParams_t classBParams;
+
     MacCtx.NvmCtx->NetworkActivation = ACTIVATION_TYPE_NONE;
 
     // ADR counter
@@ -2690,6 +2707,28 @@ static void ResetMacParameters( void )
     MacCtx.RxWindowCConfig.RxContinuous = true;
     MacCtx.RxWindowCConfig.RxSlot = RX_SLOT_WIN_CLASS_C;
 
+    // Initialize class b
+    // Apply callback
+    classBCallbacks.GetTemperatureLevel = NULL;
+    classBCallbacks.MacProcessNotify = NULL;
+
+    if( MacCtx.MacCallbacks != NULL )
+    {
+        classBCallbacks.GetTemperatureLevel = MacCtx.MacCallbacks->GetTemperatureLevel;
+        classBCallbacks.MacProcessNotify = MacCtx.MacCallbacks->MacProcessNotify;
+    }
+
+    // Must all be static. Don't use local references.
+    classBParams.MlmeIndication = &MacCtx.MlmeIndication;
+    classBParams.McpsIndication = &MacCtx.McpsIndication;
+    classBParams.MlmeConfirm = &MacCtx.MlmeConfirm;
+    classBParams.LoRaMacFlags = &MacCtx.MacFlags;
+    classBParams.LoRaMacDevAddr = &MacCtx.NvmCtx->DevAddr;
+    classBParams.LoRaMacRegion = &MacCtx.NvmCtx->Region;
+    classBParams.LoRaMacParams = &MacCtx.NvmCtx->MacParams;
+    classBParams.MulticastChannels = &MacCtx.NvmCtx->MulticastChannelList[0];
+
+    LoRaMacClassBInit( &classBParams, &classBCallbacks, &EventClassBNvmCtxChanged );
 }
 
 /*!
@@ -3172,8 +3211,6 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
 {
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;
-    LoRaMacClassBCallback_t classBCallbacks;
-    LoRaMacClassBParams_t classBParams;
 
     if( ( primitives == NULL ) ||
         ( callbacks == NULL ) )
@@ -3358,29 +3395,6 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
 
     Radio.SetPublicNetwork( MacCtx.NvmCtx->PublicNetwork );
     Radio.Sleep( );
-
-    // Initialize class b
-    // Apply callback
-    classBCallbacks.GetTemperatureLevel = NULL;
-    classBCallbacks.MacProcessNotify = NULL;
-    if( callbacks != NULL )
-    {
-        classBCallbacks.GetTemperatureLevel = callbacks->GetTemperatureLevel;
-        classBCallbacks.MacProcessNotify = callbacks->MacProcessNotify;
-    }
-
-    // Must all be static. Don't use local references.
-    classBParams.MlmeIndication = &MacCtx.MlmeIndication;
-    classBParams.McpsIndication = &MacCtx.McpsIndication;
-    classBParams.MlmeConfirm = &MacCtx.MlmeConfirm;
-    classBParams.LoRaMacFlags = &MacCtx.MacFlags;
-    classBParams.LoRaMacDevAddr = &MacCtx.NvmCtx->DevAddr;
-    classBParams.LoRaMacRegion = &MacCtx.NvmCtx->Region;
-    classBParams.LoRaMacParams = &MacCtx.NvmCtx->MacParams;
-    classBParams.MulticastChannels = &MacCtx.NvmCtx->MulticastChannelList[0];
-    classBParams.NetworkActivation = &MacCtx.NvmCtx->NetworkActivation;
-
-    LoRaMacClassBInit( &classBParams, &classBCallbacks, &EventClassBNvmCtxChanged );
 
     LoRaMacEnableRequests( LORAMAC_REQUEST_HANDLING_ON );
 
