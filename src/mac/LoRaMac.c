@@ -2328,13 +2328,13 @@ LoRaMacStatus_t Send( LoRaMacHeader_t* macHdr, uint8_t fPort, void* fBuffer, uin
     adrNext.AdrAckDelay = MacCtx.AdrAckDelay;
     adrNext.Datarate = MacCtx.NvmCtx->MacParams.ChannelsDatarate;
     adrNext.TxPower = MacCtx.NvmCtx->MacParams.ChannelsTxPower;
-    adrNext.NbTrans = MacCtx.ChannelsNbTransCounter;
+    adrNext.NbTrans = MacCtx.NvmCtx->MacParams.ChannelsNbTrans;
     adrNext.UplinkDwellTime = MacCtx.NvmCtx->MacParams.UplinkDwellTime;
     adrNext.Region = MacCtx.NvmCtx->Region;
 
     fCtrl.Bits.AdrAckReq = LoRaMacAdrCalcNext( &adrNext, &MacCtx.NvmCtx->MacParams.ChannelsDatarate,
                                                &MacCtx.NvmCtx->MacParams.ChannelsTxPower,
-                                               &MacCtx.ChannelsNbTransCounter, &adrAckCounter );
+                                               &MacCtx.NvmCtx->MacParams.ChannelsNbTrans, &adrAckCounter );
 
     // Prepare the frame
     status = PrepareFrame( macHdr, &fCtrl, fPort, fBuffer, fBufferSize );
