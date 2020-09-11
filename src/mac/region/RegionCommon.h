@@ -323,16 +323,6 @@ typedef struct sRegionCommonSetDutyCycleParams
 }RegionCommonSetDutyCycleParams_t;
 
 /*!
- * \brief Calculates the join duty cycle.
- *        This is a generic function and valid for all regions.
- *
- * \param [IN] elapsedTime Elapsed time since the start of the device.
- *
- * \retval Duty cycle restriction.
- */
-uint16_t RegionCommonGetJoinDc( SysTime_t elapsedTime );
-
-/*!
  * \brief Verifies, if a value is in a given range.
  *        This is a generic function and valid for all regions.
  *
