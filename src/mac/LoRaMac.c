@@ -1994,6 +1994,8 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                         MacCtx.NvmCtx->MacParams.ChannelsDatarate = linkAdrDatarate;
                         MacCtx.NvmCtx->MacParams.ChannelsTxPower = linkAdrTxPower;
                         MacCtx.NvmCtx->MacParams.ChannelsNbTrans = linkAdrNbRep;
+                        EventMacNvmCtxChanged( );
+                        EventRegionNvmCtxChanged( );
                     }
 
                     // Add the answers to the buffer
@@ -2011,6 +2013,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 MacCtx.NvmCtx->MaxDCycle = payload[macIndex++] & 0x0F;
                 MacCtx.NvmCtx->AggregatedDCycle = 1 << MacCtx.NvmCtx->MaxDCycle;
                 LoRaMacCommandsAddCmd( MOTE_MAC_DUTY_CYCLE_ANS, macCmdPayload, 0 );
+                EventMacNvmCtxChanged( );
                 break;
             }
             case SRV_MAC_RX_PARAM_SETUP_REQ:
@@ -2037,6 +2040,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                     MacCtx.NvmCtx->MacParams.Rx2Channel.Frequency = rxParamSetupReq.Frequency;
                     MacCtx.NvmCtx->MacParams.RxCChannel.Frequency = rxParamSetupReq.Frequency;
                     MacCtx.NvmCtx->MacParams.Rx1DrOffset = rxParamSetupReq.DrOffset;
+                    EventMacNvmCtxChanged( );
                 }
                 macCmdPayload[0] = status;
                 LoRaMacCommandsAddCmd( MOTE_MAC_RX_PARAM_SETUP_ANS, macCmdPayload, 1 );
@@ -2076,6 +2080,10 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
 
                 macCmdPayload[0] = status;
                 LoRaMacCommandsAddCmd( MOTE_MAC_NEW_CHANNEL_ANS, macCmdPayload, 1 );
+                if( status == 0x03 )
+                {
+                    EventRegionNvmCtxChanged( );
+                }
                 break;
             }
             case SRV_MAC_RX_TIMING_SETUP_REQ:
@@ -2091,6 +2099,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 LoRaMacCommandsAddCmd( MOTE_MAC_RX_TIMING_SETUP_ANS, macCmdPayload, 0 );
                 // Setup indication to inform the application
                 SetMlmeScheduleUplinkIndication( );
+                EventMacNvmCtxChanged( );
                 break;
             }
             case SRV_MAC_TX_PARAM_SETUP_REQ:
@@ -2128,6 +2137,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
 
                     // Add command response
                     LoRaMacCommandsAddCmd( MOTE_MAC_TX_PARAM_SETUP_ANS, macCmdPayload, 0 );
+                    EventMacNvmCtxChanged( );
                 }
                 break;
             }
@@ -2147,6 +2157,10 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 LoRaMacCommandsAddCmd( MOTE_MAC_DL_CHANNEL_ANS, macCmdPayload, 1 );
                 // Setup indication to inform the application
                 SetMlmeScheduleUplinkIndication( );
+                if( status == 0x03 )
+                {
+                    EventRegionNvmCtxChanged( );
+                }
                 break;
             }
             case SRV_MAC_DEVICE_TIME_ANS:
