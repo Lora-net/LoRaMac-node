@@ -23,10 +23,12 @@ Maintainer: Miguel Luis ( Semtech ), Daniel Jaeckle ( STACKFORCE ), Johannes Bru
 #include "LoRaMacCommands.h"
 #include "LoRaMacConfirmQueue.h"
 
+#ifndef NUM_OF_MAC_COMMANDS
 /*!
  * Number of MAC Command slots
  */
-#define NUM_OF_MAC_COMMANDS 15
+#define NUM_OF_MAC_COMMANDS 32
+#endif
 
 /*!
  * Size of the CID field of MAC commands
