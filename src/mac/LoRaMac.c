@@ -2634,6 +2634,9 @@ static void RemoveMacCommands( LoRaMacRxSlot_t rxSlot, LoRaMacFrameCtrl_t fCtrl,
 
 static void ResetMacParameters( void )
 {
+    LoRaMacClassBCallback_t classBCallbacks;
+    LoRaMacClassBParams_t classBParams;
+
     MacCtx.NvmCtx->NetworkActivation = ACTIVATION_TYPE_NONE;
 
     // ADR counter
@@ -2681,6 +2684,28 @@ static void ResetMacParameters( void )
     MacCtx.RxWindowCConfig.RxContinuous = true;
     MacCtx.RxWindowCConfig.RxSlot = RX_SLOT_WIN_CLASS_C;
 
+    // Initialize class b
+    // Apply callback
+    classBCallbacks.GetTemperatureLevel = NULL;
+    classBCallbacks.MacProcessNotify = NULL;
+
+    if( MacCtx.MacCallbacks != NULL )
+    {
+        classBCallbacks.GetTemperatureLevel = MacCtx.MacCallbacks->GetTemperatureLevel;
+        classBCallbacks.MacProcessNotify = MacCtx.MacCallbacks->MacProcessNotify;
+    }
+
+    // Must all be static. Don't use local references.
+    classBParams.MlmeIndication = &MacCtx.MlmeIndication;
+    classBParams.McpsIndication = &MacCtx.McpsIndication;
+    classBParams.MlmeConfirm = &MacCtx.MlmeConfirm;
+    classBParams.LoRaMacFlags = &MacCtx.MacFlags;
+    classBParams.LoRaMacDevAddr = &MacCtx.NvmCtx->DevAddr;
+    classBParams.LoRaMacRegion = &MacCtx.NvmCtx->Region;
+    classBParams.LoRaMacParams = &MacCtx.NvmCtx->MacParams;
+    classBParams.MulticastChannels = &MacCtx.NvmCtx->MulticastChannelList[0];
+
+    LoRaMacClassBInit( &classBParams, &classBCallbacks, &EventClassBNvmCtxChanged );
 }
 
 /*!
@@ -3200,8 +3225,6 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
 {
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;
-    LoRaMacClassBCallback_t classBCallbacks;
-    LoRaMacClassBParams_t classBParams;
 
     if( ( primitives == NULL ) ||
         ( callbacks == NULL ) )
@@ -3388,28 +3411,6 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
 
     Radio.SetPublicNetwork( MacCtx.NvmCtx->PublicNetwork );
     Radio.Sleep( );
-
-    // Initialize class b
-    // Apply callback
-    classBCallbacks.GetTemperatureLevel = NULL;
-    classBCallbacks.MacProcessNotify = NULL;
-    if( callbacks != NULL )
-    {
-        classBCallbacks.GetTemperatureLevel = callbacks->GetTemperatureLevel;
-        classBCallbacks.MacProcessNotify = callbacks->MacProcessNotify;
-    }
-
-    // Must all be static. Don't use local references.
-    classBParams.MlmeIndication = &MacCtx.MlmeIndication;
-    classBParams.McpsIndication = &MacCtx.McpsIndication;
-    classBParams.MlmeConfirm = &MacCtx.MlmeConfirm;
-    classBParams.LoRaMacFlags = &MacCtx.MacFlags;
-    classBParams.LoRaMacDevAddr = &MacCtx.NvmCtx->DevAddr;
-    classBParams.LoRaMacRegion = &MacCtx.NvmCtx->Region;
-    classBParams.LoRaMacParams = &MacCtx.NvmCtx->MacParams;
-    classBParams.MulticastChannels = &MacCtx.NvmCtx->MulticastChannelList[0];
-
-    LoRaMacClassBInit( &classBParams, &classBCallbacks, &EventClassBNvmCtxChanged );
 
     LoRaMacEnableRequests( LORAMAC_REQUEST_HANDLING_ON );
 
