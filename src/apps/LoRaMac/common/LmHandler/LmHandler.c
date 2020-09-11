@@ -326,13 +326,13 @@ void LmHandlerProcess( void )
     // Processes the LoRaMac events
     LoRaMacProcess( );
 
-    // Call all packages process functions
-    LmHandlerPackagesProcess( );
-
     if( NvmCtxMgmtStore( ) == NVMCTXMGMT_STATUS_SUCCESS )
     {
         LmHandlerCallbacks->OnNvmContextChange( LORAMAC_HANDLER_NVM_STORE );
     }
+
+    // Call all packages process functions
+    LmHandlerPackagesProcess( );
 }
 
 /*!

@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "utilities.h"
+#include "board.h"
 #include "timer.h"
 #include "LoRaMac.h"
 #include "LoRaMacTest.h"
@@ -59,6 +60,7 @@ typedef struct ComplianceTestState_s
     uint8_t*            DataBuffer;
     uint16_t            RxAppCnt;
     ClassBStatus_t      ClassBStatus;
+    bool                IsResetCmdPending;
 } ComplianceTestState_t;
 
 typedef enum ComplianceMoteCmd_e
@@ -105,6 +107,7 @@ static ComplianceTestState_t ComplianceTestState = {
     .DataBuffer        = NULL,
     .RxAppCnt          = 0,
     .ClassBStatus      = { 0 },
+    .IsResetCmdPending = false,
 };
 
 /*!
@@ -207,6 +210,7 @@ static void LmhpComplianceInit( void* params, uint8_t* dataBuffer, uint8_t dataB
     }
     ComplianceTestState.RxAppCnt = 0;
     ClassBStatusReset( );
+    ComplianceTestState.IsResetCmdPending = false;
 }
 
 static bool LmhpComplianceIsInitialized( void )
@@ -216,6 +220,12 @@ static bool LmhpComplianceIsInitialized( void )
 
 static void LmhpComplianceProcess( void )
 {
+    if( ComplianceTestState.IsResetCmdPending == true )
+    {
+        ComplianceTestState.IsResetCmdPending = false;
+        // Call platform MCU reset API
+        BoardResetMcu( );
+    }
 }
 
 static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
@@ -261,7 +271,7 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
         }
         case COMPLIANCE_DUT_RESET_REQ:
         {
-            // TODO: Call platform MCU reset API
+            ComplianceTestState.IsResetCmdPending = true;
             break;
         }
         case COMPLIANCE_DUT_JOIN_REQ:
@@ -403,7 +413,9 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
         }
         case COMPLIANCE_DUT_FPORT_224_DISABLE_REQ:
         {
+            // TODO: Handle FPort 224 control NVM update
             ComplianceParams->IsDutFPort224On = false;
+            ComplianceTestState.IsResetCmdPending = true;
             break;
         }
         case COMPLIANCE_DUT_VERSION_REQ:
