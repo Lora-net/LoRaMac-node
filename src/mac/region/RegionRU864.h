@@ -201,9 +201,9 @@ extern "C"
 
 /*!
  * Band 0 definition
- * Band = { DutyCycle, TxMaxPower, LastBandUpdateTime, TimeCredits, MaxTimeCredits, ReadyForTransmission }
+ * Band = { DutyCycle, TxMaxPower, LastBandUpdateTime, LastMaxCreditAssignTime, TimeCredits, MaxTimeCredits, ReadyForTransmission }
  */
-#define RU864_BAND0                                 { 100 , RU864_MAX_TX_POWER, 0, 0, 0, 0 } //  1.0 %
+#define RU864_BAND0                                 { 100 , RU864_MAX_TX_POWER, 0, 0, 0, 0, 0 } //  1.0 %
 
 /*!
  * LoRaMac default channel 1
