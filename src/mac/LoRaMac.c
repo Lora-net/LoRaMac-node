@@ -176,6 +176,11 @@ typedef struct sLoRaMacNvmCtx
      */
     bool SrvAckRequested;
     /*
+     * Set to true, if the datarate was increased
+     * with a link adr request.
+     */
+    bool ChannelsDatarateChangedLinkAdrReq;
+    /*
      * Aggregated duty cycle management
      */
     uint16_t AggregatedDCycle;
@@ -743,6 +748,18 @@ static void LoRaMacCheckForRxAbort( void );
  * \retval 1: Request pending, 0: no request pending
  */
 static uint8_t LoRaMacCheckForBeaconAcquisition( void );
+
+/*!
+ * \brief Returns true, if the device must apply the minium datarate
+ *
+ * \param [IN] adr ADR status bit
+ *
+ * \param [IN] activation Activation type of the device
+ *
+ * \param [IN] datarateChanged Set to true, if the datarate was changed
+ *                             with the LinkAdrReq.
+ */
+static bool CheckForMinimumAbpDatarate( bool adr, ActivationType_t activation, bool datarateChanged );
 
 /*!
  * \brief This function handles join request
@@ -1610,6 +1627,17 @@ static uint8_t LoRaMacCheckForBeaconAcquisition( void )
     return 0x00;
 }
 
+static bool CheckForMinimumAbpDatarate( bool adr, ActivationType_t activation, bool datarateChanged )
+{
+    if( ( adr == true ) &&
+        ( activation == ACTIVATION_TYPE_ABP ) &&
+        ( datarateChanged == false ) )
+    {
+        return true;
+    }
+    return false;
+}
+
 static void LoRaMacCheckForRxAbort( void )
 {
     // A error occurs during receiving
@@ -1974,6 +2002,11 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
 
                         if( ( status & 0x07 ) == 0x07 )
                         {
+                            // Set the status that the datarate has been increased
+                            if( linkAdrDatarate > MacCtx.NvmCtx->MacParams.ChannelsDatarate )
+                            {
+                                MacCtx.NvmCtx->ChannelsDatarateChangedLinkAdrReq = true;
+                            }
                             MacCtx.NvmCtx->MacParams.ChannelsDatarate = linkAdrDatarate;
                             MacCtx.NvmCtx->MacParams.ChannelsTxPower = linkAdrTxPower;
                             MacCtx.NvmCtx->MacParams.ChannelsNbTrans = linkAdrNbRep;
@@ -2684,6 +2717,7 @@ static void ResetMacParameters( void )
 
     MacCtx.NodeAckRequested = false;
     MacCtx.NvmCtx->SrvAckRequested = false;
+    MacCtx.NvmCtx->ChannelsDatarateChangedLinkAdrReq = false;
 
     // Reset to application defaults
     InitDefaultsParams_t params;
@@ -4725,7 +4759,8 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
             break;
     }
 
-    // Get the minimum possible datarate
+    // Make sure that the input datarate is compliant
+    // to the regional specification.
     getPhy.Attribute = PHY_MIN_TX_DR;
     getPhy.UplinkDwellTime = MacCtx.NvmCtx->MacParams.UplinkDwellTime;
     phyParam = RegionGetPhyParam( MacCtx.NvmCtx->Region, &getPhy );
@@ -4733,9 +4768,18 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
     // Some regions have limitations for the minimum datarate.
     datarate = MAX( datarate, ( int8_t )phyParam.Value );
 
+    // Apply minimum datarate in this special case.
+    if( CheckForMinimumAbpDatarate( MacCtx.NvmCtx->AdrCtrlOn, MacCtx.NvmCtx->NetworkActivation,
+                                    MacCtx.NvmCtx->ChannelsDatarateChangedLinkAdrReq ) == true )
+    {
+        datarate = ( int8_t )phyParam.Value;
+    }
+
     if( readyToSend == true )
     {
-        if( MacCtx.NvmCtx->AdrCtrlOn == false )
+        if( ( MacCtx.NvmCtx->AdrCtrlOn == false ) ||
+            ( CheckForMinimumAbpDatarate( MacCtx.NvmCtx->AdrCtrlOn, MacCtx.NvmCtx->NetworkActivation,
+                                          MacCtx.NvmCtx->ChannelsDatarateChangedLinkAdrReq ) == true ) )
         {
             verify.DatarateParams.Datarate = datarate;
             verify.DatarateParams.UplinkDwellTime = MacCtx.NvmCtx->MacParams.UplinkDwellTime;
