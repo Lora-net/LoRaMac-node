@@ -107,6 +107,15 @@ extern "C"
  */
 #define REGION_COMMON_DEFAULT_PING_SLOT_PERIODICITY     7
 
+/*!
+ * Default reponse timeout for class b and class c confirmed
+ * downlink frames in milli seconds.
+ *
+ * The value shall not be smaller than RETRANSMIT_TIMEOUT plus
+ * the maximum time on air.
+ */
+#define REGION_COMMON_CLASS_B_C_RESP_TIMEOUT            8000
+
 
 typedef struct sRegionCommonLinkAdrParams
 {

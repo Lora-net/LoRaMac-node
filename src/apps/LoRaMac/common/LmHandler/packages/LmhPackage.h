@@ -55,12 +55,12 @@ typedef struct LmhPackage_s
      */
     bool ( *IsInitialized )( void );
     /*!
-     * Returns the package operation status.
+     * Returns if a package transmission is pending or not.
      *
-     * \retval status Package operation status
-     *                [true: Running, false: Not running]
+     * \retval status Package transmission status
+     *                [true: pending, false: Not pending]
      */
-    bool ( *IsRunning )( void );
+    bool ( *IsTxPending )( void );
     /*!
      * Processes the internal package events.
      */
@@ -121,16 +121,6 @@ typedef struct LmhPackage_s
     * \param [IN] isOtaa Indicates which activation mode must be used
     */
     void ( *OnJoinRequest )( bool isOtaa );
-    /*!
-     * Instructs the MAC layer to send a ClassA uplink
-     *
-     * \param [IN] appData Data to be sent
-     * \param [IN] isTxConfirmed Indicates if the uplink requires an acknowledgement
-     *
-     * \retval status Returns \ref LORAMAC_HANDLER_SUCCESS if request has been
-     *                processed else \ref LORAMAC_HANDLER_ERROR
-     */
-    LmHandlerErrorStatus_t ( *OnSendRequest )( LmHandlerAppData_t *appData, LmHandlerMsgTypes_t isTxConfirmed );
     /*!
     * Requests network server time update
     *

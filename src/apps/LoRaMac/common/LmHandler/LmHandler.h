@@ -31,7 +31,6 @@ extern "C"
 #endif
 
 #include "LmHandlerTypes.h"
-#include "LmhpCompliance.h"
 
 typedef struct LmHandlerJoinParams_s
 {
@@ -243,6 +242,13 @@ bool LmHandlerIsBusy( void );
  * \remark This function must be called in the main loop.
  */
 void LmHandlerProcess( void );
+
+/*!
+ * Gets current duty-cycle wait time
+ *
+ * \retval time to wait in ms
+ */
+TimerTime_t LmHandlerGetDutyCycleWaitTime( void );
 
 /*!
  * Instructs the MAC layer to send a ClassA uplink
