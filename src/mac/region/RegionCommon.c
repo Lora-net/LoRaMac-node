@@ -45,9 +45,13 @@
 
 #ifndef DUTY_CYCLE_TIME_PERIOD
 /*!
- * Default duty cycle time period is 1 hour = 3600000 ms
+ * Default duty cycle observation time period
+ *
+ * \remark The ETSI observation time period is 1 hour (3600000 ms) but, the implemented algorithm may violate the
+ *         defined duty-cycle restrictions. In order to ensure that these restrictions never get violated we changed the
+ *         default duty cycle observation time period to 1/2 hour (1800000 ms).
  */
-#define DUTY_CYCLE_TIME_PERIOD              3600000
+#define DUTY_CYCLE_TIME_PERIOD              1800000
 #endif
 
 /*!
