@@ -508,7 +508,7 @@ typedef enum eLoRaMacMoteCmd
     /*!
      * PingSlotFreqAns
      */
-    MOTE_MAC_PING_SLOT_FREQ_ANS      = 0x11,
+    MOTE_MAC_PING_SLOT_CHANNEL_ANS   = 0x11,
     /*!
      * BeaconTimingReq
      */

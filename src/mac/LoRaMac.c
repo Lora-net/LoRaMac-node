@@ -2297,7 +2297,9 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
 
                 status = LoRaMacClassBPingSlotChannelReq( datarate, frequency );
                 macCmdPayload[0] = status;
-                LoRaMacCommandsAddCmd( MOTE_MAC_PING_SLOT_FREQ_ANS, macCmdPayload, 1 );
+                LoRaMacCommandsAddCmd( MOTE_MAC_PING_SLOT_CHANNEL_ANS, macCmdPayload, 1 );
+                // Setup indication to inform the application
+                SetMlmeScheduleUplinkIndication( );
                 break;
             }
             case SRV_MAC_BEACON_TIMING_ANS:
