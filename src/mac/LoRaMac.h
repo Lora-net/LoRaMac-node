@@ -976,6 +976,12 @@ typedef enum eMlme
 typedef struct sMlmeReqJoin
 {
     /*!
+     * LoRaWAN Network End-Device Activation ( ACTIVATION_TYPE_NONE, ACTIVATION_TYPE_ABP or OTTA )
+     *
+     * Related MIB type: \ref MIB_NETWORK_ACTIVATION
+     */
+    ActivationType_t NetworkActivation;
+    /*!
      * Datarate used for join request.
      */
     uint8_t Datarate;

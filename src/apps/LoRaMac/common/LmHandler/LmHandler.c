@@ -369,36 +369,26 @@ TimerTime_t LmHandlerGetDutyCycleWaitTime( void )
  */
 static void LmHandlerJoinRequest( bool isOtaa )
 {
+    MlmeReq_t mlmeReq;
+
+    mlmeReq.Type = MLME_JOIN;
+    mlmeReq.Req.Join.Datarate = LmHandlerParams->TxDatarate;
+
     if( isOtaa == true )
     {
-        MlmeReq_t mlmeReq;
-
-        mlmeReq.Type = MLME_JOIN;
-        mlmeReq.Req.Join.Datarate = LmHandlerParams->TxDatarate;
+        mlmeReq.Req.Join.NetworkActivation = ACTIVATION_TYPE_OTAA;
         // Update commissioning parameters activation type variable.
         CommissioningParams.IsOtaaActivation = true;
-
-        // Starts the OTAA join procedure
-        LmHandlerCallbacks->OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq, mlmeReq.ReqReturn.DutyCycleWaitTime );
-        DutyCycleWaitTime = mlmeReq.ReqReturn.DutyCycleWaitTime;
     }
     else
     {
-        MibRequestConfirm_t mibReq;
-        LmHandlerJoinParams_t joinParams =
-        {
-            .CommissioningParams = &CommissioningParams,
-            .Datarate = LmHandlerParams->TxDatarate,
-            .Status = LORAMAC_HANDLER_SUCCESS,
-        };
-
-        mibReq.Type = MIB_NETWORK_ACTIVATION;
-        mibReq.Param.NetworkActivation = ACTIVATION_TYPE_ABP;
-        LoRaMacMibSetRequestConfirm( &mibReq );
-
-        // Notify upper layer
-        LmHandlerCallbacks->OnJoinRequest( &joinParams );
+        mlmeReq.Req.Join.NetworkActivation = ACTIVATION_TYPE_ABP;
+        // Update commissioning parameters activation type variable.
+        CommissioningParams.IsOtaaActivation = false;
     }
+    // Starts the join procedure
+    LmHandlerCallbacks->OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq, mlmeReq.ReqReturn.DutyCycleWaitTime );
+    DutyCycleWaitTime = mlmeReq.ReqReturn.DutyCycleWaitTime;
 }
 
 void LmHandlerJoin( void )
