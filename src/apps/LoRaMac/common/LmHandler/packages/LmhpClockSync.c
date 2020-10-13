@@ -19,7 +19,6 @@
  *
  * \author    Miguel Luis ( Semtech )
  */
-#include "systime.h"
 #include "LmHandler.h"
 #include "LmhpClockSync.h"
 
@@ -37,6 +36,7 @@
 typedef struct LmhpClockSyncState_s
 {
     bool Initialized;
+    bool IsTxPending;
     uint8_t DataBufferMaxSize;
     uint8_t *DataBuffer;
     union
@@ -90,6 +90,14 @@ static void LmhpClockSyncInit( void *params, uint8_t *dataBuffer, uint8_t dataBu
 static bool LmhpClockSyncIsInitialized( void );
 
 /*!
+ * Returns if a package transmission is pending or not.
+ *
+ * \retval status Package transmission status
+ *                [true: pending, false: Not pending]
+ */
+static bool LmhpClockSyncIsTxPending( void );
+
+/*!
  * Processes the internal package events.
  */
 static void LmhpClockSyncProcess( void );
@@ -111,6 +119,7 @@ static void LmhpClockSyncOnMcpsIndication( McpsIndication_t *mcpsIndication );
 static LmhpClockSyncState_t LmhpClockSyncState =
 {
     .Initialized = false,
+    .IsTxPending = false,
     .TimeReqParam.Value = 0,
     .AppTimeReqPending = false,
     .AdrEnabledPrev = false,
@@ -123,6 +132,7 @@ static LmhPackage_t LmhpClockSyncPackage =
     .Port = CLOCK_SYNC_PORT,
     .Init = LmhpClockSyncInit,
     .IsInitialized = LmhpClockSyncIsInitialized,
+    .IsTxPending = LmhpClockSyncIsTxPending,
     .Process = LmhpClockSyncProcess,
     .OnMcpsConfirmProcess = LmhpClockSyncOnMcpsConfirm,
     .OnMcpsIndicationProcess = LmhpClockSyncOnMcpsIndication,
@@ -131,7 +141,6 @@ static LmhPackage_t LmhpClockSyncPackage =
     .OnMacMcpsRequest = NULL,                                  // To be initialized by LmHandler
     .OnMacMlmeRequest = NULL,                                  // To be initialized by LmHandler
     .OnJoinRequest = NULL,                                     // To be initialized by LmHandler
-    .OnSendRequest = NULL,                                     // To be initialized by LmHandler
     .OnDeviceTimeRequest = NULL,                               // To be initialized by LmHandler
     .OnSysTimeUpdate = NULL,                                   // To be initialized by LmHandler
 };
@@ -153,11 +162,17 @@ static void LmhpClockSyncInit( void * params, uint8_t *dataBuffer, uint8_t dataB
     {
         LmhpClockSyncState.Initialized = false;
     }
+    LmhpClockSyncState.IsTxPending = false;
 }
 
 static bool LmhpClockSyncIsInitialized( void )
 {
     return LmhpClockSyncState.Initialized;
+}
+
+static bool LmhpClockSyncIsTxPending( void )
+{
+    return LmhpClockSyncState.IsTxPending;
 }
 
 static void LmhpClockSyncProcess( void )
@@ -291,7 +306,7 @@ static void LmhpClockSyncOnMcpsIndication( McpsIndication_t *mcpsIndication )
             .BufferSize = dataBufferIndex,
             .Port = CLOCK_SYNC_PORT
         };
-        LmhpClockSyncPackage.OnSendRequest( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+        LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
     }
 }
 
@@ -353,5 +368,5 @@ LmHandlerErrorStatus_t LmhpClockSyncAppTimeReq( void )
         .Port = CLOCK_SYNC_PORT
     };
     LmhpClockSyncState.AppTimeReqPending = true;
-    return LmhpClockSyncPackage.OnSendRequest( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+    return LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
 }

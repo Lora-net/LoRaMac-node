@@ -50,6 +50,7 @@ typedef enum LmhpFragmentationTxDelayStates_e
 typedef struct LmhpFragmentationState_s
 {
     bool Initialized;
+    bool IsTxPending;
     LmhpFragmentationTxDelayStates_t TxDelayState;
     uint8_t DataBufferMaxSize;
     uint8_t *DataBuffer;
@@ -96,6 +97,14 @@ static void LmhpFragmentationInit( void *params, uint8_t *dataBuffer, uint8_t da
 static bool LmhpFragmentationIsInitialized( void );
 
 /*!
+ * Returns if a package transmission is pending or not.
+ *
+ * \retval status Package transmission status
+ *                [true: pending, false: Not pending]
+ */
+static bool LmhpFragmentationIsTxPending( void );
+
+/*!
  * Processes the internal package events.
  */
 static void LmhpFragmentationProcess( void );
@@ -110,6 +119,7 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
 static LmhpFragmentationState_t LmhpFragmentationState =
 {
     .Initialized = false,
+    .IsTxPending = false,
     .TxDelayState = FRAGMENTATION_TX_DELAY_STATE_IDLE,
 };
 
@@ -159,6 +169,7 @@ static LmhPackage_t LmhpFragmentationPackage =
     .Port = FRAGMENTATION_PORT,
     .Init = LmhpFragmentationInit,
     .IsInitialized = LmhpFragmentationIsInitialized,
+    .IsTxPending =  LmhpFragmentationIsTxPending,
     .Process = LmhpFragmentationProcess,
     .OnMcpsConfirmProcess = NULL,                              // Not used in this package
     .OnMcpsIndicationProcess = LmhpFragmentationOnMcpsIndication,
@@ -167,7 +178,6 @@ static LmhPackage_t LmhpFragmentationPackage =
     .OnMacMcpsRequest = NULL,                                  // To be initialized by LmHandler
     .OnMacMlmeRequest = NULL,                                  // To be initialized by LmHandler
     .OnJoinRequest = NULL,                                     // To be initialized by LmHandler
-    .OnSendRequest = NULL,                                     // To be initialized by LmHandler
     .OnDeviceTimeRequest = NULL,                               // To be initialized by LmHandler
     .OnSysTimeUpdate = NULL,                                   // To be initialized by LmHandler
 };
@@ -212,11 +222,17 @@ static void LmhpFragmentationInit( void *params, uint8_t *dataBuffer, uint8_t da
         LmhpFragmentationParams = NULL;
         LmhpFragmentationState.Initialized = false;
     }
+    LmhpFragmentationState.IsTxPending = false;
 }
 
 static bool LmhpFragmentationIsInitialized( void )
 {
     return LmhpFragmentationState.Initialized;
+}
+
+static bool  LmhpFragmentationIsTxPending( void )
+{
+    return LmhpFragmentationState.IsTxPending;
 }
 
 static void LmhpFragmentationProcess( void )
@@ -507,7 +523,7 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
         else
         {
             // Send the prepared answer
-            LmhpFragmentationPackage.OnSendRequest( &cmdReplyAppData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+            LmHandlerSend( &cmdReplyAppData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
         }
     }
 }
