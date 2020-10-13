@@ -847,6 +847,12 @@ typedef struct sMcpsIndication
      * Set if a DeviceTimeAns MAC command was received.
      */
     bool DeviceTimeAnsReceived;
+    /*!
+     * Response timeout for a class b or c device when a
+     * confirmed downlink has been received. In all other
+     * cases this variable is 0.
+     */
+    TimerTime_t ResponseTimeout;
 }McpsIndication_t;
 
 /*!

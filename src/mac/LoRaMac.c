@@ -344,6 +344,10 @@ typedef struct sLoRaMacCtx
     * Duty cycle wait time
     */
     TimerTime_t DutyCycleWaitTime;
+    /*
+    * Start time of the response timeout
+    */
+   TimerTime_t ResponseTimeoutStartTime;
 }LoRaMacCtx_t;
 
 /*
@@ -971,6 +975,7 @@ static void ProcessRadioRxDone( void )
     MacCtx.McpsIndication.McpsIndication = MCPS_UNCONFIRMED;
     MacCtx.McpsIndication.DevAddress = 0;
     MacCtx.McpsIndication.DeviceTimeAnsReceived = false;
+    MacCtx.McpsIndication.ResponseTimeout = 0;
 
     Radio.Sleep( );
     TimerStop( &MacCtx.RxWindowTimer2 );
@@ -1218,6 +1223,15 @@ static void ProcessRadioRxDone( void )
                         MacCtx.NvmCtx->LastRxMic = macMsgData.MIC;
                     }
                     MacCtx.McpsIndication.McpsIndication = MCPS_CONFIRMED;
+
+                    // Handle response timeout for class c and class b downlinks
+                    if( ( MacCtx.McpsIndication.RxSlot != RX_SLOT_WIN_1 ) &&
+                        ( MacCtx.McpsIndication.RxSlot != RX_SLOT_WIN_2 ) )
+                    {
+                        // Calculate timeout
+                        MacCtx.McpsIndication.ResponseTimeout = REGION_COMMON_CLASS_B_C_RESP_TIMEOUT;
+                        MacCtx.ResponseTimeoutStartTime = RxDoneParams.LastRxDone;
+                    }
                 }
                 else
                 {
@@ -1689,6 +1703,16 @@ static void OnTxDelayedTimerEvent( void* context )
     TimerStop( &MacCtx.TxDelayedTimer );
     MacCtx.MacState &= ~LORAMAC_TX_DELAYED;
 
+    if( MacCtx.ResponseTimeoutStartTime != 0 )
+    {
+        TimerTime_t elapsedTime = TimerGetElapsedTime( MacCtx.ResponseTimeoutStartTime );
+        if( elapsedTime > REGION_COMMON_CLASS_B_C_RESP_TIMEOUT )
+        {
+            // Skip retransmission
+            return;
+        }
+    }
+
     // Schedule frame, allow delayed frame transmissions
     switch( ScheduleTx( true ) )
     {
@@ -1928,6 +1952,12 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
     uint8_t status = 0;
     bool adrBlockFound = false;
     uint8_t macCmdPayload[2] = { 0x00, 0x00 };
+
+    if( ( rxSlot != RX_SLOT_WIN_1 ) && ( rxSlot != RX_SLOT_WIN_2 ) )
+    {
+        // Do only parse MAC commands for Class A RX windows
+        return;
+    }
 
     while( macIndex < commandsSize )
     {
@@ -2200,8 +2230,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
             {
                 // The mote time can be updated only when the time is received in classA
                 // receive windows only.
-                if( ( LoRaMacConfirmQueueIsCmdActive( MLME_DEVICE_TIME ) == true ) &&
-                    ( ( rxSlot == RX_SLOT_WIN_1 ) || ( rxSlot == RX_SLOT_WIN_2 ) ) )
+                if( LoRaMacConfirmQueueIsCmdActive( MLME_DEVICE_TIME ) == true )
                 {
                     LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_OK, MLME_DEVICE_TIME );
 
@@ -2968,6 +2997,7 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
 
     MacCtx.ChannelsNbTransCounter++;
     MacCtx.McpsConfirm.NbTrans = MacCtx.ChannelsNbTransCounter;
+    MacCtx.ResponseTimeoutStartTime = 0;
 
     // Send now
     Radio.Send( MacCtx.PktBuffer, MacCtx.PktBufferLen );
