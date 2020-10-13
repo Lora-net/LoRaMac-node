@@ -181,6 +181,10 @@ typedef struct sLoRaMacNvmCtx
      */
     bool ChannelsDatarateChangedLinkAdrReq;
     /*
+     * The stack will set this variable to true, if a downlink has been received.
+     */
+    bool DownlinkReceived;
+    /*
      * Aggregated duty cycle management
      */
     uint16_t AggregatedDCycle;
@@ -1189,7 +1193,6 @@ static void ProcessRadioRxDone( void )
                 return;
             }
 
-            // Frame is valid
             MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_OK;
             MacCtx.McpsIndication.Multicast = multicast;
             MacCtx.McpsIndication.FramePending = macMsgData.FHDR.FCtrl.Bits.FPending;
@@ -1206,6 +1209,7 @@ static void ProcessRadioRxDone( void )
                 ( MacCtx.McpsIndication.RxSlot == RX_SLOT_WIN_2 ) )
             {
                 MacCtx.NvmCtx->AdrAckCounter = 0;
+                MacCtx.NvmCtx->DownlinkReceived = true;
             }
 
             // MCPS Indication and ack requested handling
@@ -2749,6 +2753,7 @@ static void ResetMacParameters( void )
     MacCtx.NodeAckRequested = false;
     MacCtx.NvmCtx->SrvAckRequested = false;
     MacCtx.NvmCtx->ChannelsDatarateChangedLinkAdrReq = false;
+    MacCtx.NvmCtx->DownlinkReceived = false;
 
     // Reset to application defaults
     InitDefaultsParams_t params;
@@ -4749,21 +4754,33 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
         return LORAMAC_STATUS_BUSY;
     }
 
+    McpsReq_t request = *mcpsRequest;
+
     macHdr.Value = 0;
     memset1( ( uint8_t* ) &MacCtx.McpsConfirm, 0, sizeof( MacCtx.McpsConfirm ) );
     MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
 
-    switch( mcpsRequest->Type )
+    // Apply confirmed downlinks, if the device has not received a valid
+    // downlink after a join accept.
+    if( ( MacCtx.NvmCtx->NetworkActivation == ACTIVATION_TYPE_OTAA ) &&
+        ( MacCtx.NvmCtx->DeviceClass == CLASS_C ) &&
+        ( MacCtx.NvmCtx->DownlinkReceived == false ) &&
+        ( request.Type == MCPS_UNCONFIRMED ) )
+    {
+        request.Type = MCPS_CONFIRMED;
+    }
+
+    switch( request.Type )
     {
         case MCPS_UNCONFIRMED:
         {
             readyToSend = true;
 
             macHdr.Bits.MType = FRAME_TYPE_DATA_UNCONFIRMED_UP;
-            fPort = mcpsRequest->Req.Unconfirmed.fPort;
-            fBuffer = mcpsRequest->Req.Unconfirmed.fBuffer;
-            fBufferSize = mcpsRequest->Req.Unconfirmed.fBufferSize;
-            datarate = mcpsRequest->Req.Unconfirmed.Datarate;
+            fPort = request.Req.Unconfirmed.fPort;
+            fBuffer = request.Req.Unconfirmed.fBuffer;
+            fBufferSize = request.Req.Unconfirmed.fBufferSize;
+            datarate = request.Req.Unconfirmed.Datarate;
             break;
         }
         case MCPS_CONFIRMED:
@@ -4771,10 +4788,10 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
             readyToSend = true;
 
             macHdr.Bits.MType = FRAME_TYPE_DATA_CONFIRMED_UP;
-            fPort = mcpsRequest->Req.Confirmed.fPort;
-            fBuffer = mcpsRequest->Req.Confirmed.fBuffer;
-            fBufferSize = mcpsRequest->Req.Confirmed.fBufferSize;
-            datarate = mcpsRequest->Req.Confirmed.Datarate;
+            fPort = request.Req.Confirmed.fPort;
+            fBuffer = request.Req.Confirmed.fBuffer;
+            fBufferSize = request.Req.Confirmed.fBufferSize;
+            datarate = request.Req.Confirmed.Datarate;
             break;
         }
         case MCPS_PROPRIETARY:
@@ -4782,9 +4799,9 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
             readyToSend = true;
 
             macHdr.Bits.MType = FRAME_TYPE_PROPRIETARY;
-            fBuffer = mcpsRequest->Req.Proprietary.fBuffer;
-            fBufferSize = mcpsRequest->Req.Proprietary.fBufferSize;
-            datarate = mcpsRequest->Req.Proprietary.Datarate;
+            fBuffer = request.Req.Proprietary.fBuffer;
+            fBufferSize = request.Req.Proprietary.fBufferSize;
+            datarate = request.Req.Proprietary.Datarate;
             break;
         }
         default:
@@ -4829,7 +4846,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
         status = Send( &macHdr, fPort, fBuffer, fBufferSize );
         if( status == LORAMAC_STATUS_OK )
         {
-            MacCtx.McpsConfirm.McpsRequest = mcpsRequest->Type;
+            MacCtx.McpsConfirm.McpsRequest = request.Type;
             MacCtx.MacFlags.Bits.McpsReq = 1;
         }
         else
