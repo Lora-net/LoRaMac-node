@@ -11,6 +11,23 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 
 ## [Unreleased]
 
+## Added
+
+- Added GitHUb repository and firmware examples version definitions
+- Added Version_t Revision field to DutVersionAns message.
+
+## Changed
+
+- Changed fuota-test-01 examples in order to handle the new certification protocol implementation
+
+## Fixed
+
+- Fixed compliance protocol implementation in order to get current versions from the MAC layer
+- Fixed `RxAppCnt` parameter endianess handling
+- Fixed AS923 max payload lengths by using N values instead of M values.
+
+## [4.4.5] - 2020-10-14
+
 ### General
 
 - Release based on "LoRaWAN specification 1.0.4"/"LoRaWAN specification 1.1.1" and "LoRaWAN Regional Parameters 2-1.0.1"
@@ -24,20 +41,23 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 ### Added
 
 - Added to `FRAGMENTATION_FRAG_SESSION_SETUP_REQ` checks which verify `FragNb` and `FragSize` validity.
-- Added GitHUb repository and firmware examples version definitions
 - Added missing call to `SX126xSetOperatingMode` on `SX126xSetTxContinuousWave` and `SX126xSetTxInfinitePreamble` functions
 - Added new specific board API to initialize the RF switch (`SX126xIoRfSwitchInit`)
 - Add to AS923 and KR920 regions a definition for the Rx bandwidth to be used while executing the LBT algorithm
 - Added support for other AS923 channel sub plan groups.
-- Added Version_t Revision field to DutVersionAns message.
+- Added FPort filtering to loramac handler packages.
+- Added missing NVM update notifications
 
 ### Changed
 
 - Refactored function `RegionXXInitDefaults`. Fixes an issue on US based bands where the channels mask was not being reset.
-- Changed fuota-test-01 examples in order to handle the new certification protocol implementation
 - Changed hard coded `JoinAccept` max payload size (33) by `LORAMAC_JOIN_ACCEPT_FRAME_MAX_SIZE` definition.
 - Moved radio operating mode management to specific board implementation
 - Changed radio `IsChannelFree API` in order to provide reception bandwidth
+- Back port 1.0.4 region implementation improvements
+- Changed `RegionCommonComputeSymbolTimeLoRa`, `RegionCommonComputeSymbolTimeFsk` and `RegionCommonComputeRxWindowParameters`
+  API implementations to use integer divisions instead of double division.
+- Changed DeriveSessionKey10x and DeriveSessionKey11x functions API (Removed pointer based variable usage)
 
 ### Fixed
 
@@ -45,14 +65,18 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 - Fixed IAR C++ compiler warnings
 - Fixed missing `{` after `extern "C"` in `cmac.h` file
 - Fixed `FragSessionStatusAns` message construction for `Received&index` field
-- Fixed compliance protocol implementation in order to get current versions from the MAC layer
 - Fixed `LoRaMacCryptoHandleJoinAccept` function `DevNonce`, `RJCount0` and `RJCount1` handling.
 - Fixed nonce variable declaration
 - Fixed `LoRaMacCrypto.c` conditional pre-processing.
 - Fixed missing `Rx1Frequency` reset for dynamic channel plans
 - Applied Japan ARIB restrictions to the `AS923_1_JP` sub plan
-- Fixed `RxAppCnt` parameter endianess handling
-- Fixed AS923 max payload lengths by using N values instead of M values.
+- Applied Regional Parameters 1.0.3.revA ERRATA note concerning the ClassB beacon format
+- Fixed SAMR34 compiling issue when `USE_RADIO_DEBUG` directive is defined
+- Fixed `SX126xClearIrqStatus` call to only clear read flags
+- Fixed GFSK bandwidth handling for SX126x and LR1110 radios.
+- Fixed version handling for MC root keys derivation
+- Fixed Class B initialization.
+- Fixed duty-cycle implementation
 
 ## [4.4.4] - 2020-05-26
 
