@@ -11,6 +11,8 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 
 ## [Unreleased]
 
+## [4.4.5] - 2020-10-14
+
 ### General
 
 - Release based on "LoRaWAN specification 1.0.3" and "LoRaWAN Regional Parameters v1.0.3revA"
@@ -23,6 +25,8 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 - Added new specific board API to initialize the RF switch (`SX126xIoRfSwitchInit`)
 - Add to AS923 and KR920 regions a definition for the Rx bandwidth to be used while executing the LBT algorithm
 - Added support for other AS923 channel sub plan groups.
+- Added FPort filtering to loramac handler packages.
+- Added missing NVM update notifications
 
 ### Changed
 
@@ -30,6 +34,10 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 - Changed hard coded `JoinAccept` max payload size (33) by `LORAMAC_JOIN_ACCEPT_FRAME_MAX_SIZE` definition.
 - Moved radio operating mode management to specific board implementation
 - Changed radio `IsChannelFree API` in order to provide reception bandwidth
+- Back port 1.0.4 region implementation improvements
+- Changed `RegionCommonComputeSymbolTimeLoRa`, `RegionCommonComputeSymbolTimeFsk` and `RegionCommonComputeRxWindowParameters`
+  API implementations to use integer divisions instead of double division.
+- Changed DeriveSessionKey10x and DeriveSessionKey11x functions API (Removed pointer based variable usage)
 
 ### Fixed
 
@@ -42,6 +50,13 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 - Fixed `LoRaMacCrypto.c` conditional pre-processing.
 - Fixed missing `Rx1Frequency` reset for dynamic channel plans
 - Applied Japan ARIB restrictions to the `AS923_1_JP` sub plan
+- Applied Regional Parameters 1.0.3.revA ERRATA note concerning the ClassB beacon format
+- Fixed SAMR34 compiling issue when `USE_RADIO_DEBUG` directive is defined
+- Fixed `SX126xClearIrqStatus` call to only clear read flags
+- Fixed GFSK bandwidth handling for SX126x and LR1110 radios.
+- Fixed version handling for MC root keys derivation
+- Fixed Class B initialization.
+- Fixed duty-cycle implementation
 
 ## [4.4.4] - 2020-05-26
 
