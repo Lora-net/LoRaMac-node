@@ -331,6 +331,10 @@ uint32_t GpioMcuRead( Gpio_t *obj )
     }
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+    
 void EXTI0_IRQHandler( void )
 {
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_0 );
@@ -374,6 +378,10 @@ void EXTI15_10_IRQHandler( void )
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_14 );
     HAL_GPIO_EXTI_IRQHandler( GPIO_PIN_15 );
 }
+    
+#ifdef __cplusplus
+}
+#endif
 
 void HAL_GPIO_EXTI_Callback( uint16_t gpioPin )
 {
