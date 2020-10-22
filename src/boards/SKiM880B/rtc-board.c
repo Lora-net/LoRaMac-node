@@ -533,6 +533,10 @@ uint32_t RtcGetCalendarTime( uint16_t *milliseconds )
 /*!
  * \brief RTC IRQ Handler of the RTC Alarm
  */
+#ifdef __cplusplus
+extern "C" {
+#endif
+    
 void RTC_Alarm_IRQHandler( void )
 {
     RTC_HandleTypeDef* hrtc = &RtcHandle;
@@ -556,6 +560,10 @@ void RTC_Alarm_IRQHandler( void )
         }
     }
 }
+    
+#ifdef __cplusplus
+}
+#endif
 
 /*!
  * \brief  Alarm A callback.
