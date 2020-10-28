@@ -314,11 +314,13 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmEvent seNvmCtxChanged )
         return SECURE_ELEMENT_ERROR;
     }
 
+    atca_delay_us(1500000);
     if( atcab_read_devEUI( SeNvmCtx.DevEui ) != ATCA_SUCCESS )
     {
         return SECURE_ELEMENT_ERROR;
     }
 
+    atca_delay_us(1500000);
     if( atcab_read_joinEUI( SeNvmCtx.JoinEui ) != ATCA_SUCCESS )
     {
         return SECURE_ELEMENT_ERROR;
