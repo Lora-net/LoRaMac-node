@@ -20,7 +20,7 @@
  *
  * \author    Gregory Cristian ( Semtech )
  */
-#include <math.h>
+//#include <math.h>
 #include <string.h>
 #include "utilities.h"
 #include "timer.h"
@@ -111,10 +111,10 @@ static uint32_t SX1272GetLoRaBandwidthInHz( uint32_t bw );
  * \remark To get the actual time-on-air in second, this value has to be divided by the GFSK bitrate in bits per
  * second.
  *
- * \param [in] preambleLen 
- * \param [in] fixLen 
- * \param [in] payloadLen 
- * \param [in] crcOn 
+ * \param [in] preambleLen
+ * \param [in] fixLen
+ * \param [in] payloadLen
+ * \param [in] crcOn
  *
  * \returns GFSK time-on-air numerator
  */
@@ -126,13 +126,13 @@ static uint32_t SX1272GetGfskTimeOnAirNumerator( uint16_t preambleLen, bool fixL
  *
  * \remark To get the actual time-on-air in second, this value has to be divided by the LoRa bandwidth in Hertz.
  *
- * \param [in] bandwidth 
- * \param [in] datarate 
- * \param [in] coderate 
- * \param [in] preambleLen 
- * \param [in] fixLen 
- * \param [in] payloadLen 
- * \param [in] crcOn 
+ * \param [in] bandwidth
+ * \param [in] datarate
+ * \param [in] coderate
+ * \param [in] preambleLen
+ * \param [in] fixLen
+ * \param [in] payloadLen
+ * \param [in] crcOn
  *
  * \returns LoRa time-on-air numerator
  */
@@ -297,7 +297,8 @@ RadioState_t SX1272GetStatus( void )
 void SX1272SetChannel( uint32_t freq )
 {
     SX1272.Settings.Channel = freq;
-    freq = ( uint32_t )( ( double )freq / ( double )FREQ_STEP );
+	freq = HERTZ_TO_FRF_REG(freq);
+
     SX1272Write( REG_FRFMSB, ( uint8_t )( ( freq >> 16 ) & 0xFF ) );
     SX1272Write( REG_FRFMID, ( uint8_t )( ( freq >> 8 ) & 0xFF ) );
     SX1272Write( REG_FRFLSB, ( uint8_t )( freq & 0xFF ) );
@@ -398,9 +399,9 @@ void SX1272SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
             SX1272.Settings.Fsk.IqInverted = iqInverted;
             SX1272.Settings.Fsk.RxContinuous = rxContinuous;
             SX1272.Settings.Fsk.PreambleLen = preambleLen;
-            SX1272.Settings.Fsk.RxSingleTimeout = ( uint32_t )( symbTimeout * ( ( 1.0 / ( double )datarate ) * 8.0 ) * 1000 );
+            SX1272.Settings.Fsk.RxSingleTimeout = ( uint32_t )( symbTimeout * 8 * 1000 / datarate );
 
-            datarate = ( uint16_t )( ( double )XTAL_FREQ / ( double )datarate );
+            datarate = ( uint16_t )( XTAL_FREQ / datarate );
             SX1272Write( REG_BITRATEMSB, ( uint8_t )( datarate >> 8 ) );
             SX1272Write( REG_BITRATELSB, ( uint8_t )( datarate & 0xFF ) );
 
@@ -542,11 +543,11 @@ void SX1272SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
             SX1272.Settings.Fsk.IqInverted = iqInverted;
             SX1272.Settings.Fsk.TxTimeout = timeout;
 
-            fdev = ( uint16_t )( ( double )fdev / ( double )FREQ_STEP );
+			fdev = HERTZ_TO_FRF_REG(fdev);
             SX1272Write( REG_FDEVMSB, ( uint8_t )( fdev >> 8 ) );
             SX1272Write( REG_FDEVLSB, ( uint8_t )( fdev & 0xFF ) );
 
-            datarate = ( uint16_t )( ( double )XTAL_FREQ / ( double )datarate );
+            datarate = ( uint16_t )( XTAL_FREQ / datarate );
             SX1272Write( REG_BITRATEMSB, ( uint8_t )( datarate >> 8 ) );
             SX1272Write( REG_BITRATELSB, ( uint8_t )( datarate & 0xFF ) );
 
@@ -1238,8 +1239,8 @@ static uint32_t SX1272GetGfskTimeOnAirNumerator( uint16_t preambleLen, bool fixL
              ( syncWordLength << 3 ) +
              ( ( payloadLen +
                ( 0 ) + // Address filter size
-               ( ( crcOn == true ) ? 2 : 0 ) 
-               ) << 3 
+               ( ( crcOn == true ) ? 2 : 0 )
+               ) << 3
              );
 }
 
@@ -1344,7 +1345,7 @@ static void SX1272OnTimeoutIrq( void* context )
         break;
     case RF_TX_RUNNING:
         // Tx timeout shouldn't happen.
-        // Reported issue of SPI data corruption resulting in TX TIMEOUT 
+        // Reported issue of SPI data corruption resulting in TX TIMEOUT
         // is NOT related to a bug in radio transceiver.
         // It is mainly caused by improper PCB routing of SPI lines and/or
         // violation of SPI specifications.
@@ -1661,10 +1662,13 @@ static void SX1272OnDio2Irq( void* context )
 
                     SX1272.Settings.FskPacketHandler.RssiValue = -( SX1272Read( REG_RSSIVALUE ) >> 1 );
 
-                    SX1272.Settings.FskPacketHandler.AfcValue = ( int32_t )( ( double )( ( ( uint16_t )SX1272Read( REG_AFCMSB ) << 8 ) |
-                                                                             ( uint16_t )SX1272Read( REG_AFCLSB ) ) *
-                                                                             ( double )FREQ_STEP );
-                    SX1272.Settings.FskPacketHandler.RxGain = ( SX1272Read( REG_LNA ) >> 5 ) & 0x07;
+					uint16_t lsb = ( uint16_t )SX1272Read( REG_AFCLSB );
+
+					uint32_t vvv = HERTZ_TO_FRF_REG(lsb);
+
+					SX1272.Settings.FskPacketHandler.AfcValue = ( int32_t )( ( ( ( uint16_t )SX1272Read( REG_AFCMSB ) << 8 ) | vvv));
+
+					SX1272.Settings.FskPacketHandler.RxGain = ( SX1272Read( REG_LNA ) >> 5 ) & 0x07;
                 }
                 break;
             case MODEM_LORA:
