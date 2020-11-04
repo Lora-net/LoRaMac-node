@@ -485,24 +485,39 @@ RadioPacketTypes_t SX126xGetPacketType( void )
 void SX126xSetTxParams( int8_t power, RadioRampTimes_t rampTime )
 {
     uint8_t buf[2];
+    // PA optimal settings are configured for SX1261 and SX1262 according to DS_SX1261-2_V1.2 datasheet chapter 13.1.14, table 13.1.14.1
+    // Datasheet table only provides optimal settings for fixed TX output power. In the following code, we assume
+    // ranges can be used between the provided value and the lower values (up to the next defined output value)
+    // Power value used in TXPARAMS is updated according to the value column of the table, and adapted for the corresponding range
 
     if( SX126xGetDeviceId( ) == SX1261 )
     {
-        if( power == 15 )
+        if( power > 15 )
         {
-            SX126xSetPaConfig( 0x06, 0x00, 0x01, 0x01 );
-        }
-        else
-        {
-            SX126xSetPaConfig( 0x04, 0x00, 0x01, 0x01 );
-        }
-        if( power >= 14 )
-        {
-            power = 14;
+            power = 15;
         }
         else if( power < -17 )
         {
             power = -17;
+        }
+
+        if( power >= 15 )
+        {
+            SX126xSetPaConfig( 0x06, 0x00, 0x01, 0x01 );
+            // For +15dBm, use +14dBm as power value when optimal PA settings are used
+            power = 14;
+        }
+        else if ( power >= 11 )
+        {
+            // Between +11 and +14, use +14 dBm optimal settings
+            SX126xSetPaConfig( 0x04, 0x00, 0x01, 0x01 );
+        }
+        else
+        {
+            // Between -17 and +10, use +10 dBm optimal settings
+            SX126xSetPaConfig( 0x01, 0x00, 0x01, 0x01 );
+            // Use +13 dBm as power parameter with optimal settings to get optimised +10dBm
+            power += 3;
         }
     }
     else // sx1262
@@ -512,14 +527,40 @@ void SX126xSetTxParams( int8_t power, RadioRampTimes_t rampTime )
         SX126xWriteRegister( 0x08D8, SX126xReadRegister( 0x08D8 ) | ( 0x0F << 1 ) );
         // WORKAROUND END
 
-        SX126xSetPaConfig( 0x04, 0x07, 0x00, 0x01 );
-        if( power > 22 )
+        if ( power > 22 )
         {
-            power = 22;
+        	power = 22;
         }
         else if( power < -9 )
         {
             power = -9;
+        }
+
+        if( power >= 21 )
+        {
+            // Between +21 and +22, use +22 dBm optimal settings
+            SX126xSetPaConfig( 0x04, 0x07, 0x00, 0x01 );
+        }
+        else if ( power >= 18 )
+        {
+            // Between +18 and +20, use +20 dBm optimal settings
+            SX126xSetPaConfig( 0x03, 0x05, 0x00, 0x01 );
+            // Use +22 dBm as power parameter with optimal settings to get optimised +20dBm
+            power += 2;
+        }
+        else if ( power >= 15 )
+        {
+        	// Between +15 and +17, use +17 dBm optimal settings
+            SX126xSetPaConfig( 0x02, 0x03, 0x00, 0x01 );
+            // Use +22 dBm as power parameter with optimal settings to get optimised +17dBm
+            power += 5;
+        }
+        else
+        {
+        	// Between -9 and +14, use +14 dBm optimal settings
+            SX126xSetPaConfig( 0x02, 0x02, 0x00, 0x01 );
+            // Use +22 dBm as power parameter with optimal settings to get optimised +14dBm
+            power += 8;
         }
     }
     buf[0] = power;
