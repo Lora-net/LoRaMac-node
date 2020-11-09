@@ -178,7 +178,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
     int retries = iface->mIfaceCFG->rx_retries;
     while (--retries > 0 && r != 1)
     {
-        r = I2cMcuReadBuffer((I2c_t *)NULL, iface->mIfaceCFG->atcai2c.slave_address, 0x3, lengthPackage, 1);
+        r = I2cMcuReadBuffer((I2c_t *)NULL, iface->mIfaceCFG->atcai2c.slave_address, 0, lengthPackage, 1);
     }
 
     if (r != 1)
@@ -201,7 +201,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
     retries = iface->mIfaceCFG->rx_retries;
     while (--retries > 0 && r != 1)
     {
-        r = I2cMcuReadBuffer((I2c_t *)NULL, iface->mIfaceCFG->atcai2c.slave_address, 0x3, rxdata, bytesToRead);
+        r = I2cMcuReadBuffer((I2c_t *)NULL, iface->mIfaceCFG->atcai2c.slave_address, 0, rxdata, bytesToRead);
     }
 
     if (r != 1)
