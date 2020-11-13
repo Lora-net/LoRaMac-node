@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "board.h"
+#include "NvmCtxMgmt.h"
 #include "LoRaMacTest.h"
 #include "LmHandler.h"
 #include "LmhpCompliance.h"
@@ -261,6 +262,7 @@ static void LmhpComplianceProcess( void )
     if( ComplianceTestState.IsResetCmdPending == true )
     {
         ComplianceTestState.IsResetCmdPending = false;
+
         // Call platform MCU reset API
         BoardResetMcu( );
     }
@@ -269,13 +271,9 @@ static void LmhpComplianceProcess( void )
 static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
 {
     uint8_t cmdIndex        = 0;
+    MibRequestConfirm_t mibReq;
 
     if( ComplianceTestState.Initialized == false )
-    {
-        return;
-    }
-
-    if( ComplianceParams->IsDutFPort224On == false )
     {
         return;
     }
@@ -447,8 +445,10 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
         }
         case COMPLIANCE_DUT_FPORT_224_DISABLE_REQ:
         {
-            // TODO: Handle FPort 224 control NVM update
-            ComplianceParams->IsDutFPort224On = false;
+            mibReq.Type = MIB_IS_CERT_FPORT_ON;
+            mibReq.Param.IsCertPortOn = false;
+            LoRaMacMibSetRequestConfirm( &mibReq );
+
             ComplianceTestState.IsResetCmdPending = true;
             break;
         }
@@ -517,11 +517,6 @@ static void LmhpComplianceOnMlmeConfirm( MlmeConfirm_t *mlmeConfirm )
 static void LmhpComplianceOnMlmeIndication( MlmeIndication_t* mlmeIndication )
 {
     if( ComplianceTestState.Initialized == false )
-    {
-        return;
-    }
-
-    if( ComplianceParams->IsDutFPort224On == false )
     {
         return;
     }

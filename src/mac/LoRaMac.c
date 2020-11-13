@@ -152,11 +152,14 @@ typedef struct sLoRaMacNvmCtx
      * Counts the number of missed ADR acknowledgements
      */
     uint32_t AdrAckCounter;
-
     /*
      * LoRaMac parameters
      */
     LoRaMacParams_t MacParams;
+    /*
+     * Enables/disable FPort 224 processing (certification port)
+     */
+    bool IsCertPortOn;
     /*
      * Maximum duty cycle
      * \remark Possibility to shutdown the device.
@@ -1309,6 +1312,15 @@ static void ProcessRadioRxDone( void )
                     MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                     PrepareRxDoneAbort( );
                     break;
+            }
+
+            if( ( macMsgData.FPort == LORAMAC_CERT_FPORT ) && ( MacCtx.NvmCtx->IsCertPortOn == false ) )
+            { // Do not notify the upper layer of data reception on FPort LORAMAC_CERT_FPORT if the port
+              // handling is disabled.
+                MacCtx.McpsIndication.Port = macMsgData.FPort;
+                MacCtx.McpsIndication.Buffer = NULL;
+                MacCtx.McpsIndication.BufferSize = 0;
+                MacCtx.McpsIndication.RxData = false;
             }
 
             // Provide always an indication, skip the callback to the user application,
@@ -3402,6 +3414,9 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     MacCtx.NvmCtx->MacParams.JoinAcceptDelay2 = MacCtx.NvmCtx->MacParamsDefaults.JoinAcceptDelay2;
     MacCtx.NvmCtx->MacParams.ChannelsNbTrans = MacCtx.NvmCtx->MacParamsDefaults.ChannelsNbTrans;
 
+    // FPort 224 is enabled by default.
+    MacCtx.NvmCtx->IsCertPortOn = true;
+
     InitDefaultsParams_t params;
     params.Type = INIT_TYPE_DEFAULTS;
     params.NvmCtx = NULL;
@@ -3732,6 +3747,11 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t* mibGet )
         {
             mibGet->Param.LrWanVersion.LoRaWan = MacCtx.NvmCtx->Version;
             mibGet->Param.LrWanVersion.LoRaWanRegion = RegionGetVersion( );
+            break;
+        }
+        case MIB_IS_CERT_FPORT_ON:
+        {
+            mibGet->Param.IsCertPortOn = MacCtx.NvmCtx->IsCertPortOn;
             break;
         }
         default:
@@ -4372,6 +4392,11 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
             {
                 status = LORAMAC_STATUS_PARAMETER_INVALID;
             }
+            break;
+        }
+        case MIB_IS_CERT_FPORT_ON:
+        {
+            MacCtx.NvmCtx->IsCertPortOn = mibSet->Param.IsCertPortOn;
             break;
         }
         default:

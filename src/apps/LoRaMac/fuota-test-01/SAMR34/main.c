@@ -200,7 +200,6 @@ static LmHandlerParams_t LmHandlerParams =
 
 static LmhpComplianceParams_t LmhpComplianceParams =
 {
-    .IsDutFPort224On = true,
     .FwVersion.Value = FIRMWARE_VERSION,
     .OnTxPeriodicityChanged = OnTxPeriodicityChanged,
     .OnTxFrameCtrlChanged = OnTxFrameCtrlChanged,

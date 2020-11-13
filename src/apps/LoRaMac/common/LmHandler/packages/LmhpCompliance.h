@@ -38,10 +38,6 @@
 typedef struct LmhpComplianceParams_s
 {
     /*!
-     * Indicates if the DUT FPort 224 is enabled.
-     */
-    bool IsDutFPort224On;
-    /*!
      * Current firmware version
      */
     Version_t FwVersion;
