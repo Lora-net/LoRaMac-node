@@ -88,7 +88,7 @@ extern "C"
 /*!
  * Maximal Rx1 receive datarate offset
  */
-#define AU915_MAX_RX1_DR_OFFSET                     6
+#define AU915_MAX_RX1_DR_OFFSET                     5
 
 /*!
  * Minimal Tx output power that can be used by the node
