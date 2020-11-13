@@ -34,11 +34,14 @@
 #include <peripheral_clk_config.h>
 #include <hal_gpio.h>
 #include <hal_i2c_m_sync.h>
+#include <string.h>
 
 #include "board.h"
 #include "i2c-board.h"
 
 struct i2c_m_sync_desc I2C_INSTANCE;
+
+static I2cAddrSize I2cInternalAddrSize = I2C_ADDR_SIZE_8;
 
 void I2cMcuInit( I2c_t* obj, I2cId_t i2cId, PinNames scl, PinNames sda )
 {
@@ -66,6 +69,11 @@ void I2cMcuDeInit( I2c_t* obj )
     // Left empty
 }
 
+void I2cSetAddrSize( I2c_t *obj, I2cAddrSize addrSize )
+{
+    I2cInternalAddrSize = addrSize;
+}
+
 void I2cMcuFormat( I2c_t* obj, I2cMode mode, I2cDutyCycle dutyCycle, bool I2cAckEnable, I2cAckAddrMode AckAddrMode,
                    uint32_t I2cFrequency )
 {
@@ -75,8 +83,22 @@ void I2cMcuFormat( I2c_t* obj, I2cMode mode, I2cDutyCycle dutyCycle, bool I2cAck
 
 uint8_t I2cMcuWriteBuffer( I2c_t* obj, uint8_t deviceAddr, uint16_t addr, uint8_t* buffer, uint16_t size )
 {
+    uint16_t txdataSize = size + I2cInternalAddrSize + 1;
+    uint8_t txdata[txdataSize];
+    memcpy ( txdata + I2cInternalAddrSize + 1, buffer, size );
+
+    if( I2cInternalAddrSize == I2C_ADDR_SIZE_8 )
+    {
+        txdata[0] = addr & 0x00FF;
+    }
+    else
+    {
+        txdata[0] = (( addr & 0xFF00 ) >> 8);
+        txdata[1] = addr & 0xFF;
+    }
+
     i2c_m_sync_set_slaveaddr( &I2C_INSTANCE, deviceAddr, I2C_M_SEVEN );
-    if( io_write( &I2C_INSTANCE.io, buffer, size ) == size )
+    if( io_write( &I2C_INSTANCE.io, txdata, txdataSize ) == txdataSize )
     {
         return 1;  // ok
     }
@@ -88,9 +110,24 @@ uint8_t I2cMcuWriteBuffer( I2c_t* obj, uint8_t deviceAddr, uint16_t addr, uint8_
 
 uint8_t I2cMcuReadBuffer( I2c_t* obj, uint8_t deviceAddr, uint16_t addr, uint8_t* buffer, uint16_t size )
 {
-    i2c_m_sync_set_slaveaddr( &I2C_INSTANCE, deviceAddr, I2C_M_SEVEN );
-    if( io_read( &I2C_INSTANCE.io, buffer, size ) == size )
+    uint16_t txdataSize = size + I2cInternalAddrSize + 1;
+    uint8_t txdata[txdataSize];
+    memcpy ( txdata + I2cInternalAddrSize + 1, buffer, size );
+
+    if( I2cInternalAddrSize == I2C_ADDR_SIZE_8 )
     {
+        txdata[0] = addr & 0x00FF;
+    }
+    else
+    {
+        txdata[0] = (( addr & 0xFF00 ) >> 8);
+        txdata[1] = addr & 0xFF;
+    }
+
+    i2c_m_sync_set_slaveaddr( &I2C_INSTANCE, deviceAddr, I2C_M_SEVEN );
+    if( io_read( &I2C_INSTANCE.io, txdata, txdataSize ) == txdataSize )
+    {
+        memcpy ( buffer, txdata + I2cInternalAddrSize + 1, size );
         return 1;  // ok
     }
     else
