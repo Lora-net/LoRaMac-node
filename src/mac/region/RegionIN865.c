@@ -725,9 +725,7 @@ uint8_t RegionIN865RxParamSetupReq( RxParamSetupReqParams_t* rxParamSetupReq )
     }
 
     // Verify datarate offset
-    if( ( RegionCommonValueInRange( rxParamSetupReq->DrOffset, IN865_MIN_RX1_DR_OFFSET, IN865_MAX_RX1_DR_OFFSET ) == false ) ||
-        // DR_6 is not supported by this region
-        ( rxParamSetupReq->DrOffset == DR_6 ) )
+    if( RegionCommonValueInRange( rxParamSetupReq->DrOffset, IN865_MIN_RX1_DR_OFFSET, IN865_MAX_RX1_DR_OFFSET ) == false )
     {
         status &= 0xFB; // Rx1DrOffset range KO
     }

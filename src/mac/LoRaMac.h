@@ -105,6 +105,13 @@ extern "C"
 #define LORAMAC_CRYPTO_MULTICAST_KEYS   127
 
 /*!
+ * LoRaWAN compliance certification protocol port number.
+ *
+ * LoRaWAN Specification V1.x.x, chapter 4.3.2
+ */
+#define LORAMAC_CERT_FPORT 224
+
+/*!
  * End-Device activation type
  */
 typedef enum eActivationType
@@ -1231,6 +1238,7 @@ typedef struct sMlmeIndication
  * \ref MIB_NVM_CTXS                             | YES | YES
  * \ref MIB_ABP_LORAWAN_VERSION                  | NO  | YES
  * \ref MIB_LORAWAN_VERSION                      | YES | NO
+ * \ref MIB_IS_CERT_FPORT_ON                     | YES | YES
  * \ref MIB_REJOIN_0_CYCLE                       | YES | YES
  * \ref MIB_REJOIN_1_CYCLE                       | YES | YES
  * \ref MIB_REJOIN_2_CYCLE                       | YES | NO
@@ -1654,6 +1662,10 @@ typedef enum eMib
      * The allowed ranges are region specific. Please refer to \ref DR_0 to \ref DR_15 for details.
      */
      MIB_PING_SLOT_DATARATE,
+     /*!
+      * LoRaWAN certification FPort handling state (ON/OFF)
+      */
+     MIB_IS_CERT_FPORT_ON,
 }Mib_t;
 
 /*!
@@ -2087,6 +2099,12 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_PING_SLOT_DATARATE
      */
     int8_t PingSlotDatarate;
+    /*!
+     * LoRaWAN certification FPort handling state (ON/OFF)
+     *
+     * Related MIB type: \ref MIB_IS_CERT_FPORT_ON
+     */
+    bool IsCertPortOn;
 }MibParam_t;
 
 /*!

@@ -446,8 +446,6 @@ LoRaMacCommandStatus_t LoRaMacCommandsRemoveNoneStickyCmds( void )
         }
     }
 
-    NvmCtxCallback( );
-
     return LORAMAC_COMMANDS_SUCCESS;
 }
 
@@ -469,8 +467,6 @@ LoRaMacCommandStatus_t LoRaMacCommandsRemoveStickyAnsCmds( void )
         }
         curElement = nexElement;
     }
-
-    NvmCtxCallback( );
 
     return LORAMAC_COMMANDS_SUCCESS;
 }
