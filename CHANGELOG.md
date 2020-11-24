@@ -11,32 +11,39 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 
 ## [Unreleased]
 
-## Added
+## [4.5.0-rc.1] - 2020-11-24
 
-- Added GitHUb repository and firmware examples version definitions
-- Added Version_t Revision field to DutVersionAns message.
+### General
 
-## Changed
+- Release based on "LoRaWAN specification 1.0.4" and "LoRaWAN Regional Parameters 2-1.0.1"
+- GitHub reported issues corrections. Please refer to [Release Version 4.5.0](https://github.com/Lora-net/LoRaMac-node/milestone/5)
 
-- Changed fuota-test-01 examples in order to handle the new certification protocol implementation
+### Added
 
-## Fixed
+- Added implementation of LoRaWAN 1.0.4 changes
+- Added implementation for new Certification protocol specification
+- Added GitHub repository and firmware examples version definitions
 
-- Fixed compliance protocol implementation in order to get current versions from the MAC layer
-- Fixed `RxAppCnt` parameter endianess handling
-- Fixed AS923 max payload lengths by using N values instead of M values.
+### Changed
+
+- Changed IMST boards default power source to USB_POWER
+
+### Fixed
+
+- Fixed an issue where the Join back off algorithm wasn't being applied when the duty-cycle enforcement was OFF.
+- Fixed `AU915_MAX_RX1_DR_OFFSET` value to 5 instead of 6
+
+### Removed
+
+- Removed NvmCtxCallback calls as they should only be done when a modification happens.
+- Removed ClassA, ClassB and ClassC examples.
 
 ## [4.4.5] - 2020-10-14
 
 ### General
 
-- Release based on "LoRaWAN specification 1.0.4"/"LoRaWAN specification 1.1.1" and "LoRaWAN Regional Parameters 2-1.0.1"
-- GitHub reported issues corrections. Please refer to [Release Version 5.0.0](https://github.com/Lora-net/LoRaMac-node/milestone/3)
-
-### Removed
-
-- Removed ClassA, ClassB and ClassC examples.
-- Removed AS923 no more used `MaxPayloadOfDatarateDwell1DownAS923` table definition.
+- Release based on "LoRaWAN specification 1.0.3" and "LoRaWAN Regional Parameters v1.0.3revA"
+- GitHub reported issues corrections. Please refer to [Release Version 4.4.5](https://github.com/Lora-net/LoRaMac-node/milestone/7)
 
 ### Added
 
