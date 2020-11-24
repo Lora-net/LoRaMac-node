@@ -11,6 +11,20 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 
 ## [Unreleased]
 
+### Changed
+
+- Changed IMST boards default power source to USB_POWER
+
+### Fixed
+
+- Fixed an issue where the Join back off algorithm wasn't being applied when the duty-cycle enforcement was OFF.
+- Fixed `AU915_MAX_RX1_DR_OFFSET` value to 5 instead of 6
+
+### Removed
+
+- Removed NvmCtxCallback calls as they should only be done when a modification happens.
+- Removed ClassA, ClassB and ClassC examples.
+
 ## [4.4.5] - 2020-10-14
 
 ### General
