@@ -358,7 +358,7 @@ typedef struct
 #define RTC_SMOOTHCALIB_PLUSPULSES_SET    RTC_CALR_CALP            /*!< The number of RTCCLK pulses added
                                                                         during a X -second window = Y - CALM[8:0]
                                                                         with Y = 512, 256, 128 when X = 32, 16, 8 */
-#define RTC_SMOOTHCALIB_PLUSPULSES_RESET  ((uint32_t)0x00000000U)   /*!< The number of RTCCLK pulses subbstited
+#define RTC_SMOOTHCALIB_PLUSPULSES_RESET  ((uint32_t)0x00000000U)   /*!< The number of RTCCLK pulses substituted
                                                                         during a 32-second window = CALM[8:0] */
 
 /**
