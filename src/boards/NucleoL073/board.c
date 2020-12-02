@@ -28,6 +28,7 @@
 #include "i2c.h"
 #include "uart.h"
 #include "timer.h"
+#include "sysIrqHandlers.h"
 #include "board-config.h"
 #include "lpm-board.h"
 #include "rtc-board.h"

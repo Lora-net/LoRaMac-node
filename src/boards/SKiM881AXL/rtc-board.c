@@ -31,6 +31,7 @@
 #include "timer.h"
 #include "systime.h"
 #include "gpio.h"
+#include "sysIrqHandlers.h"
 #include "lpm-board.h"
 #include "rtc-board.h"
 
