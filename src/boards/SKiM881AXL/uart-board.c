@@ -23,6 +23,7 @@
 #include "stm32l0xx.h"
 #include "utilities.h"
 #include "board.h"
+#include "sysIrqHandlers.h"
 #include "uart-board.h"
 
 /*!
