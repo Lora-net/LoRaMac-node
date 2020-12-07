@@ -963,7 +963,7 @@ static void LmHandlerPackagesNotify( PackageNotifyTypes_t notifyType, void *para
                 {
                     if( LmHandlerPackages[i]->OnMcpsConfirmProcess != NULL )
                     {
-                        LmHandlerPackages[i]->OnMcpsConfirmProcess( params );
+                        LmHandlerPackages[i]->OnMcpsConfirmProcess( ( McpsConfirm_t* ) params );
                     }
                     break;
                 }
@@ -972,7 +972,7 @@ static void LmHandlerPackagesNotify( PackageNotifyTypes_t notifyType, void *para
                     if( ( LmHandlerPackages[i]->OnMcpsIndicationProcess != NULL ) &&
                         ( LmHandlerPackages[i]->Port == ( ( McpsIndication_t* )params )->Port ) )
                     {
-                        LmHandlerPackages[i]->OnMcpsIndicationProcess( params );
+                        LmHandlerPackages[i]->OnMcpsIndicationProcess( ( McpsIndication_t* )params );
                     }
                     break;
                 }
@@ -980,7 +980,7 @@ static void LmHandlerPackagesNotify( PackageNotifyTypes_t notifyType, void *para
                 {
                     if( LmHandlerPackages[i]->OnMlmeConfirmProcess != NULL )
                     {
-                        LmHandlerPackages[i]->OnMlmeConfirmProcess( params );
+                        LmHandlerPackages[i]->OnMlmeConfirmProcess( ( MlmeConfirm_t* )params );
                     }
                     break;
                 }
