@@ -463,7 +463,7 @@ void RtcSetMcuWakeUpTime( void )
         hit = RtcAlarm.AlarmTime.Seconds +
               60 * ( RtcAlarm.AlarmTime.Minutes +
               60 * ( RtcAlarm.AlarmTime.Hours +
-              24 * ( RtcAlarm.AlarmDateWeekDay ) ) );
+              24 * ( RtcAlarm.AlarmDateWeekDay - 1 ) ) );
         hit = ( hit << N_PREDIV_S ) + ( PREDIV_S - RtcAlarm.AlarmTime.SubSeconds );
 
         mcuWakeUpTime = ( int16_t )( ( now - hit ) );
