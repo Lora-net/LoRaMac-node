@@ -22,6 +22,7 @@
  */
 #include "stm32l1xx.h"
 #include "utilities.h"
+#include "sysIrqHandlers.h"
 #include "board-config.h"
 #include "rtc-board.h"
 #include "gpio-board.h"

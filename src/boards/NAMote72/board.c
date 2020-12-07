@@ -34,6 +34,7 @@
 #include "mag3110.h"
 #include "mma8451.h"
 #include "sx9500.h"
+#include "sysIrqHandlers.h"
 #include "board-config.h"
 #include "lpm-board.h"
 #include "rtc-board.h"
