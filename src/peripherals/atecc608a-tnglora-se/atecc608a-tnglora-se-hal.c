@@ -151,7 +151,7 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
 
     txdata[0] = 0x3;
     txlength++;
-    if (I2cMcuWriteBuffer((I2c_t *)NULL, iface->mIfaceCFG->atcai2c.slave_address, 0, txdata, (size_t)txlength) == 1)
+    if (I2cMcuWriteBuffer((I2c_t *)NULL, iface->mIfaceCFG->atcai2c.slave_address, txdata, (size_t)txlength) == 1)
     {
         return ATCA_SUCCESS;
     }
@@ -179,7 +179,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
     int retries = iface->mIfaceCFG->rx_retries;
     while (--retries > 0 && r != 1)
     {
-        r = I2cMcuReadBuffer((I2c_t *)NULL, iface->mIfaceCFG->atcai2c.slave_address, 0, lengthPackage, 1);
+        r = I2cMcuReadBuffer((I2c_t *)NULL, iface->mIfaceCFG->atcai2c.slave_address, lengthPackage, 1);
     }
 
     if (r != 1)
@@ -202,7 +202,7 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
     retries = iface->mIfaceCFG->rx_retries;
     while (--retries > 0 && r != 1)
     {
-        r = I2cMcuReadBuffer((I2c_t *)NULL, iface->mIfaceCFG->atcai2c.slave_address, 0, rxdata + 1, bytesToRead);
+        r = I2cMcuReadBuffer((I2c_t *)NULL, iface->mIfaceCFG->atcai2c.slave_address, rxdata + 1, bytesToRead);
     }
 
     if (r != 1)
@@ -234,7 +234,7 @@ ATCA_STATUS hal_i2c_wake(ATCAIface iface)
 {
     // 2. Send NULL buffer to address 0x0 (NACK)
     uint8_t emptybuff[1] = {0};
-    int r = I2cMcuWriteBuffer((I2c_t *)NULL, 0x00, 0, emptybuff, (size_t)0);
+    int r = I2cMcuWriteBuffer((I2c_t *)NULL, 0x00, emptybuff, (size_t)0);
 
     // 3. Wait for wake_delay
     atca_delay_us(iface->mIfaceCFG->wake_delay);
@@ -246,7 +246,7 @@ ATCA_STATUS hal_i2c_wake(ATCAIface iface)
     int retries = iface->mIfaceCFG->rx_retries;
     while (--retries > 0 && r != 1)
     {
-        r = I2cMcuReadBuffer((I2c_t *)NULL, iface->mIfaceCFG->atcai2c.slave_address, 0, rx_buffer, 4);
+        r = I2cMcuReadBuffer((I2c_t *)NULL, iface->mIfaceCFG->atcai2c.slave_address, rx_buffer, 4);
     }
 
     // 5. Set frequency back to requested one
@@ -272,7 +272,7 @@ ATCA_STATUS hal_i2c_wake(ATCAIface iface)
 ATCA_STATUS hal_i2c_idle(ATCAIface iface)
 {
     uint8_t buffer[1] = { 0x2 }; // idle word address value 
-    I2cMcuWriteBuffer((I2c_t*)NULL, iface->mIfaceCFG->atcai2c.slave_address,0, buffer, (size_t)1); 
+    I2cMcuWriteBuffer((I2c_t*)NULL, iface->mIfaceCFG->atcai2c.slave_address, buffer, (size_t)1); 
     return ATCA_SUCCESS;
 }
 
@@ -284,7 +284,7 @@ ATCA_STATUS hal_i2c_idle(ATCAIface iface)
 ATCA_STATUS hal_i2c_sleep(ATCAIface iface)
 {
     uint8_t buffer[1] = { 0x1 };  // sleep word address value 
-    I2cMcuWriteBuffer((I2c_t*)NULL, iface->mIfaceCFG->atcai2c.slave_address,0, buffer, (size_t)1); 
+    I2cMcuWriteBuffer((I2c_t*)NULL, iface->mIfaceCFG->atcai2c.slave_address, buffer, (size_t)1); 
     return ATCA_SUCCESS;
 }
 

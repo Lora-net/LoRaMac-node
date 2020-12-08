@@ -125,7 +125,7 @@ uint8_t MMA8451Write( uint8_t addr, uint8_t data )
 
 uint8_t MMA8451WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size )
 {
-    return I2cWriteBuffer( &I2c, I2cDeviceAddr << 1, addr, data, size );
+    return I2cWriteMemBuffer( &I2c, I2cDeviceAddr << 1, addr, data, size );
 }
 
 uint8_t MMA8451Read( uint8_t addr, uint8_t *data )
@@ -135,7 +135,7 @@ uint8_t MMA8451Read( uint8_t addr, uint8_t *data )
 
 uint8_t MMA8451ReadBuffer( uint8_t addr, uint8_t *data, uint8_t size )
 {
-    return I2cReadBuffer( &I2c, I2cDeviceAddr << 1, addr, data, size );
+    return I2cReadMemBuffer( &I2c, I2cDeviceAddr << 1, addr, data, size );
 }
 
 void MMA8451SetDeviceAddr( uint8_t addr )
