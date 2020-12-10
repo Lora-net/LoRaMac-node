@@ -150,6 +150,13 @@ void SX1272SetBoardTcxo( uint8_t state );
 uint32_t SX1272GetBoardTcxoWakeupTime( void );
 
 /*!
+ * \brief Gets current state of DIO1 pin state (FifoLevel).
+ *
+ * \retval state DIO1 pin current state.
+ */
+uint32_t SX1272GetDio1PinState( void );
+
+/*!
  * \brief Writes new Tx debug pin state
  *
  * \param [IN] state Debug pin state

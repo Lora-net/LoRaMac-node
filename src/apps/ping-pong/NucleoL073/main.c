@@ -75,7 +75,7 @@
 
 #if defined( USE_MODEM_LORA )
 
-#define LORA_BANDWIDTH                              2         // [0: 125 kHz,
+#define LORA_BANDWIDTH                              0         // [0: 125 kHz,
                                                               //  1: 250 kHz,
                                                               //  2: 500 kHz,
                                                               //  3: Reserved]
@@ -85,7 +85,7 @@
                                                               //  3: 4/7,
                                                               //  4: 4/8]
 #define LORA_PREAMBLE_LENGTH                        8         // Same for Tx and Rx
-#define LORA_SYMBOL_TIMEOUT                         0         // Symbols
+#define LORA_SYMBOL_TIMEOUT                         5         // Symbols
 #define LORA_FIX_LENGTH_PAYLOAD_ON                  false
 #define LORA_IQ_INVERSION_ON                        false
 
@@ -93,26 +93,8 @@
 
 #define FSK_FDEV                                    25000     // Hz
 #define FSK_DATARATE                                50000     // bps
-
-#if defined( SX1272MB2DAS ) || defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
-
-#define FSK_BANDWIDTH                               50000     // Hz >> SSB in sx127x
+#define FSK_BANDWIDTH                               50000     // Hz
 #define FSK_AFC_BANDWIDTH                           83333     // Hz
-
-#elif defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
-
-#define FSK_BANDWIDTH                               100000    // Hz >> DSB in sx126x
-#define FSK_AFC_BANDWIDTH                           166666    // Hz >> Unused in sx126x
-
-#elif defined( LR1110MB1XXS )
-
-#define FSK_BANDWIDTH                               100000    // Hz >> DSB in LR1110
-#define FSK_AFC_BANDWIDTH                           166666    // Hz >> Unused in LR1110
-
-#else
-    #error "Please define a mbed shield in the compiler options."
-#endif
-
 #define FSK_PREAMBLE_LENGTH                         5         // Same for Tx and Rx
 #define FSK_FIX_LENGTH_PAYLOAD_ON                   false
 

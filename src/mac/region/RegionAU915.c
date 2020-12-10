@@ -80,19 +80,6 @@ typedef struct sRegionAU915NvmCtx
  */
 static RegionAU915NvmCtx_t NvmCtx;
 
-// Static functions
-static int8_t GetNextLowerTxDr( int8_t dr, int8_t minDr )
-{
-    if( dr == DR_8 )
-    {   // DR_7 is not allowed
-        return DR_6;
-    }
-    else
-    {
-        return RegionCommonGetNextLowerTxDr( dr, minDr );
-    }
-}
-
 static bool VerifyRfFreq( uint32_t freq )
 {
     // Check radio driver support
@@ -163,14 +150,16 @@ PhyParam_t RegionAU915GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_NEXT_LOWER_TX_DR:
         {
-            if( getPhy->UplinkDwellTime == 0)
+            RegionCommonGetNextLowerTxDrParams_t nextLowerTxDrParams =
             {
-                phyParam.Value = GetNextLowerTxDr( getPhy->Datarate, AU915_TX_MIN_DATARATE );
-            }
-            else
-            {
-                phyParam.Value = GetNextLowerTxDr( getPhy->Datarate, AU915_DWELL_LIMIT_DATARATE );
-            }
+                .CurrentDr = getPhy->Datarate,
+                .MaxDr = ( int8_t )AU915_TX_MAX_DATARATE,
+                .MinDr = ( int8_t )( ( getPhy->UplinkDwellTime == 0 ) ? AU915_TX_MIN_DATARATE : AU915_DWELL_LIMIT_DATARATE ),
+                .NbChannels = AU915_MAX_NB_CHANNELS,
+                .ChannelsMask = NvmCtx.ChannelsMask,
+                .Channels = NvmCtx.Channels,
+            };
+            phyParam.Value = RegionCommonGetNextLowerTxDr( &nextLowerTxDrParams );
             break;
         }
         case PHY_MAX_TX_POWER:
