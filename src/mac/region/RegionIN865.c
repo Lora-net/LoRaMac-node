@@ -64,19 +64,6 @@ typedef struct sRegionIN865NvmCtx
  */
 static RegionIN865NvmCtx_t NvmCtx;
 
-// Static functions
-static int8_t GetNextLowerTxDr( int8_t dr, int8_t minDr )
-{
-    if( dr == DR_7 )
-    {
-        return DR_5;
-    }
-    else
-    {
-        return RegionCommonGetNextLowerTxDr( dr, minDr );
-    }
-}
-
 static bool VerifyRfFreq( uint32_t freq )
 {
     // Check radio driver support
@@ -132,7 +119,16 @@ PhyParam_t RegionIN865GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_NEXT_LOWER_TX_DR:
         {
-            phyParam.Value = GetNextLowerTxDr( getPhy->Datarate, IN865_TX_MIN_DATARATE );
+            RegionCommonGetNextLowerTxDrParams_t nextLowerTxDrParams =
+            {
+                .CurrentDr = getPhy->Datarate,
+                .MaxDr = ( int8_t )IN865_TX_MAX_DATARATE,
+                .MinDr = ( int8_t )IN865_TX_MIN_DATARATE,
+                .NbChannels = IN865_MAX_NB_CHANNELS,
+                .ChannelsMask = NvmCtx.ChannelsMask,
+                .Channels = NvmCtx.Channels,
+            };
+            phyParam.Value = RegionCommonGetNextLowerTxDr( &nextLowerTxDrParams );
             break;
         }
         case PHY_MAX_TX_POWER:

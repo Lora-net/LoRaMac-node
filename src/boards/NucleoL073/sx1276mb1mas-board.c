@@ -102,7 +102,7 @@ void SX1276IoInit( void )
 void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
 {
     GpioSetInterrupt( &SX1276.DIO0, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[0] );
-    GpioSetInterrupt( &SX1276.DIO1, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[1] );
+    GpioSetInterrupt( &SX1276.DIO1, IRQ_RISING_FALLING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[1] );
     GpioSetInterrupt( &SX1276.DIO2, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[2] );
     GpioSetInterrupt( &SX1276.DIO3, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[3] );
     GpioSetInterrupt( &SX1276.DIO4, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[4] );
@@ -293,6 +293,11 @@ bool SX1276CheckRfFrequency( uint32_t frequency )
 {
     // Implement check. Currently all frequencies are supported
     return true;
+}
+
+uint32_t SX1276GetDio1PinState( void )
+{
+    return GpioRead( &SX1276.DIO1 );
 }
 
 #if defined( USE_RADIO_DEBUG )

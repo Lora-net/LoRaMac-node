@@ -900,15 +900,14 @@ static void SX1272SetTx( uint32_t timeout )
     case MODEM_FSK:
         {
             // DIO0=PacketSent
-            // DIO1=FifoEmpty
+            // DIO1=FifoLevel
             // DIO2=FifoFull
             // DIO3=FifoEmpty
             // DIO4=LowBat
             // DIO5=ModeReady
             SX1272Write( REG_DIOMAPPING1, ( SX1272Read( REG_DIOMAPPING1 ) & RF_DIOMAPPING1_DIO0_MASK &
                                                                             RF_DIOMAPPING1_DIO1_MASK &
-                                                                            RF_DIOMAPPING1_DIO2_MASK ) |
-                                                                            RF_DIOMAPPING1_DIO1_01 );
+                                                                            RF_DIOMAPPING1_DIO2_MASK ) );
 
             SX1272Write( REG_DIOMAPPING2, ( SX1272Read( REG_DIOMAPPING2 ) & RF_DIOMAPPING2_DIO4_MASK &
                                                                             RF_DIOMAPPING2_MAP_MASK ) );
@@ -1561,6 +1560,16 @@ static void SX1272OnDio1Irq( void* context )
             switch( SX1272.Settings.Modem )
             {
             case MODEM_FSK:
+                // Check FIFO level DIO1 pin state
+                //
+                // As DIO1 interrupt is triggered when a rising or a falling edge is detected the IRQ handler must
+                // verify DIO1 pin state in order to decide if something has to be done.
+                // When radio is operating in FSK reception mode a rising edge must be detected in order to handle the
+                // IRQ.
+                if( SX1272GetDio1PinState( ) == 0 )
+                {
+                    break;
+                }
                 // Stop timer
                 TimerStop( &RxTimeoutSyncWord );
 
@@ -1596,6 +1605,17 @@ static void SX1272OnDio1Irq( void* context )
                 }
                 break;
             case MODEM_LORA:
+                // Check RxTimeout DIO1 pin state
+                //
+                // DIO1 irq is setup to be triggered on rsing and falling edges
+                // As DIO1 interrupt is triggered when a rising or a falling edge is detected the IRQ handler must
+                // verify DIO1 pin state in order to decide if something has to be done.
+                // When radio is operating in LoRa reception mode a rising edge must be detected in order to handle the
+                // IRQ.
+                if( SX1272GetDio1PinState( ) == 0 )
+                {
+                    break;
+                }
                 // Sync time out
                 TimerStop( &RxTimeoutTimer );
                 // Clear Irq
@@ -1615,7 +1635,18 @@ static void SX1272OnDio1Irq( void* context )
             switch( SX1272.Settings.Modem )
             {
             case MODEM_FSK:
-                // FifoEmpty interrupt
+                // Check FIFO level DIO1 pin state
+                //
+                // As DIO1 interrupt is triggered when a rising or a falling edge is detected the IRQ handler must
+                // verify DIO1 pin state in order to decide if something has to be done.
+                // When radio is operating in FSK transmission mode a falling edge must be detected in order to handle
+                // the IRQ.
+                if( SX1272GetDio1PinState( ) == 1 )
+                {
+                    break;
+                }
+
+                // FifoLevel interrupt
                 if( ( SX1272.Settings.FskPacketHandler.Size - SX1272.Settings.FskPacketHandler.NbBytes ) > SX1272.Settings.FskPacketHandler.ChunkSize )
                 {
                     SX1272WriteFifo( ( RxTxBuffer + SX1272.Settings.FskPacketHandler.NbBytes ), SX1272.Settings.FskPacketHandler.ChunkSize );

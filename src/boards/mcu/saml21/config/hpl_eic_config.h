@@ -543,7 +543,7 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense11
 #ifndef CONF_EIC_SENSE11
-#define CONF_EIC_SENSE11 EIC_NMICTRL_NMISENSE_RISE_Val
+#define CONF_EIC_SENSE11 EIC_NMICTRL_NMISENSE_BOTH_Val
 #endif
 
 // <q> External Interrupt 11 Asynchronous Edge Detection Mode

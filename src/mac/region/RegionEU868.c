@@ -145,7 +145,16 @@ PhyParam_t RegionEU868GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_NEXT_LOWER_TX_DR:
         {
-            phyParam.Value = RegionCommonGetNextLowerTxDr( getPhy->Datarate, EU868_TX_MIN_DATARATE );
+            RegionCommonGetNextLowerTxDrParams_t nextLowerTxDrParams =
+            {
+                .CurrentDr = getPhy->Datarate,
+                .MaxDr = ( int8_t )EU868_TX_MAX_DATARATE,
+                .MinDr = ( int8_t )EU868_TX_MIN_DATARATE,
+                .NbChannels = EU868_MAX_NB_CHANNELS,
+                .ChannelsMask = NvmCtx.ChannelsMask,
+                .Channels = NvmCtx.Channels,
+            };
+            phyParam.Value = RegionCommonGetNextLowerTxDr( &nextLowerTxDrParams );
             break;
         }
         case PHY_MAX_TX_POWER:

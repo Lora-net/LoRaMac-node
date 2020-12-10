@@ -637,15 +637,23 @@ LoRaMacStatus_t RegionCommonIdentifyChannels( RegionCommonIdentifyChannelsParam_
     }
 }
 
-int8_t RegionCommonGetNextLowerTxDr( int8_t dr, int8_t minDr )
+int8_t RegionCommonGetNextLowerTxDr( RegionCommonGetNextLowerTxDrParams_t *params )
 {
-    if( dr == minDr )
+    int8_t drLocal = params->CurrentDr;
+
+    if( params->CurrentDr == params->MinDr )
     {
-        return minDr;
+        return params->MinDr;
     }
     else
     {
-        return( dr - 1 );
+        do
+        {
+            drLocal = ( drLocal - 1 );
+        } while( ( drLocal != params->MinDr ) &&
+                 ( RegionCommonChanVerifyDr( params->NbChannels, params->ChannelsMask, drLocal, params->MinDr, params->MaxDr, params->Channels  ) == false ) );
+
+        return drLocal;
     }
 }
 
