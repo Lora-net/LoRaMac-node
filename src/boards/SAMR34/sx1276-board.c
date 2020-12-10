@@ -104,6 +104,7 @@ void SX1276IoInit( void )
     GpioInit( &SX1276.DIO0, RADIO_DIO_0, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     gpio_set_pin_function( RADIO_DIO_0, PINMUX_PB16A_EIC_EXTINT0 );
     GpioInit( &SX1276.DIO1, RADIO_DIO_1, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    // Must be setup to be trigged on both edges. See CONF_EIC_SENSE11 under hpl_eic_config.h
     gpio_set_pin_function( RADIO_DIO_1, PINMUX_PA11A_EIC_EXTINT11 );
     GpioInit( &SX1276.DIO2, RADIO_DIO_2, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     gpio_set_pin_function( RADIO_DIO_2, PINMUX_PA12A_EIC_EXTINT12 );
@@ -320,6 +321,11 @@ bool SX1276CheckRfFrequency( uint32_t frequency )
 {
     // Implement check. Currently all frequencies are supported
     return true;
+}
+
+uint32_t SX1276GetDio1PinState( void )
+{
+    return GpioRead( &SX1276.DIO1 );
 }
 
 #if defined( USE_RADIO_DEBUG )
