@@ -322,6 +322,16 @@ typedef struct sRegionCommonSetDutyCycleParams
     Band_t* Bands;
 }RegionCommonSetDutyCycleParams_t;
 
+typedef struct sRegionCommonGetNextLowerTxDrParams
+{
+    int8_t CurrentDr;
+    int8_t MaxDr;
+    int8_t MinDr;
+    uint8_t NbChannels;
+    uint16_t* ChannelsMask;
+    ChannelParams_t* Channels;
+}RegionCommonGetNextLowerTxDrParams_t;
+
 /*!
  * \brief Verifies, if a value is in a given range.
  *        This is a generic function and valid for all regions.
@@ -573,13 +583,11 @@ LoRaMacStatus_t RegionCommonIdentifyChannels( RegionCommonIdentifyChannelsParam_
 /*!
  * \brief Selects the next lower datarate.
  *
- * \param [IN] dr Current datarate.
- *
- * \param [IN] minDr Minimum possible datarate.
+ * \param [IN] params Data structure providing parameters based on \ref RegionCommonGetNextLowerTxDrParams_t
  *
  * \retval The next lower datarate.
  */
-int8_t RegionCommonGetNextLowerTxDr( int8_t dr, int8_t minDr );
+int8_t RegionCommonGetNextLowerTxDr( RegionCommonGetNextLowerTxDrParams_t *params );
 
 /*!
  * \brief Limits the TX power.
