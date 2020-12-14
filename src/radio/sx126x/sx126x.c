@@ -29,9 +29,24 @@
 #include "sx126x-board.h"
 
 /*!
+ * \brief Internal frequency of the radio
+ */
+#define SX126X_XTAL_FREQ                            32000000UL
+
+/*!
+ * \brief Scaling factor used to perform fixed-point operations
+ */
+#define SX126X_PLL_STEP_SHIFT_AMOUNT                ( 14 )
+
+/*!
+ * \brief PLL step - scaled with SX126X_PLL_STEP_SHIFT_AMOUNT
+ */
+#define SX126X_PLL_STEP_SCALED                      ( SX126X_XTAL_FREQ >> ( 25 - SX126X_PLL_STEP_SHIFT_AMOUNT ) )
+
+/*!
  * \brief Maximum value for parameter symbNum in \ref SX126xSetLoRaSymbNumTimeout
  */
-#define SX126X_MAX_LORA_SYMB_NUM_TIMEOUT 248
+#define SX126X_MAX_LORA_SYMB_NUM_TIMEOUT            248
 
 /*!
  * \brief Radio registers definition
@@ -61,6 +76,15 @@ volatile uint32_t FrequencyError = 0;
  * \brief Hold the status of the Image calibration
  */
 static bool ImageCalibrated = false;
+
+/*!
+ * \brief Get the number of PLL steps for a given frequency in Hertz
+ *
+ * \param [in] freqInHz Frequency in Hertz
+ *
+ * \returns Number of PLL steps
+ */
+static uint32_t SX126xConvertFreqInHzToPllStep( uint32_t freqInHz );
 
 /*
  * SX126x DIO IRQ callback functions prototype
@@ -459,7 +483,6 @@ void SX126xSetDio3AsTcxoCtrl( RadioTcxoCtrlVoltage_t tcxoVoltage, uint32_t timeo
 void SX126xSetRfFrequency( uint32_t frequency )
 {
     uint8_t buf[4];
-    uint32_t freq = 0;
 
     if( ImageCalibrated == false )
     {
@@ -467,11 +490,12 @@ void SX126xSetRfFrequency( uint32_t frequency )
         ImageCalibrated = true;
     }
 
-    freq = ( uint32_t )( ( double )frequency / ( double )FREQ_STEP );
-    buf[0] = ( uint8_t )( ( freq >> 24 ) & 0xFF );
-    buf[1] = ( uint8_t )( ( freq >> 16 ) & 0xFF );
-    buf[2] = ( uint8_t )( ( freq >> 8 ) & 0xFF );
-    buf[3] = ( uint8_t )( freq & 0xFF );
+    uint32_t freqInPllSteps = SX126xConvertFreqInHzToPllStep( frequency );
+
+    buf[0] = ( uint8_t )( ( freqInPllSteps >> 24 ) & 0xFF );
+    buf[1] = ( uint8_t )( ( freqInPllSteps >> 16 ) & 0xFF );
+    buf[2] = ( uint8_t )( ( freqInPllSteps >> 8 ) & 0xFF );
+    buf[3] = ( uint8_t )( freqInPllSteps & 0xFF );
     SX126xWriteCommand( RADIO_SET_RFFREQUENCY, buf, 4 );
 }
 
@@ -549,13 +573,13 @@ void SX126xSetModulationParams( ModulationParams_t *modulationParams )
     {
     case PACKET_TYPE_GFSK:
         n = 8;
-        tempVal = ( uint32_t )( 32 * ( ( double )XTAL_FREQ / ( double )modulationParams->Params.Gfsk.BitRate ) );
+        tempVal = ( uint32_t )( 32 * SX126X_XTAL_FREQ / modulationParams->Params.Gfsk.BitRate );
         buf[0] = ( tempVal >> 16 ) & 0xFF;
         buf[1] = ( tempVal >> 8 ) & 0xFF;
         buf[2] = tempVal & 0xFF;
         buf[3] = modulationParams->Params.Gfsk.ModulationShaping;
         buf[4] = modulationParams->Params.Gfsk.Bandwidth;
-        tempVal = ( uint32_t )( ( double )modulationParams->Params.Gfsk.Fdev / ( double )FREQ_STEP );
+        tempVal = SX126xConvertFreqInHzToPllStep( modulationParams->Params.Gfsk.Fdev );
         buf[5] = ( tempVal >> 16 ) & 0xFF;
         buf[6] = ( tempVal >> 8 ) & 0xFF;
         buf[7] = ( tempVal& 0xFF );
@@ -764,4 +788,20 @@ void SX126xClearIrqStatus( uint16_t irq )
     buf[0] = ( uint8_t )( ( ( uint16_t )irq >> 8 ) & 0x00FF );
     buf[1] = ( uint8_t )( ( uint16_t )irq & 0x00FF );
     SX126xWriteCommand( RADIO_CLR_IRQSTATUS, buf, 2 );
+}
+
+static uint32_t SX126xConvertFreqInHzToPllStep( uint32_t freqInHz )
+{
+    uint32_t stepsInt;
+    uint32_t stepsFrac;
+
+    // pllSteps = freqInHz / (SX126X_XTAL_FREQ / 2^19 )
+    // Get integer and fractional parts of the frequency computed with a PLL step scaled value
+    stepsInt = freqInHz / SX126X_PLL_STEP_SCALED;
+    stepsFrac = freqInHz - ( stepsInt * SX126X_PLL_STEP_SCALED );
+    
+    // Apply the scaling factor to retrieve a frequency in Hz (+ ceiling)
+    return ( stepsInt << SX126X_PLL_STEP_SHIFT_AMOUNT ) + 
+           ( ( ( stepsFrac << SX126X_PLL_STEP_SHIFT_AMOUNT ) + ( SX126X_PLL_STEP_SCALED >> 1 ) ) /
+             SX126X_PLL_STEP_SCALED );
 }

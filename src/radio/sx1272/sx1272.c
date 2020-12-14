@@ -29,6 +29,26 @@
 #include "sx1272.h"
 #include "sx1272-board.h"
 
+/*!
+ * \brief Internal frequency of the radio
+ */
+#define SX1272_XTAL_FREQ                            32000000UL
+
+/*!
+ * \brief Scaling factor used to perform fixed-point operations
+ */
+#define SX1272_PLL_STEP_SHIFT_AMOUNT                ( 8 )
+
+/*!
+ * \brief PLL step - scaled with SX1276_PLL_STEP_SHIFT_AMOUNT
+ */
+#define SX1272_PLL_STEP_SCALED                      ( SX1272_XTAL_FREQ >> ( 19 - SX1272_PLL_STEP_SHIFT_AMOUNT ) )
+
+/*!
+ * \brief Radio buffer size
+ */
+#define RX_TX_BUFFER_SIZE                           256
+
 /*
  * Local types definition
  */
@@ -87,17 +107,35 @@ static void SX1272ReadFifo( uint8_t *buffer, uint8_t size );
  */
 static void SX1272SetOpMode( uint8_t opMode );
 
-/**
- * @brief Get the parameter corresponding to a FSK Rx bandwith immediately above the minimum requested one.
+/*!
+ * \brief Get frequency in Hertz for a given number of PLL steps
  *
- * @param [in] bw Minimum required bandwith in Hz
+ * \param [in] pllSteps Number of PLL steps
  *
- * @returns parameter
+ * \returns Frequency in Hertz
+ */
+static uint32_t SX1272ConvertPllStepToFreqInHz( uint32_t pllSteps );
+
+/*!
+ * \brief Get the number of PLL steps for a given frequency in Hertz
+ *
+ * \param [in] freqInHz Frequency in Hertz
+ *
+ * \returns Number of PLL steps
+ */
+static uint32_t SX1272ConvertFreqInHzToPllStep( uint32_t freqInHz );
+
+/*!
+ * \brief Get the parameter corresponding to a FSK Rx bandwith immediately above the minimum requested one.
+ *
+ * \param [in] bw Minimum required bandwith in Hz
+ *
+ * \returns parameter
  */
 static uint8_t GetFskBandwidthRegValue( uint32_t bw );
 
-/**
- * Get the actual value in Hertz of a given LoRa bandwidth
+/*!
+ * \brief Get the actual value in Hertz of a given LoRa bandwidth
  *
  * \param [in] bw LoRa bandwidth parameter
  *
@@ -105,7 +143,7 @@ static uint8_t GetFskBandwidthRegValue( uint32_t bw );
  */
 static uint32_t SX1272GetLoRaBandwidthInHz( uint32_t bw );
 
-/**
+/*!
  * Compute the numerator for GFSK time-on-air computation.
  *
  * \remark To get the actual time-on-air in second, this value has to be divided by the GFSK bitrate in bits per
@@ -121,7 +159,7 @@ static uint32_t SX1272GetLoRaBandwidthInHz( uint32_t bw );
 static uint32_t SX1272GetGfskTimeOnAirNumerator( uint16_t preambleLen, bool fixLen,
                                                  uint8_t payloadLen, bool crcOn );
 
-/**
+/*!
  * Compute the numerator for LoRa time-on-air computation.
  *
  * \remark To get the actual time-on-air in second, this value has to be divided by the LoRa bandwidth in Hertz.
@@ -232,7 +270,7 @@ static RadioEvents_t *RadioEvents;
 /*!
  * Reception buffer
  */
-static uint8_t RxTxBuffer[RX_BUFFER_SIZE];
+static uint8_t RxTxBuffer[RX_TX_BUFFER_SIZE];
 
 /*
  * Public global variables
@@ -296,11 +334,13 @@ RadioState_t SX1272GetStatus( void )
 
 void SX1272SetChannel( uint32_t freq )
 {
+    uint32_t freqInPllSteps = SX1272ConvertFreqInHzToPllStep( freq );
+
     SX1272.Settings.Channel = freq;
-    freq = ( uint32_t )( ( double )freq / ( double )FREQ_STEP );
-    SX1272Write( REG_FRFMSB, ( uint8_t )( ( freq >> 16 ) & 0xFF ) );
-    SX1272Write( REG_FRFMID, ( uint8_t )( ( freq >> 8 ) & 0xFF ) );
-    SX1272Write( REG_FRFLSB, ( uint8_t )( freq & 0xFF ) );
+
+    SX1272Write( REG_FRFMSB, ( uint8_t )( ( freqInPllSteps >> 16 ) & 0xFF ) );
+    SX1272Write( REG_FRFMID, ( uint8_t )( ( freqInPllSteps >> 8 ) & 0xFF ) );
+    SX1272Write( REG_FRFLSB, ( uint8_t )( freqInPllSteps & 0xFF ) );
 }
 
 bool SX1272IsChannelFree( uint32_t freq, uint32_t rxBandwidth, int16_t rssiThresh, uint32_t maxCarrierSenseTime )
@@ -398,11 +438,11 @@ void SX1272SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
             SX1272.Settings.Fsk.IqInverted = iqInverted;
             SX1272.Settings.Fsk.RxContinuous = rxContinuous;
             SX1272.Settings.Fsk.PreambleLen = preambleLen;
-            SX1272.Settings.Fsk.RxSingleTimeout = ( uint32_t )( symbTimeout * ( ( 1.0 / ( double )datarate ) * 8.0 ) * 1000 );
+            SX1272.Settings.Fsk.RxSingleTimeout = ( uint32_t )symbTimeout * 8000UL / datarate;
 
-            datarate = ( uint16_t )( ( double )XTAL_FREQ / ( double )datarate );
-            SX1272Write( REG_BITRATEMSB, ( uint8_t )( datarate >> 8 ) );
-            SX1272Write( REG_BITRATELSB, ( uint8_t )( datarate & 0xFF ) );
+            uint32_t bitRate = ( uint32_t )( SX1272_XTAL_FREQ / datarate );
+            SX1272Write( REG_BITRATEMSB, ( uint8_t )( bitRate >> 8 ) );
+            SX1272Write( REG_BITRATELSB, ( uint8_t )( bitRate & 0xFF ) );
 
             SX1272Write( REG_RXBW, GetFskBandwidthRegValue( bandwidth ) );
             SX1272Write( REG_AFCBW, GetFskBandwidthRegValue( bandwidthAfc ) );
@@ -542,13 +582,13 @@ void SX1272SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
             SX1272.Settings.Fsk.IqInverted = iqInverted;
             SX1272.Settings.Fsk.TxTimeout = timeout;
 
-            fdev = ( uint16_t )( ( double )fdev / ( double )FREQ_STEP );
-            SX1272Write( REG_FDEVMSB, ( uint8_t )( fdev >> 8 ) );
-            SX1272Write( REG_FDEVLSB, ( uint8_t )( fdev & 0xFF ) );
+            uint32_t fdevInPllSteps = SX1272ConvertFreqInHzToPllStep( fdev );
+            SX1272Write( REG_FDEVMSB, ( uint8_t )( fdevInPllSteps >> 8 ) );
+            SX1272Write( REG_FDEVLSB, ( uint8_t )( fdevInPllSteps & 0xFF ) );
 
-            datarate = ( uint16_t )( ( double )XTAL_FREQ / ( double )datarate );
-            SX1272Write( REG_BITRATEMSB, ( uint8_t )( datarate >> 8 ) );
-            SX1272Write( REG_BITRATELSB, ( uint8_t )( datarate & 0xFF ) );
+            uint32_t bitRate = ( uint32_t )( SX1272_XTAL_FREQ / datarate );
+            SX1272Write( REG_BITRATEMSB, ( uint8_t )( bitRate >> 8 ) );
+            SX1272Write( REG_BITRATELSB, ( uint8_t )( bitRate & 0xFF ) );
 
             SX1272Write( REG_PREAMBLEMSB, ( preambleLen >> 8 ) & 0x00FF );
             SX1272Write( REG_PREAMBLELSB, preambleLen & 0xFF );
@@ -857,7 +897,7 @@ void SX1272SetRx( uint32_t timeout )
         break;
     }
 
-    memset( RxTxBuffer, 0, ( size_t )RX_BUFFER_SIZE );
+    memset( RxTxBuffer, 0, ( size_t )RX_TX_BUFFER_SIZE );
 
     SX1272.Settings.State = RF_RX_RUNNING;
     if( timeout != 0 )
@@ -1190,6 +1230,37 @@ void SX1272SetPublicNetwork( bool enable )
 uint32_t SX1272GetWakeupTime( void )
 {
     return SX1272GetBoardTcxoWakeupTime( ) + RADIO_WAKEUP_TIME;
+}
+
+static uint32_t SX1272ConvertPllStepToFreqInHz( uint32_t pllSteps )
+{
+    uint32_t freqInHzInt;
+    uint32_t freqInHzFrac;
+    
+    // freqInHz = pllSteps * ( SX1272_XTAL_FREQ / 2^19 )
+    // Get integer and fractional parts of the frequency computed with a PLL step scaled value
+    freqInHzInt = pllSteps >> SX1272_PLL_STEP_SHIFT_AMOUNT;
+    freqInHzFrac = pllSteps - ( freqInHzInt << SX1272_PLL_STEP_SHIFT_AMOUNT );
+    
+    // Apply the scaling factor to retrieve a frequency in Hz (+ ceiling)
+    return freqInHzInt * SX1272_PLL_STEP_SCALED + 
+           ( ( freqInHzFrac * SX1272_PLL_STEP_SCALED + ( 128 ) ) >> SX1272_PLL_STEP_SHIFT_AMOUNT );
+}
+
+static uint32_t SX1272ConvertFreqInHzToPllStep( uint32_t freqInHz )
+{
+    uint32_t stepsInt;
+    uint32_t stepsFrac;
+
+    // pllSteps = freqInHz / (SX1272_XTAL_FREQ / 2^19 )
+    // Get integer and fractional parts of the frequency computed with a PLL step scaled value
+    stepsInt = freqInHz / SX1272_PLL_STEP_SCALED;
+    stepsFrac = freqInHz - ( stepsInt * SX1272_PLL_STEP_SCALED );
+    
+    // Apply the scaling factor to retrieve a frequency in Hz (+ ceiling)
+    return ( stepsInt << SX1272_PLL_STEP_SHIFT_AMOUNT ) + 
+           ( ( ( stepsFrac << SX1272_PLL_STEP_SHIFT_AMOUNT ) + ( SX1272_PLL_STEP_SCALED >> 1 ) ) /
+             SX1272_PLL_STEP_SCALED );
 }
 
 static uint8_t GetFskBandwidthRegValue( uint32_t bw )
@@ -1692,9 +1763,8 @@ static void SX1272OnDio2Irq( void* context )
 
                     SX1272.Settings.FskPacketHandler.RssiValue = -( SX1272Read( REG_RSSIVALUE ) >> 1 );
 
-                    SX1272.Settings.FskPacketHandler.AfcValue = ( int32_t )( ( double )( ( ( uint16_t )SX1272Read( REG_AFCMSB ) << 8 ) |
-                                                                             ( uint16_t )SX1272Read( REG_AFCLSB ) ) *
-                                                                             ( double )FREQ_STEP );
+                    SX1272.Settings.FskPacketHandler.AfcValue = ( int32_t )SX1272ConvertPllStepToFreqInHz( ( ( uint16_t )SX1272Read( REG_AFCMSB ) << 8 ) |
+                                                                                                           ( uint16_t )SX1272Read( REG_AFCLSB ) );
                     SX1272.Settings.FskPacketHandler.RxGain = ( SX1272Read( REG_LNA ) >> 5 ) & 0x07;
                 }
                 break;

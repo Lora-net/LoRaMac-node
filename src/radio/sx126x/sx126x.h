@@ -692,20 +692,9 @@ typedef struct SX126x_s
  */
 typedef void ( DioIrqHandler )( void* context );
 
-/*!
+/*
  * SX126x definitions
  */
-
-/*!
- * \brief Provides the frequency of the chip running on the radio and the frequency step
- *
- * \remark These defines are used for computing the frequency divider to set the RF frequency
- */
-#define XTAL_FREQ                                   ( double )32000000
-#define FREQ_DIV                                    ( double )pow( 2.0, 25.0 )
-#define FREQ_STEP                                   ( double )( XTAL_FREQ / FREQ_DIV )
-
-#define RX_BUFFER_SIZE                              256
 
 /*!
  * \brief The radio callbacks structure
