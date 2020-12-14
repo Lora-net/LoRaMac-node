@@ -654,7 +654,7 @@ void RadioSetRxConfig( RadioModems_t modem, uint32_t bandwidth, uint32_t datarat
         lr1110_radio_set_gfsk_crc_params( &LR1110, 0x1D0F, 0x1021 );
         lr1110_radio_set_gfsk_whitening_params( &LR1110, 0x01FF );
 
-        RxTimeout = ( uint32_t )symbTimeout * 8000UL / datarate;;
+        RxTimeout = ( uint32_t )symbTimeout * 8000UL / datarate;
         break;
 
     case MODEM_LORA:
