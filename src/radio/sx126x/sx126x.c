@@ -29,6 +29,11 @@
 #include "sx126x-board.h"
 
 /*!
+ * \brief Maximum value for parameter symbNum in \ref SX126xSetLoRaSymbNumTimeout
+ */
+#define SX126X_MAX_LORA_SYMB_NUM_TIMEOUT 248
+
+/*!
  * \brief Radio registers definition
  */
 typedef struct
@@ -326,23 +331,23 @@ void SX126xSetStopRxTimerOnPreambleDetect( bool enable )
 
 void SX126xSetLoRaSymbNumTimeout( uint8_t symbNum )
 {
-    SX126xWriteCommand( RADIO_SET_LORASYMBTIMEOUT, &symbNum, 1 );
+    uint8_t mant = ( ( ( symbNum > SX126X_MAX_LORA_SYMB_NUM_TIMEOUT ) ?
+                       SX126X_MAX_LORA_SYMB_NUM_TIMEOUT : 
+                       symbNum ) + 1 ) >> 1;
+    uint8_t exp  = 0;
+    uint8_t reg  = 0;
 
-    if( symbNum >= 64 )
+    while( mant > 31 )
     {
-        uint8_t mant = symbNum >> 1;
-        uint8_t exp  = 0;
-        uint8_t reg  = 0;
-
-        while( mant > 31 )
-        {
-            mant >>= 2;
-            exp++;
-        }
-
-        reg = exp + ( mant << 3 );
-        SX126xWriteRegister( REG_LR_SYNCH_TIMEOUT, reg );
+        mant = ( mant + 3 ) >> 2;
+        exp++;
     }
+
+    reg = mant << ( 2 * exp + 1 );
+    SX126xWriteCommand( RADIO_SET_LORASYMBTIMEOUT, &reg, 1 );
+
+    reg = exp + ( mant << 3 );
+    SX126xWriteRegister( REG_LR_SYNCH_TIMEOUT, reg );
 }
 
 void SX126xSetRegulatorMode( RadioRegulatorMode_t mode )
