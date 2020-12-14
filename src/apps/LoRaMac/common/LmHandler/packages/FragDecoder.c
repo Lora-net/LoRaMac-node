@@ -569,7 +569,7 @@ static int32_t FragPrbs23( int32_t value )
 {
     int32_t b0 = value & 0x01;
     int32_t b1 = ( value & 0x20 ) >> 5;
-    return ( value >> 1 ) + ( ( b0 ^ b1 ) << 22 );;
+    return ( value >> 1 ) + ( ( b0 ^ b1 ) << 22 );
 }
 
 static void FragGetParityMatrixRow( int32_t n, int32_t m, uint8_t *matrixRow )
