@@ -163,7 +163,7 @@ uint8_t I2cMcuWaitStandbyState( I2c_t *obj, uint8_t deviceAddr )
 {
     uint8_t status = FAIL;
 
-    status = ( HAL_I2C_IsDeviceReady( &I2cHandle, deviceAddr, 300, 4096 ) == HAL_OK ) ? SUCCESS : FAIL;;
+    status = ( HAL_I2C_IsDeviceReady( &I2cHandle, deviceAddr, 300, 4096 ) == HAL_OK ) ? SUCCESS : FAIL;
 
     return status;
 }
