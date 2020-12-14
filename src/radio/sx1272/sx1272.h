@@ -154,13 +154,9 @@ typedef struct SX1272_s
  */
 typedef void ( DioIrqHandler )( void* context );
 
-/*!
+/*
  * SX1272 definitions
  */
-#define XTAL_FREQ                                   32000000
-#define FREQ_STEP                                   61.03515625
-
-#define RX_BUFFER_SIZE                              256
 
 /*!
  * ============================================================================

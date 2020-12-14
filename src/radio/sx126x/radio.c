@@ -681,7 +681,7 @@ void RadioSetRxConfig( RadioModems_t modem, uint32_t bandwidth,
             SX126xSetSyncWord( ( uint8_t[] ){ 0xC1, 0x94, 0xC1, 0x00, 0x00, 0x00, 0x00, 0x00 } );
             SX126xSetWhiteningSeed( 0x01FF );
 
-            RxTimeout = ( uint32_t )( symbTimeout * ( ( 1.0 / ( double )datarate ) * 8.0 ) * 1000 );
+            RxTimeout = ( uint32_t )symbTimeout * 8000UL / datarate;
             break;
 
         case MODEM_LORA:
