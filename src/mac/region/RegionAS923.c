@@ -805,7 +805,7 @@ uint8_t RegionAS923RxParamSetupReq( RxParamSetupReqParams_t* rxParamSetupReq )
     return status;
 }
 
-uint8_t RegionAS923NewChannelReq( NewChannelReqParams_t* newChannelReq )
+int8_t RegionAS923NewChannelReq( NewChannelReqParams_t* newChannelReq )
 {
     uint8_t status = 0x03;
     ChannelAddParams_t channelAdd;
@@ -864,7 +864,7 @@ int8_t RegionAS923TxParamSetupReq( TxParamSetupReqParams_t* txParamSetupReq )
     return 0;
 }
 
-uint8_t RegionAS923DlChannelReq( DlChannelReqParams_t* dlChannelReq )
+int8_t RegionAS923DlChannelReq( DlChannelReqParams_t* dlChannelReq )
 {
     uint8_t status = 0x03;
 

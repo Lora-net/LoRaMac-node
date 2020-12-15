@@ -729,7 +729,7 @@ uint8_t RegionIN865RxParamSetupReq( RxParamSetupReqParams_t* rxParamSetupReq )
     return status;
 }
 
-uint8_t RegionIN865NewChannelReq( NewChannelReqParams_t* newChannelReq )
+int8_t RegionIN865NewChannelReq( NewChannelReqParams_t* newChannelReq )
 {
     uint8_t status = 0x03;
     ChannelAddParams_t channelAdd;
@@ -784,10 +784,11 @@ uint8_t RegionIN865NewChannelReq( NewChannelReqParams_t* newChannelReq )
 
 int8_t RegionIN865TxParamSetupReq( TxParamSetupReqParams_t* txParamSetupReq )
 {
+    // Do not accept the request
     return -1;
 }
 
-uint8_t RegionIN865DlChannelReq( DlChannelReqParams_t* dlChannelReq )
+int8_t RegionIN865DlChannelReq( DlChannelReqParams_t* dlChannelReq )
 {
     uint8_t status = 0x03;
 
