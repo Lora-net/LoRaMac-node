@@ -2155,13 +2155,16 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 chParam.Rx1Frequency = 0;
                 chParam.DrRange.Value = payload[macIndex++];
 
-                status = RegionNewChannelReq( MacCtx.NvmCtx->Region, &newChannelReq );
+                status = ( uint8_t )RegionNewChannelReq( MacCtx.NvmCtx->Region, &newChannelReq );
 
-                macCmdPayload[0] = status;
-                LoRaMacCommandsAddCmd( MOTE_MAC_NEW_CHANNEL_ANS, macCmdPayload, 1 );
-                if( status == 0x03 )
+                if( ( int8_t )status >= 0 )
                 {
-                    EventRegionNvmCtxChanged( );
+                    macCmdPayload[0] = status;
+                    LoRaMacCommandsAddCmd( MOTE_MAC_NEW_CHANNEL_ANS, macCmdPayload, 1 );
+                    if( status == 0x03 )
+                    {
+                        EventRegionNvmCtxChanged( );
+                    }
                 }
                 break;
             }
@@ -2231,14 +2234,18 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 dlChannelReq.Rx1Frequency |= ( uint32_t ) payload[macIndex++] << 16;
                 dlChannelReq.Rx1Frequency *= 100;
 
-                status = RegionDlChannelReq( MacCtx.NvmCtx->Region, &dlChannelReq );
-                macCmdPayload[0] = status;
-                LoRaMacCommandsAddCmd( MOTE_MAC_DL_CHANNEL_ANS, macCmdPayload, 1 );
-                // Setup indication to inform the application
-                SetMlmeScheduleUplinkIndication( );
-                if( status == 0x03 )
+                status = ( uint8_t )RegionDlChannelReq( MacCtx.NvmCtx->Region, &dlChannelReq );
+
+                if( ( int8_t )status >= 0 )
                 {
-                    EventRegionNvmCtxChanged( );
+                    macCmdPayload[0] = status;
+                    LoRaMacCommandsAddCmd( MOTE_MAC_DL_CHANNEL_ANS, macCmdPayload, 1 );
+                    // Setup indication to inform the application
+                    SetMlmeScheduleUplinkIndication( );
+                    if( status == 0x03 )
+                    {
+                        EventRegionNvmCtxChanged( );
+                    }
                 }
                 break;
             }
