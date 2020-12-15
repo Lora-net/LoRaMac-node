@@ -650,10 +650,10 @@ uint8_t RegionCN470RxParamSetupReq( RxParamSetupReqParams_t* rxParamSetupReq )
     return status;
 }
 
-uint8_t RegionCN470NewChannelReq( NewChannelReqParams_t* newChannelReq )
+int8_t RegionCN470NewChannelReq( NewChannelReqParams_t* newChannelReq )
 {
-    // Datarate and frequency KO
-    return 0;
+    // Do not accept the request
+    return -1;
 }
 
 int8_t RegionCN470TxParamSetupReq( TxParamSetupReqParams_t* txParamSetupReq )
@@ -662,9 +662,10 @@ int8_t RegionCN470TxParamSetupReq( TxParamSetupReqParams_t* txParamSetupReq )
     return -1;
 }
 
-uint8_t RegionCN470DlChannelReq( DlChannelReqParams_t* dlChannelReq )
+int8_t RegionCN470DlChannelReq( DlChannelReqParams_t* dlChannelReq )
 {
-    return 0;
+    // Do not accept the request
+    return -1;
 }
 
 int8_t RegionCN470AlternateDr( int8_t currentDr, AlternateDrType_t type )

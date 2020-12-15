@@ -1596,7 +1596,7 @@ uint8_t RegionRxParamSetupReq( LoRaMacRegion_t region, RxParamSetupReqParams_t* 
  *
  * \retval Returns the status of the operation, according to the LoRaMAC specification.
  */
-uint8_t RegionNewChannelReq( LoRaMacRegion_t region, NewChannelReqParams_t* newChannelReq );
+int8_t RegionNewChannelReq( LoRaMacRegion_t region, NewChannelReqParams_t* newChannelReq );
 
 /*!
  * \brief The function processes a TX ParamSetup Request.
@@ -1620,7 +1620,7 @@ int8_t RegionTxParamSetupReq( LoRaMacRegion_t region, TxParamSetupReqParams_t* t
  *
  * \retval Returns the status of the operation, according to the LoRaMAC specification.
  */
-uint8_t RegionDlChannelReq( LoRaMacRegion_t region, DlChannelReqParams_t* dlChannelReq );
+int8_t RegionDlChannelReq( LoRaMacRegion_t region, DlChannelReqParams_t* dlChannelReq );
 
 /*!
  * \brief Alternates the datarate of the channel for the join request.

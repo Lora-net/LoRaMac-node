@@ -803,10 +803,10 @@ uint8_t RegionAU915RxParamSetupReq( RxParamSetupReqParams_t* rxParamSetupReq )
     return status;
 }
 
-uint8_t RegionAU915NewChannelReq( NewChannelReqParams_t* newChannelReq )
+int8_t RegionAU915NewChannelReq( NewChannelReqParams_t* newChannelReq )
 {
-    // Datarate and frequency KO
-    return 0;
+    // Do not accept the request
+    return -1;
 }
 
 int8_t RegionAU915TxParamSetupReq( TxParamSetupReqParams_t* txParamSetupReq )
@@ -815,9 +815,10 @@ int8_t RegionAU915TxParamSetupReq( TxParamSetupReqParams_t* txParamSetupReq )
     return 0;
 }
 
-uint8_t RegionAU915DlChannelReq( DlChannelReqParams_t* dlChannelReq )
+int8_t RegionAU915DlChannelReq( DlChannelReqParams_t* dlChannelReq )
 {
-    return 0;
+    // Do not accept the request
+    return -1;
 }
 
 int8_t RegionAU915AlternateDr( int8_t currentDr, AlternateDrType_t type )
