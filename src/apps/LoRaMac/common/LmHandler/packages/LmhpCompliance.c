@@ -213,6 +213,11 @@ static void LmhpComplianceOnMlmeConfirm( MlmeConfirm_t *mlmeConfirm )
         return;
     }
 
+    if( ComplianceTestState.IsRunning == false )
+    {
+        return;
+    }
+
     if( mlmeConfirm->MlmeRequest == MLME_LINK_CHECK )
     {
         ComplianceTestState.LinkCheck = true;
@@ -226,6 +231,11 @@ static LmHandlerErrorStatus_t LmhpComplianceTxProcess( void )
     if( ComplianceTestState.Initialized == false )
     {
         return LORAMAC_HANDLER_ERROR;
+    }
+
+    if( ComplianceTestState.IsRunning == false )
+    {
+        return LORAMAC_HANDLER_SUCCESS;
     }
 
     if( ComplianceTestState.LinkCheck == true )
