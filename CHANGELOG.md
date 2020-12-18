@@ -11,6 +11,19 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 
 ## [Unreleased]
 
+## [4.5.0] - 2020-12-18
+
+### General
+
+- Release based on "LoRaWAN specification 1.0.4" and "LoRaWAN Regional Parameters 2-1.0.1"
+- GitHub reported issues corrections. Please refer to [Release Version 4.5.0](https://github.com/Lora-net/LoRaMac-node/milestone/5)
+
+### Added
+
+- Added implementation of LoRaWAN 1.0.4 changes
+- Added implementation for new Certification protocol specification
+- Added GitHub repository and firmware examples version definitions
+
 ## [4.4.6] - 2020-12-18
 
 ### General
@@ -42,6 +55,33 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 
 ### Removed
 
+- Removed ClassA, ClassB and ClassC examples.
+
+## [4.5.0-rc.1] - 2020-11-24
+
+### General
+
+- Release based on "LoRaWAN specification 1.0.4" and "LoRaWAN Regional Parameters 2-1.0.1"
+- GitHub reported issues corrections. Please refer to [Release Version 4.5.0](https://github.com/Lora-net/LoRaMac-node/milestone/5)
+
+### Added
+
+- Added implementation of LoRaWAN 1.0.4 changes
+- Added implementation for new Certification protocol specification
+- Added GitHub repository and firmware examples version definitions
+
+### Changed
+
+- Changed IMST boards default power source to USB_POWER
+
+### Fixed
+
+- Fixed an issue where the Join back off algorithm wasn't being applied when the duty-cycle enforcement was OFF.
+- Fixed `AU915_MAX_RX1_DR_OFFSET` value to 5 instead of 6
+
+### Removed
+
+- Removed NvmCtxCallback calls as they should only be done when a modification happens.
 - Removed ClassA, ClassB and ClassC examples.
 
 ## [4.4.5] - 2020-10-14

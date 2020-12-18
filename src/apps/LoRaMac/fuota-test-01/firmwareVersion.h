@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-#define FIRMWARE_VERSION                            0x01010000 // 1.1.0.0
+#define FIRMWARE_VERSION                            0x01020000 // 1.2.0.0
 
 #ifdef __cplusplus
 }
