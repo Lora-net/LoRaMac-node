@@ -25,7 +25,9 @@
 #include "utilities.h"
 #include "board.h"
 #include "gpio.h"
+#include "uart.h"
 
+#include "cli.h"
 #include "Commissioning.h"
 #include "LmHandler.h"
 #include "LmhpCompliance.h"
@@ -148,7 +150,7 @@ static TimerEvent_t Led3Timer;
 static TimerEvent_t LedBeaconTimer;
 
 static void OnMacProcessNotify( void );
-static void OnNvmContextChange( LmHandlerNvmContextStates_t state );
+static void OnNvmDataChange( LmHandlerNvmContextStates_t state, uint16_t size );
 static void OnNetworkParametersChange( CommissioningParams_t* params );
 static void OnMacMcpsRequest( LoRaMacStatus_t status, McpsReq_t *mcpsReq, TimerTime_t nextTxIn );
 static void OnMacMlmeRequest( LoRaMacStatus_t status, MlmeReq_t *mlmeReq, TimerTime_t nextTxIn );
@@ -197,7 +199,7 @@ static LmHandlerCallbacks_t LmHandlerCallbacks =
     .GetTemperature = NULL,
     .GetRandomSeed = BoardGetRandomSeed,
     .OnMacProcess = OnMacProcessNotify,
-    .OnNvmContextChange = OnNvmContextChange,
+    .OnNvmDataChange = OnNvmDataChange,
     .OnNetworkParametersChange = OnNetworkParametersChange,
     .OnMacMcpsRequest = OnMacMcpsRequest,
     .OnMacMlmeRequest = OnMacMlmeRequest,
@@ -246,6 +248,11 @@ extern Gpio_t Led3; // Rx
 extern Gpio_t Led4; // App
 
 /*!
+ * UART object used for command line interface handling
+ */
+extern Uart_t Uart2;
+
+/*!
  * Main application entry point.
  */
 int main( void )
@@ -273,7 +280,7 @@ int main( void )
 
     if ( LmHandlerInit( &LmHandlerCallbacks, &LmHandlerParams ) != LORAMAC_HANDLER_SUCCESS )
     {
-        printf( "LoRaMac wasn't properly initialized" );
+        printf( "LoRaMac wasn't properly initialized\n" );
         // Fatal error, endless loop.
         while ( 1 )
         {
@@ -293,6 +300,9 @@ int main( void )
 
     while( 1 )
     {
+        // Process characters sent over the command line interface
+        CliProcess( &Uart2 );
+
         // Processes the LoRaMac events
         LmHandlerProcess( );
 
@@ -319,9 +329,9 @@ static void OnMacProcessNotify( void )
     IsMacProcessPending = 1;
 }
 
-static void OnNvmContextChange( LmHandlerNvmContextStates_t state )
+static void OnNvmDataChange( LmHandlerNvmContextStates_t state, uint16_t size )
 {
-    DisplayNvmContextChange( state );
+    DisplayNvmDataChange( state, size );
 }
 
 static void OnNetworkParametersChange( CommissioningParams_t* params )

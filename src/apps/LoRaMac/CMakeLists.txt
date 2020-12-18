@@ -49,8 +49,9 @@ if(SUB_PROJECT STREQUAL periodic-uplink-lpp)
     #---------------------------------------------------------------------------------------
     list(APPEND ${PROJECT_NAME}_COMMON
         "${CMAKE_CURRENT_LIST_DIR}/common/CayenneLpp.c"
+        "${CMAKE_CURRENT_LIST_DIR}/common/cli.c"
         "${CMAKE_CURRENT_LIST_DIR}/common/LmHandlerMsgDisplay.c"
-        "${CMAKE_CURRENT_LIST_DIR}/common/NvmCtxMgmt.c"
+        "${CMAKE_CURRENT_LIST_DIR}/common/NvmDataMgmt.c"
     )
 
     #---------------------------------------------------------------------------------------
@@ -78,7 +79,7 @@ elseif(SUB_PROJECT STREQUAL fuota-test-01)
     #---------------------------------------------------------------------------------------
     list(APPEND ${PROJECT_NAME}_COMMON
         "${CMAKE_CURRENT_LIST_DIR}/common/LmHandlerMsgDisplay.c"
-        "${CMAKE_CURRENT_LIST_DIR}/common/NvmCtxMgmt.c"
+        "${CMAKE_CURRENT_LIST_DIR}/common/NvmDataMgmt.c"
     )
 
     #---------------------------------------------------------------------------------------
@@ -124,6 +125,9 @@ target_compile_definitions(${PROJECT_NAME}-${SUB_PROJECT} PRIVATE $<$<BOOL:${CLA
 target_compile_definitions(${PROJECT_NAME}-${SUB_PROJECT} PRIVATE ACTIVE_REGION=${ACTIVE_REGION})
 if(${SECURE_ELEMENT_PRE_PROVISIONED} MATCHES ON)
     target_compile_definitions(${PROJECT_NAME}-${SUB_PROJECT} PRIVATE -DSECURE_ELEMENT_PRE_PROVISIONED)
+endif()
+if(${SECURE_ELEMENT} MATCHES SOFT_SE)
+    target_compile_definitions(${PROJECT_NAME}-${SUB_PROJECT} PRIVATE -DSOFT_SE)
 endif()
 target_compile_definitions(${PROJECT_NAME}-${SUB_PROJECT}  PUBLIC
     $<BUILD_INTERFACE:$<TARGET_PROPERTY:mac,INTERFACE_COMPILE_DEFINITIONS>>

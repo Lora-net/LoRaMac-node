@@ -28,41 +28,18 @@
  *
  * \author    Daniel Jaeckle ( STACKFORCE )
 */
-#include "utilities.h"
-
+#include "radio.h"
 #include "RegionCommon.h"
 #include "RegionRU864.h"
 
 // Definitions
 #define CHANNELS_MASK_SIZE              1
 
-/*!
- * Region specific context
- */
-typedef struct sRegionRU864NvmCtx
-{
-    /*!
-     * LoRaMAC channels
-     */
-    ChannelParams_t Channels[ RU864_MAX_NB_CHANNELS ];
-    /*!
-     * LoRaMac bands
-     */
-    Band_t Bands[ RU864_MAX_NB_BANDS ];
-    /*!
-     * LoRaMac channels mask
-     */
-    uint16_t ChannelsMask[ CHANNELS_MASK_SIZE ];
-    /*!
-     * LoRaMac channels default mask
-     */
-    uint16_t ChannelsDefaultMask[ CHANNELS_MASK_SIZE ];
-}RegionRU864NvmCtx_t;
-
 /*
  * Non-volatile module context.
  */
-static RegionRU864NvmCtx_t NvmCtx;
+static RegionNvmDataGroup1_t* RegionNvmGroup1;
+static RegionNvmDataGroup2_t* RegionNvmGroup2;
 
 // Static functions
 static bool VerifyRfFreq( uint32_t freq )
@@ -127,8 +104,8 @@ PhyParam_t RegionRU864GetPhyParam( GetPhyParams_t* getPhy )
                 .MaxDr = ( int8_t )RU864_TX_MAX_DATARATE,
                 .MinDr = ( int8_t )RU864_TX_MIN_DATARATE,
                 .NbChannels = RU864_MAX_NB_CHANNELS,
-                .ChannelsMask = NvmCtx.ChannelsMask,
-                .Channels = NvmCtx.Channels,
+                .ChannelsMask = RegionNvmGroup2->ChannelsMask,
+                .Channels = RegionNvmGroup2->Channels,
             };
             phyParam.Value = RegionCommonGetNextLowerTxDr( &nextLowerTxDrParams );
             break;
@@ -215,12 +192,12 @@ PhyParam_t RegionRU864GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_CHANNELS_MASK:
         {
-            phyParam.ChannelsMask = NvmCtx.ChannelsMask;
+            phyParam.ChannelsMask = RegionNvmGroup2->ChannelsMask;
             break;
         }
         case PHY_CHANNELS_DEFAULT_MASK:
         {
-            phyParam.ChannelsMask = NvmCtx.ChannelsDefaultMask;
+            phyParam.ChannelsMask = RegionNvmGroup2->ChannelsDefaultMask;
             break;
         }
         case PHY_MAX_NB_CHANNELS:
@@ -230,7 +207,7 @@ PhyParam_t RegionRU864GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_CHANNELS:
         {
-            phyParam.Channels = NvmCtx.Channels;
+            phyParam.Channels = RegionNvmGroup2->Channels;
             break;
         }
         case PHY_DEF_UPLINK_DWELL_TIME:
@@ -301,7 +278,7 @@ PhyParam_t RegionRU864GetPhyParam( GetPhyParams_t* getPhy )
 
 void RegionRU864SetBandTxDone( SetBandTxDoneParams_t* txDone )
 {
-    RegionCommonSetBandTxDone( &NvmCtx.Bands[NvmCtx.Channels[txDone->Channel].Band],
+    RegionCommonSetBandTxDone( &RegionNvmGroup1->Bands[RegionNvmGroup2->Channels[txDone->Channel].Band],
                                txDone->LastTxAirTime, txDone->Joined, txDone->ElapsedTimeSinceStartUp );
 }
 
@@ -316,41 +293,41 @@ void RegionRU864InitDefaults( InitDefaultsParams_t* params )
     {
         case INIT_TYPE_DEFAULTS:
         {
+            if( ( params->NvmGroup1 == NULL ) || ( params->NvmGroup2 == NULL ) )
+            {
+                return;
+            }
+
+            RegionNvmGroup1 = (RegionNvmDataGroup1_t*) params->NvmGroup1;
+            RegionNvmGroup2 = (RegionNvmDataGroup2_t*) params->NvmGroup2;
+
             // Default bands
-            memcpy1( ( uint8_t* )NvmCtx.Bands, ( uint8_t* )bands, sizeof( Band_t ) * RU864_MAX_NB_BANDS );
+            memcpy1( ( uint8_t* )RegionNvmGroup1->Bands, ( uint8_t* )bands, sizeof( Band_t ) * RU864_MAX_NB_BANDS );
 
             // Default channels
-            NvmCtx.Channels[0] = ( ChannelParams_t ) RU864_LC1;
-            NvmCtx.Channels[1] = ( ChannelParams_t ) RU864_LC2;
+            RegionNvmGroup2->Channels[0] = ( ChannelParams_t ) RU864_LC1;
+            RegionNvmGroup2->Channels[1] = ( ChannelParams_t ) RU864_LC2;
 
             // Default ChannelsMask
-            NvmCtx.ChannelsDefaultMask[0] = LC( 1 ) + LC( 2 );
+            RegionNvmGroup2->ChannelsDefaultMask[0] = LC( 1 ) + LC( 2 );
 
             // Update the channels mask
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, CHANNELS_MASK_SIZE );
+            RegionCommonChanMaskCopy( RegionNvmGroup2->ChannelsMask, RegionNvmGroup2->ChannelsDefaultMask, CHANNELS_MASK_SIZE );
             break;
         }
         case INIT_TYPE_RESET_TO_DEFAULT_CHANNELS:
         {
             // Reset Channels Rx1Frequency to default 0
-            NvmCtx.Channels[0].Rx1Frequency = 0;
-            NvmCtx.Channels[1].Rx1Frequency = 0;
+            RegionNvmGroup2->Channels[0].Rx1Frequency = 0;
+            RegionNvmGroup2->Channels[1].Rx1Frequency = 0;
             // Update the channels mask
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, CHANNELS_MASK_SIZE );
+            RegionCommonChanMaskCopy( RegionNvmGroup2->ChannelsMask, RegionNvmGroup2->ChannelsDefaultMask, CHANNELS_MASK_SIZE );
             break;
         }
         case INIT_TYPE_ACTIVATE_DEFAULT_CHANNELS:
         {
             // Restore channels default mask
-            NvmCtx.ChannelsMask[0] |= NvmCtx.ChannelsDefaultMask[0];
-            break;
-        }
-        case INIT_TYPE_RESTORE_CTX:
-        {
-            if( params->NvmCtx != 0 )
-            {
-                memcpy1( (uint8_t*) &NvmCtx, (uint8_t*) params->NvmCtx, sizeof( NvmCtx ) );
-            }
+            RegionNvmGroup2->ChannelsMask[0] |= RegionNvmGroup2->ChannelsDefaultMask[0];
             break;
         }
         default:
@@ -358,12 +335,6 @@ void RegionRU864InitDefaults( InitDefaultsParams_t* params )
             break;
         }
     }
-}
-
-void* RegionRU864GetNvmCtx( GetNvmCtxParams_t* params )
-{
-    params->nvmCtxSize = sizeof( RegionRU864NvmCtx_t );
-    return &NvmCtx;
 }
 
 bool RegionRU864Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
@@ -466,12 +437,12 @@ bool RegionRU864ChanMaskSet( ChanMaskSetParams_t* chanMaskSet )
     {
         case CHANNELS_MASK:
         {
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, chanMaskSet->ChannelsMaskIn, 1 );
+            RegionCommonChanMaskCopy( RegionNvmGroup2->ChannelsMask, chanMaskSet->ChannelsMaskIn, 1 );
             break;
         }
         case CHANNELS_DEFAULT_MASK:
         {
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsDefaultMask, chanMaskSet->ChannelsMaskIn, 1 );
+            RegionCommonChanMaskCopy( RegionNvmGroup2->ChannelsDefaultMask, chanMaskSet->ChannelsMaskIn, 1 );
             break;
         }
         default:
@@ -515,11 +486,11 @@ bool RegionRU864RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
     if( rxConfig->RxSlot == RX_SLOT_WIN_1 )
     {
         // Apply window 1 frequency
-        frequency = NvmCtx.Channels[rxConfig->Channel].Frequency;
+        frequency = RegionNvmGroup2->Channels[rxConfig->Channel].Frequency;
         // Apply the alternative RX 1 window frequency, if it is available
-        if( NvmCtx.Channels[rxConfig->Channel].Rx1Frequency != 0 )
+        if( RegionNvmGroup2->Channels[rxConfig->Channel].Rx1Frequency != 0 )
         {
-            frequency = NvmCtx.Channels[rxConfig->Channel].Rx1Frequency;
+            frequency = RegionNvmGroup2->Channels[rxConfig->Channel].Rx1Frequency;
         }
     }
 
@@ -550,7 +521,7 @@ bool RegionRU864TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
 {
     RadioModems_t modem;
     int8_t phyDr = DataratesRU864[txConfig->Datarate];
-    int8_t txPowerLimited = RegionCommonLimitTxPower( txConfig->TxPower, NvmCtx.Bands[NvmCtx.Channels[txConfig->Channel].Band].TxMaxPower );
+    int8_t txPowerLimited = RegionCommonLimitTxPower( txConfig->TxPower, RegionNvmGroup1->Bands[RegionNvmGroup2->Channels[txConfig->Channel].Band].TxMaxPower );
     uint32_t bandwidth = RegionCommonGetBandwidth( txConfig->Datarate, BandwidthsRU864 );
     int8_t phyTxPower = 0;
 
@@ -558,7 +529,7 @@ bool RegionRU864TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
     phyTxPower = RegionCommonComputeTxPower( txPowerLimited, txConfig->MaxEirp, txConfig->AntennaGain );
 
     // Setup the radio frequency
-    Radio.SetChannel( NvmCtx.Channels[txConfig->Channel].Frequency );
+    Radio.SetChannel( RegionNvmGroup2->Channels[txConfig->Channel].Frequency );
 
     if( txConfig->Datarate == DR_7 )
     { // High Speed FSK channel
@@ -626,7 +597,7 @@ uint8_t RegionRU864LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
             {
                 if( linkAdrParams.ChMaskCtrl == 6 )
                 {
-                    if( NvmCtx.Channels[i].Frequency != 0 )
+                    if( RegionNvmGroup2->Channels[i].Frequency != 0 )
                     {
                         chMask |= 1 << i;
                     }
@@ -634,7 +605,7 @@ uint8_t RegionRU864LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
                 else
                 {
                     if( ( ( chMask & ( 1 << i ) ) != 0 ) &&
-                        ( NvmCtx.Channels[i].Frequency == 0 ) )
+                        ( RegionNvmGroup2->Channels[i].Frequency == 0 ) )
                     {// Trying to enable an undefined channel
                         status &= 0xFE; // Channel mask KO
                     }
@@ -660,7 +631,7 @@ uint8_t RegionRU864LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
     linkAdrVerifyParams.ChannelsMask = &chMask;
     linkAdrVerifyParams.MinDatarate = ( int8_t )phyParam.Value;
     linkAdrVerifyParams.MaxDatarate = RU864_TX_MAX_DATARATE;
-    linkAdrVerifyParams.Channels = NvmCtx.Channels;
+    linkAdrVerifyParams.Channels = RegionNvmGroup2->Channels;
     linkAdrVerifyParams.MinTxPower = RU864_MIN_TX_POWER;
     linkAdrVerifyParams.MaxTxPower = RU864_MAX_TX_POWER;
     linkAdrVerifyParams.Version = linkAdrReq->Version;
@@ -672,9 +643,9 @@ uint8_t RegionRU864LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
     if( status == 0x07 )
     {
         // Set the channels mask to a default value
-        memset1( ( uint8_t* ) NvmCtx.ChannelsMask, 0, sizeof( NvmCtx.ChannelsMask ) );
+        memset1( ( uint8_t* ) RegionNvmGroup2->ChannelsMask, 0, sizeof( RegionNvmGroup2->ChannelsMask ) );
         // Update the channels mask
-        NvmCtx.ChannelsMask[0] = chMask;
+        RegionNvmGroup2->ChannelsMask[0] = chMask;
     }
 
     // Update status variables
@@ -781,7 +752,7 @@ int8_t RegionRU864DlChannelReq( DlChannelReqParams_t* dlChannelReq )
     }
 
     // Verify if an uplink frequency exists
-    if( NvmCtx.Channels[dlChannelReq->ChannelId].Frequency == 0 )
+    if( RegionNvmGroup2->Channels[dlChannelReq->ChannelId].Frequency == 0 )
     {
         status &= 0xFD;
     }
@@ -789,7 +760,7 @@ int8_t RegionRU864DlChannelReq( DlChannelReqParams_t* dlChannelReq )
     // Apply Rx1 frequency, if the status is OK
     if( status == 0x03 )
     {
-        NvmCtx.Channels[dlChannelReq->ChannelId].Rx1Frequency = dlChannelReq->Rx1Frequency;
+        RegionNvmGroup2->Channels[dlChannelReq->ChannelId].Rx1Frequency = dlChannelReq->Rx1Frequency;
     }
 
     return status;
@@ -810,17 +781,17 @@ LoRaMacStatus_t RegionRU864NextChannel( NextChanParams_t* nextChanParams, uint8_
     LoRaMacStatus_t status = LORAMAC_STATUS_NO_CHANNEL_FOUND;
     uint16_t joinChannels = RU864_JOIN_CHANNELS;
 
-    if( RegionCommonCountChannels( NvmCtx.ChannelsMask, 0, 1 ) == 0 )
+    if( RegionCommonCountChannels( RegionNvmGroup2->ChannelsMask, 0, 1 ) == 0 )
     { // Reactivate default channels
-        NvmCtx.ChannelsMask[0] |= LC( 1 ) + LC( 2 );
+        RegionNvmGroup2->ChannelsMask[0] |= LC( 1 ) + LC( 2 );
     }
 
     // Search how many channels are enabled
     countChannelsParams.Joined = nextChanParams->Joined;
     countChannelsParams.Datarate = nextChanParams->Datarate;
-    countChannelsParams.ChannelsMask = NvmCtx.ChannelsMask;
-    countChannelsParams.Channels = NvmCtx.Channels;
-    countChannelsParams.Bands = NvmCtx.Bands;
+    countChannelsParams.ChannelsMask = RegionNvmGroup2->ChannelsMask;
+    countChannelsParams.Channels = RegionNvmGroup2->Channels;
+    countChannelsParams.Bands = RegionNvmGroup1->Bands;
     countChannelsParams.MaxNbChannels = RU864_MAX_NB_CHANNELS;
     countChannelsParams.JoinChannels = &joinChannels;
 
@@ -846,7 +817,7 @@ LoRaMacStatus_t RegionRU864NextChannel( NextChanParams_t* nextChanParams, uint8_
     else if( status == LORAMAC_STATUS_NO_CHANNEL_FOUND )
     {
         // Datarate not supported by any channel, restore defaults
-        NvmCtx.ChannelsMask[0] |= LC( 1 ) + LC( 2 );
+        RegionNvmGroup2->ChannelsMask[0] |= LC( 1 ) + LC( 2 );
     }
     return status;
 }
@@ -904,9 +875,9 @@ LoRaMacStatus_t RegionRU864ChannelAdd( ChannelAddParams_t* channelAdd )
         return LORAMAC_STATUS_FREQUENCY_INVALID;
     }
 
-    memcpy1( ( uint8_t* ) &(NvmCtx.Channels[id]), ( uint8_t* ) channelAdd->NewChannel, sizeof( NvmCtx.Channels[id] ) );
-    NvmCtx.Channels[id].Band = 0;
-    NvmCtx.ChannelsMask[0] |= ( 1 << id );
+    memcpy1( ( uint8_t* ) &(RegionNvmGroup2->Channels[id]), ( uint8_t* ) channelAdd->NewChannel, sizeof( RegionNvmGroup2->Channels[id] ) );
+    RegionNvmGroup2->Channels[id].Band = 0;
+    RegionNvmGroup2->ChannelsMask[0] |= ( 1 << id );
     return LORAMAC_STATUS_OK;
 }
 
@@ -920,16 +891,16 @@ bool RegionRU864ChannelsRemove( ChannelRemoveParams_t* channelRemove  )
     }
 
     // Remove the channel from the list of channels
-    NvmCtx.Channels[id] = ( ChannelParams_t ){ 0, 0, { 0 }, 0 };
+    RegionNvmGroup2->Channels[id] = ( ChannelParams_t ){ 0, 0, { 0 }, 0 };
 
-    return RegionCommonChanDisable( NvmCtx.ChannelsMask, id, RU864_MAX_NB_CHANNELS );
+    return RegionCommonChanDisable( RegionNvmGroup2->ChannelsMask, id, RU864_MAX_NB_CHANNELS );
 }
 
 void RegionRU864SetContinuousWave( ContinuousWaveParams_t* continuousWave )
 {
-    int8_t txPowerLimited = RegionCommonLimitTxPower( continuousWave->TxPower, NvmCtx.Bands[NvmCtx.Channels[continuousWave->Channel].Band].TxMaxPower );
+    int8_t txPowerLimited = RegionCommonLimitTxPower( continuousWave->TxPower, RegionNvmGroup1->Bands[RegionNvmGroup2->Channels[continuousWave->Channel].Band].TxMaxPower );
     int8_t phyTxPower = 0;
-    uint32_t frequency = NvmCtx.Channels[continuousWave->Channel].Frequency;
+    uint32_t frequency = RegionNvmGroup2->Channels[continuousWave->Channel].Frequency;
 
     // Calculate physical TX power
     phyTxPower = RegionCommonComputeTxPower( txPowerLimited, continuousWave->MaxEirp, continuousWave->AntennaGain );

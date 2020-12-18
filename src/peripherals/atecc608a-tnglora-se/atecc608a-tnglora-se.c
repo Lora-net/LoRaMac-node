@@ -38,6 +38,7 @@
 #include "atca_devtypes.h"
 
 #include "secure-element.h"
+#include "secure-element-nvm.h"
 #include "se-identity.h"
 #include "atecc608a-tnglora-se-hal.h"
 
@@ -67,52 +68,9 @@ typedef struct sKey
     uint8_t KeyBlockIndex;
 } Key_t;
 
-/*
- * Secure Element Non Volatile Context structure
- */
-typedef struct sSecureElementNvCtx
-{
-    /*!
-     * DevEUI storage
-     */
-    uint8_t DevEui[SE_EUI_SIZE];
-    /*!
-     * Join EUI storage
-     */
-    uint8_t JoinEui[SE_EUI_SIZE];
-    /*!
-     * Pin storage
-     */
-    uint8_t Pin[SE_PIN_SIZE];
-    /*!
-     * LoRaWAN key list
-     */
-    Key_t KeyList[NUM_OF_KEYS];
-} SecureElementNvCtx_t;
+static SecureElementNvmData_t* SeNvm;
 
-/*!
- * Secure element context
- */
-static SecureElementNvCtx_t SeNvmCtx = {
-    /*!
-     * end-device IEEE EUI (big endian)
-     */
-    .DevEui = { 0 },
-    /*!
-     * App/Join server IEEE EUI (big endian)
-     */
-    .JoinEui = { 0 },
-    /*!
-     * Secure-element pin (big endian)
-     */
-    .Pin = SECURE_ELEMENT_PIN,
-    /*!
-     * LoRaWAN key list
-     */
-    .KeyList = ATECC608A_SE_KEY_LIST
-};
-
-static SecureElementNvmEvent SeNvmCtxChanged;
+static Key_t KeyList[NUM_OF_KEYS] = ATECC608A_SE_KEY_LIST;
 
 static ATCAIfaceCfg atecc608_i2c_config;
 
@@ -225,21 +183,13 @@ SecureElementStatus_t GetKeyByID( KeyIdentifier_t keyID, Key_t** keyItem )
 {
     for( uint8_t i = 0; i < NUM_OF_KEYS; i++ )
     {
-        if( SeNvmCtx.KeyList[i].KeyID == keyID )
+        if( KeyList[i].KeyID == keyID )
         {
-            *keyItem = &( SeNvmCtx.KeyList[i] );
+            *keyItem = &( KeyList[i] );
             return SECURE_ELEMENT_SUCCESS;
         }
     }
     return SECURE_ELEMENT_ERROR_INVALID_KEY_ID;
-}
-
-/*
- * Dummy callback in case if the user provides NULL function pointer
- */
-static void DummyCB( void )
-{
-    return;
 }
 
 /*
@@ -296,8 +246,35 @@ static SecureElementStatus_t ComputeCmac( uint8_t* micBxBuffer, uint8_t* buffer,
     }
 }
 
-SecureElementStatus_t SecureElementInit( SecureElementNvmEvent seNvmCtxChanged )
+SecureElementStatus_t SecureElementInit( SecureElementNvmData_t* nvm )
 {
+    SecureElementNvmData_t seNvmInit =
+    {
+        /*!
+        * end-device IEEE EUI (big endian)
+        */
+        .DevEui = { 0 },
+        /*!
+        * App/Join server IEEE EUI (big endian)
+        */
+        .JoinEui = { 0 },
+        /*!
+        * Secure-element pin (big endian)
+        */
+        .Pin = SECURE_ELEMENT_PIN,
+    };
+
+    if( nvm == NULL )
+    {
+        return SECURE_ELEMENT_ERROR_NPE;
+    }
+
+    // Initialize nvm pointer
+    SeNvm = nvm;
+
+    // Initialize data
+    memcpy1( ( uint8_t* )SeNvm, ( uint8_t* )&seNvmInit, sizeof( seNvmInit ) );
+
 #if !defined( SECURE_ELEMENT_PRE_PROVISIONED )
 #error "ATECC608A is always pre-provisioned. Please set SECURE_ELEMENT_PRE_PROVISIONED to ON"
 #endif
@@ -314,47 +291,16 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmEvent seNvmCtxChanged )
         return SECURE_ELEMENT_ERROR;
     }
 
-    if( atcab_read_devEUI( SeNvmCtx.DevEui ) != ATCA_SUCCESS )
+    if( atcab_read_devEUI( SeNvm->DevEui ) != ATCA_SUCCESS )
     {
         return SECURE_ELEMENT_ERROR;
     }
 
-    if( atcab_read_joinEUI( SeNvmCtx.JoinEui ) != ATCA_SUCCESS )
+    if( atcab_read_joinEUI( SeNvm->JoinEui ) != ATCA_SUCCESS )
     {
         return SECURE_ELEMENT_ERROR;
     }
-
-    // Assign callback
-    if( seNvmCtxChanged != 0 )
-    {
-        SeNvmCtxChanged = seNvmCtxChanged;
-    }
-    else
-    {
-        SeNvmCtxChanged = DummyCB;
-    }
-
     return SECURE_ELEMENT_SUCCESS;
-}
-
-SecureElementStatus_t SecureElementRestoreNvmCtx( void* seNvmCtx )
-{
-    // Restore nvm context
-    if( seNvmCtx != 0 )
-    {
-        memcpy1( ( uint8_t* ) &SeNvmCtx, ( uint8_t* ) seNvmCtx, sizeof( SeNvmCtx ) );
-        return SECURE_ELEMENT_SUCCESS;
-    }
-    else
-    {
-        return SECURE_ELEMENT_ERROR_NPE;
-    }
-}
-
-void* SecureElementGetNvmCtx( size_t* seNvmCtxSize )
-{
-    *seNvmCtxSize = sizeof( SeNvmCtx );
-    return &SeNvmCtx;
 }
 
 SecureElementStatus_t SecureElementSetKey( KeyIdentifier_t keyID, uint8_t* key )
@@ -600,14 +546,13 @@ SecureElementStatus_t SecureElementSetDevEui( uint8_t* devEui )
     {
         return SECURE_ELEMENT_ERROR_NPE;
     }
-    memcpy1( SeNvmCtx.DevEui, devEui, SE_EUI_SIZE );
-    SeNvmCtxChanged( );
+    memcpy1( SeNvm->DevEui, devEui, SE_EUI_SIZE );
     return SECURE_ELEMENT_SUCCESS;
 }
 
 uint8_t* SecureElementGetDevEui( void )
 {
-    return SeNvmCtx.DevEui;
+    return SeNvm->DevEui;
 }
 
 SecureElementStatus_t SecureElementSetJoinEui( uint8_t* joinEui )
@@ -616,14 +561,13 @@ SecureElementStatus_t SecureElementSetJoinEui( uint8_t* joinEui )
     {
         return SECURE_ELEMENT_ERROR_NPE;
     }
-    memcpy1( SeNvmCtx.JoinEui, joinEui, SE_EUI_SIZE );
-    SeNvmCtxChanged( );
+    memcpy1( SeNvm->JoinEui, joinEui, SE_EUI_SIZE );
     return SECURE_ELEMENT_SUCCESS;
 }
 
 uint8_t* SecureElementGetJoinEui( void )
 {
-    return SeNvmCtx.JoinEui;
+    return SeNvm->JoinEui;
 }
 
 SecureElementStatus_t SecureElementSetPin( uint8_t* pin )
@@ -633,12 +577,11 @@ SecureElementStatus_t SecureElementSetPin( uint8_t* pin )
         return SECURE_ELEMENT_ERROR_NPE;
     }
 
-    memcpy1( SeNvmCtx.Pin, pin, SE_PIN_SIZE );
-    SeNvmCtxChanged( );
+    memcpy1( SeNvm->Pin, pin, SE_PIN_SIZE );
     return SECURE_ELEMENT_SUCCESS;
 }
 
 uint8_t* SecureElementGetPin( void )
 {
-    return SeNvmCtx.Pin;
+    return SeNvm->Pin;
 }

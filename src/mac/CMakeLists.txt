@@ -43,13 +43,44 @@ set_property(CACHE REGION_AS923_DEFAULT_CHANNEL_PLAN PROPERTY STRINGS ${REGION_A
 #---------------------------------------------------------------------------------------
 # Target
 #---------------------------------------------------------------------------------------
+set( MAC_BUILD_SOURCES
+     ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionAS923.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionCN779.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionEU433.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionEU868.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionIN865.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionRU864.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionBaseUS.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionCommon.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/region/Region.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/LoRaMac.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/LoRaMacAdr.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/LoRaMacClassB.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/LoRaMacCommands.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/LoRaMacConfirmQueue.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/LoRaMacCrypto.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/LoRaMacParser.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/LoRaMacSerializer.c )
 
-file(GLOB ${PROJECT_NAME}_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/region/*.c"
-)
+if(REGION_US915 STREQUAL ON)
+set( MAC_BUILD_SOURCES
+     ${MAC_BUILD_SOURCES}
+     "${CMAKE_CURRENT_SOURCE_DIR}/region/RegionUS915.c" )
+endif()
 
-add_library(${PROJECT_NAME} OBJECT EXCLUDE_FROM_ALL ${${PROJECT_NAME}_SOURCES})
+if(REGION_AU915 STREQUAL ON)
+set( MAC_BUILD_SOURCES
+     ${MAC_BUILD_SOURCES}
+     "${CMAKE_CURRENT_SOURCE_DIR}/region/RegionAU915.c" )
+endif()
+
+if(REGION_CN470 STREQUAL ON)
+set( MAC_BUILD_SOURCES
+     ${MAC_BUILD_SOURCES}
+     "${CMAKE_CURRENT_SOURCE_DIR}/region/RegionCN470.c" )
+endif()
+
+add_library(${PROJECT_NAME} OBJECT EXCLUDE_FROM_ALL ${MAC_BUILD_SOURCES})
 
 # Loops through all regions and add compile time definitions for the enabled ones.
 foreach( REGION ${REGION_LIST} )
@@ -63,6 +94,11 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE -DREGION_AS923_DEFAULT_CHANNE
 
 # Add define if class B is supported
 target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<BOOL:${CLASSB_ENABLED}>:LORAMAC_CLASSB_ENABLED>)
+
+# SecureElement NVM
+if(${SECURE_ELEMENT} MATCHES SOFT_SE)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE -DSOFT_SE)
+endif()
 
 add_dependencies(${PROJECT_NAME} board)
 

@@ -97,14 +97,16 @@ uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
 {
     uint8_t status = SUCCESS;
     EE_Status eeStatus = EE_OK;
-    
+
     // Unlock the Flash Program Erase controller
     HAL_FLASH_Unlock( );
 
+    CRITICAL_SECTION_BEGIN( );
     for( uint32_t i = 0; i < size; i++ )
     {
         eeStatus |= EE_WriteVariable8bits( EepromVirtualAddress[addr + i], buffer[i] );
     }
+    CRITICAL_SECTION_END( );
 
     if( eeStatus != EE_OK )
     {

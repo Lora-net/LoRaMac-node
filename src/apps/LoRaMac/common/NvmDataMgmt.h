@@ -1,5 +1,5 @@
 /*!
- * \file      NvmCtxMgmt.h
+ * \file      NvmDataMgmt.h
  *
  * \brief     NVM context management implementation
  *
@@ -30,40 +30,42 @@
  *
  * \author    Johannes Bruder ( STACKFORCE )
  *
- * \defgroup  NVMCTXMGMT NVM context management implementation
+ * \defgroup  NVMDATAMGMT NVM context management implementation
  *            This module implements the NVM context handling
  * \{
  */
-#ifndef __NVMCTXMGMT_H__
-#define __NVMCTXMGMT_H__
-
-#include "LoRaMac.h"
+#ifndef __NVMDATAMGMT_H__
+#define __NVMDATAMGMT_H__
 
 /*!
- * Data structure containing the status of a operation
+ * \brief NVM Management event.
+ *
+ * \param [IN] notifyFlags Bitmap which contains the information about modules that
+ *                         changed.
  */
-typedef enum NvmCtxMgmtStatus_e
-{
-    /*!
-     * Operation was successful
-     */
-    NVMCTXMGMT_STATUS_SUCCESS,
-    /*!
-     * Operation was not successful
-     */
-    NVMCTXMGMT_STATUS_FAIL
-}NvmCtxMgmtStatus_t;
+void NvmDataMgmtEvent( uint16_t notifyFlags );
 
 /*!
- * \brief Calculates the next datarate to set, when ADR is on or off.
+ * \brief Function which stores the MAC data into NVM, if required.
  *
- * \param [IN] adrNext Pointer to the function parameters.
- *
+ * \retval Number of bytes which were stored.
  */
-void NvmCtxMgmtEvent( LoRaMacNvmCtxModule_t module );
+uint16_t NvmDataMgmtStore( void );
 
-NvmCtxMgmtStatus_t NvmCtxMgmtStore( void );
+/*!
+ * \brief Function which restores the MAC data from NVM, if required.
+ *
+ * \retval Number of bytes which were restored.
+ */
+uint16_t NvmDataMgmtRestore(void );
 
-NvmCtxMgmtStatus_t NvmCtxMgmtRestore(void );
+/*!
+ * \brief Resets the NVM data.
+ *
+ * \retval Returns true, if successful.
+ */
+bool NvmDataMgmtFactoryReset( void );
 
-#endif // __NVMCTXMGMT_H__
+/* \} */
+
+#endif // __NVMDATAMGMT_H__

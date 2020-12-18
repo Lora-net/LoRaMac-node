@@ -269,15 +269,6 @@ void RegionIN865SetBandTxDone( SetBandTxDoneParams_t* txDone );
 void RegionIN865InitDefaults( InitDefaultsParams_t* params );
 
 /*!
- * \brief Returns a pointer to the internal context and its size.
- *
- * \param [OUT] params Pointer to the function parameters.
- *
- * \retval      Points to a structure where the module store its non-volatile context.
- */
-void* RegionIN865GetNvmCtx( GetNvmCtxParams_t* params );
-
-/*!
  * \brief Verifies a parameter.
  *
  * \param [IN] verify Pointer to the function parameters.

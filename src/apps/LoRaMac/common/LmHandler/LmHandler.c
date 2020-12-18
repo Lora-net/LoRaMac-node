@@ -28,7 +28,8 @@
 #include "utilities.h"
 #include "timer.h"
 #include "Commissioning.h"
-#include "NvmCtxMgmt.h"
+#include "NvmDataMgmt.h"
+#include "radio.h"
 #include "LmHandler.h"
 #include "LmhPackage.h"
 #include "LmhpCompliance.h"
@@ -214,6 +215,7 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
                                       LmHandlerParams_t *handlerParams )
 {
     //
+    uint16_t nbNvmData = 0;
     MibRequestConfirm_t mibReq;
     LmHandlerParams = handlerParams;
     LmHandlerCallbacks = handlerCallbacks;
@@ -224,7 +226,7 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
     LoRaMacPrimitives.MacMlmeIndication = MlmeIndication;
     LoRaMacCallbacks.GetBatteryLevel = LmHandlerCallbacks->GetBatteryLevel;
     LoRaMacCallbacks.GetTemperatureLevel = LmHandlerCallbacks->GetTemperature;
-    LoRaMacCallbacks.NvmContextChange = NvmCtxMgmtEvent;
+    LoRaMacCallbacks.NvmDataChange  = NvmDataMgmtEvent;
     LoRaMacCallbacks.MacProcessNotify = LmHandlerCallbacks->OnMacProcess;
 
     IsClassBSwitchPending = false;
@@ -234,10 +236,13 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
         return LORAMAC_HANDLER_ERROR;
     }
 
+    // Restore data if required
+    nbNvmData = NvmDataMgmtRestore( );
+
     // Try to restore from NVM and query the mac if possible.
-    if( NvmCtxMgmtRestore( ) == NVMCTXMGMT_STATUS_SUCCESS )
+    if( nbNvmData > 0 )
     {
-        LmHandlerCallbacks->OnNvmContextChange( LORAMAC_HANDLER_NVM_RESTORE );
+        LmHandlerCallbacks->OnNvmDataChange( LORAMAC_HANDLER_NVM_RESTORE, nbNvmData );
     }
     else
     {
@@ -321,6 +326,8 @@ bool LmHandlerIsBusy( void )
 
 void LmHandlerProcess( void )
 {
+    uint16_t size = 0;
+
     // Process Radio IRQ
     if( Radio.IrqProcess != NULL )
     {
@@ -333,9 +340,12 @@ void LmHandlerProcess( void )
     // Call all packages process functions
     LmHandlerPackagesProcess( );
 
-    if( NvmCtxMgmtStore( ) == NVMCTXMGMT_STATUS_SUCCESS )
+    // Store to NVM if required
+    size = NvmDataMgmtStore( );
+
+    if( size > 0 )
     {
-        LmHandlerCallbacks->OnNvmContextChange( LORAMAC_HANDLER_NVM_STORE );
+        LmHandlerCallbacks->OnNvmDataChange( LORAMAC_HANDLER_NVM_STORE, size );
     }
 }
 

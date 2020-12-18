@@ -45,21 +45,7 @@ extern "C"
 
 #include <stdint.h>
 #include "LoRaMacCrypto.h"
-
-/*!
- * Secure-element keys size in bytes
- */
-#define SE_KEY_SIZE             16
-
-/*!
- * Secure-element EUI size in bytes
- */
-#define SE_EUI_SIZE             8
-
-/*!
- * Secure-element pin size in bytes
- */
-#define SE_PIN_SIZE             4
+#include "secure-element-nvm.h"
 
 /*!
  * Return values.
@@ -101,36 +87,13 @@ typedef enum eSecureElementStatus
 }SecureElementStatus_t;
 
 /*!
- * Signature of callback function to be called by the Secure Element driver when the
- * non volatile context have to be stored.
- *
- */
-typedef void ( *SecureElementNvmEvent )( void );
-
-/*!
  * Initialization of Secure Element driver
  *
- * \param[IN]     seNvmCtxChanged           - Callback function which will be called  when the
- *                                            non-volatile context have to be stored.
- * \retval                                  - Status of the operation
- */
-SecureElementStatus_t SecureElementInit( SecureElementNvmEvent seNvmCtxChanged );
-
-/*!
- * Restores the internal nvm context from passed pointer.
- *
- * \param[IN]     seNvmCtx         - Pointer to non-volatile module context to be restored.
+ * \param[IN]     nvm              - Pointer to the non-volatile memory data
+ *                                   structure.
  * \retval                         - Status of the operation
  */
-SecureElementStatus_t SecureElementRestoreNvmCtx( void* seNvmCtx );
-
-/*!
- * Returns a pointer to the internal non-volatile context.
- *
- * \param[IN]     seNvmCtxSize    - Size of the module non volatile context
- * \retval                        - Points to a structure where the module store its non volatile context
- */
-void* SecureElementGetNvmCtx( size_t* seNvmCtxSize );
+SecureElementStatus_t SecureElementInit( SecureElementNvmData_t* nvm );
 
 /*!
  * Sets a key

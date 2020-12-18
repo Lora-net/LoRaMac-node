@@ -131,17 +131,19 @@ typedef struct LmHandlerCallbacks_s
     /*!
      *\brief    Will be called each time a Radio IRQ is handled by the MAC
      *          layer.
-     * 
+     *
      *\warning  Runs in a IRQ context. Should only change variables state.
      */
     void ( *OnMacProcess )( void );
     /*!
      * Notifies the upper layer that the NVM context has changed
      *
-     * \param [IN] stored Indicates if we are storing (true) or
-     *                    restoring (false) the NVM context
+     * \param [IN] state Indicates if we are storing (true) or
+     *                   restoring (false) the NVM context
+     *
+     * \param [IN] size Number of data bytes which were stored or restored.
      */
-    void ( *OnNvmContextChange )( LmHandlerNvmContextStates_t state );
+    void ( *OnNvmDataChange )( LmHandlerNvmContextStates_t state, uint16_t size );
     /*!
      * Notifies the upper layer that a network parameters have been set
      *

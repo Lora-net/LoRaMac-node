@@ -54,13 +54,14 @@ endif()
 
 if(${SECURE_ELEMENT} MATCHES SOFT_SE)
     target_include_directories( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/soft-se)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE -DSOFT_SE)
 else()
     if(${SECURE_ELEMENT} MATCHES LR1110_SE)
         if(${RADIO} MATCHES lr1110)
             target_include_directories( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lr1110-se)
         endif()
     elseif((${SECURE_ELEMENT} MATCHES ATECC608A_TNGLORA_SE))
-        target_include_directories( ${PROJECT_NAME} PUBLIC 
+        target_include_directories( ${PROJECT_NAME} PUBLIC
             ${CMAKE_CURRENT_SOURCE_DIR}/atecc608a-tnglora-se
             ${CMAKE_CURRENT_SOURCE_DIR}/atecc608a-tnglora-se/cryptoauthlib/lib
             ${CMAKE_CURRENT_SOURCE_DIR}/atecc608a-tnglora-se/cryptoauthlib/lib/basic
