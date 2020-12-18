@@ -11,31 +11,37 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 
 ## [Unreleased]
 
-## [4.5.0-rc.1] - 2020-11-24
+## [4.4.6] - 2020-12-18
 
 ### General
 
-- Release based on "LoRaWAN specification 1.0.4" and "LoRaWAN Regional Parameters 2-1.0.1"
-- GitHub reported issues corrections. Please refer to [Release Version 4.5.0](https://github.com/Lora-net/LoRaMac-node/milestone/5)
-
-### Added
-
-- Added implementation of LoRaWAN 1.0.4 changes
-- Added implementation for new Certification protocol specification
-- Added GitHub repository and firmware examples version definitions
+- Release based on "LoRaWAN specification 1.0.3" and "LoRaWAN Regional Parameters v1.0.3revA"
+- GitHub reported issues corrections. Please refer to [Release Version 4.4.6](https://github.com/Lora-net/LoRaMac-node/milestone/8)
+- **Release 4.4.6 is the last one supporting "LoRaWAN specification 1.0.3"**
 
 ### Changed
 
-- Changed IMST boards default power source to USB_POWER
+- Refactored MAC layer and examples Non Volatile Memory data handling
+- Changed `NewChannelReq` amd `DlChannelReq` handling to ignore command for `AU915`, `CN470` and `US915` regions
+- Updated behavior of `SX126xSetLoRaSymbNumTimeout` to round up the timeout to the nearest possible number of symbol.
+- Changed radio drivers floating point to integer computations
+- Improved `GetNextLowerTxDr` function implementation.
+- Changed SX1272 and SX1276 FSK FIFO handling by using `FifoLevel` IRQ instead of `FifoEmpty` IRQ  
+  **WARNING** *DIO1 IRQ MCU pin detection has changed from `RISING` to `RISING_FALLING` edge.*
+- Changed IMST boards default power source to `USB_POWER`
 
 ### Fixed
 
-- Fixed an issue where the Join back off algorithm wasn't being applied when the duty-cycle enforcement was OFF.
+- Fixed certification test application handling
+- Fixed `ping-pong` and `rx-sensi` examples to use the right `FSK_BANDWIDTH` and `FSK_AFC_BANDWIDTH` parameters
+- Fixed one byte transmissions over I2C
+- Fixed `RegionIN865RxParamSetupReq` `DrOffset` verification
+- Fixed STM platforms IRQ handlers when using a C++ compiler
+- Fixed an issue where the Join back off algorithm wasn't being applied when the duty-cycle enforcement was OFF
 - Fixed `AU915_MAX_RX1_DR_OFFSET` value to 5 instead of 6
 
 ### Removed
 
-- Removed NvmCtxCallback calls as they should only be done when a modification happens.
 - Removed ClassA, ClassB and ClassC examples.
 
 ## [4.4.5] - 2020-10-14
@@ -61,6 +67,7 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 - Changed hard coded `JoinAccept` max payload size (33) by `LORAMAC_JOIN_ACCEPT_FRAME_MAX_SIZE` definition.
 - Moved radio operating mode management to specific board implementation
 - Changed radio `IsChannelFree API` in order to provide reception bandwidth
+- AS923 default downlink dwell time setting changed to disabled
 - Back port 1.0.4 region implementation improvements
 - Changed `RegionCommonComputeSymbolTimeLoRa`, `RegionCommonComputeSymbolTimeFsk` and `RegionCommonComputeRxWindowParameters`
   API implementations to use integer divisions instead of double division.

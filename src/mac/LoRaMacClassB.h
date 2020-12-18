@@ -301,27 +301,10 @@ typedef void ( *LoRaMacClassBNvmEvent )( void );
  *
  * \param [IN] classBParams Information and feedback parameter
  * \param [IN] callbacks Contains the callback which the Class B implementation needs
- * \param [IN] callback function which will be called when the non-volatile context needs to be saved.
+ * \param [IN] nvm Pointer to an external non-volatile memory data structure.
  */
-void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks, LoRaMacClassBNvmEvent classBNvmCtxChanged );
-
-/*!
- * Restores the internal non-volatile context from passed pointer.
- *
- * \param [IN]     classBNvmCtx     - Pointer to non-volatile class B module context to be restored.
- *
- * \retval                     - Status of the operation
- */
-bool LoRaMacClassBRestoreNvmCtx( void* classBNvmCtx );
-
-/*!
- * Returns a pointer to the internal non-volatile context.
- *
- * \param [IN]     classBNvmCtxSize - Size of the module non-volatile context
- *
- * \retval                    - Points to a structure where the module store its non-volatile context
- */
-void* LoRaMacClassBGetNvmCtx( size_t* classBNvmCtxSize );
+void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks,
+                        LoRaMacClassBNvmData_t* nvm );
 
 /*!
  * \brief Set the state of the beacon state machine

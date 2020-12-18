@@ -27,7 +27,9 @@
 #include "utilities.h"
 #include "board.h"
 #include "gpio.h"
+#include "uart.h"
 
+#include "cli.h"
 #include "Commissioning.h"
 #include "LmHandler.h"
 #include "LmhpCompliance.h"
@@ -121,7 +123,7 @@ static TimerEvent_t Led4Timer;
 static TimerEvent_t Led2Timer;
 
 static void OnMacProcessNotify( void );
-static void OnNvmContextChange( LmHandlerNvmContextStates_t state );
+static void OnNvmDataChange( LmHandlerNvmContextStates_t state, uint16_t size );
 static void OnNetworkParametersChange( CommissioningParams_t* params );
 static void OnMacMcpsRequest( LoRaMacStatus_t status, McpsReq_t *mcpsReq, TimerTime_t nextTxIn );
 static void OnMacMlmeRequest( LoRaMacStatus_t status, MlmeReq_t *mlmeReq, TimerTime_t nextTxIn );
@@ -153,16 +155,6 @@ static void OnTxFrameCtrlChanged( LmHandlerMsgTypes_t isTxConfirmed );
 static void OnPingSlotPeriodicityChanged( uint8_t pingSlotPeriodicity );
 
 /*!
- * Computes a CCITT 32 bits CRC
- *
- * \param [IN] buffer   Data buffer used to compute the CRC
- * \param [IN] length   Data buffer length
- * 
- * \retval crc          The computed buffer of length CRC
- */
-static uint32_t Crc32( uint8_t *buffer, uint16_t length );
-
-/*!
  * Function executed on TxTimer event
  */
 static void OnTxTimerEvent( void* context );
@@ -183,7 +175,7 @@ static LmHandlerCallbacks_t LmHandlerCallbacks =
     .GetTemperature = NULL,
     .GetRandomSeed = BoardGetRandomSeed,
     .OnMacProcess = OnMacProcessNotify,
-    .OnNvmContextChange = OnNvmContextChange,
+    .OnNvmDataChange = OnNvmDataChange,
     .OnNetworkParametersChange = OnNetworkParametersChange,
     .OnMacMcpsRequest = OnMacMcpsRequest,
     .OnMacMlmeRequest = OnMacMlmeRequest,
@@ -290,6 +282,11 @@ extern Gpio_t Led2; // Rx
 extern Gpio_t Led3; // App
 
 /*!
+ * UART object used for command line interface handling
+ */
+extern Uart_t Uart1;
+
+/*!
  * Main application entry point.
  */
 int main( void )
@@ -315,7 +312,7 @@ int main( void )
 
     if ( LmHandlerInit( &LmHandlerCallbacks, &LmHandlerParams ) != LORAMAC_HANDLER_SUCCESS )
     {
-        printf( "LoRaMac wasn't properly initialized" );
+        printf( "LoRaMac wasn't properly initialized\n" );
         // Fatal error, endless loop.
         while ( 1 )
         {
@@ -341,6 +338,9 @@ int main( void )
 
     while( 1 )
     {
+        // Process characters sent over the command line interface
+        CliProcess( &Uart1 );
+
         // Processes the LoRaMac events
         LmHandlerProcess( );
 
@@ -367,9 +367,9 @@ static void OnMacProcessNotify( void )
     IsMacProcessPending = 1;
 }
 
-static void OnNvmContextChange( LmHandlerNvmContextStates_t state )
+static void OnNvmDataChange( LmHandlerNvmContextStates_t state, uint16_t size )
 {
-    DisplayNvmContextChange( state );
+    DisplayNvmDataChange( state, size );
 }
 
 static void OnNetworkParametersChange( CommissioningParams_t* params )
@@ -688,29 +688,4 @@ static void OnLed2TimerEvent( void* context )
     TimerStop( &Led2Timer );
     // Switch LED 2 ON
     GpioWrite( &Led2, 1 );
-}
-
-static uint32_t Crc32( uint8_t *buffer, uint16_t length )
-{
-    // The CRC calculation follows CCITT - 0x04C11DB7
-    const uint32_t reversedPolynom = 0xEDB88320;
-
-    // CRC initial value
-    uint32_t crc = 0xFFFFFFFF;
-
-    if( buffer == NULL )
-    {
-        return 0;
-    }
-
-    for( uint16_t i = 0; i < length; ++i )
-    {
-        crc ^= ( uint32_t )buffer[i];
-        for( uint16_t i = 0; i < 8; i++ )
-        {
-            crc = ( crc >> 1 ) ^ ( reversedPolynom & ~( ( crc & 0x01 ) - 1 ) );
-        }
-    }
-
-    return ~crc;
 }
