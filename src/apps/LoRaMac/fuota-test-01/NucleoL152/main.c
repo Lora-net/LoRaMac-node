@@ -28,6 +28,7 @@
 #include "board.h"
 #include "gpio.h"
 #include "uart.h"
+#include "RegionCommon.h"
 
 #include "cli.h"
 #include "Commissioning.h"
