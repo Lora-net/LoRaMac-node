@@ -29,6 +29,7 @@
 #include "board.h"
 #include "gpio.h"
 #include "uart.h"
+#include "RegionCommon.h"
 #include "gps.h"
 #include "mpl3115.h"
 

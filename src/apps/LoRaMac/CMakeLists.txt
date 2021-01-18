@@ -78,6 +78,7 @@ elseif(SUB_PROJECT STREQUAL fuota-test-01)
     # Application common features handling
     #---------------------------------------------------------------------------------------
     list(APPEND ${PROJECT_NAME}_COMMON
+        "${CMAKE_CURRENT_LIST_DIR}/common/cli.c"
         "${CMAKE_CURRENT_LIST_DIR}/common/LmHandlerMsgDisplay.c"
         "${CMAKE_CURRENT_LIST_DIR}/common/NvmDataMgmt.c"
     )
