@@ -575,15 +575,15 @@ typedef struct sLoRaMacNvmDataGroup1
 
 typedef struct sLoRaMacNvmDataGroup2
 {
-    /*
+    /*!
      * LoRaMac region.
      */
     LoRaMacRegion_t Region;
-    /*
+    /*!
      * LoRaMac parameters
      */
     LoRaMacParams_t MacParams;
-    /*
+    /*!
      * LoRaMac default parameters
      */
     LoRaMacParams_t MacParamsDefaults;
@@ -595,11 +595,11 @@ typedef struct sLoRaMacNvmDataGroup2
      * Channels data rate
      */
     int8_t ChannelsDatarateDefault;
-    /*
+    /*!
      * Network ID ( 3 bytes )
      */
     uint32_t NetID;
-    /*
+    /*!
      * Mote Address
      */
     uint32_t DevAddr;
@@ -607,11 +607,11 @@ typedef struct sLoRaMacNvmDataGroup2
     * Multicast channel list
     */
     MulticastCtx_t MulticastChannelList[LORAMAC_MAX_MC_CTX];
-    /*
+    /*!
      * Actual device class
      */
     DeviceClass_t DeviceClass;
-    /*
+    /*!
      * Indicates if the node is connected to
      * a private or public network
      */
@@ -620,30 +620,30 @@ typedef struct sLoRaMacNvmDataGroup2
      * LoRaMac ADR control status
      */
     bool AdrCtrlOn;
-    /*
+    /*!
      * Maximum duty cycle
      * \remark Possibility to shutdown the device.
      */
     uint8_t MaxDCycle;
-    /*
-    * Enables/Disables duty cycle management (Test only)
-    */
+    /*!
+     * Enables/Disables duty cycle management (Test only)
+     */
     bool DutyCycleOn;
-    /*
+    /*!
      * Aggregated duty cycle management
      */
     uint16_t AggregatedDCycle;
-    /*
-    * Stores the time at LoRaMac initialization.
-    *
-    * \remark Used for the BACKOFF_DC computation.
-    */
+    /*!
+     * Stores the time at LoRaMac initialization.
+     *
+     * \remark Used for the BACKOFF_DC computation.
+     */
     SysTime_t InitializationTime;
-    /*
+    /*!
      * Current LoRaWAN Version
      */
     Version_t Version;
-    /*
+    /*!
      * End-Device network activation
      */
     ActivationType_t NetworkActivation;

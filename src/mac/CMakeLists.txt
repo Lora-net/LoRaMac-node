@@ -49,6 +49,7 @@ set( MAC_BUILD_SOURCES
      ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionEU433.c
      ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionEU868.c
      ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionIN865.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionKR920.c
      ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionRU864.c
      ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionBaseUS.c
      ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionCommon.c

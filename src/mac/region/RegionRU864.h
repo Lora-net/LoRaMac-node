@@ -40,7 +40,7 @@ extern "C"
 {
 #endif
 
-#include "LoRaMac.h"
+#include "region/Region.h"
 
 /*!
  * LoRaMac maximum number of channels

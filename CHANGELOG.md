@@ -11,6 +11,22 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 
 ## [Unreleased]
 
+## [4.4.7] - 2021-01-18
+
+### General
+
+- Release based on "LoRaWAN specification 1.0.3" and "LoRaWAN Regional Parameters v1.0.3revA"
+- **Release 4.4.7 is an hotfix of 4.4.6 and is the last one supporting "LoRaWAN specification 1.0.3"**
+
+### Changed
+
+- Changed examples GitHub version to 4.4.7
+
+### Fixed
+
+- Fixed compiling issues when KR920 or RU864 regions are selected
+- Fixed compiling issues for `fuota-test-01` example
+
 ## [4.4.6] - 2020-12-18
 
 ### General
