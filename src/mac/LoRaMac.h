@@ -582,6 +582,22 @@ typedef struct sLoRaMacNvmDataGroup1
      */
     bool SrvAckRequested;
     /*!
+     * Counts the number if uplinks to know when the next Rejoin request type 0 is required.
+     * ( If requested by the server through RejoinParamSetupReq MAC command )
+     */
+    uint16_t Rejoin0UplinksCounter;
+    /*!
+     * Counter of Rejoin Request of retries.
+     * ( If requested by the server through ForceRejoinReq MAC command )
+     */
+    uint8_t ForceRejoinRetriesCounter;
+    /*!
+     * Counts the number of uplinks containing a RekeyInd MAC command to know
+     * when the end device should reverted to join state because it didn't
+     * received a RekeyConf.
+     */
+    uint16_t RekeyIndUplinksCounter;
+    /*!
      * CRC32 value of the MacGroup1 data structure.
      */
     uint32_t Crc32;
@@ -674,6 +690,39 @@ typedef struct sLoRaMacNvmDataGroup2
      * End-Device network activation
      */
     ActivationType_t NetworkActivation;
+    /*!
+     * Number of uplinks without Rejoin request type 0.
+     * ( If requested by the server through RejoinParamSetupReq MAC command )
+     * When it's set to 0, Rejoin0UplinksCounter won't be incremented
+     */
+    uint16_t Rejoin0UplinksLimit;
+    /*!
+     * The total number of times the device will retry the Rejoin Request.
+     * ( If requested by the server through ForceRejoinReq MAC command )
+     */
+    uint8_t ForceRejoinMaxRetries;
+    /*!
+     * Rejoin Request Type
+     * ( If requested by the server through ForceRejoinReq MAC command )
+     */
+    uint8_t ForceRejoinType;
+    /*!
+     * Time in seconds between cyclic transmission of Type 0 Rejoin requests.
+     */
+    uint32_t Rejoin0CycleInSec;
+    /*!
+     * Time in seconds between cyclic transmission of Type 1 Rejoin requests.
+     */
+    uint32_t Rejoin1CycleInSec;
+    /*!
+     * Time in seconds between cyclic transmission of Type 2 Rejoin requests.
+     */
+    uint32_t Rejoin2CycleInSec;
+    /*!
+     * Indicates if a Rejoin request was sent and no join-accept or any downlink
+     * has been received yet.
+     */
+    bool IsRejoinRequestPending;
     /*!
      * CRC32 value of the MacGroup2 data structure.
      */
