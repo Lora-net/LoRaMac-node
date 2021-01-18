@@ -22,85 +22,15 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include "secure-element.h"
 #include "LoRaMac.h"
 #include "LoRaMacClassB.h"
+#include "LoRaMacClassBNvm.h"
 #include "LoRaMacClassBConfig.h"
 #include "LoRaMacCrypto.h"
 #include "LoRaMacConfirmQueue.h"
+#include "radio.h"
+#include "region/Region.h"
 
 #ifdef LORAMAC_CLASSB_ENABLED
 
-
-/*
- * LoRaMac Class B Context structure for NVM parameters
- * related to ping slots
- */
-typedef struct sLoRaMacClassBPingSlotNvmCtx
-{
-    struct sPingSlotCtrlNvm
-    {
-        /*!
-         * Set when the server assigned a ping slot to the node
-         */
-        uint8_t Assigned         : 1;
-        /*!
-         * Set when a custom frequency is used
-         */
-        uint8_t CustomFreq       : 1;
-    }Ctrl;
-    /*!
-     * Number of ping slots
-     */
-    uint8_t PingNb;
-    /*!
-     * Period of the ping slots
-     */
-    uint16_t PingPeriod;
-    /*!
-     * Reception frequency of the ping slot windows
-     */
-    uint32_t Frequency;
-    /*!
-     * Datarate of the ping slot
-     */
-    int8_t Datarate;
-    /*!
-     * Set to 1, if the FPending bit is set
-     */
-    uint8_t FPendingSet;
-} LoRaMacClassBPingSlotNvmCtx_t;
-
-/*
- * LoRaMac Class B Context structure for NVM parameters
- * related to beaconing
- */
-typedef struct sLoRaMacClassBBeaconNvmCtx
-{
-    struct sBeaconCtrlNvm
-    {
-        /*!
-         * Set if the node has a custom frequency for beaconing and ping slots
-         */
-        uint8_t CustomFreq          : 1;
-    }Ctrl;
-    /*!
-     * Beacon reception frequency
-     */
-    uint32_t Frequency;
-} LoRaMacClassBBeaconNvmCtx_t;
-
-/*
- * LoRaMac Class B Context structure
- */
-typedef struct sLoRaMacClassBNvmCtx
-{
-    /*!
-    * Class B ping slot context
-    */
-    LoRaMacClassBPingSlotNvmCtx_t PingSlotCtx;
-    /*!
-    * Class B beacon context
-    */
-    LoRaMacClassBBeaconNvmCtx_t BeaconCtx;
-} LoRaMacClassBNvmCtx_t;
 
 /*
  * LoRaMac Class B Context structure
@@ -148,14 +78,6 @@ typedef struct sLoRaMacClassBCtx
     * in class b operation.
     */
     LoRaMacClassBParams_t LoRaMacClassBParams;
-    /*!
-     * Callback function to notify the upper layer about context change
-     */
-    LoRaMacClassBNvmEvent LoRaMacClassBNvmEvent;
-    /*!
-    * Non-volatile module context.
-    */
-    LoRaMacClassBNvmCtx_t* NvmCtx;
 } LoRaMacClassBCtx_t;
 
 /*!
@@ -175,11 +97,6 @@ typedef union uLoRaMacClassBEvents
 LoRaMacClassBEvents_t LoRaMacClassBEvents = { .Value = 0 };
 
 /*
- * Non-volatile module context.
- */
-static LoRaMacClassBNvmCtx_t NvmCtx;
-
-/*
  * Module context.
  */
 static LoRaMacClassBCtx_t Ctx;
@@ -191,6 +108,12 @@ static LoRaMacClassBCtx_t Ctx;
  * As the time base is milli seconds, the precision will be either 0 ms or 1 ms.
  */
 static const uint8_t BeaconPrecTimeValue[4] = { 0, 1, 1, 1 };
+
+/*!
+ * Data structure which holds the parameters which needs to be stored
+ * in the NVM.
+ */
+static LoRaMacClassBNvmData_t* ClassBNvm;
 
 /*!
  * Computes the Ping Offset
@@ -380,10 +303,10 @@ static void RxBeaconSetup( TimerTime_t rxTime, bool activateDefaultChannel, uint
                                                      CLASSB_BEACON_INTERVAL, true );
     }
 
-    if( Ctx.NvmCtx->BeaconCtx.Ctrl.CustomFreq == 1 )
+    if( ClassBNvm->BeaconCtx.Ctrl.CustomFreq == 1 )
     {
         // Set the frequency from the BeaconFreqReq
-        frequency = Ctx.NvmCtx->BeaconCtx.Frequency;
+        frequency = ClassBNvm->BeaconCtx.Frequency;
     }
 
     if( Ctx.BeaconCtx.Ctrl.BeaconChannelSet == 1 )
@@ -499,7 +422,7 @@ static void InitClassB( void )
     LoRaMacClassBEvents.Value = 0;
 
     // Init variables to default
-    memset1( ( uint8_t* ) &NvmCtx, 0, sizeof( LoRaMacClassBNvmCtx_t ) );
+    memset1( ( uint8_t* ) ClassBNvm, 0, sizeof( LoRaMacClassBNvmData_t ) );
     memset1( ( uint8_t* ) &Ctx.PingSlotCtx, 0, sizeof( PingSlotContext_t ) );
     memset1( ( uint8_t* ) &Ctx.BeaconCtx, 0, sizeof( BeaconContext_t ) );
 
@@ -510,10 +433,10 @@ static void InitClassB( void )
     // Setup default ping slot datarate
     getPhy.Attribute = PHY_PING_SLOT_CHANNEL_DR;
     phyParam = RegionGetPhyParam( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-    Ctx.NvmCtx->PingSlotCtx.Datarate = ( int8_t )( phyParam.Value );
+    ClassBNvm->PingSlotCtx.Datarate = ( int8_t )( phyParam.Value );
 
     // Setup default FPending bit
-    Ctx.NvmCtx->PingSlotCtx.FPendingSet = 0;
+    ClassBNvm->PingSlotCtx.FPendingSet = 0;
 
     // Setup default states
     Ctx.BeaconState = BEACON_STATE_ACQUISITION;
@@ -525,19 +448,19 @@ static void InitClassBDefaults( void )
 {
     // This function shall reset the Class B settings to default,
     // but should keep important configurations
-    LoRaMacClassBBeaconNvmCtx_t beaconCtx = Ctx.NvmCtx->BeaconCtx;
-    LoRaMacClassBPingSlotNvmCtx_t pingSlotCtx = Ctx.NvmCtx->PingSlotCtx;
+    LoRaMacClassBBeaconNvmData_t beaconCtx = ClassBNvm->BeaconCtx;
+    LoRaMacClassBPingSlotNvmData_t pingSlotCtx = ClassBNvm->PingSlotCtx;
 
     InitClassB( );
 
     // Parameters from BeaconFreqReq
-    Ctx.NvmCtx->BeaconCtx.Frequency = beaconCtx.Frequency;
-    Ctx.NvmCtx->BeaconCtx.Ctrl.CustomFreq = beaconCtx.Ctrl.CustomFreq;
+    ClassBNvm->BeaconCtx.Frequency = beaconCtx.Frequency;
+    ClassBNvm->BeaconCtx.Ctrl.CustomFreq = beaconCtx.Ctrl.CustomFreq;
 
     // Parameters from PingSlotChannelReq
-    Ctx.NvmCtx->PingSlotCtx.Ctrl.CustomFreq = pingSlotCtx.Ctrl.CustomFreq;
-    Ctx.NvmCtx->PingSlotCtx.Frequency = pingSlotCtx.Frequency;
-    Ctx.NvmCtx->PingSlotCtx.Datarate = pingSlotCtx.Datarate;
+    ClassBNvm->PingSlotCtx.Ctrl.CustomFreq = pingSlotCtx.Ctrl.CustomFreq;
+    ClassBNvm->PingSlotCtx.Frequency = pingSlotCtx.Frequency;
+    ClassBNvm->PingSlotCtx.Datarate = pingSlotCtx.Datarate;
 }
 
 static void EnlargeWindowTimeout( void )
@@ -641,17 +564,6 @@ static uint16_t CalcPingPeriod( uint8_t pingNb )
     return CLASSB_BEACON_WINDOW_SLOTS / pingNb;
 }
 
-/*
- * Dummy callback in case if the user provides NULL function pointer
- */
-static void NvmContextChange( void )
-{
-    if( Ctx.LoRaMacClassBNvmEvent != NULL )
-    {
-        Ctx.LoRaMacClassBNvmEvent( );
-    }
-}
-
 static bool CheckSlotPriority( uint32_t currentAddress, uint8_t currentFPendingSet, uint8_t currentIsMulticast,
                                uint32_t address, uint8_t fPendingSet, uint8_t isMulticast )
 {
@@ -696,20 +608,21 @@ static bool CheckSlotPriority( uint32_t currentAddress, uint8_t currentFPendingS
 
 #endif // LORAMAC_CLASSB_ENABLED
 
-void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks, LoRaMacClassBNvmEvent classBNvmCtxChanged )
+void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallback_t *callbacks, LoRaMacClassBNvmData_t* nvm )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
+    // Assign non-volatile context
+    if( nvm == NULL )
+    {
+        return;
+    }
+    ClassBNvm = nvm;
+
     // Store callbacks
     Ctx.LoRaMacClassBCallbacks = *callbacks;
 
     // Store parameter pointers
     Ctx.LoRaMacClassBParams = *classBParams;
-
-    // Assign non-volatile context
-    Ctx.NvmCtx = &NvmCtx;
-
-    // Assign callback
-    Ctx.LoRaMacClassBNvmEvent = classBNvmCtxChanged;
 
     // Initialize timers
     TimerInit( &Ctx.BeaconTimer, LoRaMacClassBBeaconTimerEvent );
@@ -717,35 +630,6 @@ void LoRaMacClassBInit( LoRaMacClassBParams_t *classBParams, LoRaMacClassBCallba
     TimerInit( &Ctx.MulticastSlotTimer, LoRaMacClassBMulticastSlotTimerEvent );
 
     InitClassB( );
-#endif // LORAMAC_CLASSB_ENABLED
-}
-
-bool LoRaMacClassBRestoreNvmCtx( void* classBNvmCtx )
-{
-#ifdef LORAMAC_CLASSB_ENABLED
-    // Restore module context
-    if( classBNvmCtx != NULL )
-    {
-        memcpy1( ( uint8_t* ) &NvmCtx, ( uint8_t* ) classBNvmCtx, sizeof( NvmCtx ) );
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-#else
-    return true;
-#endif // LORAMAC_CLASSB_ENABLED
-}
-
-void* LoRaMacClassBGetNvmCtx( size_t* classBNvmCtxSize )
-{
-#ifdef LORAMAC_CLASSB_ENABLED
-    *classBNvmCtxSize = sizeof( NvmCtx );
-    return &NvmCtx;
-#else
-    *classBNvmCtxSize = 0;
-    return NULL;
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -1102,14 +986,14 @@ static void LoRaMacClassBProcessPingSlot( void )
         {
             ComputePingOffset( Ctx.BeaconCtx.BeaconTime.Seconds,
                                *Ctx.LoRaMacClassBParams.LoRaMacDevAddr,
-                               Ctx.NvmCtx->PingSlotCtx.PingPeriod,
+                               ClassBNvm->PingSlotCtx.PingPeriod,
                                &( Ctx.PingSlotCtx.PingOffset ) );
             Ctx.PingSlotState = PINGSLOT_STATE_SET_TIMER;
         }
             // Intentional fall through
         case PINGSLOT_STATE_SET_TIMER:
         {
-            if( CalcNextSlotTime( Ctx.PingSlotCtx.PingOffset, Ctx.NvmCtx->PingSlotCtx.PingPeriod, Ctx.NvmCtx->PingSlotCtx.PingNb, &pingSlotTime ) == true )
+            if( CalcNextSlotTime( Ctx.PingSlotCtx.PingOffset, ClassBNvm->PingSlotCtx.PingPeriod, ClassBNvm->PingSlotCtx.PingNb, &pingSlotTime ) == true )
             {
                 if( Ctx.BeaconCtx.Ctrl.BeaconAcquired == 1 )
                 {
@@ -1121,7 +1005,7 @@ static void LoRaMacClassBProcessPingSlot( void )
                     // Compute the symbol timeout. Apply it only, if the beacon is acquired
                     // Otherwise, take the enlargement of the symbols into account.
                     RegionComputeRxWindowParameters( *Ctx.LoRaMacClassBParams.LoRaMacRegion,
-                                                     Ctx.NvmCtx->PingSlotCtx.Datarate,
+                                                     ClassBNvm->PingSlotCtx.Datarate,
                                                      Ctx.LoRaMacClassBParams.LoRaMacParams->MinRxSymbols,
                                                      maxRxError,
                                                      &pingSlotRxConfig );
@@ -1142,10 +1026,10 @@ static void LoRaMacClassBProcessPingSlot( void )
         }
         case PINGSLOT_STATE_IDLE:
         {
-            uint32_t frequency = Ctx.NvmCtx->PingSlotCtx.Frequency;
+            uint32_t frequency = ClassBNvm->PingSlotCtx.Frequency;
 
             // Apply a custom frequency if the following bit is set
-            if( Ctx.NvmCtx->PingSlotCtx.Ctrl.CustomFreq == 0 )
+            if( ClassBNvm->PingSlotCtx.Ctrl.CustomFreq == 0 )
             {
                 // Restore floor plan
                 frequency = CalcDownlinkChannelAndFrequency( *Ctx.LoRaMacClassBParams.LoRaMacDevAddr, Ctx.BeaconCtx.BeaconTime.Seconds,
@@ -1155,7 +1039,7 @@ static void LoRaMacClassBProcessPingSlot( void )
             if( Ctx.PingSlotCtx.NextMulticastChannel != NULL )
             {
                 // Verify, if the unicast has priority.
-                slotHasPriority = CheckSlotPriority( *Ctx.LoRaMacClassBParams.LoRaMacDevAddr, Ctx.NvmCtx->PingSlotCtx.FPendingSet, 0,
+                slotHasPriority = CheckSlotPriority( *Ctx.LoRaMacClassBParams.LoRaMacDevAddr, ClassBNvm->PingSlotCtx.FPendingSet, 0,
                                                      Ctx.PingSlotCtx.NextMulticastChannel->ChannelParams.Address, Ctx.PingSlotCtx.NextMulticastChannel->FPendingSet, 1 );
             }
 
@@ -1174,7 +1058,7 @@ static void LoRaMacClassBProcessPingSlot( void )
 
                 Ctx.PingSlotState = PINGSLOT_STATE_RX;
 
-                pingSlotRxConfig.Datarate = Ctx.NvmCtx->PingSlotCtx.Datarate;
+                pingSlotRxConfig.Datarate = ClassBNvm->PingSlotCtx.Datarate;
                 pingSlotRxConfig.DownlinkDwellTime = Ctx.LoRaMacClassBParams.LoRaMacParams->DownlinkDwellTime;
                 pingSlotRxConfig.Frequency = frequency;
                 pingSlotRxConfig.RxContinuous = false;
@@ -1291,7 +1175,7 @@ static void LoRaMacClassBProcessMulticastSlot( void )
                                       ( uint32_t ) Ctx.BeaconCtx.BeaconTimePrecision.SubSeconds );
 
                     RegionComputeRxWindowParameters( *Ctx.LoRaMacClassBParams.LoRaMacRegion,
-                                                    Ctx.NvmCtx->PingSlotCtx.Datarate,
+                                                    ClassBNvm->PingSlotCtx.Datarate,
                                                     Ctx.LoRaMacClassBParams.LoRaMacParams->MinRxSymbols,
                                                     maxRxError,
                                                     &multicastSlotRxConfig );
@@ -1336,7 +1220,7 @@ static void LoRaMacClassBProcessMulticastSlot( void )
 
             // Verify, if the unicast has priority.
             slotHasPriority = CheckSlotPriority( Ctx.PingSlotCtx.NextMulticastChannel->ChannelParams.Address, Ctx.PingSlotCtx.NextMulticastChannel->FPendingSet, 1,
-                                                 *Ctx.LoRaMacClassBParams.LoRaMacDevAddr, Ctx.NvmCtx->PingSlotCtx.FPendingSet, 0 );
+                                                 *Ctx.LoRaMacClassBParams.LoRaMacDevAddr, ClassBNvm->PingSlotCtx.FPendingSet, 0 );
 
             // Open the ping slot window only, if there is no multicast ping slot
             // open or if the unicast has priority.
@@ -1580,9 +1464,8 @@ bool LoRaMacClassBIsBeaconModeActive( void )
 void LoRaMacClassBSetPingSlotInfo( uint8_t periodicity )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
-    Ctx.NvmCtx->PingSlotCtx.PingNb = CalcPingNb( periodicity );
-    Ctx.NvmCtx->PingSlotCtx.PingPeriod = CalcPingPeriod( Ctx.NvmCtx->PingSlotCtx.PingNb );
-    NvmContextChange( );
+    ClassBNvm->PingSlotCtx.PingNb = CalcPingNb( periodicity );
+    ClassBNvm->PingSlotCtx.PingPeriod = CalcPingPeriod( ClassBNvm->PingSlotCtx.PingNb );
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -1640,7 +1523,7 @@ LoRaMacStatus_t LoRaMacClassBSwitchClass( DeviceClass_t nextClass )
 #ifdef LORAMAC_CLASSB_ENABLED
     if( nextClass == CLASS_B )
     {// Switch to from class a to class b
-        if( ( Ctx.BeaconCtx.Ctrl.BeaconMode == 1 ) && ( Ctx.NvmCtx->PingSlotCtx.Ctrl.Assigned == 1 ) )
+        if( ( Ctx.BeaconCtx.Ctrl.BeaconMode == 1 ) && ( ClassBNvm->PingSlotCtx.Ctrl.Assigned == 1 ) )
         {
             return LORAMAC_STATUS_OK;
         }
@@ -1669,7 +1552,7 @@ LoRaMacStatus_t LoRaMacClassBMibGetRequestConfirm( MibRequestConfirm_t *mibGet )
     {
         case MIB_PING_SLOT_DATARATE:
         {
-            mibGet->Param.PingSlotDatarate = Ctx.NvmCtx->PingSlotCtx.Datarate;
+            mibGet->Param.PingSlotDatarate = ClassBNvm->PingSlotCtx.Datarate;
             break;
         }
         default:
@@ -1693,8 +1576,7 @@ LoRaMacStatus_t LoRaMacMibClassBSetRequestConfirm( MibRequestConfirm_t *mibSet )
     {
         case MIB_PING_SLOT_DATARATE:
         {
-            Ctx.NvmCtx->PingSlotCtx.Datarate = mibSet->Param.PingSlotDatarate;
-            NvmContextChange( );
+            ClassBNvm->PingSlotCtx.Datarate = mibSet->Param.PingSlotDatarate;
             break;
         }
         default:
@@ -1715,8 +1597,7 @@ void LoRaMacClassBPingSlotInfoAns( void )
     if( LoRaMacConfirmQueueIsCmdActive( MLME_PING_SLOT_INFO ) == true )
     {
         LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_OK, MLME_PING_SLOT_INFO );
-        Ctx.NvmCtx->PingSlotCtx.Ctrl.Assigned = 1;
-        NvmContextChange( );
+        ClassBNvm->PingSlotCtx.Ctrl.Assigned = 1;
     }
 #endif // LORAMAC_CLASSB_ENABLED
 }
@@ -1750,16 +1631,15 @@ uint8_t LoRaMacClassBPingSlotChannelReq( uint8_t datarate, uint32_t frequency )
     {
         if( isCustomFreq == true )
         {
-            Ctx.NvmCtx->PingSlotCtx.Ctrl.CustomFreq = 1;
-            Ctx.NvmCtx->PingSlotCtx.Frequency = frequency;
+            ClassBNvm->PingSlotCtx.Ctrl.CustomFreq = 1;
+            ClassBNvm->PingSlotCtx.Frequency = frequency;
         }
         else
         {
-            Ctx.NvmCtx->PingSlotCtx.Ctrl.CustomFreq = 0;
-            Ctx.NvmCtx->PingSlotCtx.Frequency = 0;
+            ClassBNvm->PingSlotCtx.Ctrl.CustomFreq = 0;
+            ClassBNvm->PingSlotCtx.Frequency = 0;
         }
-        Ctx.NvmCtx->PingSlotCtx.Datarate = datarate;
-        NvmContextChange( );
+        ClassBNvm->PingSlotCtx.Datarate = datarate;
     }
 
     return status;
@@ -1844,16 +1724,14 @@ bool LoRaMacClassBBeaconFreqReq( uint32_t frequency )
 
         if( RegionVerify( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &verify, PHY_FREQUENCY ) == true )
         {
-            Ctx.NvmCtx->BeaconCtx.Ctrl.CustomFreq = 1;
-            Ctx.NvmCtx->BeaconCtx.Frequency = frequency;
-            NvmContextChange( );
+            ClassBNvm->BeaconCtx.Ctrl.CustomFreq = 1;
+            ClassBNvm->BeaconCtx.Frequency = frequency;
             return true;
         }
     }
     else
     {
-        Ctx.NvmCtx->BeaconCtx.Ctrl.CustomFreq = 0;
-        NvmContextChange( );
+        ClassBNvm->BeaconCtx.Ctrl.CustomFreq = 0;
         return true;
     }
     return false;
@@ -1902,7 +1780,7 @@ void LoRaMacClassBStopRxSlots( void )
 void LoRaMacClassBStartRxSlots( void )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
-    if( Ctx.NvmCtx->PingSlotCtx.Ctrl.Assigned == 1 )
+    if( ClassBNvm->PingSlotCtx.Ctrl.Assigned == 1 )
     {
         Ctx.PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
         TimerSetValue( &Ctx.PingSlotTimer, 1 );
@@ -1934,7 +1812,7 @@ void LoRaMacClassBSetFPendingBit( uint32_t address, uint8_t fPendingSet )
     if( address == *Ctx.LoRaMacClassBParams.LoRaMacDevAddr )
     {
         // Unicast
-        Ctx.NvmCtx->PingSlotCtx.FPendingSet = fPendingSet;
+        ClassBNvm->PingSlotCtx.FPendingSet = fPendingSet;
     }
     else
     {

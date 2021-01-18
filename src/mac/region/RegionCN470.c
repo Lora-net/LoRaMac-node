@@ -28,8 +28,7 @@
  *
  * \author    Daniel Jaeckle ( STACKFORCE )
 */
-#include "utilities.h"
-
+#include "radio.h"
 #include "RegionCommon.h"
 #include "RegionCN470.h"
 #include "RegionCN470A20.h"
@@ -51,15 +50,6 @@
 
 
 ChannelParams_t CommonJoinChannels[] = CN470_COMMON_JOIN_CHANNELS;
-
-typedef enum eRegionCN470ChannelPlan
-{
-    CHANNEL_PLAN_UNKNOWN,
-    CHANNEL_PLAN_20MHZ_TYPE_A,
-    CHANNEL_PLAN_20MHZ_TYPE_B,
-    CHANNEL_PLAN_26MHZ_TYPE_A,
-    CHANNEL_PLAN_26MHZ_TYPE_B
-}RegionCN470ChannelPlan_t;
 
 /*!
  * Definition of the regional channel plan.
@@ -158,51 +148,11 @@ typedef struct sRegionCN470ChannelPlanCtx
     uint32_t ( *GetRx2Frequency )( uint8_t joinChannelIndex, bool isOtaaDevice );
 }RegionCN470ChannelPlanCtx_t;
 
-/*!
- * Region specific context
- */
-typedef struct sRegionCN470NvmCtx
-{
-    /*!
-     * Holds the channel plan.
-     */
-    RegionCN470ChannelPlan_t ChannelPlan;
-    /*!
-     * Holds the common join channel, if its an OTAA device, otherwise
-     * this value is 0.
-     */
-    uint8_t CommonJoinChannelIndex;
-    /*!
-     * Identifier which specifies if the device is an OTAA device. Set
-     * to true, if its an OTAA device.
-     */
-    bool IsOtaaDevice;
-    /*!
-     * LoRaMAC channels
-     */
-    ChannelParams_t Channels[ CN470_MAX_NB_CHANNELS ];
-    /*!
-     * LoRaMac bands
-     */
-    Band_t Bands[ CN470_MAX_NB_BANDS ];
-    /*!
-     * LoRaMac channels mask
-     */
-    uint16_t ChannelsMask[ CHANNELS_MASK_SIZE ];
-    /*!
-     * LoRaMac channels remaining
-     */
-    uint16_t ChannelsMaskRemaining[CHANNELS_MASK_SIZE];
-    /*!
-     * LoRaMac channels default mask
-     */
-    uint16_t ChannelsDefaultMask[ CHANNELS_MASK_SIZE ];
-}RegionCN470NvmCtx_t;
-
 /*
  * Non-volatile module context.
  */
-static RegionCN470NvmCtx_t NvmCtx;
+static RegionNvmDataGroup1_t* RegionNvmGroup1;
+static RegionNvmDataGroup2_t* RegionNvmGroup2;
 
 /*
  * Context for the current channel plan.
@@ -369,8 +319,8 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
                 .MaxDr = ( int8_t )CN470_TX_MAX_DATARATE,
                 .MinDr = ( int8_t )CN470_TX_MIN_DATARATE,
                 .NbChannels = CN470_MAX_NB_CHANNELS,
-                .ChannelsMask = NvmCtx.ChannelsMask,
-                .Channels = NvmCtx.Channels,
+                .ChannelsMask = RegionNvmGroup2->ChannelsMask,
+                .Channels = RegionNvmGroup2->Channels,
             };
             phyParam.Value = RegionCommonGetNextLowerTxDr( &nextLowerTxDrParams );
             break;
@@ -444,9 +394,9 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
         {
             phyParam.Value = REGION_CN470_DEFAULT_RX_WND_2_FREQ;
 
-            if( NvmCtx.ChannelPlan != CHANNEL_PLAN_UNKNOWN )
+            if( RegionNvmGroup2->ChannelPlan != CHANNEL_PLAN_UNKNOWN )
             {
-                phyParam.Value = ChannelPlanCtx.GetRx2Frequency( NvmCtx.CommonJoinChannelIndex, NvmCtx.IsOtaaDevice );
+                phyParam.Value = ChannelPlanCtx.GetRx2Frequency( RegionNvmGroup2->CommonJoinChannelIndex, RegionNvmGroup2->IsOtaaDevice );
             }
             break;
         }
@@ -457,12 +407,12 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_CHANNELS_MASK:
         {
-            phyParam.ChannelsMask = NvmCtx.ChannelsMask;
+            phyParam.ChannelsMask = RegionNvmGroup2->ChannelsMask;
             break;
         }
         case PHY_CHANNELS_DEFAULT_MASK:
         {
-            phyParam.ChannelsMask = NvmCtx.ChannelsDefaultMask;
+            phyParam.ChannelsMask = RegionNvmGroup2->ChannelsDefaultMask;
             break;
         }
         case PHY_MAX_NB_CHANNELS:
@@ -472,7 +422,7 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_CHANNELS:
         {
-            phyParam.Channels = NvmCtx.Channels;
+            phyParam.Channels = RegionNvmGroup2->Channels;
             break;
         }
         case PHY_DEF_UPLINK_DWELL_TIME:
@@ -500,10 +450,10 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = REGION_CN470_DEFAULT_RX_WND_2_FREQ;
 
             // Implementation depending on the join channel
-            if( NvmCtx.ChannelPlan != CHANNEL_PLAN_UNKNOWN )
+            if( RegionNvmGroup2->ChannelPlan != CHANNEL_PLAN_UNKNOWN )
             {
                 phyParam.Value = ChannelPlanCtx.GetDownlinkFrequency( getPhy->Channel,
-                                                                      NvmCtx.CommonJoinChannelIndex,
+                                                                      RegionNvmGroup2->CommonJoinChannelIndex,
                                                                       false );
             }
             break;
@@ -523,7 +473,7 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
         case PHY_BEACON_NB_CHANNELS:
         {
             // Implementation depending on the join channel
-            if( NvmCtx.ChannelPlan != CHANNEL_PLAN_UNKNOWN )
+            if( RegionNvmGroup2->ChannelPlan != CHANNEL_PLAN_UNKNOWN )
             {
                 phyParam.Value = ChannelPlanCtx.NbBeaconChannels;
             }
@@ -532,9 +482,9 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
         case PHY_BEACON_CHANNEL_OFFSET:
         {
             // Implementation depending on the join channel
-            if( NvmCtx.ChannelPlan != CHANNEL_PLAN_UNKNOWN )
+            if( RegionNvmGroup2->ChannelPlan != CHANNEL_PLAN_UNKNOWN )
             {
-                phyParam.Value = ChannelPlanCtx.GetBeaconChannelOffset( NvmCtx.CommonJoinChannelIndex );
+                phyParam.Value = ChannelPlanCtx.GetBeaconChannelOffset( RegionNvmGroup2->CommonJoinChannelIndex );
             }
             break;
         }
@@ -543,10 +493,10 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
             phyParam.Value = REGION_CN470_DEFAULT_RX_WND_2_FREQ;
 
             // Implementation depending on the join channel
-            if( NvmCtx.ChannelPlan != CHANNEL_PLAN_UNKNOWN )
+            if( RegionNvmGroup2->ChannelPlan != CHANNEL_PLAN_UNKNOWN )
             {
                 phyParam.Value = ChannelPlanCtx.GetDownlinkFrequency( getPhy->Channel,
-                                                                      NvmCtx.CommonJoinChannelIndex,
+                                                                      RegionNvmGroup2->CommonJoinChannelIndex,
                                                                       true );
             }
             break;
@@ -559,7 +509,7 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
         case PHY_PING_SLOT_NB_CHANNELS:
         {
             // Implementation depending on the join channel
-            if( NvmCtx.ChannelPlan != CHANNEL_PLAN_UNKNOWN )
+            if( RegionNvmGroup2->ChannelPlan != CHANNEL_PLAN_UNKNOWN )
             {
                 phyParam.Value = ChannelPlanCtx.NbPingSlotChannels;
             }
@@ -586,7 +536,7 @@ PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
 
 void RegionCN470SetBandTxDone( SetBandTxDoneParams_t* txDone )
 {
-    RegionCommonSetBandTxDone( &NvmCtx.Bands[NvmCtx.Channels[txDone->Channel].Band],
+    RegionCommonSetBandTxDone( &RegionNvmGroup1->Bands[RegionNvmGroup2->Channels[txDone->Channel].Band],
                                txDone->LastTxAirTime, txDone->Joined, txDone->ElapsedTimeSinceStartUp );
 }
 
@@ -601,31 +551,40 @@ void RegionCN470InitDefaults( InitDefaultsParams_t* params )
     {
         case INIT_TYPE_DEFAULTS:
         {
+            if( ( params->NvmGroup1 == NULL ) || ( params->NvmGroup2 == NULL ) )
+            {
+                return;
+            }
+
+            RegionNvmGroup1 = (RegionNvmDataGroup1_t*) params->NvmGroup1;
+            RegionNvmGroup2 = (RegionNvmDataGroup2_t*) params->NvmGroup2;
+
             // Default bands
-            memcpy1( ( uint8_t* )NvmCtx.Bands, ( uint8_t* )bands, sizeof( Band_t ) * CN470_MAX_NB_BANDS );
+            memcpy1( ( uint8_t* )RegionNvmGroup1->Bands, ( uint8_t* )bands, sizeof( Band_t ) * CN470_MAX_NB_BANDS );
 
             // Verify that a default channel plan is available
-            if( NvmCtx.ChannelPlan == CHANNEL_PLAN_UNKNOWN )
+            if( RegionNvmGroup2->ChannelPlan == CHANNEL_PLAN_UNKNOWN )
             {
-                NvmCtx.ChannelPlan = REGION_CN470_DEFAULT_CHANNEL_PLAN;
-                NvmCtx.CommonJoinChannelIndex = 0;
-                NvmCtx.IsOtaaDevice = false;
+                // 125 kHz channels
+                RegionNvmGroup2->ChannelPlan = REGION_CN470_DEFAULT_CHANNEL_PLAN;
+                RegionNvmGroup2->CommonJoinChannelIndex = 0;
+                RegionNvmGroup2->IsOtaaDevice = false;
             }
 
             // Apply the channel plan configuration
-            ApplyChannelPlanConfig( NvmCtx.ChannelPlan, &ChannelPlanCtx );
+            ApplyChannelPlanConfig( RegionNvmGroup2->ChannelPlan, &ChannelPlanCtx );
 
             // Default channels
-            ChannelPlanCtx.InitializeChannels( NvmCtx.Channels );
+            ChannelPlanCtx.InitializeChannels( RegionNvmGroup2->Channels );
 
             // Default ChannelsMask
-            ChannelPlanCtx.InitializeChannelsMask( NvmCtx.ChannelsDefaultMask );
+            ChannelPlanCtx.InitializeChannelsMask( RegionNvmGroup2->ChannelsDefaultMask );
 
             // Copy channels default mask
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, CHANNELS_MASK_SIZE );
+            RegionCommonChanMaskCopy( RegionNvmGroup2->ChannelsMask, RegionNvmGroup2->ChannelsDefaultMask, CHANNELS_MASK_SIZE );
 
             // Copy into channels mask remaining
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMaskRemaining, NvmCtx.ChannelsMask, CHANNELS_MASK_SIZE );
+            RegionCommonChanMaskCopy( RegionNvmGroup1->ChannelsMaskRemaining, RegionNvmGroup2->ChannelsMask, CHANNELS_MASK_SIZE );
             break;
         }
         case INIT_TYPE_RESET_TO_DEFAULT_CHANNELS:
@@ -635,19 +594,11 @@ void RegionCN470InitDefaults( InitDefaultsParams_t* params )
         case INIT_TYPE_ACTIVATE_DEFAULT_CHANNELS:
         {
             // Restore channels default mask
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, NvmCtx.ChannelsDefaultMask, CHANNELS_MASK_SIZE );
+            RegionCommonChanMaskCopy( RegionNvmGroup2->ChannelsMask, RegionNvmGroup2->ChannelsDefaultMask, CHANNELS_MASK_SIZE );
 
             for( uint8_t i = 0; i < CHANNELS_MASK_SIZE; i++ )
             { // Copy-And the channels mask
-                NvmCtx.ChannelsMaskRemaining[i] &= NvmCtx.ChannelsMask[i];
-            }
-            break;
-        }
-        case INIT_TYPE_RESTORE_CTX:
-        {
-            if( params->NvmCtx != 0 )
-            {
-                memcpy1( (uint8_t*) &NvmCtx, (uint8_t*) params->NvmCtx, sizeof( NvmCtx ) );
+                RegionNvmGroup1->ChannelsMaskRemaining[i] &= RegionNvmGroup2->ChannelsMask[i];
             }
             break;
         }
@@ -656,12 +607,6 @@ void RegionCN470InitDefaults( InitDefaultsParams_t* params )
             break;
         }
     }
-}
-
-void* RegionCN470GetNvmCtx( GetNvmCtxParams_t* params )
-{
-    params->nvmCtxSize = sizeof( RegionCN470NvmCtx_t );
-    return &NvmCtx;
 }
 
 bool RegionCN470Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
@@ -699,17 +644,17 @@ bool RegionCN470Verify( VerifyParams_t* verify, PhyAttribute_t phyAttribute )
 void RegionCN470ApplyCFList( ApplyCFListParams_t* applyCFList )
 {
     // Setup the channel plan based on the join channel
-    NvmCtx.CommonJoinChannelIndex = applyCFList->JoinChannel;
-    NvmCtx.IsOtaaDevice = true;
-    NvmCtx.ChannelPlan = IdentifyChannelPlan( NvmCtx.CommonJoinChannelIndex );
+    RegionNvmGroup2->CommonJoinChannelIndex = applyCFList->JoinChannel;
+    RegionNvmGroup2->IsOtaaDevice = true;
+    RegionNvmGroup2->ChannelPlan = IdentifyChannelPlan( RegionNvmGroup2->CommonJoinChannelIndex );
 
-    if( NvmCtx.ChannelPlan == CHANNEL_PLAN_UNKNOWN )
+    if( RegionNvmGroup2->ChannelPlan == CHANNEL_PLAN_UNKNOWN )
     {
         // Invalid channel plan, fallback to default
-        NvmCtx.ChannelPlan = REGION_CN470_DEFAULT_CHANNEL_PLAN;
+        RegionNvmGroup2->ChannelPlan = REGION_CN470_DEFAULT_CHANNEL_PLAN;
     }
     // Apply the configuration for the channel plan
-    ApplyChannelPlanConfig( NvmCtx.ChannelPlan, &ChannelPlanCtx );
+    ApplyChannelPlanConfig( RegionNvmGroup2->ChannelPlan, &ChannelPlanCtx );
 
     // Size of the optional CF list must be 16 byte
     if( applyCFList->Size != 16 )
@@ -726,11 +671,11 @@ void RegionCN470ApplyCFList( ApplyCFListParams_t* applyCFList )
     // ChMask0 - ChMask5 must be set (every ChMask has 16 bit)
     for( uint8_t chMaskItr = 0, cntPayload = 0; chMaskItr < ChannelPlanCtx.JoinAcceptListSize; chMaskItr++, cntPayload+=2 )
     {
-        NvmCtx.ChannelsMask[chMaskItr] = (uint16_t) (0x00FF & applyCFList->Payload[cntPayload]);
-        NvmCtx.ChannelsMask[chMaskItr] |= (uint16_t) (applyCFList->Payload[cntPayload+1] << 8);
+        RegionNvmGroup2->ChannelsMask[chMaskItr] = (uint16_t) (0x00FF & applyCFList->Payload[cntPayload]);
+        RegionNvmGroup2->ChannelsMask[chMaskItr] |= (uint16_t) (applyCFList->Payload[cntPayload+1] << 8);
 
         // Set the channel mask to the remaining
-        NvmCtx.ChannelsMaskRemaining[chMaskItr] &= NvmCtx.ChannelsMask[chMaskItr];
+        RegionNvmGroup1->ChannelsMaskRemaining[chMaskItr] &= RegionNvmGroup2->ChannelsMask[chMaskItr];
     }
 }
 
@@ -740,17 +685,17 @@ bool RegionCN470ChanMaskSet( ChanMaskSetParams_t* chanMaskSet )
     {
         case CHANNELS_MASK:
         {
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, chanMaskSet->ChannelsMaskIn, CHANNELS_MASK_SIZE );
+            RegionCommonChanMaskCopy( RegionNvmGroup2->ChannelsMask, chanMaskSet->ChannelsMaskIn, CHANNELS_MASK_SIZE );
 
             for( uint8_t i = 0; i < CHANNELS_MASK_SIZE; i++ )
             { // Copy-And the channels mask
-                NvmCtx.ChannelsMaskRemaining[i] &= NvmCtx.ChannelsMask[i];
+                RegionNvmGroup1->ChannelsMaskRemaining[i] &= RegionNvmGroup2->ChannelsMask[i];
             }
             break;
         }
         case CHANNELS_DEFAULT_MASK:
         {
-            RegionCommonChanMaskCopy( NvmCtx.ChannelsDefaultMask, chanMaskSet->ChannelsMaskIn, CHANNELS_MASK_SIZE );
+            RegionCommonChanMaskCopy( RegionNvmGroup2->ChannelsDefaultMask, chanMaskSet->ChannelsMaskIn, CHANNELS_MASK_SIZE );
             break;
         }
         default:
@@ -796,7 +741,7 @@ bool RegionCN470RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
         else if( rxConfig->RxSlot == RX_SLOT_WIN_2 )
         {
             // Apply window 2 frequency
-            frequency = ChannelPlanCtx.GetRx2Frequency( NvmCtx.CommonJoinChannelIndex, NvmCtx.IsOtaaDevice );
+            frequency = ChannelPlanCtx.GetRx2Frequency( RegionNvmGroup2->CommonJoinChannelIndex, RegionNvmGroup2->IsOtaaDevice );
         }
     }
     else
@@ -824,7 +769,7 @@ bool RegionCN470TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
 {
     RadioModems_t modem;
     int8_t phyDr = DataratesCN470[txConfig->Datarate];
-    int8_t txPowerLimited = RegionCommonLimitTxPower( txConfig->TxPower, NvmCtx.Bands[NvmCtx.Channels[txConfig->Channel].Band].TxMaxPower );
+    int8_t txPowerLimited = RegionCommonLimitTxPower( txConfig->TxPower, RegionNvmGroup1->Bands[RegionNvmGroup2->Channels[txConfig->Channel].Band].TxMaxPower );
     uint32_t bandwidth = RegionCommonGetBandwidth( txConfig->Datarate, BandwidthsCN470 );
     int8_t phyTxPower = 0;
 
@@ -832,7 +777,7 @@ bool RegionCN470TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
     phyTxPower = RegionCommonComputeTxPower( txPowerLimited, txConfig->MaxEirp, txConfig->AntennaGain );
 
     // Setup the radio frequency
-    Radio.SetChannel( NvmCtx.Channels[txConfig->Channel].Frequency );
+    Radio.SetChannel( RegionNvmGroup2->Channels[txConfig->Channel].Frequency );
 
     if( txConfig->Datarate == DR_7 )
     { // High Speed FSK channel
@@ -867,7 +812,7 @@ uint8_t RegionCN470LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
     RegionCommonLinkAdrReqVerifyParams_t linkAdrVerifyParams;
 
     // Initialize local copy of channels mask
-    RegionCommonChanMaskCopy( channelsMask, NvmCtx.ChannelsMask, CHANNELS_MASK_SIZE );
+    RegionCommonChanMaskCopy( channelsMask, RegionNvmGroup2->ChannelsMask, CHANNELS_MASK_SIZE );
 
     while( bytesProcessed < linkAdrReq->PayloadSize )
     {
@@ -882,7 +827,7 @@ uint8_t RegionCN470LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
 
         // Update the channel plan
         status = ChannelPlanCtx.LinkAdrChMaskUpdate( channelsMask, linkAdrParams.ChMaskCtrl,
-                                                     linkAdrParams.ChMask, NvmCtx.Channels );
+                                                     linkAdrParams.ChMask, RegionNvmGroup2->Channels );
     }
 
     // Make sure at least one channel is active
@@ -908,7 +853,7 @@ uint8_t RegionCN470LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
     linkAdrVerifyParams.ChannelsMask = channelsMask;
     linkAdrVerifyParams.MinDatarate = ( int8_t )phyParam.Value;
     linkAdrVerifyParams.MaxDatarate = CN470_TX_MAX_DATARATE;
-    linkAdrVerifyParams.Channels = NvmCtx.Channels;
+    linkAdrVerifyParams.Channels = RegionNvmGroup2->Channels;
     linkAdrVerifyParams.MinTxPower = CN470_MIN_TX_POWER;
     linkAdrVerifyParams.MaxTxPower = CN470_MAX_TX_POWER;
     linkAdrVerifyParams.Version = linkAdrReq->Version;
@@ -920,14 +865,14 @@ uint8_t RegionCN470LinkAdrReq( LinkAdrReqParams_t* linkAdrReq, int8_t* drOut, in
     if( status == 0x07 )
     {
         // Copy Mask
-        RegionCommonChanMaskCopy( NvmCtx.ChannelsMask, channelsMask, CHANNELS_MASK_SIZE );
+        RegionCommonChanMaskCopy( RegionNvmGroup2->ChannelsMask, channelsMask, CHANNELS_MASK_SIZE );
 
-        NvmCtx.ChannelsMaskRemaining[0] &= NvmCtx.ChannelsMask[0];
-        NvmCtx.ChannelsMaskRemaining[1] &= NvmCtx.ChannelsMask[1];
-        NvmCtx.ChannelsMaskRemaining[2] &= NvmCtx.ChannelsMask[2];
-        NvmCtx.ChannelsMaskRemaining[3] &= NvmCtx.ChannelsMask[3];
-        NvmCtx.ChannelsMaskRemaining[4] = NvmCtx.ChannelsMask[4];
-        NvmCtx.ChannelsMaskRemaining[5] = NvmCtx.ChannelsMask[5];
+        RegionNvmGroup1->ChannelsMaskRemaining[0] &= RegionNvmGroup2->ChannelsMask[0];
+        RegionNvmGroup1->ChannelsMaskRemaining[1] &= RegionNvmGroup2->ChannelsMask[1];
+        RegionNvmGroup1->ChannelsMaskRemaining[2] &= RegionNvmGroup2->ChannelsMask[2];
+        RegionNvmGroup1->ChannelsMaskRemaining[3] &= RegionNvmGroup2->ChannelsMask[3];
+        RegionNvmGroup1->ChannelsMaskRemaining[4] = RegionNvmGroup2->ChannelsMask[4];
+        RegionNvmGroup1->ChannelsMaskRemaining[5] = RegionNvmGroup2->ChannelsMask[5];
     }
 
     // Update status variables
@@ -998,17 +943,23 @@ LoRaMacStatus_t RegionCN470NextChannel( NextChanParams_t* nextChanParams, uint8_
     LoRaMacStatus_t status = LORAMAC_STATUS_NO_CHANNEL_FOUND;
 
     // Count 125kHz channels
-    if( RegionCommonCountChannels( NvmCtx.ChannelsMaskRemaining, 0, ChannelPlanCtx.ChannelsMaskSize ) == 0 )
+    if( RegionCommonCountChannels( RegionNvmGroup1->ChannelsMaskRemaining, 0, ChannelPlanCtx.ChannelsMaskSize ) == 0 )
     { // Reactivate default channels
-        RegionCommonChanMaskCopy( NvmCtx.ChannelsMaskRemaining, NvmCtx.ChannelsMask, ChannelPlanCtx.ChannelsMaskSize  );
+        RegionNvmGroup2->ChannelsMask[0] = 0xFFFF;
+        RegionNvmGroup2->ChannelsMask[1] = 0xFFFF;
+        RegionNvmGroup2->ChannelsMask[2] = 0xFFFF;
+        RegionNvmGroup2->ChannelsMask[3] = 0xFFFF;
+        RegionNvmGroup2->ChannelsMask[4] = 0xFFFF;
+        RegionNvmGroup2->ChannelsMask[5] = 0xFFFF;
+        RegionCommonChanMaskCopy( RegionNvmGroup1->ChannelsMaskRemaining, RegionNvmGroup2->ChannelsMask, ChannelPlanCtx.ChannelsMaskSize  );
     }
 
     // Search how many channels are enabled
     countChannelsParams.Joined = nextChanParams->Joined;
     countChannelsParams.Datarate = nextChanParams->Datarate;
-    countChannelsParams.ChannelsMask = NvmCtx.ChannelsMaskRemaining;
-    countChannelsParams.Channels = NvmCtx.Channels;
-    countChannelsParams.Bands = NvmCtx.Bands;
+    countChannelsParams.ChannelsMask = RegionNvmGroup1->ChannelsMaskRemaining;
+    countChannelsParams.Channels = RegionNvmGroup2->Channels;
+    countChannelsParams.Bands = RegionNvmGroup1->Bands;
     countChannelsParams.MaxNbChannels = CN470_MAX_NB_CHANNELS;
     countChannelsParams.JoinChannels = NULL;
 
@@ -1043,7 +994,7 @@ LoRaMacStatus_t RegionCN470NextChannel( NextChanParams_t* nextChanParams, uint8_
         *channel = enabledChannels[randr( 0, nbEnabledChannels - 1 )];
 
         // Disable the channel in the mask
-        RegionCommonChanDisable( NvmCtx.ChannelsMaskRemaining, *channel, ChannelPlanCtx.ChannelsMaskSize );
+        RegionCommonChanDisable( RegionNvmGroup1->ChannelsMaskRemaining, *channel, ChannelPlanCtx.ChannelsMaskSize );
     }
     return status;
 }

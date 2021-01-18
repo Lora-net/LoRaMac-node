@@ -34,6 +34,7 @@ uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
 
     if( HAL_FLASHEx_DATAEEPROM_Unlock( ) == HAL_OK )
     {
+        CRITICAL_SECTION_BEGIN( );
         for( uint16_t i = 0; i < size; i++ )
         {
             if( HAL_FLASHEx_DATAEEPROM_Program( FLASH_TYPEPROGRAMDATA_BYTE,
@@ -43,7 +44,9 @@ uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
                 // Failed to write EEPROM
                 break;
             }
+
         }
+        CRITICAL_SECTION_END( );
         status = SUCCESS;
     }
 

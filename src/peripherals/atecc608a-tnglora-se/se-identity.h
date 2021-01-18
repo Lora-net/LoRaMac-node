@@ -241,7 +241,7 @@ extern "C" {
             .KeySlotNumber = 0,                                                                                        \
             .KeyBlockIndex = 0,                                                                                        \
         },                                                                                                             \
-    },
+    }
 
 #ifdef __cplusplus
 }

@@ -48,6 +48,7 @@ extern "C"
 #include "utilities.h"
 #include "LoRaMacTypes.h"
 #include "LoRaMacMessageTypes.h"
+#include "LoRaMacCryptoNvm.h"
 
 /*!
  * Indicates if LoRaWAN 1.1.x crypto scheme is enabled
@@ -164,11 +165,11 @@ typedef void ( *LoRaMacCryptoNvmEvent )( void );
  * Initialization of LoRaMac Crypto module
  * It sets initial values of volatile variables and assigns the non-volatile context.
  *
- * \param[IN]     cryptoNvmCtxChanged - Callback function which will be called  when the
- *                                      non-volatile context have to be stored.
+ * \param[IN]     nvm                 - Pointer to the non-volatile memory data
+ *                                      structure.
  * \retval                            - Status of the operation
  */
-LoRaMacCryptoStatus_t LoRaMacCryptoInit( LoRaMacCryptoNvmEvent cryptoNvmCtxChanged );
+LoRaMacCryptoStatus_t LoRaMacCryptoInit( LoRaMacCryptoNvmData_t* nvm );
 
 /*!
  * Sets the LoRaWAN specification version to be used.
@@ -180,22 +181,6 @@ LoRaMacCryptoStatus_t LoRaMacCryptoInit( LoRaMacCryptoNvmEvent cryptoNvmCtxChang
  * \retval                            - Status of the operation
  */
 LoRaMacCryptoStatus_t LoRaMacCryptoSetLrWanVersion( Version_t version );
-
-/*!
- * Restores the internal nvm context from passed pointer.
- *
- * \param[IN]     cryptoNmvCtx     - Pointer to non-volatile crypto module context to be restored.
- * \retval                         - Status of the operation
- */
-LoRaMacCryptoStatus_t LoRaMacCryptoRestoreNvmCtx( void* cryptoNvmCtx );
-
-/*!
- * Returns a pointer to the internal non-volatile context.
- *
- * \param[IN]     cryptoNvmCtxSize - Size of the module non-volatile context
- * \retval                         - Points to a structure where the module store its non-volatile context
- */
-void* LoRaMacCryptoGetNvmCtx( size_t* cryptoNvmCtxSize );
 
 /*!
  * Returns updated fCntID downlink counter value.

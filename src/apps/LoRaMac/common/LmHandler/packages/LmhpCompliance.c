@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "board.h"
-#include "NvmCtxMgmt.h"
+#include "NvmDataMgmt.h"
 #include "LoRaMacTest.h"
 #include "LmHandler.h"
 #include "LmhpCompliance.h"
