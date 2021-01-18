@@ -430,7 +430,7 @@ static LoRaMacCryptoStatus_t PrepareB1( uint16_t msgLen, KeyIdentifier_t keyID, 
     if( isAck == true )
     {
         // confFCnt contains the frame counter value modulo 2^16 of the "confirmed" uplink frame that is being acknowledged
-        uint16_t confFCnt = ( uint16_t )( *CryptoNvm->LastDownFCnt % 65536 );
+        uint16_t confFCnt = ( uint16_t )( CryptoNvm->LastDownFCnt % 65536 );
         b1[1] = confFCnt & 0xFF;
         b1[2] = ( confFCnt >> 8 ) & 0xFF;
     }
