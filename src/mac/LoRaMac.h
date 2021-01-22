@@ -1347,6 +1347,7 @@ typedef struct sMlmeIndication
  * \ref MIB_JOIN_ACCEPT_DELAY_1                  | YES | YES
  * \ref MIB_JOIN_ACCEPT_DELAY_2                  | YES | YES
  * \ref MIB_CHANNELS_DATARATE                    | YES | YES
+ * \ref MIB_CHANNELS_MIN_TX_DATARATE             | YES | NO
  * \ref MIB_CHANNELS_DEFAULT_DATARATE            | YES | YES
  * \ref MIB_CHANNELS_TX_POWER                    | YES | YES
  * \ref MIB_CHANNELS_DEFAULT_TX_POWER            | YES | YES
@@ -1643,6 +1644,14 @@ typedef enum eMib
      * LoRaWAN Regional Parameters V1.0.2rB
      */
     MIB_JOIN_ACCEPT_DELAY_2,
+    /*!
+     * Minimum Data rate of a channel
+     *
+     * LoRaWAN Regional Parameters V1.0.2rB
+     *
+     * The possible values are region specific. Please refer to \ref DR_0 to \ref DR_15 for details.
+     */
+    MIB_CHANNELS_MIN_TX_DATARATE,
     /*!
      * Default Data rate of a channel
      *
@@ -2047,6 +2056,12 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_JOIN_ACCEPT_DELAY_2
      */
     uint32_t JoinAcceptDelay2;
+    /*!
+     * Channels minimum tx data rate
+     *
+     * Related MIB type: \ref MIB_CHANNELS_MIN_TX_DATARATE
+     */
+    int8_t ChannelsMinTxDatarate;
     /*!
      * Channels data rate
      *
