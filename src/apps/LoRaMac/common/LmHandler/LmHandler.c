@@ -147,6 +147,14 @@ static bool IsClassBSwitchPending = false;
 static TimerTime_t DutyCycleWaitTime = 0;
 
 /*!
+ * Indicates if an uplink is pending upon MAC layer request
+ * 
+ * TODO: Create a new structure to store the current handler states/status
+ *       and add the below variable to it.
+ */
+static bool IsUplinkTxPending = false;
+
+/*!
  * \brief   MCPS-Confirm event function
  *
  * \param   [IN] mcpsConfirm - Pointer to the confirm structure,
@@ -238,6 +246,7 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
     LoRaMacCallbacks.MacProcessNotify = LmHandlerCallbacks->OnMacProcess;
 
     IsClassBSwitchPending = false;
+    IsUplinkTxPending = false;
 
     if( LoRaMacInitialization( &LoRaMacPrimitives, &LoRaMacCallbacks, LmHandlerParams->Region ) != LORAMAC_STATUS_OK )
     {
@@ -363,6 +372,23 @@ void LmHandlerProcess( void )
 
     // Call all packages process functions
     LmHandlerPackagesProcess( );
+
+    // If a MAC layer scheduled uplink is still pending try to send it.
+    if( IsUplinkTxPending == true )
+    {
+        // Send an empty message
+        LmHandlerAppData_t appData =
+        {
+            .Buffer = NULL,
+            .BufferSize = 0,
+            .Port = 0,
+        };
+
+        if( LmHandlerSend( &appData, LmHandlerParams->IsTxConfirmed ) == LORAMAC_HANDLER_SUCCESS )
+        {
+            IsUplinkTxPending = false;
+        }
+    }
 }
 
 TimerTime_t LmHandlerGetDutyCycleWaitTime( void )
@@ -470,6 +496,7 @@ LmHandlerErrorStatus_t LmHandlerSend( LmHandlerAppData_t *appData, LmHandlerMsgT
 
     if( status == LORAMAC_STATUS_OK )
     {
+        IsUplinkTxPending = false;
         return LORAMAC_HANDLER_SUCCESS;
     }
     else
@@ -718,15 +745,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
     {
         // The server signals that it has pending data to be sent.
         // We schedule an uplink as soon as possible to flush the server.
-
-        // Send an empty message
-        LmHandlerAppData_t appData =
-        {
-            .Buffer = NULL,
-            .BufferSize = 0,
-            .Port = 0,
-        };
-        LmHandlerSend( &appData, LmHandlerParams->IsTxConfirmed );
+        IsUplinkTxPending = true;
     }
 }
 
@@ -832,16 +851,9 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
     switch( mlmeIndication->MlmeIndication )
     {
     case MLME_SCHEDULE_UPLINK:
-        {// The MAC signals that we shall provide an uplink as soon as possible
-            // Send an empty message
-            LmHandlerAppData_t appData =
-            {
-                .Buffer = NULL,
-                .BufferSize = 0,
-                .Port = 0,
-            };
-
-            LmHandlerSend( &appData, LmHandlerParams->IsTxConfirmed );
+        {
+            // The MAC layer signals that we shall provide an uplink as soon as possible
+            IsUplinkTxPending = true;
         }
         break;
     case MLME_BEACON_LOST:
