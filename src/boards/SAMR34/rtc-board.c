@@ -130,7 +130,7 @@ uint32_t RtcGetMinimumTimeout( void )
 
 uint32_t RtcMs2Tick( TimerTime_t milliseconds )
 {
-    return ( uint32_t )( milliseconds );
+    return ( uint32_t )( ( ( ( uint64_t )milliseconds ) << 10 ) / 1000 );
 }
 
 TimerTime_t RtcTick2Ms( uint32_t tick )
