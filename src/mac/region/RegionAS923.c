@@ -325,7 +325,7 @@ PhyParam_t RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
         }
         case PHY_PING_SLOT_CHANNEL_FREQ:
         {
-            phyParam.Value = AS923_PING_SLOT_CHANNEL_FREQ;
+            phyParam.Value = AS923_PING_SLOT_CHANNEL_FREQ - REGION_AS923_FREQ_OFFSET;
             break;
         }
         case PHY_PING_SLOT_CHANNEL_DR:
