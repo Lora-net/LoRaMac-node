@@ -3518,7 +3518,7 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t* mibGet )
         }
         case MIB_SE_PIN:
         {
-            mibGet->Param.JoinEui = SecureElementGetPin( );
+            mibGet->Param.SePin = SecureElementGetPin( );
             break;
         }
         case MIB_ADR:
