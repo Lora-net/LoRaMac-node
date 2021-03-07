@@ -256,7 +256,8 @@ static int32_t usart_sync_write(struct io_descriptor *const io_descr, const uint
 		while (!_usart_sync_is_byte_sent(&descr->device))
 			;
 	} while (++offset < length);
-
+	while (!_usart_sync_is_transmit_done(&descr->device))
+		;
 	return (int32_t)offset;
 }
 

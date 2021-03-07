@@ -246,6 +246,17 @@ union usart_flow_control_state _usart_sync_get_flow_control_state(const struct _
 uint8_t _usart_sync_get_hardware_index(const struct _usart_sync_device *const device);
 //@}
 
+/**
+ * \brief Check if USART transmitter has sent the byte
+ *
+ * \param[in] device The pointer to USART device instance
+ *
+ * \return Status of the ready check.
+ * \retval true if the USART transmitter has sent the byte
+ * \retval false if the USART transmitter has not send the byte
+ */
+bool _usart_sync_is_transmit_done(const struct _usart_sync_device *const device);
+
 #ifdef __cplusplus
 }
 #endif

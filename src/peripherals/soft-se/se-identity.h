@@ -88,12 +88,12 @@ extern "C" {
  * When set to 0 DevAddr is automatically set with a value provided by a pseudo
  *      random generator seeded with a value provided by the MCU platform
  */
-#define STATIC_DEVICE_ADDRESS                              0
+#define STATIC_DEVICE_ADDRESS                              1 // 0
 
 /*!
  * Device address on the network (big endian)
  */
-#define LORAWAN_DEVICE_ADDRESS                             ( uint32_t )0x00000000
+#define LORAWAN_DEVICE_ADDRESS                             ( uint32_t )0xAD1D00FD // ( uint32_t )0x00000000
 
 #define SOFT_SE_KEY_LIST                                                                                            \
     {                                                                                                               \
@@ -141,6 +141,8 @@ extern "C" {
             .KeyID    = F_NWK_S_INT_KEY,                                                                            \
             .KeyValue = { 0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6, 0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, \
                           0x3C },                                                                                   \
+            /*.KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAD, 0x1D, 0x00, \
+                          0xFD }*/                                                                                    \
         },                                                                                                          \
         {                                                                                                           \
             /*!                                                                                                     \
@@ -165,8 +167,9 @@ extern "C" {
              * Application session key                                                                              \
              */                                                                                                     \
             .KeyID    = APP_S_KEY,                                                                                  \
-            .KeyValue = { 0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6, 0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, \
-                          0x3C },                                                                                   \
+            /*.KeyValue = { 0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6, 0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, \
+                          0x3C },*/                                                                                   \
+            .KeyValue = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAD, 0x1D, 0x00, 0xFD } \
         },                                                                                                          \
         {                                                                                                           \
             /*!                                                                                                     \

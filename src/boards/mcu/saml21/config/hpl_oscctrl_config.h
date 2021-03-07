@@ -190,7 +190,7 @@
 // <i> Indicates whether configuration for DFLL is enabled or not
 // <id> enable_dfll48m
 #ifndef CONF_DFLL_CONFIG
-#define CONF_DFLL_CONFIG 0
+#define CONF_DFLL_CONFIG 1
 #endif
 
 // <y> Reference Clock Source
@@ -205,7 +205,7 @@
 // <i> Select the clock source.
 // <id> dfll48m_ref_clock
 #ifndef CONF_DFLL_GCLK
-#define CONF_DFLL_GCLK GCLK_PCHCTRL_GEN_GCLK3_Val
+#define CONF_DFLL_GCLK GCLK_PCHCTRL_GEN_GCLK2_Val
 #endif
 
 // <h> Digital Frequency Locked Loop Control
@@ -213,7 +213,7 @@
 // <i> Indicates whether DFLL is enabled or not
 // <id> dfll48m_arch_enable
 #ifndef CONF_DFLL_ENABLE
-#define CONF_DFLL_ENABLE 0
+#define CONF_DFLL_ENABLE 1
 #endif
 
 // <q> Wait Lock
@@ -248,7 +248,7 @@
 // <i> Indicates whether On Demand Control is enabled or not
 // <id> dfll_arch_ondemand
 #ifndef CONF_DFLL_ONDEMAND
-#define CONF_DFLL_ONDEMAND 1
+#define CONF_DFLL_ONDEMAND 0
 #endif
 
 // <q> Run in Standby
@@ -284,25 +284,25 @@
 // <1=>Closed Loop Mode
 // <id> dfll48m_mode
 #ifndef CONF_DFLL_MODE
-#define CONF_DFLL_MODE 0
+#define CONF_DFLL_MODE 1
 #endif
 
 // <o> Coarse Maximum Step <0x0-0x1F>
 // <id> dfll_arch_cstep
 #ifndef CONF_DFLL_CSTEP
-#define CONF_DFLL_CSTEP 1
+#define CONF_DFLL_CSTEP 7
 #endif
 
 // <o> Fine Maximum Step <0x0-0x3FF>
 // <id> dfll_arch_fstep
 #ifndef CONF_DFLL_FSTEP
-#define CONF_DFLL_FSTEP 1
+#define CONF_DFLL_FSTEP 63
 #endif
 
 // <o> DFLL Multiply Factor <0x0-0xFFFF>
 //  <id> dfll48m_mul
 #ifndef CONF_DFLL_MUL
-#define CONF_DFLL_MUL 0
+#define CONF_DFLL_MUL 1464
 #endif
 
 // <e> DFLL Calibration Overwrite

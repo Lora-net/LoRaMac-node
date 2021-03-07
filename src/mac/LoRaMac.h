@@ -2757,6 +2757,10 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest );
  */
 LoRaMacStatus_t LoRaMacDeInitialization( void );
 
+// jjs tmp
+void addNewChannel(ChannelParams_t *chParam, uint8_t chId);
+LoRaMacStatus_t LoRaMacSetSecureKey( KeyIdentifier_t KeyId, uint8_t* key );
+
 /*! \} defgroup LORAMAC */
 
 #ifdef __cplusplus

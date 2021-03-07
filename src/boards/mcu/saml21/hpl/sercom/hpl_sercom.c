@@ -790,6 +790,14 @@ static void _usart_set_character_size(void *const hw, const enum usart_character
 	}
 }
 
+/**
+ * \brief Check if USART transmission complete
+ */
+bool _usart_sync_is_transmit_done(const struct _usart_sync_device *const device)
+{
+	return hri_sercomusart_get_interrupt_TXC_bit(device->hw);
+}
+
 /* Sercom I2C implementation */
 
 #ifndef CONF_SERCOM_0_I2CM_ENABLE
@@ -2895,3 +2903,4 @@ void _spi_m_async_set_irq_state(struct _spi_async_dev *const device, const enum 
 		hri_sercomspi_write_INTEN_ERROR_bit(device->prvt, state);
 	}
 }
+

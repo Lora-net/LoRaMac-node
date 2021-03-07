@@ -253,6 +253,30 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
         return LORAMAC_HANDLER_ERROR;
     }
 
+    KeyIdentifier_t keyID = F_NWK_S_INT_KEY;
+    uint8_t nwkSKey[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAD, 0x1D, 0x00, 0xFD };
+    LoRaMacSetSecureKey(keyID, nwkSKey);
+    // set NwkSKey
+    mibReq.Type = MIB_NWK_S_ENC_KEY;
+    mibReq.Param.NwkSEncKey = nwkSKey;
+    LoRaMacMibSetRequestConfirm( &mibReq );
+    
+    // add channel for AS923-2
+    ChannelParams_t channel[8];
+    channel[0].Frequency = 921400000;
+    channel[1].Frequency = 921600000;
+    channel[2].Frequency = 921800000;
+    channel[3].Frequency = 922000000;
+    channel[4].Frequency = 922200000;
+    channel[5].Frequency = 922400000;
+    channel[6].Frequency = 922600000;
+    channel[7].Frequency = 922800000;
+    for (int i = 0; i < 8; i++) {
+        channel[i].DrRange.Fields.Min = DR_0;
+        channel[i].DrRange.Fields.Max = DR_5;
+        addNewChannel(&channel[i], i);
+    }
+    
     // Restore data if required
     nbNvmData = NvmDataMgmtRestore( );
 

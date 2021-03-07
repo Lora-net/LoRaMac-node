@@ -4856,3 +4856,33 @@ LoRaMacStatus_t LoRaMacDeInitialization( void )
         return LORAMAC_STATUS_BUSY;
     }
 }
+
+void addNewChannel(ChannelParams_t *chParam, uint8_t chId) {
+    NewChannelReqParams_t newChannelReq;
+    // ChannelParams_t chParam;
+
+    newChannelReq.ChannelId = chId;
+    newChannelReq.NewChannel = chParam;
+
+    // chParam->Frequency = ( uint32_t ) payload[macIndex++];
+    // chParam->Frequency |= ( uint32_t ) payload[macIndex++] << 8;
+    // chParam->Frequency |= ( uint32_t ) payload[macIndex++] << 16;
+    // chParam->Frequency *= 100;
+    chParam->Rx1Frequency = 0;
+    chParam->Band = 0;
+    // chParam->DrRange.Value = payload[macIndex++];
+
+    ( uint8_t )RegionNewChannelReq( Nvm.MacGroup2.Region, &newChannelReq );
+
+    return;
+}
+
+LoRaMacStatus_t LoRaMacSetSecureKey( KeyIdentifier_t KeyId, uint8_t* key )
+{
+
+    if( LoRaMacCryptoSetKey( KeyId, key ) != LORAMAC_CRYPTO_SUCCESS )
+    {
+        return LORAMAC_STATUS_CRYPTO_ERROR;
+    }
+    return LORAMAC_STATUS_OK;
+}
