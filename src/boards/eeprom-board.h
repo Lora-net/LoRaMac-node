@@ -29,6 +29,7 @@ extern "C"
 #endif
 
 #include <stdint.h>
+#include "utilities.h"
 
 /*!
  * Writes the given buffer to the EEPROM at the specified address.
@@ -36,9 +37,9 @@ extern "C"
  * \param[IN] addr EEPROM address to write to
  * \param[IN] buffer Pointer to the buffer to be written.
  * \param[IN] size Size of the buffer to be written.
- * \retval status [SUCCESS, FAIL]
+ * \retval status [LMN_STATUS_OK, LMN_STATUS_ERROR]
  */
-uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size );
+LmnStatus_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size );
 
 /*!
  * Reads the EEPROM at the specified address to the given buffer.
@@ -46,9 +47,9 @@ uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size );
  * \param[IN] addr EEPROM address to read from
  * \param[OUT] buffer Pointer to the buffer to be written with read data.
  * \param[IN] size Size of the buffer to be read.
- * \retval status [SUCCESS, FAIL]
+ * \retval status [LMN_STATUS_OK, LMN_STATUS_ERROR]
  */
-uint8_t EepromMcuReadBuffer( uint16_t addr, uint8_t *buffer, uint16_t size );
+LmnStatus_t EepromMcuReadBuffer( uint16_t addr, uint8_t *buffer, uint16_t size );
 
 /*!
  * Sets the device address.
@@ -66,7 +67,7 @@ void EepromMcuSetDeviceAddr( uint8_t addr );
  *
  * \retval addr External EEPROM address
  */
-uint8_t EepromMcuGetDeviceAddr( void );
+LmnStatus_t EepromMcuGetDeviceAddr( void );
 
 #ifdef __cplusplus
 }

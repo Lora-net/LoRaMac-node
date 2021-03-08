@@ -31,7 +31,7 @@
 
 uint16_t NvmmWrite( uint8_t* src, uint16_t size, uint16_t offset )
 {
-    if( EepromMcuWriteBuffer( offset, src, size ) == SUCCESS )
+    if( EepromMcuWriteBuffer( offset, src, size ) == LMN_STATUS_OK )
     {
         return size;
     }
@@ -40,7 +40,7 @@ uint16_t NvmmWrite( uint8_t* src, uint16_t size, uint16_t offset )
 
 uint16_t NvmmRead( uint8_t* dest, uint16_t size, uint16_t offset )
 {
-    if( EepromMcuReadBuffer( offset, dest, size ) == SUCCESS )
+    if( EepromMcuReadBuffer( offset, dest, size ) == LMN_STATUS_OK )
     {
         return size;
     }
@@ -81,7 +81,7 @@ bool NvmmReset( uint16_t size, uint16_t offset )
     uint32_t crc32 = 0;
 
     if( EepromMcuWriteBuffer( offset + size - sizeof( crc32 ),
-                              ( uint8_t* ) &crc32, sizeof( crc32 ) ) == SUCCESS )
+                              ( uint8_t* ) &crc32, sizeof( crc32 ) ) == LMN_STATUS_OK )
     {
         return true;
     }

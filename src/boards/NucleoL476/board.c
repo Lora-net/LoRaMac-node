@@ -306,7 +306,7 @@ void SystemClockConfig( void )
     RCC_OscInitStruct.PLL.PLLR            = RCC_PLLR_DIV2;
     if( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK )
     {
-        assert_param( FAIL );
+        assert_param( LMN_STATUS_ERROR );
     }
 
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | 
@@ -317,14 +317,14 @@ void SystemClockConfig( void )
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
     if( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_4 ) != HAL_OK )
     {
-        assert_param( FAIL );
+        assert_param( LMN_STATUS_ERROR );
     }
 
     PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
     PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
     if( HAL_RCCEx_PeriphCLKConfig( &PeriphClkInit ) != HAL_OK )
     {
-        assert_param( FAIL );
+        assert_param( LMN_STATUS_ERROR );
     }
 
     HAL_SYSTICK_Config( HAL_RCC_GetHCLKFreq( ) / 1000 );
@@ -362,7 +362,7 @@ static void PVD_Config( void )
     sConfigPVD.Mode     = PWR_PVD_MODE_IT_RISING;
     if( HAL_PWR_ConfigPVD( &sConfigPVD ) != HAL_OK )
     { 
-        assert_param( FAIL );
+        assert_param( LMN_STATUS_ERROR );
     }
 
     // Enable PVD

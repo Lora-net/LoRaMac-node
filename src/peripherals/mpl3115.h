@@ -29,6 +29,7 @@ extern "C"
 #endif
 
 #include <stdint.h>
+#include "utilities.h"
 
 /*
  * MPL3115A2 I2C address
@@ -128,16 +129,16 @@ extern "C"
 /*!
  * \brief Initializes the device
  *
- * \retval status [SUCCESS, FAIL]
+ * \retval status [LMN_STATUS_OK, LMN_STATUS_ERROR]
  */
-uint8_t MPL3115Init( void );
+LmnStatus_t MPL3115Init( void );
 
 /*!
  * \brief Resets the device
  *
- * \retval status [SUCCESS, FAIL]
+ * \retval status [LMN_STATUS_OK, LMN_STATUS_ERROR]
  */
-uint8_t MPL3115Reset( void );
+LmnStatus_t MPL3115Reset( void );
 
 /*!
  * \brief Reads the altitude from the MPL3115
