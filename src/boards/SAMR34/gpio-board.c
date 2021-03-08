@@ -75,7 +75,7 @@ void GpioMcuWrite( Gpio_t *obj, uint32_t value )
 
     if( obj == NULL )
     {
-        //assert_param( FAIL );
+        //assert_param( LMN_STATUS_ERROR );
         while( 1 );
     }
     // Check if pin is not connected
@@ -90,7 +90,7 @@ void GpioMcuToggle( Gpio_t *obj )
 {
     if( obj == NULL )
     {
-        //assert_param( FAIL );
+        //assert_param( LMN_STATUS_ERROR );
         while( 1 );
     }
 
@@ -106,7 +106,7 @@ uint32_t GpioMcuRead( Gpio_t *obj )
 {
     if( obj == NULL )
     {
-        //assert_param( FAIL );
+        //assert_param( LMN_STATUS_ERROR );
         while( 1 );
     }
     // Check if pin is not connected

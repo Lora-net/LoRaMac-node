@@ -73,7 +73,7 @@ void I2cMcuFormat( I2c_t* obj, I2cMode mode, I2cDutyCycle dutyCycle, bool I2cAck
     return;
 }
 
-uint8_t I2cMcuWriteBuffer( I2c_t *obj, uint8_t deviceAddr, uint8_t *buffer, uint16_t size )
+LmnStatus_t I2cMcuWriteBuffer( I2c_t *obj, uint8_t deviceAddr, uint8_t *buffer, uint16_t size )
 {
     i2c_m_sync_set_slaveaddr( &I2C_INSTANCE, deviceAddr, I2C_M_SEVEN );
     if( io_write( &I2C_INSTANCE.io, buffer, size ) == size )
@@ -86,7 +86,7 @@ uint8_t I2cMcuWriteBuffer( I2c_t *obj, uint8_t deviceAddr, uint8_t *buffer, uint
     }
 }
 
-uint8_t I2cMcuReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint8_t *buffer, uint16_t size )
+LmnStatus_t I2cMcuReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint8_t *buffer, uint16_t size )
 {
     i2c_m_sync_set_slaveaddr( &I2C_INSTANCE, deviceAddr, I2C_M_SEVEN );
     if( io_read( &I2C_INSTANCE.io, buffer, size ) == size )
@@ -99,7 +99,7 @@ uint8_t I2cMcuReadBuffer( I2c_t *obj, uint8_t deviceAddr, uint8_t *buffer, uint1
     }
 }
 
-uint8_t I2cMcuWriteMemBuffer( I2c_t* obj, uint8_t deviceAddr, uint16_t addr, uint8_t* buffer, uint16_t size )
+LmnStatus_t I2cMcuWriteMemBuffer( I2c_t* obj, uint8_t deviceAddr, uint16_t addr, uint8_t* buffer, uint16_t size )
 {
     i2c_m_sync_set_slaveaddr( &I2C_INSTANCE, deviceAddr, I2C_M_SEVEN );
     if( i2c_m_sync_cmd_write( &I2C_INSTANCE, addr, buffer, size ) == size )
@@ -112,7 +112,7 @@ uint8_t I2cMcuWriteMemBuffer( I2c_t* obj, uint8_t deviceAddr, uint16_t addr, uin
     }
 }
 
-uint8_t I2cMcuReadMemBuffer( I2c_t* obj, uint8_t deviceAddr, uint16_t addr, uint8_t* buffer, uint16_t size )
+LmnStatus_t I2cMcuReadMemBuffer( I2c_t* obj, uint8_t deviceAddr, uint16_t addr, uint8_t* buffer, uint16_t size )
 {
     i2c_m_sync_set_slaveaddr( &I2C_INSTANCE, deviceAddr, I2C_M_SEVEN );
     if( i2c_m_sync_cmd_read( &I2C_INSTANCE, addr, buffer, size ) == size )

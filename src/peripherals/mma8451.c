@@ -36,9 +36,9 @@ static bool MMA8451Initialized = false;
  *
  * \param [IN]: addr
  * \param [IN]: data
- * \retval status [SUCCESS, FAIL]
+ * \retval status [LMN_STATUS_OK, LMN_STATUS_ERROR]
  */
-uint8_t MMA8451Write( uint8_t addr, uint8_t data );
+LmnStatus_t MMA8451Write( uint8_t addr, uint8_t data );
 
 /*!
  * \brief Writes a buffer at specified address in the device
@@ -46,18 +46,18 @@ uint8_t MMA8451Write( uint8_t addr, uint8_t data );
  * \param [IN]: addr
  * \param [IN]: data
  * \param [IN]: size
- * \retval status [SUCCESS, FAIL]
+ * \retval status [LMN_STATUS_OK, LMN_STATUS_ERROR]
  */
-uint8_t MMA8451WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size );
+LmnStatus_t MMA8451WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size );
 
 /*!
  * \brief Reads a byte at specified address in the device
  *
  * \param [IN]: addr
  * \param [OUT]: data
- * \retval status [SUCCESS, FAIL]
+ * \retval status [LMN_STATUS_OK, LMN_STATUS_ERROR]
  */
-uint8_t MMA8451Read( uint8_t addr, uint8_t *data );
+LmnStatus_t MMA8451Read( uint8_t addr, uint8_t *data );
 
 /*!
  * \brief Reads a buffer at specified address in the device
@@ -65,9 +65,9 @@ uint8_t MMA8451Read( uint8_t addr, uint8_t *data );
  * \param [IN]: addr
  * \param [OUT]: data
  * \param [IN]: size
- * \retval status [SUCCESS, FAIL]
+ * \retval status [LMN_STATUS_OK, LMN_STATUS_ERROR]
  */
-uint8_t MMA8451ReadBuffer( uint8_t addr, uint8_t *data, uint8_t size );
+LmnStatus_t MMA8451ReadBuffer( uint8_t addr, uint8_t *data, uint8_t size );
 
 /*!
  * \brief Sets the I2C device slave address
@@ -83,7 +83,7 @@ void MMA8451SetDeviceAddr( uint8_t addr );
  */
 uint8_t MMA8451GetDeviceAddr( void );
 
-uint8_t MMA8451Init( void )
+LmnStatus_t MMA8451Init( void )
 {
     uint8_t regVal = 0;
 
@@ -96,7 +96,7 @@ uint8_t MMA8451Init( void )
         MMA8451Read( MMA8451_ID, &regVal );
         if( regVal != 0x1A )   // Fixed Device ID Number = 0x1A
         {
-            return FAIL;
+            return LMN_STATUS_ERROR;
         }
         MMA8451Reset( );
 
@@ -105,35 +105,35 @@ uint8_t MMA8451Init( void )
         MMA8451Write( MMA8451_CTRL_REG3, 0x01 );
         MMA8451OrientDetect( );
     }
-    return SUCCESS;
+    return LMN_STATUS_OK;
 }
 
 
-uint8_t MMA8451Reset( )
+LmnStatus_t MMA8451Reset( )
 {
-    if( MMA8451Write( 0x2B, 0x40 ) == SUCCESS ) // Reset the MMA8451 with CTRL_REG2
+    if( MMA8451Write( 0x2B, 0x40 ) == LMN_STATUS_OK ) // Reset the MMA8451 with CTRL_REG2
     {
-        return SUCCESS;
+        return LMN_STATUS_OK;
     }
-    return FAIL;
+    return LMN_STATUS_ERROR;
 }
 
-uint8_t MMA8451Write( uint8_t addr, uint8_t data )
+LmnStatus_t MMA8451Write( uint8_t addr, uint8_t data )
 {
     return MMA8451WriteBuffer( addr, &data, 1 );
 }
 
-uint8_t MMA8451WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size )
+LmnStatus_t MMA8451WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size )
 {
     return I2cWriteMemBuffer( &I2c, I2cDeviceAddr << 1, addr, data, size );
 }
 
-uint8_t MMA8451Read( uint8_t addr, uint8_t *data )
+LmnStatus_t MMA8451Read( uint8_t addr, uint8_t *data )
 {
     return MMA8451ReadBuffer( addr, data, 1 );
 }
 
-uint8_t MMA8451ReadBuffer( uint8_t addr, uint8_t *data, uint8_t size )
+LmnStatus_t MMA8451ReadBuffer( uint8_t addr, uint8_t *data, uint8_t size )
 {
     return I2cReadMemBuffer( &I2c, I2cDeviceAddr << 1, addr, data, size );
 }

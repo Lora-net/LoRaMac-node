@@ -76,7 +76,7 @@ void UartMcuConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_
         {
             if( obj->FifoTx.Data == NULL )
             {
-                assert_param( FAIL );
+                assert_param( LMN_STATUS_ERROR );
             }
             UartHandle.Init.Mode = UART_MODE_TX;
         }
@@ -84,7 +84,7 @@ void UartMcuConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_
         {
             if( obj->FifoRx.Data == NULL )
             {
-                assert_param( FAIL );
+                assert_param( LMN_STATUS_ERROR );
             }
             UartHandle.Init.Mode = UART_MODE_RX;
         }
@@ -92,13 +92,13 @@ void UartMcuConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_
         {
             if( ( obj->FifoTx.Data == NULL ) || ( obj->FifoRx.Data == NULL ) )
             {
-                assert_param( FAIL );
+                assert_param( LMN_STATUS_ERROR );
             }
             UartHandle.Init.Mode = UART_MODE_TX_RX;
         }
         else
         {
-            assert_param( FAIL );
+            assert_param( LMN_STATUS_ERROR );
         }
 
         if( wordLength == UART_8_BIT )
@@ -158,7 +158,7 @@ void UartMcuConfig( Uart_t *obj, UartMode_t mode, uint32_t baudrate, WordLength_
 
         if( HAL_UART_Init( &UartHandle ) != HAL_OK )
         {
-            assert_param( FAIL );
+            assert_param( LMN_STATUS_ERROR );
         }
 
         HAL_NVIC_SetPriority( USART1_IRQn, 1, 0 );
