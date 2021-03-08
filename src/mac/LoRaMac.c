@@ -257,6 +257,8 @@ static LoRaMacCtx_t MacCtx;
 
 static LoRaMacNvmData_t Nvm;
 
+static Band_t RegionBands[REGION_NVM_MAX_NB_BANDS];
+
 /*!
  * Defines the LoRaMac radio events status
  */
@@ -2712,6 +2714,7 @@ static void ResetMacParameters( void )
     params.Type = INIT_TYPE_RESET_TO_DEFAULT_CHANNELS;
     params.NvmGroup1 = &Nvm.RegionGroup1;
     params.NvmGroup2 = &Nvm.RegionGroup2;
+    params.Bands = &RegionBands;
     RegionInitDefaults( Nvm.MacGroup2.Region, &params );
 
     // Initialize channel index.
@@ -3337,6 +3340,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     params.Type = INIT_TYPE_DEFAULTS;
     params.NvmGroup1 = &Nvm.RegionGroup1;
     params.NvmGroup2 = &Nvm.RegionGroup2;
+    params.Bands = &RegionBands;
     RegionInitDefaults( Nvm.MacGroup2.Region, &params );
 
     ResetMacParameters( );
@@ -4581,7 +4585,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
                 // Restore default value for ChannelsDatarateChangedLinkAdrReq
                 Nvm.MacGroup2.ChannelsDatarateChangedLinkAdrReq = false;
 
-                //Activate the default channels
+                // Activate the default channels
                 InitDefaultsParams_t params;
                 params.Type = INIT_TYPE_ACTIVATE_DEFAULT_CHANNELS;
                 RegionInitDefaults( Nvm.MacGroup2.Region, &params );

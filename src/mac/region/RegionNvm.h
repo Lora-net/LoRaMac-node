@@ -88,10 +88,6 @@ typedef enum eRegionCN470ChannelPlan
  */
 typedef struct sRegionNvmDataGroup1
 {
-    /*!
-     * LoRaMac bands
-     */
-    Band_t Bands[ REGION_NVM_MAX_NB_BANDS ];
 #if defined( REGION_US915 ) || defined( REGION_AU915 ) || defined( REGION_CN470 )
     /*!
      * LoRaMac channels remaining
