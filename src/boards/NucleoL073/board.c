@@ -77,19 +77,9 @@ static void BoardUnusedIoInit( void );
 static void SystemClockConfig( void );
 
 /*!
- * Used to measure and calibrate the system wake-up time from STOP mode
- */
-static void CalibrateSystemWakeupTime( void );
-
-/*!
  * System Clock Re-Configuration when waking up from STOP mode
  */
 static void SystemClockReConfig( void );
-
-/*!
- * Timer used at first boot to calibrate the SystemWakeupTime
- */
-static TimerEvent_t CalibrateSystemWakeupTimeTimer;
 
 /*!
  * Flag to indicate if the MCU is Initialized
@@ -109,20 +99,6 @@ static bool UsbIsConnected = false;
 
 uint8_t Uart2TxBuffer[UART2_FIFO_TX_SIZE];
 uint8_t Uart2RxBuffer[UART2_FIFO_RX_SIZE];
-
-/*!
- * Flag to indicate if the SystemWakeupTime is Calibrated
- */
-static volatile bool SystemWakeupTimeCalibrated = false;
-
-/*!
- * Callback indicating the end of the system wake-up time calibration
- */
-static void OnCalibrateSystemWakeupTimeTimerEvent( void* context )
-{
-    RtcSetMcuWakeUpTime( );
-    SystemWakeupTimeCalibrated = true;
-}
 
 void BoardCriticalSectionBegin( uint32_t *mask )
 {
@@ -204,10 +180,6 @@ void BoardInitMcu( void )
         SX1276IoDbgInit( );
         SX1276IoTcxoInit( );
 #endif
-        if( GetBoardPowerSource( ) == BATTERY_POWER )
-        {
-            CalibrateSystemWakeupTime( );
-        }
     }
 }
 
@@ -322,20 +294,6 @@ void SystemClockConfig( void )
 
     // SysTick_IRQn interrupt configuration
     HAL_NVIC_SetPriority( SysTick_IRQn, 0, 0 );
-}
-
-void CalibrateSystemWakeupTime( void )
-{
-    if( SystemWakeupTimeCalibrated == false )
-    {
-        TimerInit( &CalibrateSystemWakeupTimeTimer, OnCalibrateSystemWakeupTimeTimerEvent );
-        TimerSetValue( &CalibrateSystemWakeupTimeTimer, 1000 );
-        TimerStart( &CalibrateSystemWakeupTimeTimer );
-        while( SystemWakeupTimeCalibrated == false )
-        {
-
-        }
-    }
 }
 
 void SystemClockReConfig( void )

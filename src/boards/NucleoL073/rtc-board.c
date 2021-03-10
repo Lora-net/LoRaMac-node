@@ -96,16 +96,6 @@ typedef struct
 static bool RtcInitialized = false;
 
 /*!
- * \brief Indicates if the RTC Wake Up Time is calibrated or not
- */
-static bool McuWakeUpTimeInitialized = false;
-
-/*!
- * \brief Compensates MCU wakeup time
- */
-static int16_t McuWakeUpTimeCal = 0;
-
-/*!
  * Number of days in each month on a normal year
  */
 static const uint8_t DaysInMonth[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
@@ -291,19 +281,13 @@ void RtcDelayMs( uint32_t delay )
 void RtcSetAlarm( uint32_t timeout )
 {
     // We don't go in Low Power mode for timeout below MIN_ALARM_DELAY
-    if( ( int64_t )( MIN_ALARM_DELAY + McuWakeUpTimeCal ) < ( int64_t )( timeout - RtcGetTimerElapsedTime( ) ) )
+    if( ( int64_t )MIN_ALARM_DELAY < ( int64_t )( timeout - RtcGetTimerElapsedTime( ) ) )
     {
         LpmSetStopMode( LPM_RTC_ID, LPM_ENABLE );
     }
     else
     {
         LpmSetStopMode( LPM_RTC_ID, LPM_DISABLE );
-    }
-
-    // In case stop mode is required
-    if( LpmGetMode( ) == LPM_STOP_MODE )
-    {
-        timeout = timeout - McuWakeUpTimeCal;
     }
 
     RtcStartAlarm( timeout );
@@ -442,41 +426,6 @@ uint32_t RtcGetTimerElapsedTime( void )
   uint32_t calendarValue = ( uint32_t )RtcGetCalendarValue( &date, &time );
 
   return( ( uint32_t )( calendarValue - RtcTimerContext.Time ) );
-}
-
-void RtcSetMcuWakeUpTime( void )
-{
-    RTC_TimeTypeDef time;
-    RTC_DateTypeDef date;
-
-    uint32_t now, hit;
-    int16_t mcuWakeUpTime;
-
-    if( ( McuWakeUpTimeInitialized == false ) &&
-       ( HAL_NVIC_GetPendingIRQ( RTC_IRQn ) == 1 ) )
-    {
-        /* WARNING: Works ok if now is below 30 days
-         *          it is ok since it's done once at first alarm wake-up
-         */
-        McuWakeUpTimeInitialized = true;
-        now = ( uint32_t )RtcGetCalendarValue( &date, &time );
-
-        HAL_RTC_GetAlarm( &RtcHandle, &RtcAlarm, RTC_ALARM_A, RTC_FORMAT_BIN );
-        hit = RtcAlarm.AlarmTime.Seconds +
-              60 * ( RtcAlarm.AlarmTime.Minutes +
-              60 * ( RtcAlarm.AlarmTime.Hours +
-              24 * ( RtcAlarm.AlarmDateWeekDay - 1 ) ) );
-        hit = ( hit << N_PREDIV_S ) + ( PREDIV_S - RtcAlarm.AlarmTime.SubSeconds );
-
-        mcuWakeUpTime = ( int16_t )( ( now - hit ) );
-        McuWakeUpTimeCal += mcuWakeUpTime;
-        //PRINTF( 3, "Cal=%d, %d\n", McuWakeUpTimeCal, mcuWakeUpTime);
-    }
-}
-
-int16_t RtcGetMcuWakeUpTime( void )
-{
-    return McuWakeUpTimeCal;
 }
 
 static uint64_t RtcGetCalendarValue( RTC_DateTypeDef* date, RTC_TimeTypeDef* time )

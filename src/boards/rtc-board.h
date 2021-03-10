@@ -90,20 +90,6 @@ TimerTime_t RtcTick2Ms( uint32_t tick );
 void RtcDelayMs( TimerTime_t milliseconds );
 
 /*!
- * \brief Calculates the wake up time between wake up and MCU start
- *
- * \note Resolution in RTC_ALARM_TIME_BASE
- */
-void RtcSetMcuWakeUpTime( void );
-
-/*!
- * \brief Returns the wake up time in ticks
- *
- * \retval wakeUpTime The WakeUpTime value in ticks
- */
-int16_t RtcGetMcuWakeUpTime( void );
-
-/*!
  * \brief Sets the alarm
  *
  * \note The alarm is set at now (read in this funtion) + timeout
