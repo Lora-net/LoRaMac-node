@@ -1212,13 +1212,14 @@ void RadioOnDioIrq( void* context )
 
 void RadioIrqProcess( void )
 {
-    if( IrqFired == true )
-    {
-        CRITICAL_SECTION_BEGIN( );
-        // Clear IRQ flag
-        IrqFired = false;
-        CRITICAL_SECTION_END( );
+    CRITICAL_SECTION_BEGIN( );
+    // Clear IRQ flag
+    const bool isIrqFired = IrqFired;
+    IrqFired = false;
+    CRITICAL_SECTION_END( );
 
+    if( isIrqFired == true )
+    {
         uint16_t irqRegs = SX126xGetIrqStatus( );
         SX126xClearIrqStatus( irqRegs );
 
