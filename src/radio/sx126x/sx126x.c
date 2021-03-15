@@ -125,6 +125,9 @@ void SX126xInit( DioIrqHandler dioIrq )
     // Initialize RF switch control
     SX126xIoRfSwitchInit( );
 
+    // Force image calibration
+    ImageCalibrated = false;
+
     SX126xSetOperatingMode( MODE_STDBY_RC );
 }
 
@@ -255,6 +258,12 @@ void SX126xSetSleep( SleepParams_t sleepConfig )
     uint8_t value = ( ( ( uint8_t )sleepConfig.Fields.WarmStart << 2 ) |
                       ( ( uint8_t )sleepConfig.Fields.Reset << 1 ) |
                       ( ( uint8_t )sleepConfig.Fields.WakeUpRTC ) );
+
+    if( sleepConfig.Fields.WarmStart == 0 )
+    {
+        // Force image calibration
+        ImageCalibrated = false;
+    }
     SX126xWriteCommand( RADIO_SET_SLEEP, &value, 1 );
     SX126xSetOperatingMode( MODE_SLEEP );
 }
