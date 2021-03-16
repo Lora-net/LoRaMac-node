@@ -337,6 +337,13 @@ void RadioRxBoosted( uint32_t timeout );
 void RadioSetRxDutyCycle( uint32_t rxTime, uint32_t sleepTime );
 
 /*!
+ * \brief Add a register to the retention list
+ *
+ * \param [in] registerAddress The address of the register to be kept in retention
+ */
+void RadioAddRegisterToRetentionList( uint16_t registerAddress );
+
+/*!
  * Radio driver structure initialization
  */
 const struct Radio_s Radio =
@@ -521,6 +528,10 @@ void RadioInit( RadioEvents_t *events )
     SX126xSetBufferBaseAddress( 0x00, 0x00 );
     SX126xSetTxParams( 0, RADIO_RAMP_200_US );
     SX126xSetDioIrqParams( IRQ_RADIO_ALL, IRQ_RADIO_ALL, IRQ_RADIO_NONE, IRQ_RADIO_NONE );
+
+    // Add registers to the retention list (4 is the maximum possible number)
+    RadioAddRegisterToRetentionList( REG_RX_GAIN );
+    RadioAddRegisterToRetentionList( REG_TX_MODULATION );
 
     // Initialize driver timeout timers
     TimerInit( &TxTimeoutTimer, RadioOnTxTimeoutIrq );
@@ -1099,6 +1110,36 @@ void RadioRxBoosted( uint32_t timeout )
 void RadioSetRxDutyCycle( uint32_t rxTime, uint32_t sleepTime )
 {
     SX126xSetRxDutyCycle( rxTime, sleepTime );
+}
+
+void RadioAddRegisterToRetentionList( uint16_t registerAddress )
+{
+    uint8_t buffer[9];
+
+    // Read the address and registers already added to the list
+    SX126xReadRegisters( REG_RETENTION_LIST_BASE_ADDRESS, buffer, 9 );
+
+    const uint8_t nbOfRegisters = buffer[0];
+    uint8_t* registerList   = &buffer[1];
+
+    // Check if the register given as parameter is already added to the list
+    for( uint8_t i = 0; i < nbOfRegisters; i++ )
+    {
+        if( registerAddress == ( ( uint16_t ) registerList[2 * i] << 8 ) + registerList[2 * i + 1] )
+        {
+            return;
+        }
+    }
+
+    if( nbOfRegisters < MAX_NB_REG_IN_RETENTION )
+    {
+        buffer[0] += 1;
+        registerList[2 * nbOfRegisters]     = ( uint8_t )( registerAddress >> 8 );
+        registerList[2 * nbOfRegisters + 1] = ( uint8_t )( registerAddress >> 0 );
+
+        // Update radio with modified list
+        SX126xWriteRegisters( REG_RETENTION_LIST_BASE_ADDRESS, buffer, 9 );
+    }
 }
 
 void RadioStartCad( void )
