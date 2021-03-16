@@ -152,6 +152,41 @@ extern "C"
 #define REG_OCP                                     0x08E7
 
 /*!
+ * \brief Maximum number of register that can be added to the retention list
+ */
+#define MAX_NB_REG_IN_RETENTION                     4
+
+/*!
+ * \brief Base address of the register retention list
+ */
+#define REG_RETENTION_LIST_BASE_ADDRESS             0x029F
+
+/*!
+ * \brief WORKAROUND - Optimizing the Inverted IQ Operation, see DS_SX1261-2_V1.2 datasheet chapter 15.4
+ */
+#define REG_IQ_POLARITY                             0x0736
+
+/*!
+ * \brief WORKAROUND - Modulation Quality with 500 kHz LoRa Bandwidth, see DS_SX1261-2_V1.2 datasheet chapter 15.1
+ */
+#define REG_TX_MODULATION                           0x0889
+
+/*!
+ * \brief WORKAROUND - Better resistance to antenna mismatch, see DS_SX1261-2_V1.2 datasheet chapter 15.2
+ */
+#define REG_TX_CLAMP_CFG                            0x08D8
+
+/*!
+ * \brief RTC control
+ */
+#define REG_RTC_CTRL                                0x0902
+
+/*!
+ * \brief Event clear
+ */
+#define REG_EVT_CLR                                 0x0944
+
+/*!
  * \brief Structure describing the radio status
  */
 typedef union RadioStatus_u
