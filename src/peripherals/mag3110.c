@@ -30,7 +30,7 @@ extern I2c_t I2c;
 static uint8_t I2cDeviceAddr = 0;
 static bool MAG3110Initialized = false;
 
-uint8_t MAG3110Init( void )
+LmnStatus_t MAG3110Init( void )
 {
     uint8_t regVal = 0;
 
@@ -43,39 +43,39 @@ uint8_t MAG3110Init( void )
         MAG3110Read( MAG3110_ID, &regVal );
         if( regVal != 0xC4 )   // Fixed Device ID Number = 0xC4
         {
-            return FAIL;
+            return LMN_STATUS_ERROR;
         }
 
         MAG3110Reset( );
     }
-    return SUCCESS;
+    return LMN_STATUS_OK;
 }
 
-uint8_t MAG3110Reset( void )
+LmnStatus_t MAG3110Reset( void )
 {
-    if( MAG3110Write( 0x11, 0x10 ) == SUCCESS ) // Reset the MAG3110 with CTRL_REG2
+    if( MAG3110Write( 0x11, 0x10 ) == LMN_STATUS_OK ) // Reset the MAG3110 with CTRL_REG2
     {
-        return SUCCESS;
+        return LMN_STATUS_OK;
     }
-    return FAIL;
+    return LMN_STATUS_ERROR;
 }
 
-uint8_t MAG3110Write( uint8_t addr, uint8_t data )
+LmnStatus_t MAG3110Write( uint8_t addr, uint8_t data )
 {
     return MAG3110WriteBuffer( addr, &data, 1 );
 }
 
-uint8_t MAG3110WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size )
+LmnStatus_t MAG3110WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size )
 {
     return I2cWriteMemBuffer( &I2c, I2cDeviceAddr << 1, addr, data, size );
 }
 
-uint8_t MAG3110Read( uint8_t addr, uint8_t *data )
+LmnStatus_t MAG3110Read( uint8_t addr, uint8_t *data )
 {
     return MAG3110ReadBuffer( addr, data, 1 );
 }
 
-uint8_t MAG3110ReadBuffer( uint8_t addr, uint8_t *data, uint8_t size )
+LmnStatus_t MAG3110ReadBuffer( uint8_t addr, uint8_t *data, uint8_t size )
 {
     return I2cReadMemBuffer( &I2c, I2cDeviceAddr << 1, addr, data, size );
 }

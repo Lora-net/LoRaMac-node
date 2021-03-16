@@ -481,6 +481,10 @@ typedef struct sInitDefaultsParams
      */
     void* NvmGroup2;
     /*!
+     * Pointer to common region band storage.
+     */
+    void* Bands;
+    /*!
      * Sets the initialization type.
      */
     InitType_t Type;

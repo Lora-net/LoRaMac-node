@@ -125,6 +125,9 @@ void SX126xInit( DioIrqHandler dioIrq )
     // Initialize RF switch control
     SX126xIoRfSwitchInit( );
 
+    // Force image calibration
+    ImageCalibrated = false;
+
     SX126xSetOperatingMode( MODE_STDBY_RC );
 }
 
@@ -255,6 +258,12 @@ void SX126xSetSleep( SleepParams_t sleepConfig )
     uint8_t value = ( ( ( uint8_t )sleepConfig.Fields.WarmStart << 2 ) |
                       ( ( uint8_t )sleepConfig.Fields.Reset << 1 ) |
                       ( ( uint8_t )sleepConfig.Fields.WakeUpRTC ) );
+
+    if( sleepConfig.Fields.WarmStart == 0 )
+    {
+        // Force image calibration
+        ImageCalibrated = false;
+    }
     SX126xWriteCommand( RADIO_SET_SLEEP, &value, 1 );
     SX126xSetOperatingMode( MODE_SLEEP );
 }
@@ -296,6 +305,8 @@ void SX126xSetRx( uint32_t timeout )
 
     SX126xSetOperatingMode( MODE_RX );
 
+    SX126xWriteRegister( REG_RX_GAIN, 0x94 ); // default gain
+
     buf[0] = ( uint8_t )( ( timeout >> 16 ) & 0xFF );
     buf[1] = ( uint8_t )( ( timeout >> 8 ) & 0xFF );
     buf[2] = ( uint8_t )( timeout & 0xFF );
@@ -308,7 +319,7 @@ void SX126xSetRxBoosted( uint32_t timeout )
 
     SX126xSetOperatingMode( MODE_RX );
 
-    SX126xWriteRegister( REG_RX_GAIN, 0x96 ); // max LNA gain, increase current by ~2mA for around ~3dB in sensivity
+    SX126xWriteRegister( REG_RX_GAIN, 0x96 ); // max LNA gain, increase current by ~2mA for around ~3dB in sensitivity
 
     buf[0] = ( uint8_t )( ( timeout >> 16 ) & 0xFF );
     buf[1] = ( uint8_t )( ( timeout >> 8 ) & 0xFF );
@@ -540,8 +551,7 @@ void SX126xSetTxParams( int8_t power, RadioRampTimes_t rampTime )
     else // sx1262
     {
         // WORKAROUND - Better Resistance of the SX1262 Tx to Antenna Mismatch, see DS_SX1261-2_V1.2 datasheet chapter 15.2
-        // RegTxClampConfig = @address 0x08D8
-        SX126xWriteRegister( 0x08D8, SX126xReadRegister( 0x08D8 ) | ( 0x0F << 1 ) );
+        SX126xWriteRegister( REG_TX_CLAMP_CFG, SX126xReadRegister( REG_TX_CLAMP_CFG ) | ( 0x0F << 1 ) );
         // WORKAROUND END
 
         SX126xSetPaConfig( 0x04, 0x07, 0x00, 0x01 );

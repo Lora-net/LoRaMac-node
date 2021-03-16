@@ -56,7 +56,7 @@ void EepromMcuInit( void )
         eeStatus = EE_Init( EepromVirtualAddress, EE_FORCED_ERASE );
         if( eeStatus != EE_OK )
         {
-            assert_param( FAIL );
+            assert_param( LMN_STATUS_ERROR );
         }
     }
     else
@@ -75,7 +75,7 @@ void EepromMcuInit( void )
         eeStatus = EE_Init( EepromVirtualAddress, EE_CONDITIONAL_ERASE );
         if( eeStatus != EE_OK )
         {
-            assert_param( FAIL );
+            assert_param( LMN_STATUS_ERROR );
         }
     }
 
@@ -93,9 +93,9 @@ bool EepromMcuIsErasingOnGoing( void )
     return ErasingOnGoing;
 }
 
-uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
+LmnStatus_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
 {
-    uint8_t status = SUCCESS;
+    LmnStatus_t status = LMN_STATUS_OK;
     EE_Status eeStatus = EE_OK;
 
     // Unlock the Flash Program Erase controller
@@ -110,7 +110,7 @@ uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
 
     if( eeStatus != EE_OK )
     {
-        status = FAIL;
+        status = LMN_STATUS_ERROR;
     }
 
     if( ( eeStatus & EE_STATUSMASK_CLEANUP ) == EE_STATUSMASK_CLEANUP )
@@ -120,7 +120,7 @@ uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
     }
     if( ( eeStatus & EE_STATUSMASK_ERROR ) == EE_STATUSMASK_ERROR )
     {
-        status = FAIL;
+        status = LMN_STATUS_ERROR;
     }
 
     // Lock the Flash Program Erase controller
@@ -128,9 +128,9 @@ uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
     return status;
 }
 
-uint8_t EepromMcuReadBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
+LmnStatus_t EepromMcuReadBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
 {
-    uint8_t status = SUCCESS;
+    LmnStatus_t status = LMN_STATUS_OK;
 
     // Unlock the Flash Program Erase controller
     HAL_FLASH_Unlock( );
@@ -139,7 +139,7 @@ uint8_t EepromMcuReadBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
     {
         if( EE_ReadVariable8bits( EepromVirtualAddress[addr + i], buffer + i ) != EE_OK )
         {
-            status = FAIL;
+            status = LMN_STATUS_ERROR;
             break;
         }
     }
@@ -151,12 +151,12 @@ uint8_t EepromMcuReadBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
 
 void EepromMcuSetDeviceAddr( uint8_t addr )
 {
-    assert_param( FAIL );
+    assert_param( LMN_STATUS_ERROR );
 }
 
-uint8_t EepromMcuGetDeviceAddr( void )
+LmnStatus_t EepromMcuGetDeviceAddr( void )
 {
-    assert_param( FAIL );
+    assert_param( LMN_STATUS_ERROR );
     return 0;
 }
 

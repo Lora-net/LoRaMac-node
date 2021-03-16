@@ -337,6 +337,13 @@ void RadioRxBoosted( uint32_t timeout );
 void RadioSetRxDutyCycle( uint32_t rxTime, uint32_t sleepTime );
 
 /*!
+ * \brief Add a register to the retention list
+ *
+ * \param [in] registerAddress The address of the register to be kept in retention
+ */
+void RadioAddRegisterToRetentionList( uint16_t registerAddress );
+
+/*!
  * Radio driver structure initialization
  */
 const struct Radio_s Radio =
@@ -521,6 +528,10 @@ void RadioInit( RadioEvents_t *events )
     SX126xSetBufferBaseAddress( 0x00, 0x00 );
     SX126xSetTxParams( 0, RADIO_RAMP_200_US );
     SX126xSetDioIrqParams( IRQ_RADIO_ALL, IRQ_RADIO_ALL, IRQ_RADIO_NONE, IRQ_RADIO_NONE );
+
+    // Add registers to the retention list (4 is the maximum possible number)
+    RadioAddRegisterToRetentionList( REG_RX_GAIN );
+    RadioAddRegisterToRetentionList( REG_TX_MODULATION );
 
     // Initialize driver timeout timers
     TimerInit( &TxTimeoutTimer, RadioOnTxTimeoutIrq );
@@ -735,13 +746,11 @@ void RadioSetRxConfig( RadioModems_t modem, uint32_t bandwidth,
             // WORKAROUND - Optimizing the Inverted IQ Operation, see DS_SX1261-2_V1.2 datasheet chapter 15.4
             if( SX126x.PacketParams.Params.LoRa.InvertIQ == LORA_IQ_INVERTED )
             {
-                // RegIqPolaritySetup = @address 0x0736
-                SX126xWriteRegister( 0x0736, SX126xReadRegister( 0x0736 ) & ~( 1 << 2 ) );
+                SX126xWriteRegister( REG_IQ_POLARITY, SX126xReadRegister( REG_IQ_POLARITY ) & ~( 1 << 2 ) );
             }
             else
             {
-                // RegIqPolaritySetup @address 0x0736
-                SX126xWriteRegister( 0x0736, SX126xReadRegister( 0x0736 ) | ( 1 << 2 ) );
+                SX126xWriteRegister( REG_IQ_POLARITY, SX126xReadRegister( REG_IQ_POLARITY ) | ( 1 << 2 ) );
             }
             // WORKAROUND END
 
@@ -844,13 +853,11 @@ void RadioSetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
     // WORKAROUND - Modulation Quality with 500 kHz LoRa Bandwidth, see DS_SX1261-2_V1.2 datasheet chapter 15.1
     if( ( modem == MODEM_LORA ) && ( SX126x.ModulationParams.Params.LoRa.Bandwidth == LORA_BW_500 ) )
     {
-        // RegTxModulation = @address 0x0889
-        SX126xWriteRegister( 0x0889, SX126xReadRegister( 0x0889 ) & ~( 1 << 2 ) );
+        SX126xWriteRegister( REG_TX_MODULATION, SX126xReadRegister( REG_TX_MODULATION ) & ~( 1 << 2 ) );
     }
     else
     {
-        // RegTxModulation = @address 0x0889
-        SX126xWriteRegister( 0x0889, SX126xReadRegister( 0x0889 ) | ( 1 << 2 ) );
+        SX126xWriteRegister( REG_TX_MODULATION, SX126xReadRegister( REG_TX_MODULATION ) | ( 1 << 2 ) );
     }
     // WORKAROUND END
 
@@ -1105,6 +1112,36 @@ void RadioSetRxDutyCycle( uint32_t rxTime, uint32_t sleepTime )
     SX126xSetRxDutyCycle( rxTime, sleepTime );
 }
 
+void RadioAddRegisterToRetentionList( uint16_t registerAddress )
+{
+    uint8_t buffer[9];
+
+    // Read the address and registers already added to the list
+    SX126xReadRegisters( REG_RETENTION_LIST_BASE_ADDRESS, buffer, 9 );
+
+    const uint8_t nbOfRegisters = buffer[0];
+    uint8_t* registerList   = &buffer[1];
+
+    // Check if the register given as parameter is already added to the list
+    for( uint8_t i = 0; i < nbOfRegisters; i++ )
+    {
+        if( registerAddress == ( ( uint16_t ) registerList[2 * i] << 8 ) + registerList[2 * i + 1] )
+        {
+            return;
+        }
+    }
+
+    if( nbOfRegisters < MAX_NB_REG_IN_RETENTION )
+    {
+        buffer[0] += 1;
+        registerList[2 * nbOfRegisters]     = ( uint8_t )( registerAddress >> 8 );
+        registerList[2 * nbOfRegisters + 1] = ( uint8_t )( registerAddress >> 0 );
+
+        // Update radio with modified list
+        SX126xWriteRegisters( REG_RETENTION_LIST_BASE_ADDRESS, buffer, 9 );
+    }
+}
+
 void RadioStartCad( void )
 {
     SX126xSetDioIrqParams( IRQ_CAD_DONE | IRQ_CAD_ACTIVITY_DETECTED, IRQ_CAD_DONE | IRQ_CAD_ACTIVITY_DETECTED, IRQ_RADIO_NONE, IRQ_RADIO_NONE );
@@ -1212,13 +1249,14 @@ void RadioOnDioIrq( void* context )
 
 void RadioIrqProcess( void )
 {
-    if( IrqFired == true )
-    {
-        CRITICAL_SECTION_BEGIN( );
-        // Clear IRQ flag
-        IrqFired = false;
-        CRITICAL_SECTION_END( );
+    CRITICAL_SECTION_BEGIN( );
+    // Clear IRQ flag
+    const bool isIrqFired = IrqFired;
+    IrqFired = false;
+    CRITICAL_SECTION_END( );
 
+    if( isIrqFired == true )
+    {
         uint16_t irqRegs = SX126xGetIrqStatus( );
         SX126xClearIrqStatus( irqRegs );
 
@@ -1235,6 +1273,8 @@ void RadioIrqProcess( void )
 
         if( ( irqRegs & IRQ_RX_DONE ) == IRQ_RX_DONE )
         {
+            TimerStop( &RxTimeoutTimer );
+
             if( ( irqRegs & IRQ_CRC_ERROR ) == IRQ_CRC_ERROR )
             {
                 if( RxContinuous == false )
@@ -1251,17 +1291,14 @@ void RadioIrqProcess( void )
             {
                 uint8_t size;
 
-                TimerStop( &RxTimeoutTimer );
                 if( RxContinuous == false )
                 {
                     //!< Update operating mode state to a value lower than \ref MODE_STDBY_XOSC
                     SX126xSetOperatingMode( MODE_STDBY_RC );
 
                     // WORKAROUND - Implicit Header Mode Timeout Behavior, see DS_SX1261-2_V1.2 datasheet chapter 15.3
-                    // RegRtcControl = @address 0x0902
-                    SX126xWriteRegister( 0x0902, 0x00 );
-                    // RegEventMask = @address 0x0944
-                    SX126xWriteRegister( 0x0944, SX126xReadRegister( 0x0944 ) | ( 1 << 1 ) );
+                    SX126xWriteRegister( REG_RTC_CTRL, 0x00 );
+                    SX126xWriteRegister( REG_EVT_CLR, SX126xReadRegister( REG_EVT_CLR ) | ( 1 << 1 ) );
                     // WORKAROUND END
                 }
                 SX126xGetPayload( RadioRxPayload, &size , 255 );

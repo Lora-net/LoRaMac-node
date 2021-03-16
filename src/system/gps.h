@@ -30,6 +30,7 @@ extern "C"
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "utilities.h"
 
 /* Structure to handle the GPS parsed data in ASCII */
 typedef struct
@@ -111,9 +112,9 @@ void GpsConvertPositionFromStringToNumerical( void );
  * \param [OUT] lati Latitude value
  * \param [OUT] longi Longitude value
  *
- * \retval status [SUCCESS, FAIL]
+ * \retval status [LMN_STATUS_OK, LMN_STATUS_ERROR]
  */
-uint8_t GpsGetLatestGpsPositionDouble ( double *lati, double *longi );
+LmnStatus_t GpsGetLatestGpsPositionDouble ( double *lati, double *longi );
 
 /*!
  * \brief Gets the latest Position (latitude and Longitude) as two binary values
@@ -122,9 +123,9 @@ uint8_t GpsGetLatestGpsPositionDouble ( double *lati, double *longi );
  * \param [OUT] latiBin Latitude value
  * \param [OUT] longiBin Longitude value
  *
- * \retval status [SUCCESS, FAIL]
+ * \retval status [LMN_STATUS_OK, LMN_STATUS_ERROR]
  */
-uint8_t GpsGetLatestGpsPositionBinary ( int32_t *latiBin, int32_t *longiBin );
+LmnStatus_t GpsGetLatestGpsPositionBinary ( int32_t *latiBin, int32_t *longiBin );
 
 /*!
  * \brief Parses the NMEA sentence.
@@ -134,9 +135,9 @@ uint8_t GpsGetLatestGpsPositionBinary ( int32_t *latiBin, int32_t *longiBin );
  * \param [IN] rxBuffer Data buffer to be parsed
  * \param [IN] rxBufferSize Size of data buffer
  *
- * \retval status [SUCCESS, FAIL]
+ * \retval status [LMN_STATUS_OK, LMN_STATUS_ERROR]
  */
-uint8_t GpsParseGpsData( int8_t *rxBuffer, int32_t rxBufferSize );
+LmnStatus_t GpsParseGpsData( int8_t *rxBuffer, int32_t rxBufferSize );
 
 /*!
  * \brief Returns the latest altitude from the parsed NMEA sentence

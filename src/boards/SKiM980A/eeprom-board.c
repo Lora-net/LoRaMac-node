@@ -24,9 +24,9 @@
 #include "utilities.h"
 #include "eeprom-board.h"
 
-uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
+LmnStatus_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
 {
-    uint8_t status = FAIL;
+    LmnStatus_t status = LMN_STATUS_ERROR;
 
     assert_param( ( FLASH_EEPROM_BASE + addr ) >= FLASH_EEPROM_BASE );
     assert_param( buffer != NULL );
@@ -47,30 +47,30 @@ uint8_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
 
         }
         CRITICAL_SECTION_END( );
-        status = SUCCESS;
+        status = LMN_STATUS_OK;
     }
 
     HAL_FLASHEx_DATAEEPROM_Lock( );
     return status;
 }
 
-uint8_t EepromMcuReadBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
+LmnStatus_t EepromMcuReadBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
 {
     assert_param( ( FLASH_EEPROM_BASE + addr ) >= FLASH_EEPROM_BASE );
     assert_param( buffer != NULL );
     assert_param( size < ( FLASH_EEPROM_END - FLASH_EEPROM_BASE ) );
 
     memcpy1( buffer, ( uint8_t* )( FLASH_EEPROM_BASE + addr ), size );
-    return SUCCESS;
+    return LMN_STATUS_OK;
 }
 
 void EepromMcuSetDeviceAddr( uint8_t addr )
 {
-    assert_param( FAIL );
+    assert_param( LMN_STATUS_ERROR );
 }
 
-uint8_t EepromMcuGetDeviceAddr( void )
+LmnStatus_t EepromMcuGetDeviceAddr( void )
 {
-    assert_param( FAIL );
+    assert_param( LMN_STATUS_ERROR );
     return 0;
 }

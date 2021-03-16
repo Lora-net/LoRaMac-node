@@ -346,7 +346,7 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
             uint32_t periodicity[] = { 0, 5000, 10000, 20000, 30000, 40000, 50000, 60000, 120000, 240000, 480000 };
             uint8_t  index         = mcpsIndication->Buffer[cmdIndex++];
 
-            if( index < ( sizeof( periodicity ) / sizeof( uint16_t ) ) )
+            if( index < ( sizeof( periodicity ) / sizeof( uint32_t ) ) )
             {
                 if( ComplianceParams->OnTxPeriodicityChanged != NULL )
                 {
