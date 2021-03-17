@@ -263,6 +263,15 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
     }
     else
     {
+        // Configure the default datarate
+        mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
+        mibReq.Param.ChannelsDefaultDatarate = LmHandlerParams->TxDatarate;
+        LoRaMacMibSetRequestConfirm( &mibReq );
+
+        mibReq.Type = MIB_CHANNELS_DATARATE;
+        mibReq.Param.ChannelsDatarate = LmHandlerParams->TxDatarate;
+        LoRaMacMibSetRequestConfirm( &mibReq );
+
 #if( OVER_THE_AIR_ACTIVATION == 0 )
         // Tell the MAC layer which network server version are we connecting too.
         mibReq.Type = MIB_ABP_LORAWAN_VERSION;
