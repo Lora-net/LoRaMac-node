@@ -63,6 +63,13 @@ void lr1110_board_set_rf_tx_power( const void* context, int8_t power );
 uint32_t lr1110_board_get_tcxo_wakeup_time( const void* context );
 
 /*!
+ * \brief Gets current state of DIO1 pin state.
+ *
+ * \retval state DIO1 pin current state.
+ */
+uint32_t lr1110_get_dio_1_pin_state( const void* context );
+
+/*!
  * \brief Initializes the radio driver
  */
 void lr1110_board_init( const void* context, lr1110_dio_irq_handler dio_irq );
