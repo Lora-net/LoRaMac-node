@@ -1260,6 +1260,14 @@ void RadioIrqProcess( void )
         uint16_t irqRegs = SX126xGetIrqStatus( );
         SX126xClearIrqStatus( irqRegs );
 
+        // Check if DIO1 pin is High. If it is the case revert IrqFired to true
+        CRITICAL_SECTION_BEGIN( );
+        if( SX126xGetDio1PinState( ) == 1 )
+        {
+            IrqFired = true;
+        }
+        CRITICAL_SECTION_END( );
+
         if( ( irqRegs & IRQ_TX_DONE ) == IRQ_TX_DONE )
         {
             TimerStop( &TxTimeoutTimer );

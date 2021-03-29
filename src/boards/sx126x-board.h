@@ -160,6 +160,13 @@ bool SX126xCheckRfFrequency( uint32_t frequency );
 uint32_t SX126xGetBoardTcxoWakeupTime( void );
 
 /*!
+ * \brief Gets current state of DIO1 pin state.
+ *
+ * \retval state DIO1 pin current state.
+ */
+uint32_t SX126xGetDio1PinState( void );
+
+/*!
  * \brief Gets the current Radio OperationMode variable
  *
  * \retval      RadioOperatingModes_t last operating mode

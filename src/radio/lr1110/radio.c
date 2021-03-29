@@ -1215,6 +1215,14 @@ static void lr1110_system_irq_process( const void* radio, uint32_t* irq )
     lr1110_system_get_status( radio, &stat1, &stat2, irq );
     lr1110_system_clear_irq( radio, *irq );
 
+    // Check if DIO1 pin is High. If it is the case revert IrqFired to true
+    CRITICAL_SECTION_BEGIN( );
+    if( lr1110_get_dio_1_pin_state( radio ) == 1 )
+    {
+        IrqFired = true;
+    }
+    CRITICAL_SECTION_END( );
+
     if( ( ( *irq & LR1110_SYSTEM_IRQ_TXDONE_MASK ) != 0 ) || ( ( *irq & LR1110_SYSTEM_IRQ_CADDONE_MASK ) != 0 ) ||
         ( ( *irq & LR1110_SYSTEM_IRQ_TIMEOUT_MASK ) != 0 ) )
     {
