@@ -913,7 +913,11 @@ static void ProcessRadioRxDone( void )
     MacCtx.McpsIndication.ResponseTimeout = 0;
 
     Radio.Sleep( );
-    TimerStop( &MacCtx.RxWindowTimer2 );
+
+    if( MacCtx.McpsIndication.RxSlot == RX_SLOT_WIN_1 )
+    {
+        TimerStop( &MacCtx.RxWindowTimer2 );
+    }
 
     // This function must be called even if we are not in class b mode yet.
     if( LoRaMacClassBRxBeacon( payload, size ) == true )
@@ -1344,7 +1348,11 @@ static void ProcessRadioRxDone( void )
             OnRetransmitTimeoutTimerEvent( NULL );
         }
     }
-    MacCtx.MacFlags.Bits.MacDone = 1;
+
+    if( MacCtx.McpsIndication.RxSlot != RX_SLOT_WIN_CLASS_C )
+    {
+        MacCtx.MacFlags.Bits.MacDone = 1;
+    }
 
     UpdateRxSlotIdleState( );
 }
@@ -4954,6 +4962,10 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
+    // Initialize mlmeRequest->ReqReturn.DutyCycleWaitTime to 0 in order to
+    // return a valid value in case the MAC is busy.
+    mlmeRequest->ReqReturn.DutyCycleWaitTime = 0;
+
     if( LoRaMacIsBusy( ) == true )
     {
         return LORAMAC_STATUS_BUSY;
@@ -5147,6 +5159,10 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
+    // Initialize mcpsRequest->ReqReturn.DutyCycleWaitTime to 0 in order to
+    // return a valid value in case the MAC is busy.
+    mcpsRequest->ReqReturn.DutyCycleWaitTime = 0;
+
     if( LoRaMacIsBusy( ) == true )
     {
         return LORAMAC_STATUS_BUSY;
