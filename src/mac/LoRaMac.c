@@ -4542,6 +4542,10 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
+    // Initialize mlmeRequest->ReqReturn.DutyCycleWaitTime to 0 in order to
+    // return a valid value in case the MAC is busy.
+    mlmeRequest->ReqReturn.DutyCycleWaitTime = 0;
+
     if( LoRaMacIsBusy( ) == true )
     {
         return LORAMAC_STATUS_BUSY;
@@ -4717,6 +4721,10 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
+    // Initialize mcpsRequest->ReqReturn.DutyCycleWaitTime to 0 in order to
+    // return a valid value in case the MAC is busy.
+    mcpsRequest->ReqReturn.DutyCycleWaitTime = 0;
+
     if( LoRaMacIsBusy( ) == true )
     {
         return LORAMAC_STATUS_BUSY;
