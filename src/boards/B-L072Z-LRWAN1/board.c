@@ -56,6 +56,7 @@ Gpio_t Gps_int;
  * MCU objects
  */
 Uart_t Uart1;
+I2c_t I2c;
 
 /*!
  * Initializes the unused GPIO to a know status
