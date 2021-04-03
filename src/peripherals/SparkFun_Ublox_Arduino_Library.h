@@ -140,7 +140,7 @@ static const uint8_t UBX_SYNCH_1 = 0xB5;
 static const uint8_t UBX_SYNCH_2 = 0x62;
 
 //The following are UBX Class IDs. Descriptions taken from ZED-F9P Interface Description Document page 32, NEO-M8P Interface Description page 145
-static const uint8_t UBX_CLASS_NAV = 0x01;	 //Navigation Results Messages: Position, Speed, Time, Acceleration, Heading, DOP, SVs used
+#define UBX_CLASS_NAV 0x01	 //Navigation Results Messages: Position, Speed, Time, Acceleration, Heading, DOP, SVs used
 static const uint8_t UBX_CLASS_RXM = 0x02;	 //Receiver Manager Messages: Satellite Status, RTC Status
 static const uint8_t UBX_CLASS_INF = 0x04;	 //Information Messages: Printf-Style Messages, with IDs such as Error, Warning, Notice
 static const uint8_t UBX_CLASS_ACK = 0x05;	 //Ack/Nak Messages: Acknowledge or Reject messages to UBX-CFG input messages
@@ -373,8 +373,8 @@ static const uint8_t COM_TYPE_NMEA = (1 << 1);
 static const uint8_t COM_TYPE_RTCM3 = (1 << 5);
 
 //The following consts are used to generate KEY values for the advanced protocol functions of VELGET/SET/DEL
-static const uint8_t VAL_SIZE_1 = 0x01;  //One bit
-static const uint8_t VAL_SIZE_8 = 0x02;  //One byte
+#define VAL_SIZE_1 0x01;  //One bit
+#define VAL_SIZE_8 0x02;  //One byte
 static const uint8_t VAL_SIZE_16 = 0x03; //Two bytes
 static const uint8_t VAL_SIZE_32 = 0x04; //Four bytes
 static const uint8_t VAL_SIZE_64 = 0x05; //Eight bytes
