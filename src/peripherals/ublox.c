@@ -117,12 +117,18 @@ static gps_status_t display_still_searching(void);
 static gps_status_t display_fix_found(void);
 static gps_status_t reinit_gps(void);
 static gps_status_t init_for_fix(void);
+uint32_t systimeMS_get(void);
 
 /* ==================================================================== */
 /* ===================== All functions by section ===================== */
 /* ==================================================================== */
 
 /* Functions definitions go here, organised into sections */
+
+uint32_t systimeMS_get()
+{
+	return SysTimeToMs(SysTimeGet());
+}
 
 gps_status_t get_latest_gps_status(void)
 {
@@ -244,8 +250,8 @@ gps_status_t get_location_fix(uint32_t timeout)
 	memset(&gps_info, 0, sizeof(gps_info_t));
 
 	/* poll UBX-NAV-PVT until the module has fix */
-	uint32_t startTime = HAL_GetTick();
-	while (HAL_GetTick() - startTime < timeout)
+	uint32_t startTime = systimeMS_get();
+	while (systimeMS_get() - startTime < timeout)
 	{
 		// HAL_IWDG_Refresh(&hiwdg);
 
@@ -268,7 +274,7 @@ gps_status_t get_location_fix(uint32_t timeout)
 		SysTime_t stime = SysTimeGetMcuTime();
 		printf("%3ds%03dms: ",stime.Seconds, stime.SubSeconds);
 		
-		uint32_t current_time = HAL_GetTick() - startTime;
+		uint32_t current_time = systimeMS_get() - startTime;
 		float current_time_F = (float)current_time / 1000;
 
 		printf("Fixtype: ");
