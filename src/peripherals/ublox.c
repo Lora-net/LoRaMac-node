@@ -259,7 +259,10 @@ gps_status_t get_location_fix(uint32_t timeout)
 		uint8_t temp_GPSday = getDay(defaultMaxWait);
 		uint8_t temp_GPSfix_OK = getgnssFixOK(defaultMaxWait);
 
-		PRINTNOW();
+
+		SysTime_t stime = SysTimeGetMcuTime();
+		printf("%3ds%03dms: ",stime.Seconds, stime.SubSeconds);
+		
 		uint32_t current_time = HAL_GetTick() - startTime;
 		float current_time_F = (float)current_time / 1000;
 
