@@ -36,7 +36,7 @@ static UART_HandleTypeDef UartHandle;
 uint8_t RxData = 0;
 uint8_t TxData = 0;
 
-extern Uart_t Uart2;
+extern Uart_t Uart1;
 
 void UartMcuInit( Uart_t *obj, UartId_t uartId, PinNames tx, PinNames rx )
 {
@@ -303,30 +303,30 @@ uint8_t UartMcuGetBuffer( Uart_t *obj, uint8_t *buffer, uint16_t size, uint16_t 
 
 void HAL_UART_TxCpltCallback( UART_HandleTypeDef *handle )
 {
-    if( IsFifoEmpty( &Uart2.FifoTx ) == false )
+    if( IsFifoEmpty( &Uart1.FifoTx ) == false )
     {
-        TxData = FifoPop( &Uart2.FifoTx );
+        TxData = FifoPop( &Uart1.FifoTx );
         //  Write one byte to the transmit data register
         HAL_UART_Transmit_IT( &UartHandle, &TxData, 1 );
     }
 
-    if( Uart2.IrqNotify != NULL )
+    if( Uart1.IrqNotify != NULL )
     {
-        Uart2.IrqNotify( UART_NOTIFY_TX );
+        Uart1.IrqNotify( UART_NOTIFY_TX );
     }
 }
 
 void HAL_UART_RxCpltCallback( UART_HandleTypeDef *handle )
 {
-    if( IsFifoFull( &Uart2.FifoRx ) == false )
+    if( IsFifoFull( &Uart1.FifoRx ) == false )
     {
         // Read one byte from the receive data register
-        FifoPush( &Uart2.FifoRx, RxData );
+        FifoPush( &Uart1.FifoRx, RxData );
     }
 
-    if( Uart2.IrqNotify != NULL )
+    if( Uart1.IrqNotify != NULL )
     {
-        Uart2.IrqNotify( UART_NOTIFY_RX );
+        Uart1.IrqNotify( UART_NOTIFY_RX );
     }
 
     HAL_UART_Receive_IT( &UartHandle, &RxData, 1 );

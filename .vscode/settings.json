@@ -45,7 +45,7 @@
 
         // Target board, the following boards are supported:
         // NAMote72, NucleoL073 (Default), NucleoL152, NucleoL476, SAMR34, SKiM880B, SKiM980A, SKiM881AXL, B-L072Z-LRWAN1.
-        "BOARD":"NucleoL073",
+        "BOARD":"B-L072Z-LRWAN1",
 
         // MBED Radio shield selection. (Applies only to Nucleo platforms)
         // The following shields are supported:
