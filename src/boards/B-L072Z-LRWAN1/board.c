@@ -34,6 +34,8 @@
 #include "rtc-board.h"
 #include "sx1276-board.h"
 #include "board.h"
+#include "ublox.h"
+#include "config.h"
 
 /*!
  * Unique Devices IDs register set ( STM32L0xxx )
@@ -107,6 +109,11 @@ void BoardCriticalSectionEnd( uint32_t *mask )
 void BoardInitPeriph( void )
 {
 
+		/* GPS SETUP */
+		#if GPS_ENABLED
+		printf("SELFTEST: Initialising GPS\n\r");
+		setup_GPS();
+		#endif
 }
 
 void BoardInitMcu( void )
