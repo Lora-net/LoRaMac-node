@@ -21,6 +21,7 @@
 #include "i2c.h"
 #include <board.h>
 #include <systime.h>
+#include "delay.h"
 
 
 #include <stdbool.h>
@@ -161,7 +162,7 @@ gps_status_t setup_GPS()
 	GpioWrite(&Gps_int, 1); // pull GPS extint0 pin high to wake gps
 
 	factoryReset();
-	HAL_Delay(GPS_WAKEUP_TIMEOUT); // Wait for things to be setup
+	DelayMs(GPS_WAKEUP_TIMEOUT); // Wait for things to be setup
 
 	/* Set the I2C port to output UBX only (turn off NMEA noise) */
 	if (setI2COutput(COM_TYPE_UBX, defaultMaxWait) == false) //Set the I2C port to output UBX only (turn off NMEA noise)
@@ -326,7 +327,7 @@ gps_status_t get_location_fix(uint32_t timeout)
 			gps_info.latest_gps_status = GPS_SUCCESS;
 			return GPS_SUCCESS;
 		}
-		HAL_Delay(1000);
+		DelayMs(1000);
 	}
 
 	/* If fix taking too long, reset and re-initialize GPS module. 
@@ -349,7 +350,7 @@ static gps_status_t init_for_fix()
 	/* pull GPS extint0 pin high to wake gps */
 	GpioWrite(&Gps_int, 1);
 
-	HAL_Delay(GPS_WAKEUP_TIMEOUT);
+	DelayMs(GPS_WAKEUP_TIMEOUT);
 
 	// HAL_IWDG_Refresh(&hiwdg);
 
@@ -419,7 +420,7 @@ static gps_status_t reinit_gps()
 
 	// configure gps module again
 	factoryReset();
-	HAL_Delay(GPS_WAKEUP_TIMEOUT); // wait for GPS module to be ready
+	DelayMs(GPS_WAKEUP_TIMEOUT); // wait for GPS module to be ready
 
 	// HAL_IWDG_Refresh(&hiwdg);
 
@@ -490,7 +491,7 @@ static gps_status_t display_still_searching()
 {
 	// Indicator led to indicate that still searching
 	GpioWrite(&Led1, 1);
-	HAL_Delay(100);
+	DelayMs(100);
 	GpioWrite(&Led1, 0);
 
 	return GPS_SUCCESS;
@@ -502,9 +503,9 @@ static gps_status_t display_fix_found()
 	for (uint8_t i = 0; i < 20; i++)
 	{
 		GpioWrite(&Led1, 1);
-		HAL_Delay(50);
+		DelayMs(50);
 		GpioWrite(&Led1, 0);
-		HAL_Delay(50);
+		DelayMs(50);
 	}
 
 	return GPS_SUCCESS;
