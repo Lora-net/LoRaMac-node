@@ -131,6 +131,8 @@ void BoardInitMcu( void )
         UartInit( &Uart1, UART_1, UART_TX, UART_RX );
         UartConfig( &Uart1, RX_TX, 2000000, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
 
+        I2cInit( &I2c, I2C_1, I2C_SCL, I2C_SDA );
+			
         RtcInit( );
 
         GpioWrite( &Led1, 0 );
