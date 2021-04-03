@@ -19,6 +19,8 @@
 #include <stdbool.h>
 #include "utilities.h"
 #include "i2c.h"
+#include <board.h>
+
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -297,7 +299,7 @@ gps_status_t get_location_fix(uint32_t timeout)
 
 		printf("seconds since the Epoch: %ld\n", (uint32_t)t_of_day);
 
-		load_solar_voltage = BSP_GetSolarLevel16();
+		load_solar_voltage = BoardGetBatteryVoltage();
 
 		if (temp_GPSfix_type == 3 && temp_GPSsats >= SATS && temp_GPSfix_OK == 1) // check if we have a good fix
 		{
