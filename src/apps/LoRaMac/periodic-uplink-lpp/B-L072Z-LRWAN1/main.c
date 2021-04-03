@@ -308,20 +308,6 @@ int main( void )
     // initialized and activated.
     LmHandlerPackageRegister( PACKAGE_ID_COMPLIANCE, &LmhpComplianceParams );
 
-    // BEGIN - Workaround when using AU915/US915 with an 8 channels gateway setup
-#if defined(REGION_AU915) || defined(REGION_US915)
-    MibRequestConfirm_t mibReq;
-    // Enabling 1st block of 8 channels (0-7) + channel 64
-    uint16_t channelMask[] = {0x00FF, 0x0000, 0x0000, 0x0000, 0x0001, 0x0000};
-    mibReq.Type = MIB_CHANNELS_MASK;
-    mibReq.Param.ChannelsMask = channelMask;
-    LoRaMacMibSetRequestConfirm(&mibReq);
-    mibReq.Type = MIB_CHANNELS_DEFAULT_MASK;
-    mibReq.Param.ChannelsDefaultMask = channelMask;
-    LoRaMacMibSetRequestConfirm(&mibReq);
-#endif
-    // END - Workaround when using AU915/US915 with an 8 channels gateway setup
-
     LmHandlerJoin( );
 
     StartTxProcess( LORAMAC_HANDLER_TX_ON_TIMER );
