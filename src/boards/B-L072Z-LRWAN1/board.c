@@ -51,6 +51,7 @@ Gpio_t Led3;
 Gpio_t Led4;
 
 Gpio_t Gps_int;
+Gpio_t Load_enable;
 
 /*
  * MCU objects
@@ -121,6 +122,8 @@ void BoardInitMcu( void )
         GpioInit( &Led4, LED_4, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
         GpioInit( &Gps_int, GPS_INT, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
 
+        // Load enable for sensors, GPS
+        GpioInit( &Load_enable, LOAD_ENABLE, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
         SystemClockConfig( );
 
         UsbIsConnected = true;
@@ -139,6 +142,7 @@ void BoardInitMcu( void )
         GpioWrite( &Led2, 0 );
         GpioWrite( &Led3, 0 );
         GpioWrite( &Led4, 0 );
+        GpioWrite( &Load_enable, 0 );
 
         BoardUnusedIoInit( );
         if( GetBoardPowerSource( ) == BATTERY_POWER )
