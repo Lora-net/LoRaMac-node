@@ -650,6 +650,21 @@ static void LoRaMacHandleIndicationEvents( void );
 static void LoRaMacHandleNvm( LoRaMacNvmData_t* nvmData );
 
 /*!
+ * \brief This function verifies if the response timeout has been elapsed. If
+ *        this is the case, the status of Nvm.MacGroup1.SrvAckRequested will be
+ *        reset.
+ *
+ * \param [IN] timeoutInMs Timeout [ms] to be compared.
+ *
+ * \param [IN] startTimeInMs Start time [ms] used as a base. If set to 0,
+ *                           no comparison will be done.
+ *
+ * \retval true: Response timeout has been elapsed, false: Response timeout
+ *         has not been elapsed or startTimeInMs is 0.
+ */
+static bool LoRaMacHandleResponseTimeout( TimerTime_t timeoutInMs, TimerTime_t startTimeInMs );
+
+/*!
  * Structure used to store the radio Tx event data
  */
 struct
@@ -1634,6 +1649,19 @@ static void LoRaMacHandleNvm( LoRaMacNvmData_t* nvmData )
     CallNvmDataChangeCallback( notifyFlags );
 }
 
+static bool LoRaMacHandleResponseTimeout( TimerTime_t timeoutInMs, TimerTime_t startTimeInMs )
+{
+    if( startTimeInMs != 0 )
+    {
+        TimerTime_t elapsedTime = TimerGetElapsedTime( startTimeInMs );
+        if( elapsedTime > timeoutInMs )
+        {
+            Nvm.MacGroup1.SrvAckRequested = false;
+            return true;
+        }
+    }
+    return false;
+}
 
 void LoRaMacProcess( void )
 {
@@ -1676,14 +1704,11 @@ static void OnTxDelayedTimerEvent( void* context )
     TimerStop( &MacCtx.TxDelayedTimer );
     MacCtx.MacState &= ~LORAMAC_TX_DELAYED;
 
-    if( MacCtx.ResponseTimeoutStartTime != 0 )
+    if( LoRaMacHandleResponseTimeout( REGION_COMMON_CLASS_B_C_RESP_TIMEOUT,
+                                      MacCtx.ResponseTimeoutStartTime ) == true )
     {
-        TimerTime_t elapsedTime = TimerGetElapsedTime( MacCtx.ResponseTimeoutStartTime );
-        if( elapsedTime > REGION_COMMON_CLASS_B_C_RESP_TIMEOUT )
-        {
-            // Skip retransmission
-            return;
-        }
+        // Skip retransmission
+        return;
     }
 
     // Schedule frame, allow delayed frame transmissions
@@ -2698,6 +2723,7 @@ static void ResetMacParameters( void )
 
     MacCtx.ChannelsNbTransCounter = 0;
     MacCtx.RetransmitTimeoutRetry = false;
+    MacCtx.ResponseTimeoutStartTime = 0;
 
     Nvm.MacGroup2.MaxDCycle = 0;
     Nvm.MacGroup2.AggregatedDCycle = 1;
@@ -4818,6 +4844,10 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
                 return LORAMAC_STATUS_PARAMETER_INVALID;
             }
         }
+
+        // Verification of response timeout for class b and class c
+        LoRaMacHandleResponseTimeout( REGION_COMMON_CLASS_B_C_RESP_TIMEOUT,
+                                      MacCtx.ResponseTimeoutStartTime );
 
         status = Send( &macHdr, fPort, fBuffer, fBufferSize );
         if( status == LORAMAC_STATUS_OK )
