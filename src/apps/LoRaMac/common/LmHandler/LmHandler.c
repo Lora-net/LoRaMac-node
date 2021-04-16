@@ -225,6 +225,8 @@ typedef enum PackageNotifyTypes_e
  */
 static void LmHandlerPackagesNotify( PackageNotifyTypes_t notifyType, void *params );
 
+static bool LmHandlerPackageIsTxPending( void );
+
 static void LmHandlerPackagesProcess( void );
 
 LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
@@ -344,15 +346,9 @@ bool LmHandlerIsBusy( void )
         return true;
     }
 
-    for( int8_t i = 0; i < PKG_MAX_NUMBER; i++ )
+    if( LmHandlerPackageIsTxPending( ) == true )
     {
-        if( LmHandlerPackages[i] != NULL )
-        {
-            if( LmHandlerPackages[i]->IsTxPending( ) == true )
-            {
-                return true;
-            }
-        }
+        return true;
     }
 
     return false;
@@ -381,6 +377,13 @@ void LmHandlerProcess( void )
 
     // Call all packages process functions
     LmHandlerPackagesProcess( );
+
+    // Check if a package transmission is pending.
+    // If it is the case exit function earlier
+    if( LmHandlerPackageIsTxPending( ) == true )
+    {
+        return;
+    }
 
     // If a MAC layer scheduled uplink is still pending try to send it.
     if( IsUplinkTxPending == true )
@@ -1012,6 +1015,21 @@ static void LmHandlerPackagesNotify( PackageNotifyTypes_t notifyType, void *para
             }
         }
     }
+}
+
+static bool LmHandlerPackageIsTxPending( void )
+{
+    for( int8_t i = 0; i < PKG_MAX_NUMBER; i++ )
+    {
+        if( LmHandlerPackages[i] != NULL )
+        {
+            if( LmHandlerPackages[i]->IsTxPending( ) == true )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 static void LmHandlerPackagesProcess( void )
