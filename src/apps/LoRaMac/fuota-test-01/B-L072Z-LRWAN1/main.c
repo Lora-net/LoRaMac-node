@@ -673,6 +673,11 @@ static void OnTxPeriodicityChanged( uint32_t periodicity )
     { // Revert to application default periodicity
         TxPeriodicity = APP_TX_DUTYCYCLE + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND );
     }
+
+    // Update timer periodicity
+    TimerStop( &TxTimer );
+    TimerSetValue( &TxTimer, TxPeriodicity );
+    TimerStart( &TxTimer );
 }
 
 static void OnTxFrameCtrlChanged( LmHandlerMsgTypes_t isTxConfirmed )

@@ -500,6 +500,10 @@ typedef union eLoRaMacFlags_t
          * MAC cycle done
          */
         uint8_t MacDone                 : 1;
+        /*!
+         * Indicate if a NVM handling is required
+         */
+        uint8_t NvmHandle               : 1;
     }Bits;
 }LoRaMacFlags_t;
 
