@@ -1237,11 +1237,16 @@ static void ProcessRadioRxDone( void )
     }
 
     // Verify if we need to disable the RetransmitTimeoutTimer
-    if( MacCtx.NodeAckRequested == true )
+    // Only aplies if downlink is received on Rx1 or Rx2 windows.
+    if( ( MacCtx.McpsIndication.RxSlot == RX_SLOT_WIN_1 ) ||
+        ( MacCtx.McpsIndication.RxSlot == RX_SLOT_WIN_2 ) )
     {
-        if( MacCtx.McpsConfirm.AckReceived == true )
+        if( MacCtx.NodeAckRequested == true )
         {
-            OnRetransmitTimeoutTimerEvent( NULL );
+            if( MacCtx.McpsConfirm.AckReceived == true )
+            {
+                OnRetransmitTimeoutTimerEvent( NULL );
+            }
         }
     }
 
