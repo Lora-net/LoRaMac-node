@@ -49,7 +49,7 @@ For each currently supported platform example applications are provided.
 
 This project currently provides support for the below platforms.  
 This project can be ported to other platforms using different MCU than the ones currently supported.  
-The [Porting Guide](http://stackforce.github.io/LoRaMac-doc/_p_o_r_t_i_n_g__g_u_i_d_e.html) document provides guide lines on how to port the project to other platforms.
+The [Porting Guide](https://stackforce.github.io/LoRaMac-doc/LoRaMac-doc-v4.5.1/_p_o_r_t_i_n_g__g_u_i_d_e.html) document provides guide lines on how to port the project to other platforms.
 
 * NAMote72
   * [NAMote72 platform documentation](doc/NAMote72-platform.md)
