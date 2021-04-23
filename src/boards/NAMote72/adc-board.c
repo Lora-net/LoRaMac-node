@@ -28,7 +28,7 @@ ADC_HandleTypeDef AdcHandle;
 
 void AdcMcuInit( Adc_t *obj, PinNames adcInput )
 {
-    AdcHandle.Instance = ( ADC_TypeDef* )ADC1_BASE;
+    AdcHandle.Instance = ADC1;
 
     __HAL_RCC_ADC1_CLK_ENABLE( );
 
@@ -70,6 +70,11 @@ uint16_t AdcMcuReadChannel( Adc_t *obj, uint32_t channel )
     {
     }
 
+    // Wait the the Vrefint used by adc is set
+    while( __HAL_PWR_GET_FLAG( PWR_FLAG_VREFINTRDY ) == RESET )
+    {
+    }
+
     __HAL_RCC_ADC1_CLK_ENABLE( );
 
     adcConf.Channel = channel;
@@ -79,22 +84,15 @@ uint16_t AdcMcuReadChannel( Adc_t *obj, uint32_t channel )
     HAL_ADC_ConfigChannel( &AdcHandle, &adcConf );
 
     // Enable ADC1
-    if( ADC_Enable( &AdcHandle ) == HAL_OK )
-    {
-        // Start ADC Software Conversion
-        HAL_ADC_Start( &AdcHandle );
+    // Start ADC Software Conversion
+    HAL_ADC_Start( &AdcHandle );
 
-        HAL_ADC_PollForConversion( &AdcHandle, HAL_MAX_DELAY );
+    HAL_ADC_PollForConversion( &AdcHandle, HAL_MAX_DELAY );
 
-        adcData = HAL_ADC_GetValue( &AdcHandle );
-    }
+    adcData = HAL_ADC_GetValue( &AdcHandle );
 
-    ADC_ConversionStop_Disable( &AdcHandle );
+    __HAL_ADC_DISABLE( &AdcHandle );
 
-    if( ( adcConf.Channel == ADC_CHANNEL_TEMPSENSOR ) || ( adcConf.Channel == ADC_CHANNEL_VREFINT ) )
-    {
-        HAL_ADC_DeInit( &AdcHandle );
-    }
     __HAL_RCC_ADC1_CLK_DISABLE( );
 
     // Disable HSI

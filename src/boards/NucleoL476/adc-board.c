@@ -24,11 +24,25 @@
 #include "board-config.h"
 #include "adc-board.h"
 
+//
+// DEFINED HERE UP UNTIL THE HAL DRIVERS AREN'T UPDATED
+//
+/**
+  * @brief Disable the ADC peripheral.
+  * @param __HANDLE__ ADC handle.
+  * @retval None
+  */
+#define ADC_DISABLE(__HANDLE__)                                          \
+  do{                                                                          \
+         (__HANDLE__)->Instance->CR |= ADC_CR_ADDIS;                           \
+          __HAL_ADC_CLEAR_FLAG((__HANDLE__), (ADC_FLAG_EOSMP | ADC_FLAG_RDY)); \
+  } while(0)
+
 ADC_HandleTypeDef AdcHandle;
 
 void AdcMcuInit( Adc_t *obj, PinNames adcInput )
 {
-    AdcHandle.Instance = ( ADC_TypeDef* )ADC1_BASE;
+    AdcHandle.Instance = ADC1;
 
     __HAL_RCC_ADC_CLK_ENABLE( );
 
@@ -43,6 +57,7 @@ void AdcMcuInit( Adc_t *obj, PinNames adcInput )
 void AdcMcuConfig( void )
 {
     // Configure ADC
+    AdcHandle.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV1;
     AdcHandle.Init.Resolution            = ADC_RESOLUTION_12B;
     AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     AdcHandle.Init.ContinuousConvMode    = DISABLE;
@@ -71,30 +86,24 @@ uint16_t AdcMcuReadChannel( Adc_t *obj, uint32_t channel )
 
     __HAL_RCC_ADC_CLK_ENABLE( );
 
+    // Calibrate ADC if any calibraiton hardware
+    HAL_ADCEx_Calibration_Start( &AdcHandle, ADC_SINGLE_ENDED );
+
     adcConf.Channel = channel;
     adcConf.Rank = ADC_REGULAR_RANK_1;
     adcConf.SamplingTime = ADC_SAMPLETIME_92CYCLES_5;
 
     HAL_ADC_ConfigChannel( &AdcHandle, &adcConf );
 
-    // Enable ADC
-    if( ADC_Enable( &AdcHandle ) == HAL_OK )
-    {
-        // Start ADC Software Conversion
-        HAL_ADC_Start( &AdcHandle );
+    // Start ADC Software Conversion
+    HAL_ADC_Start( &AdcHandle );
 
-        HAL_ADC_PollForConversion( &AdcHandle, HAL_MAX_DELAY );
+    HAL_ADC_PollForConversion( &AdcHandle, HAL_MAX_DELAY );
 
-        adcData = HAL_ADC_GetValue( &AdcHandle );
-    }
+    adcData = HAL_ADC_GetValue( &AdcHandle );
 
-    ADC_ConversionStop( &AdcHandle, ADC_REGULAR_GROUP );
-    HAL_ADC_Stop( &AdcHandle );
+    ADC_DISABLE( &AdcHandle );
 
-    if( ( adcConf.Channel == ADC_CHANNEL_TEMPSENSOR ) || ( adcConf.Channel == ADC_CHANNEL_VREFINT ) )
-    {
-        HAL_ADC_DeInit( &AdcHandle );
-    }
     __HAL_RCC_ADC_CLK_DISABLE( );
 
     // Disable HSI
