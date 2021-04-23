@@ -73,6 +73,7 @@ void I2cMcuFormat( I2c_t *obj, I2cMode mode, I2cDutyCycle dutyCycle, bool I2cAck
     HAL_I2C_Init( &I2cHandle );
 
     HAL_I2CEx_ConfigAnalogFilter( &I2cHandle, I2C_ANALOGFILTER_ENABLE );
+    HAL_I2CEx_ConfigDigitalFilter( &I2cHandle, 0 );
 }
 
 void I2cMcuResetBus( I2c_t *obj )
