@@ -86,6 +86,13 @@ uint32_t BoardGetBatteryVoltage( void );
 uint8_t BoardGetBatteryLevel( void );
 
 /*!
+ * \brief Get the current MCU temperature in degree celcius * 256
+ *
+ * \retval temperature * 256
+ */
+int16_t BoardGetTemperature( void );
+
+/*!
  * Returns a pseudo random seed generated using the MCU Unique ID
  *
  * \retval seed Generated pseudo random seed

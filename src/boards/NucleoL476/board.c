@@ -60,6 +60,7 @@ Gpio_t Led2;
 /*
  * MCU objects
  */
+Adc_t  Adc;
 Uart_t Uart2;
 
 #if defined( LR1110MB1XXS )
@@ -157,6 +158,8 @@ void BoardInitMcu( void )
         SystemClockReConfig( );
     }
 
+    AdcInit( &Adc, NC );  // Just initialize ADC
+
 #if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
     SpiInit( &SX126x.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX126xIoInit( );
@@ -200,6 +203,8 @@ void BoardResetMcu( void )
 
 void BoardDeInitMcu( void )
 {
+    AdcDeInit( &Adc );
+
 #if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
     SpiDeInit( &SX126x.Spi );
     SX126xIoDeInit( );
@@ -232,19 +237,110 @@ void BoardGetUniqueId( uint8_t *id )
     id[0] = ( ( *( uint32_t* )ID2 ) );
 }
 
+/*!
+ * Factory power supply
+ */
+#define VDDA_VREFINT_CAL ( ( uint32_t ) 3000 )  // mV
+
+/*!
+ * VREF calibration value
+ */
+#define VREFINT_CAL ( *( uint16_t* ) ( ( uint32_t ) 0x1FFF75AA ) )
+
+/*
+ * Internal temperature sensor, parameter TS_CAL1: TS ADC raw data acquired at
+ * a temperature of 110 DegC (+-5 DegC), VDDA = 3.3 V (+-10 mV).
+ */
+#define TEMP30_CAL_ADDR ( *( uint16_t* ) ( ( uint32_t ) 0x1FFF75A8 ) )
+
+/* Internal temperature sensor, parameter TS_CAL2: TS ADC raw data acquired at
+ *a temperature of  30 DegC (+-5 DegC), VDDA = 3.3 V (+-10 mV). */
+#define TEMP110_CAL_ADDR ( *( uint16_t* ) ( ( uint32_t ) 0x1FFF75CA ) )
+
+/* Vdda value with which temperature sensor has been calibrated in production
+   (+-10 mV). */
+#define VDDA_TEMP_CAL ( ( uint32_t ) 3000 )
+
+/*!
+ * Battery thresholds
+ */
+#define BATTERY_MAX_LEVEL 3000       // mV
+#define BATTERY_MIN_LEVEL 2400       // mV
+#define BATTERY_SHUTDOWN_LEVEL 2300  // mV
+
+#define BATTERY_LORAWAN_UNKNOWN_LEVEL 255
+#define BATTERY_LORAWAN_MAX_LEVEL 254
+#define BATTERY_LORAWAN_MIN_LEVEL 1
+#define BATTERY_LORAWAN_EXT_PWR 0
+
+#define COMPUTE_TEMPERATURE( TS_ADC_DATA, VDDA_APPLI )                                                          \
+    ( ( ( ( ( ( ( int32_t )( ( TS_ADC_DATA * VDDA_APPLI ) / VDDA_TEMP_CAL ) - ( int32_t ) TEMP30_CAL_ADDR ) ) * \
+            ( int32_t )( 110 - 30 ) )                                                                           \
+          << 8 ) /                                                                                              \
+        ( int32_t )( TEMP110_CAL_ADDR - TEMP30_CAL_ADDR ) ) +                                                   \
+      ( 30 << 8 ) )
+
+static uint16_t BatteryVoltage = BATTERY_MAX_LEVEL;
+
 uint16_t BoardBatteryMeasureVoltage( void )
 {
-    return 0;
+    uint16_t vref = 0;
+
+    // Read the current Voltage
+    vref = AdcReadChannel( &Adc, ADC_CHANNEL_VREFINT );
+
+    // Compute and return the Voltage in millivolt
+    return ( ( ( uint32_t ) VDDA_VREFINT_CAL * VREFINT_CAL ) / vref );
 }
 
 uint32_t BoardGetBatteryVoltage( void )
 {
-    return 0;
+    return BatteryVoltage;
 }
 
 uint8_t BoardGetBatteryLevel( void )
 {
-    return 0;
+    uint8_t batteryLevel = 0;
+
+    BatteryVoltage = BoardBatteryMeasureVoltage( );
+
+    if( GetBoardPowerSource( ) == USB_POWER )
+    {
+        batteryLevel = BATTERY_LORAWAN_EXT_PWR;
+    }
+    else
+    {
+        if( BatteryVoltage >= BATTERY_MAX_LEVEL )
+        {
+            batteryLevel = BATTERY_LORAWAN_MAX_LEVEL;
+        }
+        else if( ( BatteryVoltage > BATTERY_MIN_LEVEL ) && ( BatteryVoltage < BATTERY_MAX_LEVEL ) )
+        {
+            batteryLevel =
+                ( ( 253 * ( BatteryVoltage - BATTERY_MIN_LEVEL ) ) / ( BATTERY_MAX_LEVEL - BATTERY_MIN_LEVEL ) ) + 1;
+        }
+        else if( ( BatteryVoltage > BATTERY_SHUTDOWN_LEVEL ) && ( BatteryVoltage <= BATTERY_MIN_LEVEL ) )
+        {
+            batteryLevel = 1;
+        }
+        else  // if( BatteryVoltage <= BATTERY_SHUTDOWN_LEVEL )
+        {
+            batteryLevel = BATTERY_LORAWAN_UNKNOWN_LEVEL;
+        }
+    }
+    return batteryLevel;
+}
+
+int16_t BoardGetTemperature( void )
+{
+    uint16_t tempRaw = 0;
+
+    BatteryVoltage = BoardBatteryMeasureVoltage( );
+
+    tempRaw = AdcReadChannel( &Adc, ADC_CHANNEL_TEMPSENSOR );
+
+    // Compute and return the temperature in degree celcius * 256
+    return ( int16_t ) COMPUTE_TEMPERATURE( tempRaw, BatteryVoltage );
 }
 
 static void BoardUnusedIoInit( void )
