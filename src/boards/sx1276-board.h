@@ -50,7 +50,8 @@ extern "C"
     { MODEM_FSK , REG_SYNCVALUE2         , 0x94 },\
     { MODEM_FSK , REG_SYNCVALUE3         , 0xC1 },\
     { MODEM_FSK , REG_PACKETCONFIG1      , 0xD8 },\
-    { MODEM_FSK , REG_FIFOTHRESH         , 0xBF },\
+    /* FIFO threshold set to 32 (31+1) */         \
+    { MODEM_FSK , REG_FIFOTHRESH         , 0x9F },\
     { MODEM_FSK , REG_IMAGECAL           , 0x02 },\
     { MODEM_FSK , REG_DIOMAPPING1        , 0x00 },\
     { MODEM_FSK , REG_DIOMAPPING2        , 0x30 },\
