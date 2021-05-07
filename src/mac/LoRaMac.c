@@ -300,11 +300,12 @@ typedef union uLoRaMacRadioEvents
     uint32_t Value;
     struct sEvents
     {
-        uint32_t RxTimeout : 1;
-        uint32_t RxError   : 1;
-        uint32_t TxTimeout : 1;
-        uint32_t RxDone    : 1;
-        uint32_t TxDone    : 1;
+        uint32_t RxProcessPending : 1;
+        uint32_t RxTimeout        : 1;
+        uint32_t RxError          : 1;
+        uint32_t TxTimeout        : 1;
+        uint32_t RxDone           : 1;
+        uint32_t TxDone           : 1;
     }Events;
 }LoRaMacRadioEvents_t;
 
@@ -776,6 +777,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
     RxDoneParams.Snr = snr;
 
     LoRaMacRadioEvents.Events.RxDone = 1;
+    LoRaMacRadioEvents.Events.RxProcessPending = 1;
 
     if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
     {
@@ -909,6 +911,8 @@ static void ProcessRadioRxDone( void )
     AddressIdentifier_t addrID = UNICAST_DEV_ADDR;
     FCntIdentifier_t fCntID;
     uint8_t macCmdPayload[2] = { 0 };
+
+    LoRaMacRadioEvents.Events.RxProcessPending = 0;
 
     MacCtx.McpsConfirm.AckReceived = false;
     MacCtx.McpsIndication.Rssi = rssi;
@@ -1501,6 +1505,11 @@ static void LoRaMacHandleIrqEvents( void )
 
 bool LoRaMacIsBusy( void )
 {
+    if( LoRaMacRadioEvents.Events.RxProcessPending == 1 )
+    {
+        return true;
+    }
+
     if( ( MacCtx.MacState == LORAMAC_IDLE ) &&
         ( MacCtx.AllowRequests == LORAMAC_REQUEST_HANDLING_ON ) )
     {
@@ -3787,6 +3796,9 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
 
     // Store the current initialization time
     Nvm.MacGroup2.InitializationTime = SysTimeGetMcuTime( );
+
+    // Initialize MAC radio events
+    LoRaMacRadioEvents.Value = 0;
 
     // Initialize Radio driver
     MacCtx.RadioEvents.TxDone = OnRadioTxDone;
