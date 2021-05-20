@@ -47,7 +47,7 @@ const int32_t MaxWestPosition = 8388608;        // -2^23
 
 NmeaGpsData_t NmeaGpsData;
 
-static double HasFix = false;
+static bool HasFix = false;
 static double Latitude = 0;
 static double Longitude = 0;
 
