@@ -48,7 +48,9 @@
 /*!
  * LoRaWAN default end-device class
  */
+#ifndef LORAWAN_DEFAULT_CLASS
 #define LORAWAN_DEFAULT_CLASS                       CLASS_A
+#endif
 
 /*!
  * Defines the application data transmission duty cycle. 5s, value in [ms].
