@@ -3676,6 +3676,13 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     // Setup version
     Nvm.MacGroup2.Version.Value = LORAMAC_VERSION;
 
+    InitDefaultsParams_t params;
+    params.Type = INIT_TYPE_DEFAULTS;
+    params.NvmGroup1 = &Nvm.RegionGroup1;
+    params.NvmGroup2 = &Nvm.RegionGroup2;
+    params.Bands = &RegionBands;
+    RegionInitDefaults( Nvm.MacGroup2.Region, &params );
+
     // Reset to defaults
     getPhy.Attribute = PHY_DUTY_CYCLE;
     phyParam = RegionGetPhyParam( Nvm.MacGroup2.Region, &getPhy );
@@ -3763,13 +3770,6 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
 
     // FPort 224 is enabled by default.
     Nvm.MacGroup2.IsCertPortOn = true;
-
-    InitDefaultsParams_t params;
-    params.Type = INIT_TYPE_DEFAULTS;
-    params.NvmGroup1 = &Nvm.RegionGroup1;
-    params.NvmGroup2 = &Nvm.RegionGroup2;
-    params.Bands = &RegionBands;
-    RegionInitDefaults( Nvm.MacGroup2.Region, &params );
 
     ResetMacParameters( );
 

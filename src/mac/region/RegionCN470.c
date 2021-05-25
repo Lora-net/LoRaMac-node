@@ -564,14 +564,10 @@ void RegionCN470InitDefaults( InitDefaultsParams_t* params )
             // Default bands
             memcpy1( ( uint8_t* )RegionBands, ( uint8_t* )bands, sizeof( Band_t ) * CN470_MAX_NB_BANDS );
 
-            // Verify that a default channel plan is available
-            if( RegionNvmGroup2->ChannelPlan == CHANNEL_PLAN_UNKNOWN )
-            {
-                // 125 kHz channels
-                RegionNvmGroup2->ChannelPlan = REGION_CN470_DEFAULT_CHANNEL_PLAN;
-                RegionNvmGroup2->CommonJoinChannelIndex = 0;
-                RegionNvmGroup2->IsOtaaDevice = false;
-            }
+            // 125 kHz channels
+            RegionNvmGroup2->ChannelPlan = REGION_CN470_DEFAULT_CHANNEL_PLAN;
+            RegionNvmGroup2->CommonJoinChannelIndex = 0;
+            RegionNvmGroup2->IsOtaaDevice = false;
 
             // Apply the channel plan configuration
             ApplyChannelPlanConfig( RegionNvmGroup2->ChannelPlan, &ChannelPlanCtx );
