@@ -11,8 +11,65 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 
 ## [Unreleased]
 
-## [4.5.1] - 2021-01-18
+## [4.5.2] - 2021-05-28
 
+### General
+
+- Release based on "LoRaWAN specification 1.0.4" and "LoRaWAN Regional Parameters 2-1.0.1"
+- GitHub reported issues corrections.
+
+### Known limitations
+
+- SAMR34 platform does not support NVM storage. This is a requirement for LoRaWAN versions greater or equal to 1.0.4.
+  No work on this subject is forseen by the maintainers. Implementation proposals are welcome.
+
+### Added
+
+- Added possibility to override periodic-uplink-lpp example `LORAWAN_DEFAULT_CLASS`
+- Added I2C driver support for B-L072Z-LRWAN1 and Nucleo platforms to the build system
+- Added battery voltage and MCU temperature reading functions implementation for Nucleo platforms
+- Added a default value for `Request->ReqReturn.DutyCycleWaitTime` to ensure that a valid value is always returned
+- Added SX126x `REG_RX_GAIN` and `REG_TX_MODULATION` to the radio registers retention list
+- Added SX126x missing registers definitions
+- Added radio image calibration enforcement after radio initialization and radio sleep cold start.
+- Added possibility to query minimal Tx data rate
+
+### Changed
+
+- Updated ADC driver based on en.en-st-stm32cubeide examples
+- Changed improved the way `LmHandler` handles the packages transmissions
+- Changed certification `OnTxPeriodicityChanged` callback implementation in order to directly apply the requested change
+- Changed the `LmHandler` initialization to apply user default data rate
+- Changed SX1272 and SX1276 FSK FIFO threshold from 15 to 31 in order to give more time for the MCU to make other processing tasks
+- Changed the way `IrqFired` global variable is handled by `RadioIrqProcess`
+- Changed the place of call to `TimerStop( &RxTimeoutTimer )` on `RadioIrqProcess` implementation
+- Changed utilities.h `SUCCESS`/`FAIL` definition by an enumeration `LMN_STATUS_OK`/`LMN_STATUS_ERROR`
+
+### Fixed
+
+- Fixed Null pointer exception when CN470 region was selected
+- Fixed `src/system/gps.c` HasFix variable type from `double` to `bool`
+- Fixed Class C downlink handling
+- Fixed I2C driver for L476
+- Fixed re-transmissions handling when ClassB or ClassC downlink is received
+- Fixed certification `FPort224DisableReq` command NVM handling
+- Fixed Class B & C confirmed downlink acknowledge management when `CLASS_B_C_RESP_TIMEOUT` expires
+- Fixed an issue when receiving downlinks in class C window during a class A procedure
+- Fixed SX126x and LR1110 driver IrqFired variable management
+- Fixed `LmhpCompliance.c` `periodicity` array size computation
+- Fixed join back-off by not storing band usage on the NVM memory.
+- Fixed `LoRaMacMibGetRequestConfirm` `MIB_SE_PIN` handling
+- Fixed ping-slot frequency to take in account the `AS923_FREQ_OFFSET_HZ` parameter
+- Fixed fragmentation loop variable type in order to allow more than 255 fragments
+- Fixed `RtcMs2Tick` conversion on SAMR34
+- Fixed compiling issue when RU864 region is selected
+- Fixed `MLME_SCHEDULE_UPLINK` handling.
+
+### Removed
+
+- Removed STM32 platforms system wake up time calibration
+
+## [4.5.1] - 2021-01-18
 
 ### General
 
@@ -38,7 +95,6 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 
 - Fixed compiling issues when KR920 or RU864 regions are selected
 - Fixed compiling issues for `fuota-test-01` example
-
 
 ## [4.5.0] - 2020-12-18
 
@@ -350,7 +406,6 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 
 - Fixed an overflow issue that could happen with `NmeaStringSize` variable
 - Fixed an issue where the node stopped transmitting
-
 
 ## [4.3.1] - 2017-02-27
 
