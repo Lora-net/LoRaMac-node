@@ -250,7 +250,7 @@ extern Gpio_t Led4; // App
 /*!
  * UART object used for command line interface handling
  */
-extern Uart_t Uart2;
+extern Uart_t Uart1;
 
 /*!
  * Main application entry point.
@@ -301,7 +301,7 @@ int main( void )
     while( 1 )
     {
         // Process characters sent over the command line interface
-        CliProcess( &Uart2 );
+        CliProcess( &Uart1 );
 
         // Processes the LoRaMac events
         LmHandlerProcess( );
