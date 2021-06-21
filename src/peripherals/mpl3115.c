@@ -97,7 +97,7 @@ void MPL3115SetDeviceAddr( uint8_t addr );
  *
  * \retval: addr Current device slave address
  */
-uint8_t MPL3115GetDeviceAddr( void );
+LmnStatus_t MPL3115GetDeviceAddr( void );
 
 /*!
  * \brief Sets the device in barometer Mode

@@ -57,14 +57,14 @@ extern "C"
 
 #define SX9500_RESET_CMD                            0xDE
 
-uint8_t SX9500Init( void );
+LmnStatus_t SX9500Init( void );
 
 /*!
  * \brief Resets the device
  *
  * \retval status [OK, ERROR, UNSUPPORTED]
  */
-uint8_t SX9500Reset( void );
+LmnStatus_t SX9500Reset( void );
 
 /*!
  * \brief Writes a byte at specified address in the device
@@ -73,7 +73,7 @@ uint8_t SX9500Reset( void );
  * \param [IN]: data
  * \retval status [OK, ERROR, UNSUPPORTED]
  */
-uint8_t SX9500Write( uint8_t addr, uint8_t data );
+LmnStatus_t SX9500Write( uint8_t addr, uint8_t data );
 
 /*!
  * \brief Writes a buffer at specified address in the device
@@ -83,7 +83,7 @@ uint8_t SX9500Write( uint8_t addr, uint8_t data );
  * \param [IN]: size
  * \retval status [OK, ERROR, UNSUPPORTED]
  */
-uint8_t SX9500WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size );
+LmnStatus_t SX9500WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size );
 
 /*!
  * \brief Reads a byte at specified address in the device
@@ -92,7 +92,7 @@ uint8_t SX9500WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size );
  * \param [OUT]: data
  * \retval status [OK, ERROR, UNSUPPORTED]
  */
-uint8_t SX9500Read( uint8_t addr, uint8_t *data );
+LmnStatus_t SX9500Read( uint8_t addr, uint8_t *data );
 
 /*!
  * \brief Reads a buffer at specified address in the device
@@ -102,7 +102,7 @@ uint8_t SX9500Read( uint8_t addr, uint8_t *data );
  * \param [IN]: size
  * \retval status [OK, ERROR, UNSUPPORTED]
  */
-uint8_t SX9500ReadBuffer( uint8_t addr, uint8_t *data, uint8_t size );
+LmnStatus_t SX9500ReadBuffer( uint8_t addr, uint8_t *data, uint8_t size );
 
 /*!
  * \brief Sets the I2C device slave address
