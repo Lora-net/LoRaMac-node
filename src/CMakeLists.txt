@@ -140,6 +140,17 @@ elseif(BOARD STREQUAL SAMR34)
     # Configure radio
     set(RADIO sx1276 CACHE INTERNAL "Radio sx1276 selected")
 
+elseif(BOARD STREQUAL SAMR34N)
+    # Configure toolchain for SAMR34
+    set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/boards/mcu/samr34/ASF/sam0/utils/linker_scripts/samr34/gcc/samr34j18b_flash.ld)
+    include(samr34)
+
+    # Build platform specific board implementation
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/SAMR34N)
+
+    # Configure radio
+    set(RADIO sx1276 CACHE INTERNAL "Radio sx1276 selected")
+
 elseif(BOARD STREQUAL SKiM880B)
     # Configure toolchain for SKiM881AXL
     set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/boards/SKiM880B/cmsis/arm-gcc/stm32l151xba_flash.ld)
