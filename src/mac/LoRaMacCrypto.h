@@ -61,9 +61,13 @@ extern "C"
 #define USE_RANDOM_DEV_NONCE                        0
 
 /*!
- * Indicates if JoinNonce is counter based and requires to be checked
+ * Indicates if JoinNonce is counter based and requires to be checked on 1.0.x devices
+ * \remark Only applies to LoRaWAN 1.0.x when following recomendations provided
+ *         by "Technical Recommendations for Preventing State Synchronization
+ *         Issues around LoRaWAN® 1.0.x Join Procedure" 
+ *         https://lora-alliance.org/wp-content/uploads/2020/11/lorawan-1.0.x-join-synch-issues-remedies-v1.0.0.pdf
  */
-#define USE_JOIN_NONCE_COUNTER_CHECK                1
+#define USE_10X_JOIN_NONCE_COUNTER_CHECK            0
 
 /*!
  * Initial value of the frame counters
@@ -71,7 +75,7 @@ extern "C"
 #define FCNT_DOWN_INITAL_VALUE          0xFFFFFFFF
 
 /*!
- * LoRaMac Cryto Status
+ * LoRaMac Crypto Status
  */
 typedef enum eLoRaMacCryptoStatus
 {

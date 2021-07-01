@@ -806,6 +806,24 @@ static void ResetFCnts( void )
     }
 }
 
+static bool IsJoinNonce10xOk( uint32_t joinNonce )
+{
+#if( USE_10X_JOIN_NONCE_COUNTER_CHECK == 1 )
+    // Check if the JoinNonce is greater as the previous one
+    return ( joinNonce > CryptoNvm->JoinNonce ) ? true : false;
+#else
+    // Check if the JoinNonce is different from the previous one
+    return( joinNonce != CryptoNvm->JoinNonce ) ? true : false;
+#endif
+}
+
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
+static bool IsJoinNonce11xOk( uint32_t joinNonce )
+{
+    return ( joinNonce > CryptoNvm->JoinNonce ) ? true : false;
+}
+#endif
+
 /*
  *  API functions
  */
@@ -1136,18 +1154,24 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
     }
 
     uint32_t currentJoinNonce;
+    bool isJoinNonceOk = false;
 
     currentJoinNonce = ( uint32_t )macMsg->JoinNonce[0];
     currentJoinNonce |= ( ( uint32_t )macMsg->JoinNonce[1] << 8 );
     currentJoinNonce |= ( ( uint32_t )macMsg->JoinNonce[2] << 16 );
 
-#if( USE_JOIN_NONCE_COUNTER_CHECK == 1 )
-    // Check if the JoinNonce is greater as the previous one
-    if( currentJoinNonce > CryptoNvm->JoinNonce )
-#else
-    // Check if the JoinNonce is different from the previous one
-    if( currentJoinNonce != CryptoNvm->JoinNonce )
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
+    if( versionMinor == 1 )
+    {
+        isJoinNonceOk = IsJoinNonce11xOk( currentJoinNonce );
+    }
+    else
 #endif
+    {
+        isJoinNonceOk = IsJoinNonce10xOk( currentJoinNonce );
+    }
+
+    if( isJoinNonceOk == true )
     {
         CryptoNvm->JoinNonce = currentJoinNonce;
     }
