@@ -280,6 +280,7 @@ static LoRaMacCryptoStatus_t PrepareB0( uint16_t msgLen, KeyIdentifier_t keyID, 
 
     b0[0] = 0x49;
 
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     if( ( isAck == true ) && ( dir == DOWNLINK ) )
     {
         // confFCnt contains the frame counter value modulo 2^16 of the "confirmed" uplink or downlink frame that is being acknowledged
@@ -291,6 +292,7 @@ static LoRaMacCryptoStatus_t PrepareB0( uint16_t msgLen, KeyIdentifier_t keyID, 
         b0[2] = ( confFCnt >> 8 ) & 0xFF;
     }
     else
+#endif
     {
         b0[1] = 0x00;
         b0[2] = 0x00;
@@ -915,9 +917,9 @@ LoRaMacCryptoStatus_t LoRaMacCryptoGetFCntDown( FCntIdentifier_t fCntID, uint32_
     return LORAMAC_CRYPTO_SUCCESS;
 }
 
-#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
 LoRaMacCryptoStatus_t LoRaMacCryptoGetRJcount( FCntIdentifier_t fCntID, uint16_t* rJcount )
 {
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     if( rJcount == 0 )
     {
         return LORAMAC_CRYPTO_ERROR_NPE;
@@ -934,8 +936,10 @@ LoRaMacCryptoStatus_t LoRaMacCryptoGetRJcount( FCntIdentifier_t fCntID, uint16_t
             return LORAMAC_CRYPTO_FAIL_FCNT_ID;
     }
     return LORAMAC_CRYPTO_SUCCESS;
-}
+#else
+    return LORAMAC_CRYPTO_ERROR;
 #endif
+}
 
 LoRaMacCryptoStatus_t LoRaMacCryptoSetMulticastReference( MulticastCtx_t* multicastList )
 {
@@ -1024,9 +1028,9 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareJoinRequest( LoRaMacMessageJoinRequest
     return LORAMAC_CRYPTO_SUCCESS;
 }
 
-#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
 LoRaMacCryptoStatus_t LoRaMacCryptoPrepareReJoinType1( LoRaMacMessageReJoinType1_t* macMsg )
 {
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     if( macMsg == 0 )
     {
         return LORAMAC_CRYPTO_ERROR_NPE;
@@ -1061,10 +1065,14 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareReJoinType1( LoRaMacMessageReJoinType1
     CryptoNvm->FCntList.RJcount1++;
 
     return LORAMAC_CRYPTO_SUCCESS;
+#else
+    return LORAMAC_CRYPTO_ERROR;
+#endif
 }
 
 LoRaMacCryptoStatus_t LoRaMacCryptoPrepareReJoinType0or2( LoRaMacMessageReJoinType0or2_t* macMsg )
 {
+#if( USE_LRWAN_1_1_X_CRYPTO == 1 )
     if( macMsg == 0 )
     {
         return LORAMAC_CRYPTO_ERROR_NPE;
@@ -1099,8 +1107,10 @@ LoRaMacCryptoStatus_t LoRaMacCryptoPrepareReJoinType0or2( LoRaMacMessageReJoinTy
     RJcount0++;
 
     return LORAMAC_CRYPTO_SUCCESS;
-}
+#else
+    return LORAMAC_CRYPTO_ERROR;
 #endif
+}
 
 LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReqType, uint8_t* joinEUI, LoRaMacMessageJoinAccept_t* macMsg )
 {
