@@ -476,6 +476,8 @@ void SX1276SetRxConfig( RadioModems_t modem, uint32_t bandwidth,
 {
     SX1276SetModem( modem );
 
+    SX1276SetStby( );
+
     switch( modem )
     {
     case MODEM_FSK:
@@ -643,6 +645,8 @@ void SX1276SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
                         uint8_t hopPeriod, bool iqInverted, uint32_t timeout )
 {
     SX1276SetModem( modem );
+
+    SX1276SetStby( );
 
     SX1276SetRfTxPower( power );
 
