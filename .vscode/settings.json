@@ -30,6 +30,11 @@
         // periodic-uplink-lpp, fuota-test-01.
         "SUB_PROJECT":"periodic-uplink-lpp",
 
+        // Select the default LoRaWAN class to be used
+        // Only aplies to periodic-uplink-lpp project. You can choose between:
+        // CLASS_A, CLASS_B, CLASS_C
+        "LORAWAN_DEFAULT_CLASS":"CLASS_A",
+
         // Switch for Class B support of LoRaMac:
         "CLASSB_ENABLED":"ON",
 
