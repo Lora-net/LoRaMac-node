@@ -30,7 +30,7 @@
         // periodic-uplink-lpp, fuota-test-01.
         "SUB_PROJECT":"periodic-uplink-lpp",
 
-        // Select default LoRaWAN class for periodic-uplink-lpp sub-project
+        // Select the default LoRaWAN class for periodic-uplink-lpp sub-project
         // In case `CLASS_B` or `CLASS_C` is selected the example will try to
         // switch to the given class as soon as possible
         "LORAWAN_DEFAULT_CLASS":"CLASS_A",
