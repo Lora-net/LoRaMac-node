@@ -10,14 +10,14 @@
         //     Linux   : /usr
         //     OSX     : /usr/local
         // It is required to uncomment and to fill the following line.
-        //"TOOLCHAIN_PREFIX":"/path/to/toolchain",
+        "TOOLCHAIN_PREFIX":"C:/Program Files (x86)/GNU Arm Embedded Toolchain/10 2020-q4-major",
 
         // In case your OpenOCD is not installed under the default path:
         //     Windows : C:/openocd/bin/openocd.exe
         //     Linux   : /usr/bin/openocd
         //     OSX     : /usr/local/bin/openocd
         // Please uncomment the following line and fill it accordingly.
-        //"OPENOCD_BIN":"C:/openocd/bin/openocd.exe",
+        "OPENOCD_BIN":"C:/openocd/bin/openocd.exe",
 
         // Specifies the path to the CMAKE toolchain file.
         "CMAKE_TOOLCHAIN_FILE":"cmake/toolchain-arm-none-eabi.cmake",
@@ -50,7 +50,7 @@
 
         // Target board, the following boards are supported:
         // NAMote72, NucleoL073 (Default), NucleoL152, NucleoL476, SAMR34, SKiM880B, SKiM980A, SKiM881AXL, B-L072Z-LRWAN1.
-        "BOARD":"NucleoL073",
+        "BOARD":"SAMR34N",
 
         // MBED Radio shield selection. (Applies only to Nucleo platforms)
         // The following shields are supported:
