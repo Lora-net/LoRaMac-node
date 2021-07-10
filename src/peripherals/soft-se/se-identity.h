@@ -71,12 +71,12 @@ extern "C" {
 /*!
  * end-device IEEE EUI (big endian)
  */
-#define LORAWAN_DEVICE_EUI                                 { 0x00, 0xED, 0xDF, 0x3B, 0x7A, 0xDA, 0x7F, 0x6B }
+#define LORAWAN_DEVICE_EUI                                 { 0x60, 0x81, 0xF9, 0x99, 0xC0, 0x06, 0xCC, 0xBC }
 
 /*!
  * App/Join server IEEE EUI (big endian)
  */
-#define LORAWAN_JOIN_EUI                                   { 0x70, 0xB3, 0xD5, 0x7E, 0xD0, 0x02, 0x82, 0x4D }
+#define LORAWAN_JOIN_EUI                                   { 0x60, 0x81, 0xF9, 0xC2, 0x62, 0x7E, 0x35, 0x8C }
 
 /*!
  * Secure-element pin
@@ -103,7 +103,7 @@ extern "C" {
              * WARNING: FOR 1.0.x DEVICES IT IS THE \ref LORAWAN_GEN_APP_KEY                                        \
              */                                                                                                     \
             .KeyID    = APP_KEY,                                                                                    \
-            .KeyValue = { 0x4C, 0x53, 0x6A, 0x96, 0x13, 0xE9, 0x1F, 0xEC, 0x72, 0x7F, 0xFF, 0x51, 0x4A, 0x66, 0xE0, 0x01 }, \
+            .KeyValue = { 0x3D, 0x3C, 0xAC, 0xE8, 0x1A, 0xDD, 0xB8, 0xF1, 0x71, 0xFF, 0x66, 0x3C, 0x15, 0x4C, 0x8F, 0x16 }, \
         },                                                                                                          \
         {                                                                                                           \
             /*!                                                                                                     \
@@ -111,7 +111,7 @@ extern "C" {
              * WARNING: FOR 1.0.x DEVICES IT IS THE \ref LORAWAN_APP_KEY                                            \
              */                                                                                                     \
             .KeyID    = NWK_KEY,                                                                                    \
-            .KeyValue = { 0x4C, 0x53, 0x6A, 0x96, 0x13, 0xE9, 0x1F, 0xEC, 0x72, 0x7F, 0xFF, 0x51, 0x4A, 0x66, 0xE0, 0x01 }, \
+            .KeyValue = { 0x3D, 0x3C, 0xAC, 0xE8, 0x1A, 0xDD, 0xB8, 0xF1, 0x71, 0xFF, 0x66, 0x3C, 0x15, 0x4C, 0x8F, 0x16 }, \
         },                                                                                                          \
         {                                                                                                           \
             /*!                                                                                                     \
