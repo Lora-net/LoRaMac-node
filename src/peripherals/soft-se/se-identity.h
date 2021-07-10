@@ -93,7 +93,7 @@ extern "C" {
 /*!
  * Device address on the network (big endian)
  */
-#define LORAWAN_DEVICE_ADDRESS                             ( uint32_t )0x260B3E72
+#define LORAWAN_DEVICE_ADDRESS                             ( uint32_t )0x260BD67C
 
 #define SOFT_SE_KEY_LIST                                                                                            \
     {                                                                                                               \
@@ -103,7 +103,7 @@ extern "C" {
              * WARNING: FOR 1.0.x DEVICES IT IS THE \ref LORAWAN_GEN_APP_KEY                                        \
              */                                                                                                     \
             .KeyID    = APP_KEY,                                                                                    \
-            .KeyValue = { 0x03, 0xDF, 0x6F, 0xFB, 0x94, 0x28, 0x61, 0x76, 0x6F, 0xB3, 0xD2, 0xB3, 0x8E, 0x02, 0x0D, 0xE8 }, \
+            .KeyValue = { 0x54, 0x58, 0xC6, 0xF6, 0xF8, 0x65, 0x87, 0x1F, 0x56, 0xAF, 0xC8, 0xF4, 0xC1, 0x2A, 0xEA, 0xE6 }, \
         },                                                                                                          \
         {                                                                                                           \
             /*!                                                                                                     \
@@ -111,7 +111,7 @@ extern "C" {
              * WARNING: FOR 1.0.x DEVICES IT IS THE \ref LORAWAN_APP_KEY                                            \
              */                                                                                                     \
             .KeyID    = NWK_KEY,                                                                                    \
-            .KeyValue = { 0x03, 0xDF, 0x6F, 0xFB, 0x94, 0x28, 0x61, 0x76, 0x6F, 0xB3, 0xD2, 0xB3, 0x8E, 0x02, 0x0D, 0xE8 }, \
+            .KeyValue = { 0x54, 0x58, 0xC6, 0xF6, 0xF8, 0x65, 0x87, 0x1F, 0x56, 0xAF, 0xC8, 0xF4, 0xC1, 0x2A, 0xEA, 0xE6 }, \
         },                                                                                                          \
         {                                                                                                           \
             /*!                                                                                                     \
@@ -137,7 +137,7 @@ extern "C" {
              * WARNING: NWK_S_KEY FOR 1.0.x DEVICES                                                                 \
              */                                                                                                     \
             .KeyID    = F_NWK_S_INT_KEY,                                                                            \
-            .KeyValue = { 0x03, 0xDF, 0x6F, 0xFB, 0x94, 0x28, 0x61, 0x76, 0x6F, 0xB3, 0xD2, 0xB3, 0x8E, 0x02, 0x0D, 0xE8 }, \
+            .KeyValue = { 0x54, 0x58, 0xC6, 0xF6, 0xF8, 0x65, 0x87, 0x1F, 0x56, 0xAF, 0xC8, 0xF4, 0xC1, 0x2A, 0xEA, 0xE6 }, \
         },                                                                                                          \
         {                                                                                                           \
             /*!                                                                                                     \
@@ -145,7 +145,7 @@ extern "C" {
              * WARNING: NOT USED FOR 1.0.x DEVICES. MUST BE THE SAME AS \ref LORAWAN_F_NWK_S_INT_KEY                \
              */                                                                                                     \
             .KeyID    = S_NWK_S_INT_KEY,                                                                            \
-            .KeyValue = { 0x03, 0xDF, 0x6F, 0xFB, 0x94, 0x28, 0x61, 0x76, 0x6F, 0xB3, 0xD2, 0xB3, 0x8E, 0x02, 0x0D, 0xE8 }, \
+            .KeyValue = { 0x54, 0x58, 0xC6, 0xF6, 0xF8, 0x65, 0x87, 0x1F, 0x56, 0xAF, 0xC8, 0xF4, 0xC1, 0x2A, 0xEA, 0xE6 }, \
         },                                                                                                          \
         {                                                                                                           \
             /*!                                                                                                     \
@@ -153,14 +153,14 @@ extern "C" {
              * WARNING: NOT USED FOR 1.0.x DEVICES. MUST BE THE SAME AS \ref LORAWAN_F_NWK_S_INT_KEY                \
              */                                                                                                     \
             .KeyID    = NWK_S_ENC_KEY,                                                                              \
-            .KeyValue = { 0x03, 0xDF, 0x6F, 0xFB, 0x94, 0x28, 0x61, 0x76, 0x6F, 0xB3, 0xD2, 0xB3, 0x8E, 0x02, 0x0D, 0xE8 }, \
+            .KeyValue = { 0x54, 0x58, 0xC6, 0xF6, 0xF8, 0x65, 0x87, 0x1F, 0x56, 0xAF, 0xC8, 0xF4, 0xC1, 0x2A, 0xEA, 0xE6 }, \
         },                                                                                                          \
         {                                                                                                           \
             /*!                                                                                                     \
              * Application session key                                                                              \
              */                                                                                                     \
             .KeyID    = APP_S_KEY,                                                                                  \
-            .KeyValue = { 0x54, 0x68, 0xF5, 0xEC, 0x1A, 0x4F, 0x6D, 0x11, 0x3D, 0xE2, 0xED, 0xDA, 0x09, 0x66, 0x8F, 0x68 },\
+            .KeyValue = { 0xD2, 0x02, 0x95, 0x6B, 0xF5, 0x36, 0xFF, 0x15, 0x29, 0xA0, 0x83, 0x58, 0xAC, 0x3E, 0xE8, 0x88 },\
         },                                                                                                          \
         {                                                                                                           \
             /*!                                                                                                     \

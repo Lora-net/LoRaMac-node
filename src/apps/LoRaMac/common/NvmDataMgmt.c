@@ -42,7 +42,7 @@
  * Must be enabled for LoRaWAN 1.0.4 or later.
  */
 #ifndef CONTEXT_MANAGEMENT_ENABLED
-#define CONTEXT_MANAGEMENT_ENABLED         0
+#define CONTEXT_MANAGEMENT_ENABLED         1
 #endif
 
 
