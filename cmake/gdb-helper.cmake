@@ -25,7 +25,7 @@ set(CURRENT_MODULE_DIR ${CMAKE_CURRENT_LIST_DIR})
 #---------------------------------------------------------------------------------------
 # Set tools
 #---------------------------------------------------------------------------------------
-set(GDB_BIN ${TOOLCHAIN_BIN_DIR}/${TOOLCHAIN}-gdb${TOOLCHAIN_EXT})
+set(GDB_BIN ${TOOLCHAIN_BIN_DIR}/gdb-multiarch${TOOLCHAIN_EXT})
 if(NOT OPENOCD_BIN)
         if(CMAKE_HOST_SYSTEM_NAME STREQUAL Linux)
             set(OPENOCD_BIN "/usr/bin/openocd" CACHE STRING "OpenOCD executable")
@@ -80,7 +80,7 @@ function(generate_vscode_launch_openocd TARGET)
         set(OPENOCD_INTERFACE stlink-v2-1.cfg)
         set(OPENOCD_TARGET stm32l1.cfg)
     elseif(BOARD STREQUAL NucleoL073 OR BOARD STREQUAL B-L072Z-LRWAN1)
-        set(OPENOCD_INTERFACE stlink-v2-1.cfg)
+        set(OPENOCD_INTERFACE stlink-v2.cfg)
         set(OPENOCD_TARGET stm32l0.cfg)
     elseif(BOARD STREQUAL NucleoL476)
         set(OPENOCD_INTERFACE stlink-v2-1.cfg)

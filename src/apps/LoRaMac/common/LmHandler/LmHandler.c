@@ -235,6 +235,18 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
     {
         return LORAMAC_HANDLER_ERROR;
     }
+		
+    if ( (LmHandlerParams->Region == LORAMAC_REGION_AU915) || (LmHandlerParams->Region == LORAMAC_REGION_US915) )
+    {
+            // Enabling 2nd block of 8 channels (8-15) + channel 65
+            uint16_t channelMask[] = { 0xFF00, 0x0000, 0x0000, 0x0000, 0x0002, 0x0000};
+            mibReq.Type = MIB_CHANNELS_MASK;
+            mibReq.Param.ChannelsMask = channelMask;
+            LoRaMacMibSetRequestConfirm( &mibReq );
+            mibReq.Type = MIB_CHANNELS_DEFAULT_MASK;
+            mibReq.Param.ChannelsDefaultMask = channelMask;
+            LoRaMacMibSetRequestConfirm( &mibReq );
+    }
 
     // Restore data if required
     nbNvmData = NvmDataMgmtRestore( );

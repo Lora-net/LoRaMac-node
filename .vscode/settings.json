@@ -10,7 +10,7 @@
         //     Linux   : /usr
         //     OSX     : /usr/local
         // It is required to uncomment and to fill the following line.
-        "TOOLCHAIN_PREFIX":"D:/Program Files (x86)/GNU Arm Embedded Toolchain/10 2020-q4-major",
+        // "TOOLCHAIN_PREFIX":"D:/Program Files (x86)/GNU Arm Embedded Toolchain/10 2020-q4-major",
 
         // In case your OpenOCD is not installed under the default path:
         //     Windows : C:/openocd/bin/openocd.exe

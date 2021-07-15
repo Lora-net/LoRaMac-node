@@ -118,6 +118,8 @@ uint8_t GetBoardPowerSource( void );
  */
 Version_t BoardGetVersion( void );
 
+int32_t HW_GetTemperatureLevel_int(void);
+
 #ifdef __cplusplus
 }
 #endif

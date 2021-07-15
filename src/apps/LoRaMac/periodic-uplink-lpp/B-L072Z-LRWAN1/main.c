@@ -34,6 +34,13 @@
 #include "CayenneLpp.h"
 #include "LmHandlerMsgDisplay.h"
 
+#include "config.h"
+#include "ublox.h"
+#include "bsp.h"
+#include "geofence.h"
+#include "playback.h"
+#include "nvmm.h"
+
 #ifndef ACTIVE_REGION
 
 #warning "No active region defined, LORAMAC_REGION_EU868 will be used as default."
@@ -93,7 +100,7 @@
  * LoRaWAN application port
  * @remark The allowed port range is from 1 up to 223. Other values are reserved.
  */
-#define LORAWAN_APP_PORT                            2
+#define LORAWAN_APP_PORT                            99
 
 /*!
  *
@@ -168,6 +175,11 @@ static void PrepareTxFrame( void );
 static void StartTxProcess( LmHandlerTxEvents_t txEvent );
 static void UplinkProcess( void );
 
+static void scheduler_begin();
+static void print_board_info();
+static void init_timers();
+static void init_loramac();
+
 /*!
  * Function executed on TxTimer event
  */
@@ -192,6 +204,8 @@ static void OnLed3TimerEvent( void* context );
  * \brief Function executed on Beacon timer Timeout event
  */
 static void OnLedBeaconTimerEvent( void* context );
+
+static void get_initial_gps_fix(void);
 
 static LmHandlerCallbacks_t LmHandlerCallbacks =
 {
@@ -255,10 +269,83 @@ extern Uart_t Uart1;
 /*!
  * Main application entry point.
  */
-int main( void )
+int main(void)
 {
-    BoardInitMcu( );
-    BoardInitPeriph( );
+    /* Initialising board and peripherals */
+    BoardInitMcu();
+    BoardInitPeriph();
+
+    /* Print board info */
+    print_board_info();
+
+    /* Get initial GPS fix for setting loramac region */
+    get_initial_gps_fix();
+
+    while (1)
+    {
+        /* Initialise blinky timers. not necessary? */
+        init_timers();
+
+        /* Init loramac stack */
+        init_loramac();
+
+        //LmHandlerJoin( );
+
+        /* Start up periodic timer for sending uplinks */
+        StartTxProcess(LORAMAC_HANDLER_TX_ON_TIMER);
+
+        /* Start loop */
+        scheduler_begin();
+    }
+}
+
+static void scheduler_begin()
+{
+    while (1)
+    {
+        // Process characters sent over the command line interface
+        CliProcess(&Uart1);
+
+        // Processes the LoRaMac events
+        LmHandlerProcess();
+
+        // Process application uplinks management
+        UplinkProcess();
+
+        if (current_geofence_status.lora_settings_status != CORRECT)
+        {
+            printf("Breaking out of main loop to reinit LoRa regional settings\n\r");
+            TimerStop(&TxTimer);
+            break;
+        }
+
+        CRITICAL_SECTION_BEGIN();
+        if (IsMacProcessPending == 1)
+        {
+            // Clear flag and prevent MCU to go into low power modes.
+            IsMacProcessPending = 0;
+        }
+        else
+        {
+            // The MCU wakes up through events
+            BoardLowPowerHandler();
+        }
+        CRITICAL_SECTION_END();
+    }
+}
+
+static void print_board_info()
+{
+
+    const Version_t appVersion = {.Fields.Major = 1, .Fields.Minor = 0, .Fields.Patch = 0};
+    const Version_t gitHubVersion = {.Fields.Major = 4, .Fields.Minor = 4, .Fields.Patch = 7};
+    DisplayAppInfo("periodic-uplink-lpp",
+                   &appVersion,
+                   &gitHubVersion);
+}
+
+static void init_timers()
+{
 
     TimerInit( &Led1Timer, OnLed1TimerEvent );
     TimerSetValue( &Led1Timer, 25 );
@@ -271,57 +358,72 @@ int main( void )
 
     TimerInit( &LedBeaconTimer, OnLedBeaconTimerEvent );
     TimerSetValue( &LedBeaconTimer, 5000 );
+}
 
-    const Version_t appVersion = { .Fields.Major = 1, .Fields.Minor = 0, .Fields.Patch = 0 };
-    const Version_t gitHubVersion = { .Fields.Major = 4, .Fields.Minor = 4, .Fields.Patch = 7 };
-    DisplayAppInfo( "periodic-uplink-lpp", 
-                    &appVersion,
-                    &gitHubVersion );
 
-    if ( LmHandlerInit( &LmHandlerCallbacks, &LmHandlerParams ) != LORAMAC_HANDLER_SUCCESS )
+static void init_loramac()
+{
+    /* select data rate depending on region of the world. */
+    int8_t datarate = datarate_calculator(current_geofence_status.current_loramac_region);
+
+    /* Set region and datarate */
+    LmHandlerParams.Region = current_geofence_status.current_loramac_region;
+    LmHandlerParams.TxDatarate = datarate;
+
+    if (LmHandlerInit(&LmHandlerCallbacks, &LmHandlerParams) != LORAMAC_HANDLER_SUCCESS)
     {
-        printf( "LoRaMac wasn't properly initialized\n" );
+        printf("LoRaMac wasn't properly initialized\n");
         // Fatal error, endless loop.
-        while ( 1 )
+        while (1)
         {
         }
     }
 
     // Set system maximum tolerated rx error in milliseconds
-    LmHandlerSetSystemMaxRxError( 20 );
+    LmHandlerSetSystemMaxRxError(20);
 
     // The LoRa-Alliance Compliance protocol package should always be
     // initialized and activated.
-    LmHandlerPackageRegister( PACKAGE_ID_COMPLIANCE, &LmhpComplianceParams );
+    LmHandlerPackageRegister(PACKAGE_ID_COMPLIANCE, &LmhpComplianceParams);
+}
 
-    //LmHandlerJoin( );
+static void get_initial_gps_fix()
+{
 
-    StartTxProcess( LORAMAC_HANDLER_TX_ON_TIMER );
+#if GPS_ENABLED
+    /* GET intial location fix to set LORA region 
+	 * The program cannot go on to unless it gets a GPS fix. It is neccessary for it to try forever
+	 * It needs a GPS fix to get the right LoRa params for the region
+	 */
+    printf("SELFTEST: Attempting to get a GPS fix\n\r");
+    get_location_fix(GPS_LOCATION_FIX_TIMEOUT);
 
-    while( 1 )
+    // HAL_IWDG_Refresh(&hiwdg);
+
+    if (get_latest_gps_status() == GPS_SUCCESS)
     {
-        // Process characters sent over the command line interface
-        CliProcess( &Uart1 );
+        /* Find out which region of world we are in and update region parm*/
+        update_geofence_position(gps_info.GPS_UBX_latitude_Float, gps_info.GPS_UBX_longitude_Float);
 
-        // Processes the LoRaMac events
-        LmHandlerProcess( );
+        // HAL_IWDG_Refresh(&hiwdg);
 
-        // Process application uplinks management
-        UplinkProcess( );
+        /* Save current polygon to eeprom only if gps fix was valid */
+        NvmmWrite((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
 
-        CRITICAL_SECTION_BEGIN( );
-        if( IsMacProcessPending == 1 )
-        {
-            // Clear flag and prevent MCU to go into low power modes.
-            IsMacProcessPending = 0;
-        }
-        else
-        {
-            // The MCU wakes up through events
-            BoardLowPowerHandler( );
-        }
-        CRITICAL_SECTION_END( );
+        // HAL_IWDG_Refresh(&hiwdg);
     }
+    else
+    {
+/* read the eeprom value instead */
+// TODO: must ensure that eeprom is not filled with garbage. i.e. when the eeprom has never been programed
+#if USE_NVM_STORED_LORAWAN_REGION
+        NvmmRead((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t),LORAMAC_REGION_EEPROM_ADDR);
+#endif
+
+        // HAL_IWDG_Refresh(&hiwdg);
+    }
+
+#endif
 }
 
 static void OnMacProcessNotify( void )
@@ -449,16 +551,38 @@ static void PrepareTxFrame( void )
         return;
     }
 
-    uint8_t channel = 0;
+    BSP_sensor_Read();
+
+    if (get_latest_gps_status() == GPS_SUCCESS)
+    {
+        /* Find out which region of world we are in and update region parm*/
+        update_geofence_position(gps_info.GPS_UBX_latitude_Float, gps_info.GPS_UBX_longitude_Float);
+
+        /* Save current polygon to eeprom only if gps fix was valid */
+        NvmmWrite((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
+
+        // HAL_IWDG_Refresh(&hiwdg);
+    }
+
+    if (current_geofence_status.tx_permission != TX_OK || current_geofence_status.lora_settings_status != CORRECT)
+    {
+        return;
+    }
+
+    PicoTrackerAppData_t data = prepare_tx_buffer();
 
     AppData.Port = LORAWAN_APP_PORT;
+    AppData.Buffer = data.Buffer;
+    AppData.BufferSize = data.BufferSize;
 
-    CayenneLppReset( );
-    CayenneLppAddDigitalInput( channel++, AppLedStateOn );
-    CayenneLppAddAnalogInput( channel++, BoardGetBatteryLevel( ) * 100 / 254 );
-
-    CayenneLppCopy( AppData.Buffer );
-    AppData.BufferSize = CayenneLppGetSize( );
+    // Print out buffer for debug
+    printf("Buffer to tx:\n");
+    for (int i = 0; i < AppData.BufferSize; i++)
+    {
+        printf("%02x", AppData.Buffer[i]);
+    }
+    printf("\n");
+    printf("tx_str_buffer_len: %d\n\n", AppData.BufferSize);
 
     if( LmHandlerSend( &AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE ) == LORAMAC_HANDLER_SUCCESS )
     {

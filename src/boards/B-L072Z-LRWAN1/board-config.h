@@ -58,8 +58,8 @@ extern "C"
 #define RADIO_DIO_1                                 PB_1
 #define RADIO_DIO_2                                 PB_0
 #define RADIO_DIO_3                                 PC_13
-#define RADIO_DIO_4                                 PA_5
-#define RADIO_DIO_5                                 PA_4
+#define RADIO_DIO_4                                 PB_2
+#define RADIO_DIO_5                                 PA_8
 
 #define RADIO_TCXO_POWER                            PA_12
 
@@ -67,10 +67,12 @@ extern "C"
 #define RADIO_ANT_SWITCH_TX_BOOST                   PC_1
 #define RADIO_ANT_SWITCH_TX_RFO                     PC_2
 
-#define LED_1                                       PB_5
+#define LED_1                                       PA_4
 #define LED_2                                       PA_5
 #define LED_3                                       PB_6
 #define LED_4                                       PB_7
+#define GPS_INT                                     PB_13
+#define LOAD_ENABLE                                 PA_11
 
 #define LED_GREEN                                   LED_1
 #define LED_RED1                                    LED_2
