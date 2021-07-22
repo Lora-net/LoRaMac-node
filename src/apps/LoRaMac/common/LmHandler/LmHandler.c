@@ -259,12 +259,12 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
         LoRaMacMibSetRequestConfirm(&mibReq);
 
         /**
-         * @brief Default is TX_POWER_0 which is max power. But it is too much power in US915 that it is causing the tracker 
+         * Default is TX_POWER_0 which is max power. But it is too much power in US915 that it is causing the tracker 
          * to brownout. I am reducing TX_POWER_0 to TX_POWER_8. In EU868, TX_POWER_0 sets phyTxPower to 13(dbm?) which corresponds 
          * to 20mW(sounds about right) In US915, TX_POWER_0 sets phyTxPower to 26(dbm?) which corresponds to 398mW. It 
          * uses the PA boost. PA_boost is turned on when phyTxPower > 14. I will bring down US915 power setting to TX_POWER_8 
          * which sets phyTxPower to 14(dbm?) which corresponds to 25mW. It will not use the less efficient PA boost. 
-         * his is slightly more powerful than over EU868 but I think the solar cells should be able to handle that. 
+         * This is slightly more powerful than over EU868 but I think the solar cells should be able to handle that. 
          * Too low TX power, and it will not be received; too high power and it will brownout.
          */
 
