@@ -235,17 +235,46 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
     {
         return LORAMAC_HANDLER_ERROR;
     }
-		
-    if ( (LmHandlerParams->Region == LORAMAC_REGION_AU915) || (LmHandlerParams->Region == LORAMAC_REGION_US915) )
+
+    if ((LmHandlerParams->Region == LORAMAC_REGION_AU915) || (LmHandlerParams->Region == LORAMAC_REGION_US915))
     {
-            // Enabling 2nd block of 8 channels (8-15) + channel 65
-            uint16_t channelMask[] = { 0xFF00, 0x0000, 0x0000, 0x0000, 0x0002, 0x0000};
-            mibReq.Type = MIB_CHANNELS_MASK;
-            mibReq.Param.ChannelsMask = channelMask;
-            LoRaMacMibSetRequestConfirm( &mibReq );
-            mibReq.Type = MIB_CHANNELS_DEFAULT_MASK;
-            mibReq.Param.ChannelsDefaultMask = channelMask;
-            LoRaMacMibSetRequestConfirm( &mibReq );
+
+        /**
+         * Workaround to use only 8 channel gateways over US915 and AU915 regions.
+         * Code source: https://github.com/Lora-net/LoRaMac-node/issues/742#issuecomment-492231231
+         * Confirm that US915 and AU915 use 2nd subband on The Things Network: 
+         * https://thethingsstack.io/reference/frequency-plans/
+         * The actual frequencies for US915 can be found here: 
+         * https://www.baranidesign.com/faq-articles/2019/4/23/lorawan-usa-frequencies-channels-and-sub-bands-for-iot-devices
+         */
+
+        // Enabling 2nd block of 8 channels (8-15) + channel 65
+        uint16_t channelMask[] = {0xFF00, 0x0000, 0x0000, 0x0000, 0x0002, 0x0000};
+        mibReq.Type = MIB_CHANNELS_MASK;
+        mibReq.Param.ChannelsMask = channelMask;
+        LoRaMacMibSetRequestConfirm(&mibReq);
+
+        mibReq.Type = MIB_CHANNELS_DEFAULT_MASK;
+        mibReq.Param.ChannelsDefaultMask = channelMask;
+        LoRaMacMibSetRequestConfirm(&mibReq);
+
+        /**
+         * @brief Default is TX_POWER_0 which is max power. But it is too much power in US915 that it is causing the tracker 
+         * to brownout. I am reducing TX_POWER_0 to TX_POWER_8. In EU868, TX_POWER_0 sets phyTxPower to 13(dbm?) which corresponds 
+         * to 20mW(sounds about right) In US915, TX_POWER_0 sets phyTxPower to 26(dbm?) which corresponds to 398mW. It 
+         * uses the PA boost. PA_boost is turned on when phyTxPower > 14. I will bring down US915 power setting to TX_POWER_8 
+         * which sets phyTxPower to 14(dbm?) which corresponds to 25mW. It will not use the less efficient PA boost. 
+         * his is slightly more powerful than over EU868 but I think the solar cells should be able to handle that. 
+         * Too low TX power, and it will not be received; too high power and it will brownout.
+         */
+
+        mibReq.Type = MIB_CHANNELS_DEFAULT_TX_POWER;
+        mibReq.Param.ChannelsDefaultTxPower = TX_POWER_8;
+        LoRaMacMibSetRequestConfirm(&mibReq);
+
+        mibReq.Type = MIB_CHANNELS_TX_POWER;
+        mibReq.Param.ChannelsTxPower = TX_POWER_8;
+        LoRaMacMibSetRequestConfirm(&mibReq);
     }
 
     // Restore data if required
