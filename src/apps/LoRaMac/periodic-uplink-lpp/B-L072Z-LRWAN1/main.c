@@ -477,11 +477,26 @@ static void OnRxData( LmHandlerAppData_t* appData, LmHandlerRxParams_t* params )
     {
     case 1: // The application LED can be controlled on port 1 or 2
     case LORAWAN_APP_PORT:
+    {
+        AppLedStateOn = appData->Buffer[0] & 0x01;
+        GpioWrite(&Led4, ((AppLedStateOn & 0x01) != 0) ? 1 : 0);
+    }
+    break;
+
+    case DOWNLINK_CONFIG_PORT:
+    {
+
+        printf("Received data: ");
+
+        for (int i = 0; i < appData->BufferSize; i++)
         {
-            AppLedStateOn = appData->Buffer[0] & 0x01;
-            GpioWrite( &Led4, ( ( AppLedStateOn & 0x01 ) != 0 ) ? 1 : 0 );
+            printf("%02x", appData->Buffer[i]);
         }
-        break;
+        printf("\n\n");
+        manage_incoming_instruction(appData->Buffer);
+    }
+    break;
+
     default:
         break;
     }
