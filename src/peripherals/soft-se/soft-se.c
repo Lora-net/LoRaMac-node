@@ -37,6 +37,9 @@
 #include "se-identity.h"
 #include "soft-se-hal.h"
 
+#include "region_setting.h"
+#include "geofence.h"
+
 static SecureElementNvmData_t* SeNvm;
 
 /*
@@ -141,6 +144,16 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmData_t* nvm )
         .KeyList = SOFT_SE_KEY_LIST
     };
 
+    /* Get ABP network keys */
+    network_keys_t network_keys = get_network_keys(current_geofence_status.current_loramac_region);
+    
+    SecureElementSetKey(APP_KEY, network_keys.AppSKey);
+    SecureElementSetKey(NWK_KEY, network_keys.AppSKey);
+    SecureElementSetKey(F_NWK_S_INT_KEY, network_keys.AppSKey);
+    SecureElementSetKey(S_NWK_S_INT_KEY, network_keys.AppSKey);
+    SecureElementSetKey(NWK_S_ENC_KEY, network_keys.AppSKey);
+    
+    SecureElementSetKey(APP_S_KEY, network_keys.AppSKey);
 
     if( nvm == NULL )
     {
