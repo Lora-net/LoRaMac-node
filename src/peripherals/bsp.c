@@ -23,7 +23,7 @@
 #include "ublox.h"
 #include "playback.h"
 #include "nvmm.h"
-// #include "iwdg.h"
+#include "iwdg.h"
 #include "board.h"
 #include "stdio.h"
 
@@ -86,21 +86,21 @@ void printDouble(double v, int decimalDigits);
 
 void BSP_sensor_Read(void)
 {
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	printf("READING SENSOR AND GPS\n\r");
 
 	/* USER CODE BEGIN 5 */
 #if SENSOR_ENABLED
 	MS5607_get_temp_pressure();
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 #else
 	TEMPERATURE_Value = (double)HW_GetTemperatureLevel_int();
 #endif
 
 #if GPS_ENABLED
 	get_location_fix(GPS_LOCATION_FIX_TIMEOUT);
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 #endif
 
 	/* read solar voltage under gps and no load */
@@ -122,7 +122,7 @@ void BSP_sensor_Read(void)
 	/* fill up the buffer to send down */
 	fill_positions_to_send_buffer();
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	/* Save GPS data to non volatile memory */
 	save_data_to_nvm();
@@ -182,7 +182,7 @@ void save_data_to_nvm()
 			increment_eeprom_index_counters();
 		}
 
-		//HAL_IWDG_Refresh(&hiwdg);
+		IWDG_reset();
 	}
 }
 
@@ -279,11 +279,11 @@ void manage_incoming_instruction(uint8_t *instructions)
  */
 void BSP_sensor_Init(void)
 {
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	update_reset_counts_in_ram_nvm();
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 #if defined(VARIANT_1V1B) || defined(VARIANT_1V2B)
 	/* enable power to the sensors */
@@ -301,7 +301,7 @@ void BSP_sensor_Init(void)
 	/* Initialize sensors */
 	ms5607_Init();
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 #endif
 
@@ -311,7 +311,7 @@ void BSP_sensor_Init(void)
 	//GPS SETUP
 	setup_GPS();
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 #endif
 
@@ -340,7 +340,7 @@ void update_reset_counts_in_ram_nvm()
  */
 void playback_hw_init()
 {
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	NvmmRead((void *)&current_EEPROM_index, sizeof(current_EEPROM_index), CURRENT_PLAYBACK_INDEX_IN_EEPROM_ADDR);
 	NvmmRead((void *)&n_playback_positions_saved, sizeof(current_EEPROM_index), N_PLAYBACK_POSITIONS_SAVED_IN_EEPROM_ADDR);
@@ -373,14 +373,14 @@ void playback_hw_init()
 	/* Initialise playback */
 	init_playback(&sensor_data, &current_position, &retrieve_eeprom_time_pos, earliest_timepos_index);
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	playback_key_info_ptr = get_playback_key_info_ptr();
 
 	/* print out stored time/pos data for debugging */
 	print_stored_coordinates();
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 }
 
 /**
@@ -490,7 +490,7 @@ void save_current_position_info_to_EEPROM(time_pos_fix_t *currrent_position)
  */
 time_pos_fix_t retrieve_eeprom_time_pos(uint16_t time_pos_index)
 {
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	time_pos_fix_t time_pos_fix = {0};
 
@@ -501,7 +501,7 @@ time_pos_fix_t retrieve_eeprom_time_pos(uint16_t time_pos_index)
 	NvmmRead((void *)&time_pos_fix.longitude, LONGITUDE_BYTES_LEN, location_to_read + 4);
 	NvmmRead((void *)&time_pos_fix.minutes_since_epoch, MINUTES_SINCE_EPOCH_BYTES_LEN, location_to_read + 6);
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	return time_pos_fix;
 }

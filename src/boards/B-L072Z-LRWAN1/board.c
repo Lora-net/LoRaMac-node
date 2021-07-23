@@ -34,9 +34,11 @@
 #include "rtc-board.h"
 #include "sx1276-board.h"
 #include "board.h"
+
 #include "bsp.h"
 #include "config.h"
 #include "delay.h"
+#include "iwdg.h"
 
 /*!
  * Unique Devices IDs register set ( STM32L0xxx )
@@ -172,6 +174,10 @@ void BoardInitMcu( void )
     if( McuInitialized == false )
     {
         HAL_Init( );
+        
+#if (USE_WATCHDOG)
+        IWDG_Init();
+#endif
 
         // LEDs
         GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );

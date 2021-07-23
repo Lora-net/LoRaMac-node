@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-// #include "iwdg.h"
+#include "iwdg.h"
 
 #include "SparkFun_Ublox_Arduino_Library.h"
 
@@ -239,11 +239,11 @@ gps_status_t setup_GPS()
 gps_status_t get_location_fix(uint32_t timeout)
 {
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	init_for_fix();
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	/* Set all the GPS info values to zeros */
 	memset(&gps_info, 0, sizeof(gps_info_t));
@@ -252,7 +252,7 @@ gps_status_t get_location_fix(uint32_t timeout)
 	uint32_t startTime = systimeMS_get();
 	while (systimeMS_get() - startTime < timeout)
 	{
-		//HAL_IWDG_Refresh(&hiwdg);
+		IWDG_reset();
 
 		display_still_searching();
 
@@ -348,14 +348,14 @@ gps_status_t get_location_fix(uint32_t timeout)
 static gps_status_t init_for_fix()
 {
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	/* pull GPS extint0 pin high to wake gps */
 	GpioWrite(&Gps_int, 1);
 
 	DelayMs(GPS_WAKEUP_TIMEOUT);
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	if (put_in_continueous_mode(defaultMaxWait) == false) // Set the constellation to use only GPS
 	{
@@ -367,7 +367,7 @@ static gps_status_t init_for_fix()
 		printf("put_in_continueous_mode carried out successfully!\n");
 	}
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	/* Set the I2C port to output UBX only (turn off NMEA noise) */
 	if (setI2COutput(COM_TYPE_UBX, defaultMaxWait) == false) //Set the I2C port to output UBX only (turn off NMEA noise)
@@ -380,7 +380,7 @@ static gps_status_t init_for_fix()
 		printf("set setI2COutput carried out successfully!\n");
 	}
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	/* Check if we are in airbourne mode. check if dynamic mode is correct */
 	uint8_t newDynamicModel = getDynamicModel(defaultMaxWait);
@@ -412,20 +412,20 @@ static gps_status_t init_for_fix()
 		printf("dynamic model setting error\n");
 	}
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	return GPS_SUCCESS;
 }
 
 static gps_status_t reinit_gps()
 {
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	// configure gps module again
 	factoryReset();
 	DelayMs(GPS_WAKEUP_TIMEOUT); // wait for GPS module to be ready
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	if (setI2COutput(COM_TYPE_UBX, defaultMaxWait) == false) //Set the I2C port to output UBX only (turn off NMEA noise)
 	{
@@ -437,7 +437,7 @@ static gps_status_t reinit_gps()
 		printf("set setI2COutput carried out successfully!\n");
 	}
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	if (setI2COutput(COM_TYPE_UBX, defaultMaxWait) == false) //Set the I2C port to output UBX only (turn off NMEA noise)
 	{
@@ -449,7 +449,7 @@ static gps_status_t reinit_gps()
 		printf("set setI2COutput carried out successfully!\n");
 	}
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	if (setGPS_constellation_only(defaultMaxWait) == false) // Set the constellation to use only GPS
 	{
@@ -461,7 +461,7 @@ static gps_status_t reinit_gps()
 		printf("set GPS constellation only carried out successfully!\n");
 	}
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	if (setDynamicModel(DYN_MODEL_AIRBORNE1g, defaultMaxWait) == false) // set to airbourne mode
 	{
@@ -473,7 +473,7 @@ static gps_status_t reinit_gps()
 		printf("Dynamic platform model changed successfully!\n");
 	}
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	if (set_powersave_config(defaultMaxWait) == false) // Save powersave config to ram. can be activated later.
 	{
@@ -485,7 +485,7 @@ static gps_status_t reinit_gps()
 		printf("set_powersave_config carried out successfully!\n");
 	}
 
-	//HAL_IWDG_Refresh(&hiwdg);
+	IWDG_reset();
 
 	return GPS_SUCCESS;
 }

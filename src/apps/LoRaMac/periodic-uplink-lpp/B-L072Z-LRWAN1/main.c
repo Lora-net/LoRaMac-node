@@ -40,6 +40,8 @@
 #include "geofence.h"
 #include "playback.h"
 #include "nvmm.h"
+#include "iwdg.h"
+
 
 #ifndef ACTIVE_REGION
 
@@ -271,9 +273,15 @@ extern Uart_t Uart1;
  */
 int main(void)
 {
+    /* Get reset cause for diagnosis */
+    reset_cause_t reset_cause = reset_cause_get();
+
     /* Initialising board and peripherals */
     BoardInitMcu();
     BoardInitPeriph();
+
+    /* Print reset cause after print function initialised */
+    printf("\n\nThe system reset cause is \"%s\"\n", reset_cause_get_name(reset_cause));
 
     /* Print board info */
     print_board_info();
@@ -303,6 +311,8 @@ static void scheduler_begin()
 {
     while (1)
     {
+        IWDG_reset();
+        
         // Process characters sent over the command line interface
         CliProcess(&Uart1);
 
@@ -398,19 +408,19 @@ static void get_initial_gps_fix()
     printf("SELFTEST: Attempting to get a GPS fix\n\r");
     get_location_fix(GPS_LOCATION_FIX_TIMEOUT);
 
-    // HAL_IWDG_Refresh(&hiwdg);
+    IWDG_reset();
 
     if (get_latest_gps_status() == GPS_SUCCESS)
     {
         /* Find out which region of world we are in and update region parm*/
         update_geofence_position(gps_info.GPS_UBX_latitude_Float, gps_info.GPS_UBX_longitude_Float);
 
-        // HAL_IWDG_Refresh(&hiwdg);
+        IWDG_reset();
 
         /* Save current polygon to eeprom only if gps fix was valid */
         NvmmWrite((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
 
-        // HAL_IWDG_Refresh(&hiwdg);
+        IWDG_reset();
     }
     else
     {
@@ -420,7 +430,7 @@ static void get_initial_gps_fix()
         NvmmRead((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t),LORAMAC_REGION_EEPROM_ADDR);
 #endif
 
-        // HAL_IWDG_Refresh(&hiwdg);
+        IWDG_reset();
     }
 
 #endif
@@ -576,7 +586,7 @@ static void PrepareTxFrame( void )
         /* Save current polygon to eeprom only if gps fix was valid */
         NvmmWrite((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
 
-        // HAL_IWDG_Refresh(&hiwdg);
+        IWDG_reset();
     }
 
     if (current_geofence_status.tx_permission != TX_OK || current_geofence_status.lora_settings_status != CORRECT)
