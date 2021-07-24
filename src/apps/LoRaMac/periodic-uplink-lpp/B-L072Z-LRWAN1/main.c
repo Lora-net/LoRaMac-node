@@ -207,7 +207,7 @@ static void OnLed3TimerEvent( void* context );
  */
 static void OnLedBeaconTimerEvent( void* context );
 
-static void get_initial_gps_fix(void);
+static void retrieve_lorawan_region(void);
 
 static LmHandlerCallbacks_t LmHandlerCallbacks =
 {
@@ -287,7 +287,7 @@ int main(void)
     print_board_info();
 
     /* Get initial GPS fix for setting loramac region */
-    get_initial_gps_fix();
+    retrieve_lorawan_region();
 
     while (1)
     {
@@ -397,43 +397,18 @@ static void init_loramac()
     LmHandlerPackageRegister(PACKAGE_ID_COMPLIANCE, &LmhpComplianceParams);
 }
 
-static void get_initial_gps_fix()
+static void retrieve_lorawan_region()
 {
-
-#if GPS_ENABLED
-    /* GET intial location fix to set LORA region 
-	 * The program cannot go on to unless it gets a GPS fix. It is neccessary for it to try forever
-	 * It needs a GPS fix to get the right LoRa params for the region
-	 */
-    printf("SELFTEST: Attempting to get a GPS fix\n\r");
-    get_location_fix(GPS_LOCATION_FIX_TIMEOUT);
 
     IWDG_reset();
 
-    if (get_latest_gps_status() == GPS_SUCCESS)
-    {
-        /* Find out which region of world we are in and update region parm*/
-        update_geofence_position(gps_info.GPS_UBX_latitude_Float, gps_info.GPS_UBX_longitude_Float);
-
-        IWDG_reset();
-
-        /* Save current polygon to eeprom only if gps fix was valid */
-        NvmmWrite((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
-
-        IWDG_reset();
-    }
-    else
-    {
 /* read the eeprom value instead */
 // TODO: must ensure that eeprom is not filled with garbage. i.e. when the eeprom has never been programed
 #if USE_NVM_STORED_LORAWAN_REGION
-        NvmmRead((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t),LORAMAC_REGION_EEPROM_ADDR);
+    NvmmRead((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
 #endif
 
-        IWDG_reset();
-    }
-
-#endif
+    IWDG_reset();
 }
 
 static void OnMacProcessNotify( void )
