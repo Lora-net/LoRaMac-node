@@ -97,6 +97,157 @@ const char *statusString(sfe_ublox_status_e stat)
   //return "None";
 }
 
+//The major datums we want to globally store
+static uint16_t gpsYear;
+static uint8_t gpsMonth;
+static uint8_t gpsDay;
+static uint8_t gpsHour;
+static uint8_t gpsMinute;
+static uint8_t gpsSecond;
+static uint16_t gpsMillisecond;
+static int32_t gpsNanosecond;
+static bool gpsDateValid;
+static bool gpsTimeValid;
+
+static int32_t latitude;        //Degrees * 10^-7 (more accurate than floats)
+static int32_t longitude;       //Degrees * 10^-7 (more accurate than floats)
+static int32_t altitude;        //Number of mm above ellipsoid
+static int32_t altitudeMSL;     //Number of mm above Mean Sea Level
+static uint8_t SIV;             //Number of satellites used in position solution
+static uint8_t fixType;         //Tells us when we have a solution aka lock
+static uint8_t gnssFixOK;       //Tells us whether fix is OK
+static uint8_t carrierSolution; //Tells us when we have an RTK float/fixed solution
+static int32_t groundSpeed;     //mm/s
+static int32_t headingOfMotion; //degrees * 10^-5
+static uint16_t pDOP;           //Positional dilution of precision
+static uint8_t versionLow;      //Loaded from getProtocolVersion().
+static uint8_t versionHigh;
+
+static uint8_t _gpsI2Caddress = 0x42; //Default 7-bit unshifted address of the ublox 6/7/8/M8/F9 series
+//This can be changed using the ublox configuration software
+
+static bool _printDebug = false;        //Flag to print the serial commands we are sending to the Serial port for debug
+static bool _printLimitedDebug = false; //Flag to print limited debug messages. Useful for I2C debugging or high navigation rates
+
+//The packet buffers
+//These are pointed at from within the ubxPacket
+static uint8_t payloadAck[2];                // Holds the requested ACK/NACK
+static uint8_t payloadCfg[MAX_PAYLOAD_SIZE]; // Holds the requested data packet
+static uint8_t payloadBuf[2];                // Temporary buffer used to screen incoming packets or dump unrequested packets
+
+//Init the packet structures and init them with pointers to the payloadAck, payloadCfg and payloadBuf arrays
+static ubxPacket packetAck = {0, 0, 0, 0, 0, payloadAck, 0, 0, SFE_UBLOX_PACKET_VALIDITY_NOT_DEFINED, SFE_UBLOX_PACKET_VALIDITY_NOT_DEFINED};
+static ubxPacket packetCfg = {0, 0, 0, 0, 0, payloadCfg, 0, 0, SFE_UBLOX_PACKET_VALIDITY_NOT_DEFINED, SFE_UBLOX_PACKET_VALIDITY_NOT_DEFINED};
+static ubxPacket packetBuf = {0, 0, 0, 0, 0, payloadBuf, 0, 0, SFE_UBLOX_PACKET_VALIDITY_NOT_DEFINED, SFE_UBLOX_PACKET_VALIDITY_NOT_DEFINED};
+
+//Flag if this packet is unrequested (and so should be ignored and not copied into packetCfg or packetAck)
+static bool ignoreThisPayload = false;
+
+//Identify which buffer is in use
+//Data is stored in packetBuf until the requested class and ID can be validated
+//If a match is seen, data is diverted into packetAck or packetCfg
+static sfe_ublox_packet_buffer_e activePacketBuffer = SFE_UBLOX_PACKET_PACKETBUF;
+
+//Limit checking of new data to every X ms
+//If we are expecting an update every X Hz then we should check every half that amount of time
+//Otherwise we may block ourselves from seeing new data
+static uint8_t i2cPollingWait = 100; //Default to 100ms. Adjusted when user calls setNavigationFrequency()
+
+static unsigned long lastCheck = 0;
+static bool autoPVT = false;              //Whether autoPVT is enabled or not
+static bool autoPVTImplicitUpdate = true; // Whether autoPVT is triggered by accessing stale data (=true) or by a call to checkUblox (=false)
+static uint16_t ubxFrameCounter;          //It counts all UBX frame. [Fixed header(2bytes), CLS(1byte), ID(1byte), length(2bytes), payload(x bytes), checksums(2bytes)]
+
+static uint8_t rollingChecksumA; //Rolls forward as we receive incoming bytes. Checked against the last two A/B checksum bytes
+static uint8_t rollingChecksumB; //Rolls forward as we receive incoming bytes. Checked against the last two A/B checksum bytes
+
+static uint32_t timeOfWeek;         // ms
+static int32_t highResLatitude;     // Degrees * 10^-7
+static int32_t highResLongitude;    // Degrees * 10^-7
+static int32_t elipsoid;            // Height above ellipsoid in mm (Typo! Should be eLLipsoid! **Uncorrected for backward-compatibility.**)
+static int32_t meanSeaLevel;        // Height above mean sea level in mm
+static int32_t geoidSeparation;     // This seems to only be provided in NMEA GGA and GNS messages
+static uint32_t horizontalAccuracy; // mm * 10^-1 (i.e. 0.1mm)
+static uint32_t verticalAccuracy;   // mm * 10^-1 (i.e. 0.1mm)
+static int8_t elipsoidHp;           // High precision component of the height above ellipsoid in mm * 10^-1 (Deliberate typo! Should be eLLipsoidHp!)
+static int8_t meanSeaLevelHp;       // High precision component of Height above mean sea level in mm * 10^-1
+static int8_t highResLatitudeHp;    // High precision component of latitude: Degrees * 10^-9
+static int8_t highResLongitudeHp;   // High precision component of longitude: Degrees * 10^-9
+
+static uint16_t rtcmFrameCounter = 0; //Tracks the type of incoming byte inside RTCM frame
+
+//Survey-in specific controls
+static struct svinStructure
+{
+  bool active;
+  bool valid;
+  uint16_t observationTime;
+  float meanAccuracy;
+} svin;
+
+//Depending on the sentence type the processor will load characters into different arrays
+static enum SentenceTypes { NONE = 0,
+                            NMEA,
+                            UBX,
+                            RTCM
+} currentSentence = NONE;
+
+static enum commTypes { COMM_TYPE_I2C = 0,
+                        COMM_TYPE_SERIAL,
+                        COMM_TYPE_SPI
+} commType = COMM_TYPE_I2C; //Controls which port we look to for incoming bytes
+
+//Create bit field for staleness of each datum in PVT we want to monitor
+//moduleQueried.latitude goes true each time we call getPVT()
+//This reduces the number of times we have to call getPVT as this can take up to ~1s per read
+//depending on update rate
+static struct
+{
+  uint32_t gpsiTOW : 1;
+  uint32_t gpsYear : 1;
+  uint32_t gpsMonth : 1;
+  uint32_t gpsDay : 1;
+  uint32_t gpsHour : 1;
+  uint32_t gpsMinute : 1;
+  uint32_t gpsSecond : 1;
+  uint32_t gpsDateValid : 1;
+  uint32_t gpsTimeValid : 1;
+  uint32_t gpsNanosecond : 1;
+
+  uint32_t all : 1;
+  uint32_t longitude : 1;
+  uint32_t latitude : 1;
+  uint32_t altitude : 1;
+  uint32_t altitudeMSL : 1;
+  uint32_t SIV : 1;
+  uint32_t fixType : 1;
+  uint32_t gnssFixOK : 1;
+  uint32_t carrierSolution : 1;
+  uint32_t groundSpeed : 1;
+  uint32_t headingOfMotion : 1;
+  uint32_t pDOP : 1;
+  uint32_t versionNumber : 1;
+} moduleQueried;
+
+static struct
+{
+  uint16_t all : 1;
+  uint16_t timeOfWeek : 1;
+  uint16_t highResLatitude : 1;
+  uint16_t highResLongitude : 1;
+  uint16_t elipsoid : 1;
+  uint16_t meanSeaLevel : 1;
+  uint16_t geoidSeparation : 1; // Redundant but kept for backward-compatibility
+  uint16_t horizontalAccuracy : 1;
+  uint16_t verticalAccuracy : 1;
+  uint16_t elipsoidHp : 1;
+  uint16_t meanSeaLevelHp : 1;
+  uint16_t highResLatitudeHp : 1;
+  uint16_t highResLongitudeHp : 1;
+} highResModuleQueried;
+
+static uint16_t rtcmLen = 0;
+
 void factoryReset()
 {
   // Copy default settings to permanent
