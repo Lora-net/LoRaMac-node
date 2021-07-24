@@ -136,3 +136,8 @@ Dump eeprom with:
 st-flash read eeprom.hex 0x08080000 0x17FF # size of eeprom
 ```
 
+location of target files:
+```bash
+/usr/share/openocd/scripts/target
+```
+
