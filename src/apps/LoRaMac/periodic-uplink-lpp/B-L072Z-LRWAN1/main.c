@@ -551,7 +551,15 @@ static void PrepareTxFrame( void )
         return;
     }
 
+    /* Temporarily stop tx interval timer until GPS gets a lock */
+    // TODO: this timerstop MUST be removed.
+    TimerStop(&TxTimer);
+
+    /* reading sensors and GPS */
     BSP_sensor_Read();
+
+    /* Restart tx interval timer */
+    TimerStart(&TxTimer);
 
     if (get_latest_gps_status() == GPS_SUCCESS)
     {
