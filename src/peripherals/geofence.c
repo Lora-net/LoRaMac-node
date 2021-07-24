@@ -43,7 +43,7 @@
 
 geofence_status_t current_geofence_status =
 	{
-		.lora_settings_status = CORRECT,
+		.reinit_loramac_stack_pending = false,
 		.current_loramac_region = LORAMAC_REGION_AS923,
 		.curr_poly_region = AS923925_INDONESIA_polygon,
 		.tx_permission = TX_OK,
@@ -878,9 +878,8 @@ void update_geofence_position(float latitude, float longitude)
 	set_current_loramac_region(current_geofence_status.curr_poly_region);
 
 	/* now check if we have moved into a different geofence region */
-	current_geofence_status.lora_settings_status = (current_geofence_status.current_loramac_region != prev_loramac_region) ? INCORRECT : CORRECT;
+	current_geofence_status.reinit_loramac_stack_pending = (current_geofence_status.current_loramac_region != prev_loramac_region) ? true : false;
 }
-
 
 /**
 * Use datarate of DR_5 over the EU but DR_4 over rest of the world

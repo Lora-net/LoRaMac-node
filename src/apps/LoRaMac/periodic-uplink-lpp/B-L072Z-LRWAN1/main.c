@@ -322,7 +322,7 @@ static void scheduler_begin()
         // Process application uplinks management
         UplinkProcess();
 
-        if (current_geofence_status.lora_settings_status != CORRECT)
+        if (current_geofence_status.reinit_loramac_stack_pending == true)
         {
             printf("Breaking out of main loop to reinit LoRa regional settings\n\r");
             TimerStop(&TxTimer);
@@ -388,6 +388,8 @@ static void init_loramac()
         {
         }
     }
+
+    current_geofence_status.reinit_loramac_stack_pending = false;
 
     // Set system maximum tolerated rx error in milliseconds
     LmHandlerSetSystemMaxRxError(20);
@@ -572,7 +574,7 @@ static void PrepareTxFrame( void )
         IWDG_reset();
     }
 
-    if (current_geofence_status.tx_permission != TX_OK || current_geofence_status.lora_settings_status != CORRECT)
+    if (current_geofence_status.tx_permission != TX_OK || current_geofence_status.reinit_loramac_stack_pending == true)
     {
         return;
     }

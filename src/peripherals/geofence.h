@@ -73,15 +73,9 @@ extern "C"
 		TX_NOT_OK
 	} tx_permission_t;
 
-	typedef enum
-	{
-		CORRECT = 0,
-		INCORRECT
-	} lora_setting_status_t;
-
 	typedef struct
 	{
-		lora_setting_status_t lora_settings_status;
+		bool reinit_loramac_stack_pending;
 		LoRaMacRegion_t current_loramac_region;
 		Polygon_t curr_poly_region;
 		tx_permission_t tx_permission;
@@ -101,7 +95,6 @@ extern "C"
 	void geofence_init(void);
 	Polygon_t get_polygon(float latitude, float longitude);
 	int8_t datarate_calculator(LoRaMacRegion_t LoRaMacRegion);
-
 
 #endif
 #ifdef __cplusplus
