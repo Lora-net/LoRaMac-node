@@ -794,7 +794,25 @@ static void UpdateFCntDown( FCntIdentifier_t fCntID, uint32_t currentDown )
  */
 static void ResetFCnts( void )
 {
-    CryptoNvm->FCntList.FCntUp = 0;
+    /**
+     * @brief The things network V3 ignores 2 consecutive messages with same f count. 
+     * If there is a reset after transmitting message with fcnt=1, the next one after which has
+     * the same fcount will be ignored.
+     * 
+     * Workaround is to use a random fcount each time, to ensure it never is the same as the last
+     * before reset.
+     * 
+     */
+
+    uint32_t random_fcnt = 0;
+    SecureElementRandomNumber(&random_fcnt);
+
+    /**
+     *  Limit to 1000 because ttn seems to ignore large fcnts. Not sure what is max value. 16 bit?
+     */
+    random_fcnt %= 1000;
+
+    CryptoNvm->FCntList.FCntUp = random_fcnt;
     CryptoNvm->FCntList.NFCntDown = FCNT_DOWN_INITAL_VALUE;
     CryptoNvm->FCntList.AFCntDown = FCNT_DOWN_INITAL_VALUE;
     CryptoNvm->FCntList.FCntDown = FCNT_DOWN_INITAL_VALUE;
