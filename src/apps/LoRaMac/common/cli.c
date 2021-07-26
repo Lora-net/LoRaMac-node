@@ -28,7 +28,7 @@ void CliProcess( Uart_t* uart )
 
     if( UartGetChar( uart, &data ) == 0 )
     {
-        if( data == '\x1B' )
+        if( data == 'C' )
         { // Escape character has been received
             printf( "ESC + " );
             while( UartGetChar( uart, &data ) != 0 )
