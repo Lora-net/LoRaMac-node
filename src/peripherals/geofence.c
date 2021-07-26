@@ -44,7 +44,7 @@
 geofence_status_t current_geofence_status =
 	{
 		.reinit_loramac_stack_pending = false,
-		.current_loramac_region = LORAMAC_REGION_AS923,
+		.current_loramac_region = LORAMAC_REGION_EU868,
 		.curr_poly_region = AS923925_INDONESIA_polygon,
 		.tx_permission = TX_OK,
 };
