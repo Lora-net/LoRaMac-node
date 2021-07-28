@@ -19,6 +19,9 @@
 ## CMake arm-none-eabi toolchain file
 ##
 
+if(NOT UNIT_TESTING) 
+
+
 # Append current directory to CMAKE_MODULE_PATH for making device specific cmake modules visible
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
@@ -88,3 +91,4 @@ set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
+endif()

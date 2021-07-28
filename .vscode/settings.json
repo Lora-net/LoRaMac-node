@@ -1,7 +1,11 @@
 // Place your settings in this file to overwrite default and user settings.
 {
     "cmake.configureSettings": {
-
+        
+        // Choose whether to compile for target or unittesting. Set true for unittesting off target
+        // or false to compile for target.
+        "UNIT_TESTING":false,
+        
         // In case your GNU ARM-Toolchain is not installed under the default
         // path:
         //     Windows : No default path. Specify the path where the
@@ -75,5 +79,42 @@
         // Default channel plan for region AS923. Possible selections:
         // CHANNEL_PLAN_GROUP_AS923_1, CHANNEL_PLAN_GROUP_AS923_2, CHANNEL_PLAN_GROUP_AS923_3, CHANNEL_PLAN_GROUP_AS923_1_JP
         "REGION_AS923_DEFAULT_CHANNEL_PLAN":"CHANNEL_PLAN_GROUP_AS923_1_JP"
+    },
+    "cpputestExplorer.testExecutable": "/home/medad/Documents/GitHub/LoRaMac-node/build/tests/pythagorean_ut/pythagorean_ut",
+    "cmake.defaultVariants": {
+        "buildType": {
+            "default": "debug",
+            "description": "The build type.",
+            "choices": {
+                "Unittest_build": {
+                    "short": "Unittest_build",
+                    "long": "Run Unittests off target",
+                    "buildType": "Unittest_build",
+                    "settings": {
+                        "UNIT_TESTING": true,
+                    }
+                },
+                "debug": {
+                    "short": "Debug",
+                    "long": "Disable optimizations - include debug information.",
+                    "buildType": "Debug",
+                },
+                "release": {
+                    "short": "Release",
+                    "long": "Optimize for speed - exclude debug information.",
+                    "buildType": "Release"
+                },
+                "minsize": {
+                    "short": "MinSizeRel",
+                    "long": "Optimize for smallest binary size - exclude debug information.",
+                    "buildType": "MinSizeRel"
+                },
+                "reldeb": {
+                    "short": "RelWithDebInfo",
+                    "long": "Optimize for speed - include debug information.",
+                    "buildType": "RelWithDebInfo"
+                }
+            }
+        }
     }
 }
