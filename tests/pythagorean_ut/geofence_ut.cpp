@@ -42,6 +42,30 @@ TEST(Geofence_Polygon, Au_test)
     CHECK_EQUAL(AU915928_AUSTRALIA_polygon, poly);
 }
 
+TEST(Geofence_Polygon, US_test)
+{
+    Polygon_t poly = get_polygon(47.7511, -120.7401);
+    CHECK_EQUAL(US902928_NAMERICA_polygon, poly);
+}
+
+TEST(Geofence_Polygon, Singapore_test)
+{
+    Polygon_t poly = get_polygon(1.3521, 103.8198);
+    CHECK_EQUAL(AS920923_MALAYSIASG_polygon, poly);
+}
+
+TEST(Geofence_Polygon, Russia_test)
+{
+    Polygon_t poly = get_polygon(61.5240, 105.3188);
+    CHECK_EQUAL(RU864870_RUSSIA_polygon, poly);
+}
+
+TEST(Geofence_Polygon, Iran_test)
+{
+    Polygon_t poly = get_polygon(32.6539, 51.6660);
+    CHECK_EQUAL(EU863870_EUROPE_polygon, poly);
+}
+
 /**
  * @brief Test network key validity
  * 
