@@ -13,6 +13,7 @@ set(SOURCE_FILES
     main.cpp
     pythagorean_ut.cpp
     geofence_ut.cpp
+    lorawan_credentials_ut.cpp
     ${PROJECT_SOURCE_DIR}/src_copy/pythagorean.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/geofence.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/region_settings.c
