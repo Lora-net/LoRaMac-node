@@ -657,7 +657,7 @@ int32_t pointInPolygonF(int32_t polyCorners, float *polygon, float latitude, flo
 
 	for (i = 0; i < polyCorners * 2; i += 2)
 	{
-		if ((polygon[i + 1] < latitude && polygon[j + 1] >= latitude || polygon[j + 1] < latitude && polygon[i + 1] >= latitude) && (polygon[i] <= longitude || polygon[j] <= longitude))
+		if (((polygon[i + 1] < latitude && polygon[j + 1] >= latitude) || ((polygon[j + 1] < latitude && polygon[i + 1] >= latitude) && (polygon[i] <= longitude || polygon[j] <= longitude))))
 		{
 			oddNodes ^= (polygon[i] + (latitude - polygon[i + 1]) / (polygon[j + 1] - polygon[i + 1]) * (polygon[j] - polygon[i]) < longitude);
 		}

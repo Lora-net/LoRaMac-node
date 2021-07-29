@@ -141,3 +141,7 @@ location of target files:
 /usr/share/openocd/scripts/target
 ```
 
+### Running unit tests
+To run unittests, on vs code, change current build variant from debug to Unittest_build. Then change active kit to GCC x.x.x x86_64-linux-gnu (your computer's gcc compiler). Then hit build. To go back to building for the MCU, switch back current build variant to debug and change active kit to arm-none-eabi
+
+
