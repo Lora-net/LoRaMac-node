@@ -28,6 +28,20 @@ project(cpputest_example)
 
 include(CTest)
 
+# Use reference https://stackoverflow.com/a/52257586
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+include(CodeCoverage)
+APPEND_COVERAGE_COMPILER_FLAGS()
+
+SETUP_TARGET_FOR_COVERAGE_LCOV(
+        NAME coverage_my                 
+        EXECUTABLE ctest -j ${n_cores} # Executable in PROJECT_BINARY_DIR
+        DEPENDENCIES
+            pythagorean_ut
+        )
+
+
 add_subdirectory(mocking)
 add_subdirectory(testtools)
 add_subdirectory(tests)

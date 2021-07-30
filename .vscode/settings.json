@@ -92,6 +92,10 @@
                     "buildType": "Unittest_build",
                     "settings": {
                         "UNIT_TESTING": true,
+                        "COVERAGE": "ON",
+                        "CMAKE_BUILD_TYPE": "Debug",
+                        "C++11": "ON",
+                        "LONGLONG": "ON"
                     }
                 },
                 "debug": {

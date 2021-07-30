@@ -7,6 +7,8 @@ sudo apt-get install cmake
 sudo apt install gcc-arm-none-eabi
 sudo apt install openocd
 sudo apt-get install -y gdb-multiarch # for gdb
+sudo apt install lcov # for coverage reports of cpputest
+sudo apt install gcov # for coverage reports of cpputest
 
 ```
 
@@ -144,4 +146,11 @@ location of target files:
 ### Running unit tests
 To run unittests, on vs code, change current build variant from debug to Unittest_build. Then change active kit to GCC x.x.x x86_64-linux-gnu (your computer's gcc compiler). Then hit build. To go back to building for the MCU, switch back current build variant to debug and change active kit to arm-none-eabi
 
+### Running coverage reports
+Run the following command in terminal:
+```bash
+medad@medad-ThinkPad-P51:~/Documents/GitHub/LoRaMac-node/build$ make coverage_my
+```
+
+I have not yet figured out how to integrate it into a button click on VS code.
 
