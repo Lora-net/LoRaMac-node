@@ -134,6 +134,11 @@ gps_status_t get_latest_gps_status(void)
 	return gps_info.latest_gps_status;
 }
 
+gps_info_t *get_gps_info_ptr(void)
+{
+	return &gps_info;
+}
+
 /* Get solar voltage when under load from GPS */
 uint16_t get_load_solar_voltage()
 {

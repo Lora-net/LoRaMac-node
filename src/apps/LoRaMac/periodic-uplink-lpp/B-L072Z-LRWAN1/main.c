@@ -566,6 +566,8 @@ static void PrepareTxFrame( void )
     if (get_latest_gps_status() == GPS_SUCCESS)
     {
         /* Find out which region of world we are in and update region parm*/
+
+        gps_info_t gps_info = *get_gps_info_ptr();
         update_geofence_position(gps_info.GPS_UBX_latitude_Float, gps_info.GPS_UBX_longitude_Float);
 
         /* Save current polygon to eeprom only if gps fix was valid */

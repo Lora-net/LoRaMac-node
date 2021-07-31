@@ -26,20 +26,11 @@
 #include "iwdg.h"
 #include "board.h"
 #include "stdio.h"
+#include "config.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define BATTERY_ADC_CHANNEL ADC_CHANNEL_5
-/*!
- * Generic definition
- */
-#ifndef SUCCESS
-#define SUCCESS 1
-#endif
-
-#ifndef FAIL
-#define FAIL 0
-#endif
 
 #define MINUTES_IN_DAY 1440UL
 #define MINUTES_AGO_TO_SELECT_FROM (MINUTES_IN_DAY * PLAYBACK_DAYS)
@@ -60,13 +51,13 @@ time_pos_fix_t current_position =
 
 sensor_t sensor_data;
 playback_key_info_t *playback_key_info_ptr;
+gps_info_t *gps_info_ptr;
 
 double TEMPERATURE_Value;
 double PRESSURE_Value;
 
 /* Private function prototypes -----------------------------------------------*/
 void save_current_position_info_to_EEPROM(time_pos_fix_t *currrent_position);
-void fill_positions_to_send_buffer(void);
 uint32_t unix_time_to_minutes_since_epoch(uint32_t unix_time);
 int mod(int a, int b);
 void print_stored_coordinates(void);
@@ -109,15 +100,15 @@ void BSP_sensor_Read(void)
 
 	/* calculate days of playback available */
 	time_pos_fix_t oldest_timepos_record = get_oldest_pos_time();
-	time_pos_fix_t most_recent_timepos_record;
-	most_recent_timepos_record = retrieve_eeprom_time_pos(0);
+	time_pos_fix_t most_recent_timepos_record = retrieve_eeprom_time_pos(0);
+
 	sensor_data.days_of_playback = (uint8_t)((most_recent_timepos_record.minutes_since_epoch - oldest_timepos_record.minutes_since_epoch) / MINUTES_IN_DAY);
 
 	/* pretty print sensor values for debugging */
-	pretty_print_sensor_values(&TEMPERATURE_Value, &PRESSURE_Value, &gps_info, &no_load_solar_voltage, &load_solar_voltage);
+	pretty_print_sensor_values(&TEMPERATURE_Value, &PRESSURE_Value, gps_info_ptr, &no_load_solar_voltage, &load_solar_voltage);
 
 	/* Fill up the structs that will be used to make the packet that is sent down over radio */
-	fill_to_send_structs(&TEMPERATURE_Value, &PRESSURE_Value, &gps_info, &no_load_solar_voltage, &load_solar_voltage);
+	fill_to_send_structs(&TEMPERATURE_Value, &PRESSURE_Value, gps_info_ptr, &no_load_solar_voltage, &load_solar_voltage);
 
 	/* fill up the buffer to send down */
 	fill_positions_to_send_buffer();
@@ -164,7 +155,7 @@ void save_data_to_nvm()
 	/* now save all this data to non volatile memory */
 	time_pos_fix_t most_recent = retrieve_eeprom_time_pos(0);
 
-	if (gps_info.latest_gps_status == GPS_SUCCESS)
+	if (gps_info_ptr->latest_gps_status == GPS_SUCCESS)
 	{
 		/* After the time between saving(HOW_OFTEN_TO_SAVE_POS_TIM_TO_EEPROM) has elapsed, then
 		 * increment the counter such that it can save to the next location
@@ -285,17 +276,6 @@ void BSP_sensor_Init(void)
 
 	IWDG_reset();
 
-#if defined(VARIANT_1V1B) || defined(VARIANT_1V2B)
-	/* enable power to the sensors */
-	SENSOR_EN_GPIO_Init();
-
-#endif
-
-#if defined(VARIANT_1V2A) || defined(VARIANT_1V3A)
-	/* enable power to the GPS with mosfet */
-	GPS_EN_GPIO_Init();
-#endif
-
 	printf("SELFTEST: Initialisng ms5607\n\r");
 #if SENSOR_ENABLED
 	/* Initialize sensors */
@@ -308,6 +288,7 @@ void BSP_sensor_Init(void)
 #if GPS_ENABLED
 	printf("SELFTEST: Initialising GPS\n\r");
 
+	gps_info_ptr = get_gps_info_ptr();
 	//GPS SETUP
 	setup_GPS();
 

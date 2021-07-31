@@ -78,7 +78,6 @@ typedef struct{
 /* Definition of public (external) data types go here */
 
 
-extern gps_info_t gps_info;
 
 /* ==================================================================== */
 /* ======================= public functions =========================== */
@@ -90,6 +89,8 @@ extern gps_status_t get_location_fix(uint32_t timeout);
 extern gps_status_t setup_GPS(void);
 extern gps_status_t get_latest_gps_status(void);
 extern uint16_t get_load_solar_voltage(void);
+
+gps_info_t *get_gps_info_ptr(void);
 
 
 #endif

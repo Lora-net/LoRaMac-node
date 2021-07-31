@@ -81,14 +81,8 @@ static uint16_t tx_str_buffer_len = 0;
 time_pos_fix_t subset_positions[MAX_N_POSITIONS_TO_SEND];
 int corput_n = 0;
 
-#ifdef playback_testing
-sensor_t *current_sensor_data_ptr = &current_sensor_data;
-time_pos_fix_t *current_pos_ptr = &current_pos;
-uint16_t temp_n_playback_positions_in_eeprom = 116;
-#else
 sensor_t *current_sensor_data_ptr;
 time_pos_fix_t *current_pos_ptr;
-#endif
 
 struct LGC_params
 {
@@ -123,13 +117,10 @@ void fill_tx_buffer_with_location(uint16_t start_point, uint8_t *buffer, uint16_
 void fill_tx_buffer_with_location_and_time(uint16_t start_point, uint8_t *buffer,
 										   uint16_t latitude, uint16_t longitude,
 										   uint16_t altitude, uint32_t minutes_since_epoch);
-void fill_positions_to_send_buffer(void);
 
 int mapping(int i, int start, int step);
 void init_LGC(int start, int stop, int step);
 int next_LCG(void);
-int corput_index(int lower_val, int upper_val);
-double corput(int n, int base);
 int LCG(int lower_val, int upper_val);
 
 /* Initlise pointer to retrieve eeprom time pos */
@@ -142,76 +133,6 @@ select_low_discrepancy_T select_low_discrepancy_ptr = LCG;
 
 /* Functions definitions go here, organised into sections */
 
-#ifdef playback_testing
-void main()
-{
-	corput_n = generate_random(0, 1000);
-
-	// Print out buffer for debug
-	printf("Filling buffer\n");
-	for (int i = 0; i < current_playback_key_info.n_positions_to_send; i++)
-	{
-		subset_positions[i].longitude = current_pos.longitude;
-		subset_positions[i].latitude = current_pos.latitude;
-		subset_positions[i].altitude = current_pos.altitude;
-		subset_positions[i].minutes_since_epoch = current_pos.minutes_since_epoch;
-	}
-	printf("\n");
-
-	printf("\n");
-
-	prepare_tx_buffer();
-
-	printf("\ntesting corput");
-	printf("\n");
-	printf("\n");
-
-	// Print out buffer for debug
-	int size = 100;
-
-	for (int i = 0; i < 1000; i++)
-	{
-		int index_c = corput_index(0, 100);
-	}
-
-	printf("\n");
-
-	srand(10);
-
-	init_LGC(0, 0, 1);
-
-	for (int i = 0; i < 12; i++)
-	{
-		printf("%d ", select_low_discrepancy_ptr(1, 10));
-	}
-
-	printf("\n");
-
-	process_playback_instructions(3, 5);
-
-	for (int i = 0; i < 12; i++)
-	{
-		printf("%d ", select_low_discrepancy_ptr(1, 3));
-	}
-	printf("\n");
-
-	for (int i = 0; i < 12; i++)
-	{
-		printf("%d ", select_low_discrepancy_ptr(1, 10));
-	}
-	printf("\n");
-
-	fill_positions_to_send_buffer();
-
-	printf("\ntesting extraction of long\n");
-
-	uint8_t buff1[4] = {0xbd, 0x40, 0x07, 0x00};
-
-	uint32_t asd = extractLong_from_buff(0, buff1);
-	printf("res %d", asd);
-}
-#endif
-
 /**
  * \brief Return pointer to current_playback_key_info
  * 
@@ -222,46 +143,6 @@ void main()
 playback_key_info_t *get_playback_key_info_ptr(void)
 {
 	return &current_playback_key_info;
-}
-
-/**
- * \brief Return the next Van Der Corput value.
- * 
- * \param lower_val
- * \param upper_val
- * 
- * \return int
- */
-int corput_index(int lower_val, int upper_val)
-{
-	double q = corput(corput_n, CORPUT_BASE);
-
-	corput_n += 1;
-
-	return (int)((upper_val - lower_val) * q) + lower_val;
-	;
-}
-
-/**
- * \brief Implementation of Van Der Corput low descrepency sequence
- * 
- * \param n    : index
- * \param base : base
- * 
- * \return double
- */
-double corput(int n, int base)
-{
-	double q = 0, bk = (double)1 / base;
-
-	while (n > 0)
-	{
-		q += (n % base) * bk;
-		n /= base;
-		bk /= base;
-	}
-
-	return q;
 }
 
 /**
@@ -305,18 +186,12 @@ void fill_positions_to_send_buffer(void)
 			rand_time_pos_index += current_playback_key_info.n_positions_saved_since_boot;
 		}
 
-#ifdef playback_testing
-		printf("\nTimepos index: %d\n", rand_time_pos_index);
-#endif
-
-#ifndef playback_testing
 		time_pos_fix_t random_time_pos = Retrieve_eeprom_time_pos_ptr(rand_time_pos_index);
 
 		subset_positions[i].altitude = random_time_pos.altitude;
 		subset_positions[i].latitude = random_time_pos.latitude;
 		subset_positions[i].longitude = random_time_pos.longitude;
 		subset_positions[i].minutes_since_epoch = random_time_pos.minutes_since_epoch;
-#endif
 	}
 
 	/* we have serviced the request. set to false now */
@@ -417,11 +292,8 @@ int LCG(int lower_val, int upper_val)
  */
 int generate_random(int l, int r)
 {
-#ifdef playback_testing
 	int rand_num = (rand() % (r - l + 1)) + l;
-#else
-	int rand_num = randr(l, r);
-#endif
+
 	return rand_num;
 }
 
@@ -559,42 +431,33 @@ void init_playback(sensor_t *sensor_data, time_pos_fix_t *current_pos,
 }
 
 /**
- * \brief Take message from ground and parse it, to set the values in current_playback_key_info
+ * \brief Handle request from ground for past position fixes from the specified date
+ * range. Take message from ground and parse it, to set the values in current_playback_key_info
  * 
  * \param instructions as a pointer
  * 
- * \return void
+ * \return bool: true if error, else false
  */
-void process_playback_instructions(uint16_t recent_timepos_index, uint16_t older_timepos_index)
+bool process_playback_instructions(uint16_t recent_timepos_index, uint16_t older_timepos_index)
 {
+	bool success = true;
 
 	if ((recent_timepos_index > 0) && (older_timepos_index > 0) && !(recent_timepos_index >= older_timepos_index))
 	{
 		current_playback_key_info.requested_pos_index_lower = recent_timepos_index;
 		current_playback_key_info.requested_pos_index_upper = older_timepos_index;
 		current_playback_key_info.request_from_gnd = true;
+
+		success = true;
 	}
 	else
 	{
 		current_playback_key_info.playback_error = true;
+
+		success = false;
 	}
-}
 
-/* byte extraction functions taken from sparkfun ublox library */
-
-//Given a spot in the payload array, extract two bytes and build an int
-uint16_t extractInt_from_buff(uint8_t spotToStart, uint8_t *buff)
-{
-	uint16_t val = 0;
-	val |= (uint16_t)buff[spotToStart + 0] << 8 * 0;
-	val |= (uint16_t)buff[spotToStart + 1] << 8 * 1;
-	return (val);
-}
-
-//Given a spot, extract a byte from the payload
-uint8_t extractByte_from_buff(uint8_t spotToStart, uint8_t *buff)
-{
-	return (buff[spotToStart]);
+	return success;
 }
 
 //Given a spot in the payload array, extract four bytes and build a long
