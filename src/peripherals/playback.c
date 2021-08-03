@@ -19,6 +19,7 @@
 #include "bsp.h"
 #include "utilities.h"
 #include <math.h>
+#include <string.h>
 
 /* ==================================================================== */
 /* ============================ constants ============================= */
@@ -421,6 +422,9 @@ void init_playback(sensor_t *sensor_data, time_pos_fix_t *current_pos,
 				   retrieve_eeprom_time_pos_ptr_T retrieve_eeprom_time_pos_ptr,
 				   uint16_t n_positions_to_select_from)
 {
+
+	memset(&current_playback_key_info, 0, sizeof(playback_key_info_t));
+	current_playback_key_info.n_positions_to_send = DEFAULT_N_POSITIONS_TO_SEND;
 	current_playback_key_info.position_pool_size_to_select_from = n_positions_to_select_from;
 
 	current_sensor_data_ptr = sensor_data;

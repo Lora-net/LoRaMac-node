@@ -27,6 +27,7 @@
 #include "board.h"
 #include "stdio.h"
 #include "config.h"
+#include <time.h>
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -51,7 +52,7 @@ time_pos_fix_t current_position =
 
 sensor_t sensor_data;
 playback_key_info_t *playback_key_info_ptr;
-gps_info_t *gps_info_ptr;
+gps_info_t gps_info_latest;
 
 double TEMPERATURE_Value;
 double PRESSURE_Value;
@@ -70,6 +71,8 @@ void pretty_print_sensor_values(double *TEMPERATURE_Value, double *PRESSURE_Valu
 void save_data_to_nvm(void);
 void fill_to_send_structs(double *TEMPERATURE_Value, double *PRESSURE_Value, gps_info_t *gps_info, uint16_t *no_load_solar_voltage, uint16_t *load_solar_voltage);
 void printDouble(double v, int decimalDigits);
+uint32_t minutes_since_epoch_to_unix_time(uint32_t minutes_since_epoch);
+void print_time_pos_fix(time_pos_fix_t temp);
 
 /* Exported functions ---------------------------------------------------------*/
 
@@ -91,6 +94,7 @@ void BSP_sensor_Read(void)
 
 #if GPS_ENABLED
 	get_location_fix(GPS_LOCATION_FIX_TIMEOUT);
+	gps_info_latest = get_latest_gps_info();
 	IWDG_reset();
 #endif
 
@@ -105,10 +109,10 @@ void BSP_sensor_Read(void)
 	sensor_data.days_of_playback = (uint8_t)((most_recent_timepos_record.minutes_since_epoch - oldest_timepos_record.minutes_since_epoch) / MINUTES_IN_DAY);
 
 	/* pretty print sensor values for debugging */
-	pretty_print_sensor_values(&TEMPERATURE_Value, &PRESSURE_Value, gps_info_ptr, &no_load_solar_voltage, &load_solar_voltage);
+	pretty_print_sensor_values(&TEMPERATURE_Value, &PRESSURE_Value, &gps_info_latest, &no_load_solar_voltage, &load_solar_voltage);
 
 	/* Fill up the structs that will be used to make the packet that is sent down over radio */
-	fill_to_send_structs(&TEMPERATURE_Value, &PRESSURE_Value, gps_info_ptr, &no_load_solar_voltage, &load_solar_voltage);
+	fill_to_send_structs(&TEMPERATURE_Value, &PRESSURE_Value, &gps_info_latest, &no_load_solar_voltage, &load_solar_voltage);
 
 	/* fill up the buffer to send down */
 	fill_positions_to_send_buffer();
@@ -155,7 +159,7 @@ void save_data_to_nvm()
 	/* now save all this data to non volatile memory */
 	time_pos_fix_t most_recent = retrieve_eeprom_time_pos(0);
 
-	if (gps_info_ptr->latest_gps_status == GPS_SUCCESS)
+	if (gps_info_latest.latest_gps_status == GPS_SUCCESS)
 	{
 		/* After the time between saving(HOW_OFTEN_TO_SAVE_POS_TIM_TO_EEPROM) has elapsed, then
 		 * increment the counter such that it can save to the next location
@@ -225,10 +229,10 @@ void pretty_print_sensor_values(double *TEMPERATURE_Value, double *PRESSURE_Valu
 	printf(" Latitude: ");
 	printDouble(gps_info->GPS_UBX_latitude_Float, 6);
 	printf(" altitude: ");
-	printf("%ld", gps_info->GPSaltitude / 1000);
+	printf("%d", gps_info->GPSaltitude / 1000);
 	printf("\r\n");
 	printf("GPS time: ");
-	printf("%ld", gps_info->unix_time);
+	printf("%d", gps_info->unix_time);
 	printf("\r\n");
 	printf("Solar voltage no load: ");
 	printf("%d", *no_load_solar_voltage);
@@ -251,12 +255,12 @@ void manage_incoming_instruction(uint8_t *instructions)
 	uint32_t recent_time_min = extractLong_from_buff(0, instructions);
 	uint16_t recent_timepos_index = get_time_pos_index_older_than(recent_time_min);
 
-	printf("Received instruction recent. time(min):%lu timepos index: %d\n", recent_time_min, recent_timepos_index);
+	printf("Received instruction recent. time(min):%u timepos index: %d\n", recent_time_min, recent_timepos_index);
 
 	uint32_t older_time_min = extractLong_from_buff(4, instructions);
 	uint16_t older_timepos_index = get_time_pos_index_older_than(older_time_min);
 
-	printf("Received instruction older. time(min):%lu timepos index: %d\n", older_time_min, older_timepos_index);
+	printf("Received instruction older. time(min):%u timepos index: %d\n", older_time_min, older_timepos_index);
 
 	process_playback_instructions(recent_timepos_index, older_timepos_index);
 }
@@ -288,7 +292,7 @@ void BSP_sensor_Init(void)
 #if GPS_ENABLED
 	printf("SELFTEST: Initialising GPS\n\r");
 
-	gps_info_ptr = get_gps_info_ptr();
+	gps_info_latest = get_latest_gps_info();
 	//GPS SETUP
 	setup_GPS();
 
@@ -365,6 +369,21 @@ void playback_hw_init()
 }
 
 /**
+ * @brief Print buffer as hex characters
+ * 
+ * @param buff 
+ * @param size 
+ */
+void print_buffer(uint8_t *buff, uint16_t size)
+{
+	for (int i = 0; i < size; i++)
+	{
+		printf("%02x", buff[i]);
+	}
+	printf("\n\n");
+}
+
+/**
  * \brief Print out all the stored coordinates
  * 
  * 
@@ -377,8 +396,26 @@ void print_stored_coordinates()
 	for (uint16_t i = 0; i < n_playback_positions_saved; i++)
 	{
 		time_pos_fix_t temp = retrieve_eeprom_time_pos(i);
-		printf("index: %d, long: %d, lat: %d, alt: %d, ts: %ld\n", i, temp.longitude, temp.latitude, temp.altitude, temp.minutes_since_epoch);
+		printf("index: %d,", i);
+		print_time_pos_fix(temp);
 	}
+}
+
+void print_time_pos_fix(time_pos_fix_t temp)
+{
+	uint32_t unix_time = minutes_since_epoch_to_unix_time(temp.minutes_since_epoch);
+
+	time_t now;
+	struct tm ts;
+	char buf[80];
+
+	now = unix_time;
+
+	// Format time, "ddd yyyy-mm-dd hh:mm:ss zzz"
+	ts = *localtime(&now);
+	strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
+
+	printf("long: %d, lat: %d, alt: %d, ts: %s\n", temp.longitude, temp.latitude, temp.altitude, buf);
 }
 
 /**
@@ -403,7 +440,8 @@ time_pos_fix_t get_oldest_pos_time()
 
 	time_pos_fix_t temp = retrieve_eeprom_time_pos(index);
 
-	printf("oldest postime :: pos_time index: %d, long: %d, lat: %d, alt: %d, ts: %ld\n", index, temp.longitude, temp.latitude, temp.altitude, temp.minutes_since_epoch);
+	printf("oldest position/time record: ");
+	print_time_pos_fix(temp);
 
 	return temp;
 }
@@ -510,6 +548,11 @@ int mod(int a, int b)
 uint32_t unix_time_to_minutes_since_epoch(uint32_t unix_time)
 {
 	return (unix_time - 1577840461) / 60;
+}
+
+uint32_t minutes_since_epoch_to_unix_time(uint32_t minutes_since_epoch)
+{
+	return minutes_since_epoch * 60 + 1577840461;
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -9,7 +9,7 @@ extern "C"
 
 float SquareRoot_sqrt(float number)
 {
-    //printf("\nSquareRoot_sqrt gets called with parameter: %f.\n", number);
+    printf("\nSquareRoot_sqrt gets called with parameter: %f.\n", number);
 
     return float(mock().actualCall(__func__)
         .withParameter("number", number)

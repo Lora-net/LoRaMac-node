@@ -474,12 +474,7 @@ static void OnRxData( LmHandlerAppData_t* appData, LmHandlerRxParams_t* params )
     {
 
         printf("Received data: ");
-
-        for (int i = 0; i < appData->BufferSize; i++)
-        {
-            printf("%02x", appData->Buffer[i]);
-        }
-        printf("\n\n");
+        print_buffer(appData->Buffer, appData->BufferSize);
         manage_incoming_instruction(appData->Buffer);
     }
     break;
@@ -567,7 +562,7 @@ static void PrepareTxFrame( void )
     {
         /* Find out which region of world we are in and update region parm*/
 
-        gps_info_t gps_info = *get_gps_info_ptr();
+        gps_info_t gps_info = get_latest_gps_info();
         update_geofence_position(gps_info.GPS_UBX_latitude_Float, gps_info.GPS_UBX_longitude_Float);
 
         /* Save current polygon to eeprom only if gps fix was valid */
@@ -589,11 +584,7 @@ static void PrepareTxFrame( void )
 
     // Print out buffer for debug
     printf("Buffer to tx:\n");
-    for (int i = 0; i < AppData.BufferSize; i++)
-    {
-        printf("%02x", AppData.Buffer[i]);
-    }
-    printf("\n");
+    print_buffer(AppData.Buffer, AppData.BufferSize);
     printf("tx_str_buffer_len: %d\n\n", AppData.BufferSize);
 
     if( LmHandlerSend( &AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE ) == LORAMAC_HANDLER_SUCCESS )

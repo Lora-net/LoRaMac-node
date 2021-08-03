@@ -7,20 +7,28 @@ extern "C"
 #include "nvmm.h"
 #include "ublox.h"
 #include "board.h"
+#include <string.h>
+#include "bsp.h"
 }
+
+uint8_t simulated_flash[EEPROM_SIZE];
 
 void IWDG_reset()
 {
     //printf("\nSquareRoot_sqrt gets called with parameter: %f.\n", number);
 }
 
+/* NVM memory mocking inspired by http://www.electronvector.com/blog/unit-testing-with-flash-eeprom */
+
 uint16_t NvmmRead(uint8_t *dest, uint16_t size, uint16_t offset)
 {
+    memcpy(dest, &simulated_flash[(int)offset], size);
     return 0;
 }
 
 uint16_t NvmmWrite(uint8_t *src, uint16_t size, uint16_t offset)
 {
+    memcpy(&simulated_flash[(int)offset], src, size);
     return 0;
 }
 
@@ -57,10 +65,8 @@ uint16_t get_load_solar_voltage()
     return 2323;
 }
 
-gps_info_t gps_info = {.unix_time = UINT16_MAX, .latest_gps_status = GPS_SUCCESS};
-
-gps_info_t *get_gps_info_ptr(void)
+gps_info_t get_latest_gps_info()
 {
-
-    return &gps_info;
+    auto returnValue = mock().actualCall(__func__).returnPointerValue();
+    return *(gps_info_t *)(returnValue);
 }
