@@ -136,26 +136,6 @@ static bool AppLedStateOn = false;
  */
 static TimerEvent_t TxTimer;
 
-/*!
- * Timer to handle the state of LED1
- */
-static TimerEvent_t Led1Timer;
-
-/*!
- * Timer to handle the state of LED2
- */
-static TimerEvent_t Led2Timer;
-
-/*!
- * Timer to handle the state of LED3
- */
-static TimerEvent_t Led3Timer;
-
-/*!
- * Timer to handle the state of LED beacon indicator
- */
-static TimerEvent_t LedBeaconTimer;
-
 static void OnMacProcessNotify(void);
 static void OnNvmDataChange(LmHandlerNvmContextStates_t state, uint16_t size);
 static void OnNetworkParametersChange(CommissioningParams_t *params);
@@ -177,33 +157,12 @@ static void UplinkProcess(void);
 
 static void scheduler_begin();
 static void print_board_info();
-static void init_timers();
 static void init_loramac();
 
 /*!
  * Function executed on TxTimer event
  */
 static void OnTxTimerEvent(void *context);
-
-/*!
- * Function executed on Led 1 Timeout event
- */
-static void OnLed1TimerEvent(void *context);
-
-/*!
- * Function executed on Led 2 Timeout event
- */
-static void OnLed2TimerEvent(void *context);
-
-/*!
- * \brief Function executed on Led 3 Timeout event
- */
-static void OnLed3TimerEvent(void *context);
-
-/*!
- * \brief Function executed on Beacon timer Timeout event
- */
-static void OnLedBeaconTimerEvent(void *context);
 
 static void retrieve_lorawan_region(void);
 
@@ -288,8 +247,6 @@ int main(void)
 
     while (1)
     {
-        /* Initialise blinky timers. not necessary? */
-        init_timers();
 
         /* Init loramac stack */
         init_loramac();
@@ -349,22 +306,6 @@ static void print_board_info()
     DisplayAppInfo("periodic-uplink-lpp",
                    &appVersion,
                    &gitHubVersion);
-}
-
-static void init_timers()
-{
-
-    TimerInit(&Led1Timer, OnLed1TimerEvent);
-    TimerSetValue(&Led1Timer, 25);
-
-    TimerInit(&Led2Timer, OnLed2TimerEvent);
-    TimerSetValue(&Led2Timer, 25);
-
-    TimerInit(&Led3Timer, OnLed3TimerEvent);
-    TimerSetValue(&Led3Timer, 25);
-
-    TimerInit(&LedBeaconTimer, OnLedBeaconTimerEvent);
-    TimerSetValue(&LedBeaconTimer, 5000);
 }
 
 static void init_loramac()
@@ -462,7 +403,6 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
     case LORAWAN_APP_PORT:
     {
         AppLedStateOn = appData->Buffer[0] & 0x01;
-        GpioWrite(&Led4, ((AppLedStateOn & 0x01) != 0) ? 1 : 0);
     }
     break;
 
@@ -480,8 +420,6 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
     }
 
     // Switch LED 2 ON for each received downlink
-    GpioWrite(&Led3, 1);
-    TimerStart(&Led3Timer);
 }
 
 static void OnClassChange(DeviceClass_t deviceClass)
@@ -503,13 +441,11 @@ static void OnBeaconStatusChange(LoRaMAcHandlerBeaconParams_t *params)
     {
     case LORAMAC_HANDLER_BEACON_RX:
     {
-        TimerStart(&LedBeaconTimer);
         break;
     }
     case LORAMAC_HANDLER_BEACON_LOST:
     case LORAMAC_HANDLER_BEACON_NRX:
     {
-        TimerStop(&LedBeaconTimer);
         break;
     }
     default:
@@ -583,8 +519,6 @@ static void PrepareTxFrame(void)
     if (LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE) == LORAMAC_HANDLER_SUCCESS)
     {
         // Switch LED 1 ON
-        GpioWrite(&Led1, 1);
-        TimerStart(&Led1Timer);
     }
 }
 
@@ -634,45 +568,4 @@ static void OnTxTimerEvent(void *context)
     // Schedule next transmission
     TimerSetValue(&TxTimer, APP_TX_DUTYCYCLE + randr(-APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND));
     TimerStart(&TxTimer);
-}
-
-/*!
- * Function executed on Led 1 Timeout event
- */
-static void OnLed1TimerEvent(void *context)
-{
-    TimerStop(&Led1Timer);
-    // Switch LED 1 OFF
-    GpioWrite(&Led1, 0);
-}
-
-/*!
- * Function executed on Led 2 Timeout event
- */
-static void OnLed2TimerEvent(void *context)
-{
-    TimerStop(&Led2Timer);
-    // Switch LED 2 OFF
-    GpioWrite(&Led2, 0);
-}
-
-/*!
- * \brief Function executed on Led 3 Timeout event
- */
-static void OnLed3TimerEvent(void *context)
-{
-    TimerStop(&Led3Timer);
-    // Switch LED 3 OFF
-    GpioWrite(&Led3, 0);
-}
-
-/*!
- * \brief Function executed on Beacon timer Timeout event
- */
-static void OnLedBeaconTimerEvent(void *context)
-{
-    GpioWrite(&Led2, 1);
-    TimerStart(&Led2Timer);
-
-    TimerStart(&LedBeaconTimer);
 }
