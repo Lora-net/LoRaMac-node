@@ -4,33 +4,18 @@ extern "C"
 {
 #include <stdio.h>
 #include "iwdg.h"
-#include "nvmm.h"
 #include "ublox.h"
 #include "board.h"
-#include <string.h>
 #include "bsp.h"
 }
 
-uint8_t simulated_flash[EEPROM_SIZE];
 
 void IWDG_reset()
 {
     //printf("\nSquareRoot_sqrt gets called with parameter: %f.\n", number);
 }
 
-/* NVM memory mocking inspired by http://www.electronvector.com/blog/unit-testing-with-flash-eeprom */
 
-uint16_t NvmmRead(uint8_t *dest, uint16_t size, uint16_t offset)
-{
-    memcpy(dest, &simulated_flash[(int)offset], size);
-    return 0;
-}
-
-uint16_t NvmmWrite(uint8_t *src, uint16_t size, uint16_t offset)
-{
-    memcpy(&simulated_flash[(int)offset], src, size);
-    return 0;
-}
 
 int32_t HW_GetTemperatureLevel_int(void)
 {

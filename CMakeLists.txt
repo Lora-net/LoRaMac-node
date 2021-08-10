@@ -43,7 +43,6 @@ SETUP_TARGET_FOR_COVERAGE_LCOV(
 
 
 add_subdirectory(mocking)
-add_subdirectory(testtools)
 add_subdirectory(tests)
 add_subdirectory(src_copy)
 

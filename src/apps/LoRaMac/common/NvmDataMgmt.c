@@ -36,6 +36,7 @@
 #include "nvmm.h"
 #include "LoRaMac.h"
 #include "NvmDataMgmt.h"
+#include "print_utils.h"
 
 /*!
  * Enables/Disables the context storage management storage.
@@ -73,6 +74,10 @@ uint16_t NvmDataMgmtStore( void )
     {
         return 0;
     }
+
+    printf("NVM Bytes:\n");
+    print_bytes(nvm, sizeof(LoRaMacNvmData_t));
+    printf("\n");
 
     // Crypto
     if( ( NvmNotifyFlags & LORAMAC_NVM_NOTIFY_FLAG_CRYPTO ) ==

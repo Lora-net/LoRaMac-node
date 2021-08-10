@@ -18,15 +18,24 @@ set(SOURCE_FILES
     playback_ut.cpp
     lorawan_credentials_ut.cpp
     bsp_ut.cpp
+    print_utils_ut.cpp
 
     ${PROJECT_SOURCE_DIR}/src_copy/pythagorean.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/geofence.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/region_settings.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/playback.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/bsp.c
+    ${PROJECT_SOURCE_DIR}/src/peripherals/print_utils.c
+
+    ${PROJECT_SOURCE_DIR}/src/boards/mcu/utilities.c
+    ${PROJECT_SOURCE_DIR}/src/system/nvmm.c
+
+    
+    
 
     bsp_mock.cpp
     square_root_mock.cpp
+    eeprom-board-mock.cpp
     )
 
 add_executable(pythagorean_ut ${SOURCE_FILES})
