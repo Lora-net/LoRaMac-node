@@ -224,10 +224,16 @@ extern Gpio_t Led4; // App
  */
 extern Uart_t Uart1;
 
+extern TimerTime_t current_time;
+
 /*!
  * Main application entry point.
  */
+#ifndef UNITTESTING_LORA
 int main(void)
+#else
+int run_app(void)
+#endif
 {
     /* Get reset cause for diagnosis */
     reset_cause_t reset_cause = reset_cause_get();
@@ -263,8 +269,14 @@ int main(void)
 
 static void scheduler_begin()
 {
+
     while (1)
     {
+#ifdef UNITTESTING_LORA
+        current_time += 1; /* simulate 1 millisecond per loop */
+
+        TimerIrqHandler();
+#endif
         IWDG_reset();
 
         // Process characters sent over the command line interface
@@ -307,6 +319,7 @@ static void print_board_info()
                    &appVersion,
                    &gitHubVersion);
 }
+
 
 static void init_loramac()
 {

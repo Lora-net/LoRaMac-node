@@ -11,19 +11,43 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(cpputest)
 
+add_definitions(
+    -DREGION_EU868
+    -DREGION_US915
+    -DREGION_AU915
+    -DREGION_CN470
+    -DREGION_AS923
+    -DREGION_KR920
+    -DREGION_IN865
+    -DREGION_RU864
+    -DSOFT_SE -DSTM32L072xx -DUSE_HAL_DRIVER -DUNITTESTING_LORA)
 
-# Add in the include directories
 include_directories(${CPPUTEST_SRC_DIR})
 include_directories(${CPPUTESTEXT_SRC_DIR})
+
+# Test includes
 include_directories(${PROJECT_SOURCE_DIR}/src_copy)
 include_directories(${PROJECT_SOURCE_DIR}/mocking)
+include_directories(${PROJECT_SOURCE_DIR}/tests/mocks/)
+
+
+# Loramac original header files
 include_directories(${PROJECT_SOURCE_DIR}/src/peripherals/)
 include_directories(${PROJECT_SOURCE_DIR}/src/mac/)
 include_directories(${PROJECT_SOURCE_DIR}/src/mac/region/)
 include_directories(${PROJECT_SOURCE_DIR}/src/system/)
 include_directories(${PROJECT_SOURCE_DIR}/src/boards/)
 include_directories(${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/)
+include_directories(${PROJECT_SOURCE_DIR}/src/peripherals/soft-se/)
+include_directories(${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandler/)
+include_directories(${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandler/packages/)
 include_directories(${PROJECT_SOURCE_DIR}/src/radio/)
+include_directories(${PROJECT_SOURCE_DIR}/src/boards/B-L072Z-LRWAN1/)
+include_directories(${PROJECT_SOURCE_DIR}/src/boards/B-L072Z-LRWAN1/cmsis/)
+include_directories(${PROJECT_SOURCE_DIR}/src/boards/mcu/stm32/STM32L0xx_HAL_Driver/Inc/)
+include_directories(${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/periodic-uplink-lpp/B-L072Z-LRWAN1/)
+include_directories(${PROJECT_SOURCE_DIR}/src/radio/sx1276/)
+
 
 
 
@@ -35,20 +59,29 @@ set(UNIT_TESTS
     playback_ut.cpp
     lorawan_credentials_ut.cpp
     NvmDataMgmt_ut.cpp
+    app_ut.cpp
     bsp_ut.cpp
     print_utils_ut.cpp
 )
 
 # Mocks
 set(MOCKS 
+    sx1276-board-mock.c
+    cli-mock.c
+    board-mock.c
+    sx1276-mock.c
+    timer-mock.cpp
     bsp_mock.cpp
     square_root_mock.cpp
     eeprom-board-mock.cpp
-    loramac-mock.cpp
+    # loramac-mock.cpp
     systime-mock.cpp
     nvmm-mock.c
+    ublox-mock.cpp
 )
 
+
+# Put in compile files(all logic so no hardware connection)    
 set(FILES_UNDER_TEST 
     ${PROJECT_SOURCE_DIR}/src_copy/pythagorean.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/geofence.c
@@ -56,9 +89,53 @@ set(FILES_UNDER_TEST
     ${PROJECT_SOURCE_DIR}/src/peripherals/playback.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/bsp.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/print_utils.c
+    ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/periodic-uplink-lpp/B-L072Z-LRWAN1/main.c
+    ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandlerMsgDisplay.c
+    ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandler/LmHandler.c
+
+    # Compile region files
+    ${PROJECT_SOURCE_DIR}/src/mac/region/RegionAU915.c
+    ${PROJECT_SOURCE_DIR}/src/mac/region/RegionUS915.c
+    ${PROJECT_SOURCE_DIR}/src/mac/region/RegionAS923.c
+    ${PROJECT_SOURCE_DIR}/src/mac/region/RegionCN470.c
+    ${PROJECT_SOURCE_DIR}/src/mac/region/RegionEU868.c
+    ${PROJECT_SOURCE_DIR}/src/mac/region/RegionIN865.c
+    ${PROJECT_SOURCE_DIR}/src/mac/region/RegionKR920.c
+    ${PROJECT_SOURCE_DIR}/src/mac/region/RegionRU864.c
+    ${PROJECT_SOURCE_DIR}/src/mac/region/RegionBaseUS.c
+    ${PROJECT_SOURCE_DIR}/src/mac/region/RegionCommon.c
+    ${PROJECT_SOURCE_DIR}/src/mac/region/Region.c
+
+
+    ${PROJECT_SOURCE_DIR}/src/mac/LoRaMac.c
+    ${PROJECT_SOURCE_DIR}/src/mac/LoRaMacAdr.c
+    ${PROJECT_SOURCE_DIR}/src/mac/LoRaMacClassB.c
+    ${PROJECT_SOURCE_DIR}/src/mac/LoRaMacCommands.c
+    ${PROJECT_SOURCE_DIR}/src/mac/LoRaMacConfirmQueue.c
+    ${PROJECT_SOURCE_DIR}/src/mac/LoRaMacCrypto.c
+    ${PROJECT_SOURCE_DIR}/src/mac/LoRaMacParser.c
+    ${PROJECT_SOURCE_DIR}/src/mac/LoRaMacSerializer.c 
+
+    ${PROJECT_SOURCE_DIR}/src/peripherals/soft-se/soft-se.c
+    ${PROJECT_SOURCE_DIR}/src/peripherals/soft-se/cmac.c
+    ${PROJECT_SOURCE_DIR}/src/peripherals/soft-se/aes.c
+    ${PROJECT_SOURCE_DIR}/src/peripherals/soft-se/soft-se-hal.c
+
+    ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/CayenneLpp.c 
+    ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandlerMsgDisplay.c 
+    ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/NvmDataMgmt.c 
+    ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandler/LmHandler.c 
+
+    ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandler/packages/FragDecoder.c 
+    ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandler/packages/LmhpClockSync.c 
+    ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandler/packages/LmhpCompliance.c 
+    ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandler/packages/LmhpFragmentation.c 
+    ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandler/packages/LmhpRemoteMcastSetup.c 
+
     ${PROJECT_SOURCE_DIR}/src/boards/mcu/utilities.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/NvmDataMgmt.c
 )
+
 set(SOURCE_FILES
     ${UNIT_TESTS}
     ${MOCKS}
