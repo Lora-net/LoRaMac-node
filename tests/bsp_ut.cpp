@@ -85,11 +85,11 @@ void sensor_read_and_printout(uint32_t number_of_readings)
     {
 
         float latitude = 53.23;
-        float longitude = fmod(0.02 + i * 0.001, 360) - 180;
+        int longitude = i % 360 - 180;
 
         gps_info_t world_trip_mock = {
             .GPS_UBX_latitude_Float = latitude,
-            .GPS_UBX_longitude_Float = longitude,
+            .GPS_UBX_longitude_Float = (float)longitude,
             .GPSaltitude = 12342000,
             .GPS_UBX_latitude = latitude * 1e7,
             .GPS_UBX_longitude = longitude * 1e7,
