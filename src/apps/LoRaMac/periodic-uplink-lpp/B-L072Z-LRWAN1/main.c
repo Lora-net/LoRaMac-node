@@ -166,6 +166,9 @@ static void OnTxTimerEvent(void *context);
 
 static void retrieve_lorawan_region(void);
 
+void setup_board(void);
+bool run_loop_once(void);
+
 static LmHandlerCallbacks_t LmHandlerCallbacks =
     {
         .GetBatteryLevel = BoardGetBatteryLevel,
@@ -235,6 +238,70 @@ int main(void)
 int run_app(void)
 #endif
 {
+
+    setup_board();
+
+    while (1)
+    {
+
+        /* Init loramac stack */
+        init_loramac();
+
+        //LmHandlerJoin( );
+
+        /* Start up periodic timer for sending uplinks */
+        StartTxProcess(LORAMAC_HANDLER_TX_ON_TIMER);
+
+        /* Start loop */
+        while (run_loop_once() == true)
+        {
+        }
+    }
+}
+
+bool run_loop_once()
+{
+#ifdef UNITTESTING_LORA
+    current_time += 1; /* simulate 1 millisecond per loop */
+
+    TimerIrqHandler();
+#endif
+    IWDG_reset();
+
+    // Process characters sent over the command line interface
+    CliProcess(&Uart1);
+
+    // Processes the LoRaMac events
+    LmHandlerProcess();
+
+    // Process application uplinks management
+    UplinkProcess();
+
+    if (current_geofence_status.reinit_loramac_stack_pending == true)
+    {
+        printf("Breaking out of main loop to reinit LoRa regional settings\n\r");
+        TimerStop(&TxTimer);
+        return false;
+    }
+
+    CRITICAL_SECTION_BEGIN();
+    if (IsMacProcessPending == 1)
+    {
+        // Clear flag and prevent MCU to go into low power modes.
+        IsMacProcessPending = 0;
+    }
+    else
+    {
+        // The MCU wakes up through events
+        BoardLowPowerHandler();
+    }
+    CRITICAL_SECTION_END();
+
+    return true;
+}
+
+void setup_board()
+{
     /* Get reset cause for diagnosis */
     reset_cause_t reset_cause = reset_cause_get();
 
@@ -250,64 +317,6 @@ int run_app(void)
 
     /* Get initial GPS fix for setting loramac region */
     retrieve_lorawan_region();
-
-    while (1)
-    {
-
-        /* Init loramac stack */
-        init_loramac();
-
-        //LmHandlerJoin( );
-
-        /* Start up periodic timer for sending uplinks */
-        StartTxProcess(LORAMAC_HANDLER_TX_ON_TIMER);
-
-        /* Start loop */
-        scheduler_begin();
-    }
-}
-
-static void scheduler_begin()
-{
-
-    while (1)
-    {
-#ifdef UNITTESTING_LORA
-        current_time += 1; /* simulate 1 millisecond per loop */
-
-        TimerIrqHandler();
-#endif
-        IWDG_reset();
-
-        // Process characters sent over the command line interface
-        CliProcess(&Uart1);
-
-        // Processes the LoRaMac events
-        LmHandlerProcess();
-
-        // Process application uplinks management
-        UplinkProcess();
-
-        if (current_geofence_status.reinit_loramac_stack_pending == true)
-        {
-            printf("Breaking out of main loop to reinit LoRa regional settings\n\r");
-            TimerStop(&TxTimer);
-            break;
-        }
-
-        CRITICAL_SECTION_BEGIN();
-        if (IsMacProcessPending == 1)
-        {
-            // Clear flag and prevent MCU to go into low power modes.
-            IsMacProcessPending = 0;
-        }
-        else
-        {
-            // The MCU wakes up through events
-            BoardLowPowerHandler();
-        }
-        CRITICAL_SECTION_END();
-    }
 }
 
 static void print_board_info()
@@ -319,7 +328,6 @@ static void print_board_info()
                    &appVersion,
                    &gitHubVersion);
 }
-
 
 static void init_loramac()
 {
