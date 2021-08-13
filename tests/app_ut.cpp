@@ -110,3 +110,85 @@ void prepare_n_position_mocks(int n)
         mock().expectOneCall("get_latest_gps_info").andReturnValue(&position);
     }
 }
+
+/**
+ * @brief Ensure transmission happens immediately after boot. 
+ * 
+ */
+TEST(app, ensure_tx_happens_immediately_after_boot)
+{
+    /* Setup environment params */
+    USE_NVM_STORED_LORAWAN_REGION = false;
+    APP_TX_DUTYCYCLE = 40000; /* 40 second interval between transmissions */
+
+
+    /* Setup mocks */
+    float latitude = 53.23;
+    float longitude = 0;
+
+    gps_info_t world_trip_mock = {
+        .GPS_UBX_latitude_Float = latitude,
+        .GPS_UBX_longitude_Float = (float)longitude,
+        .GPSaltitude = 12342000,
+        .GPS_UBX_latitude = latitude * 1e7,
+        .GPS_UBX_longitude = longitude * 1e7,
+        .unix_time = 1627938039 + 60 * 60 * 2, /* travel one degree longitude every day */
+        .latest_gps_status = GPS_SUCCESS,
+
+    };
+    mock().expectNCalls(100, "get_latest_gps_info").andReturnValue(&world_trip_mock);
+
+    /* Now setup the main program */
+    int ret;
+    int number_of_milliseconds_to_run;
+
+    ret = setup_board();
+    CHECK_EQUAL(EXIT_SUCCESS, ret);
+    ret = init_loramac_stack_and_tx_scheduling();
+    CHECK_EQUAL(EXIT_SUCCESS, ret);
+
+    /* Get pointer to frame counter */
+    MibRequestConfirm_t mibReq;
+    mibReq.Type = MIB_NVM_CTXS;
+    LoRaMacMibGetRequestConfirm(&mibReq);
+    LoRaMacNvmData_t *nvm = mibReq.Param.Contexts;
+
+    /* Check if framee incrementation has happened in first 100 ms after initialisation */
+    number_of_milliseconds_to_run = 100;
+    while (number_of_milliseconds_to_run--)
+    {
+        run_loop_once();
+    }
+
+    CHECK_EQUAL(1, nvm->Crypto.FCntList.FCntUp);
+
+    /* Run it further 40 seconds */
+    number_of_milliseconds_to_run = 40100;
+
+    while (number_of_milliseconds_to_run--)
+    {
+        run_loop_once();
+    }
+
+    CHECK_EQUAL(2, nvm->Crypto.FCntList.FCntUp);
+
+    /* New run it another minute */
+    number_of_milliseconds_to_run = 60000;
+
+    while (number_of_milliseconds_to_run--)
+    {
+        run_loop_once();
+    }
+
+    CHECK_EQUAL(3, nvm->Crypto.FCntList.FCntUp);
+
+    /* New run it another minute */
+    number_of_milliseconds_to_run = 60000;
+
+    while (number_of_milliseconds_to_run--)
+    {
+        run_loop_once();
+    }
+
+    CHECK_EQUAL(5, nvm->Crypto.FCntList.FCntUp);
+};

@@ -28,7 +28,8 @@ extern "C"
 {
 #endif
 
-  /* Includes ------------------------------------------------------------------*/
+/* Includes ------------------------------------------------------------------*/
+#include "stdbool.h"
   /* Private includes ----------------------------------------------------------*/
   /* USER CODE BEGIN Includes */
 
@@ -62,12 +63,15 @@ extern "C"
 
 // PRELAUNCH IMPORTANT!
 // comment out these defines to disable sensor, Radio, GPS or LED
-#define SENSOR_ENABLED 0                /* Enable ms5607 sensor. Init the sensor as well. Allowed values: 0 disabled , 1(default) enabled */
-#define GPS_ENABLED 1                   /* Enable Ublox GPS. Init the GPS as well. Allowed values: 0 disabled , 1(default) enabled */
-#define USE_LED 1                       /* Enable LED blinky. Allowed values: 0 disabled , 1(default) enabled */
-#define USE_NVM_STORED_LORAWAN_REGION 1 /* Use LoRaWAN region stored in EEPROm. Allowed values: 0 disabled , 1(default) enabled. If not using EEPROM location, \
+#define SENSOR_ENABLED 0 /* Enable ms5607 sensor. Init the sensor as well. Allowed values: 0 disabled , 1(default) enabled */
+#define GPS_ENABLED 1    /* Enable Ublox GPS. Init the GPS as well. Allowed values: 0 disabled , 1(default) enabled */
+#define USE_LED 1        /* Enable LED blinky. Allowed values: 0 disabled , 1(default) enabled */
+
+  extern bool USE_NVM_STORED_LORAWAN_REGION; /* Use LoRaWAN region stored in EEPROm. Allowed values: 0 disabled , 1(default) enabled. If not using EEPROM location, \
                                          * use EU868                                                                                                           \
                                          */
+
+  extern int APP_TX_DUTYCYCLE; /* Set the interval between each transmission(in milliseconds) */
 
   /* GPS RELATED DEFINES */
   /* ----------------------------------------------------------------------------------- */

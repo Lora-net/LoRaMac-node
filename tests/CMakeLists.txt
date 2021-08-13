@@ -81,6 +81,7 @@ set(MOCKS
 
 # Put in compile files(all logic so no hardware connection)    
 set(FILES_UNDER_TEST 
+    ${PROJECT_SOURCE_DIR}/src/peripherals/config.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/geofence.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/region_settings.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/playback.c

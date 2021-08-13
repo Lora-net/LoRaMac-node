@@ -58,7 +58,7 @@
 /*!
  * Defines the application data transmission duty cycle. 5s, value in [ms].
  */
-#define APP_TX_DUTYCYCLE 40000
+int APP_TX_DUTYCYCLE = 40000;
 
 /*!
  * Defines a random delay for application data transmission duty cycle. 1s,
@@ -372,12 +372,12 @@ static void retrieve_lorawan_region()
 
     IWDG_reset();
 
-/* read the eeprom value instead */
-// TODO: must ensure that eeprom is not filled with garbage. i.e. when the eeprom has never been programed
-#if USE_NVM_STORED_LORAWAN_REGION
-    NvmmRead((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
-#endif
-
+    /* read the eeprom value instead */
+    // TODO: must ensure that eeprom is not filled with garbage. i.e. when the eeprom has never been programed
+    if (USE_NVM_STORED_LORAWAN_REGION == true)
+    {
+        NvmmRead((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
+    }
     IWDG_reset();
 }
 
@@ -563,8 +563,12 @@ static void StartTxProcess(LmHandlerTxEvents_t txEvent)
     {
         // Schedule 1st packet transmission
         TimerInit(&TxTimer, OnTxTimerEvent);
-        TimerSetValue(&TxTimer, APP_TX_DUTYCYCLE + randr(-APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND));
-        OnTxTimerEvent(NULL);
+
+        TimerStop(&TxTimer);
+        IsTxFramePending = 1;
+        // Schedule next transmission
+        TimerSetValue(&TxTimer, 5); /* Start first tranmission 5 milliseconds after initalisation */
+        TimerStart(&TxTimer);
     }
     break;
     case LORAMAC_HANDLER_TX_ON_EVENT:
