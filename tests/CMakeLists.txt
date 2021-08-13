@@ -27,7 +27,6 @@ include_directories(${CPPUTEST_SRC_DIR})
 include_directories(${CPPUTESTEXT_SRC_DIR})
 
 # Test includes
-include_directories(${PROJECT_SOURCE_DIR}/src_copy)
 include_directories(${PROJECT_SOURCE_DIR}/mocking)
 include_directories(${PROJECT_SOURCE_DIR}/tests/mocks/)
 
@@ -55,7 +54,6 @@ include_directories(${PROJECT_SOURCE_DIR}/src/radio/sx1276/)
 # Unittests
 set(UNIT_TESTS 
     main.cpp
-    pythagorean_ut.cpp
     geofence_ut.cpp
     playback_ut.cpp
     lorawan_credentials_ut.cpp
@@ -73,7 +71,6 @@ set(MOCKS
     sx1276-mock.c
     timer-mock.cpp
     bsp_mock.cpp
-    square_root_mock.cpp
     eeprom-board-mock.cpp
     # loramac-mock.cpp
     systime-mock.cpp
@@ -84,7 +81,6 @@ set(MOCKS
 
 # Put in compile files(all logic so no hardware connection)    
 set(FILES_UNDER_TEST 
-    ${PROJECT_SOURCE_DIR}/src_copy/pythagorean.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/geofence.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/region_settings.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/playback.c
@@ -143,6 +139,6 @@ set(SOURCE_FILES
     ${FILES_UNDER_TEST}
 )
 
-add_executable(pythagorean_ut ${SOURCE_FILES})
-target_link_libraries(pythagorean_ut PRIVATE CppUTest CppUTestExt)
-add_test(pythagorean_test pythagorean_ut)
+add_executable(picotracker_lora_tests ${SOURCE_FILES})
+target_link_libraries(picotracker_lora_tests PRIVATE CppUTest CppUTestExt)
+add_test(picotracker_lora_tests picotracker_lora_tests)

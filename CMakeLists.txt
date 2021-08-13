@@ -38,13 +38,12 @@ SETUP_TARGET_FOR_COVERAGE_LCOV(
         NAME coverage_my                 
         EXECUTABLE ctest -j ${n_cores} # Executable in PROJECT_BINARY_DIR
         DEPENDENCIES
-            pythagorean_ut
+        picotracker_lora_tests
         )
 
 
 add_subdirectory(mocking)
 add_subdirectory(tests)
-add_subdirectory(src_copy)
 
 
 else()
