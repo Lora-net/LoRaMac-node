@@ -53,9 +53,10 @@ extern "C"
 /*!
  * Timers list head pointer
  */
-std::list<TimerEvent_t *> list_of_timer_event_pointers;
-
 TimerTime_t current_time = 0;
+
+TimerEvent_t *list_of_timer_event_pointers[100]; /* There won't be more than 100 timers in the project */
+int number_of_timers = 0;
 
 void TimerInit(TimerEvent_t *obj, void (*callback)(void *context))
 {
@@ -67,7 +68,8 @@ void TimerInit(TimerEvent_t *obj, void (*callback)(void *context))
     obj->Context = NULL;
     obj->Next = NULL;
 
-    list_of_timer_event_pointers.push_back(obj);
+    list_of_timer_event_pointers[number_of_timers] = obj;
+    number_of_timers++;
 }
 
 void TimerStart(TimerEvent_t *obj)
@@ -85,8 +87,9 @@ void TimerIrqHandler(void)
      * 
      * @param list_of_timer_event_pointers 
      */
-    for (const auto &timer_event : list_of_timer_event_pointers)
+    for (int i = 0; i < number_of_timers; ++i)
     {
+        TimerEvent_t *timer_event = list_of_timer_event_pointers[i];
         // printf("Timestamp[ms]: %d\n", timer_event->Timestamp);
 
         if (timer_event->IsStarted)
@@ -110,8 +113,9 @@ void TimerIrqHandler(void)
      * main loop.
      * 
      */
-    for (const auto &timer_event : list_of_timer_event_pointers)
+    for (int i = 0; i < number_of_timers; ++i)
     {
+        TimerEvent_t *timer_event = list_of_timer_event_pointers[i];
         if (timer_event->IsNext2Expire == true)
         {
             ExecuteCallBack(timer_event->Callback, timer_event->Context);

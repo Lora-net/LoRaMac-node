@@ -20,6 +20,9 @@ extern "C"
 
 #ifdef UNITTESTING_LORA
     int run_app(void);
+    int setup_board(void);
+    bool run_loop_once(void);
+    int init_loramac_stack_and_tx_scheduling(void);
 #endif
 
 #ifdef __cplusplus
@@ -27,4 +30,3 @@ extern "C"
 #endif
 
 #endif /* __MAIN_H_1 */
-

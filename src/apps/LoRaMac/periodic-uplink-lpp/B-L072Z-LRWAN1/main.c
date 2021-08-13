@@ -155,7 +155,6 @@ static void PrepareTxFrame(void);
 static void StartTxProcess(LmHandlerTxEvents_t txEvent);
 static void UplinkProcess(void);
 
-static void scheduler_begin();
 static void print_board_info();
 static void init_loramac();
 
@@ -166,8 +165,9 @@ static void OnTxTimerEvent(void *context);
 
 static void retrieve_lorawan_region(void);
 
-void setup_board(void);
+int setup_board(void);
 bool run_loop_once(void);
+int init_loramac_stack_and_tx_scheduling(void);
 
 static LmHandlerCallbacks_t LmHandlerCallbacks =
     {
@@ -244,19 +244,27 @@ int run_app(void)
     while (1)
     {
 
-        /* Init loramac stack */
-        init_loramac();
-
-        //LmHandlerJoin( );
-
-        /* Start up periodic timer for sending uplinks */
-        StartTxProcess(LORAMAC_HANDLER_TX_ON_TIMER);
+        init_loramac_stack_and_tx_scheduling();
 
         /* Start loop */
-        while (run_loop_once() == true)
+        while (run_loop_once() == true) /* While Loramac region settings correct */
         {
         }
     }
+}
+
+int init_loramac_stack_and_tx_scheduling()
+{
+
+    /* Init loramac stack */
+    init_loramac();
+
+    //LmHandlerJoin( );
+
+    /* Start up periodic timer for sending uplinks */
+    StartTxProcess(LORAMAC_HANDLER_TX_ON_TIMER);
+
+    return EXIT_SUCCESS;
 }
 
 bool run_loop_once()
@@ -300,7 +308,7 @@ bool run_loop_once()
     return true;
 }
 
-void setup_board()
+int setup_board()
 {
     /* Get reset cause for diagnosis */
     reset_cause_t reset_cause = reset_cause_get();
@@ -317,6 +325,8 @@ void setup_board()
 
     /* Get initial GPS fix for setting loramac region */
     retrieve_lorawan_region();
+
+    return EXIT_SUCCESS;
 }
 
 static void print_board_info()
