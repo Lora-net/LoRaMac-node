@@ -37,6 +37,9 @@
 #include "LmhpRemoteMcastSetup.h"
 #include "LmhpFragmentation.h"
 
+#include "region_setting.h"
+#include "geofence.h"
+
 #ifndef ACTIVE_REGION
 
 #warning "No active region defined, LORAMAC_REGION_EU868 will be used as default."
@@ -47,7 +50,7 @@
 
 #include "LoRaMacTest.h"
 
-static CommissioningParams_t CommissioningParams =
+CommissioningParams_t CommissioningParams =
 {
     .IsOtaaActivation = OVER_THE_AIR_ACTIVATION,
     .DevEui = { 0 },  // Automatically filed from secure-element
@@ -299,6 +302,9 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
         mibReq.Type = MIB_SE_PIN;
         LoRaMacMibGetRequestConfirm( &mibReq );
         memcpy1( CommissioningParams.SePin, mibReq.Param.SePin, 4 );
+        /* Get ABP network keys */
+        network_keys_t network_keys = get_network_keys(current_geofence_status.current_loramac_region);
+        CommissioningParams.DevAddr = network_keys.DevAddr;
 
 #if( OVER_THE_AIR_ACTIVATION == 0 )
 

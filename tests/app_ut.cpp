@@ -23,6 +23,7 @@ TEST_GROUP(app){
 }
 ;
 
+;
 TEST(app, init_sequence)
 {
 
@@ -120,7 +121,6 @@ TEST(app, ensure_tx_happens_immediately_after_boot)
     /* Setup environment params */
     USE_NVM_STORED_LORAWAN_REGION = false;
     APP_TX_DUTYCYCLE = 40000; /* 40 second interval between transmissions */
-
 
     /* Setup mocks */
     float latitude = 53.23;

@@ -158,11 +158,9 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmData_t* nvm )
     /* Get ABP network keys */
     network_keys_t network_keys = get_network_keys(current_geofence_status.current_loramac_region);
 
-    SecureElementSetKey(APP_KEY, network_keys.AppSKey);
-    SecureElementSetKey(NWK_KEY, network_keys.AppSKey);
-    SecureElementSetKey(F_NWK_S_INT_KEY, network_keys.AppSKey);
-    SecureElementSetKey(S_NWK_S_INT_KEY, network_keys.AppSKey);
-    SecureElementSetKey(NWK_S_ENC_KEY, network_keys.AppSKey);
+    SecureElementSetKey(F_NWK_S_INT_KEY, network_keys.FNwkSIntKey);
+    SecureElementSetKey(S_NWK_S_INT_KEY, network_keys.SNwkSIntKey);
+    SecureElementSetKey(NWK_S_ENC_KEY, network_keys.NwkSEncKey);
     SecureElementSetKey(APP_S_KEY, network_keys.AppSKey);
 
 #if !defined( SECURE_ELEMENT_PRE_PROVISIONED )

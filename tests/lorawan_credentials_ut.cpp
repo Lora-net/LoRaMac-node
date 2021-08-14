@@ -5,6 +5,11 @@ extern "C"
 {
 #include "LoRaMac.h"
 #include "region_setting.h"
+#include "geofence.h"
+#include "secure-element.h"
+#include "LmHandlerTypes.h"
+#include "main.h"
+#include "config.h"
 }
 
 TEST_GROUP(test_abp_credentials){
@@ -16,6 +21,16 @@ TEST_GROUP(test_abp_credentials){
 }
 ;
 
+TEST_GROUP(lorawan_credentials){
+    void setup(){}
+
+    void teardown(){
+        mock().clear();
+}
+}
+;
+
+;
 /**
  * @brief Test network key validity
  * 
@@ -27,29 +42,39 @@ TEST(test_abp_credentials, EU_network_key_test)
     CHECK_EQUAL(0xD2, eu_network_keys.AppSKey[0]);
 }
 
-TEST(test_abp_credentials, test_string_compare)
-{
+extern CommissioningParams_t CommissioningParams;
 
-    STRCMP_EQUAL("hello", "hello");
+TEST(lorawan_credentials, ensure_lorawan_credentials_are_set_correctly_eu868) /* TODO: do the tests for other countries; check dynamic changes */
+{
+    SecureElementNvmData_t SecureElement;
+
+    // Initialize the Secure Element driver
+    SecureElementStatus_t status = SecureElementInit(&SecureElement);
+    CHECK_EQUAL(SECURE_ELEMENT_SUCCESS, status);
+
+    /* Check if AppSessionKey is correctly set */
+    uint8_t APP_S_KEY_EU868[] = {0xD2, 0x02, 0x95, 0x6B, 0xF5, 0x36, 0xFF, 0x15, 0x29, 0xA0, 0x83, 0x58, 0xAC, 0x3E, 0xE8, 0x88};
+    CHECK_TRUE(std::equal(std::begin(APP_S_KEY_EU868), std::end(APP_S_KEY_EU868), std::begin(SecureElement.KeyList[7].KeyValue))); /* 7th in the keylist is appskey */
 }
 
-TEST(test_abp_credentials, test_array_compare)
+/**
+ * @brief ensure_eu868_dev_address_is_set_correctly
+ * 
+ */
+TEST(lorawan_credentials, ensure_eu868_dev_address_is_set_correctly)
 {
+    /* Setup environment params */
+    USE_NVM_STORED_LORAWAN_REGION = false;
+    APP_TX_DUTYCYCLE = 40000; /* 40 second interval between transmissions */
 
-    uint8_t iar1[] = {1, 2, 3, 4, 5};
-    uint8_t iar2[] = {1, 2, 3, 4, 5};
-    uint8_t iar3[] = {1, 2, 3, 2, 5};
+    /* Now setup the main program */
+    int ret;
 
-    CHECK_TRUE(std::equal(std::begin(iar1), std::end(iar1), std::begin(iar2)));
-    CHECK_FALSE(std::equal(std::begin(iar1), std::end(iar1), std::begin(iar3)));
-}
+    ret = setup_board();
+    CHECK_EQUAL(EXIT_SUCCESS, ret);
+    ret = init_loramac_stack_and_tx_scheduling();
+    CHECK_EQUAL(EXIT_SUCCESS, ret);
 
-TEST(test_abp_credentials, test_eu_array_compare)
-{
-
-    uint8_t iar1[] = {1, 2, 3, 4, 5};
-    uint8_t iar2[] = {1, 2, 3, 4, 5};
-    uint8_t iar3[] = {1, 2, 3, 2, 5};
-    CHECK_TRUE(std::equal(std::begin(iar1), std::end(iar1), std::begin(iar2)));
-    CHECK_FALSE(std::equal(std::begin(iar1), std::end(iar1), std::begin(iar3)));
-}
+    /* Check LORAWAN_DEVICE_ADDRESS */
+    CHECK_EQUAL(0x260BD67C, CommissioningParams.DevAddr);
+};
