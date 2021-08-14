@@ -48,6 +48,7 @@ TEST(bsp_ut, bsp_init)
     mock().expectNCalls(1, "get_latest_gps_info").andReturnValue(&gps_info_mock);
 
     BSP_sensor_Init();
+    mock().checkExpectations();
 }
 
 TEST(bsp_ut, bsp_sensor_read)
@@ -56,12 +57,15 @@ TEST(bsp_ut, bsp_sensor_read)
 
     BSP_sensor_Init();
     BSP_sensor_Read();
+    mock().checkExpectations();
 }
 
-TEST(bsp_ut, manage_incoming_instruction_from_ground)
+TEST(bsp_ut, manage_incoming_instruction_from_ground_out_of_range)
 {
     uint8_t test_instruction[] = {0x4e, 0xb3, 0x07, 0x00, 0x75, 0xaf, 0x07, 0x00};
-    manage_incoming_instruction(test_instruction);
+    bool success = manage_incoming_instruction(test_instruction);
+
+    CHECK_FALSE(success);
 }
 
 /**

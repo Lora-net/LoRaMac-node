@@ -59,6 +59,8 @@ TEST(Playback, prepare_tx_buffer_test)
     init_playback(&sensor_data, &current_position, &retrieve_eeprom_time_pos, earliest_timepos_index);
 
     PicoTrackerAppData_t PicoTrackerAppData = prepare_tx_buffer();
+
+    CHECK_EQUAL(0x00, PicoTrackerAppData.Buffer[5]);
 }
 
 TEST(Playback, fill_positions_to_send_buffer_test)
@@ -72,9 +74,11 @@ TEST(Playback, fill_positions_to_send_buffer_test)
     fill_positions_to_send_buffer(); // call whenever a new position fix acquired
 
     PicoTrackerAppData_t PicoTrackerAppData = prepare_tx_buffer();
+
+    CHECK_EQUAL(0x00, PicoTrackerAppData.Buffer[5]);
 }
 
-IGNORE_TEST(Playback, playback_key_info_test)
+TEST(Playback, playback_key_info_test1)
 {
     playback_key_info_t *playback_key_info_ptr;
 
@@ -82,5 +86,23 @@ IGNORE_TEST(Playback, playback_key_info_test)
 
     playback_key_info_ptr->n_positions_saved_since_boot += 1;
 
-    CHECK_EQUAL(9, playback_key_info_ptr->n_positions_saved_since_boot);
+    CHECK_EQUAL(1, playback_key_info_ptr->n_positions_saved_since_boot);
+}
+
+
+/**
+ * @brief This will fail if the previous test playback_key_info_test1 
+ * is run with shared memory, but passes when run individually(e.g. via
+ * cpputest explorer)
+ * 
+ */
+TEST(Playback, playback_key_info_test2)
+{
+    playback_key_info_t *playback_key_info_ptr;
+
+    playback_key_info_ptr = get_playback_key_info_ptr();
+
+    playback_key_info_ptr->n_positions_saved_since_boot += 1;
+
+    CHECK_EQUAL(1, playback_key_info_ptr->n_positions_saved_since_boot);
 }

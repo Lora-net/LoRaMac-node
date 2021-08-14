@@ -138,7 +138,7 @@ void BSP_sensor_Read( void );
 
 
 uint16_t get_time_pos_index_older_than(uint32_t minutes_from_epoch);
-void manage_incoming_instruction(uint8_t *instructions);
+bool manage_incoming_instruction(uint8_t *instructions);
   void print_buffer(uint8_t *buff, uint16_t size);
 
 

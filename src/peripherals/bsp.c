@@ -250,7 +250,7 @@ void pretty_print_sensor_values(double *TEMPERATURE_Value, double *PRESSURE_Valu
 	printf("================================================================\r\n");
 }
 
-void manage_incoming_instruction(uint8_t *instructions)
+bool manage_incoming_instruction(uint8_t *instructions)
 {
 	uint32_t recent_time_min = extractLong_from_buff(0, instructions);
 	uint16_t recent_timepos_index = get_time_pos_index_older_than(recent_time_min);
@@ -262,7 +262,9 @@ void manage_incoming_instruction(uint8_t *instructions)
 
 	printf("Received instruction older. time(min):%u timepos index: %d\n", older_time_min, older_timepos_index);
 
-	process_playback_instructions(recent_timepos_index, older_timepos_index);
+	bool success = process_playback_instructions(recent_timepos_index, older_timepos_index);
+
+	return success;
 }
 
 /**
