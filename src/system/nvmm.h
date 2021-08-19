@@ -86,6 +86,13 @@ bool NvmmCrc32Check( uint16_t size, uint16_t offset );
  */
 bool NvmmReset( uint16_t size, uint16_t offset );
 
+
+/**
+ * @brief Completely wipe out the whole EEPROM. Set them all to zeros.
+ * 
+ */
+bool EEPROM_Wipe( void );
+
 #ifdef __cplusplus
 }
 #endif

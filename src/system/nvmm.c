@@ -87,3 +87,23 @@ bool NvmmReset( uint16_t size, uint16_t offset )
     }
     return false;
 }
+
+#define EEPROM_SIZE 0x17FFUL
+
+bool EEPROM_Wipe(void)
+{
+
+    uint32_t eeprom_size = EEPROM_SIZE;
+    uint8_t reset_value = 0;
+
+    while (eeprom_size--)
+    {
+
+        if (EepromMcuWriteBuffer(eeprom_size, &reset_value, sizeof(reset_value)) != LMN_STATUS_OK)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}

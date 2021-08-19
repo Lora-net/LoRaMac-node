@@ -50,6 +50,19 @@ void CliProcess( Uart_t* uart )
                 
                 printf( "\n\nPLEASE RESET THE END-DEVICE\n\n" );
                 while( 1 );
+            }else if (data == 'W')
+            {
+                // Wipe out the EEPROM fully
+                if( EEPROM_Wipe( ) == true )
+                {
+                    printf( "\n\nEEPROM wipe succeed\n" );
+                }
+                else
+                {
+                    printf( "\n\nEEPROM wipe failed\n" );
+                }
+                printf( "\n\nPLEASE RESET THE END-DEVICE\n\n" );
+                while( 1 );
             }
         }
     }
