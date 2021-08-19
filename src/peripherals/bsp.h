@@ -78,7 +78,7 @@ typedef struct
 
 // EEPROM related defines
 
-#define NVM_PlAYBACK_EEPROM_ADDR_START             1500 /* Amount of space allocated for loramac NVM storage */
+#define NVM_PlAYBACK_EEPROM_ADDR_START             2200 /* Amount of space allocated for loramac NVM storage */
 
 #define FRAME_COUNTER_EEPROM_ADDRESS               (0 + NVM_PlAYBACK_EEPROM_ADDR_START)
 #define FRAME_COUNTER_EEPROM_LEN                   (4)

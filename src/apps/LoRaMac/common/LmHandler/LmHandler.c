@@ -52,7 +52,7 @@
 
 CommissioningParams_t CommissioningParams =
 {
-    .IsOtaaActivation = OVER_THE_AIR_ACTIVATION,
+    .IsOtaaActivation = false,
     .DevEui = { 0 },  // Automatically filed from secure-element
     .JoinEui = { 0 }, // Automatically filed from secure-element
     .SePin = { 0 },   // Automatically filed from secure-element
@@ -302,41 +302,45 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
         mibReq.Type = MIB_SE_PIN;
         LoRaMacMibGetRequestConfirm( &mibReq );
         memcpy1( CommissioningParams.SePin, mibReq.Param.SePin, 4 );
-        /* Get ABP network keys */
-        network_keys_t network_keys = get_network_keys(current_geofence_status.current_loramac_region);
-        CommissioningParams.DevAddr = network_keys.DevAddr;
 
-#if( OVER_THE_AIR_ACTIVATION == 0 )
+        CommissioningParams.IsOtaaActivation = LmHandlerParams->is_over_the_air_activation;
 
-        // Configure the default datarate
-        mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
-        mibReq.Param.ChannelsDefaultDatarate = LmHandlerParams->TxDatarate;
-        LoRaMacMibSetRequestConfirm( &mibReq );
 
-        mibReq.Type = MIB_CHANNELS_DATARATE;
-        mibReq.Param.ChannelsDatarate = LmHandlerParams->TxDatarate;
-        LoRaMacMibSetRequestConfirm( &mibReq );
+        if( LmHandlerParams->is_over_the_air_activation == false )
+        {
+            /* Get dev address for abp */
+            network_keys_t network_keys = get_network_keys(current_geofence_status.current_loramac_region);
+            CommissioningParams.DevAddr = network_keys.DevAddr;
 
-        // Tell the MAC layer which network server version are we connecting too.
-        mibReq.Type = MIB_ABP_LORAWAN_VERSION;
-        mibReq.Param.AbpLrWanVersion.Value = ABP_ACTIVATION_LRWAN_VERSION;
-        LoRaMacMibSetRequestConfirm( &mibReq );
+            // Configure the default datarate
+            mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
+            mibReq.Param.ChannelsDefaultDatarate = LmHandlerParams->TxDatarate;
+            LoRaMacMibSetRequestConfirm( &mibReq );
 
-        mibReq.Type = MIB_NET_ID;
-        mibReq.Param.NetID = LORAWAN_NETWORK_ID;
-        LoRaMacMibSetRequestConfirm( &mibReq );
+            mibReq.Type = MIB_CHANNELS_DATARATE;
+            mibReq.Param.ChannelsDatarate = LmHandlerParams->TxDatarate;
+            LoRaMacMibSetRequestConfirm( &mibReq );
+
+            // Tell the MAC layer which network server version are we connecting too.
+            mibReq.Type = MIB_ABP_LORAWAN_VERSION;
+            mibReq.Param.AbpLrWanVersion.Value = ABP_ACTIVATION_LRWAN_VERSION;
+            LoRaMacMibSetRequestConfirm( &mibReq );
+
+            mibReq.Type = MIB_NET_ID;
+            mibReq.Param.NetID = LORAWAN_NETWORK_ID;
+            LoRaMacMibSetRequestConfirm( &mibReq );
 
 #if( STATIC_DEVICE_ADDRESS != 1 )
-        // Random seed initialization
-        srand1( LmHandlerCallbacks->GetRandomSeed( ) );
-        // Choose a random device address
-        CommissioningParams.DevAddr = randr( 0, 0x01FFFFFF );
+            // Random seed initialization
+            srand1( LmHandlerCallbacks->GetRandomSeed( ) );
+            // Choose a random device address
+            CommissioningParams.DevAddr = randr( 0, 0x01FFFFFF );
 #endif
 
-        mibReq.Type = MIB_DEV_ADDR;
-        mibReq.Param.DevAddr = CommissioningParams.DevAddr;
-        LoRaMacMibSetRequestConfirm( &mibReq );
-#endif // #if( OVER_THE_AIR_ACTIVATION == 0 )
+            mibReq.Type = MIB_DEV_ADDR;
+            mibReq.Param.DevAddr = CommissioningParams.DevAddr;
+            LoRaMacMibSetRequestConfirm( &mibReq );
+        }   
     }
     mibReq.Type = MIB_PUBLIC_NETWORK;
     mibReq.Param.EnablePublicNetwork = LmHandlerParams->PublicNetworkEnable;

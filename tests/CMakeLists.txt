@@ -10,6 +10,11 @@ FetchContent_Declare(
 )
 # Set this to ON if you want to have the CppUTests in your project as well.
 set(TESTS OFF CACHE BOOL "Switch off CppUTest Test build")
+
+
+set(CPPUTEST_CXX_FLAGS "${CPPUTEST_CXX_FLAGS}  -m32")
+set(CPPUTEST_LD_FLAGS "${CPPUTEST_LD_FLAGS}  -m32")
+
 FetchContent_MakeAvailable(cpputest)
 
 add_definitions(
@@ -74,8 +79,8 @@ set(MOCKS
     eeprom-board-mock.cpp
     # loramac-mock.cpp
     systime-mock.cpp
-    nvmm-mock.c
     ublox-mock.cpp
+    nvm_images.cpp
 )
 
 
@@ -132,6 +137,10 @@ set(FILES_UNDER_TEST
 
     ${PROJECT_SOURCE_DIR}/src/boards/mcu/utilities.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/NvmDataMgmt.c
+
+    
+    ${PROJECT_SOURCE_DIR}/src/system/nvmm.c
+
 )
 
 set(SOURCE_FILES
@@ -141,5 +150,13 @@ set(SOURCE_FILES
 )
 
 add_executable(picotracker_lora_tests ${SOURCE_FILES})
+target_compile_options(picotracker_lora_tests PRIVATE -fshort-enums)
 target_link_libraries(picotracker_lora_tests PRIVATE CppUTest CppUTestExt)
+
+
+# only build 32-bit binaries
+target_compile_options(picotracker_lora_tests PRIVATE -m32)
+target_link_options(picotracker_lora_tests PRIVATE -m32)
+
+# Add tests
 add_test(picotracker_lora_tests picotracker_lora_tests)

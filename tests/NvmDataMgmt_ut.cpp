@@ -16,8 +16,9 @@ extern "C"
 {
 #include "NvmDataMgmt.h"
 #include "LoRaMac.h"
-#include "nvm_images.hpp"
 }
+
+#include "nvm_images.hpp"
 
 TEST_GROUP(NvmDataMgmt){
     void setup(){}

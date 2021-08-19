@@ -789,6 +789,8 @@ static void UpdateFCntDown( FCntIdentifier_t fCntID, uint32_t currentDown )
     }
 }
 
+extern bool is_over_the_air_activation;
+
 /*!
  * Resets the frame counters
  */
@@ -812,7 +814,14 @@ static void ResetFCnts( void )
      */
     random_fcnt %= 1000;
 
-    CryptoNvm->FCntList.FCntUp = random_fcnt;
+    if (is_over_the_air_activation == false)
+    {
+        CryptoNvm->FCntList.FCntUp = random_fcnt;
+    }
+    else
+    {
+        CryptoNvm->FCntList.FCntUp = 0;
+    }
     CryptoNvm->FCntList.NFCntDown = FCNT_DOWN_INITAL_VALUE;
     CryptoNvm->FCntList.AFCntDown = FCNT_DOWN_INITAL_VALUE;
     CryptoNvm->FCntList.FCntDown = FCNT_DOWN_INITAL_VALUE;

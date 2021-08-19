@@ -9,6 +9,7 @@ sudo apt install openocd
 sudo apt-get install -y gdb-multiarch # for gdb
 sudo apt install lcov # for coverage reports of cpputest
 sudo apt install gcov # for coverage reports of cpputest
+sudo apt install gcc-multilib g++-multilib # To compile for 32 bit
 
 ```
 

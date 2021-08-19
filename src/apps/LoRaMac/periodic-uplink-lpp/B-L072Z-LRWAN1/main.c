@@ -41,6 +41,7 @@
 #include "playback.h"
 #include "nvmm.h"
 #include "iwdg.h"
+#include "print_utils.h"
 
 #ifndef ACTIVE_REGION
 
@@ -112,6 +113,14 @@ typedef enum
     LORAMAC_HANDLER_TX_ON_EVENT,
 } LmHandlerTxEvents_t;
 
+typedef struct
+{
+    LoRaMacRegion_t region;
+    int8_t datarate;
+    bool is_over_the_air_activation;
+
+} picotracker_lorawan_settings_t;
+
 /*!
  * User application data
  */
@@ -156,18 +165,20 @@ static void StartTxProcess(LmHandlerTxEvents_t txEvent);
 static void UplinkProcess(void);
 
 static void print_board_info();
-static void init_loramac();
+static void init_loramac(picotracker_lorawan_settings_t settings);
 
 /*!
  * Function executed on TxTimer event
  */
-static void OnTxTimerEvent(void *context);
+static void
+OnTxTimerEvent(void *context);
 
 static void retrieve_lorawan_region(void);
 
 int setup_board(void);
 bool run_loop_once(void);
 int init_loramac_stack_and_tx_scheduling(void);
+void run_country_loop(void);
 
 static LmHandlerCallbacks_t LmHandlerCallbacks =
     {
@@ -195,7 +206,9 @@ static LmHandlerParams_t LmHandlerParams =
         .PublicNetworkEnable = LORAWAN_PUBLIC_NETWORK,
         .DutyCycleEnabled = LORAWAN_DUTYCYCLE_ON,
         .DataBufferMaxSize = LORAWAN_APP_DATA_BUFFER_MAX_SIZE,
-        .DataBuffer = AppDataBuffer};
+        .DataBuffer = AppDataBuffer,
+        .is_over_the_air_activation = false,
+};
 
 static LmhpComplianceParams_t LmhpComplianceParams =
     {
@@ -229,6 +242,9 @@ extern Uart_t Uart1;
 
 extern TimerTime_t current_time;
 
+bool tx_done = false;
+bool is_over_the_air_activation = true;
+
 /*!
  * Main application entry point.
  */
@@ -243,21 +259,54 @@ int run_app(void)
 
     while (1)
     {
-
-        init_loramac_stack_and_tx_scheduling();
-
-        /* Start loop */
-        while (run_loop_once() == true) /* While Loramac region settings correct */
-        {
-        }
+        run_country_loop();
     }
 }
 
-int init_loramac_stack_and_tx_scheduling()
+void run_country_loop()
 {
 
+    init_loramac_stack_and_tx_scheduling();
+
+    tx_done = false;
+
+    is_over_the_air_activation = !is_over_the_air_activation;
+
+    /* Start loop */
+    while ((run_loop_once() == true) && (tx_done == false)) /* While Loramac region settings correct */
+    {
+    }
+}
+
+extern bool context_management_enabled;
+
+int init_loramac_stack_and_tx_scheduling()
+{
+    printf("Initialising Loramac Stack\n");
+
+    if (is_over_the_air_activation)
+    {
+        context_management_enabled = true;
+        printf("Intialising with OTAA\n");
+    }
+    else
+    {
+        context_management_enabled = false;
+        printf("Intialising with ABP\n");
+    }
+
+    /* select data rate depending on region of the world. */
+    int8_t datarate = datarate_calculator(current_geofence_status.current_loramac_region);
+
     /* Init loramac stack */
-    init_loramac();
+    picotracker_lorawan_settings_t settings =
+        {
+            .datarate = datarate,
+            .region = current_geofence_status.current_loramac_region,
+            .is_over_the_air_activation = is_over_the_air_activation,
+        };
+
+    init_loramac(settings);
 
     //LmHandlerJoin( );
 
@@ -339,14 +388,13 @@ static void print_board_info()
                    &gitHubVersion);
 }
 
-static void init_loramac()
+static void init_loramac(picotracker_lorawan_settings_t settings)
 {
-    /* select data rate depending on region of the world. */
-    int8_t datarate = datarate_calculator(current_geofence_status.current_loramac_region);
 
     /* Set region and datarate */
-    LmHandlerParams.Region = current_geofence_status.current_loramac_region;
-    LmHandlerParams.TxDatarate = datarate;
+    LmHandlerParams.Region = settings.region;
+    LmHandlerParams.TxDatarate = settings.datarate;
+    LmHandlerParams.is_over_the_air_activation = settings.is_over_the_air_activation;
 
     if (LmHandlerInit(&LmHandlerCallbacks, &LmHandlerParams) != LORAMAC_HANDLER_SUCCESS)
     {
@@ -422,6 +470,7 @@ static void OnJoinRequest(LmHandlerJoinParams_t *params)
 static void OnTxData(LmHandlerTxParams_t *params)
 {
     DisplayTxUpdate(params);
+    tx_done = true;
 }
 
 static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
@@ -546,6 +595,9 @@ static void PrepareTxFrame(void)
     printf("Buffer to tx:\n");
     print_buffer(AppData.Buffer, AppData.BufferSize);
     printf("tx_str_buffer_len: %d\n\n", AppData.BufferSize);
+
+    const char *region_string = get_lorawan_region_string(current_geofence_status.current_loramac_region);
+    printf("Loramac region: %s \n", region_string);
 
     if (LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE) == LORAMAC_HANDLER_SUCCESS)
     {
