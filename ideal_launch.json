@@ -11,8 +11,8 @@
             "cwd": "${workspaceRoot}",
             "environment": [],
             "externalConsole": false,
-            "debugServerArgs": "-f interface/stlink-v2.cfg -f target/stm32l0.cfg",
             "serverLaunchTimeout": 20000,
+            "debugServerArgs": "-f interface/stlink-v2.cfg -f target/stm32l0_dual_bank.cfg",
             "filterStderr": true,
             "filterStdout": false,
             "serverStarted": "Info\\ :\\ [\\w\\d\\.]*:\\ hardware",
@@ -33,7 +33,7 @@
                 "exceptions": true
             },
             "MIMode": "gdb",
-            "miDebuggerPath": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb-multiarch",
             "debugServerPath": "/usr/bin/openocd"
         }
     ]

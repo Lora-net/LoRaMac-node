@@ -19,7 +19,7 @@ Install the following extensions:
 C/C++
 CMake
 CMake Tools
-Native Debug
+Cortex-Debug
 ...
 
 
