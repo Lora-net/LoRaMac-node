@@ -74,6 +74,7 @@ TEST(bsp_ut, manage_incoming_instruction_from_ground_out_of_range)
  */
 TEST(bsp_ut, multicountry_simulation)
 {
+    /* Check if after a reset, it sends down the right stuff */
     mock().expectOneCall("get_latest_gps_info").andReturnValue(&gps_info_mock);
     BSP_sensor_Init();
     sensor_read_and_printout(500);
@@ -81,6 +82,8 @@ TEST(bsp_ut, multicountry_simulation)
     mock().expectOneCall("get_latest_gps_info").andReturnValue(&gps_info_mock);
     BSP_sensor_Init();
     sensor_read_and_printout(5000);
+
+    FAIL();
 }
 
 void sensor_read_and_printout(uint32_t number_of_readings)
