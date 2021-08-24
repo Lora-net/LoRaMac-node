@@ -83,6 +83,19 @@ set(MOCKS
     nvm_images.cpp
 )
 
+set(LZ4_LIB_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src/system/)
+
+
+# CLI sources
+set(LZ4_SOURCES
+  "${LZ4_LIB_SOURCE_DIR}/lz4.c"
+  "${LZ4_LIB_SOURCE_DIR}/lz4hc.c"
+  "${LZ4_LIB_SOURCE_DIR}/lz4.h"
+  "${LZ4_LIB_SOURCE_DIR}/lz4hc.h"
+  "${LZ4_LIB_SOURCE_DIR}/lz4frame.c"
+  "${LZ4_LIB_SOURCE_DIR}/lz4frame.h"
+  "${LZ4_LIB_SOURCE_DIR}/xxhash.c")
+
 
 # Put in compile files(all logic so no hardware connection)    
 set(FILES_UNDER_TEST 
@@ -147,6 +160,7 @@ set(SOURCE_FILES
     ${UNIT_TESTS}
     ${MOCKS}
     ${FILES_UNDER_TEST}
+    ${LZ4_SOURCES}
 )
 
 add_executable(picotracker_lora_tests ${SOURCE_FILES})

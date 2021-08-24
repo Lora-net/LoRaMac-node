@@ -19,7 +19,7 @@ project(loramac-node)
 cmake_minimum_required(VERSION 3.6)
 
 
-
+# add_compile_definitions(LZ4_DEBUG=100)
 
 if(UNIT_TESTING) 
 message(STATUS ">>> Compiling for Unittesting")
