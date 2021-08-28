@@ -231,9 +231,6 @@ static volatile uint8_t IsTxFramePending = 0;
  * LED GPIO pins objects
  */
 extern Gpio_t Led1; // Tx
-extern Gpio_t Led2; // Blinks every 5 seconds when beacon is acquired
-extern Gpio_t Led3; // Rx
-extern Gpio_t Led4; // App
 
 /*!
  * UART object used for command line interface handling
