@@ -83,7 +83,7 @@ TEST(bsp_ut, multicountry_simulation)
     BSP_sensor_Init();
     sensor_read_and_printout(5000);
 
-    FAIL();
+    FAIL("Fail multi country simulation");
 }
 
 void sensor_read_and_printout(uint32_t number_of_readings)
