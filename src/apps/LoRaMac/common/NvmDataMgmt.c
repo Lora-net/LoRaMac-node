@@ -52,8 +52,9 @@ bool context_management_enabled = true;
 
 void run_screaming(const char* message, const int code);
 
-int compress_nvm(LoRaMacNvmData_t *nvm_data);
-int decompress_nvm(LoRaMacNvmData_t *nvm_data);
+uint32_t compress_nvm(LoRaMacNvmData_t *nvm_data);
+uint32_t decompress_nvm(LoRaMacNvmData_t *nvm_data);
+static bool is_nvm_struct_valid(LoRaMacNvmData_t *nvm);
 
 
 
@@ -178,55 +179,59 @@ uint16_t NvmDataMgmtRestore( void )
         printf("src size: %d compressed_datasize: %d \n", sizeof(LoRaMacNvmData_t), nvm_data_struct.compressed_data_size);
 
         printf("Start Deompression........\n");
-        decompress_nvm(nvm);
+        uint32_t ret = decompress_nvm(nvm);
         printf("End Decompression........\n");
 
-        // Crypto
-        if( is_crc_correct( sizeof( LoRaMacCryptoNvmData_t ), &nvm->Crypto ) == false )
-        {
-            return 0;
-        }
-
-        // Mac Group 1
-        if( is_crc_correct( sizeof( LoRaMacNvmDataGroup1_t ), &nvm->MacGroup1 ) == false )
-        {
-            return 0;
-        }
-
-        // Mac Group 2
-        if( is_crc_correct( sizeof( LoRaMacNvmDataGroup2_t ), &nvm->MacGroup2 ) == false )
-        {
-            return 0;
-        }
-
-        // Secure element
-        if( is_crc_correct( sizeof( SecureElementNvmData_t ), &nvm->SecureElement ) == false )
-        {
-            return 0;
-        }
-
-        // Region group 1
-        if( is_crc_correct( sizeof( RegionNvmDataGroup1_t ), &nvm->RegionGroup1 ) == false )
-        {
-            return 0;
-        }
-
-        // Region group 2
-        if( is_crc_correct( sizeof( RegionNvmDataGroup2_t ), &nvm->RegionGroup2 ) == false )
-        {
-            return 0;
-        }
-
-        // Class b
-        if( is_crc_correct( sizeof( LoRaMacClassBNvmData_t ), &nvm->ClassB ) == false )
-        {
-            return 0;
-        }
-
-
-        return sizeof(nvm_data_t);
+        return ret;
     }
     return 0;
+}
+
+static bool is_nvm_struct_valid(LoRaMacNvmData_t *nvm)
+{
+    // Crypto
+    if (is_crc_correct(sizeof(LoRaMacCryptoNvmData_t), &nvm->Crypto) == false)
+    {
+        return false;
+    }
+
+    // Mac Group 1
+    if (is_crc_correct(sizeof(LoRaMacNvmDataGroup1_t), &nvm->MacGroup1) == false)
+    {
+        return false;
+    }
+
+    // Mac Group 2
+    if (is_crc_correct(sizeof(LoRaMacNvmDataGroup2_t), &nvm->MacGroup2) == false)
+    {
+        return false;
+    }
+
+    // Secure element
+    if (is_crc_correct(sizeof(SecureElementNvmData_t), &nvm->SecureElement) == false)
+    {
+        return false;
+    }
+
+    // Region group 1
+    if (is_crc_correct(sizeof(RegionNvmDataGroup1_t), &nvm->RegionGroup1) == false)
+    {
+        return false;
+    }
+
+    // Region group 2
+    if (is_crc_correct(sizeof(RegionNvmDataGroup2_t), &nvm->RegionGroup2) == false)
+    {
+        return false;
+    }
+
+    // Class b
+    if (is_crc_correct(sizeof(LoRaMacClassBNvmData_t), &nvm->ClassB) == false)
+    {
+        return false;
+    }
+
+    return true;
 }
 
 bool NvmDataMgmtFactoryReset( void )
@@ -304,7 +309,7 @@ void run_screaming(const char* message, const int code) {
  * @param nvm_data 
  * @return int 
  */
-int compress_nvm(LoRaMacNvmData_t *nvm_data)
+uint32_t compress_nvm(LoRaMacNvmData_t *nvm_data)
 {
     const char *src = (char*)nvm_data;
     int src_size = sizeof(LoRaMacNvmData_t);
@@ -333,10 +338,12 @@ int compress_nvm(LoRaMacNvmData_t *nvm_data)
  * @param nvm_data 
  * @return int 
  */
-int decompress_nvm(LoRaMacNvmData_t *nvm_data)
+LoRaMacNvmData_t temp_nvm_struct;
+
+uint32_t decompress_nvm(LoRaMacNvmData_t *nvm_data)
 {
 
-    char *regen_buffer = (char*)nvm_data;
+    char *regen_buffer = (char *)&temp_nvm_struct;
 
     int src_size = sizeof(LoRaMacNvmData_t);
 
@@ -345,16 +352,30 @@ int decompress_nvm(LoRaMacNvmData_t *nvm_data)
 
     const int decompressed_size = LZ4_decompress_safe(nvm_data_struct.compressed_data, regen_buffer, nvm_data_struct.compressed_data_size, src_size);
 
-    if (decompressed_size < 0)
-        run_screaming("A negative result from LZ4_decompress_safe indicates a failure trying to decompress the data.  See exit code (echo $?) for value returned.", decompressed_size);
-
-    if (decompressed_size >= 0)
-        printf("We successfully decompressed some data!\n");
-
-    if (decompressed_size != src_size)
-        run_screaming("Decompressed data is different from original! \n", 1);
-
     printf("Decompressed %d bytes to %d bytes\n", nvm_data_struct.compressed_data_size, decompressed_size);
 
-    return EXIT_SUCCESS;
+    if (decompressed_size < 0)
+    {
+        run_screaming("A negative result from LZ4_decompress_safe indicates a failure trying to decompress the data.  See exit code (echo $?) for value returned.", decompressed_size);
+    }
+
+    if (decompressed_size >= 0)
+    {
+        printf("We successfully decompressed some data!\n");
+    }
+
+    if (decompressed_size != src_size)
+    {
+        run_screaming("Decompressed data is different from original! \n", 1);
+    }
+
+    if ((decompressed_size >= 0) && (decompressed_size == src_size))
+    {
+        if (is_nvm_struct_valid(&temp_nvm_struct) == true)
+        {
+            memcpy(nvm_data, &temp_nvm_struct, sizeof(LoRaMacNvmData_t));
+            return sizeof(LoRaMacNvmData_t);
+        }
+    }
+    return 0;
 }
