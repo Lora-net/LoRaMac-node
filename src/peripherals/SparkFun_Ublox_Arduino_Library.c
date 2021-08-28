@@ -54,8 +54,6 @@ extern I2c_t I2c;
 
 
 
-static uint8_t GPS_buffer[MAX_PAYLOAD_SIZE];
-uint8_t ubx_packet_buff[MAX_PAYLOAD_SIZE] = {0};
 
 
 
@@ -405,13 +403,13 @@ bool checkUbloxI2C(ubxPacket *incomingUBX, uint8_t requestedClass, uint8_t reque
 		
 
 
-		if (I2cReadMemBuffer(&I2c,(uint16_t) _gpsI2Caddress << 1,(uint16_t)0xFF,ubx_packet_buff,bytesAvailable ) != LMN_STATUS_OK)
+		if (I2cReadMemBuffer(&I2c,(uint16_t) _gpsI2Caddress << 1,(uint16_t)0xFF,payloadCfg,bytesAvailable ) != LMN_STATUS_OK)
 		{
 			return (false);  //Sensor did not ACK
 		}
 		for(int i = 0; i < bytesAvailable ; i++)
 		{
-			uint8_t incoming = ubx_packet_buff[i];
+			uint8_t incoming = payloadCfg[i];
 			process(incoming, incomingUBX, requestedClass, requestedID); //Process this valid character
 		}
   }
@@ -1041,6 +1039,8 @@ sfe_ublox_status_e sendI2cCommand(ubxPacket *outgoingUBX, uint16_t maxWait)
 {
 
 	uint8_t cnt = 0;
+  /* Total packet consists of 8 bytes minimum and then payload */
+  uint8_t GPS_buffer[outgoingUBX->len + 8];
 	GPS_buffer[cnt++] = UBX_SYNCH_1;                            //μ - oh ublox, you're funny. I will call you micro-blox from now on.
 	GPS_buffer[cnt++] = UBX_SYNCH_2;                            //b
 	GPS_buffer[cnt++] = outgoingUBX->cls;
