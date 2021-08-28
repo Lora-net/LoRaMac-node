@@ -62,6 +62,7 @@ std::list<gps_info_t> position_list;
 TEST(app, run_app_through_3_geofence_regions_5degrees_shift_per_fix)
 {
 
+    FAIL("Running Too Long");
     prepare_n_position_mocks(10000, 5);
 
     int ret;
@@ -87,6 +88,7 @@ TEST(app, run_app_through_3_geofence_regions_5degrees_shift_per_fix)
 
 TEST(app, run_app_through_3_geofence_regions_2degrees_shift_per_fix)
 {
+    FAIL("Running Too Long");
 
     prepare_n_position_mocks(10000, 2);
 

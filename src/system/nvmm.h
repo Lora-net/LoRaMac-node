@@ -93,6 +93,27 @@ bool NvmmReset( uint16_t size, uint16_t offset );
  */
 bool EEPROM_Wipe( void );
 
+/**
+ * @brief Printout the contents of the EEPROM
+ * 
+ * @return true 
+ * @return false 
+ */
+bool EEPROM_Dump(void);
+
+
+/**
+ * @brief Check if the crc in the last 4 bytes of the struct
+ * is correct
+ * 
+ */
+bool is_crc_correct(uint16_t size, void *input_struct);
+
+
+int eeprom_read_write_test(void);
+
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -444,18 +444,14 @@ static void RxChainCalibration(void)
 
     // Launch Rx chain calibration for LF band
     SX1276Write(REG_IMAGECAL, (SX1276Read(REG_IMAGECAL) & RF_IMAGECAL_IMAGECAL_MASK) | RF_IMAGECAL_IMAGECAL_START);
-    while ((SX1276Read(REG_IMAGECAL) & RF_IMAGECAL_IMAGECAL_RUNNING) == RF_IMAGECAL_IMAGECAL_RUNNING)
-    {
-    }
+
 
     // Sets a Frequency in HF band
     SX1276SetChannel(868000000);
 
     // Launch Rx chain calibration for HF band
     SX1276Write(REG_IMAGECAL, (SX1276Read(REG_IMAGECAL) & RF_IMAGECAL_IMAGECAL_MASK) | RF_IMAGECAL_IMAGECAL_START);
-    while ((SX1276Read(REG_IMAGECAL) & RF_IMAGECAL_IMAGECAL_RUNNING) == RF_IMAGECAL_IMAGECAL_RUNNING)
-    {
-    }
+
 
     // Restore context
     SX1276Write(REG_PACONFIG, regPaConfigInitVal);

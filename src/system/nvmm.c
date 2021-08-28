@@ -28,9 +28,17 @@
 #include "utilities.h"
 #include "eeprom-board.h"
 #include "nvmm.h"
+#include <string.h>
+#include "print_utils.h"
+#include <stdio.h>
+
+static void eeprom_write_workaround(uint16_t offset);
+
 
 uint16_t NvmmWrite( uint8_t* src, uint16_t size, uint16_t offset )
 {
+    eeprom_write_workaround( offset );
+
     if( EepromMcuWriteBuffer( offset, src, size ) == LMN_STATUS_OK )
     {
         return size;
@@ -45,6 +53,35 @@ uint16_t NvmmRead( uint8_t* dest, uint16_t size, uint16_t offset )
         return size;
     }
     return 0;
+}
+
+bool is_crc_correct(uint16_t size, void *input_struct)
+{
+    uint8_t *p = input_struct;
+    uint8_t data = 0;
+    uint32_t calculatedCrc32 = 0;
+    uint32_t readCrc32 = 0;
+
+    memcpy(&readCrc32, &p[size - sizeof(readCrc32)], sizeof(readCrc32));
+
+    // Calculate crc
+    calculatedCrc32 = Crc32Init();
+
+    for (uint16_t i = 0; i < (size - sizeof(readCrc32)); i++)
+    {
+        data = p[i];
+        calculatedCrc32 = Crc32Update(calculatedCrc32, &data, 1);
+    }
+    calculatedCrc32 = Crc32Finalize(calculatedCrc32);
+
+    if (calculatedCrc32 != readCrc32)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
 
 bool NvmmCrc32Check( uint16_t size, uint16_t offset )
@@ -106,4 +143,66 @@ bool EEPROM_Wipe(void)
     }
 
     return true;
+}
+
+#define DATA_EEPROM_BASE ((uint32_t)0x08080000U)
+bool EEPROM_Dump(void)
+{
+    print_bytes((uint8_t *)(DATA_EEPROM_BASE), EEPROM_SIZE);
+
+    return true;
+}
+
+typedef struct test_s
+{
+    int32_t num1;
+    int32_t num2;
+
+} test_t;
+
+
+test_t write_data = {
+    .num1 = 0x2323,
+    .num2 = 0xAAAA};
+
+test_t read_data = {
+    .num1 = 23,
+    .num2 = 34};
+
+int eeprom_read_write_test()
+{
+    printf("Doing read write test eeprom\n");
+
+    uint8_t *p = (uint8_t *)&write_data;
+
+    uint32_t addr = 0;
+    eeprom_write_workaround(addr);
+
+    for (uint32_t i = addr; i < sizeof(test_t); i++)
+    {
+        EepromMcuWriteBuffer(i, &p[i], 1);
+    }
+
+    int read = NvmmRead((uint8_t *)&read_data, sizeof(test_t), 0);
+
+    int res = memcmp(&write_data, &read_data, sizeof(test_t));
+    printf("Comparison result %d\n", res);
+    printf("Write data:(%d bytes)", sizeof(test_t));
+    print_bytes(&write_data, sizeof(test_t));
+    printf("Read data:(%d bytes)", read);
+    print_bytes(&read_data, sizeof(test_t));
+    printf("\n");
+
+    return res;
+}
+
+/**
+ * @brief It seems like eeprom write does not work unless some garbage is written to it first. 
+ * Wierd.
+ * 
+ */
+static void eeprom_write_workaround(uint16_t offset)
+{
+    uint8_t garbage_value = 0xff;
+    EepromMcuWriteBuffer(offset, &garbage_value, 1);
 }
