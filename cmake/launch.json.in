@@ -16,7 +16,7 @@
                 "interface/stlink-v2.cfg",
                 "target/stm32l0_dual_bank.cfg"
             ],
-            //"svdFile": "${workspaceRoot}/.vscode/STM32L07x.svd",
+            "svdFile": "${workspaceRoot}/.vscode/STM32L07x.svd",
             "swoConfig": {
                 "enabled": true,
                 "cpuFrequency": 16000000,

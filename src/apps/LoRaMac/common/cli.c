@@ -21,6 +21,7 @@
 #include <stdbool.h>
 #include "NvmDataMgmt.h"
 #include "cli.h"
+#include "nvmm.h"
 
 void CliProcess( Uart_t* uart )
 {
@@ -52,6 +53,8 @@ void CliProcess( Uart_t* uart )
                 while( 1 );
             }else if (data == 'W')
             {
+                printf( "Wiping EEPROM. It will take a few seconds....\n" );
+
                 // Wipe out the EEPROM fully
                 if( EEPROM_Wipe( ) == true )
                 {

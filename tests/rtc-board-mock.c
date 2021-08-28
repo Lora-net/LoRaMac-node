@@ -395,6 +395,8 @@ static uint64_t RtcGetCalendarValue(RTC_DateTypeDef *date, RTC_TimeTypeDef *time
     return (calendarValue);
 }
 
+extern TimerTime_t current_time;
+
 uint32_t RtcGetCalendarTime(uint16_t *milliseconds)
 {
     RTC_TimeTypeDef time;
@@ -407,7 +409,7 @@ uint32_t RtcGetCalendarTime(uint16_t *milliseconds)
 
     ticks = (uint32_t)calendarValue & PREDIV_S;
 
-    *milliseconds = RtcTick2Ms(ticks);
+    *milliseconds = current_time;
 
     return seconds;
 }
