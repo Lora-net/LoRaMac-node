@@ -69,7 +69,9 @@ TEST(NvmDataMgmt, test_storing_of_data_with_compression)
     /* Now run the store/restore function */
 
     /* Store to eeprom in compressed state */
-    NvmDataMgmtStore();
+    uint16_t ret1 = NvmDataMgmtStore();
+
+    CHECK_EQUAL(477, ret1);
 
     /* Now assume restart from boot. LoRaMacNvmData_t Nvm not set yet */
     memset(nvm, 0, sizeof(LoRaMacNvmData_t));

@@ -138,7 +138,7 @@ uint16_t NvmDataMgmtStore( void )
 #endif
 
         /* Save compressed NVM to eeprom */
-        NvmmWrite((void *)&nvm_data_struct, sizeof(nvm_data_struct), 0);
+        uint16_t ret = NvmmUpdate((void *)&nvm_data_struct, sizeof(nvm_data_struct), 0);
 
         // Reset notification flags
         NvmNotifyFlags = LORAMAC_NVM_NOTIFY_FLAG_NONE;
@@ -150,7 +150,7 @@ uint16_t NvmDataMgmtStore( void )
         SysTime_t diff = SysTimeSub( stop, start );
         PRINT( "NVM updated in %ld ms\n", diff.Seconds * 1000 + diff.SubSeconds );     
            
-        return sizeof(nvm_data_t);
+        return ret;
     }
     else
     {

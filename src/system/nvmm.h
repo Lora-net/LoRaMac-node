@@ -53,6 +53,19 @@ extern "C"
  */
 uint16_t NvmmWrite( uint8_t* src, uint16_t size, uint16_t offset );
 
+
+/*!
+ * \brief Updates data in given block.
+ *
+ * \param[IN] src    Pointer to the source of data to be copied.
+ * \param[IN] size   Number of bytes to copy.
+ * \param[IN] offset Relative NVM offset.
+ *
+ * \retval           Status of the operation
+ */
+uint16_t NvmmUpdate( uint8_t* src, uint16_t size, uint16_t offset );
+
+
 /*!
  * \brief Reads from data block to destination pointer.
  *
