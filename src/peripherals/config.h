@@ -104,6 +104,12 @@ extern "C"
 /* ----------------------------------------------------------------------------------- */
 #define USE_WATCHDOG 1 /* Use watchdog. Allowed values: 0 disabled , 1(default) enabled */
 
+/**
+ * @brief Choose whether to printout debug info for EEPROM
+ * 
+ */
+#define PRINT_EEPROM_DEBUG 0
+
   /* USER CODE END Private defines */
 
 #ifdef __cplusplus

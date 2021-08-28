@@ -37,6 +37,7 @@
 #include "LoRaMac.h"
 #include "NvmDataMgmt.h"
 #include "print_utils.h"
+#include "config.h"
 
 
 #include <string.h>  // For memcmp()
@@ -118,19 +119,22 @@ uint16_t NvmDataMgmtStore( void )
 
         SysTime_t start = SysTimeGetMcuTime( );
         SysTime_t stop = {.Seconds = 0, .SubSeconds = 0};
-    
+
+#if PRINT_EEPROM_DEBUG
         printf("NVM Bytes:\n");
         print_bytes(nvm, sizeof(LoRaMacNvmData_t));
         printf("\n");
+#endif
 
         printf("Start Compression........\n");
         dataSize = compress_nvm(nvm);
         printf("End Compression........\n");
 
-
+#if PRINT_EEPROM_DEBUG
         printf("Writing these bytes\n");
         print_bytes(&nvm_data_struct, sizeof(nvm_data_struct));
         printf("End these bytes\n");
+#endif
 
         /* Save compressed NVM to eeprom */
         NvmmWrite((void *)&nvm_data_struct, sizeof(nvm_data_struct), 0);
@@ -165,10 +169,11 @@ uint16_t NvmDataMgmtRestore( void )
         /* Read nvm into compressed data buffer(not yet decompressed) */
         NvmmRead((void *)&nvm_data_struct, sizeof(nvm_data_struct), 0);
 
+#if PRINT_EEPROM_DEBUG
         printf("Reading these bytes\n");
         print_bytes(&nvm_data_struct, sizeof(nvm_data_struct));
         printf("End these bytes\n");
-
+#endif
 
         printf("src size: %d compressed_datasize: %d \n", sizeof(LoRaMacNvmData_t), nvm_data_struct.compressed_data_size);
 
