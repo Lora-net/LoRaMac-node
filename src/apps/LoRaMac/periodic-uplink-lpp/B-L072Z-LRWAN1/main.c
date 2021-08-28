@@ -254,6 +254,12 @@ int run_app(void)
 
     setup_board();
 
+#if PRINT_EEPROM_DEBUG
+    printf("Dumping EEPROM:\n");
+    EEPROM_Dump();
+    printf("\n");
+#endif
+
     while (1)
     {
         run_country_loop();
