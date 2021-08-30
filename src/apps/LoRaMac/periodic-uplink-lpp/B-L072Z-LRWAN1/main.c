@@ -240,7 +240,7 @@ extern Uart_t Uart1;
 extern TimerTime_t current_time;
 
 bool tx_done = false;
-bool is_over_the_air_activation = false;
+bool is_over_the_air_activation = true;
 
 /*!
  * Main application entry point.
@@ -273,8 +273,6 @@ void run_country_loop()
 
     tx_done = false;
 
-    is_over_the_air_activation = !is_over_the_air_activation;
-
     /* Start loop */
     while ((run_loop_once() == true) && (tx_done == false)) /* While Loramac region settings correct */
     {
@@ -287,6 +285,29 @@ int init_loramac_stack_and_tx_scheduling()
 {
     printf("Initialising Loramac Stack\n");
 
+    /**
+     * @brief Alternate between OTAA and ABP(Helium network and TTN)
+     * only when over EU countries.
+     * Not sure if it works in other countries.
+     * 
+     */
+    switch (current_geofence_status.current_loramac_region)
+    {
+    case LORAMAC_REGION_EU868:
+        is_over_the_air_activation = !is_over_the_air_activation;
+        break;
+    default:
+        is_over_the_air_activation = false;
+        break;
+    }
+
+    /**
+     * @brief Enable NVM context management only when using
+     * OTAA. We need to store the fcount, keys when using OTAA
+     * so that we can avoid a join, which requires a downlink(hard to 
+     * aquire.)
+     * 
+     */
     if (is_over_the_air_activation)
     {
         context_management_enabled = true;

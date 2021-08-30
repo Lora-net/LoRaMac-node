@@ -40,7 +40,7 @@ extern bool is_over_the_air_activation;
 
 TEST(NvmDataMgmt, test_storing_of_data_with_compression)
 {
-    is_over_the_air_activation = true;
+    is_over_the_air_activation = false;
     /* Initilalise the mac layer */
     int ret = init_loramac_stack_and_tx_scheduling();
 

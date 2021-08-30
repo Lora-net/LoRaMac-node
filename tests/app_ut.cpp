@@ -179,7 +179,7 @@ TEST(app, ensure_tx_happens_immediately_after_boot)
     int ret;
     int number_of_milliseconds_to_run;
 
-    is_over_the_air_activation = true;
+    is_over_the_air_activation = false;
 
     /**
      * @brief Fill the EEPROM with actual values. TODO: limit scope by not 
@@ -272,7 +272,7 @@ TEST(app, ensure_region_is_set_according_to_nvm)
     /* Now setup the main program */
     int ret;
     int number_of_milliseconds_to_run;
-    is_over_the_air_activation = true;
+    is_over_the_air_activation = false;
     fake_eeprom_set();
 
     ret = setup_board();
