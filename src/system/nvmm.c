@@ -33,7 +33,7 @@
 #include <stdio.h>
 
 static void eeprom_write_workaround(uint16_t offset);
-static bool NvmmUpdateByte(uint8_t *existing_byte, uint8_t* to_write_byte, uint16_t offset);
+static bool NvmmUpdateByte(uint8_t* to_write_byte, uint16_t offset);
 
 
 uint16_t NvmmWrite( uint8_t* src, uint16_t size, uint16_t offset )
@@ -49,18 +49,14 @@ uint16_t NvmmWrite( uint8_t* src, uint16_t size, uint16_t offset )
 
 uint16_t NvmmUpdate(uint8_t *src, uint16_t size, uint16_t offset)
 {
-    eeprom_write_workaround(offset);
-
     uint16_t counter = 0;
-    for (uint32_t i = offset; i < size; i++)
+
+    for (uint16_t i = 0; i < size; i++)
     {
         uint8_t to_write_byte = src[i];
-        uint8_t existing_byte;
 
         bool ret;
-        ret = NvmmUpdateByte(&existing_byte, &to_write_byte, i);
-        /* update twice just to be sure */
-        NvmmUpdateByte(&existing_byte, &to_write_byte, i);
+        ret = NvmmUpdateByte(&to_write_byte, i+offset);
 
         if (ret == true)
         {
@@ -71,11 +67,12 @@ uint16_t NvmmUpdate(uint8_t *src, uint16_t size, uint16_t offset)
     return counter;
 }
 
-bool NvmmUpdateByte(uint8_t *existing_byte, uint8_t *to_write_byte, uint16_t offset)
+bool NvmmUpdateByte(uint8_t *to_write_byte, uint16_t offset)
 {
-    EepromMcuReadBuffer(offset, existing_byte, 1);
+    uint8_t existing_byte;
+    EepromMcuReadBuffer(offset, &existing_byte, 1);
 
-    if (*existing_byte != *to_write_byte)
+    if (existing_byte != *to_write_byte)
     {
         EepromMcuWriteBuffer(offset, to_write_byte, 1);
         return true;
