@@ -13,6 +13,7 @@ extern "C"
 }
 
 #include "nvm_images.hpp"
+#include "eeprom-board-mock.hpp"
 
 #include <list>
 
@@ -147,6 +148,8 @@ void prepare_n_position_mocks(int number_of_readings, int degrees_moved_per_shif
  * @brief Ensure transmission happens immediately after boot. 
  * 
  */
+extern bool is_over_the_air_activation;
+
 TEST(app, ensure_tx_happens_immediately_after_boot)
 {
     /* Setup environment params */
@@ -176,6 +179,15 @@ TEST(app, ensure_tx_happens_immediately_after_boot)
     int ret;
     int number_of_milliseconds_to_run;
 
+    is_over_the_air_activation = true;
+
+    /**
+     * @brief Fill the EEPROM with actual values. TODO: limit scope by not 
+     * reading from EEROM, set the nvm seperately.
+     * 
+     */
+    fake_eeprom_set();
+
     ret = setup_board();
     CHECK_EQUAL(EXIT_SUCCESS, ret);
     ret = init_loramac_stack_and_tx_scheduling();
@@ -194,7 +206,7 @@ TEST(app, ensure_tx_happens_immediately_after_boot)
         run_loop_once();
     }
 
-    CHECK_EQUAL(10, nvm->Crypto.FCntList.FCntUp);
+    CHECK_EQUAL(190, nvm->Crypto.FCntList.FCntUp);
 
     /* Run it further 40 seconds */
     number_of_milliseconds_to_run = 40100;
@@ -204,7 +216,7 @@ TEST(app, ensure_tx_happens_immediately_after_boot)
         run_loop_once();
     }
 
-    CHECK_EQUAL(10, nvm->Crypto.FCntList.FCntUp);
+    CHECK_EQUAL(190, nvm->Crypto.FCntList.FCntUp);
 
     /* New run it another minute */
     number_of_milliseconds_to_run = 60000;
@@ -214,7 +226,7 @@ TEST(app, ensure_tx_happens_immediately_after_boot)
         run_loop_once();
     }
 
-    CHECK_EQUAL(12, nvm->Crypto.FCntList.FCntUp);
+    CHECK_EQUAL(192, nvm->Crypto.FCntList.FCntUp);
 
     /* New run it another minute */
     number_of_milliseconds_to_run = 60000;
@@ -224,13 +236,16 @@ TEST(app, ensure_tx_happens_immediately_after_boot)
         run_loop_once();
     }
 
-    CHECK_EQUAL(14, nvm->Crypto.FCntList.FCntUp);
+    CHECK_EQUAL(194, nvm->Crypto.FCntList.FCntUp);
 };
 
 /**
  * @brief Ensure transmission happens immediately after boot. 
  * 
  */
+
+extern bool is_over_the_air_activation;
+
 TEST(app, ensure_region_is_set_according_to_nvm)
 {
     /* Setup environment params */
@@ -257,6 +272,8 @@ TEST(app, ensure_region_is_set_according_to_nvm)
     /* Now setup the main program */
     int ret;
     int number_of_milliseconds_to_run;
+    is_over_the_air_activation = true;
+    fake_eeprom_set();
 
     ret = setup_board();
     CHECK_EQUAL(EXIT_SUCCESS, ret);
@@ -276,7 +293,7 @@ TEST(app, ensure_region_is_set_according_to_nvm)
     }
 
     mock().checkExpectations();
-    CHECK_EQUAL(10, nvm->Crypto.FCntList.FCntUp);
+    CHECK_EQUAL(190, nvm->Crypto.FCntList.FCntUp);
     CHECK_EQUAL(LORAMAC_REGION_EU868, nvm->MacGroup2.Region);
 };
 

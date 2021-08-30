@@ -35,8 +35,12 @@ TEST_GROUP(NvmDataMgmt){
  * @brief Check if the data compressed and stored is the same after decompression.
  * 
  */
+
+extern bool is_over_the_air_activation;
+
 TEST(NvmDataMgmt, test_storing_of_data_with_compression)
 {
+    is_over_the_air_activation = true;
     /* Initilalise the mac layer */
     int ret = init_loramac_stack_and_tx_scheduling();
 

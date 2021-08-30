@@ -18,6 +18,7 @@
 
 
 extern uint8_t first_transmission_eeprom_data[];
+extern uint8_t proper_compressed_nvm_eeprom_image[];
 
 
 #endif /* NVM_IMAGES */

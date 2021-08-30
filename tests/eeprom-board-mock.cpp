@@ -32,6 +32,7 @@ extern "C"
 #include <string.h>
 #include "bsp.h"
 }
+#include "nvm_images.hpp"
 
 
 uint8_t simulated_flash[EEPROM_SIZE] = { 
@@ -61,4 +62,10 @@ void EepromMcuSetDeviceAddr( uint8_t addr )
 LmnStatus_t EepromMcuGetDeviceAddr( void )
 {
     return LMN_STATUS_OK;
+}
+
+
+void fake_eeprom_set(void)
+{
+    memcpy(simulated_flash, proper_compressed_nvm_eeprom_image, EEPROM_SIZE);
 }

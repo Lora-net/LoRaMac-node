@@ -240,7 +240,7 @@ extern Uart_t Uart1;
 extern TimerTime_t current_time;
 
 bool tx_done = false;
-bool is_over_the_air_activation = true;
+bool is_over_the_air_activation = false;
 
 /*!
  * Main application entry point.
