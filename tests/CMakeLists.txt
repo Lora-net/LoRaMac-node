@@ -165,6 +165,7 @@ set(SOURCE_FILES
 
 add_executable(picotracker_lora_tests ${SOURCE_FILES})
 target_compile_options(picotracker_lora_tests PRIVATE -fshort-enums)
+target_compile_options(picotracker_lora_tests PRIVATE -Wall -Wextra -Wpedantic)
 target_link_libraries(picotracker_lora_tests PRIVATE CppUTest CppUTestExt)
 
 
