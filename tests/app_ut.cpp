@@ -16,6 +16,7 @@ extern "C"
 #include "eeprom-board-mock.hpp"
 
 #include <list>
+#include <string.h>
 
 void prepare_n_position_mocks(int number_of_readings, int degrees_moved_per_shift);
 
@@ -199,6 +200,9 @@ TEST(app, ensure_tx_happens_immediately_after_boot)
     LoRaMacMibGetRequestConfirm(&mibReq);
     LoRaMacNvmData_t *nvm = mibReq.Param.Contexts;
 
+    int expected_fcount = 17;
+    CHECK_EQUAL(expected_fcount, nvm->Crypto.FCntList.FCntUp);
+
     /* Check if framee incrementation has happened in first 100 ms after initialisation */
     number_of_milliseconds_to_run = 100;
     while (number_of_milliseconds_to_run--)
@@ -206,7 +210,8 @@ TEST(app, ensure_tx_happens_immediately_after_boot)
         run_loop_once();
     }
 
-    CHECK_EQUAL(190, nvm->Crypto.FCntList.FCntUp);
+    expected_fcount += 1;
+    CHECK_EQUAL(expected_fcount, nvm->Crypto.FCntList.FCntUp);
 
     /* Run it further 40 seconds */
     number_of_milliseconds_to_run = 40100;
@@ -216,7 +221,17 @@ TEST(app, ensure_tx_happens_immediately_after_boot)
         run_loop_once();
     }
 
-    CHECK_EQUAL(190, nvm->Crypto.FCntList.FCntUp);
+    CHECK_EQUAL(expected_fcount, nvm->Crypto.FCntList.FCntUp);
+
+    /* New run it another minute */
+    number_of_milliseconds_to_run = 60000;
+
+    while (number_of_milliseconds_to_run--)
+    {
+        run_loop_once();
+    }
+    expected_fcount += 2;
+    CHECK_EQUAL(expected_fcount, nvm->Crypto.FCntList.FCntUp);
 
     /* New run it another minute */
     number_of_milliseconds_to_run = 60000;
@@ -226,17 +241,8 @@ TEST(app, ensure_tx_happens_immediately_after_boot)
         run_loop_once();
     }
 
-    CHECK_EQUAL(192, nvm->Crypto.FCntList.FCntUp);
-
-    /* New run it another minute */
-    number_of_milliseconds_to_run = 60000;
-
-    while (number_of_milliseconds_to_run--)
-    {
-        run_loop_once();
-    }
-
-    CHECK_EQUAL(194, nvm->Crypto.FCntList.FCntUp);
+    expected_fcount += 2;
+    CHECK_EQUAL(expected_fcount, nvm->Crypto.FCntList.FCntUp);
 };
 
 /**
@@ -293,7 +299,7 @@ TEST(app, ensure_region_is_set_according_to_nvm)
     }
 
     mock().checkExpectations();
-    CHECK_EQUAL(190, nvm->Crypto.FCntList.FCntUp);
+    CHECK_EQUAL(18, nvm->Crypto.FCntList.FCntUp);
     CHECK_EQUAL(LORAMAC_REGION_EU868, nvm->MacGroup2.Region);
 };
 
@@ -309,7 +315,7 @@ TEST(app, read_and_check_nvm_values)
 
     printf("LoRaMacNvmData_t size: %d\n", sizeof(LoRaMacNvmData_t));
 
-    NvmmRead((uint8_t *)nvm, sizeof(LoRaMacNvmData_t), 0);
+    memcpy((uint8_t *)nvm, new_nvm_struct, sizeof(LoRaMacNvmData_t));
 
     CHECK_EQUAL(4, sizeof(float));
     CHECK_EQUAL(1, sizeof(bool));
@@ -336,7 +342,7 @@ TEST(app, read_and_check_nvm_values)
 
     CHECK_EQUAL(2200, sizeof(LoRaMacNvmData_t));
 
-    CHECK_EQUAL(9, nvm->Crypto.FCntList.FCntUp);
+    CHECK_EQUAL(18, nvm->Crypto.FCntList.FCntUp);
 
     uint8_t expected[] = {0x70, 0xB3, 0xD5, 0x7E, 0xD0, 0x02, 0x82, 0x4D};
 

@@ -42,7 +42,7 @@ TEST(NvmDataMgmt, test_storing_of_data_with_compression)
 {
     is_over_the_air_activation = false;
     /* Initilalise the mac layer */
-    int ret = init_loramac_stack_and_tx_scheduling();
+    init_loramac_stack_and_tx_scheduling();
 
     /*
      * Set LoRaMacNvmData_t nvm as it would have been after being
@@ -53,7 +53,7 @@ TEST(NvmDataMgmt, test_storing_of_data_with_compression)
     LoRaMacMibGetRequestConfirm(&mibReq);
     LoRaMacNvmData_t *nvm = mibReq.Param.Contexts;
 
-    NvmmRead((uint8_t *)nvm, sizeof(LoRaMacNvmData_t), 0);
+    memcpy((uint8_t *)nvm, new_nvm_struct, sizeof(LoRaMacNvmData_t));
 
     /* Make a copy for later comparison */
     LoRaMacNvmData_t original_nvm = *nvm;
@@ -74,8 +74,6 @@ TEST(NvmDataMgmt, test_storing_of_data_with_compression)
 
     /* Store to eeprom in compressed state */
     uint16_t ret1 = NvmDataMgmtStore();
-
-    CHECK_EQUAL(477, ret1);
 
     /* Now assume restart from boot. LoRaMacNvmData_t Nvm not set yet */
     memset(nvm, 0, sizeof(LoRaMacNvmData_t));
@@ -105,7 +103,7 @@ TEST(NvmDataMgmt, test_crc_check_pass)
     LoRaMacMibGetRequestConfirm(&mibReq);
     LoRaMacNvmData_t *nvm = mibReq.Param.Contexts;
 
-    NvmmRead((uint8_t *)nvm, sizeof(LoRaMacNvmData_t), 0);
+    memcpy((uint8_t *)nvm, new_nvm_struct, sizeof(LoRaMacNvmData_t));
 
     bool crc_status;
 
@@ -114,6 +112,29 @@ TEST(NvmDataMgmt, test_crc_check_pass)
 
     crc_status = is_crc_correct(sizeof(LoRaMacNvmDataGroup2_t), &nvm->MacGroup2);
     CHECK_TRUE(crc_status);
+}
+
+TEST(NvmDataMgmt, memset_test)
+{
+    /* Initilalise the mac layer */
+    int ret = init_loramac_stack_and_tx_scheduling();
+
+    /*
+     * Set LoRaMacNvmData_t nvm as it would have been after being
+     * restored from EEPROM. 
+     */
+    MibRequestConfirm_t mibReq;
+    mibReq.Type = MIB_NVM_CTXS;
+    LoRaMacMibGetRequestConfirm(&mibReq);
+    LoRaMacNvmData_t *nvm = mibReq.Param.Contexts;
+
+    memcpy((uint8_t *)nvm, new_nvm_struct, sizeof(LoRaMacNvmData_t));
+
+    /* Now assume restart from boot. LoRaMacNvmData_t Nvm not set yet */
+    memset((void *)&nvm->MacGroup2.MaxDCycle, 34, sizeof(uint8_t));
+
+    /* Check if compression and then decompression does work */
+    CHECK_EQUAL(34, nvm->MacGroup2.MaxDCycle);
 }
 
 TEST(NvmDataMgmt, test_crc_check_fail)
@@ -130,7 +151,7 @@ TEST(NvmDataMgmt, test_crc_check_fail)
     LoRaMacMibGetRequestConfirm(&mibReq);
     LoRaMacNvmData_t *nvm = mibReq.Param.Contexts;
 
-    NvmmRead((uint8_t *)nvm, sizeof(LoRaMacNvmData_t), 0);
+    memcpy((uint8_t *)nvm, new_nvm_struct, sizeof(LoRaMacNvmData_t));
 
     nvm->MacGroup1.AdrAckCounter = 34234;
     nvm->MacGroup2.Crc32 = 3890845;

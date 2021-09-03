@@ -86,7 +86,19 @@ typedef struct
 {
     uint16_t compressed_data_size;
     char compressed_data[700];
-}nvm_data_t;
+    LoRaMacCryptoNvmData_t Crypto;
+    LoRaMacNvmDataGroup1_t MacGroup1;
+    RegionNvmDataGroup1_t RegionGroup1;
+} nvm_data_t;
+
+typedef struct
+{
+    LoRaMacNvmDataGroup2_t MacGroup2;
+    SecureElementNvmData_t SecureElement;
+    RegionNvmDataGroup2_t RegionGroup2;
+    LoRaMacClassBNvmData_t ClassB;
+
+} rarely_changing_t;
 
 nvm_data_t nvm_data_struct;
 
@@ -311,8 +323,14 @@ void run_screaming(const char* message, const int code) {
  */
 uint32_t compress_nvm(LoRaMacNvmData_t *nvm_data)
 {
-    const char *src = (char*)nvm_data;
-    int src_size = sizeof(LoRaMacNvmData_t);
+    memcpy((void *)&nvm_data_struct.Crypto, (void *)&nvm_data->Crypto, sizeof(LoRaMacCryptoNvmData_t));
+    memcpy((void *)&nvm_data_struct.MacGroup1, (void *)&nvm_data->MacGroup1, sizeof(LoRaMacNvmDataGroup1_t));
+    memcpy((void *)&nvm_data_struct.RegionGroup1, (void *)&nvm_data->RegionGroup1, sizeof(RegionNvmDataGroup1_t));
+
+    const char *src = (char *)(rarely_changing_t *)nvm_data;
+
+    int src_size = sizeof(rarely_changing_t);
+
     const int max_dst_size = LZ4_compressBound(src_size);
 
     if (nvm_data_struct.compressed_data == NULL)
@@ -343,9 +361,9 @@ LoRaMacNvmData_t temp_nvm_struct;
 uint32_t decompress_nvm(LoRaMacNvmData_t *nvm_data)
 {
 
-    char *regen_buffer = (char *)&temp_nvm_struct;
+    char *regen_buffer = (char *)(rarely_changing_t *)&temp_nvm_struct;
 
-    int src_size = sizeof(LoRaMacNvmData_t);
+    int src_size = sizeof(rarely_changing_t);
 
     if (regen_buffer == NULL)
         run_screaming("Failed to allocate memory for *regen_buffer.", 1);
@@ -371,9 +389,15 @@ uint32_t decompress_nvm(LoRaMacNvmData_t *nvm_data)
 
     if ((decompressed_size >= 0) && (decompressed_size == src_size))
     {
+
+        memcpy((void *)&temp_nvm_struct.Crypto, (void *)&nvm_data_struct.Crypto, sizeof(LoRaMacCryptoNvmData_t));
+        memcpy((void *)&temp_nvm_struct.MacGroup1, (void *)&nvm_data_struct.MacGroup1, sizeof(LoRaMacNvmDataGroup1_t));
+        memcpy((void *)&temp_nvm_struct.RegionGroup1, (void *)&nvm_data_struct.RegionGroup1, sizeof(RegionNvmDataGroup1_t));
+
         if (is_nvm_struct_valid(&temp_nvm_struct) == true)
         {
-            memcpy(nvm_data, &temp_nvm_struct, sizeof(LoRaMacNvmData_t));
+            memcpy((void*)nvm_data, (void*)&temp_nvm_struct, sizeof(LoRaMacNvmData_t));
+
             return sizeof(LoRaMacNvmData_t);
         }
     }
