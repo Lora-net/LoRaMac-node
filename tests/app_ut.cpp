@@ -200,7 +200,7 @@ TEST(app, ensure_tx_happens_immediately_after_boot)
     LoRaMacMibGetRequestConfirm(&mibReq);
     LoRaMacNvmData_t *nvm = mibReq.Param.Contexts;
 
-    int expected_fcount = 17;
+    int expected_fcount = 9;
     CHECK_EQUAL(expected_fcount, nvm->Crypto.FCntList.FCntUp);
 
     /* Check if framee incrementation has happened in first 100 ms after initialisation */
@@ -299,7 +299,7 @@ TEST(app, ensure_region_is_set_according_to_nvm)
     }
 
     mock().checkExpectations();
-    CHECK_EQUAL(18, nvm->Crypto.FCntList.FCntUp);
+    CHECK_EQUAL(10, nvm->Crypto.FCntList.FCntUp);
     CHECK_EQUAL(LORAMAC_REGION_EU868, nvm->MacGroup2.Region);
 };
 

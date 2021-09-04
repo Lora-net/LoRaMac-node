@@ -283,7 +283,8 @@ extern bool context_management_enabled;
 
 int init_loramac_stack_and_tx_scheduling()
 {
-    printf("Initialising Loramac Stack\n");
+    const char *region_string = get_lorawan_region_string(current_geofence_status.current_loramac_region);
+    printf("Initialising Loramac Stack with Loramac region: %s\n",region_string);
 
     /**
      * @brief Alternate between OTAA and ABP(Helium network and TTN)

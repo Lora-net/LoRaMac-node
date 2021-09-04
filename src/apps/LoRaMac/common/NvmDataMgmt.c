@@ -91,6 +91,7 @@ typedef struct
     LoRaMacCryptoNvmData_t Crypto;
     LoRaMacNvmDataGroup1_t MacGroup1;
     RegionNvmDataGroup1_t RegionGroup1;
+    uint32_t Crc32; // CRC32 value of the nvm_data_t data structure.
 } nvm_data_t;
 
 typedef struct
@@ -142,7 +143,10 @@ uint16_t NvmDataMgmtStore( void )
 #endif
 
         printf("Start Compression........\n");
+        /* Compress NVM data */
         dataSize = compress_nvm(nvm);
+        /* Now update CRC in the struct */
+        nvm_data_struct.Crc32 = Crc32((uint8_t *)&nvm_data_struct, sizeof(nvm_data_struct) - sizeof(nvm_data_struct.Crc32));
         printf("End Compression........\n");
 
 #if PRINT_EEPROM_DEBUG
@@ -360,12 +364,17 @@ uint32_t compress_nvm(LoRaMacNvmData_t *nvm_data)
  * @param nvm_data 
  * @return int 
  */
-LoRaMacNvmData_t temp_nvm_struct;
 
 uint32_t decompress_nvm(LoRaMacNvmData_t *nvm_data)
 {
 
-    char *regen_buffer = (char *)(rarely_changing_t *)&temp_nvm_struct;
+    /* Check if CRC is correct */
+    if (is_crc_correct(sizeof(nvm_data_t), &nvm_data_struct) == false)
+    {
+        return 0;
+    }
+
+    char *regen_buffer = (char *)(rarely_changing_t *)nvm_data;
 
     int src_size = sizeof(rarely_changing_t);
 
@@ -394,16 +403,11 @@ uint32_t decompress_nvm(LoRaMacNvmData_t *nvm_data)
     if ((decompressed_size >= 0) && (decompressed_size == src_size))
     {
 
-        memcpy((void *)&temp_nvm_struct.Crypto, (void *)&nvm_data_struct.Crypto, sizeof(LoRaMacCryptoNvmData_t));
-        memcpy((void *)&temp_nvm_struct.MacGroup1, (void *)&nvm_data_struct.MacGroup1, sizeof(LoRaMacNvmDataGroup1_t));
-        memcpy((void *)&temp_nvm_struct.RegionGroup1, (void *)&nvm_data_struct.RegionGroup1, sizeof(RegionNvmDataGroup1_t));
+        memcpy((void *)&nvm_data->Crypto, (void *)&nvm_data_struct.Crypto, sizeof(LoRaMacCryptoNvmData_t));
+        memcpy((void *)&nvm_data->MacGroup1, (void *)&nvm_data_struct.MacGroup1, sizeof(LoRaMacNvmDataGroup1_t));
+        memcpy((void *)&nvm_data->RegionGroup1, (void *)&nvm_data_struct.RegionGroup1, sizeof(RegionNvmDataGroup1_t));
 
-        if (is_nvm_struct_valid(&temp_nvm_struct) == true)
-        {
-            memcpy((void*)nvm_data, (void*)&temp_nvm_struct, sizeof(LoRaMacNvmData_t));
-
-            return sizeof(LoRaMacNvmData_t);
-        }
+        return sizeof(LoRaMacNvmData_t);
     }
     return 0;
 }

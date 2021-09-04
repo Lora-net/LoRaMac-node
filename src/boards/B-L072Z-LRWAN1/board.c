@@ -78,9 +78,6 @@
  * LED GPIO pins objects
  */
 Gpio_t Led1;
-Gpio_t Led2;
-Gpio_t Led3;
-Gpio_t Led4;
 
 Gpio_t Gps_int;
 Gpio_t Load_enable;
@@ -134,7 +131,7 @@ static bool UsbIsConnected = false;
  * UART1 FIFO buffers size
  */
 #define UART1_FIFO_TX_SIZE                                1024
-#define UART1_FIFO_RX_SIZE                                1024
+#define UART1_FIFO_RX_SIZE                                50  // We should hardly expect any rx data at all. Max 2-3 bytes
 
 uint8_t Uart1TxBuffer[UART1_FIFO_TX_SIZE];
 uint8_t Uart1RxBuffer[UART1_FIFO_RX_SIZE];
@@ -181,9 +178,6 @@ void BoardInitMcu( void )
 
         // LEDs
         GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-        GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-        GpioInit( &Led3, LED_3, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-        GpioInit( &Led4, LED_4, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
         GpioInit( &Gps_int, GPS_INT, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
 
         // Load enable for sensors, GPS
@@ -203,9 +197,6 @@ void BoardInitMcu( void )
         RtcInit( );
 
         GpioWrite( &Led1, 0 );
-        GpioWrite( &Led2, 0 );
-        GpioWrite( &Led3, 0 );
-        GpioWrite( &Led4, 0 );
         GpioWrite( &Load_enable, 0 );
 
         for (uint8_t i = 0; i < 5; i++)
