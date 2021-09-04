@@ -69,6 +69,17 @@ void EepromMcuSetDeviceAddr( uint8_t addr );
  */
 LmnStatus_t EepromMcuGetDeviceAddr( void );
 
+/**
+ * @brief Write words(4 bytes) at a time
+ * 
+ * @param addr 
+ * @param buffer 
+ * @param size 
+ * @return LmnStatus_t 
+ */
+LmnStatus_t EepromMcuWriteBufferWord( uint16_t addr, uint8_t *buffer, uint16_t size );
+
+
 #ifdef __cplusplus
 }
 #endif

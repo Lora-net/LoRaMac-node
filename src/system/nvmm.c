@@ -34,6 +34,7 @@
 
 static void eeprom_write_workaround(uint16_t offset);
 static bool NvmmUpdateByte(uint8_t* to_write_byte, uint16_t offset);
+static bool NvmmUpdateWord(uint32_t *to_write_byte, uint16_t offset);
 
 
 uint16_t NvmmWrite( uint8_t* src, uint16_t size, uint16_t offset )
@@ -51,12 +52,11 @@ uint16_t NvmmUpdate(uint8_t *src, uint16_t size, uint16_t offset)
 {
     uint16_t counter = 0;
 
-    for (uint16_t i = 0; i < size; i++)
+    for (uint16_t i = 0; i < size; i += 4)
     {
-        uint8_t to_write_byte = src[i];
 
         bool ret;
-        ret = NvmmUpdateByte(&to_write_byte, i+offset);
+        ret = NvmmUpdateWord((uint32_t*)&src[i], i + offset);
 
         if (ret == true)
         {
@@ -75,6 +75,27 @@ bool NvmmUpdateByte(uint8_t *to_write_byte, uint16_t offset)
     if (existing_byte != *to_write_byte)
     {
         EepromMcuWriteBuffer(offset, to_write_byte, 1);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool NvmmUpdateWord(uint32_t *to_write_byte, uint16_t offset)
+{
+    uint32_t existing_byte;
+    EepromMcuReadBuffer(offset, (uint8_t*)&existing_byte, 4);
+
+    if (existing_byte != *to_write_byte)
+    {
+        /** 
+         * Write twice as workaround. For some reason, it does not
+         * write the first time.
+         */
+        EepromMcuWriteBufferWord(offset, (uint8_t *)to_write_byte, 4);
+        EepromMcuWriteBufferWord(offset, (uint8_t *)to_write_byte, 4);
         return true;
     }
     else
@@ -210,17 +231,10 @@ int eeprom_read_write_test()
 {
     printf("Doing read write test eeprom\n");
 
-    uint8_t *p = (uint8_t *)&write_data;
-
     uint32_t addr = 0;
-    eeprom_write_workaround(addr);
 
-    for (uint32_t i = addr; i < sizeof(test_t); i++)
-    {
-        EepromMcuWriteBuffer(i, &p[i], 1);
-    }
-
-    int read = NvmmRead((uint8_t *)&read_data, sizeof(test_t), 0);
+    NvmmUpdate((uint8_t *)&write_data, sizeof(test_t), addr);
+    int read = NvmmRead((uint8_t *)&read_data, sizeof(test_t), addr);
 
     int res = memcmp(&write_data, &read_data, sizeof(test_t));
     printf("Comparison result %d\n", res);

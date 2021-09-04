@@ -24,6 +24,22 @@
 #include "utilities.h"
 #include "eeprom-board.h"
 
+uint32_t deserialize_uint32(unsigned char *buffer, uint32_t loc);
+
+
+uint32_t deserialize_uint32(unsigned char *buffer, uint32_t loc)
+{
+    uint32_t value = 0;
+
+    value |= buffer[loc + 3] << 24;
+    value |= buffer[loc + 2] << 16;
+    value |= buffer[loc + 1] << 8;
+    value |= buffer[loc + 0];
+    return value;
+
+}
+
+
 LmnStatus_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size )
 {
     LmnStatus_t status = LMN_STATUS_ERROR;
@@ -40,6 +56,34 @@ LmnStatus_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size 
             if( HAL_FLASHEx_DATAEEPROM_Program( FLASH_TYPEPROGRAMDATA_BYTE,
                                                 ( DATA_EEPROM_BASE + addr + i ),
                                                   buffer[i] ) != HAL_OK )
+            {
+                // Failed to write EEPROM
+                break;
+            }
+        }
+        CRITICAL_SECTION_END( );
+        status = LMN_STATUS_OK;
+    }
+
+    HAL_FLASHEx_DATAEEPROM_Lock( );
+    return status;
+}
+
+LmnStatus_t EepromMcuWriteBufferWord( uint16_t addr, uint8_t *buffer, uint16_t size )
+{
+    LmnStatus_t status = LMN_STATUS_ERROR;
+
+    assert_param( ( DATA_EEPROM_BASE + addr ) >= DATA_EEPROM_BASE );
+    assert_param( buffer != NULL );
+    assert_param( size < ( DATA_EEPROM_BANK2_END - DATA_EEPROM_BASE ) );
+
+    if( HAL_FLASHEx_DATAEEPROM_Unlock( ) == HAL_OK )
+    {
+        CRITICAL_SECTION_BEGIN( );
+        for( uint16_t i = 0; i < size; i += 4 )
+        {
+            uint32_t write = deserialize_uint32(buffer, i);
+            if (HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_WORD, (DATA_EEPROM_BASE + addr + i), write) != HAL_OK)
             {
                 // Failed to write EEPROM
                 break;
