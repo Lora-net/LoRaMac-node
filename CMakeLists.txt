@@ -41,6 +41,7 @@ SETUP_TARGET_FOR_COVERAGE_LCOV(
         EXECUTABLE ctest -j ${n_cores} # Executable in PROJECT_BINARY_DIR
         DEPENDENCIES
         picotracker_lora_tests
+        EXCLUDE "build/_deps*" "/usr/include/c++/*"     # Patterns to exclude (can be relative
         )
 
 
