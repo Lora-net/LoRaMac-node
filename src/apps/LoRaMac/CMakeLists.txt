@@ -52,6 +52,8 @@ if(SUB_PROJECT STREQUAL periodic-uplink-lpp)
         "${CMAKE_CURRENT_LIST_DIR}/common/cli.c"
         "${CMAKE_CURRENT_LIST_DIR}/common/LmHandlerMsgDisplay.c"
         "${CMAKE_CURRENT_LIST_DIR}/common/NvmDataMgmt.c"
+        "${CMAKE_CURRENT_LIST_DIR}/common/region_nvm.c"
+
     )
 
     #---------------------------------------------------------------------------------------

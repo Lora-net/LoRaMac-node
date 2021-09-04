@@ -78,7 +78,7 @@ typedef struct
 
 // EEPROM related defines
 
-#define NVM_PlAYBACK_EEPROM_ADDR_START             2200 /* Amount of space allocated for loramac NVM storage */
+#define NVM_PlAYBACK_EEPROM_ADDR_START             4000 /* Amount of space allocated for loramac NVM storage */
 
 #define FRAME_COUNTER_EEPROM_ADDRESS               (0 + NVM_PlAYBACK_EEPROM_ADDR_START)
 #define FRAME_COUNTER_EEPROM_LEN                   (4)
@@ -99,7 +99,7 @@ typedef struct
 
 #define PLAYBACK_EEPROM_ADDR_START                 (14 + NVM_PlAYBACK_EEPROM_ADDR_START)
 #define PLAYBACK_EEPROM_PACKET_SIZE                (9)
-#define MAX_PLAYBACK_POSITIONS_SAVED_IN_EEPROM     (400)
+#define MAX_PLAYBACK_POSITIONS_SAVED_IN_EEPROM     (200)
 #define PLAYBACK_EEPROM_SIZE                       (MAX_PLAYBACK_POSITIONS_SAVED_IN_EEPROM * PLAYBACK_EEPROM_PACKET_SIZE)
 
 /* WARNING! Ensure this value is less than DATA_EEPROM_BANK2_END. Or else, it will overflow EEPROM */

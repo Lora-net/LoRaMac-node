@@ -296,6 +296,12 @@ int init_loramac_stack_and_tx_scheduling()
     case LORAMAC_REGION_EU868:
         is_over_the_air_activation = !is_over_the_air_activation;
         break;
+    case LORAMAC_REGION_US915:
+        is_over_the_air_activation = !is_over_the_air_activation;
+        break;
+    case LORAMAC_REGION_CN470:
+        is_over_the_air_activation = !is_over_the_air_activation;
+        break;
     default:
         is_over_the_air_activation = false;
         break;

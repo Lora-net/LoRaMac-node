@@ -38,6 +38,8 @@
 #include "NvmDataMgmt.h"
 #include "print_utils.h"
 #include "config.h"
+#include "region_nvm.h"
+#include "geofence.h"
 
 
 #include <string.h>  // For memcmp()
@@ -150,7 +152,8 @@ uint16_t NvmDataMgmtStore( void )
 #endif
 
         /* Save compressed NVM to eeprom */
-        uint16_t ret = NvmmUpdate((void *)&nvm_data_struct, sizeof(nvm_data_struct), 0);
+        uint16_t eeprom_address = get_eeprom_location_for_region(get_current_loramac_region());
+        uint16_t ret = NvmmUpdate((void *)&nvm_data_struct, sizeof(nvm_data_struct), eeprom_address);
 
         // Reset notification flags
         NvmNotifyFlags = LORAMAC_NVM_NOTIFY_FLAG_NONE;
@@ -180,7 +183,8 @@ uint16_t NvmDataMgmtRestore( void )
         LoRaMacNvmData_t* nvm = mibReq.Param.Contexts;
 
         /* Read nvm into compressed data buffer(not yet decompressed) */
-        NvmmRead((void *)&nvm_data_struct, sizeof(nvm_data_struct), 0);
+        uint16_t eeprom_address = get_eeprom_location_for_region(get_current_loramac_region());
+        NvmmRead((void *)&nvm_data_struct, sizeof(nvm_data_struct), eeprom_address);
 
 #if PRINT_EEPROM_DEBUG
         printf("Reading these bytes\n");

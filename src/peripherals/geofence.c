@@ -642,6 +642,11 @@ static void set_current_loramac_region(Polygon_t current_poly);
 
 // Strategy: check if GPS coordinate is in any of the polygons. If so, look up what transmit frequency it uses.
 
+LoRaMacRegion_t get_current_loramac_region()
+{
+	return current_geofence_status.current_loramac_region;
+}
+
 /*
 	Adapted version of pointInPolygon() function from:	http://alienryderflex.com/polygon/
 	

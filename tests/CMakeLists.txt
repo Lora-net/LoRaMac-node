@@ -150,6 +150,7 @@ set(FILES_UNDER_TEST
 
     ${PROJECT_SOURCE_DIR}/src/boards/mcu/utilities.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/NvmDataMgmt.c
+    ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/region_nvm.c
 
     
     ${PROJECT_SOURCE_DIR}/src/system/nvmm.c

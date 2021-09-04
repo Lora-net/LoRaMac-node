@@ -19,6 +19,7 @@ extern "C"
 #include "nvmm.h"
 #include "main.h"
 #include "nvmm.h"
+#include "region_nvm.h"
 }
 #include <string.h> // For memcmp()
 #include "nvm_images.hpp"
@@ -178,4 +179,28 @@ TEST(NvmDataMgmt, test_eeprom_read_write)
 {
     int res = eeprom_read_write_test();
     CHECK_EQUAL(0, res);
+}
+
+TEST(NvmDataMgmt, check_if_correct_region_eeprom_location_set)
+{
+    uint16_t EEPROM_location;
+    EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_EU868);
+    CHECK_EQUAL(0, EEPROM_location);
+
+    EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_US915);
+    CHECK_EQUAL(1200, EEPROM_location);
+
+    EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_CN470);
+    CHECK_EQUAL(2400, EEPROM_location);
+
+    EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_IN865);
+    CHECK_EQUAL(0, EEPROM_location);
+    EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_AS923);
+    CHECK_EQUAL(0, EEPROM_location);
+    EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_CN779);
+    CHECK_EQUAL(0, EEPROM_location);
+    EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_RU864);
+    CHECK_EQUAL(0, EEPROM_location);
+    EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_KR920);
+    CHECK_EQUAL(0, EEPROM_location);
 }
