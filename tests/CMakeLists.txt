@@ -66,6 +66,7 @@ set(UNIT_TESTS
     app_ut.cpp
     bsp_ut.cpp
     print_utils_ut.cpp
+    soft_se_ut.cpp
 )
 
 # Mocks

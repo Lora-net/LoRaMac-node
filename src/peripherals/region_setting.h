@@ -33,11 +33,21 @@ extern "C"
 	/* #define and enum statements go here */
 	typedef struct
 	{
+		/**
+		 * ABP Credentials
+		 */
 		uint8_t FNwkSIntKey[16];
 		uint8_t SNwkSIntKey[16];
 		uint8_t NwkSEncKey[16];
 		uint8_t AppSKey[16];
 		uint32_t DevAddr;
+		/**
+		 * OTAA Credentials 
+		 */
+		uint8_t LoRaWAN_Device_Eui[8];
+		uint8_t LoRaWAN_Join_Eui[8];
+		uint8_t Network_Key[16];
+
 	} network_keys_t;
 	/* ==================================================================== */
 	/* ========================== public data ============================= */
