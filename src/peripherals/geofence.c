@@ -886,23 +886,3 @@ void update_geofence_position(float latitude, float longitude)
 	current_geofence_status.reinit_loramac_stack_pending = (current_geofence_status.current_loramac_region != prev_loramac_region) ? true : false;
 }
 
-/**
-* Use datarate of DR_5 over the EU but DR_4 over rest of the world
-*/
-int8_t datarate_calculator(LoRaMacRegion_t LoRaMacRegion)
-{
-	int8_t dr = 0;
-
-	switch (LoRaMacRegion)
-	{
-	case LORAMAC_REGION_EU868:
-		dr = DR_5;
-		break;
-
-	default:
-		dr = DR_4;
-		break;
-	}
-
-	return dr;
-}

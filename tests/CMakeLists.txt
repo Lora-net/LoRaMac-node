@@ -67,6 +67,7 @@ set(UNIT_TESTS
     bsp_ut.cpp
     print_utils_ut.cpp
     soft_se_ut.cpp
+    LoRaWAN_config_switcher_ut.cpp
 )
 
 # Mocks
@@ -106,6 +107,7 @@ set(FILES_UNDER_TEST
     ${PROJECT_SOURCE_DIR}/src/peripherals/playback.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/bsp.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/print_utils.c
+    ${PROJECT_SOURCE_DIR}/src/peripherals/LoRaWAN_config_switcher.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/periodic-uplink-lpp/B-L072Z-LRWAN1/main.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandlerMsgDisplay.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandler/LmHandler.c
@@ -167,7 +169,7 @@ set(SOURCE_FILES
 
 add_executable(picotracker_lora_tests ${SOURCE_FILES})
 target_compile_options(picotracker_lora_tests PRIVATE -fshort-enums)
-target_compile_options(picotracker_lora_tests PRIVATE -Wall -Wextra -Wpedantic)
+# target_compile_options(picotracker_lora_tests PRIVATE -Wall -Wextra -Wpedantic)
 target_link_libraries(picotracker_lora_tests PRIVATE CppUTest CppUTestExt)
 
 

@@ -94,7 +94,6 @@ extern "C"
 	void update_geofence_position(float latitude, float longitude);
 	void geofence_init(void);
 	Polygon_t get_polygon(float latitude, float longitude);
-	int8_t datarate_calculator(LoRaMacRegion_t LoRaMacRegion);
 	LoRaMacRegion_t get_current_loramac_region();
 
 

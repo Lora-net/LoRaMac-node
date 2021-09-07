@@ -42,6 +42,7 @@
 #include "nvmm.h"
 #include "iwdg.h"
 #include "print_utils.h"
+#include "LoRaWAN_config_switcher.h"
 
 #ifndef ACTIVE_REGION
 
@@ -113,13 +114,6 @@ typedef enum
     LORAMAC_HANDLER_TX_ON_EVENT,
 } LmHandlerTxEvents_t;
 
-typedef struct
-{
-    LoRaMacRegion_t region;
-    int8_t datarate;
-    bool is_over_the_air_activation;
-
-} picotracker_lorawan_settings_t;
 
 /*!
  * User application data
@@ -240,7 +234,6 @@ extern Uart_t Uart1;
 extern TimerTime_t current_time;
 
 bool tx_done = false;
-bool is_over_the_air_activation = true;
 
 /*!
  * Main application entry point.
@@ -279,63 +272,14 @@ void run_country_loop()
     }
 }
 
-extern bool context_management_enabled;
 
 int init_loramac_stack_and_tx_scheduling()
 {
     const char *region_string = get_lorawan_region_string(current_geofence_status.current_loramac_region);
     printf("Initialising Loramac Stack with Loramac region: %s\n",region_string);
 
-    /**
-     * @brief Alternate between OTAA and ABP(Helium network and TTN)
-     * only when over EU countries.
-     * Not sure if it works in other countries.
-     * 
-     */
-    switch (current_geofence_status.current_loramac_region)
-    {
-    case LORAMAC_REGION_EU868:
-        is_over_the_air_activation = !is_over_the_air_activation;
-        break;
-    case LORAMAC_REGION_US915:
-        is_over_the_air_activation = !is_over_the_air_activation;
-        break;
-    case LORAMAC_REGION_CN470:
-        is_over_the_air_activation = !is_over_the_air_activation;
-        break;
-    default:
-        is_over_the_air_activation = false;
-        break;
-    }
+    picotracker_lorawan_settings_t settings =  get_otaa_abp_setting(current_geofence_status.current_loramac_region);
 
-    /**
-     * @brief Enable NVM context management only when using
-     * OTAA. We need to store the fcount, keys when using OTAA
-     * so that we can avoid a join, which requires a downlink(hard to 
-     * aquire.)
-     * 
-     */
-    if (is_over_the_air_activation)
-    {
-        context_management_enabled = true;
-        printf("Intialising with OTAA\n");
-    }
-    else
-    {
-        context_management_enabled = false;
-        printf("Intialising with ABP\n");
-    }
-
-    /* select data rate depending on region of the world. */
-    int8_t datarate = datarate_calculator(current_geofence_status.current_loramac_region);
-
-    /* Init loramac stack */
-    picotracker_lorawan_settings_t settings =
-        {
-            .datarate = datarate,
-            .region = current_geofence_status.current_loramac_region,
-            .is_over_the_air_activation = is_over_the_air_activation,
-        };
 
     init_loramac(settings);
 
