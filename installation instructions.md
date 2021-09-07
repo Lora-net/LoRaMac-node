@@ -155,3 +155,8 @@ medad@medad-ThinkPad-P51:~/Documents/GitHub/LoRaMac-node/build$ make coverage_my
 
 I have not yet figured out how to integrate it into a button click on VS code.
 
+
+
+### useful info on bss, text etc
+
+https://electronics.stackexchange.com/questions/363931/how-do-i-find-out-at-compile-time-how-much-of-an-stm32s-flash-memory-and-dynami
