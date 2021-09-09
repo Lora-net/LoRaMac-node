@@ -55,7 +55,7 @@ extern "C"
  */
 TimerTime_t current_time = 0;
 
-TimerEvent_t *list_of_timer_event_pointers[100]; /* There won't be more than 100 timers in the project */
+TimerEvent_t *list_of_timer_event_pointers[100000]; /* There won't be more than 100 timers in the project */
 int number_of_timers = 0;
 
 void TimerInit(TimerEvent_t *obj, void (*callback)(void *context))

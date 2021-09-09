@@ -28,7 +28,8 @@
 #include "stdio.h"
 #include "config.h"
 #include <time.h>
-
+#include "geofence.h"
+#include "print_utils.h"
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define BATTERY_ADC_CHANNEL ADC_CHANNEL_5
@@ -180,7 +181,6 @@ void save_data_to_nvm()
 		IWDG_reset();
 	}
 }
-
 /**
  * @brief Print a double value, with decimal place
  * 
@@ -211,6 +211,7 @@ void printDouble(double v, int decimalDigits)
  * 
  * \return void
  */
+
 void pretty_print_sensor_values(double *TEMPERATURE_Value, double *PRESSURE_Value, gps_info_t *gps_info, uint16_t *no_load_solar_voltage, uint16_t *load_solar_voltage)
 {
 	printf("================================================================\r\n");
@@ -231,6 +232,8 @@ void pretty_print_sensor_values(double *TEMPERATURE_Value, double *PRESSURE_Valu
 	printf(" altitude: ");
 	printf("%d", gps_info->GPSaltitude / 1000);
 	printf("\r\n");
+    const char *region_string = get_lorawan_region_string(current_geofence_status.current_loramac_region);
+	printf("Loramac region: %s\r\n", region_string );
 	printf("GPS time: ");
 	printf("%d", gps_info->unix_time);
 	printf("\r\n");

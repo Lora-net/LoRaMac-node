@@ -30,7 +30,7 @@ TEST_GROUP(app){
 ;
 
 ;
-TEST(app, init_sequence)
+TEST(app, test_init_sequence)
 {
 
     float latitude = 53.23;
@@ -57,62 +57,75 @@ TEST(app, init_sequence)
     CHECK_EQUAL(EXIT_SUCCESS, ret);
 }
 
+
 extern geofence_status_t current_geofence_status;
 
 std::list<gps_info_t> position_list;
 
+TEST(app, test_successful_setup)
+{
+    prepare_n_position_mocks(10, 2);
+
+    CHECK_EQUAL(EXIT_SUCCESS, setup_board());
+    position_list.clear();
+}
+
+
+
 TEST(app, run_app_through_3_geofence_regions_5degrees_shift_per_fix)
 {
 
-    FAIL("Running Too Long");
     prepare_n_position_mocks(10000, 5);
+    setup_board();
 
-    int ret;
+    int region_switches = 4;
 
-    ret = setup_board();
-    CHECK_EQUAL(EXIT_SUCCESS, ret);
-
-    int region_switches = 3;
-
+    polygon_t current_polygon;
     while (region_switches--)
     {
-        ret = init_loramac_stack_and_tx_scheduling();
-        CHECK_EQUAL(EXIT_SUCCESS, ret);
-        /* Start loop */
-        while (run_loop_once() == true)
-        {
-        }
-    }
-    position_list.clear();
+        current_polygon= current_geofence_status.curr_poly_region;
 
-    CHECK_EQUAL(LORAMAC_REGION_CN470, current_geofence_status.current_loramac_region);
-};
-
-TEST(app, run_app_through_3_geofence_regions_2degrees_shift_per_fix)
-{
-    FAIL("Running Too Long");
-
-    prepare_n_position_mocks(10000, 2);
-
-    int ret;
-
-    ret = setup_board();
-    CHECK_EQUAL(EXIT_SUCCESS, ret);
-
-    int region_switches = 3;
-
-    while (region_switches--)
-    {
-        ret = init_loramac_stack_and_tx_scheduling();
-        CHECK_EQUAL(EXIT_SUCCESS, ret);
-        /* Start loop */
-        while (run_loop_once() == true)
-        {
-        }
+        run_country_loop();
+        /* Ensure that region switches happen ONLY when polygon change is detected */
+        CHECK_TRUE(current_polygon != current_geofence_status.curr_poly_region);
     }
     position_list.clear();
 
     CHECK_EQUAL(LORAMAC_REGION_EU868, current_geofence_status.current_loramac_region);
+};
+
+
+extern bool is_over_the_air_activation;
+extern bool tx_done;
+
+TEST(app, ensure_its_abp_always_after_initing_for_region)
+{
+
+    APP_TX_DUTYCYCLE = 40000; /* 40 second interval between transmissions */
+
+    prepare_n_position_mocks(10000, 2);
+
+    setup_board();
+
+    int region_switches = 1;
+
+    while (region_switches--)
+    {
+        run_country_loop();
+    }
+
+    init_loramac_stack_and_tx_scheduling();
+    tx_done = false;
+    int n_loops = 3;
+
+    while (n_loops--)
+    {
+        run_loop_once();
+    }
+
+    CHECK_EQUAL(false, is_over_the_air_activation);
+
+    position_list.clear();
 };
 
 void prepare_n_position_mocks(int number_of_readings, int degrees_moved_per_shift)
@@ -303,166 +316,3 @@ TEST(app, ensure_region_is_set_according_to_nvm)
     CHECK_EQUAL(LORAMAC_REGION_EU868, nvm->MacGroup2.Region);
 };
 
-/**
- * @brief Check if NVM read is happening.
- * 
- */
-TEST(app, read_and_check_nvm_values)
-{
-    /* Setup environment params */
-    LoRaMacNvmData_t nvm_inited;
-    LoRaMacNvmData_t *nvm = &nvm_inited;
-
-    printf("LoRaMacNvmData_t size: %d\n", sizeof(LoRaMacNvmData_t));
-
-    memcpy((uint8_t *)nvm, new_nvm_struct, sizeof(LoRaMacNvmData_t));
-
-    CHECK_EQUAL(4, sizeof(float));
-    CHECK_EQUAL(1, sizeof(bool));
-
-    CHECK_EQUAL(52, sizeof(LoRaMacCryptoNvmData_t));
-    CHECK_EQUAL(24, sizeof(LoRaMacNvmDataGroup1_t));
-
-    /* Loramac LoRaMacNvmDataGroup2_t constituents */
-    CHECK_EQUAL(1, sizeof(LoRaMacRegion_t));
-    CHECK_EQUAL(60, sizeof(LoRaMacParams_t));
-    CHECK_EQUAL(4, sizeof(uint32_t *));
-    CHECK_EQUAL(4, sizeof(uint8_t *));
-    CHECK_EQUAL(44, sizeof(MulticastCtx_t));
-    CHECK_EQUAL(1, sizeof(DeviceClass_t));
-    CHECK_EQUAL(1, sizeof(bool));
-    CHECK_EQUAL(8, sizeof(SysTime_t));
-    CHECK_EQUAL(4, sizeof(Version_t));
-    CHECK_EQUAL(1, sizeof(ActivationType_t));
-
-    CHECK_EQUAL(340, sizeof(LoRaMacNvmDataGroup2_t));
-
-    CHECK_EQUAL(416, sizeof(SecureElementNvmData_t));
-    CHECK_EQUAL(1180, sizeof(RegionNvmDataGroup2_t));
-
-    CHECK_EQUAL(2200, sizeof(LoRaMacNvmData_t));
-
-    CHECK_EQUAL(18, nvm->Crypto.FCntList.FCntUp);
-
-    uint8_t expected[] = {0x70, 0xB3, 0xD5, 0x7E, 0xD0, 0x02, 0x82, 0x4D};
-
-    for (unsigned int a = 0; a < sizeof(expected) / sizeof(expected[0]); a++)
-    {
-        CHECK_EQUAL(expected[a], nvm->SecureElement.JoinEui[a]);
-    }
-
-    CHECK_EQUAL(LORAMAC_REGION_EU868, nvm->MacGroup2.Region);
-};
-
-/**
- * @brief Check if NVM read is happening.
- * 
- */
-TEST(app, check_crc_for_all_parameters)
-{
-
-    /* Setup environment params */
-    USE_NVM_STORED_LORAWAN_REGION = false;
-    APP_TX_DUTYCYCLE = 40000; /* 40 second interval between transmissions */
-
-    /* Setup mocks */
-    float latitude = 53.23;
-    float longitude = 0;
-
-    gps_info_t world_trip_mock = {
-        .GPS_UBX_latitude_Float = latitude,
-        .GPS_UBX_longitude_Float = (float)longitude,
-        .GPSaltitude = 12342000,
-        .GPS_UBX_latitude = latitude * 1e7,
-        .GPS_UBX_longitude = longitude * 1e7,
-        .unix_time = 1627938039 + 60 * 60 * 2, /* travel one degree longitude every day */
-        .latest_gps_status = GPS_SUCCESS,
-
-    };
-    mock().expectNCalls(1, "get_latest_gps_info").andReturnValue(&world_trip_mock);
-
-    /* Now setup the main program */
-    int ret;
-    int number_of_milliseconds_to_run;
-
-    ret = setup_board();
-    CHECK_EQUAL(EXIT_SUCCESS, ret);
-    ret = init_loramac_stack_and_tx_scheduling();
-    CHECK_EQUAL(EXIT_SUCCESS, ret);
-
-    /* Setup environment params */
-    LoRaMacNvmData_t nvm_inited;
-    LoRaMacNvmData_t *nvm = &nvm_inited;
-
-    printf("LoRaMacNvmData_t size: %d\n", sizeof(LoRaMacNvmData_t));
-
-    NvmmRead((uint8_t *)nvm, sizeof(LoRaMacNvmData_t), 0);
-
-    uint16_t offset = 0;
-
-    // Crypto
-    CHECK_FALSE(NvmmCrc32Check(sizeof(LoRaMacCryptoNvmData_t), offset) == false);
-    offset += sizeof(LoRaMacCryptoNvmData_t);
-
-    // Mac Group 1
-    CHECK_FALSE(NvmmCrc32Check(sizeof(LoRaMacNvmDataGroup1_t), offset) == false);
-    offset += sizeof(LoRaMacNvmDataGroup1_t);
-
-    // Mac Group 2
-    CHECK_FALSE(NvmmCrc32Check(sizeof(LoRaMacNvmDataGroup2_t), offset) == false);
-    offset += sizeof(LoRaMacNvmDataGroup2_t);
-
-    // Secure element
-    CHECK_FALSE(NvmmCrc32Check(sizeof(SecureElementNvmData_t), offset) == false);
-    offset += sizeof(SecureElementNvmData_t);
-
-    // Region group 1
-    CHECK_FALSE(NvmmCrc32Check(sizeof(RegionNvmDataGroup1_t), offset) == false);
-
-    offset += sizeof(RegionNvmDataGroup1_t);
-
-    // Region group 2
-    CHECK_FALSE(NvmmCrc32Check(sizeof(RegionNvmDataGroup2_t), offset) == false);
-
-    offset += sizeof(RegionNvmDataGroup2_t);
-
-    // Class b
-    CHECK_FALSE(NvmmCrc32Check(sizeof(LoRaMacClassBNvmData_t), offset) == false);
-};
-
-/**
- * @brief Ensure the device alternates between abp and otaa.
- * 
- */
-TEST(app, alternate_abp_otaa)
-{
-    /* Setup environment params */
-
-    USE_NVM_STORED_LORAWAN_REGION = false;
-    APP_TX_DUTYCYCLE = 40000; /* 40 second interval between transmissions */
-
-    /* Setup mocks */
-    float latitude = 53.23;
-    float longitude = 0;
-
-    gps_info_t world_trip_mock = {
-        .GPS_UBX_latitude_Float = latitude,
-        .GPS_UBX_longitude_Float = (float)longitude,
-        .GPSaltitude = 12342000,
-        .GPS_UBX_latitude = latitude * 1e7,
-        .GPS_UBX_longitude = longitude * 1e7,
-        .unix_time = 1627938039 + 60 * 60 * 2, /* travel one degree longitude every day */
-        .latest_gps_status = GPS_SUCCESS,
-
-    };
-    mock().expectNCalls(6000, "get_latest_gps_info").andReturnValue(&world_trip_mock); /* Expect a lot of calls */
-
-    /* Now setup the main program */
-    setup_board();
-
-    int number_of_tx = 4;
-    while (number_of_tx--)
-    {
-        run_country_loop();
-    }
-};

@@ -36,7 +36,6 @@ TEST_GROUP(NvmDataMgmt){
  * @brief Check if the data compressed and stored is the same after decompression.
  * 
  */
-
 extern bool is_over_the_air_activation;
 
 TEST(NvmDataMgmt, test_storing_of_data_with_compression)
@@ -87,7 +86,7 @@ TEST(NvmDataMgmt, test_storing_of_data_with_compression)
 }
 
 /**
- * @brief Check if the crc checker works
+ * @brief Verify if CRC test passes when indeed it should.
  * 
  */
 TEST(NvmDataMgmt, test_crc_check_pass)
@@ -115,6 +114,10 @@ TEST(NvmDataMgmt, test_crc_check_pass)
     CHECK_TRUE(crc_status);
 }
 
+/**
+ * @brief Just verify that the memset function works
+ * 
+ */
 TEST(NvmDataMgmt, memset_test)
 {
     /* Initilalise the mac layer */
@@ -134,10 +137,14 @@ TEST(NvmDataMgmt, memset_test)
     /* Now assume restart from boot. LoRaMacNvmData_t Nvm not set yet */
     memset((void *)&nvm->MacGroup2.MaxDCycle, 34, sizeof(uint8_t));
 
-    /* Check if compression and then decompression does work */
     CHECK_EQUAL(34, nvm->MacGroup2.MaxDCycle);
 }
 
+/**
+ * @brief Test to see if there is garbage data in the EEPROM, it will fail
+ * the CRC check. It should.
+ * 
+ */
 TEST(NvmDataMgmt, test_crc_check_fail)
 {
     /* Initilalise the mac layer */
@@ -166,6 +173,10 @@ TEST(NvmDataMgmt, test_crc_check_fail)
     CHECK_FALSE(crc_status);
 }
 
+/**
+ * @brief IF the EEPROM is filled with garbage, it ought to restore no bytes
+ * 
+ */
 TEST(NvmDataMgmt, test_if_nvm_restore_works_correctly_when_nvm_incorrect)
 {
     /* Initilalise the mac layer */
@@ -175,12 +186,21 @@ TEST(NvmDataMgmt, test_if_nvm_restore_works_correctly_when_nvm_incorrect)
     CHECK_EQUAL(0, ret1);
 }
 
+/**
+ * @brief Tests whether eeprom read write works
+ * 
+ */
 TEST(NvmDataMgmt, test_eeprom_read_write)
 {
     int res = eeprom_read_write_test();
     CHECK_EQUAL(0, res);
 }
 
+/**
+ * @brief Checks to see if the eeprom location to store NVM data is
+ * correct for each region.
+ * 
+ */
 TEST(NvmDataMgmt, check_if_correct_region_eeprom_location_set)
 {
     uint16_t EEPROM_location;
@@ -204,3 +224,111 @@ TEST(NvmDataMgmt, check_if_correct_region_eeprom_location_set)
     EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_KR920);
     CHECK_EQUAL(0, EEPROM_location);
 }
+
+/**
+ * @brief Verify that struct sizes are the same between the ARM compiler
+ * that compiles for the target and the test machine(e.g. x86). They have to
+ * match. This includes pointer sizes and enum sizes.
+ * 
+ */
+TEST(NvmDataMgmt, check_struct_sizes)
+{
+    CHECK_EQUAL(4, sizeof(float));
+    CHECK_EQUAL(1, sizeof(bool));
+
+    CHECK_EQUAL(52, sizeof(LoRaMacCryptoNvmData_t));
+    CHECK_EQUAL(24, sizeof(LoRaMacNvmDataGroup1_t));
+
+    /* Loramac LoRaMacNvmDataGroup2_t constituents */
+    CHECK_EQUAL(1, sizeof(LoRaMacRegion_t));
+    CHECK_EQUAL(60, sizeof(LoRaMacParams_t));
+    CHECK_EQUAL(4, sizeof(uint32_t *));
+    CHECK_EQUAL(4, sizeof(uint8_t *));
+    CHECK_EQUAL(44, sizeof(MulticastCtx_t));
+    CHECK_EQUAL(1, sizeof(DeviceClass_t));
+    CHECK_EQUAL(1, sizeof(bool));
+    CHECK_EQUAL(8, sizeof(SysTime_t));
+    CHECK_EQUAL(4, sizeof(Version_t));
+    CHECK_EQUAL(1, sizeof(ActivationType_t));
+
+    CHECK_EQUAL(340, sizeof(LoRaMacNvmDataGroup2_t));
+
+    CHECK_EQUAL(416, sizeof(SecureElementNvmData_t));
+    CHECK_EQUAL(1180, sizeof(RegionNvmDataGroup2_t));
+
+    CHECK_EQUAL(2200, sizeof(LoRaMacNvmData_t));
+}
+
+/**
+ * @brief Reads and checks if the dummy eeprom returns
+ * correct data.
+ * 
+ */
+TEST(NvmDataMgmt, read_and_check_nvm_values)
+{
+    /* Setup environment params */
+    LoRaMacNvmData_t nvm_inited;
+    LoRaMacNvmData_t *nvm = &nvm_inited;
+
+    printf("LoRaMacNvmData_t size: %d\n", sizeof(LoRaMacNvmData_t));
+
+    memcpy((uint8_t *)nvm, new_nvm_struct, sizeof(LoRaMacNvmData_t));
+
+    CHECK_EQUAL(18, nvm->Crypto.FCntList.FCntUp);
+
+    uint8_t expected[] = {0x70, 0xB3, 0xD5, 0x7E, 0xD0, 0x02, 0x82, 0x4D};
+
+    for (unsigned int a = 0; a < sizeof(expected) / sizeof(expected[0]); a++)
+    {
+        CHECK_EQUAL(expected[a], nvm->SecureElement.JoinEui[a]);
+    }
+
+    CHECK_EQUAL(LORAMAC_REGION_EU868, nvm->MacGroup2.Region);
+};
+
+/**
+ * @brief Check if NVM read is happening.
+ * 
+ */
+TEST(NvmDataMgmt, check_crc_for_all_parameters)
+{
+
+    /* Setup environment params */
+    LoRaMacNvmData_t nvm_inited;
+    LoRaMacNvmData_t *nvm = &nvm_inited;
+
+    printf("LoRaMacNvmData_t size: %d\n", sizeof(LoRaMacNvmData_t));
+
+    NvmmRead((uint8_t *)nvm, sizeof(LoRaMacNvmData_t), 0);
+
+    uint16_t offset = 0;
+
+    // Crypto
+    CHECK_FALSE(NvmmCrc32Check(sizeof(LoRaMacCryptoNvmData_t), offset) == false);
+    offset += sizeof(LoRaMacCryptoNvmData_t);
+
+    // Mac Group 1
+    CHECK_FALSE(NvmmCrc32Check(sizeof(LoRaMacNvmDataGroup1_t), offset) == false);
+    offset += sizeof(LoRaMacNvmDataGroup1_t);
+
+    // Mac Group 2
+    CHECK_FALSE(NvmmCrc32Check(sizeof(LoRaMacNvmDataGroup2_t), offset) == false);
+    offset += sizeof(LoRaMacNvmDataGroup2_t);
+
+    // Secure element
+    CHECK_FALSE(NvmmCrc32Check(sizeof(SecureElementNvmData_t), offset) == false);
+    offset += sizeof(SecureElementNvmData_t);
+
+    // Region group 1
+    CHECK_FALSE(NvmmCrc32Check(sizeof(RegionNvmDataGroup1_t), offset) == false);
+
+    offset += sizeof(RegionNvmDataGroup1_t);
+
+    // Region group 2
+    CHECK_FALSE(NvmmCrc32Check(sizeof(RegionNvmDataGroup2_t), offset) == false);
+
+    offset += sizeof(RegionNvmDataGroup2_t);
+
+    // Class b
+    CHECK_FALSE(NvmmCrc32Check(sizeof(LoRaMacClassBNvmData_t), offset) == false);
+};

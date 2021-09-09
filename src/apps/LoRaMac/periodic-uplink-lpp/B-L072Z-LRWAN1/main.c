@@ -169,8 +169,15 @@ OnTxTimerEvent(void *context);
 
 static void retrieve_lorawan_region(void);
 
+typedef enum
+{
+    // tx_done = 0,
+    geofence_reinit_pending,
+    no_issue_carry_on,
+} loop_status_t;
+
 int setup_board(void);
-bool run_loop_once(void);
+loop_status_t run_loop_once(void);
 int init_loramac_stack_and_tx_scheduling(void);
 void run_country_loop(void);
 
@@ -261,15 +268,41 @@ int run_app(void)
 
 void run_country_loop()
 {
-
-    init_loramac_stack_and_tx_scheduling();
-
-    tx_done = false;
-
-    /* Start loop */
-    while ((run_loop_once() == true) && (tx_done == false)) /* While Loramac region settings correct */
+    while (1)
     {
+
+        init_loramac_stack_and_tx_scheduling();
+
+        tx_done = false;
+
+        /* Start loop */
+        while (1)
+        {
+
+            loop_status_t ret = run_loop_once();
+
+            if (ret == no_issue_carry_on)
+            {
+            }
+
+            if (ret == geofence_reinit_pending)
+            {
+                break;
+            }
+
+            if (tx_done == true)
+            {
+                break;
+            }
+        }
+
+        if (current_geofence_status.reinit_loramac_stack_pending == true)
+        {
+            break;
+        }
     }
+
+    is_over_the_air_activation = true;
 }
 
 
@@ -291,7 +324,7 @@ int init_loramac_stack_and_tx_scheduling()
     return EXIT_SUCCESS;
 }
 
-bool run_loop_once()
+loop_status_t run_loop_once()
 {
 #ifdef UNITTESTING_LORA
     current_time += 1; /* simulate 1 millisecond per loop */
@@ -313,7 +346,7 @@ bool run_loop_once()
     {
         printf("Breaking out of main loop to reinit LoRa regional settings\n\r");
         TimerStop(&TxTimer);
-        return false;
+        return geofence_reinit_pending;
     }
 
     CRITICAL_SECTION_BEGIN();
@@ -329,7 +362,7 @@ bool run_loop_once()
     }
     CRITICAL_SECTION_END();
 
-    return true;
+    return no_issue_carry_on;
 }
 
 int setup_board()
