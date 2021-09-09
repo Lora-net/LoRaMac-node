@@ -1,3 +1,13 @@
+# Picotracker Lora
+
+Code improvements added:
+* Compressed NVM and XOR write changing bytes. On average, it updates NVM in under 100 ms.
+* Disable sticky uplinksreq
+* Create CppuTest Unittesting with 29.5 % line coverage. This includes all original Loramac code I didn't modify
+* Put in feature to switch between ABP and OTAA between each transmission, to tx on Helium network and Things Network on alternate transmissions. 
+* Save NVM data in 3 seperate parts of the EEPROM to emulate 3 different OTAA devices. Required to connect to servers in US, EU and CN.
+
+
 run the following command to install dependencies
 
 
@@ -20,7 +30,9 @@ C/C++
 CMake
 CMake Tools
 Cortex-Debug
-...
+GNU Linker Map files  # to view map files
+cpputest-adaptor 1.6.0
+```
 
 
 Follow this tutorial to allow stlink to connect
@@ -153,7 +165,6 @@ Run the following command in terminal:
 medad@medad-ThinkPad-P51:~/Documents/GitHub/LoRaMac-node/build$ make coverage_my
 ```
 
-I have not yet figured out how to integrate it into a button click on VS code.
 
 
 
