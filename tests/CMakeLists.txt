@@ -28,6 +28,13 @@ add_definitions(
     -DREGION_RU864
     -DSOFT_SE -DSTM32L072xx -DUSE_HAL_DRIVER -DUNITTESTING_LORA)
 
+
+add_definitions(
+    -DREGION_AS923_DEFAULT_CHANNEL_PLAN=CHANNEL_PLAN_GROUP_AS923_1
+
+)
+
+
 include_directories(${CPPUTEST_SRC_DIR})
 include_directories(${CPPUTESTEXT_SRC_DIR})
 
