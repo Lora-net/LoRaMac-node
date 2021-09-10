@@ -498,7 +498,7 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
     {
 
         printf("Received data: ");
-        print_buffer(appData->Buffer, appData->BufferSize);
+        print_bytes(appData->Buffer, appData->BufferSize);
         manage_incoming_instruction(appData->Buffer);
     }
     break;
@@ -601,7 +601,7 @@ static void PrepareTxFrame(void)
 
     // Print out buffer for debug
     printf("Buffer to tx:\n");
-    print_buffer(AppData.Buffer, AppData.BufferSize);
+    print_bytes(AppData.Buffer, AppData.BufferSize);
     printf("tx_str_buffer_len: %d\n\n", AppData.BufferSize);
 
     const char *region_string = get_lorawan_region_string(current_geofence_status.current_loramac_region);

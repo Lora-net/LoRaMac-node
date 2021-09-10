@@ -373,20 +373,6 @@ void playback_hw_init()
 	IWDG_reset();
 }
 
-/**
- * @brief Print buffer as hex characters
- * 
- * @param buff 
- * @param size 
- */
-void print_buffer(uint8_t *buff, uint16_t size)
-{
-	for (int i = 0; i < size; i++)
-	{
-		printf("%02x", buff[i]);
-	}
-	printf("\n\n");
-}
 
 /**
  * \brief Print out all the stored coordinates

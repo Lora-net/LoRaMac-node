@@ -7,6 +7,7 @@ extern "C"
 #include "ublox.h"
 #include "nvmm.h"
 #include "playback.h"
+#include "print_utils.h"
 
 #include <math.h> /* fmod */
 }
@@ -108,13 +109,13 @@ void sensor_read_and_printout(uint32_t number_of_readings)
         BSP_sensor_Read();
 
         // printf("EEPROM: ");
-        // print_buffer(simulated_flash, EEPROM_SIZE);
+        // print_bytes(simulated_flash, EEPROM_SIZE);
 
         PicoTrackerAppData_t data = prepare_tx_buffer();
 
         // Print out buffer for debug
         printf("Buffer to tx:\n");
-        print_buffer(data.Buffer, data.BufferSize);
+        print_bytes(data.Buffer, data.BufferSize);
         printf("tx_str_buffer_len: %d\n\n", data.BufferSize);
     }
 }
