@@ -4,6 +4,7 @@
 extern "C"
 {
 #include "playback.h"
+#include "struct.h"
 }
 
 TEST_GROUP(Playback){

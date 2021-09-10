@@ -113,6 +113,7 @@ set(FILES_UNDER_TEST
     ${PROJECT_SOURCE_DIR}/src/peripherals/region_settings.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/playback.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/bsp.c
+    ${PROJECT_SOURCE_DIR}/src/peripherals/struct.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/print_utils.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/LoRaWAN_config_switcher.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/periodic-uplink-lpp/B-L072Z-LRWAN1/main.c

@@ -81,7 +81,6 @@ extern "C"
 
   bool process_playback_instructions(uint16_t recent_timepos_index, uint16_t older_timepos_index);
 
-  uint32_t extractLong_from_buff(uint8_t spotToStart, uint8_t *buff);
 
   void fill_positions_to_send_buffer(void);
   /* ==================================================================== */

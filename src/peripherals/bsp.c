@@ -30,6 +30,7 @@
 #include <time.h>
 #include "geofence.h"
 #include "print_utils.h"
+#include "struct.h"
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define BATTERY_ADC_CHANNEL ADC_CHANNEL_5
