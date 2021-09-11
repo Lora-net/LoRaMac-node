@@ -90,6 +90,7 @@ set(MOCKS
     systime-mock.cpp
     ublox-mock.cpp
     nvm_images.cpp
+    gps_mock_utils.cpp
 )
 
 set(LZ4_LIB_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src/system/)
@@ -116,6 +117,7 @@ set(FILES_UNDER_TEST
     ${PROJECT_SOURCE_DIR}/src/peripherals/struct.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/print_utils.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/LoRaWAN_config_switcher.c
+    ${PROJECT_SOURCE_DIR}/src/peripherals/linear_congruential_generator.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/periodic-uplink-lpp/B-L072Z-LRWAN1/main.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandlerMsgDisplay.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandler/LmHandler.c

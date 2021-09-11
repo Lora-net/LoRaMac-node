@@ -70,6 +70,11 @@ void fake_eeprom_set(void)
     memcpy(simulated_flash, proper_compressed_nvm_eeprom_image, EEPROM_SIZE);
 }
 
+void fake_eeprom_set_target_image(uint8_t* target_image)
+{
+    memcpy(simulated_flash, target_image, EEPROM_SIZE);
+}
+
 uint32_t deserialize_uint32(unsigned char *buffer, uint32_t loc);
 bool HAL_FLASHEx_DATAEEPROM_Program(uint32_t TypeProgram, uint32_t Address, uint32_t Data);
 /** @defgroup FLASHEx_Type_Program_Data FLASHEx Type Program Data

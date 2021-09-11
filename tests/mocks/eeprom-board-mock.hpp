@@ -25,3 +25,5 @@
 
 
 void fake_eeprom_set(void);
+
+void fake_eeprom_set_target_image(uint8_t* target_image);

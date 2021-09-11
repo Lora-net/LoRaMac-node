@@ -6,7 +6,6 @@ extern "C"
 #include "config.h"
 #include "ublox.h"
 #include "main.h"
-#include <math.h> /* fmod */
 #include "geofence.h"
 #include "LoRaMac.h"
 #include "nvmm.h"
@@ -14,8 +13,8 @@ extern "C"
 
 #include "nvm_images.hpp"
 #include "eeprom-board-mock.hpp"
+#include "gps_mock_utils.hpp"
 
-#include <list>
 #include <string.h>
 
 void prepare_n_position_mocks(int number_of_readings, int degrees_moved_per_shift);
@@ -60,14 +59,13 @@ TEST(app, test_init_sequence)
 
 extern geofence_status_t current_geofence_status;
 
-std::list<gps_info_t> position_list;
 
 TEST(app, test_successful_setup)
 {
     prepare_n_position_mocks(10, 2);
 
     CHECK_EQUAL(EXIT_SUCCESS, setup_board());
-    position_list.clear();
+    teardown_n_positions_mock();
 }
 
 
@@ -89,7 +87,7 @@ TEST(app, run_app_through_3_geofence_regions_5degrees_shift_per_fix)
         /* Ensure that region switches happen ONLY when polygon change is detected */
         CHECK_TRUE(current_polygon != current_geofence_status.curr_poly_region);
     }
-    position_list.clear();
+    teardown_n_positions_mock();
 
     CHECK_EQUAL(LORAMAC_REGION_EU868, current_geofence_status.current_loramac_region);
 };
@@ -125,38 +123,10 @@ TEST(app, ensure_its_abp_always_after_initing_for_region)
 
     CHECK_EQUAL(false, is_over_the_air_activation);
 
-    position_list.clear();
+    teardown_n_positions_mock();
 };
 
-void prepare_n_position_mocks(int number_of_readings, int degrees_moved_per_shift)
-{
 
-    gps_info_t world_trip_mock;
-
-    /* Fill list with positions to simulate */
-    for (int i = 0; i <= number_of_readings; i++)
-    {
-
-        float latitude = 53.23;
-        float longitude = fmod(0.3 + i * degrees_moved_per_shift, 360) - 180;
-
-        world_trip_mock.GPS_UBX_latitude_Float = latitude;
-        world_trip_mock.GPS_UBX_longitude_Float = (float)longitude;
-        world_trip_mock.GPSaltitude = 12342000;
-        world_trip_mock.GPS_UBX_latitude = latitude * 1e7;
-        world_trip_mock.GPS_UBX_longitude = longitude * 1e7;
-        world_trip_mock.unix_time = 1627938039 + 60 * 60 * i; /* travel one degree longitude every day */
-        world_trip_mock.latest_gps_status = GPS_SUCCESS;
-
-        position_list.push_back(world_trip_mock);
-    }
-
-    /* Now mock those positions */
-    for (auto &position : position_list)
-    {
-        mock().expectOneCall("get_latest_gps_info").andReturnValue(&position);
-    }
-}
 
 /**
  * @brief Ensure transmission happens immediately after boot. 

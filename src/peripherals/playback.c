@@ -14,12 +14,9 @@
 /* Inclusion of system and local header files goes here */
 #include "playback.h"
 #include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include "bsp.h"
-#include "utilities.h"
-#include <math.h>
 #include <string.h>
+#include "linear_congruential_generator.h"
 
 /* ==================================================================== */
 /* ============================ constants ============================= */
@@ -27,43 +24,11 @@
 
 /* #define and enum statements go here */
 
-#define CORPUT_BASE 2U
-
-/*!
- * \brief Returns the minimum value between a and b
- *
- * \param [IN] a 1st value
- * \param [IN] b 2nd value
- * \retval minValue Minimum value
- */
-
 /* ==================================================================== */
 /* ======================== global variables ========================== */
 /* ==================================================================== */
 
 /* Global variables definitions go here */
-
-/* Dummy values for testing */
-time_pos_fix_t current_pos =
-	{
-		.minutes_since_epoch = 0x0007342E, /*472110 minutes */
-		.latitude = 0x17CA /*399121314 == 399121314*/,
-		.longitude = 0xD312 /*3541187191 == -753780105 */,
-		.altitude = 0x00F2 /*0x0000F221 >>2 */
-};
-
-sensor_t current_sensor_data =
-	{
-		.no_load_solar_voltage = 33, /* 18 - 43 (min 25 values)(5 bits) */
-		.load_solar_voltage = 43,	 /* 18 - 43 (min 25 values)(5 bits) */
-		.temperature = -23,			 /* -64 to 64 in increments of 2 degrees celcius (min 40 values)(6 bits) */
-		.pressure = 400,			 /* 130 - 1030 (min 128 values, 10mbar per increment)(7 bits) */
-		.data_received = 1,			 /* 0 or 1. indicates that message was received(1 bit) */
-		.sats = 12,					 /* 0 - 32. Number of sats. (4 bits) */
-		.reset_count = 7,			 /* 0-7. Number of resets in (3 bits) */
-		.days_of_playback = 63		 /* 0-64. Number of days of playback available (6 bits) */
-
-};
 
 playback_key_info_t current_playback_key_info =
 	{
@@ -80,23 +45,9 @@ playback_key_info_t current_playback_key_info =
 static uint8_t tx_str_buffer[LORAWAN_APP_DATA_BUFF_SIZE];
 static uint16_t tx_str_buffer_len = 0;
 time_pos_fix_t subset_positions[MAX_N_POSITIONS_TO_SEND];
-int corput_n = 0;
 
 sensor_t *current_sensor_data_ptr;
 time_pos_fix_t *current_pos_ptr;
-
-struct LGC_params
-{
-	int stop;
-	int start;
-	int maximum;
-	int value;
-	int offset;
-	int step;
-	int multiplier;
-	int modulus;
-	int found;
-} LGC_current_params;
 
 /* ==================================================================== */
 /* ========================== private data ============================ */
@@ -112,17 +63,11 @@ typedef int (*select_low_discrepancy_T)(int low, int high);
 
 /* Function prototypes for private (static) functions go here */
 
-int generate_random(int l, int r);
 void fill_subset_positions_buffer(uint16_t subset_size);
 void fill_tx_buffer_with_location(uint16_t start_point, uint8_t *buffer, uint16_t latitude, uint16_t longitude, uint16_t altitude);
 void fill_tx_buffer_with_location_and_time(uint16_t start_point, uint8_t *buffer,
 										   uint16_t latitude, uint16_t longitude,
 										   uint16_t altitude, uint32_t minutes_since_epoch);
-
-int mapping(int i, int start, int step);
-void init_LGC(int start, int stop, int step);
-int next_LCG(void);
-int LCG(int lower_val, int upper_val);
 
 /* Initlise pointer to retrieve eeprom time pos */
 retrieve_eeprom_time_pos_ptr_T Retrieve_eeprom_time_pos_ptr;
@@ -197,105 +142,6 @@ void fill_positions_to_send_buffer(void)
 
 	/* we have serviced the request. set to false now */
 	current_playback_key_info.request_from_gnd = false;
-}
-
-int mapping(int i, int start, int step)
-{
-	return (i * step) + start;
-}
-
-/**
- * \brief Initialise the LGC function
- * 
- * \param start
- * \param stop
- * \param step
- * 
- * \return void
- */
-void init_LGC(int start, int stop, int step)
-{
-	if (start >= stop)
-	{
-		start = 0;
-		stop = 1;
-	}
-
-	LGC_current_params.found = 0;
-	LGC_current_params.stop = stop;
-	LGC_current_params.start = start;
-	LGC_current_params.step = step;
-
-	LGC_current_params.maximum = (int)floor((LGC_current_params.stop - LGC_current_params.start) / LGC_current_params.step);
-	LGC_current_params.value = generate_random(0, LGC_current_params.maximum);
-
-	LGC_current_params.offset = generate_random(0, LGC_current_params.maximum) * 2 + 1;
-	LGC_current_params.multiplier = 4 * (int)floor(LGC_current_params.maximum / 4) + 1;
-	LGC_current_params.modulus = (int)pow(2, ceil(log2(LGC_current_params.maximum)));
-}
-
-/**
- * \brief Adapted from https://stackoverflow.com/a/53551417
- * 
- * \param start
- * \param stop
- * \param step
- * 
- * \return int
- */
-int next_LCG()
-{
-	bool done = false;
-	int res;
-	while (1)
-	{
-		// If this is a valid value, yield it in generator fashion.
-		if (LGC_current_params.value < LGC_current_params.maximum)
-		{
-			res = mapping(LGC_current_params.value, LGC_current_params.start, LGC_current_params.step);
-			done = true;
-		}
-		// Calculate the next value in the sequence.
-		LGC_current_params.value = (LGC_current_params.value * LGC_current_params.multiplier + LGC_current_params.offset) % LGC_current_params.modulus;
-
-		if (done == true)
-		{
-			return res;
-		}
-	}
-}
-
-/**
- * \brief Return a value, within the bounds of lower_val(inclusive) and upper_val(not inclusive)
- * 
- * \param lower_val
- * \param upper_val
- * 
- * \return int
- */
-int LCG(int lower_val, int upper_val)
-{
-	if ((LGC_current_params.start != lower_val) || (LGC_current_params.stop != upper_val))
-	{
-		init_LGC(lower_val, upper_val, 1);
-	}
-
-	return next_LCG();
-}
-
-/**
- * \brief This will generate random number in range l and r, inclusive of both
- * 
- * \param l: lower bound
- * \param r: upper bound
- * 
- * \return int random number
- */
-int generate_random(int l, int r)
-{
-	int rand_num = (rand() % (r - l + 1)) + l;
-
-	return rand_num;
 }
 
 /**
@@ -463,4 +309,3 @@ bool process_playback_instructions(uint16_t recent_timepos_index, uint16_t older
 
 	return success;
 }
-
