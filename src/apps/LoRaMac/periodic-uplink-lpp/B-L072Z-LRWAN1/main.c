@@ -240,7 +240,7 @@ extern Uart_t Uart1;
 
 extern TimerTime_t current_time;
 
-bool tx_done = false;
+volatile bool tx_done = false;
 
 /*!
  * Main application entry point.
