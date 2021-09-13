@@ -57,7 +57,7 @@ IGNORE_TEST(print_utils, test_print)
 TEST(print_utils, region_string_return_test)
 {
 
-    char *ret;
+    const char *ret;
 
     ret = get_lorawan_region_string(LORAMAC_REGION_AS923);
     STRCMP_EQUAL("LORAMAC_REGION_AS923", ret);

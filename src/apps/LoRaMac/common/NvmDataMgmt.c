@@ -56,8 +56,6 @@ void run_screaming(const char* message, const int code);
 
 uint32_t compress_nvm(LoRaMacNvmData_t *nvm_data);
 uint32_t decompress_nvm(LoRaMacNvmData_t *nvm_data);
-static bool is_nvm_struct_valid(LoRaMacNvmData_t *nvm);
-
 
 
 #define PRINT_TIME( )                                                                \
@@ -114,8 +112,6 @@ uint16_t NvmDataMgmtStore( void )
 {
     if (context_management_enabled == true)
     {
-        uint16_t offset = 0;
-        uint16_t dataSize = 0;
         MibRequestConfirm_t mibReq;
         mibReq.Type = MIB_NVM_CTXS;
         LoRaMacMibGetRequestConfirm( &mibReq );
@@ -144,7 +140,7 @@ uint16_t NvmDataMgmtStore( void )
 
         printf("Start Compression........\n");
         /* Compress NVM data */
-        dataSize = compress_nvm(nvm);
+        compress_nvm(nvm);
         /* Now update CRC in the struct */
         nvm_data_struct.Crc32 = Crc32((uint8_t *)&nvm_data_struct, sizeof(nvm_data_struct) - sizeof(nvm_data_struct.Crc32));
         printf("End Compression........\n");
@@ -207,52 +203,6 @@ uint16_t NvmDataMgmtRestore( void )
     return 0;
 }
 
-static bool is_nvm_struct_valid(LoRaMacNvmData_t *nvm)
-{
-    // Crypto
-    if (is_crc_correct(sizeof(LoRaMacCryptoNvmData_t), &nvm->Crypto) == false)
-    {
-        return false;
-    }
-
-    // Mac Group 1
-    if (is_crc_correct(sizeof(LoRaMacNvmDataGroup1_t), &nvm->MacGroup1) == false)
-    {
-        return false;
-    }
-
-    // Mac Group 2
-    if (is_crc_correct(sizeof(LoRaMacNvmDataGroup2_t), &nvm->MacGroup2) == false)
-    {
-        return false;
-    }
-
-    // Secure element
-    if (is_crc_correct(sizeof(SecureElementNvmData_t), &nvm->SecureElement) == false)
-    {
-        return false;
-    }
-
-    // Region group 1
-    if (is_crc_correct(sizeof(RegionNvmDataGroup1_t), &nvm->RegionGroup1) == false)
-    {
-        return false;
-    }
-
-    // Region group 2
-    if (is_crc_correct(sizeof(RegionNvmDataGroup2_t), &nvm->RegionGroup2) == false)
-    {
-        return false;
-    }
-
-    // Class b
-    if (is_crc_correct(sizeof(LoRaMacClassBNvmData_t), &nvm->ClassB) == false)
-    {
-        return false;
-    }
-
-    return true;
-}
 
 bool NvmDataMgmtFactoryReset( void )
 {

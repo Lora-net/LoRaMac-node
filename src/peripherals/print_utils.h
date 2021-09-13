@@ -13,4 +13,4 @@
 
 void print_bytes(void *ptr, int size);
 
-char *get_lorawan_region_string(LoRaMacRegion_t region);
+const char *get_lorawan_region_string(LoRaMacRegion_t region);

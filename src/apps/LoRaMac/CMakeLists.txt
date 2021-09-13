@@ -124,6 +124,7 @@ add_executable(${PROJECT_NAME}-${SUB_PROJECT}
                             $<TARGET_OBJECTS:${BOARD}>
 )
 
+target_compile_options(${PROJECT_NAME}-${SUB_PROJECT} PRIVATE -Wall -Wextra -Wpedantic)
 target_compile_definitions(${PROJECT_NAME}-${SUB_PROJECT} PRIVATE $<$<BOOL:${CLASSB_ENABLED}>:LORAMAC_CLASSB_ENABLED>)
 target_compile_definitions(${PROJECT_NAME}-${SUB_PROJECT} PRIVATE ACTIVE_REGION=${ACTIVE_REGION})
 if(${SECURE_ELEMENT_PRE_PROVISIONED} MATCHES ON)

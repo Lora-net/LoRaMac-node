@@ -231,12 +231,12 @@ void pretty_print_sensor_values(double *TEMPERATURE_Value, double *PRESSURE_Valu
 	printf(" Latitude: ");
 	printDouble(gps_info->GPS_UBX_latitude_Float, 6);
 	printf(" altitude: ");
-	printf("%d", gps_info->GPSaltitude / 1000);
+	printf("%ld", gps_info->GPSaltitude / 1000);
 	printf("\r\n");
     const char *region_string = get_lorawan_region_string(current_geofence_status.current_loramac_region);
 	printf("Loramac region: %s\r\n", region_string );
 	printf("GPS time: ");
-	printf("%d", gps_info->unix_time);
+	printf("%ld", gps_info->unix_time);
 	printf("\r\n");
 	printf("Solar voltage no load: ");
 	printf("%d", *no_load_solar_voltage);
@@ -259,12 +259,12 @@ bool manage_incoming_instruction(uint8_t *instructions)
 	uint32_t recent_time_min = extractLong_from_buff(0, instructions);
 	uint16_t recent_timepos_index = get_time_pos_index_older_than(recent_time_min);
 
-	printf("Received instruction recent. time(min):%u timepos index: %d\n", recent_time_min, recent_timepos_index);
+	printf("Received instruction recent. time(min):%lu timepos index: %d\n", recent_time_min, recent_timepos_index);
 
 	uint32_t older_time_min = extractLong_from_buff(4, instructions);
 	uint16_t older_timepos_index = get_time_pos_index_older_than(older_time_min);
 
-	printf("Received instruction older. time(min):%u timepos index: %d\n", older_time_min, older_timepos_index);
+	printf("Received instruction older. time(min):%lu timepos index: %d\n", older_time_min, older_timepos_index);
 
 	bool success = process_playback_instructions(recent_timepos_index, older_timepos_index);
 
