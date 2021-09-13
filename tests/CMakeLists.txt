@@ -91,6 +91,7 @@ set(MOCKS
     ublox-mock.cpp
     nvm_images.cpp
     gps_mock_utils.cpp
+    delay-board-mock.c
 )
 
 set(LZ4_LIB_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src/system/)
@@ -121,6 +122,9 @@ set(FILES_UNDER_TEST
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/periodic-uplink-lpp/B-L072Z-LRWAN1/main.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandlerMsgDisplay.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandler/LmHandler.c
+    ${PROJECT_SOURCE_DIR}/src/system/delay.c
+
+   
 
     # Compile region files
     ${PROJECT_SOURCE_DIR}/src/mac/region/RegionAU915.c

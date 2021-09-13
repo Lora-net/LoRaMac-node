@@ -34,6 +34,7 @@
 #include "CayenneLpp.h"
 #include "LmHandlerMsgDisplay.h"
 
+#include "delay.h"
 #include "config.h"
 #include "ublox.h"
 #include "bsp.h"
@@ -60,7 +61,7 @@
 /*!
  * Defines the application data transmission duty cycle. 5s, value in [ms].
  */
-int APP_TX_DUTYCYCLE = 40000;
+uint32_t APP_TX_DUTYCYCLE = 60000;
 
 /*!
  * Defines a random delay for application data transmission duty cycle. 1s,
@@ -113,7 +114,6 @@ typedef enum
     LORAMAC_HANDLER_TX_ON_TIMER,
     LORAMAC_HANDLER_TX_ON_EVENT,
 } LmHandlerTxEvents_t;
-
 
 /*!
  * User application data
@@ -300,19 +300,35 @@ void run_country_loop()
         {
             break;
         }
+
+        /**
+         * If we had a good fix, then go to sleep for a while.
+         * Otherwise, go into gps fix searching immediately.
+         */
+        if (get_latest_gps_status() == GPS_SUCCESS)
+        {
+            uint32_t startTime = SysTimeToMs(SysTimeGet());
+            while (SysTimeToMs(SysTimeGet()) - startTime < APP_TX_DUTYCYCLE)
+            {
+                IWDG_reset();
+
+                DelayMs(1000);
+            }
+        }
+        else
+        {
+        }
     }
 
     is_over_the_air_activation = true;
 }
 
-
 int init_loramac_stack_and_tx_scheduling()
 {
     const char *region_string = get_lorawan_region_string(current_geofence_status.current_loramac_region);
-    printf("Initialising Loramac Stack with Loramac region: %s\n",region_string);
+    printf("Initialising Loramac Stack with Loramac region: %s\n", region_string);
 
-    picotracker_lorawan_settings_t settings =  get_otaa_abp_setting(current_geofence_status.current_loramac_region);
-
+    picotracker_lorawan_settings_t settings = get_otaa_abp_setting(current_geofence_status.current_loramac_region);
 
     init_loramac(settings);
 

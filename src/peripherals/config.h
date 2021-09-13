@@ -30,6 +30,7 @@ extern "C"
 
 /* Includes ------------------------------------------------------------------*/
 #include "stdbool.h"
+#include "stdint.h"
   /* Private includes ----------------------------------------------------------*/
   /* USER CODE BEGIN Includes */
 
@@ -71,7 +72,7 @@ extern "C"
                                          * use EU868                                                                                                           \
                                          */
 
-  extern int APP_TX_DUTYCYCLE; /* Set the interval between each transmission(in milliseconds) */
+  extern uint32_t APP_TX_DUTYCYCLE; /* Set the interval between each transmission(in milliseconds) */
 
   /* GPS RELATED DEFINES */
   /* ----------------------------------------------------------------------------------- */
