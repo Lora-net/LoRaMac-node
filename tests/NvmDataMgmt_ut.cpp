@@ -20,6 +20,8 @@ extern "C"
 #include "main.h"
 #include "nvmm.h"
 #include "region_nvm.h"
+#include "compression_structs.h"
+#include "bsp.h"
 }
 #include <string.h> // For memcmp()
 #include "nvm_images.hpp"
@@ -208,10 +210,10 @@ TEST(NvmDataMgmt, check_if_correct_region_eeprom_location_set)
     CHECK_EQUAL(0, EEPROM_location);
 
     EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_US915);
-    CHECK_EQUAL(1200, EEPROM_location);
+    CHECK_EQUAL(948, EEPROM_location);
 
     EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_CN470);
-    CHECK_EQUAL(2400, EEPROM_location);
+    CHECK_EQUAL(1896, EEPROM_location);
 
     EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_IN865);
     CHECK_EQUAL(0, EEPROM_location);
@@ -223,6 +225,28 @@ TEST(NvmDataMgmt, check_if_correct_region_eeprom_location_set)
     CHECK_EQUAL(0, EEPROM_location);
     EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_KR920);
     CHECK_EQUAL(0, EEPROM_location);
+}
+
+/**
+ * @brief Prevent overlap of eeprom regions
+ * 
+ */
+TEST(NvmDataMgmt, ensure_no_overlap_of_eeprom_region)
+{
+    extern nvm_data_t nvm_data_struct;
+
+    CHECK_TRUE(3 * sizeof(nvm_data_struct) < NVM_PlAYBACK_EEPROM_ADDR_START);
+}
+
+/**
+ * @brief Verify sizes of define
+ * 
+ */
+TEST(NvmDataMgmt, check_sizes)
+{
+    extern nvm_data_t nvm_data_struct;
+
+    CHECK_EQUAL(3 * sizeof(nvm_data_struct) + 1156, NVM_PlAYBACK_EEPROM_ADDR_START);
 }
 
 /**

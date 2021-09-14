@@ -40,7 +40,7 @@
 #include "config.h"
 #include "region_nvm.h"
 #include "geofence.h"
-
+#include "compression_structs.h"
 
 #include <string.h>  // For memcmp()
 #include <stdlib.h>  // For exit()
@@ -82,24 +82,7 @@ static uint16_t NvmNotifyFlags = 0;
  */
 
 
-typedef struct
-{
-    uint16_t compressed_data_size;
-    char compressed_data[700];
-    LoRaMacCryptoNvmData_t Crypto;
-    LoRaMacNvmDataGroup1_t MacGroup1;
-    RegionNvmDataGroup1_t RegionGroup1;
-    uint32_t Crc32; // CRC32 value of the nvm_data_t data structure.
-} nvm_data_t;
 
-typedef struct
-{
-    LoRaMacNvmDataGroup2_t MacGroup2;
-    SecureElementNvmData_t SecureElement;
-    RegionNvmDataGroup2_t RegionGroup2;
-    LoRaMacClassBNvmData_t ClassB;
-
-} rarely_changing_t;
 
 nvm_data_t nvm_data_struct;
 
