@@ -45,6 +45,8 @@
 #include "print_utils.h"
 #include "LoRaWAN_config_switcher.h"
 
+#include "callbacks.h"
+
 #ifndef ACTIVE_REGION
 
 #warning "No active region defined, LORAMAC_REGION_EU868 will be used as default."
@@ -52,11 +54,6 @@
 #define ACTIVE_REGION LORAMAC_REGION_EU868
 
 #endif
-
-/*!
- * LoRaWAN default end-device class
- */
-#define LORAWAN_DEFAULT_CLASS CLASS_A
 
 /*!
  * Defines the application data transmission duty cycle. 5s, value in [ms].
@@ -135,20 +132,8 @@ static bool AppLedStateOn = false;
 static TimerEvent_t TxTimer;
 
 static void OnMacProcessNotify(void);
-static void OnNvmDataChange(LmHandlerNvmContextStates_t state, uint16_t size);
-static void OnNetworkParametersChange(CommissioningParams_t *params);
-static void OnMacMcpsRequest(LoRaMacStatus_t status, McpsReq_t *mcpsReq, TimerTime_t nextTxIn);
-static void OnMacMlmeRequest(LoRaMacStatus_t status, MlmeReq_t *mlmeReq, TimerTime_t nextTxIn);
-static void OnJoinRequest(LmHandlerJoinParams_t *params);
-static void OnTxData(LmHandlerTxParams_t *params);
 static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params);
-static void OnClassChange(DeviceClass_t deviceClass);
-static void OnBeaconStatusChange(LoRaMAcHandlerBeaconParams_t *params);
-#if (LMH_SYS_TIME_UPDATE_NEW_API == 1)
-static void OnSysTimeUpdate(bool isSynchronized, int32_t timeCorrection);
-#else
-static void OnSysTimeUpdate(void);
-#endif
+
 static void PrepareTxFrame(void);
 static void StartTxProcess(LmHandlerTxEvents_t txEvent);
 static void UplinkProcess(void);
@@ -453,44 +438,6 @@ static void OnMacProcessNotify(void)
     IsMacProcessPending = 1;
 }
 
-static void OnNvmDataChange(LmHandlerNvmContextStates_t state, uint16_t size)
-{
-    DisplayNvmDataChange(state, size);
-}
-
-static void OnNetworkParametersChange(CommissioningParams_t *params)
-{
-    DisplayNetworkParametersUpdate(params);
-}
-
-static void OnMacMcpsRequest(LoRaMacStatus_t status, McpsReq_t *mcpsReq, TimerTime_t nextTxIn)
-{
-    DisplayMacMcpsRequestUpdate(status, mcpsReq, nextTxIn);
-}
-
-static void OnMacMlmeRequest(LoRaMacStatus_t status, MlmeReq_t *mlmeReq, TimerTime_t nextTxIn)
-{
-    DisplayMacMlmeRequestUpdate(status, mlmeReq, nextTxIn);
-}
-
-static void OnJoinRequest(LmHandlerJoinParams_t *params)
-{
-    DisplayJoinRequestUpdate(params);
-    if (params->Status == LORAMAC_HANDLER_ERROR)
-    {
-        LmHandlerJoin();
-    }
-    else
-    {
-        LmHandlerRequestClass(LORAWAN_DEFAULT_CLASS);
-    }
-}
-
-static void OnTxData(LmHandlerTxParams_t *params)
-{
-    DisplayTxUpdate(params);
-    tx_done = true;
-}
 
 static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 {
@@ -521,50 +468,6 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
     // Switch LED 2 ON for each received downlink
 }
 
-static void OnClassChange(DeviceClass_t deviceClass)
-{
-    DisplayClassUpdate(deviceClass);
-
-    // Inform the server as soon as possible that the end-device has switched to ClassB
-    LmHandlerAppData_t appData =
-        {
-            .Buffer = NULL,
-            .BufferSize = 0,
-            .Port = 0};
-    LmHandlerSend(&appData, LORAMAC_HANDLER_UNCONFIRMED_MSG);
-}
-
-static void OnBeaconStatusChange(LoRaMAcHandlerBeaconParams_t *params)
-{
-    switch (params->State)
-    {
-    case LORAMAC_HANDLER_BEACON_RX:
-    {
-        break;
-    }
-    case LORAMAC_HANDLER_BEACON_LOST:
-    case LORAMAC_HANDLER_BEACON_NRX:
-    {
-        break;
-    }
-    default:
-    {
-        break;
-    }
-    }
-
-    DisplayBeaconUpdate(params);
-}
-
-#if (LMH_SYS_TIME_UPDATE_NEW_API == 1)
-static void OnSysTimeUpdate(bool isSynchronized, int32_t timeCorrection)
-{
-}
-#else
-static void OnSysTimeUpdate(void)
-{
-}
-#endif
 
 /*!
  * Prepares the payload of the frame and transmits it.

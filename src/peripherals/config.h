@@ -31,6 +31,7 @@ extern "C"
 /* Includes ------------------------------------------------------------------*/
 #include "stdbool.h"
 #include "stdint.h"
+#include "LoRaMacTypes.h"
   /* Private includes ----------------------------------------------------------*/
   /* USER CODE BEGIN Includes */
 
@@ -111,7 +112,10 @@ extern "C"
  */
 #define PRINT_EEPROM_DEBUG 0
 
-  /* USER CODE END Private defines */
+/*!
+ * LoRaWAN default end-device class
+ */
+#define LORAWAN_DEFAULT_CLASS CLASS_A
 
 #ifdef __cplusplus
 }
