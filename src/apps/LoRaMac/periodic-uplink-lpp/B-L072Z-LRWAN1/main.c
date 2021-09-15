@@ -89,11 +89,6 @@ uint32_t APP_TX_DUTYCYCLE = 60000;
 #define LORAWAN_DEFAULT_CONFIRMED_MSG_STATE LORAMAC_HANDLER_UNCONFIRMED_MSG
 
 /*!
- * User application data buffer size
- */
-#define LORAWAN_APP_DATA_BUFFER_MAX_SIZE 242
-
-/*!
  * LoRaWAN ETSI duty cycle control enable/disable
  *
  * \remark Please note that ETSI mandates duty cycled transmissions. Use only for test purposes

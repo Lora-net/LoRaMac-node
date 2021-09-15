@@ -90,7 +90,7 @@ extern "C"
 /*!
  * User application data buffer size
  */
-#define LORAWAN_APP_DATA_BUFF_SIZE 242
+#define LORAWAN_APP_DATA_BUFFER_MAX_SIZE 242
 #define DOWNLINK_CONFIG_PORT 18
 
 /* PLAYBACK RELATED DEFINES */
