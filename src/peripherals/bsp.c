@@ -39,8 +39,17 @@
 #define MINUTES_AGO_TO_SELECT_FROM (MINUTES_IN_DAY * PLAYBACK_DAYS)
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-uint16_t current_EEPROM_index = 0;
-uint16_t n_playback_positions_saved = 0;
+
+typedef struct
+{
+	uint16_t current_EEPROM_index;
+	uint16_t n_playback_positions_saved;
+	uint32_t Crc32;
+} eeprom_playback_stats_t;
+
+
+eeprom_playback_stats_t eeprom_playback_stats;
+
 
 /* Dummy values for testing */
 
@@ -166,7 +175,7 @@ void save_data_to_nvm()
 		/* After the time between saving(HOW_OFTEN_TO_SAVE_POS_TIM_TO_EEPROM) has elapsed, then
 		 * increment the counter such that it can save to the next location
 		 */
-		if ((current_position.minutes_since_epoch - most_recent.minutes_since_epoch > HOW_OFTEN_TO_SAVE_POS_TIM_TO_EEPROM) && (n_playback_positions_saved != 0))
+		if ((current_position.minutes_since_epoch - most_recent.minutes_since_epoch > HOW_OFTEN_TO_SAVE_POS_TIM_TO_EEPROM) && (eeprom_playback_stats.n_playback_positions_saved != 0))
 		{
 			increment_eeprom_index_counters();
 		}
@@ -174,7 +183,7 @@ void save_data_to_nvm()
 		/* Save position to eeprom, overwriting the latest position with every fix. */
 		save_current_position_info_to_EEPROM(&current_position);
 
-		if (n_playback_positions_saved == 0)
+		if (eeprom_playback_stats.n_playback_positions_saved == 0)
 		{
 			increment_eeprom_index_counters();
 		}
@@ -233,8 +242,8 @@ void pretty_print_sensor_values(double *TEMPERATURE_Value, double *PRESSURE_Valu
 	printf(" altitude: ");
 	printf("%ld", gps_info->GPSaltitude / 1000);
 	printf("\r\n");
-    const char *region_string = get_lorawan_region_string(current_geofence_status.current_loramac_region);
-	printf("Loramac region: %s\r\n", region_string );
+	const char *region_string = get_lorawan_region_string(current_geofence_status.current_loramac_region);
+	printf("Loramac region: %s\r\n", region_string);
 	printf("GPS time: ");
 	printf("%ld", gps_info->unix_time);
 	printf("\r\n");
@@ -333,8 +342,8 @@ void playback_hw_init()
 {
 	IWDG_reset();
 
-	NvmmRead((void *)&current_EEPROM_index, sizeof(current_EEPROM_index), CURRENT_PLAYBACK_INDEX_IN_EEPROM_ADDR);
-	NvmmRead((void *)&n_playback_positions_saved, sizeof(current_EEPROM_index), N_PLAYBACK_POSITIONS_SAVED_IN_EEPROM_ADDR);
+	NvmmRead((void *)&eeprom_playback_stats.current_EEPROM_index, sizeof(eeprom_playback_stats.current_EEPROM_index), CURRENT_PLAYBACK_INDEX_IN_EEPROM_ADDR);
+	NvmmRead((void *)&eeprom_playback_stats.n_playback_positions_saved, sizeof(eeprom_playback_stats.current_EEPROM_index), N_PLAYBACK_POSITIONS_SAVED_IN_EEPROM_ADDR);
 
 	/* We want to send positions from the last n days, defined by PLAYBACK_DAYS. Therefore, we need to calculate how 
 	 * many saved eeprom position/times we should select from. We take the most recent timepos, then calculate back n days
@@ -351,7 +360,7 @@ void playback_hw_init()
 
 	if (older_index == 0)
 	{
-		earliest_timepos_index = n_playback_positions_saved;
+		earliest_timepos_index = eeprom_playback_stats.n_playback_positions_saved;
 	}
 	else
 	{
@@ -374,7 +383,6 @@ void playback_hw_init()
 	IWDG_reset();
 }
 
-
 /**
  * \brief Print out all the stored coordinates
  * 
@@ -385,7 +393,7 @@ void print_stored_coordinates()
 {
 	/* test stored positoins */
 	printf("Printing Stored coordinates:\n");
-	for (uint16_t i = 0; i < n_playback_positions_saved; i++)
+	for (uint16_t i = 0; i < eeprom_playback_stats.n_playback_positions_saved; i++)
 	{
 		time_pos_fix_t temp = retrieve_eeprom_time_pos(i);
 		printf("index: %d,", i);
@@ -428,7 +436,7 @@ time_pos_fix_t get_oldest_pos_time()
 	 * So if thats the case, then force the index to be 0.
 	 * TODO: make it return a null value when n_playback_positions_saved == 0
 	 */
-	uint16_t index = (n_playback_positions_saved == 0) ? 0 : n_playback_positions_saved - 1;
+	uint16_t index = (eeprom_playback_stats.n_playback_positions_saved == 0) ? 0 : eeprom_playback_stats.n_playback_positions_saved - 1;
 
 	time_pos_fix_t temp = retrieve_eeprom_time_pos(index);
 
@@ -448,7 +456,7 @@ time_pos_fix_t get_oldest_pos_time()
 uint16_t get_time_pos_index_older_than(uint32_t minutes_from_epoch)
 {
 	uint16_t res_index = 0;
-	for (uint16_t i = 0; i < n_playback_positions_saved; i++)
+	for (uint16_t i = 0; i < eeprom_playback_stats.n_playback_positions_saved; i++)
 	{
 		time_pos_fix_t temp = retrieve_eeprom_time_pos(i);
 		if (temp.minutes_since_epoch < minutes_from_epoch)
@@ -469,12 +477,12 @@ uint16_t get_time_pos_index_older_than(uint32_t minutes_from_epoch)
 void increment_eeprom_index_counters()
 {
 	/* Now update the index in EEPROM */
-	current_EEPROM_index = mod(current_EEPROM_index + PLAYBACK_EEPROM_PACKET_SIZE, PLAYBACK_EEPROM_SIZE);
-	n_playback_positions_saved = MIN(n_playback_positions_saved + 1, MAX_PLAYBACK_POSITIONS_SAVED_IN_EEPROM);
+	eeprom_playback_stats.current_EEPROM_index = mod(eeprom_playback_stats.current_EEPROM_index + PLAYBACK_EEPROM_PACKET_SIZE, PLAYBACK_EEPROM_SIZE);
+	eeprom_playback_stats.n_playback_positions_saved = MIN(eeprom_playback_stats.n_playback_positions_saved + 1, MAX_PLAYBACK_POSITIONS_SAVED_IN_EEPROM);
 	playback_key_info_ptr->n_positions_saved_since_boot += 1;
 
-	NvmmWrite((void *)&current_EEPROM_index, sizeof(current_EEPROM_index), CURRENT_PLAYBACK_INDEX_IN_EEPROM_ADDR);
-	NvmmWrite((void *)&n_playback_positions_saved, sizeof(current_EEPROM_index), N_PLAYBACK_POSITIONS_SAVED_IN_EEPROM_ADDR);
+	NvmmWrite((void *)&eeprom_playback_stats.current_EEPROM_index, sizeof(eeprom_playback_stats.current_EEPROM_index), CURRENT_PLAYBACK_INDEX_IN_EEPROM_ADDR);
+	NvmmWrite((void *)&eeprom_playback_stats.n_playback_positions_saved, sizeof(eeprom_playback_stats.current_EEPROM_index), N_PLAYBACK_POSITIONS_SAVED_IN_EEPROM_ADDR);
 }
 
 /**
@@ -485,7 +493,7 @@ void increment_eeprom_index_counters()
 void save_current_position_info_to_EEPROM(time_pos_fix_t *currrent_position)
 {
 	/* save Long, Lat, Altitude, minutes since epoch to EEPROM */
-	uint16_t location_to_write = PLAYBACK_EEPROM_ADDR_START + current_EEPROM_index;
+	uint16_t location_to_write = PLAYBACK_EEPROM_ADDR_START + eeprom_playback_stats.current_EEPROM_index;
 	NvmmWrite((void *)&current_position.altitude, ALTITUDE_BYTES_LEN, location_to_write + 0);
 	NvmmWrite((void *)&current_position.latitude, LATITUDE_BYTES_LEN, location_to_write + 2);
 	NvmmWrite((void *)&current_position.longitude, LONGITUDE_BYTES_LEN, location_to_write + 4);
@@ -506,7 +514,7 @@ time_pos_fix_t retrieve_eeprom_time_pos(uint16_t time_pos_index)
 	time_pos_fix_t time_pos_fix = {0};
 
 	/* read Long, Lat, Altitude, minutes since epoch from EEPROM */
-	uint16_t location_to_read = PLAYBACK_EEPROM_ADDR_START + mod(current_EEPROM_index - (time_pos_index + 1) * PLAYBACK_EEPROM_PACKET_SIZE, PLAYBACK_EEPROM_SIZE);
+	uint16_t location_to_read = PLAYBACK_EEPROM_ADDR_START + mod(eeprom_playback_stats.current_EEPROM_index - (time_pos_index + 1) * PLAYBACK_EEPROM_PACKET_SIZE, PLAYBACK_EEPROM_SIZE);
 	NvmmRead((void *)&time_pos_fix.altitude, ALTITUDE_BYTES_LEN, location_to_read + 0);
 	NvmmRead((void *)&time_pos_fix.latitude, LATITUDE_BYTES_LEN, location_to_read + 2);
 	NvmmRead((void *)&time_pos_fix.longitude, LONGITUDE_BYTES_LEN, location_to_read + 4);
