@@ -43,7 +43,6 @@
 
 geofence_status_t current_geofence_status =
 	{
-		.reinit_loramac_stack_pending = false,
 		.current_loramac_region = LORAMAC_REGION_EU868,
 		.curr_poly_region = EU863870_EUROPE_polygon,
 		.tx_permission = TX_OK,
@@ -871,9 +870,6 @@ static void set_current_loramac_region(Polygon_t current_poly)
 
 void update_geofence_position(float latitude, float longitude)
 {
-	/* store the current loramac region to compare later */
-	LoRaMacRegion_t prev_loramac_region = current_geofence_status.current_loramac_region;
-
 	/* get our current polygon */
 	current_geofence_status.curr_poly_region = get_polygon(latitude, longitude);
 
@@ -881,8 +877,4 @@ void update_geofence_position(float latitude, float longitude)
 	   * new or unchanged polygon we are in.
 	   */
 	set_current_loramac_region(current_geofence_status.curr_poly_region);
-
-	/* now check if we have moved into a different geofence region */
-	current_geofence_status.reinit_loramac_stack_pending = (current_geofence_status.current_loramac_region != prev_loramac_region) ? true : false;
 }
-

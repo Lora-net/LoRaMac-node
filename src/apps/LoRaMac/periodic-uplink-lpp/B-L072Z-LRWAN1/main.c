@@ -144,14 +144,12 @@ static void init_loramac(picotracker_lorawan_settings_t settings);
 /*!
  * Function executed on TxTimer event
  */
-static void
-OnTxTimerEvent(void *context);
+static void OnTxTimerEvent(void *context);
 
 static void retrieve_lorawan_region(void);
 
 typedef enum
 {
-    // tx_done = 0,
     geofence_reinit_pending,
     no_issue_carry_on,
 } loop_status_t;
@@ -160,6 +158,8 @@ int setup_board(void);
 loop_status_t run_loop_once(void);
 int init_loramac_stack_and_tx_scheduling(void);
 void loop(void);
+void update_geofence_status();
+void do_transmission();
 
 static LmHandlerCallbacks_t LmHandlerCallbacks =
     {
@@ -218,9 +218,12 @@ extern Gpio_t Led1; // Tx
  */
 extern Uart_t Uart1;
 
+#ifdef UNITTESTING_LORA
 extern TimerTime_t current_time;
+#endif
 
-volatile bool tx_done = false;
+uint32_t tx_count = 0;
+uint32_t n_tx_per_network = 3;
 
 /*!
  * Main application entry point.
@@ -240,10 +243,7 @@ int run_app(void)
     printf("\n");
 #endif
 
-    while (1)
-    {
-        loop();
-    }
+    loop();
 }
 
 void loop()
@@ -251,56 +251,47 @@ void loop()
     while (1)
     {
 
-        init_loramac_stack_and_tx_scheduling();
+        /* reading sensors and GPS */
+        BSP_sensor_Read();
 
-        tx_done = false;
-
-        /* Start loop */
-        while (1)
+        if (get_latest_gps_status() == GPS_SUCCESS)
         {
-
-            loop_status_t ret = run_loop_once();
-
-            if (ret == no_issue_carry_on)
-            {
-            }
-
-            if (ret == geofence_reinit_pending)
-            {
-                break;
-            }
-
-            if (tx_done == true)
-            {
-                break;
-            }
+            update_geofence_status();
         }
 
-        if (current_geofence_status.reinit_loramac_stack_pending == true)
+        if (current_geofence_status.tx_permission == TX_OK)
+        {
+            do_transmission();
+        }
+    }
+}
+
+void do_transmission()
+{
+    init_loramac_stack_and_tx_scheduling();
+    tx_count = 0;
+    while (1)
+    {
+        run_loop_once();
+
+        if (tx_count > n_tx_per_network)
         {
             break;
         }
-
-        /**
-         * If we had a good fix, then go to sleep for a while.
-         * Otherwise, go into gps fix searching immediately.
-         */
-        if (get_latest_gps_status() == GPS_SUCCESS)
-        {
-            uint32_t startTime = SysTimeToMs(SysTimeGet());
-            while (SysTimeToMs(SysTimeGet()) - startTime < APP_TX_DUTYCYCLE)
-            {
-                IWDG_reset();
-
-                DelayMs(1000);
-            }
-        }
-        else
-        {
-        }
     }
+}
 
-    is_over_the_air_activation = true;
+void update_geofence_status()
+{
+    /* Find out which region of world we are in and update region parm*/
+
+    gps_info_t gps_info = get_latest_gps_info();
+    update_geofence_position(gps_info.GPS_UBX_latitude_Float, gps_info.GPS_UBX_longitude_Float);
+
+    /* Save current polygon to eeprom only if gps fix was valid */
+    NvmmWrite((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
+
+    IWDG_reset();
 }
 
 int init_loramac_stack_and_tx_scheduling()
@@ -337,13 +328,6 @@ loop_status_t run_loop_once()
 
     // Process application uplinks management
     UplinkProcess();
-
-    if (current_geofence_status.reinit_loramac_stack_pending == true)
-    {
-        printf("Breaking out of main loop to reinit LoRa regional settings\n\r");
-        TimerStop(&TxTimer);
-        return geofence_reinit_pending;
-    }
 
     CRITICAL_SECTION_BEGIN();
     if (IsMacProcessPending == 1)
@@ -409,8 +393,6 @@ static void init_loramac(picotracker_lorawan_settings_t settings)
         }
     }
 
-    current_geofence_status.reinit_loramac_stack_pending = false;
-
     // Set system maximum tolerated rx error in milliseconds
     LmHandlerSetSystemMaxRxError(20);
 
@@ -438,7 +420,6 @@ static void OnMacProcessNotify(void)
     IsMacProcessPending = 1;
 }
 
-
 static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 {
     DisplayRxUpdate(appData, params);
@@ -464,10 +445,7 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
     default:
         break;
     }
-
-    // Switch LED 2 ON for each received downlink
 }
-
 
 /*!
  * Prepares the payload of the frame and transmits it.
@@ -479,30 +457,9 @@ static void PrepareTxFrame(void)
         return;
     }
 
-    /* Temporarily stop tx interval timer until GPS gets a lock */
-    // TODO: this timerstop MUST be removed.
-    TimerStop(&TxTimer);
+    tx_count++;
 
-    /* reading sensors and GPS */
-    BSP_sensor_Read();
-
-    /* Restart tx interval timer */
-    TimerStart(&TxTimer);
-
-    if (get_latest_gps_status() == GPS_SUCCESS)
-    {
-        /* Find out which region of world we are in and update region parm*/
-
-        gps_info_t gps_info = get_latest_gps_info();
-        update_geofence_position(gps_info.GPS_UBX_latitude_Float, gps_info.GPS_UBX_longitude_Float);
-
-        /* Save current polygon to eeprom only if gps fix was valid */
-        NvmmWrite((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
-
-        IWDG_reset();
-    }
-
-    if (current_geofence_status.tx_permission != TX_OK || current_geofence_status.reinit_loramac_stack_pending == true)
+    if (tx_count > n_tx_per_network)
     {
         return;
     }

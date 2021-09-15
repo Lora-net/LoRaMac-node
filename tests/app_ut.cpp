@@ -56,9 +56,7 @@ TEST(app, test_init_sequence)
     CHECK_EQUAL(EXIT_SUCCESS, ret);
 }
 
-
 extern geofence_status_t current_geofence_status;
-
 
 TEST(app, test_successful_setup)
 {
@@ -67,8 +65,6 @@ TEST(app, test_successful_setup)
     CHECK_EQUAL(EXIT_SUCCESS, setup_board());
     teardown_n_positions_mock();
 }
-
-
 
 TEST(app, run_app_through_3_geofence_regions_5degrees_shift_per_fix)
 {
@@ -81,7 +77,7 @@ TEST(app, run_app_through_3_geofence_regions_5degrees_shift_per_fix)
     polygon_t current_polygon;
     while (region_switches--)
     {
-        current_polygon= current_geofence_status.curr_poly_region;
+        current_polygon = current_geofence_status.curr_poly_region;
 
         loop();
         /* Ensure that region switches happen ONLY when polygon change is detected */
@@ -112,7 +108,6 @@ TEST(app, ensure_its_abp_always_after_initing_for_region)
     }
 
     init_loramac_stack_and_tx_scheduling();
-    tx_done = false;
     int n_loops = 3;
 
     while (n_loops--)
@@ -192,37 +187,6 @@ TEST(app, ensure_tx_happens_immediately_after_boot)
 
     expected_fcount += 1;
     CHECK_EQUAL(expected_fcount, nvm->Crypto.FCntList.FCntUp);
-
-    /* Run it further 40 seconds */
-    number_of_milliseconds_to_run = 40100;
-
-    while (number_of_milliseconds_to_run--)
-    {
-        run_loop_once();
-    }
-
-    CHECK_EQUAL(expected_fcount, nvm->Crypto.FCntList.FCntUp);
-
-    /* New run it another minute */
-    number_of_milliseconds_to_run = 60000;
-
-    while (number_of_milliseconds_to_run--)
-    {
-        run_loop_once();
-    }
-    expected_fcount += 2;
-    CHECK_EQUAL(expected_fcount, nvm->Crypto.FCntList.FCntUp);
-
-    /* New run it another minute */
-    number_of_milliseconds_to_run = 60000;
-
-    while (number_of_milliseconds_to_run--)
-    {
-        run_loop_once();
-    }
-
-    expected_fcount += 2;
-    CHECK_EQUAL(expected_fcount, nvm->Crypto.FCntList.FCntUp);
 };
 
 /**
@@ -256,15 +220,12 @@ TEST(app, ensure_region_is_set_according_to_nvm)
     mock().expectNCalls(3, "get_latest_gps_info").andReturnValue(&world_trip_mock);
 
     /* Now setup the main program */
-    int ret;
     int number_of_milliseconds_to_run;
     is_over_the_air_activation = false;
     fake_eeprom_set();
 
-    ret = setup_board();
-    CHECK_EQUAL(EXIT_SUCCESS, ret);
-    ret = init_loramac_stack_and_tx_scheduling();
-    CHECK_EQUAL(EXIT_SUCCESS, ret);
+    setup_board();
+    init_loramac_stack_and_tx_scheduling();
 
     /* Get pointer to NVM context */
     MibRequestConfirm_t mibReq;
@@ -282,4 +243,3 @@ TEST(app, ensure_region_is_set_according_to_nvm)
     CHECK_EQUAL(10, nvm->Crypto.FCntList.FCntUp);
     CHECK_EQUAL(LORAMAC_REGION_EU868, nvm->MacGroup2.Region);
 };
-

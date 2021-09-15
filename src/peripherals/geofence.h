@@ -75,7 +75,6 @@ extern "C"
 
 	typedef struct
 	{
-		bool reinit_loramac_stack_pending;
 		LoRaMacRegion_t current_loramac_region;
 		Polygon_t curr_poly_region;
 		tx_permission_t tx_permission;
