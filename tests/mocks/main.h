@@ -23,7 +23,7 @@ extern "C"
     int setup_board(void);
     bool run_loop_once(void);
     int init_loramac_stack_and_tx_scheduling(void);
-    void run_country_loop(void);
+    void loop(void);
 #endif
 
 #ifdef __cplusplus

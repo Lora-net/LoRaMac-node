@@ -174,7 +174,7 @@ typedef enum
 int setup_board(void);
 loop_status_t run_loop_once(void);
 int init_loramac_stack_and_tx_scheduling(void);
-void run_country_loop(void);
+void loop(void);
 
 static LmHandlerCallbacks_t LmHandlerCallbacks =
     {
@@ -257,11 +257,11 @@ int run_app(void)
 
     while (1)
     {
-        run_country_loop();
+        loop();
     }
 }
 
-void run_country_loop()
+void loop()
 {
     while (1)
     {

@@ -83,7 +83,7 @@ TEST(app, run_app_through_3_geofence_regions_5degrees_shift_per_fix)
     {
         current_polygon= current_geofence_status.curr_poly_region;
 
-        run_country_loop();
+        loop();
         /* Ensure that region switches happen ONLY when polygon change is detected */
         CHECK_TRUE(current_polygon != current_geofence_status.curr_poly_region);
     }
@@ -91,7 +91,6 @@ TEST(app, run_app_through_3_geofence_regions_5degrees_shift_per_fix)
 
     CHECK_EQUAL(LORAMAC_REGION_EU868, current_geofence_status.current_loramac_region);
 };
-
 
 extern bool is_over_the_air_activation;
 extern bool tx_done;
@@ -109,7 +108,7 @@ TEST(app, ensure_its_abp_always_after_initing_for_region)
 
     while (region_switches--)
     {
-        run_country_loop();
+        loop();
     }
 
     init_loramac_stack_and_tx_scheduling();
@@ -125,8 +124,6 @@ TEST(app, ensure_its_abp_always_after_initing_for_region)
 
     teardown_n_positions_mock();
 };
-
-
 
 /**
  * @brief Ensure transmission happens immediately after boot. 
