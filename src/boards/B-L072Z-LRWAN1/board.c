@@ -184,7 +184,7 @@ void BoardInitMcu( void )
         GpioInit( &Load_enable, LOAD_ENABLE, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
         SystemClockConfig( );
 
-        UsbIsConnected = true;
+        UsbIsConnected = false;
 
         FifoInit( &Uart1.FifoTx, Uart1TxBuffer, UART1_FIFO_TX_SIZE );
         FifoInit( &Uart1.FifoRx, Uart1RxBuffer, UART1_FIFO_RX_SIZE );
