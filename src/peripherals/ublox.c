@@ -158,7 +158,8 @@ gps_status_t Backup_GPS()
 	{
 		printf("put_in_power_save_mode carried out successfully!\n");
 	}
-	//HAL_GPIO_WritePin(GPS_INT_GPIO_Port, GPS_INT_Pin, GPIO_PIN_RESET);    // force GPS backup mode by pulling GPS extint pin low
+	GpioWrite(&Gps_int, 0); // force GPS backup mode by pulling GPS extint pin low
+
 	return GPS_SUCCESS;
 }
 
@@ -276,7 +277,7 @@ gps_status_t get_location_fix(uint32_t timeout)
 		SysTime_t stime = SysTimeGetMcuTime();
 		printf("%3lds%03dms: ", stime.Seconds, stime.SubSeconds);
 
-		uint32_t current_time = (systimeMS_get() - startTime)/1000;
+		uint32_t current_time = (systimeMS_get() - startTime) / 1000;
 
 		printf("Fixtype: ");
 		if (temp_GPSfix_type == 0)
