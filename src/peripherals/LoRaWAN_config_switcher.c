@@ -14,6 +14,7 @@
 #include "geofence.h"
 
 int8_t datarate_calculator(LoRaMacRegion_t LoRaMacRegion);
+uint32_t tx_interval_calculator(LoRaMacRegion_t LoRaMacRegion);
 
 bool is_over_the_air_activation = true;
 extern bool context_management_enabled;
@@ -62,6 +63,7 @@ picotracker_lorawan_settings_t get_otaa_abp_setting(LoRaMacRegion_t current_regi
 
     /* select data rate depending on region of the world. */
     int8_t datarate = datarate_calculator(current_region);
+    uint32_t tx_interval = tx_interval_calculator(current_region);
 
     /* Init loramac stack */
     picotracker_lorawan_settings_t settings =
@@ -69,33 +71,56 @@ picotracker_lorawan_settings_t get_otaa_abp_setting(LoRaMacRegion_t current_regi
             .datarate = datarate,
             .region = current_region,
             .is_over_the_air_activation = is_over_the_air_activation,
+            .tx_interval = tx_interval,
         };
 
     return settings;
 }
-
-void on_tx_complete()
-{
-}
-
 
 /**
 * Use datarate of DR_5 over the EU but DR_4 over rest of the world
 */
 int8_t datarate_calculator(LoRaMacRegion_t LoRaMacRegion)
 {
-	int8_t dr = 0;
+    int8_t dr = 0;
 
-	switch (LoRaMacRegion)
-	{
-	case LORAMAC_REGION_EU868:
-		dr = DR_5;
-		break;
+    switch (LoRaMacRegion)
+    {
+    case LORAMAC_REGION_EU868:
+        dr = DR_5;
+        break;
 
-	default:
-		dr = DR_4;
-		break;
-	}
+    default:
+        dr = DR_4;
+        break;
+    }
 
-	return dr;
+    return dr;
+}
+
+/**
+ * @brief select which TX interval to use for each region
+ * 
+ * @param LoRaMacRegion Input region
+ * @return uint32_t Interval period in milliseconds 
+ */
+uint32_t tx_interval_calculator(LoRaMacRegion_t LoRaMacRegion)
+{
+    // TODO: update for more regions
+    uint32_t interval = 0;
+
+    switch (LoRaMacRegion)
+    {
+    case LORAMAC_REGION_EU868:
+        interval = 60000;
+        break;
+    case LORAMAC_REGION_US915:
+        interval = 10000;
+        break;
+    default:
+        interval = 40000;
+        break;
+    }
+
+    return interval;
 }

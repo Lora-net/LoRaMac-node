@@ -58,7 +58,7 @@
 /*!
  * Defines the application data transmission duty cycle. 5s, value in [ms].
  */
-uint32_t APP_TX_DUTYCYCLE = 60000;
+uint32_t APP_TX_DUTYCYCLE;
 
 /*!
  * Defines a random delay for application data transmission duty cycle. 1s,
@@ -300,6 +300,7 @@ int init_loramac_stack_and_tx_scheduling()
     printf("Initialising Loramac Stack with Loramac region: %s\n", region_string);
 
     picotracker_lorawan_settings_t settings = get_otaa_abp_setting(current_geofence_status.current_loramac_region);
+    APP_TX_DUTYCYCLE = settings.tx_interval;
 
     init_loramac(settings);
 

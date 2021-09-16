@@ -16,8 +16,8 @@ typedef struct
     LoRaMacRegion_t region;
     int8_t datarate;
     bool is_over_the_air_activation;
+    uint32_t tx_interval;
 
 } picotracker_lorawan_settings_t;
 
 picotracker_lorawan_settings_t get_otaa_abp_setting(LoRaMacRegion_t current_region);
-void on_tx_complete();
