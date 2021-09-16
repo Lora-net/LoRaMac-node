@@ -92,12 +92,9 @@ typedef struct
 
 
 #define CURRENT_PLAYBACK_INDEX_IN_EEPROM_ADDR      (10 + NVM_PlAYBACK_EEPROM_ADDR_START)
-#define CURRENT_PLAYBACK_INDEX_IN_EEPROM_LEN       (2)
+#define CURRENT_PLAYBACK_INDEX_IN_EEPROM_LEN       (2 + 2 + 4)
 
-#define N_PLAYBACK_POSITIONS_SAVED_IN_EEPROM_ADDR  (12 + NVM_PlAYBACK_EEPROM_ADDR_START)
-#define N_PLAYBACK_POSITIONS_SAVED_IN_EEPROM_LEN   (2)
-
-#define PLAYBACK_EEPROM_ADDR_START                 (14 + NVM_PlAYBACK_EEPROM_ADDR_START)
+#define PLAYBACK_EEPROM_ADDR_START                 (18 + NVM_PlAYBACK_EEPROM_ADDR_START)
 #define PLAYBACK_EEPROM_PACKET_SIZE                (9)
 #define MAX_PLAYBACK_POSITIONS_SAVED_IN_EEPROM     (200)
 #define PLAYBACK_EEPROM_SIZE                       (MAX_PLAYBACK_POSITIONS_SAVED_IN_EEPROM * PLAYBACK_EEPROM_PACKET_SIZE)
@@ -116,6 +113,17 @@ typedef struct
 /* External variables --------------------------------------------------------*/
 /* Exported macros -----------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */ 
+
+
+
+typedef struct
+{
+	uint16_t current_EEPROM_index;
+	uint16_t n_playback_positions_saved;
+	uint32_t Crc32;
+} eeprom_playback_stats_t;
+
+
 /**
  * @brief  initialises the sensor
  *
@@ -131,10 +139,6 @@ void  BSP_sensor_Init( void  );
  * @retval sensor_data
  */
 void BSP_sensor_Read( void );
-
-
-
-
 
 
 uint16_t get_time_pos_index_older_than(uint32_t minutes_from_epoch);

@@ -119,3 +119,14 @@ void sensor_read_and_printout(uint32_t number_of_readings)
         printf("tx_str_buffer_len: %d\n\n", data.BufferSize);
     }
 }
+
+
+/**
+ * @brief Verify sizes of define
+ * 
+ */
+TEST(bsp_ut, check_sizes)
+{
+    CHECK_EQUAL(sizeof(eeprom_playback_stats_t), CURRENT_PLAYBACK_INDEX_IN_EEPROM_LEN);
+}
+
