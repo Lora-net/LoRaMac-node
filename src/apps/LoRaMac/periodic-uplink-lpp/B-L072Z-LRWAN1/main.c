@@ -131,6 +131,12 @@ static bool AppLedStateOn = false;
  */
 static TimerEvent_t TxTimer;
 
+/**
+ * @brief Timer to handle watchdog kicking
+ * 
+ */
+static TimerEvent_t WatchdogKickTimer;
+
 static void OnMacProcessNotify(void);
 static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params);
 
@@ -146,6 +152,8 @@ static void init_loramac(picotracker_lorawan_settings_t settings);
  */
 static void OnTxTimerEvent(void *context);
 
+static void OnWatchdogKickTimerEvent(void *context);
+
 static void retrieve_lorawan_region(void);
 
 typedef enum
@@ -160,6 +168,7 @@ int init_loramac_stack_and_tx_scheduling(void);
 void loop(void);
 void update_geofence_status();
 void do_transmission();
+void WatchdogProcess(void);
 
 static LmHandlerCallbacks_t LmHandlerCallbacks =
     {
@@ -208,6 +217,7 @@ static volatile uint8_t IsMacProcessPending = 0;
 
 static volatile uint8_t IsTxFramePending = 0;
 
+static volatile bool IsWatchdogKickPending = false;
 /*!
  * LED GPIO pins objects
  */
@@ -269,6 +279,10 @@ void loop()
 void do_transmission()
 {
     init_loramac_stack_and_tx_scheduling();
+
+    TimerInit(&WatchdogKickTimer, OnWatchdogKickTimerEvent);
+    OnWatchdogKickTimerEvent(NULL);
+
     tx_count = 0;
     while (1)
     {
@@ -319,7 +333,8 @@ loop_status_t run_loop_once()
 
     TimerIrqHandler();
 #endif
-    IWDG_reset();
+
+    WatchdogProcess();
 
     // Process characters sent over the command line interface
     CliProcess(&Uart1);
@@ -329,6 +344,8 @@ loop_status_t run_loop_once()
 
     // Process application uplinks management
     UplinkProcess();
+
+    IWDG_reset();
 
     CRITICAL_SECTION_BEGIN();
     if (IsMacProcessPending == 1)
@@ -365,6 +382,12 @@ int setup_board()
     retrieve_lorawan_region();
 
     return EXIT_SUCCESS;
+}
+
+void WatchdogProcess(void)
+{
+    IWDG_reset();
+    IsWatchdogKickPending = false;
 }
 
 static void print_board_info()
@@ -535,4 +558,12 @@ static void OnTxTimerEvent(void *context)
     // Schedule next transmission
     TimerSetValue(&TxTimer, APP_TX_DUTYCYCLE + randr(-APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND));
     TimerStart(&TxTimer);
+}
+
+static void OnWatchdogKickTimerEvent(void *context)
+{
+    TimerStop(&WatchdogKickTimer);
+    IsWatchdogKickPending = true;
+    TimerSetValue(&WatchdogKickTimer, WATCH_DOG_KICK_INTERVAL);
+    TimerStart(&WatchdogKickTimer);
 }
