@@ -31,6 +31,8 @@
 #include "geofence.h"
 #include "print_utils.h"
 #include "struct.h"
+#include "gpio.h"
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define BATTERY_ADC_CHANNEL ADC_CHANNEL_5
@@ -55,6 +57,8 @@ time_pos_fix_t current_position =
 sensor_t sensor_data;
 playback_key_info_t *playback_key_info_ptr;
 gps_info_t gps_info_latest;
+
+extern Gpio_t Load_enable;
 
 double TEMPERATURE_Value;
 double PRESSURE_Value;
@@ -298,6 +302,7 @@ void BSP_sensor_Init(void)
 #if GPS_ENABLED
 	printf("SELFTEST: Initialising GPS\n\r");
 
+	GpioWrite(&Load_enable, 0); /* Enable power to GPS */
 	gps_info_latest = get_latest_gps_info();
 	//GPS SETUP
 	setup_GPS();
