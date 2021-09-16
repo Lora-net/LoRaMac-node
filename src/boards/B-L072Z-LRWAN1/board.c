@@ -177,7 +177,7 @@ void BoardInitMcu( void )
 #endif
 
         // LEDs
-        GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+        GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
         GpioInit( &Gps_int, GPS_INT, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
 
         // Load enable for sensors, GPS
@@ -201,9 +201,9 @@ void BoardInitMcu( void )
 
         for (uint8_t i = 0; i < 5; i++)
         {
-            GpioWrite( &Led1, 0 );
-            DelayMs(50);
             GpioWrite( &Led1, 1 );
+            DelayMs(50);
+            GpioWrite( &Led1, 0 );
             DelayMs(50);
         }
 
