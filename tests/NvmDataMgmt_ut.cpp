@@ -246,7 +246,7 @@ TEST(NvmDataMgmt, check_sizes)
 {
     extern nvm_data_t nvm_data_struct;
 
-    CHECK_EQUAL(3 * sizeof(nvm_data_struct) + 1156, NVM_PlAYBACK_EEPROM_ADDR_START);
+    CHECK_EQUAL(3 * sizeof(nvm_data_struct) + 1, NVM_PlAYBACK_EEPROM_ADDR_START);
 }
 
 /**
