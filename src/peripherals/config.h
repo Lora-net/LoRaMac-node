@@ -32,36 +32,9 @@ extern "C"
 #include "stdbool.h"
 #include "stdint.h"
 #include "LoRaMacTypes.h"
-  /* Private includes ----------------------------------------------------------*/
-  /* USER CODE BEGIN Includes */
-
-  /* USER CODE END Includes */
-
-  /* Exported types ------------------------------------------------------------*/
-  /* USER CODE BEGIN ET */
-
-  /* USER CODE END ET */
-
-  /* Exported constants --------------------------------------------------------*/
-  /* USER CODE BEGIN EC */
-
-  /* USER CODE END EC */
-
-  /* Exported macro ------------------------------------------------------------*/
-  /* USER CODE BEGIN EM */
-
-  /* USER CODE END EM */
 
   /* Exported functions prototypes ---------------------------------------------*/
   void Error_Handler(void);
-
-  /* USER CODE BEGIN EFP */
-
-  /* USER CODE END EFP */
-
-  /* Private defines -----------------------------------------------------------*/
-
-/* USER CODE BEGIN Private defines */
 
 // PRELAUNCH IMPORTANT!
 // comment out these defines to disable sensor, Radio, GPS or LED
@@ -104,13 +77,19 @@ extern "C"
 
 /* WATCHDOG RELATED DEFINES */
 /* ----------------------------------------------------------------------------------- */
-#define USE_WATCHDOG 1 /* Use watchdog. Allowed values: 0 disabled , 1(default) enabled */
+#define USE_WATCHDOG 1                /* Use watchdog. Allowed values: 0 disabled , 1(default) enabled */
 #define WATCH_DOG_KICK_INTERVAL 15000 /* How often to wakeup the MCU from deepsleep to kick the watchdog */
 /**
  * @brief Choose whether to printout debug info for EEPROM
  * 
  */
 #define PRINT_EEPROM_DEBUG 0
+
+/**
+ * @brief Choose whether to go into Deep sleep or not
+ * 
+ */
+#define DEEP_SLEEP_ENABLE true
 
 /*!
  * LoRaWAN default end-device class
