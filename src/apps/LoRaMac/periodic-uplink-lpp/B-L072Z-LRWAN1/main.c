@@ -264,7 +264,8 @@ void loop()
         /* reading sensors and GPS */
         BSP_sensor_Read();
 
-        if (get_latest_gps_status() == GPS_SUCCESS)
+        gps_info_t latest = get_latest_gps_info();
+        if (latest.latest_gps_status == GPS_SUCCESS)
         {
             update_geofence_status();
         }

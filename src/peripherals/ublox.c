@@ -28,68 +28,34 @@
 #include <string.h>
 #include <time.h>
 #include "iwdg.h"
+#include "led_displays.h"
 
 #include "SparkFun_Ublox_Arduino_Library.h"
-
 #include "i2c_middleware.h"
+
 extern I2c_t I2c;
-extern Gpio_t Led1;
 extern Gpio_t Gps_int;
 
-/* ==================================================================== */
-/* ============================ constants ============================= */
-/* ==================================================================== */
 
-/* #define and enum statements go here */
+typedef enum
+{
+	LOWPOWER,
+	RX,
+	RX_TIMEOUT,
+	RX_ERROR,
+	TX,
+	TX_TIMEOUT,
+} Ublox_States_t;
+
+Ublox_States_t State = LOWPOWER;
+
 #define SATS 4 // number of satellites required for positional solution
-
-/* ==================================================================== */
-/* ======================== global variables ========================== */
-/* ==================================================================== */
-
-/* Global variables definitions go here */
 
 uint16_t load_solar_voltage = 0;
 gps_info_t gps_info = {.unix_time = UINT16_MAX, .latest_gps_status = GPS_FAILURE};
 
-/* ==================================================================== */
-/* ========================== private data ============================ */
-/* ==================================================================== */
-
-/* Definition of private datatypes go here */
-
-/* ==================================================================== */
-/* ====================== private functions =========================== */
-/* ==================================================================== */
-
-/* Function prototypes for private (static) functions go here */
-
-gps_status_t get_location_fix(uint32_t timeout);
-gps_status_t setup_GPS(void);
-gps_status_t get_latest_gps_status(void);
 gps_status_t Backup_GPS(void);
-
-void make_dummy_coordinates(void);
-static gps_status_t display_still_searching(void);
-static gps_status_t display_fix_found(void);
 static gps_status_t init_for_fix(void);
-uint32_t systimeMS_get(void);
-
-/* ==================================================================== */
-/* ===================== All functions by section ===================== */
-/* ==================================================================== */
-
-/* Functions definitions go here, organised into sections */
-
-uint32_t systimeMS_get()
-{
-	return SysTimeToMs(SysTimeGet());
-}
-
-gps_status_t get_latest_gps_status(void)
-{
-	return gps_info.latest_gps_status;
-}
 
 gps_info_t get_latest_gps_info(void)
 {
@@ -133,11 +99,13 @@ gps_status_t setup_GPS()
 	factoryReset();
 	DelayMs(GPS_WAKEUP_TIMEOUT); // Wait for things to be setup
 
+	printf(disable_pps(0) ? "Disable pps success\n" : "Disable pps failure\n");
+
 	/* Set the I2C port to output UBX only (turn off NMEA noise) */
-	if (setI2COutput(COM_TYPE_UBX, defaultMaxWait) == false) //Set the I2C port to output UBX only (turn off NMEA noise)
+	if (setI2COutput(COM_TYPE_UBX, 0) == false) //Set the I2C port to output UBX only (turn off NMEA noise)
 	{
 		printf("***!!! Warning: setI2COutput failed !!!***\n");
-		reinit_i2c();
+		// reinit_i2c();
 	}
 	else
 	{
@@ -147,7 +115,7 @@ gps_status_t setup_GPS()
 	if (setGPS_constellation_only(defaultMaxWait) == false) // Set the constellation to use only GPS
 	{
 		printf("***!!! Warning: setGPS_constellation_only failed !!!***\n");
-		reinit_i2c();
+		// reinit_i2c();
 	}
 	else
 	{
@@ -201,8 +169,8 @@ gps_status_t get_location_fix(uint32_t timeout)
 	memset(&gps_info, 0, sizeof(gps_info_t));
 
 	/* poll UBX-NAV-PVT until the module has fix */
-	uint32_t startTime = systimeMS_get();
-	while (systimeMS_get() - startTime < timeout)
+	uint32_t startTime = SysTimeToMs(SysTimeGet());
+	while (SysTimeToMs(SysTimeGet()) - startTime < timeout)
 	{
 		IWDG_reset();
 
@@ -223,7 +191,7 @@ gps_status_t get_location_fix(uint32_t timeout)
 		SysTime_t stime = SysTimeGetMcuTime();
 		printf("%3lds%03dms: ", stime.Seconds, stime.SubSeconds);
 
-		uint32_t current_time = (systimeMS_get() - startTime) / 1000;
+		uint32_t current_time = (SysTimeToMs(SysTimeGet())- startTime) / 1000;
 
 		printf("Fixtype: ");
 		if (temp_GPSfix_type == 0)
@@ -365,30 +333,6 @@ static gps_status_t init_for_fix()
 	}
 
 	IWDG_reset();
-
-	return GPS_SUCCESS;
-}
-
-static gps_status_t display_still_searching()
-{
-	// Indicator led to indicate that still searching
-	GpioWrite(&Led1, 1);
-	DelayMs(100);
-	GpioWrite(&Led1, 0);
-
-	return GPS_SUCCESS;
-}
-
-/* indicate that fix has been found */
-static gps_status_t display_fix_found()
-{
-	for (uint8_t i = 0; i < 20; i++)
-	{
-		GpioWrite(&Led1, 1);
-		DelayMs(50);
-		GpioWrite(&Led1, 0);
-		DelayMs(50);
-	}
 
 	return GPS_SUCCESS;
 }

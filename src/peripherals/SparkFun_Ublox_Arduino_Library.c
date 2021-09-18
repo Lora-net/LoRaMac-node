@@ -46,7 +46,12 @@
 #include <systime.h>
 #include "delay.h"
 
+#include "print_utils.h"
+#include "string.h"
+
 extern I2c_t I2c;
+extern Gpio_t Gps_PPS;
+bool config_done = false;
 
 const char *statusString(sfe_ublox_status_e stat)
 {
@@ -249,9 +254,13 @@ bool checkUbloxI2C(ubxPacket *incomingUBX, uint8_t requestedClass, uint8_t reque
 
     uint8_t buff_rx[2] = {0};
 
-    if (I2cReadMemBuffer(&I2c, (uint16_t)_gpsI2Caddress << 1, (uint16_t)0xFD, buff_rx, 2) != LMN_STATUS_OK)
+    if (GpioRead(&Gps_PPS) == 0)
     {
       return (false); //Sensor did not ACK
+    }
+    else
+    {
+      I2cReadMemBuffer(&I2c, (uint16_t)_gpsI2Caddress << 1, (uint16_t)0xFD, buff_rx, 2);
     }
 
     uint8_t msb = buff_rx[0];
@@ -1335,17 +1344,84 @@ bool getPortSettings(uint8_t portID, uint16_t maxWait)
 //Bit:0 = UBX, :1=NMEA, :5=RTCM3
 bool setPortOutput(uint8_t portID, uint8_t outStreamSettings, uint16_t maxWait)
 {
-  //Get the current config values for this port ID
-  if (getPortSettings(portID, maxWait) == false)
-    return (false); //Something went wrong. Bail.
-
   packetCfg.cls = UBX_CLASS_CFG;
   packetCfg.id = UBX_CFG_PRT;
   packetCfg.len = 20;
   packetCfg.startingSpot = 0;
 
-  //payloadCfg is now loaded with current bytes. Change only the ones we need to
-  payloadCfg[14] = outStreamSettings; //OutProtocolMask LSB - Set outStream bits
+  uint8_t set_port_output_bytes[] = {0x00, 0x00, 0x09, 0x00, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00};
+  memcpy(payloadCfg, set_port_output_bytes, packetCfg.len);
+
+  return ((sendCommand(&packetCfg, maxWait)) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
+}
+
+/**
+ * @brief Get pps settings
+ * 
+ * @param maxWait 
+ * @return true 
+ * @return false 
+ */
+bool getPPSSettings(uint16_t maxWait)
+{
+  packetCfg.cls = UBX_CLASS_CFG;
+  packetCfg.id = UBX_CFG_TP5;
+  packetCfg.len = 0;
+  packetCfg.startingSpot = 0;
+
+  return ((sendCommand(&packetCfg, maxWait)) == SFE_UBLOX_STATUS_DATA_RECEIVED); // We are expecting data and an ACK
+}
+
+/**
+ * @brief Disable the PPS function on the PPS pin so that it can be used
+ * for other things.
+ * 
+ * @param maxWait 
+ * @return true 
+ * @return false 
+ */
+bool disable_pps(uint16_t maxWait)
+{
+
+  packetCfg.cls = UBX_CLASS_CFG;
+  packetCfg.id = UBX_CFG_TP5;
+  packetCfg.len = 32;
+  packetCfg.startingSpot = 0;
+
+  uint8_t disable_pps_payload[] = {0x00,
+                                   0x01,
+                                   0x00,
+                                   0x00,
+                                   0x32,
+                                   0x00,
+                                   0x00,
+                                   0x00,
+                                   0x40,
+                                   0x42,
+                                   0x0f,
+                                   0x00,
+                                   0x40,
+                                   0x42,
+                                   0x0f,
+                                   0x00,
+                                   0x00,
+                                   0x00,
+                                   0x00,
+                                   0x00,
+                                   0xa0,
+                                   0x86,
+                                   0x01,
+                                   0x00,
+                                   0x00,
+                                   0x00,
+                                   0x00,
+                                   0x00,
+                                   0x76,
+                                   0x00,
+                                   0x00,
+                                   0x00};
+
+  memcpy(payloadCfg, disable_pps_payload, packetCfg.len);
 
   return ((sendCommand(&packetCfg, maxWait)) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
 }

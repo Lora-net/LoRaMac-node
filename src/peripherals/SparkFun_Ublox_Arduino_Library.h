@@ -607,6 +607,9 @@ extern "C"
 	int8_t extractSignedChar(uint8_t spotToStart);												  //Get signed 8-bit value from payload
 	void addToChecksum(uint8_t incoming);														  //Given an incoming byte, adjust rollingChecksumA/B
 
+	bool disable_pps(uint16_t maxWait);
+	bool getPPSSettings(uint16_t maxWait);
+
 #endif
 #ifdef __cplusplus
 }

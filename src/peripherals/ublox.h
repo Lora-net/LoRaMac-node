@@ -83,7 +83,6 @@ extern "C"
 
 	gps_status_t get_location_fix(uint32_t timeout);
 	gps_status_t setup_GPS(void);
-	gps_status_t get_latest_gps_status(void);
 	uint16_t get_load_solar_voltage(void);
 	gps_info_t get_latest_gps_info(void);
 
