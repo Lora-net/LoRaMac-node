@@ -37,8 +37,6 @@
 	WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-#if 1
-
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -49,13 +47,6 @@
 #include "delay.h"
 
 extern I2c_t I2c;
-
-
-
-
-
-
-
 
 const char *statusString(sfe_ublox_status_e stat)
 {
@@ -118,8 +109,6 @@ static uint8_t carrierSolution; //Tells us when we have an RTK float/fixed solut
 static int32_t groundSpeed;     //mm/s
 static int32_t headingOfMotion; //degrees * 10^-5
 static uint16_t pDOP;           //Positional dilution of precision
-static uint8_t versionLow;      //Loaded from getProtocolVersion().
-static uint8_t versionHigh;
 
 static uint8_t _gpsI2Caddress = 0x42; //Default 7-bit unshifted address of the ublox 6/7/8/M8/F9 series
 //This can be changed using the ublox configuration software
@@ -164,7 +153,6 @@ static int32_t highResLatitude;     // Degrees * 10^-7
 static int32_t highResLongitude;    // Degrees * 10^-7
 static int32_t elipsoid;            // Height above ellipsoid in mm (Typo! Should be eLLipsoid! **Uncorrected for backward-compatibility.**)
 static int32_t meanSeaLevel;        // Height above mean sea level in mm
-static int32_t geoidSeparation;     // This seems to only be provided in NMEA GGA and GNS messages
 static uint32_t horizontalAccuracy; // mm * 10^-1 (i.e. 0.1mm)
 static uint32_t verticalAccuracy;   // mm * 10^-1 (i.e. 0.1mm)
 static int8_t elipsoidHp;           // High precision component of the height above ellipsoid in mm * 10^-1 (Deliberate typo! Should be eLLipsoidHp!)
@@ -173,15 +161,6 @@ static int8_t highResLatitudeHp;    // High precision component of latitude: Deg
 static int8_t highResLongitudeHp;   // High precision component of longitude: Degrees * 10^-9
 
 static uint16_t rtcmFrameCounter = 0; //Tracks the type of incoming byte inside RTCM frame
-
-//Survey-in specific controls
-static struct svinStructure
-{
-  bool active;
-  bool valid;
-  uint16_t observationTime;
-  float meanAccuracy;
-} svin;
 
 //Depending on the sentence type the processor will load characters into different arrays
 static enum SentenceTypes { NONE = 0,
@@ -244,58 +223,6 @@ static struct
   uint16_t highResLongitudeHp : 1;
 } highResModuleQueried;
 
-static uint16_t rtcmLen = 0;
-
-void factoryReset()
-{
-  // Copy default settings to permanent
-  // Note: this does not load the permanent configuration into the current configuration. Calling factoryDefault() will do that.
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_CFG;
-  packetCfg.len = 13;
-  packetCfg.startingSpot = 0;
-  for (uint8_t i = 0; i < 4; i++)
-  {
-    payloadCfg[0 + i] = 0xff; // clear mask: copy default config to permanent config
-    payloadCfg[4 + i] = 0x00; // save mask: don't save current to permanent
-    payloadCfg[8 + i] = 0x00; // load mask: don't copy permanent config to current
-  }
-  payloadCfg[12] = 0xff;      // all forms of permanent memory
-  sendCommand(&packetCfg, 0); // don't expect ACK
-  hardReset();                // cause factory default config to actually be loaded and used cleanly
-}
-
-void hardReset()
-{
-  // Issue hard reset
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_RST;
-  packetCfg.len = 4;
-  packetCfg.startingSpot = 0;
-  payloadCfg[0] = 0xff;       // cold start
-  payloadCfg[1] = 0xff;       // cold start
-  payloadCfg[2] = 0;          // 0=HW reset
-  payloadCfg[3] = 0;          // reserved
-  sendCommand(&packetCfg, 0); // don't expect ACK
-}
-
-
-// original uint8_t resetReceiver[12]		= {0xB5, 0x62, 0x06, 0x04, 0x04, 0x00, 0xFF, 0xB9, 0x00, 0x00, 0xC6, 0x8B}; 
-void ihardReset()
-{
-  // Issue hard reset
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_RST;
-  packetCfg.len = 4;
-  packetCfg.startingSpot = 0;
-  payloadCfg[0] = 0xff;       // cold start
-  payloadCfg[1] = 0xb9;       // cold start
-  payloadCfg[2] = 0;          // 0=HW reset
-  payloadCfg[3] = 0;          // reserved
-  sendCommand(&packetCfg, 0); // don't expect ACK
-}
-
-
 //Called regularly to check for available bytes on the user' specified port
 bool checkUblox(uint8_t requestedClass, uint8_t requestedID)
 {
@@ -319,43 +246,29 @@ bool checkUbloxI2C(ubxPacket *incomingUBX, uint8_t requestedClass, uint8_t reque
   {
     //Get the number of bytes available from the module
     uint16_t bytesAvailable = 0;
-//    _i2cPort->beginTransmission(_gpsI2Caddress);
-//    _i2cPort->write(0xFD);                     //0xFD (MSB) and 0xFE (LSB) are the registers that contain number of bytes available
-//    if (_i2cPort->endTransmission(false) != 0) //Send a restart command. Do not release bus.
-//      return (false);                          //Sensor did not ACK
 
-		
-		// if (HAL_I2C_IsDeviceReady(&hi2c1,(uint16_t) _gpsI2Caddress << 1,5,defaultMaxWait) != HAL_OK)
-		// {
-		// 	return (false);                          //Sensor did not ACK
-		// }
-		
-		uint8_t buff_rx[2] = {0};
-		
-		//uint16_t return_value = 0;
-		if (I2cReadMemBuffer(&I2c,(uint16_t) _gpsI2Caddress << 1,(uint16_t)0xFD,buff_rx,2 ) != LMN_STATUS_OK)
-		{
-			return (false);                          //Sensor did not ACK
-		}
-		
-		uint8_t msb = buff_rx[0];
-		uint8_t lsb = buff_rx[1];
-		
-		
-    
-		if (lsb == 0xFF)
-		{
-			//I believe this is a Ublox bug. Device should never present an 0xFF.
-			if ((_printDebug == true) || (_printLimitedDebug == true)) // printf this if doing limited debugging
-			{
-				printf("checkUbloxI2C: Ublox bug, length lsb is 0xFF\r\n");
-			}
+    uint8_t buff_rx[2] = {0};
 
-			lastCheck = SysTimeToMs(SysTimeGet()); //Put off checking to avoid I2C bus traffic
-			return (false);
-		}
-		bytesAvailable = (uint16_t)msb << 8 | lsb;
-    
+    if (I2cReadMemBuffer(&I2c, (uint16_t)_gpsI2Caddress << 1, (uint16_t)0xFD, buff_rx, 2) != LMN_STATUS_OK)
+    {
+      return (false); //Sensor did not ACK
+    }
+
+    uint8_t msb = buff_rx[0];
+    uint8_t lsb = buff_rx[1];
+
+    if (lsb == 0xFF)
+    {
+      //I believe this is a Ublox bug. Device should never present an 0xFF.
+      if ((_printDebug == true) || (_printLimitedDebug == true)) // printf this if doing limited debugging
+      {
+        printf("checkUbloxI2C: Ublox bug, length lsb is 0xFF\r\n");
+      }
+
+      lastCheck = SysTimeToMs(SysTimeGet()); //Put off checking to avoid I2C bus traffic
+      return (false);
+    }
+    bytesAvailable = (uint16_t)msb << 8 | lsb;
 
     if (bytesAvailable == 0)
     {
@@ -378,7 +291,7 @@ bool checkUbloxI2C(ubxPacket *incomingUBX, uint8_t requestedClass, uint8_t reque
       if ((_printDebug == true) || (_printLimitedDebug == true)) // printf this if doing limited debugging
       {
         printf("checkUbloxI2C: Bytes available error:");
-        printf("%d\r\n",bytesAvailable);
+        printf("%d\r\n", bytesAvailable);
       }
     }
 
@@ -387,7 +300,7 @@ bool checkUbloxI2C(ubxPacket *incomingUBX, uint8_t requestedClass, uint8_t reque
       if (_printDebug == true)
       {
         printf("checkUbloxI2C: Large packet of ");
-        printf("%d",bytesAvailable);
+        printf("%d", bytesAvailable);
         printf(" bytes received\r\n");
       }
     }
@@ -396,28 +309,24 @@ bool checkUbloxI2C(ubxPacket *incomingUBX, uint8_t requestedClass, uint8_t reque
       if (_printDebug == true)
       {
         printf("checkUbloxI2C: Reading ");
-        printf("%d",bytesAvailable);
+        printf("%d", bytesAvailable);
         printf(" bytes\r\n");
       }
     }
-		
 
-
-		if (I2cReadMemBuffer(&I2c,(uint16_t) _gpsI2Caddress << 1,(uint16_t)0xFF,payloadCfg,bytesAvailable ) != LMN_STATUS_OK)
-		{
-			return (false);  //Sensor did not ACK
-		}
-		for(int i = 0; i < bytesAvailable ; i++)
-		{
-			uint8_t incoming = payloadCfg[i];
-			process(incoming, incomingUBX, requestedClass, requestedID); //Process this valid character
-		}
+    if (I2cReadMemBuffer(&I2c, (uint16_t)_gpsI2Caddress << 1, (uint16_t)0xFF, payloadCfg, bytesAvailable) != LMN_STATUS_OK)
+    {
+      return (false); //Sensor did not ACK
+    }
+    for (int i = 0; i < bytesAvailable; i++)
+    {
+      uint8_t incoming = payloadCfg[i];
+      process(incoming, incomingUBX, requestedClass, requestedID); //Process this valid character
+    }
   }
 
   return (true);
-
-} //end checkUbloxI2C()
-
+}
 
 //Processes NMEA and UBX binary sentences one byte at a time
 //Take a given byte and file it into the proper array
@@ -522,9 +431,9 @@ void process(uint8_t incoming, ubxPacket *incomingUBX, uint8_t requestedClass, u
         if (_printDebug == true)
         {
           printf("process: ZERO LENGTH packet received: Class: 0x");
-          printf("%02X",packetBuf.cls);
+          printf("%02X", packetBuf.cls);
           printf(" ID: 0x");
-          printf("%02X\r\n",packetBuf.id);
+          printf("%02X\r\n", packetBuf.id);
         }
         //If length is zero (!) this will be the first byte of the checksum so record it
         packetBuf.checksumA = incoming;
@@ -573,11 +482,11 @@ void process(uint8_t incoming, ubxPacket *incomingUBX, uint8_t requestedClass, u
           if (_printDebug == true)
           {
             printf("process: ACK received with .len != 2: Class: 0x");
-            printf("%02X ",packetBuf.payload[0]);
+            printf("%02X ", packetBuf.payload[0]);
             printf(" ID: 0x");
-            printf("%02X ",packetBuf.payload[1]);
+            printf("%02X ", packetBuf.payload[1]);
             printf(" len: ");
-            printf("%02X\r\n",packetBuf.len);
+            printf("%02X\r\n", packetBuf.len);
           }
         }
       }
@@ -596,83 +505,10 @@ void process(uint8_t incoming, ubxPacket *incomingUBX, uint8_t requestedClass, u
   }
   else if (currentSentence == NMEA)
   {
-    processNMEA(incoming); //Process each NMEA character
   }
   else if (currentSentence == RTCM)
   {
-    processRTCMframe(incoming); //Deal with RTCM bytes
   }
-}
-
-//This is the default or generic NMEA processor. We're only going to pipe the data to serial port so we can see it.
-//User could overwrite this function to pipe characters to nmea.process(c) of tinyGPS or MicroNMEA
-//Or user could pipe each character to a buffer, radio, etc.
-void processNMEA(char incoming)
-{
-//  //If user has assigned an output port then pipe the characters there
-//  if (_nmeaOutputPort != NULL)
-    printf("%c",incoming); //Echo this byte to the serial port
-}
-
-//We need to be able to identify an RTCM packet and then the length
-//so that we know when the RTCM message is completely received and we then start
-//listening for other sentences (like NMEA or UBX)
-//RTCM packet structure is very odd. I never found RTCM STANDARD 10403.2 but
-//http://d1.amobbs.com/bbs_upload782111/files_39/ourdev_635123CK0HJT.pdf is good
-//https://dspace.cvut.cz/bitstream/handle/10467/65205/F3-BP-2016-Shkalikava-Anastasiya-Prenos%20polohove%20informace%20prostrednictvim%20datove%20site.pdf?sequence=-1
-//Lead me to: https://forum.u-blox.com/index.php/4348/how-to-read-rtcm-messages-from-neo-m8p
-//RTCM 3.2 bytes look like this:
-//Byte 0: Always 0xD3
-//Byte 1: 6-bits of zero
-//Byte 2: 10-bits of length of this packet including the first two-ish header bytes, + 6.
-//byte 3 + 4 bits: Msg type 12 bits
-//Example: D3 00 7C 43 F0 ... / 0x7C = 124+6 = 130 bytes in this packet, 0x43F = Msg type 1087
-void processRTCMframe(uint8_t incoming)
-{
-  if (rtcmFrameCounter == 1)
-  {
-    rtcmLen = (incoming & 0x03) << 8; //Get the last two bits of this byte. Bits 8&9 of 10-bit length
-  }
-  else if (rtcmFrameCounter == 2)
-  {
-    rtcmLen |= incoming; //Bits 0-7 of packet length
-    rtcmLen += 6;        //There are 6 additional bytes of what we presume is header, msgType, CRC, and stuff
-  }
-  /*else if (rtcmFrameCounter == 3)
-  {
-    rtcmMsgType = incoming << 4; //Message Type, MS 4 bits
-  }
-  else if (rtcmFrameCounter == 4)
-  {
-    rtcmMsgType |= (incoming >> 4); //Message Type, bits 0-7
-  }*/
-
-  rtcmFrameCounter++;
-
-  processRTCM(incoming); //Here is where we expose this byte to the user
-
-  if (rtcmFrameCounter == rtcmLen)
-  {
-    //We're done!
-    currentSentence = NONE; //Reset and start looking for next sentence type
-  }
-}
-
-//This function is called for each byte of an RTCM frame
-//Ths user can overwrite this function and process the RTCM frame as they please
-//Bytes can be piped to Serial or other interface. The consumer could be a radio or the internet (Ntrip broadcaster)
-void processRTCM(uint8_t incoming)
-{
-  //Radio.sendReliable((String)incoming); //An example of passing this byte to a radio
-
-  //write(incoming); //An example of passing this byte out the serial port
-
-  //Debug printing
-  //  printf(" "));
-  //  iincoming < 0x10) printf("0"));
-  //  iincoming < 0x10) printf("0"));
-  //  printf(incoming, HEX);
-  //  irtcmFrameCounter % 16 == 0) printf();
 }
 
 //Given a character, file it away into the uxb packet structure
@@ -738,16 +574,16 @@ void processUBX(uint8_t incoming, ubxPacket *incomingUBX, uint8_t requestedClass
         if (_printDebug == true)
         {
           printf("processUBX: NACK received: Requested Class: 0x");
-          printf("%02X ",incomingUBX->payload[0]);
+          printf("%02X ", incomingUBX->payload[0]);
           printf(" Requested ID: 0x");
-          printf("%02X \r\n",incomingUBX->payload[1]);
+          printf("%02X \r\n", incomingUBX->payload[1]);
         }
       }
 
       if (_printDebug == true)
       {
         printf("Incoming: Size: ");
-        printf("%d",incomingUBX->len);
+        printf("%d", incomingUBX->len);
         printf(" Received: ");
         printPacket(incomingUBX);
 
@@ -796,22 +632,21 @@ void processUBX(uint8_t incoming, ubxPacket *incomingUBX, uint8_t requestedClass
       if ((_printDebug == true) || (_printLimitedDebug == true)) // printf this if doing limited debugging
       {
 
-
         printf("Checksum failed:");
         printf(" checksumA: ");
-        printf("%d",incomingUBX->checksumA);
+        printf("%d", incomingUBX->checksumA);
         printf(" checksumB: ");
-        printf("%d",incomingUBX->checksumB);
+        printf("%d", incomingUBX->checksumB);
 
         printf(" rollingChecksumA: ");
-        printf("%d",rollingChecksumA);
+        printf("%d", rollingChecksumA);
         printf(" rollingChecksumB: ");
-        printf("%d",rollingChecksumB);
+        printf("%d", rollingChecksumB);
         printf("\r\n");
 
         printf("Failed  : ");
         printf("Size: ");
-        printf("%d",incomingUBX->len);
+        printf("%d", incomingUBX->len);
         printf(" Received: ");
         printPacket(incomingUBX);
       }
@@ -874,13 +709,13 @@ void processUBXpacket(ubxPacket *msg)
       gpsHour = extractByte(8);
       gpsMinute = extractByte(9);
       gpsSecond = extractByte(10);
-			gpsDateValid = extractByte(11) & 0x01;
+      gpsDateValid = extractByte(11) & 0x01;
       gpsTimeValid = (extractByte(11) & 0x02) >> 1;
       gpsNanosecond = extractLong(16); //Includes milliseconds
 
       fixType = extractByte(20 - startingSpot);
-			gnssFixOK = (extractByte(21 - startingSpot) >> 0) & 0x01; // get the first bit(least significant bit)
-      carrierSolution = extractByte(21 - startingSpot) >> 6; //Get 6th&7th bits of this byte
+      gnssFixOK = (extractByte(21 - startingSpot) >> 0) & 0x01; // get the first bit(least significant bit)
+      carrierSolution = extractByte(21 - startingSpot) >> 6;    //Get 6th&7th bits of this byte
       SIV = extractByte(23 - startingSpot);
       longitude = extractLong(24 - startingSpot);
       latitude = extractLong(28 - startingSpot);
@@ -898,7 +733,7 @@ void processUBXpacket(ubxPacket *msg)
       moduleQueried.gpsHour = true;
       moduleQueried.gpsMinute = true;
       moduleQueried.gpsSecond = true;
-			moduleQueried.gpsDateValid = true;
+      moduleQueried.gpsDateValid = true;
       moduleQueried.gpsTimeValid = true;
       moduleQueried.gpsNanosecond = true;
 
@@ -909,7 +744,7 @@ void processUBXpacket(ubxPacket *msg)
       moduleQueried.altitudeMSL = true;
       moduleQueried.SIV = true;
       moduleQueried.fixType = true;
-			moduleQueried.gnssFixOK = true;
+      moduleQueried.gnssFixOK = true;
       moduleQueried.carrierSolution = true;
       moduleQueried.groundSpeed = true;
       moduleQueried.headingOfMotion = true;
@@ -946,37 +781,37 @@ void processUBXpacket(ubxPacket *msg)
       if (_printDebug == true)
       {
         printf("Sec: ");
-        printf("%3.5f\n",((float)extractLong(4)) / 1000.0f);
+        printf("%3.5f\n", ((float)extractLong(4)) / 1000.0f);
         printf(" ");
         printf("LON: ");
-        printf("%3.5f\n",((float)(int32_t)extractLong(8)) / 10000000.0f);
+        printf("%3.5f\n", ((float)(int32_t)extractLong(8)) / 10000000.0f);
         printf(" ");
         printf("LAT: ");
-        printf("%3.5f\n",((float)(int32_t)extractLong(12)) / 10000000.0f);
+        printf("%3.5f\n", ((float)(int32_t)extractLong(12)) / 10000000.0f);
         printf(" ");
         printf("ELI M: ");
-        printf("%3.5f\n",((float)(int32_t)extractLong(16)) / 1000.0f);
+        printf("%3.5f\n", ((float)(int32_t)extractLong(16)) / 1000.0f);
         printf(" ");
         printf("MSL M: ");
-        printf("%3.5f\n",((float)(int32_t)extractLong(20)) / 1000.0f);
+        printf("%3.5f\n", ((float)(int32_t)extractLong(20)) / 1000.0f);
         printf(" ");
         printf("LON HP: ");
-        printf("%d\r\n",extractSignedChar(24));
+        printf("%d\r\n", extractSignedChar(24));
         printf(" ");
         printf("LAT HP: ");
-        printf("%d\r\n",extractSignedChar(25));
+        printf("%d\r\n", extractSignedChar(25));
         printf(" ");
         printf("ELI HP: ");
-        printf("%d\r\n",extractSignedChar(26));
+        printf("%d\r\n", extractSignedChar(26));
         printf(" ");
         printf("MSL HP: ");
-        printf("%d\r\n",extractSignedChar(27));
+        printf("%d\r\n", extractSignedChar(27));
         printf(" ");
         printf("HA 2D M: ");
-        printf("%3.5f\n",((float)(int32_t)extractLong(28)) / 10000.0f);
+        printf("%3.5f\n", ((float)(int32_t)extractLong(28)) / 10000.0f);
         printf(" ");
         printf("VERT M: ");
-        printf("%3.5f\n",((float)(int32_t)extractLong(32)) / 10000.0f);
+        printf("%3.5f\n", ((float)(int32_t)extractLong(32)) / 10000.0f);
       }
     }
     break;
@@ -1032,47 +867,31 @@ sfe_ublox_status_e sendCommand(ubxPacket *outgoingUBX, uint16_t maxWait)
   return retVal;
 }
 
-
-
 //Returns false if sensor fails to respond to I2C traffic
 sfe_ublox_status_e sendI2cCommand(ubxPacket *outgoingUBX, uint16_t maxWait)
 {
 
-	uint8_t cnt = 0;
+  uint8_t cnt = 0;
   /* Total packet consists of 8 bytes minimum and then payload */
   uint8_t GPS_buffer[outgoingUBX->len + 8];
-	GPS_buffer[cnt++] = UBX_SYNCH_1;                            //μ - oh ublox, you're funny. I will call you micro-blox from now on.
-	GPS_buffer[cnt++] = UBX_SYNCH_2;                            //b
-	GPS_buffer[cnt++] = outgoingUBX->cls;
-	GPS_buffer[cnt++] = outgoingUBX->id;
-	GPS_buffer[cnt++] = outgoingUBX->len & 0xFF;   //LSB
-	GPS_buffer[cnt++] = outgoingUBX->len >> 8;     //MSB
+  GPS_buffer[cnt++] = UBX_SYNCH_1; //μ - oh ublox, you're funny. I will call you micro-blox from now on.
+  GPS_buffer[cnt++] = UBX_SYNCH_2; //b
+  GPS_buffer[cnt++] = outgoingUBX->cls;
+  GPS_buffer[cnt++] = outgoingUBX->id;
+  GPS_buffer[cnt++] = outgoingUBX->len & 0xFF; //LSB
+  GPS_buffer[cnt++] = outgoingUBX->len >> 8;   //MSB
 
-	for (uint16_t x = 0; x < outgoingUBX->len; x++)
-	{
-		GPS_buffer[cnt++] = outgoingUBX->payload[x];
-	}
-	
-	GPS_buffer[cnt++] = outgoingUBX->checksumA;
-	GPS_buffer[cnt++] = outgoingUBX->checksumB;
-	
-	
-	return ((I2cWriteMemBuffer(&I2c, _gpsI2Caddress << 1,(uint16_t)0xFF, GPS_buffer, cnt) == LMN_STATUS_OK)
-		       ? SFE_UBLOX_STATUS_SUCCESS : SFE_UBLOX_STATUS_I2C_COMM_FAILURE);
-}
+  for (uint16_t x = 0; x < outgoingUBX->len; x++)
+  {
+    GPS_buffer[cnt++] = outgoingUBX->payload[x];
+  }
 
+  GPS_buffer[cnt++] = outgoingUBX->checksumA;
+  GPS_buffer[cnt++] = outgoingUBX->checksumB;
 
-//Returns true if I2C device ack's
-bool isConnected(uint16_t maxWait)
-{
-
-  // Query navigation rate to see whether we get a meaningful response
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_RATE;
-  packetCfg.len = 0;
-  packetCfg.startingSpot = 0;
-
-  return (sendCommand(&packetCfg, maxWait) == SFE_UBLOX_STATUS_DATA_RECEIVED); // We are polling the RATE so we expect data and an ACK
+  return ((I2cWriteMemBuffer(&I2c, _gpsI2Caddress << 1, (uint16_t)0xFF, GPS_buffer, cnt) == LMN_STATUS_OK)
+              ? SFE_UBLOX_STATUS_SUCCESS
+              : SFE_UBLOX_STATUS_I2C_COMM_FAILURE);
 }
 
 //Given a message, calc and store the two byte "8-Bit Fletcher" checksum over the entirety of the message
@@ -1126,7 +945,7 @@ void printPacket(ubxPacket *packet)
     else
     {
       printf("0x");
-      printf("%d",packet->cls);
+      printf("%d", packet->cls);
     }
 
     printf(" ID:");
@@ -1139,11 +958,11 @@ void printPacket(ubxPacket *packet)
     else
     {
       printf("0x");
-      printf("%02X",packet->id);
+      printf("%02X", packet->id);
     }
 
     printf(" Len: 0x");
-    printf("%02X",packet->len);
+    printf("%02X", packet->len);
 
     // Only printf the payload is ignoreThisPayload is false otherwise
     // we could be printing gibberish from beyond the end of packetBuf
@@ -1154,7 +973,7 @@ void printPacket(ubxPacket *packet)
       for (int x = 0; x < packet->len; x++)
       {
         printf("0x");
-        printf("%02X ",packet->payload[x]);
+        printf("%02X ", packet->payload[x]);
       }
     }
     else
@@ -1165,28 +984,6 @@ void printPacket(ubxPacket *packet)
   }
 }
 
-//=-=-=-=-=-=-=-= Specific commands =-=-=-=-=-=-=-==-=-=-=-=-=-=-=
-//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-//When messages from the class CFG are sent to the receiver, the receiver will send an "acknowledge"(UBX - ACK - ACK) or a
-//"not acknowledge"(UBX-ACK-NAK) message back to the sender, depending on whether or not the message was processed correctly.
-//Some messages from other classes also use the same acknowledgement mechanism.
-
-//When we poll or get a setting, we will receive _both_ a config packet and an ACK
-//If the poll or get request is not valid, we will receive _only_ a NACK
-
-//If we are trying to get or poll a setting, then packetCfg.len will be 0 or 1 when the packetCfg is _sent_.
-//If we poll the setting for a particular port using UBX-CFG-PRT then .len will be 1 initially
-//For all other gets or polls, .len will be 0 initially
-//(It would be possible for .len to be 2 _if_ we were using UBX-CFG-MSG to poll the settings for a particular message - but we don't use that (currently))
-
-//If the get or poll _fails_, i.e. is NACK'd, then packetCfg.len could still be 0 or 1 after the NACK is received
-//But if the get or poll is ACK'd, then packetCfg.len will have been updated by the incoming data and will always be at least 2
-
-//If we are going to set the value for a setting, then packetCfg.len will be at least 3 when the packetCfg is _sent_.
-//(UBX-CFG-MSG appears to have the shortest set length of 3 bytes)
-
-//We need to think carefully about how interleaved PVT packets affect things.
 //It is entirely possible that our packetCfg and packetAck were received successfully
 //but while we are still in the "if (checkUblox() == true)" loop a PVT packet is processed
 //or _starts_ to arrive (remember that Serial data can arrive very slowly).
@@ -1221,7 +1018,7 @@ sfe_ublox_status_e waitForACKResponse(ubxPacket *outgoingUBX, uint8_t requestedC
         if (_printDebug == true)
         {
           printf("waitForACKResponse: valid data and valid ACK received after ");
-          printf("%ld",SysTimeToMs(SysTimeGet()) - startTime);
+          printf("%ld", SysTimeToMs(SysTimeGet()) - startTime);
           printf(" msec\r\n");
         }
         return (SFE_UBLOX_STATUS_DATA_RECEIVED); //We received valid data and a correct ACK!
@@ -1237,7 +1034,7 @@ sfe_ublox_status_e waitForACKResponse(ubxPacket *outgoingUBX, uint8_t requestedC
         if (_printDebug == true)
         {
           printf("waitForACKResponse: no data and valid ACK after ");
-          printf("%ld",SysTimeToMs(SysTimeGet()) - startTime);
+          printf("%ld", SysTimeToMs(SysTimeGet()) - startTime);
           printf(" msec\r\n");
         }
         return (SFE_UBLOX_STATUS_DATA_SENT); //We got an ACK but no data...
@@ -1255,7 +1052,7 @@ sfe_ublox_status_e waitForACKResponse(ubxPacket *outgoingUBX, uint8_t requestedC
         if (_printDebug == true)
         {
           printf("waitForACKResponse: data being OVERWRITTEN after ");
-          printf("%ld\r\n",SysTimeToMs(SysTimeGet()) - startTime);
+          printf("%ld\r\n", SysTimeToMs(SysTimeGet()) - startTime);
           printf(" msec");
         }
         return (SFE_UBLOX_STATUS_DATA_OVERWRITTEN); // Data was valid but has been or is being overwritten
@@ -1268,7 +1065,7 @@ sfe_ublox_status_e waitForACKResponse(ubxPacket *outgoingUBX, uint8_t requestedC
         if (_printDebug == true)
         {
           printf("waitForACKResponse: CRC failed after ");
-          printf("%ld\r\n",SysTimeToMs(SysTimeGet()) - startTime);
+          printf("%ld\r\n", SysTimeToMs(SysTimeGet()) - startTime);
           printf(" msec");
         }
         return (SFE_UBLOX_STATUS_CRC_FAIL); //Checksum fail
@@ -1286,7 +1083,7 @@ sfe_ublox_status_e waitForACKResponse(ubxPacket *outgoingUBX, uint8_t requestedC
         if (_printDebug == true)
         {
           printf("waitForACKResponse: data was NOTACKNOWLEDGED (NACK) after ");
-          printf("%ld\r\n",SysTimeToMs(SysTimeGet()) - startTime);
+          printf("%ld\r\n", SysTimeToMs(SysTimeGet()) - startTime);
           printf(" msec");
         }
         return (SFE_UBLOX_STATUS_COMMAND_NACK); //We received a NACK!
@@ -1300,7 +1097,7 @@ sfe_ublox_status_e waitForACKResponse(ubxPacket *outgoingUBX, uint8_t requestedC
         if (_printDebug == true)
         {
           printf("waitForACKResponse: VALID data and INVALID ACK received after ");
-          printf("%ld\r\n",SysTimeToMs(SysTimeGet()) - startTime);
+          printf("%ld\r\n", SysTimeToMs(SysTimeGet()) - startTime);
           printf(" msec");
         }
         return (SFE_UBLOX_STATUS_DATA_RECEIVED); //We received valid data and an invalid ACK!
@@ -1313,7 +1110,7 @@ sfe_ublox_status_e waitForACKResponse(ubxPacket *outgoingUBX, uint8_t requestedC
         if (_printDebug == true)
         {
           printf("waitForACKResponse: INVALID data and INVALID ACK received after ");
-          printf("%ld",SysTimeToMs(SysTimeGet()) - startTime);
+          printf("%ld", SysTimeToMs(SysTimeGet()) - startTime);
           printf(" msec\r\n");
         }
         return (SFE_UBLOX_STATUS_FAIL); //We received invalid data and an invalid ACK!
@@ -1326,14 +1123,14 @@ sfe_ublox_status_e waitForACKResponse(ubxPacket *outgoingUBX, uint8_t requestedC
         if (_printDebug == true)
         {
           printf("waitForACKResponse: valid data after ");
-          printf("%ld",SysTimeToMs(SysTimeGet()) - startTime);
+          printf("%ld", SysTimeToMs(SysTimeGet()) - startTime);
           printf(" msec. Waiting for ACK.\r\n");
         }
       }
 
     } //checkUbloxInternal == true
-		
-		DelayMs(1);
+
+    DelayMs(1);
   }
 
   // We have timed out...
@@ -1344,7 +1141,7 @@ sfe_ublox_status_e waitForACKResponse(ubxPacket *outgoingUBX, uint8_t requestedC
     if (_printDebug == true)
     {
       printf("waitForACKResponse: TIMEOUT with valid data after ");
-      printf("%ld",SysTimeToMs(SysTimeGet()) - startTime);
+      printf("%ld", SysTimeToMs(SysTimeGet()) - startTime);
       printf(" msec. \r\n");
     }
     return (SFE_UBLOX_STATUS_DATA_RECEIVED); //We received valid data... But no ACK!
@@ -1353,7 +1150,7 @@ sfe_ublox_status_e waitForACKResponse(ubxPacket *outgoingUBX, uint8_t requestedC
   if (_printDebug == true)
   {
     printf("waitForACKResponse: TIMEOUT after ");
-    printf("%ld",SysTimeToMs(SysTimeGet()) - startTime);
+    printf("%ld", SysTimeToMs(SysTimeGet()) - startTime);
     printf(" msec. \r\n");
   }
 
@@ -1389,7 +1186,7 @@ sfe_ublox_status_e waitForNoACKResponse(ubxPacket *outgoingUBX, uint8_t requeste
         if (_printDebug == true)
         {
           printf("waitForNoACKResponse: valid data with CLS/ID match after ");
-          printf("%ld",SysTimeToMs(SysTimeGet()) - startTime);
+          printf("%ld", SysTimeToMs(SysTimeGet()) - startTime);
           printf(" msec\r\n");
         }
         return (SFE_UBLOX_STATUS_DATA_RECEIVED); //We received valid data!
@@ -1407,7 +1204,7 @@ sfe_ublox_status_e waitForNoACKResponse(ubxPacket *outgoingUBX, uint8_t requeste
         if (_printDebug == true)
         {
           printf("waitForNoACKResponse: data being OVERWRITTEN after ");
-          printf("%ld\r\n",SysTimeToMs(SysTimeGet()) - startTime);
+          printf("%ld\r\n", SysTimeToMs(SysTimeGet()) - startTime);
           printf(" msec");
         }
         return (SFE_UBLOX_STATUS_DATA_OVERWRITTEN); // Data was valid but has been or is being overwritten
@@ -1420,11 +1217,11 @@ sfe_ublox_status_e waitForNoACKResponse(ubxPacket *outgoingUBX, uint8_t requeste
         if (_printDebug == true)
         {
           printf("waitForNoACKResponse: valid but UNWANTED data after ");
-          printf("%ld\r\n",SysTimeToMs(SysTimeGet()) - startTime);
+          printf("%ld\r\n", SysTimeToMs(SysTimeGet()) - startTime);
           printf(" msec. Class: ");
-          printf("%02X\r\n",outgoingUBX->cls);
+          printf("%02X\r\n", outgoingUBX->cls);
           printf(" ID: ");
-          printf("%02X\r\n",outgoingUBX->id);
+          printf("%02X\r\n", outgoingUBX->id);
         }
       }
 
@@ -1434,7 +1231,7 @@ sfe_ublox_status_e waitForNoACKResponse(ubxPacket *outgoingUBX, uint8_t requeste
         if (_printDebug == true)
         {
           printf("waitForNoACKResponse: CLS/ID match but failed CRC after ");
-          printf("%ld\r\n",SysTimeToMs(SysTimeGet()) - startTime);
+          printf("%ld\r\n", SysTimeToMs(SysTimeGet()) - startTime);
           printf(" msec");
         }
         return (SFE_UBLOX_STATUS_CRC_FAIL); //We received invalid data
@@ -1447,12 +1244,17 @@ sfe_ublox_status_e waitForNoACKResponse(ubxPacket *outgoingUBX, uint8_t requeste
   if (_printDebug == true)
   {
     printf("waitForNoACKResponse: TIMEOUT after ");
-    printf("%ld",SysTimeToMs(SysTimeGet()) - startTime);
+    printf("%ld", SysTimeToMs(SysTimeGet()) - startTime);
     printf(" msec. No packet received.\r\n");
   }
 
   return (SFE_UBLOX_STATUS_TIMEOUT);
 }
+
+/**
+ * @brief Specific commands are here.
+ * 
+ */
 
 //Save current configuration to flash and BBR (battery backed RAM)
 //This still works but it is the old way of configuring ublox modules. See getVal and setVal for the new methods
@@ -1513,407 +1315,6 @@ bool factoryDefault(uint16_t maxWait)
   packetCfg.payload[9] = 0xFF;
 
   return (sendCommand(&packetCfg, maxWait) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
-}
-
-
-//Given a key, set a 16-bit value
-//This function takes a full 32-bit key
-//Default layer is BBR
-//Configuration of modern Ublox modules is now done via getVal/setVal/delVal, ie protocol v27 and above found on ZED-F9P
-uint8_t setVal(uint32_t key, uint16_t value, uint8_t layer, uint16_t maxWait)
-{
-  return setVal16(key, value, layer, maxWait);
-}
-
-//Given a key, set a 16-bit value
-//This function takes a full 32-bit key
-//Default layer is BBR
-//Configuration of modern Ublox modules is now done via getVal/setVal/delVal, ie protocol v27 and above found on ZED-F9P
-uint8_t setVal16(uint32_t key, uint16_t value, uint8_t layer, uint16_t maxWait)
-{
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_VALSET;
-  packetCfg.len = 4 + 4 + 2; //4 byte header, 4 byte key ID, 2 bytes of value
-  packetCfg.startingSpot = 0;
-
-  //Clear packet payload
-  for (uint16_t x = 0; x < packetCfg.len; x++)
-    packetCfg.payload[x] = 0;
-
-  payloadCfg[0] = 0;     //Message Version - set to 0
-  payloadCfg[1] = layer; //By default we ask for the BBR layer
-
-  //Load key into outgoing payload
-  payloadCfg[4] = key >> 8 * 0; //Key LSB
-  payloadCfg[5] = key >> 8 * 1;
-  payloadCfg[6] = key >> 8 * 2;
-  payloadCfg[7] = key >> 8 * 3;
-
-  //Load user's value
-  payloadCfg[8] = value >> 8 * 0; //Value LSB
-  payloadCfg[9] = value >> 8 * 1;
-
-  //Send VALSET command with this key and value
-  return (sendCommand(&packetCfg, maxWait) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
-}
-
-//Given a key, set an 8-bit value
-//This function takes a full 32-bit key
-//Default layer is BBR
-//Configuration of modern Ublox modules is now done via getVal/setVal/delVal, ie protocol v27 and above found on ZED-F9P
-uint8_t setVal8(uint32_t key, uint8_t value, uint8_t layer, uint16_t maxWait)
-{
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_VALSET;
-  packetCfg.len = 4 + 4 + 1; //4 byte header, 4 byte key ID, 1 byte value
-  packetCfg.startingSpot = 0;
-
-  //Clear packet payload
-  for (uint16_t x = 0; x < packetCfg.len; x++)
-    packetCfg.payload[x] = 0;
-
-  payloadCfg[0] = 0;     //Message Version - set to 0
-  payloadCfg[1] = layer; //By default we ask for the BBR layer
-
-  //Load key into outgoing payload
-  payloadCfg[4] = key >> 8 * 0; //Key LSB
-  payloadCfg[5] = key >> 8 * 1;
-  payloadCfg[6] = key >> 8 * 2;
-  payloadCfg[7] = key >> 8 * 3;
-
-  //Load user's value
-  payloadCfg[8] = value; //Value
-
-  //Send VALSET command with this key and value
-  return (sendCommand(&packetCfg, maxWait) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
-}
-
-//Given a key, set a 32-bit value
-//This function takes a full 32-bit key
-//Default layer is BBR
-//Configuration of modern Ublox modules is now done via getVal/setVal/delVal, ie protocol v27 and above found on ZED-F9P
-uint8_t setVal32(uint32_t key, uint32_t value, uint8_t layer, uint16_t maxWait)
-{
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_VALSET;
-  packetCfg.len = 4 + 4 + 4; //4 byte header, 4 byte key ID, 4 bytes of value
-  packetCfg.startingSpot = 0;
-
-  //Clear packet payload
-  for (uint16_t x = 0; x < packetCfg.len; x++)
-    packetCfg.payload[x] = 0;
-
-  payloadCfg[0] = 0;     //Message Version - set to 0
-  payloadCfg[1] = layer; //By default we ask for the BBR layer
-
-  //Load key into outgoing payload
-  payloadCfg[4] = key >> 8 * 0; //Key LSB
-  payloadCfg[5] = key >> 8 * 1;
-  payloadCfg[6] = key >> 8 * 2;
-  payloadCfg[7] = key >> 8 * 3;
-
-  //Load user's value
-  payloadCfg[8] = value >> 8 * 0; //Value LSB
-  payloadCfg[9] = value >> 8 * 1;
-  payloadCfg[10] = value >> 8 * 2;
-  payloadCfg[11] = value >> 8 * 3;
-
-  //Send VALSET command with this key and value
-  return (sendCommand(&packetCfg, maxWait) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
-}
-
-//Start defining a new UBX-CFG-VALSET ubxPacket
-//This function takes a full 32-bit key and 32-bit value
-//Default layer is BBR
-//Configuration of modern Ublox modules is now done via getVal/setVal/delVal, ie protocol v27 and above found on ZED-F9P
-uint8_t newCfgValset32(uint32_t key, uint32_t value, uint8_t layer)
-{
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_VALSET;
-  packetCfg.len = 4 + 4 + 4; //4 byte header, 4 byte key ID, 4 bytes of value
-  packetCfg.startingSpot = 0;
-
-  //Clear packet payload
-  for (uint16_t x = 0; x < MAX_PAYLOAD_SIZE; x++)
-    packetCfg.payload[x] = 0;
-
-  payloadCfg[0] = 0;     //Message Version - set to 0
-  payloadCfg[1] = layer; //By default we ask for the BBR layer
-
-  //Load key into outgoing payload
-  payloadCfg[4] = key >> 8 * 0; //Key LSB
-  payloadCfg[5] = key >> 8 * 1;
-  payloadCfg[6] = key >> 8 * 2;
-  payloadCfg[7] = key >> 8 * 3;
-
-  //Load user's value
-  payloadCfg[8] = value >> 8 * 0; //Value LSB
-  payloadCfg[9] = value >> 8 * 1;
-  payloadCfg[10] = value >> 8 * 2;
-  payloadCfg[11] = value >> 8 * 3;
-
-  //All done
-  return (true);
-}
-
-//Start defining a new UBX-CFG-VALSET ubxPacket
-//This function takes a full 32-bit key and 16-bit value
-//Default layer is BBR
-//Configuration of modern Ublox modules is now done via getVal/setVal/delVal, ie protocol v27 and above found on ZED-F9P
-uint8_t newCfgValset16(uint32_t key, uint16_t value, uint8_t layer)
-{
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_VALSET;
-  packetCfg.len = 4 + 4 + 2; //4 byte header, 4 byte key ID, 2 bytes of value
-  packetCfg.startingSpot = 0;
-
-  //Clear packet payload
-  for (uint16_t x = 0; x < MAX_PAYLOAD_SIZE; x++)
-    packetCfg.payload[x] = 0;
-
-  payloadCfg[0] = 0;     //Message Version - set to 0
-  payloadCfg[1] = layer; //By default we ask for the BBR layer
-
-  //Load key into outgoing payload
-  payloadCfg[4] = key >> 8 * 0; //Key LSB
-  payloadCfg[5] = key >> 8 * 1;
-  payloadCfg[6] = key >> 8 * 2;
-  payloadCfg[7] = key >> 8 * 3;
-
-  //Load user's value
-  payloadCfg[8] = value >> 8 * 0; //Value LSB
-  payloadCfg[9] = value >> 8 * 1;
-
-  //All done
-  return (true);
-}
-
-//Start defining a new UBX-CFG-VALSET ubxPacket
-//This function takes a full 32-bit key and 8-bit value
-//Default layer is BBR
-//Configuration of modern Ublox modules is now done via getVal/setVal/delVal, ie protocol v27 and above found on ZED-F9P
-uint8_t newCfgValset8(uint32_t key, uint8_t value, uint8_t layer)
-{
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_VALSET;
-  packetCfg.len = 4 + 4 + 1; //4 byte header, 4 byte key ID, 1 byte value
-  packetCfg.startingSpot = 0;
-
-  //Clear packet payload
-  for (uint16_t x = 0; x < MAX_PAYLOAD_SIZE; x++)
-    packetCfg.payload[x] = 0;
-
-  payloadCfg[0] = 0;     //Message Version - set to 0
-  payloadCfg[1] = layer; //By default we ask for the BBR layer
-
-  //Load key into outgoing payload
-  payloadCfg[4] = key >> 8 * 0; //Key LSB
-  payloadCfg[5] = key >> 8 * 1;
-  payloadCfg[6] = key >> 8 * 2;
-  payloadCfg[7] = key >> 8 * 3;
-
-  //Load user's value
-  payloadCfg[8] = value; //Value
-
-  //All done
-  return (true);
-}
-
-//Add another keyID and value to an existing UBX-CFG-VALSET ubxPacket
-//This function takes a full 32-bit key and 32-bit value
-uint8_t addCfgValset32(uint32_t key, uint32_t value)
-{
-  //Load key into outgoing payload
-  payloadCfg[packetCfg.len + 0] = key >> 8 * 0; //Key LSB
-  payloadCfg[packetCfg.len + 1] = key >> 8 * 1;
-  payloadCfg[packetCfg.len + 2] = key >> 8 * 2;
-  payloadCfg[packetCfg.len + 3] = key >> 8 * 3;
-
-  //Load user's value
-  payloadCfg[packetCfg.len + 4] = value >> 8 * 0; //Value LSB
-  payloadCfg[packetCfg.len + 5] = value >> 8 * 1;
-  payloadCfg[packetCfg.len + 6] = value >> 8 * 2;
-  payloadCfg[packetCfg.len + 7] = value >> 8 * 3;
-
-  //Update packet length: 4 byte key ID, 4 bytes of value
-  packetCfg.len = packetCfg.len + 4 + 4;
-
-  //All done
-  return (true);
-}
-
-//Add another keyID and value to an existing UBX-CFG-VALSET ubxPacket
-//This function takes a full 32-bit key and 16-bit value
-uint8_t addCfgValset16(uint32_t key, uint16_t value)
-{
-  //Load key into outgoing payload
-  payloadCfg[packetCfg.len + 0] = key >> 8 * 0; //Key LSB
-  payloadCfg[packetCfg.len + 1] = key >> 8 * 1;
-  payloadCfg[packetCfg.len + 2] = key >> 8 * 2;
-  payloadCfg[packetCfg.len + 3] = key >> 8 * 3;
-
-  //Load user's value
-  payloadCfg[packetCfg.len + 4] = value >> 8 * 0; //Value LSB
-  payloadCfg[packetCfg.len + 5] = value >> 8 * 1;
-
-  //Update packet length: 4 byte key ID, 2 bytes of value
-  packetCfg.len = packetCfg.len + 4 + 2;
-
-  //All done
-  return (true);
-}
-
-//Add another keyID and value to an existing UBX-CFG-VALSET ubxPacket
-//This function takes a full 32-bit key and 8-bit value
-uint8_t addCfgValset8(uint32_t key, uint8_t value)
-{
-  //Load key into outgoing payload
-  payloadCfg[packetCfg.len + 0] = key >> 8 * 0; //Key LSB
-  payloadCfg[packetCfg.len + 1] = key >> 8 * 1;
-  payloadCfg[packetCfg.len + 2] = key >> 8 * 2;
-  payloadCfg[packetCfg.len + 3] = key >> 8 * 3;
-
-  //Load user's value
-  payloadCfg[packetCfg.len + 4] = value; //Value
-
-  //Update packet length: 4 byte key ID, 1 byte value
-  packetCfg.len = packetCfg.len + 4 + 1;
-
-  //All done
-  return (true);
-}
-
-//Add a final keyID and value to an existing UBX-CFG-VALSET ubxPacket and send it
-//This function takes a full 32-bit key and 32-bit value
-uint8_t sendCfgValset32(uint32_t key, uint32_t value, uint16_t maxWait)
-{
-  //Load keyID and value into outgoing payload
-  addCfgValset32(key, value);
-
-  //Send VALSET command with this key and value
-  return (sendCommand(&packetCfg, maxWait) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
-}
-
-//Add a final keyID and value to an existing UBX-CFG-VALSET ubxPacket and send it
-//This function takes a full 32-bit key and 16-bit value
-uint8_t sendCfgValset16(uint32_t key, uint16_t value, uint16_t maxWait)
-{
-  //Load keyID and value into outgoing payload
-  addCfgValset16(key, value);
-
-  //Send VALSET command with this key and value
-  return (sendCommand(&packetCfg, maxWait) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
-}
-
-//Add a final keyID and value to an existing UBX-CFG-VALSET ubxPacket and send it
-//This function takes a full 32-bit key and 8-bit value
-uint8_t sendCfgValset8(uint32_t key, uint8_t value, uint16_t maxWait)
-{
-  //Load keyID and value into outgoing payload
-  addCfgValset8(key, value);
-
-  //Send VALSET command with this key and value
-  return (sendCommand(&packetCfg, maxWait) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
-}
-
-//Get the current TimeMode3 settings - these contain survey in statuses
-bool getSurveyMode(uint16_t maxWait)
-{
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_TMODE3;
-  packetCfg.len = 0;
-  packetCfg.startingSpot = 0;
-
-  return ((sendCommand(&packetCfg, maxWait)) == SFE_UBLOX_STATUS_DATA_RECEIVED); // We are expecting data and an ACK
-}
-
-//Control Survey-In for NEO-M8P
-bool setSurveyMode(uint8_t mode, uint16_t observationTime, float requiredAccuracy, uint16_t maxWait)
-{
-  if (getSurveyMode(maxWait) == false) //Ask module for the current TimeMode3 settings. Loads into payloadCfg.
-    return (false);
-
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_TMODE3;
-  packetCfg.len = 40;
-  packetCfg.startingSpot = 0;
-
-  //Clear packet payload
-  for (uint8_t x = 0; x < packetCfg.len; x++)
-    packetCfg.payload[x] = 0;
-
-  //payloadCfg should be loaded with poll response. Now modify only the bits we care about
-  payloadCfg[2] = mode; //Set mode. Survey-In and Disabled are most common. Use ECEF (not LAT/LON/ALT).
-
-  //svinMinDur is U4 (uint32_t) but we'll only use a uint16_t (waiting more than 65535 seconds seems excessive!)
-  payloadCfg[24] = observationTime & 0xFF; //svinMinDur in seconds
-  payloadCfg[25] = observationTime >> 8;   //svinMinDur in seconds
-  payloadCfg[26] = 0;                      //Truncate to 16 bits
-  payloadCfg[27] = 0;                      //Truncate to 16 bits
-
-  //svinAccLimit is U4 (uint32_t) in 0.1mm.
-  uint32_t svinAccLimit = (uint32_t)(requiredAccuracy * 10000.0); //Convert m to 0.1mm
-  payloadCfg[28] = svinAccLimit & 0xFF;                           //svinAccLimit in 0.1mm increments
-  payloadCfg[29] = svinAccLimit >> 8;
-  payloadCfg[30] = svinAccLimit >> 16;
-  payloadCfg[31] = svinAccLimit >> 24;
-
-  return ((sendCommand(&packetCfg, maxWait)) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
-}
-
-//Begin Survey-In for NEO-M8P
-bool enableSurveyMode(uint16_t observationTime, float requiredAccuracy, uint16_t maxWait)
-{
-  return (setSurveyMode(SVIN_MODE_ENABLE, observationTime, requiredAccuracy, maxWait));
-}
-
-//Stop Survey-In for NEO-M8P
-bool disableSurveyMode(uint16_t maxWait)
-{
-  return (setSurveyMode(SVIN_MODE_DISABLE, 0, 0, maxWait));
-}
-
-//Reads survey in status and sets the global variables
-//for status, position valid, observation time, and mean 3D StdDev
-//Returns true if commands was successful
-bool getSurveyStatus(uint16_t maxWait)
-{
-  //Reset variables
-  svin.active = false;
-  svin.valid = false;
-  svin.observationTime = 0;
-  svin.meanAccuracy = 0;
-
-  packetCfg.cls = UBX_CLASS_NAV;
-  packetCfg.id = UBX_NAV_SVIN;
-  packetCfg.len = 0;
-  packetCfg.startingSpot = 0;
-
-  if ((sendCommand(&packetCfg, maxWait)) != SFE_UBLOX_STATUS_DATA_RECEIVED) // We are expecting data and an ACK
-    return (false);                                                         //If command send fails then bail
-
-  //We got a response, now parse the bits into the svin structure
-
-  //dur (Passed survey-in observation time) is U4 (uint32_t) seconds. We truncate to 16 bits
-  //(waiting more than 65535 seconds (18.2 hours) seems excessive!)
-  uint32_t tmpObsTime = extractLong(8);
-  if (tmpObsTime <= 0xFFFF)
-  {
-    svin.observationTime = (uint16_t)tmpObsTime;
-  }
-  else
-  {
-    svin.observationTime = 0xFFFF;
-  }
-
-  // meanAcc is U4 (uint32_t) in 0.1mm. We convert this to float.
-  uint32_t tempFloat = extractLong(28);
-  svin.meanAccuracy = ((float)tempFloat) / 10000.0; //Convert 0.1mm to m
-
-  svin.valid = payloadCfg[36];  //1 if survey-in position is valid, 0 otherwise
-  svin.active = payloadCfg[37]; //1 if survey-in in progress, 0 otherwise
-
-  return (true);
 }
 
 //Loads the payloadCfg array with the current protocol bits located the UBX-CFG-PRT register for a given port
@@ -1979,281 +1380,6 @@ bool setUART1Output(uint8_t comSettings, uint16_t maxWait)
 {
   return (setPortOutput(COM_PORT_UART1, comSettings, maxWait));
 }
-bool setUART2Output(uint8_t comSettings, uint16_t maxWait)
-{
-  return (setPortOutput(COM_PORT_UART2, comSettings, maxWait));
-}
-bool setUSBOutput(uint8_t comSettings, uint16_t maxWait)
-{
-  return (setPortOutput(COM_PORT_USB, comSettings, maxWait));
-}
-bool setSPIOutput(uint8_t comSettings, uint16_t maxWait)
-{
-  return (setPortOutput(COM_PORT_SPI, comSettings, maxWait));
-}
-
-//Set the rate at which the module will give us an updated navigation solution
-//Expects a number that is the updates per second. For example 1 = 1Hz, 2 = 2Hz, etc.
-//Max is 40Hz(?!)
-bool setNavigationFrequency(uint8_t navFreq, uint16_t maxWait)
-{
-  //iupdateRate > 40) updateRate = 40; //Not needed: module will correct out of bounds values
-
-  //Adjust the I2C polling timeout based on update rate
-  i2cPollingWait = 1000 / (navFreq * 4); //This is the number of ms to wait between checks for new I2C data
-
-  //Query the module for the latest lat/long
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_RATE;
-  packetCfg.len = 0;
-  packetCfg.startingSpot = 0;
-
-  //This will load the payloadCfg array with current settings of the given register
-  if (sendCommand(&packetCfg, maxWait) != SFE_UBLOX_STATUS_DATA_RECEIVED) // We are expecting data and an ACK
-    return (false);                                                       //If command send fails then bail
-
-  uint16_t measurementRate = 1000 / navFreq;
-
-  //payloadCfg is now loaded with current bytes. Change only the ones we need to
-  payloadCfg[0] = measurementRate & 0xFF; //measRate LSB
-  payloadCfg[1] = measurementRate >> 8;   //measRate MSB
-
-  return ((sendCommand(&packetCfg, maxWait)) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
-}
-
-//Get the rate at which the module is outputting nav solutions
-uint8_t getNavigationFrequency(uint16_t maxWait)
-{
-  //Query the module for the latest lat/long
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_RATE;
-  packetCfg.len = 0;
-  packetCfg.startingSpot = 0;
-
-  //This will load the payloadCfg array with current settings of the given register
-  if (sendCommand(&packetCfg, maxWait) != SFE_UBLOX_STATUS_DATA_RECEIVED) // We are expecting data and an ACK
-    return (false);                                                       //If command send fails then bail
-
-  uint16_t measurementRate = 0;
-
-  //payloadCfg is now loaded with current bytes. Get what we need
-  measurementRate = extractInt(0); //Pull from payloadCfg at measRate LSB
-
-  measurementRate = 1000 / measurementRate; //This may return an int when it's a float, but I'd rather not return 4 bytes
-  return (measurementRate);
-}
-
-//In case no config access to the GPS is possible and PVT is send cyclically already
-//set config to suitable parameters
-bool assumeAutoPVT(bool enabled, bool implicitUpdate)
-{
-  bool changes = autoPVT != enabled || autoPVTImplicitUpdate != implicitUpdate;
-  if (changes)
-  {
-    autoPVT = enabled;
-    autoPVTImplicitUpdate = implicitUpdate;
-  }
-  return changes;
-}
-
-
-//Configure a given message type for a given port (UART1, I2C, SPI, etc)
-bool configureMessage(uint8_t msgClass, uint8_t msgID, uint8_t portID, uint8_t sendRate, uint16_t maxWait)
-{
-  //Poll for the current settings for a given message
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_MSG;
-  packetCfg.len = 2;
-  packetCfg.startingSpot = 0;
-
-  payloadCfg[0] = msgClass;
-  payloadCfg[1] = msgID;
-
-  //This will load the payloadCfg array with current settings of the given register
-  if (sendCommand(&packetCfg, maxWait) != SFE_UBLOX_STATUS_DATA_RECEIVED) // We are expecting data and an ACK
-    return (false);                                                       //If command send fails then bail
-
-  //Now send it back with new mods
-  packetCfg.len = 8;
-
-  //payloadCfg is now loaded with current bytes. Change only the ones we need to
-  payloadCfg[2 + portID] = sendRate; //Send rate is relative to the event a message is registered on. For example, if the rate of a navigation message is set to 2, the message is sent every 2nd navigation solution.
-
-  return ((sendCommand(&packetCfg, maxWait)) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
-}
-
-//Enable a given message type, default of 1 per update rate (usually 1 per second)
-bool enableMessage(uint8_t msgClass, uint8_t msgID, uint8_t portID, uint8_t rate, uint16_t maxWait)
-{
-  return (configureMessage(msgClass, msgID, portID, rate, maxWait));
-}
-//Disable a given message type on a given port
-bool disableMessage(uint8_t msgClass, uint8_t msgID, uint8_t portID, uint16_t maxWait)
-{
-  return (configureMessage(msgClass, msgID, portID, 0, maxWait));
-}
-
-bool enableNMEAMessage(uint8_t msgID, uint8_t portID, uint8_t rate, uint16_t maxWait)
-{
-  return (configureMessage(UBX_CLASS_NMEA, msgID, portID, rate, maxWait));
-}
-bool disableNMEAMessage(uint8_t msgID, uint8_t portID, uint16_t maxWait)
-{
-  return (enableNMEAMessage(msgID, portID, 0, maxWait));
-}
-
-//Given a message number turns on a message ID for output over a given portID (UART, I2C, SPI, USB, etc)
-//To disable a message, set secondsBetween messages to 0
-//Note: This function will return false if the message is already enabled
-//For base station RTK output we need to enable various sentences
-
-//NEO-M8P has four:
-//1005 = 0xF5 0x05 - Stationary RTK reference ARP
-//1077 = 0xF5 0x4D - GPS MSM7
-//1087 = 0xF5 0x57 - GLONASS MSM7
-//1230 = 0xF5 0xE6 - GLONASS code-phase biases, set to once every 10 seconds
-
-//ZED-F9P has six:
-//1005, 1074, 1084, 1094, 1124, 1230
-
-//Much of this configuration is not documented and instead discerned from u-center binary console
-bool enableRTCMmessage(uint8_t messageNumber, uint8_t portID, uint8_t sendRate, uint16_t maxWait)
-{
-  return (configureMessage(UBX_RTCM_MSB, messageNumber, portID, sendRate, maxWait));
-}
-
-//Disable a given message on a given port by setting secondsBetweenMessages to zero
-bool disableRTCMmessage(uint8_t messageNumber, uint8_t portID, uint16_t maxWait)
-{
-  return (enableRTCMmessage(messageNumber, portID, 0, maxWait));
-}
-
-
-
-//Clear the antenna control settings using UBX-CFG-ANT
-//This function is hopefully redundant but may be needed to release
-//any PIO pins pre-allocated for antenna functions
-bool clearAntPIO(uint16_t maxWait)
-{
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_ANT;
-  packetCfg.len = 4;
-  packetCfg.startingSpot = 0;
-
-  payloadCfg[0] = 0x10; // Antenna flag mask: set the recovery bit
-  payloadCfg[1] = 0;
-  payloadCfg[2] = 0xFF; // Antenna pin configuration: set pinSwitch and pinSCD to 31
-  payloadCfg[3] = 0xFF; // Antenna pin configuration: set pinOCD to 31, set reconfig bit
-
-  return ((sendCommand(&packetCfg, maxWait)) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
-}
-
-
-//Power Save Mode
-//Enables/Disables Low Power Mode using UBX-CFG-RXM
-bool powerSaveMode(bool power_save, uint16_t maxWait)
-{
-  // Let's begin by checking the Protocol Version as UBX_CFG_RXM is not supported on the ZED (protocol >= 27)
-  uint8_t protVer = getProtocolVersionHigh(maxWait);
-  /*
-  if (_printDebug == true)
-  {
-    printf("Protocol version is ");
-    printf(protVer);
-  }
-  */
-  if (protVer >= 27)
-  {
-    if (_printDebug == true)
-    {
-      printf("powerSaveMode (UBX-CFG-RXM) is not supported by this protocol version");
-    }
-    return (false);
-  }
-
-  // Now let's change the power setting using UBX-CFG-RXM
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_RXM;
-  packetCfg.len = 0;
-  packetCfg.startingSpot = 0;
-
-  //Ask module for the current power management settings. Loads into payloadCfg.
-  if (sendCommand(&packetCfg, maxWait) != SFE_UBLOX_STATUS_DATA_RECEIVED) // We are expecting data and an ACK
-    return (false);
-
-  if (power_save)
-  {
-    payloadCfg[1] = 1; // Power Save Mode
-  }
-  else
-  {
-    payloadCfg[1] = 0; // Continuous Mode
-  }
-
-  packetCfg.len = 2;
-  packetCfg.startingSpot = 0;
-
-  return (sendCommand(&packetCfg, maxWait) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
-}
-
-// Get Power Save Mode
-// Returns the current Low Power Mode using UBX-CFG-RXM
-// Returns 255 if the sendCommand fails
-uint8_t getPowerSaveMode(uint16_t maxWait)
-{
-  // Let's begin by checking the Protocol Version as UBX_CFG_RXM is not supported on the ZED (protocol >= 27)
-  uint8_t protVer = getProtocolVersionHigh(maxWait);
-  /*
-  if (_printDebug == true)
-  {
-    printf("Protocol version is ");
-    printf(protVer);
-  }
-  */
-  if (protVer >= 27)
-  {
-    if (_printDebug == true)
-    {
-      printf("powerSaveMode (UBX-CFG-RXM) is not supported by this protocol version");
-    }
-    return (255);
-  }
-
-  // Now let's read the power setting using UBX-CFG-RXM
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_RXM;
-  packetCfg.len = 0;
-  packetCfg.startingSpot = 0;
-
-  //Ask module for the current power management settings. Loads into payloadCfg.
-  if (sendCommand(&packetCfg, maxWait) != SFE_UBLOX_STATUS_DATA_RECEIVED) // We are expecting data and an ACK
-    return (255);
-
-  return (payloadCfg[1]); // Return the low power mode
-}
-
-
-// Set the power saving config Setting using UBX-CFG-PM2
-// This is the original packet that was sent.
-//static uint8_t powersave_config[]= 
-//{
-//	0xB5 ,0x62 ,0x06 ,0x3B ,0x30 ,0x00 /* UBX-CFG-PM2 */
-//	,0x02 ,0x06 ,0x00 ,0x00 /* v2, reserved 1..3 */
-//	,0x60 ,0x90 ,0x40 ,0x01 /* ON/OFF tracking mode, update ephemeris */
-//	,0x00 ,0x00 ,0x00 ,0x00 /* update period, 0 ms(infinity) */
-//	,0x00 ,0x00 ,0x00 ,0x00 /* search period, 0 ms(infinity) */
-//	,0x00 ,0x00 ,0x00 ,0x00 /* grid offset */
-//	,0x02 ,0x00             /* on-time after first fix */
-//	,0x00 ,0x00             /* minimum acquisition time */
-//	,0x2C ,0x01 ,0x00 ,0x00
-//	,0x4F ,0xC1 ,0x03 ,0x00
-//	,0x87 ,0x02 ,0x00 ,0x00
-//	,0xFF ,0x00 ,0x00 ,0x00
-//	,0x64 ,0x40 ,0x01 ,0x00
-//	,0x00 ,0x00 ,0x00 ,0x00
-//	,0x19 ,0xB8
-
-//};
 
 bool set_powersave_config(uint16_t maxWait)
 {
@@ -2262,105 +1388,100 @@ bool set_powersave_config(uint16_t maxWait)
   packetCfg.len = 0;
   packetCfg.startingSpot = 0;
 
+  //	,0x02 ,0x06 ,0x00 ,0x00 /* v2, reserved 1..3 */
+  payloadCfg[packetCfg.len++] = 0x02; //
+  payloadCfg[packetCfg.len++] = 0x06; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
 
-//	,0x02 ,0x06 ,0x00 ,0x00 /* v2, reserved 1..3 */
-  payloadCfg[packetCfg.len++] = 0x02;            // 
-  payloadCfg[packetCfg.len++] = 0x06;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-	
+  //	,0x60 ,0x90 ,0x40 ,0x01 /* ON/OFF tracking mode, update ephemeris */
+  payloadCfg[packetCfg.len++] = 0x60; //
+  payloadCfg[packetCfg.len++] = 0x90; //
+  payloadCfg[packetCfg.len++] = 0x40; //
+  payloadCfg[packetCfg.len++] = 0x01; //
 
-//	,0x60 ,0x90 ,0x40 ,0x01 /* ON/OFF tracking mode, update ephemeris */
-  payloadCfg[packetCfg.len++] = 0x60;            // 
-  payloadCfg[packetCfg.len++] = 0x90;            // 
-  payloadCfg[packetCfg.len++] = 0x40;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
+  //	,0x00 ,0x00 ,0x00 ,0x00 /* update period, 0 ms(infinity) */
 
-//	,0x00 ,0x00 ,0x00 ,0x00 /* update period, 0 ms(infinity) */
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-	
-	//	,0x00 ,0x00 ,0x00 ,0x00 /* search period, 0 ms(infinity) */
+  //	,0x00 ,0x00 ,0x00 ,0x00 /* search period, 0 ms(infinity) */
 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-	
-//	,0x00 ,0x00 ,0x00 ,0x00 /* grid offset */
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  
-//	,0x02 ,0x00             /* on-time after first fix */
-  payloadCfg[packetCfg.len++] = 0x02;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
+  //	,0x00 ,0x00 ,0x00 ,0x00 /* grid offset */
 
-//	,0x00 ,0x00             /* minimum acquisition time */
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-	
-	//	,0x2C ,0x01 ,0x00 ,0x00
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
 
-  payloadCfg[packetCfg.len++] = 0x2C;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
+  //	,0x02 ,0x00             /* on-time after first fix */
+  payloadCfg[packetCfg.len++] = 0x02; //
+  payloadCfg[packetCfg.len++] = 0x00; //
 
-//	,0x4F ,0xC1 ,0x03 ,0x00
+  //	,0x00 ,0x00             /* minimum acquisition time */
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
 
-  payloadCfg[packetCfg.len++] = 0x4F;            // 
-  payloadCfg[packetCfg.len++] = 0xC1;            // 
-  payloadCfg[packetCfg.len++] = 0x03;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-	
-	//	,0x87 ,0x02 ,0x00 ,0x00
+  //	,0x2C ,0x01 ,0x00 ,0x00
 
-  payloadCfg[packetCfg.len++] = 0x87;            // 
-  payloadCfg[packetCfg.len++] = 0x02;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
+  payloadCfg[packetCfg.len++] = 0x2C; //
+  payloadCfg[packetCfg.len++] = 0x01; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
 
-//	,0xFF ,0x00 ,0x00 ,0x00
+  //	,0x4F ,0xC1 ,0x03 ,0x00
 
-  payloadCfg[packetCfg.len++] = 0xFF;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-	
-	//	,0x64 ,0x40 ,0x01 ,0x00
+  payloadCfg[packetCfg.len++] = 0x4F; //
+  payloadCfg[packetCfg.len++] = 0xC1; //
+  payloadCfg[packetCfg.len++] = 0x03; //
+  payloadCfg[packetCfg.len++] = 0x00; //
 
-  payloadCfg[packetCfg.len++] = 0x64;            // 
-  payloadCfg[packetCfg.len++] = 0x40;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
+  //	,0x87 ,0x02 ,0x00 ,0x00
 
-//	,0x00 ,0x00 ,0x00 ,0x00
+  payloadCfg[packetCfg.len++] = 0x87; //
+  payloadCfg[packetCfg.len++] = 0x02; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-	
-	
+  //	,0xFF ,0x00 ,0x00 ,0x00
+
+  payloadCfg[packetCfg.len++] = 0xFF; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+
+  //	,0x64 ,0x40 ,0x01 ,0x00
+
+  payloadCfg[packetCfg.len++] = 0x64; //
+  payloadCfg[packetCfg.len++] = 0x40; //
+  payloadCfg[packetCfg.len++] = 0x01; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+
+  //	,0x00 ,0x00 ,0x00 ,0x00
+
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+
   packetCfg.len = 0x30;
   packetCfg.startingSpot = 0;
 
   return (sendCommand(&packetCfg, maxWait) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
 }
 
-
 // Put the GPS into On/OFF power save mode, with EXTINT pin to toggle power save mode and continueous mode
 // Setting using UBX-CFG-RXM
 // This is the original packet that was sent.
-// static uint8_t set_power_save_mode[] =  
+// static uint8_t set_power_save_mode[] =
 // {0xB5 ,0x62 ,0x06 ,0x11 ,0x02 ,0x00 ,0x08 ,0x01 ,0x22 ,0x92};
-
 
 bool put_in_power_save_mode(uint16_t maxWait)
 {
@@ -2369,13 +1490,11 @@ bool put_in_power_save_mode(uint16_t maxWait)
   packetCfg.len = 0;
   packetCfg.startingSpot = 0;
 
+  //0x08 ,0x01
 
-	//0x08 ,0x01                  
-
-	/* 1: Power Save Mode */
-  payloadCfg[packetCfg.len++] = 0x08;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-
+  /* 1: Power Save Mode */
+  payloadCfg[packetCfg.len++] = 0x08; //
+  payloadCfg[packetCfg.len++] = 0x01; //
 
   packetCfg.len = 0x02;
   packetCfg.startingSpot = 0;
@@ -2386,10 +1505,8 @@ bool put_in_power_save_mode(uint16_t maxWait)
 // Put the GPS into On/OFF power save mode, with EXTINT pin to toggle power save mode and continueous mode
 // Setting using UBX-CFG-RXM
 // This is the original packet that was sent.
-// static uint8_t set_continueous_mode[] = 
+// static uint8_t set_continueous_mode[] =
 // {0xB5 ,0x62 ,0x06 ,0x11 ,0x02 ,0x00 ,0x08 ,0x00 ,0x21 ,0x91};
-
-
 
 bool put_in_continueous_mode(uint16_t maxWait)
 {
@@ -2398,13 +1515,11 @@ bool put_in_continueous_mode(uint16_t maxWait)
   packetCfg.len = 0;
   packetCfg.startingSpot = 0;
 
+  //0x08 ,0x00
 
-	//0x08 ,0x00               
-
-	/* 1: Power Save Mode */
-  payloadCfg[packetCfg.len++] = 0x08;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-
+  /* 1: Power Save Mode */
+  payloadCfg[packetCfg.len++] = 0x08; //
+  payloadCfg[packetCfg.len++] = 0x00; //
 
   packetCfg.len = 0x02;
   packetCfg.startingSpot = 0;
@@ -2434,96 +1549,93 @@ bool setGPS_constellation_only(uint16_t maxWait)
   packetCfg.len = 0;
   packetCfg.startingSpot = 0;
 
+  //		0x00,0x00,0x20,0x07,                        /* use 32 channels, 7 configs following */
 
-	//		0x00,0x00,0x20,0x07,                        /* use 32 channels, 7 configs following */
+  /* use 32 channels, 7 configs following */
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x20; //
+  payloadCfg[packetCfg.len++] = 0x07; //
 
-	/* use 32 channels, 7 configs following */
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x20;            // 
-  payloadCfg[packetCfg.len++] = 0x07;            // 
-	
-	//		0x00,0x08,0x10,0x00,0x01,0x00,0x01,0x01,    /* GPS enable */
+  //		0x00,0x08,0x10,0x00,0x01,0x00,0x01,0x01,    /* GPS enable */
 
-	/* GPS enable */
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x08;            // 
-  payloadCfg[packetCfg.len++] = 0x10;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-	payloadCfg[packetCfg.len++] = 0x01;            //
-	
-	//		0x01,0x01,0x03,0x00,0x00,0x00,0x01,0x01,	/* SBAS disable */
+  /* GPS enable */
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x08; //
+  payloadCfg[packetCfg.len++] = 0x10; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x01; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x01; //
+  payloadCfg[packetCfg.len++] = 0x01; //
 
-	/* SBAS disable */
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x03;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  
-	//		0x02,0x04,0x08,0x00,0x00,0x00,0x01,0x01,	/* Galileo disable */
-	/* Galileo disable */
-  payloadCfg[packetCfg.len++] = 0x02;            // 
-  payloadCfg[packetCfg.len++] = 0x04;            // 
-  payloadCfg[packetCfg.len++] = 0x08;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
+  //		0x01,0x01,0x03,0x00,0x00,0x00,0x01,0x01,	/* SBAS disable */
 
-//		0x03,0x08,0x10,0x00,0x00,0x00,0x01,0x01,	/* Beidou disable */
-	/* Beidou disable */
-  payloadCfg[packetCfg.len++] = 0x03;            // 
-  payloadCfg[packetCfg.len++] = 0x08;            // 
-  payloadCfg[packetCfg.len++] = 0x10;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
+  /* SBAS disable */
+  payloadCfg[packetCfg.len++] = 0x01; //
+  payloadCfg[packetCfg.len++] = 0x01; //
+  payloadCfg[packetCfg.len++] = 0x03; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x01; //
+  payloadCfg[packetCfg.len++] = 0x01; //
 
-//		0x04,0x00,0x08,0x00,0x00,0x00,0x01,0x01,	/* IMES disable */
-	/* IMES disable */
-  payloadCfg[packetCfg.len++] = 0x04;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x08;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
+  //		0x02,0x04,0x08,0x00,0x00,0x00,0x01,0x01,	/* Galileo disable */
+  /* Galileo disable */
+  payloadCfg[packetCfg.len++] = 0x02; //
+  payloadCfg[packetCfg.len++] = 0x04; //
+  payloadCfg[packetCfg.len++] = 0x08; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x01; //
+  payloadCfg[packetCfg.len++] = 0x01; //
 
-//		0x05,0x00,0x03,0x00,0x01,0x00,0x01,0x01,	/* QZSS enable */
-	/* QZSS enable */
-  payloadCfg[packetCfg.len++] = 0x05;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x03;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
+  //		0x03,0x08,0x10,0x00,0x00,0x00,0x01,0x01,	/* Beidou disable */
+  /* Beidou disable */
+  payloadCfg[packetCfg.len++] = 0x03; //
+  payloadCfg[packetCfg.len++] = 0x08; //
+  payloadCfg[packetCfg.len++] = 0x10; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x01; //
+  payloadCfg[packetCfg.len++] = 0x01; //
 
-//		0x06,0x08,0x0E,0x00,0x00,0x00,0x01,0x01,	/* GLONASS disable */
+  //		0x04,0x00,0x08,0x00,0x00,0x00,0x01,0x01,	/* IMES disable */
+  /* IMES disable */
+  payloadCfg[packetCfg.len++] = 0x04; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x08; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x01; //
+  payloadCfg[packetCfg.len++] = 0x01; //
 
-	/* GLONASS disable */
-  payloadCfg[packetCfg.len++] = 0x06;            // 
-  payloadCfg[packetCfg.len++] = 0x08;            // 
-  payloadCfg[packetCfg.len++] = 0x0E;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-	
+  //		0x05,0x00,0x03,0x00,0x01,0x00,0x01,0x01,	/* QZSS enable */
+  /* QZSS enable */
+  payloadCfg[packetCfg.len++] = 0x05; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x03; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x01; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x01; //
+  payloadCfg[packetCfg.len++] = 0x01; //
 
+  //		0x06,0x08,0x0E,0x00,0x00,0x00,0x01,0x01,	/* GLONASS disable */
+
+  /* GLONASS disable */
+  payloadCfg[packetCfg.len++] = 0x06; //
+  payloadCfg[packetCfg.len++] = 0x08; //
+  payloadCfg[packetCfg.len++] = 0x0E; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x00; //
+  payloadCfg[packetCfg.len++] = 0x01; //
+  payloadCfg[packetCfg.len++] = 0x01; //
 
   packetCfg.len = 0x3C;
   packetCfg.startingSpot = 0;
@@ -2722,7 +1834,7 @@ bool getPVT(uint16_t maxWait)
     if (_printDebug == true)
     {
       printf("getPVT retVal: ");
-      printf("%s",statusString(retVal));
+      printf("%s", statusString(retVal));
     }
     return (false);
   }
@@ -2734,105 +1846,6 @@ uint32_t getTimeOfWeek(uint16_t maxWait /* = 250*/)
     getPVT(maxWait);
   moduleQueried.gpsiTOW = false; //Since we are about to give this to user, mark this data as stale
   return (timeOfWeek);
-}
-
-int32_t getHighResLatitude(uint16_t maxWait /* = 250*/)
-{
-  if (highResModuleQueried.highResLatitude == false)
-    getHPPOSLLH(maxWait);
-  highResModuleQueried.highResLatitude = false; //Since we are about to give this to user, mark this data as stale
-  return (highResLatitude);
-}
-
-int8_t getHighResLatitudeHp(uint16_t maxWait /* = 250*/)
-{
-  if (highResModuleQueried.highResLatitudeHp == false)
-    getHPPOSLLH(maxWait);
-  highResModuleQueried.highResLatitudeHp = false; //Since we are about to give this to user, mark this data as stale
-  return (highResLatitudeHp);
-}
-
-int32_t getHighResLongitude(uint16_t maxWait /* = 250*/)
-{
-  if (highResModuleQueried.highResLongitude == false)
-    getHPPOSLLH(maxWait);
-  highResModuleQueried.highResLongitude = false; //Since we are about to give this to user, mark this data as stale
-  return (highResLongitude);
-}
-
-int8_t getHighResLongitudeHp(uint16_t maxWait /* = 250*/)
-{
-  if (highResModuleQueried.highResLongitudeHp == false)
-    getHPPOSLLH(maxWait);
-  highResModuleQueried.highResLongitudeHp = false; //Since we are about to give this to user, mark this data as stale
-  return (highResLongitudeHp);
-}
-
-int32_t getElipsoid(uint16_t maxWait /* = 250*/)
-{
-  if (highResModuleQueried.elipsoid == false)
-    getHPPOSLLH(maxWait);
-  highResModuleQueried.elipsoid = false; //Since we are about to give this to user, mark this data as stale
-  return (elipsoid);
-}
-
-int8_t getElipsoidHp(uint16_t maxWait /* = 250*/)
-{
-  if (highResModuleQueried.elipsoidHp == false)
-    getHPPOSLLH(maxWait);
-  highResModuleQueried.elipsoidHp = false; //Since we are about to give this to user, mark this data as stale
-  return (elipsoidHp);
-}
-
-int32_t getMeanSeaLevel(uint16_t maxWait /* = 250*/)
-{
-  if (highResModuleQueried.meanSeaLevel == false)
-    getHPPOSLLH(maxWait);
-  highResModuleQueried.meanSeaLevel = false; //Since we are about to give this to user, mark this data as stale
-  return (meanSeaLevel);
-}
-
-int8_t getMeanSeaLevelHp(uint16_t maxWait /* = 250*/)
-{
-  if (highResModuleQueried.meanSeaLevelHp == false)
-    getHPPOSLLH(maxWait);
-  highResModuleQueried.meanSeaLevelHp = false; //Since we are about to give this to user, mark this data as stale
-  return (meanSeaLevelHp);
-}
-
-// getGeoidSeparation is currently redundant. The geoid separation seems to only be provided in NMEA GGA and GNS messages.
-int32_t getGeoidSeparation(uint16_t maxWait /* = 250*/)
-{
-  if (highResModuleQueried.geoidSeparation == false)
-    getHPPOSLLH(maxWait);
-  highResModuleQueried.geoidSeparation = false; //Since we are about to give this to user, mark this data as stale
-  return (geoidSeparation);
-}
-
-uint32_t getHorizontalAccuracy(uint16_t maxWait /* = 250*/)
-{
-  if (highResModuleQueried.horizontalAccuracy == false)
-    getHPPOSLLH(maxWait);
-  highResModuleQueried.horizontalAccuracy = false; //Since we are about to give this to user, mark this data as stale
-  return (horizontalAccuracy);
-}
-
-uint32_t getVerticalAccuracy(uint16_t maxWait /* = 250*/)
-{
-  if (highResModuleQueried.verticalAccuracy == false)
-    getHPPOSLLH(maxWait);
-  highResModuleQueried.verticalAccuracy = false; //Since we are about to give this to user, mark this data as stale
-  return (verticalAccuracy);
-}
-
-bool getHPPOSLLH(uint16_t maxWait)
-{
-  //The GPS is not automatically reporting navigation position so we have to poll explicitly
-  packetCfg.cls = UBX_CLASS_NAV;
-  packetCfg.id = UBX_NAV_HPPOSLLH;
-  packetCfg.len = 0;
-
-  return (sendCommand(&packetCfg, maxWait) == SFE_UBLOX_STATUS_DATA_RECEIVED); // We are only expecting data (no ACK)
 }
 
 //Get the current 3D high precision positional accuracy - a fun thing to watch
@@ -2873,7 +1886,6 @@ bool getTimeValid(uint16_t maxWait)
   moduleQueried.gpsTimeValid = false; //Since we are about to give this to user, mark this data as stale
   return (gpsTimeValid);
 }
-
 
 //Get the current latitude in degrees
 //Returns a long representing the number of degrees *10^-7
@@ -2948,7 +1960,6 @@ uint8_t getFixType(uint16_t maxWait)
   return (fixType);
 }
 
-
 //Get the current gnssFixOK status
 //0= not valid fix, 1 = not valid fix
 uint8_t getgnssFixOK(uint16_t maxWait)
@@ -2963,122 +1974,6 @@ uint8_t getgnssFixOK(uint16_t maxWait)
   return (gnssFixOK);
 }
 
-//Get the carrier phase range solution status
-//Useful when querying module to see if it has high-precision RTK fix
-//0=No solution, 1=Float solution, 2=Fixed solution
-uint8_t getCarrierSolutionType(uint16_t maxWait)
-{
-  if (moduleQueried.carrierSolution == false)
-    getPVT(maxWait);
-  moduleQueried.carrierSolution = false; //Since we are about to give this to user, mark this data as stale
-  moduleQueried.all = false;
-
-  return (carrierSolution);
-}
-
-//Get the ground speed in mm/s
-int32_t getGroundSpeed(uint16_t maxWait)
-{
-  if (moduleQueried.groundSpeed == false)
-    getPVT(maxWait);
-  moduleQueried.groundSpeed = false; //Since we are about to give this to user, mark this data as stale
-  moduleQueried.all = false;
-
-  return (groundSpeed);
-}
-
-//Get the heading of motion (as opposed to heading of car) in degrees * 10^-5
-int32_t getHeading(uint16_t maxWait)
-{
-  if (moduleQueried.headingOfMotion == false)
-    getPVT(maxWait);
-  moduleQueried.headingOfMotion = false; //Since we are about to give this to user, mark this data as stale
-  moduleQueried.all = false;
-
-  return (headingOfMotion);
-}
-
-//Get the positional dillution of precision * 10^-2
-uint16_t getPDOP(uint16_t maxWait)
-{
-  if (moduleQueried.pDOP == false)
-    getPVT(maxWait);
-  moduleQueried.pDOP = false; //Since we are about to give this to user, mark this data as stale
-  moduleQueried.all = false;
-
-  return (pDOP);
-}
-
-//Get the current protocol version of the Ublox module we're communicating with
-//This is helpful when deciding if we should call the high-precision Lat/Long (HPPOSLLH) or the regular (POSLLH)
-uint8_t getProtocolVersionHigh(uint16_t maxWait)
-{
-  if (moduleQueried.versionNumber == false)
-    getProtocolVersion(maxWait);
-  return (versionHigh);
-}
-
-//Get the current protocol version of the Ublox module we're communicating with
-//This is helpful when deciding if we should call the high-precision Lat/Long (HPPOSLLH) or the regular (POSLLH)
-uint8_t getProtocolVersionLow(uint16_t maxWait)
-{
-  if (moduleQueried.versionNumber == false)
-    getProtocolVersion(maxWait);
-  return (versionLow);
-}
-
-//Get the current protocol version of the Ublox module we're communicating with
-//This is helpful when deciding if we should call the high-precision Lat/Long (HPPOSLLH) or the regular (POSLLH)
-bool getProtocolVersion(uint16_t maxWait)
-{
-  //Send packet with only CLS and ID, length of zero. This will cause the module to respond with the contents of that CLS/ID.
-  packetCfg.cls = UBX_CLASS_MON;
-  packetCfg.id = UBX_MON_VER;
-
-  packetCfg.len = 0;
-  packetCfg.startingSpot = 40; //Start at first "extended software information" string
-
-  if (sendCommand(&packetCfg, maxWait) != SFE_UBLOX_STATUS_DATA_RECEIVED) // We are only expecting data (no ACK)
-    return (false);                                                       //If command send fails then bail
-
-  //Payload should now contain ~220 characters (depends on module type)
-
-  // if (_printDebug == true)
-  // {
-  //   printf("MON VER Payload:");
-  //   for (int location = 0; location < packetCfg.len; location++)
-  //   {
-  //     if (location % 30 == 0)
-  //       printf();
-  //     write(payloadCfg[location]);
-  //   }
-  //   printf();
-  // }
-
-  //We will step through the payload looking at each extension field of 30 bytes
-  for (uint8_t extensionNumber = 0; extensionNumber < 10; extensionNumber++)
-  {
-    //Now we need to find "PROTVER=18.00" in the incoming byte stream
-    if (payloadCfg[(30 * extensionNumber) + 0] == 'P' && payloadCfg[(30 * extensionNumber) + 6] == 'R')
-    {
-      versionHigh = (payloadCfg[(30 * extensionNumber) + 8] - '0') * 10 + (payloadCfg[(30 * extensionNumber) + 9] - '0');  //Convert '18' to 18
-      versionLow = (payloadCfg[(30 * extensionNumber) + 11] - '0') * 10 + (payloadCfg[(30 * extensionNumber) + 12] - '0'); //Convert '00' to 00
-      moduleQueried.versionNumber = true;                                                                                  //Mark this data as new
-
-      if (_printDebug == true)
-      {
-        printf("Protocol version: ");
-        printf("%d",versionHigh);
-        printf(".");
-        printf("%d\r\n",versionLow);
-      }
-      return (true); //Success!
-    }
-  }
-
-  return (false); //We failed
-}
-
 //Mark all the PVT data as read/stale. This is handy to get data alignment after CRC failure
 void flushPVT()
 {
@@ -3090,7 +1985,7 @@ void flushPVT()
   moduleQueried.gpsHour = false;
   moduleQueried.gpsMinute = false;
   moduleQueried.gpsSecond = false;
-	moduleQueried.gpsDateValid = false;
+  moduleQueried.gpsDateValid = false;
   moduleQueried.gpsTimeValid = false;
   moduleQueried.gpsNanosecond = false;
 
@@ -3101,12 +1996,42 @@ void flushPVT()
   moduleQueried.altitudeMSL = false;
   moduleQueried.SIV = false;
   moduleQueried.fixType = false;
-	moduleQueried.gnssFixOK = false;
+  moduleQueried.gnssFixOK = false;
   moduleQueried.carrierSolution = false;
   moduleQueried.groundSpeed = false;
   moduleQueried.headingOfMotion = false;
   moduleQueried.pDOP = false;
 }
 
+void factoryReset()
+{
+  // Copy default settings to permanent
+  // Note: this does not load the permanent configuration into the current configuration. Calling factoryDefault() will do that.
+  packetCfg.cls = UBX_CLASS_CFG;
+  packetCfg.id = UBX_CFG_CFG;
+  packetCfg.len = 13;
+  packetCfg.startingSpot = 0;
+  for (uint8_t i = 0; i < 4; i++)
+  {
+    payloadCfg[0 + i] = 0xff; // clear mask: copy default config to permanent config
+    payloadCfg[4 + i] = 0x00; // save mask: don't save current to permanent
+    payloadCfg[8 + i] = 0x00; // load mask: don't copy permanent config to current
+  }
+  payloadCfg[12] = 0xff;      // all forms of permanent memory
+  sendCommand(&packetCfg, 0); // don't expect ACK
+  hardReset();                // cause factory default config to actually be loaded and used cleanly
+}
 
-#endif //#if 0
+void hardReset()
+{
+  // Issue hard reset
+  packetCfg.cls = UBX_CLASS_CFG;
+  packetCfg.id = UBX_CFG_RST;
+  packetCfg.len = 4;
+  packetCfg.startingSpot = 0;
+  payloadCfg[0] = 0xff;       // cold start
+  payloadCfg[1] = 0xff;       // cold start
+  payloadCfg[2] = 0;          // 0=HW reset
+  payloadCfg[3] = 0;          // reserved
+  sendCommand(&packetCfg, 0); // don't expect ACK
+}
