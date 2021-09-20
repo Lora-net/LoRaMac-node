@@ -28,6 +28,7 @@
 #include <string.h>
 #include <time.h>
 #include "iwdg.h"
+#include "deep_sleep_delay.h"
 
 #include "SparkFun_Ublox_Arduino_Library.h"
 
@@ -174,7 +175,7 @@ gps_status_t setup_GPS()
 	GpioWrite(&Gps_int, 1); // pull GPS extint0 pin high to wake gps
 
 	factoryReset();
-	DelayMs(GPS_WAKEUP_TIMEOUT); // Wait for things to be setup
+	DeepSleepDelayMs(GPS_WAKEUP_TIMEOUT); // Wait for things to be setup
 
 	/* Set the I2C port to output UBX only (turn off NMEA noise) */
 	if (setI2COutput(COM_TYPE_UBX, defaultMaxWait) == false) //Set the I2C port to output UBX only (turn off NMEA noise)
@@ -336,7 +337,7 @@ gps_status_t get_location_fix(uint32_t timeout)
 			gps_info.latest_gps_status = GPS_SUCCESS;
 			return GPS_SUCCESS;
 		}
-		DelayMs(1000);
+		DeepSleepDelayMs(4000);
 	}
 
 	/* If fix taking too long, reset and re-initialize GPS module. 
@@ -359,7 +360,7 @@ static gps_status_t init_for_fix()
 	/* pull GPS extint0 pin high to wake gps */
 	GpioWrite(&Gps_int, 1);
 
-	DelayMs(GPS_WAKEUP_TIMEOUT);
+	DeepSleepDelayMs(GPS_WAKEUP_TIMEOUT);
 
 	IWDG_reset();
 
@@ -429,7 +430,7 @@ static gps_status_t reinit_gps()
 
 	// configure gps module again
 	factoryReset();
-	DelayMs(GPS_WAKEUP_TIMEOUT); // wait for GPS module to be ready
+	DeepSleepDelayMs(GPS_WAKEUP_TIMEOUT); // wait for GPS module to be ready
 
 	IWDG_reset();
 
@@ -500,7 +501,7 @@ static gps_status_t display_still_searching()
 {
 	// Indicator led to indicate that still searching
 	GpioWrite(&Led1, 1);
-	DelayMs(100);
+	DeepSleepDelayMs(100);
 	GpioWrite(&Led1, 0);
 
 	return GPS_SUCCESS;
@@ -512,9 +513,9 @@ static gps_status_t display_fix_found()
 	for (uint8_t i = 0; i < 20; i++)
 	{
 		GpioWrite(&Led1, 1);
-		DelayMs(50);
+		DeepSleepDelayMs(50);
 		GpioWrite(&Led1, 0);
-		DelayMs(50);
+		DeepSleepDelayMs(50);
 	}
 
 	return GPS_SUCCESS;

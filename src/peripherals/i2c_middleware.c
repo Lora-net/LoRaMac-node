@@ -24,6 +24,7 @@
 // #include "iwdg.h"
 #include "board.h"
 #include "i2c.h"
+#include "deep_sleep_delay.h"
 
 extern I2c_t I2c;
 extern Gpio_t Load_enable;
@@ -71,7 +72,7 @@ I2C_MIDDLEWARE_STATUS_t reinit_i2c()
 
 	/* disable power to GPS */
 	GpioWrite(&Load_enable, 1);
-	DelayMs(100);
+	DeepSleepDelayMs(100);
 
 	/* Make I2C bus pins GPIO */
 	GpioInit(&i2c_scl, PB_8, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 1);
@@ -81,22 +82,22 @@ I2C_MIDDLEWARE_STATUS_t reinit_i2c()
 	GpioWrite(&i2c_scl, 0);
 	GpioWrite(&i2c_sda, 0);
 
-	DelayMs(100);
+	DeepSleepDelayMs(100);
 
 	/* Enable power to GPS */
 	GpioWrite(&Load_enable, 0);
-	DelayMs(1000);
+	DeepSleepDelayMs(1000);
 
 	/* send 9 clock pulses to the GPS ref: https://www.microchip.com/forums/FindPost/175578 */
 	for (uint8_t i = 0; i < 9; i++)
 	{
 		GpioWrite(&i2c_scl, 0);
-		DelayMs(1);
+		DeepSleepDelayMs(1);
 		GpioWrite(&i2c_scl, 1);
-		DelayMs(1);
+		DeepSleepDelayMs(1);
 	}
 
-	DelayMs(100);
+	DeepSleepDelayMs(100);
 
 	I2cInit(&I2c, I2C_1, PB_8, PB_9);
 

@@ -46,7 +46,7 @@
 #include "i2c.h"
 #include "SparkFun_Ublox_Arduino_Library.h"
 #include <systime.h>
-#include "delay.h"
+#include "deep_sleep_delay.h"
 
 extern I2c_t I2c;
 
@@ -1211,6 +1211,8 @@ sfe_ublox_status_e waitForACKResponse(ubxPacket *outgoingUBX, uint8_t requestedC
   unsigned long startTime = SysTimeToMs(SysTimeGet());
   while (SysTimeToMs(SysTimeGet()) - startTime < maxTime)
   {
+    DeepSleepDelayMs(i2cPollingWait);
+
     if (checkUbloxInternal(outgoingUBX, requestedClass, requestedID) == true) //See if new data is available. Process bytes as they come in.
     {
       // If both the outgoingUBX->classAndIDmatch and packetAck.classAndIDmatch are VALID
@@ -1333,7 +1335,6 @@ sfe_ublox_status_e waitForACKResponse(ubxPacket *outgoingUBX, uint8_t requestedC
 
     } //checkUbloxInternal == true
 		
-		DelayMs(1);
   }
 
   // We have timed out...
@@ -1378,6 +1379,8 @@ sfe_ublox_status_e waitForNoACKResponse(ubxPacket *outgoingUBX, uint8_t requeste
   unsigned long startTime = SysTimeToMs(SysTimeGet());
   while (SysTimeToMs(SysTimeGet()) - startTime < maxTime)
   {
+    DeepSleepDelayMs(i2cPollingWait);
+
     if (checkUbloxInternal(outgoingUBX, requestedClass, requestedID) == true) //See if new data is available. Process bytes as they come in.
     {
 
@@ -1441,7 +1444,6 @@ sfe_ublox_status_e waitForNoACKResponse(ubxPacket *outgoingUBX, uint8_t requeste
       }
     }
 
-    DelayMs(1);
   }
 
   if (_printDebug == true)

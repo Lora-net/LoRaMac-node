@@ -37,7 +37,7 @@
 
 #include "bsp.h"
 #include "config.h"
-#include "delay.h"
+#include "deep_sleep_delay.h"
 #include "iwdg.h"
 
 /*!
@@ -184,7 +184,11 @@ void BoardInitMcu( void )
         GpioInit( &Load_enable, LOAD_ENABLE, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
         SystemClockConfig( );
 
-        UsbIsConnected = ~DEEP_SLEEP_ENABLE;
+#if DEEP_SLEEP_ENABLE
+        UsbIsConnected = false;
+#else
+        UsbIsConnected = true;
+#endif
 
         FifoInit( &Uart1.FifoTx, Uart1TxBuffer, UART1_FIFO_TX_SIZE );
         FifoInit( &Uart1.FifoRx, Uart1RxBuffer, UART1_FIFO_RX_SIZE );
@@ -195,14 +199,15 @@ void BoardInitMcu( void )
         I2cInit( &I2c, I2C_1, I2C_SCL, I2C_SDA );
 			
         RtcInit( );
-
+        
+        DeepSleepDelayMsInit();
 
         for (uint8_t i = 0; i < 5; i++)
         {
             GpioWrite( &Led1, 1 );
-            DelayMs(50);
+            DeepSleepDelayMs(50);
             GpioWrite( &Led1, 0 );
-            DelayMs(50);
+            DeepSleepDelayMs(50);
         }
 
         AdcInit( &Adc, PA_5 );
