@@ -96,6 +96,12 @@ extern "C"
  */
 #define LORAWAN_DEFAULT_CLASS CLASS_A
 
+/**
+ * @brief Number of past positions saved in EEPROM to printout for debugging
+ * 
+ */
+#define N_POSITIONS_TO_PRINTOUT 30
+
 #ifdef __cplusplus
 }
 #endif

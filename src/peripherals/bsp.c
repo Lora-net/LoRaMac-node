@@ -394,8 +394,14 @@ void playback_hw_init()
 void print_stored_coordinates()
 {
 	/* test stored positoins */
-	printf("Printing Stored coordinates:\n");
-	for (uint16_t i = 0; i < eeprom_playback_stats.n_playback_positions_saved; i++)
+
+	uint32_t n_positions_to_print = MIN(eeprom_playback_stats.n_playback_positions_saved, N_POSITIONS_TO_PRINTOUT);
+
+	printf("%d playback positions have been saved. Printing %ld most recent positions saved.\n",
+		   eeprom_playback_stats.n_playback_positions_saved,
+		   n_positions_to_print);
+
+		for (uint16_t i = 0; i < n_positions_to_print; i++)
 	{
 		time_pos_fix_t temp = retrieve_eeprom_time_pos(i);
 		printf("index: %d,", i);
