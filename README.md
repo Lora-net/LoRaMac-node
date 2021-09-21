@@ -1,3 +1,26 @@
+# Picotracker Lora
+This is the code repo for the picotracker LoRa. It is based off the Loramac-node v4.4.5 release. It has the following new features:
+ * Ability to switch LoRaWAN credentials depending on loramac region(determined by GPS position)
+ * Alternates between two networks, The Things Network and the Helium Network on every 3 transmissions.
+ * Saves 360 past positions in EEPROM and sends 12 of them down in each transmission.
+ * Adds Unit tests with CppUTest.
+ * Adds driver for a U-blox MAX-M8C/Q GPS module.
+ * Stores NVM memory for 3 different loraWAN regions - US, EU and CN. It preserves the LoRaWAN key information(network keys, channel frequency lists) in EEPROM so that it only has to join once.
+ * Completely updates the non-volatile memory module to write to EEPROM in under 200 milliseconds, down from 1-5 seconds. It works by using a hybrid approach. Parameters that are rarely changed(channel frequency lists, keys) are compressed with LZ4 and saved to EEPROM to take up least space. Parameters that change with every transmission(frame count) are not compressed. However, the algorithm only writes to EEPROM the changed bytes, resulting in massive write time savings. On average, only around 30 bytes are changed between each transmission, and so it takes around 200 ms to write those bytes.
+
+## Uploading the code to the picotracker
+Install STM32CubeProg which you can download from here: https://www.st.com/en/development-tools/stm32cubeprog.html. There are versions for Windows and Linux.![image](https://user-images.githubusercontent.com/26815217/134256818-4c9f53b5-6c89-44b3-8eeb-309d7b0ad28a.png)
+
+Then connect the programmer to the tracker. Hit the read button(see below) to verify that the connection is working. This should read out the memory of the tracker.![image](https://user-images.githubusercontent.com/26815217/134256899-17072a9c-32f3-4b58-9ee3-595b4cd913c1.png)
+
+Now switch to the `Erasing and Programming` tab as shown in the screen shot below. Then open the hex file from your storage drive that you want flash to the tracker.
+![image](https://user-images.githubusercontent.com/26815217/134257391-f6bd190f-be0c-4ce4-8083-5bddb161cea9.png)
+
+Ensure the checkbox to `Verify Programming` checkbox is selected and then hit the `Start programming` button. It should flash the code into the tracker MCU. See image below for reference.
+![image](https://user-images.githubusercontent.com/26815217/134257621-5bfe6cdb-1644-4bbf-bf76-9e4966002559.png)
+
+Now the code should have been flashed!
+
 # LoRaWAN end-device stack implementation and example projects
 
       ______                              _
