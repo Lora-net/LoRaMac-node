@@ -370,10 +370,11 @@ int setup_board()
 
     /* Initialising board and peripherals */
     BoardInitMcu();
-    BoardInitPeriph();
 
     /* Print reset cause after print function initialised */
     printf("\n\nThe system reset cause is \"%s\"\n", reset_cause_get_name(reset_cause));
+
+    BoardInitPeriph();
 
     /* Print board info */
     print_board_info();
