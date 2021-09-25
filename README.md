@@ -21,6 +21,9 @@ Ensure the checkbox to `Verify Programming` checkbox is selected and then hit th
 
 Now the code should have been flashed!
 
+## Notes on updating the flash firmware on the Ublox module.
+If you have a module with FW version older than FW3.01, you may be able to update it. The instructions to do so, and the firmware binary, can be found in this link: https://junipersys.com/data/support/mesa-2-ublox-gnss-firmware-update.pdf
+
 # LoRaWAN end-device stack implementation and example projects
 
       ______                              _
