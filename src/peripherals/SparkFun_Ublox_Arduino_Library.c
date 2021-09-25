@@ -46,6 +46,7 @@
 #include "i2c.h"
 #include "SparkFun_Ublox_Arduino_Library.h"
 #include <systime.h>
+#include "string.h"
 #include "deep_sleep_delay.h"
 
 extern I2c_t I2c;
@@ -2155,33 +2156,13 @@ bool clearAntPIO(uint16_t maxWait)
 //Enables/Disables Low Power Mode using UBX-CFG-RXM
 bool powerSaveMode(bool power_save, uint16_t maxWait)
 {
-  // Let's begin by checking the Protocol Version as UBX_CFG_RXM is not supported on the ZED (protocol >= 27)
-  uint8_t protVer = getProtocolVersionHigh(maxWait);
-  /*
-  if (_printDebug == true)
-  {
-    printf("Protocol version is ");
-    printf(protVer);
-  }
-  */
-  if (protVer >= 27)
-  {
-    if (_printDebug == true)
-    {
-      printf("powerSaveMode (UBX-CFG-RXM) is not supported by this protocol version");
-    }
-    return (false);
-  }
-
   // Now let's change the power setting using UBX-CFG-RXM
   packetCfg.cls = UBX_CLASS_CFG;
   packetCfg.id = UBX_CFG_RXM;
-  packetCfg.len = 0;
+  packetCfg.len = 2;
   packetCfg.startingSpot = 0;
 
-  //Ask module for the current power management settings. Loads into payloadCfg.
-  if (sendCommand(&packetCfg, maxWait) != SFE_UBLOX_STATUS_DATA_RECEIVED) // We are expecting data and an ACK
-    return (false);
+  payloadCfg[0] = 0x00;
 
   if (power_save)
   {
@@ -2191,11 +2172,7 @@ bool powerSaveMode(bool power_save, uint16_t maxWait)
   {
     payloadCfg[1] = 0; // Continuous Mode
   }
-
-  packetCfg.len = 2;
-  packetCfg.startingSpot = 0;
-
-  return (sendCommand(&packetCfg, maxWait) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
+  return (sendCommand(&packetCfg, maxWait) == SFE_UBLOX_STATUS_SUCCESS); // We are only expecting an ACK
 }
 
 // Get Power Save Mode
@@ -2234,301 +2211,61 @@ uint8_t getPowerSaveMode(uint16_t maxWait)
   return (payloadCfg[1]); // Return the low power mode
 }
 
-
 // Set the power saving config Setting using UBX-CFG-PM2
-// This is the original packet that was sent.
-//static uint8_t powersave_config[]= 
-//{
-//	0xB5 ,0x62 ,0x06 ,0x3B ,0x30 ,0x00 /* UBX-CFG-PM2 */
-//	,0x02 ,0x06 ,0x00 ,0x00 /* v2, reserved 1..3 */
-//	,0x60 ,0x90 ,0x40 ,0x01 /* ON/OFF tracking mode, update ephemeris */
-//	,0x00 ,0x00 ,0x00 ,0x00 /* update period, 0 ms(infinity) */
-//	,0x00 ,0x00 ,0x00 ,0x00 /* search period, 0 ms(infinity) */
-//	,0x00 ,0x00 ,0x00 ,0x00 /* grid offset */
-//	,0x02 ,0x00             /* on-time after first fix */
-//	,0x00 ,0x00             /* minimum acquisition time */
-//	,0x2C ,0x01 ,0x00 ,0x00
-//	,0x4F ,0xC1 ,0x03 ,0x00
-//	,0x87 ,0x02 ,0x00 ,0x00
-//	,0xFF ,0x00 ,0x00 ,0x00
-//	,0x64 ,0x40 ,0x01 ,0x00
-//	,0x00 ,0x00 ,0x00 ,0x00
-//	,0x19 ,0xB8
-
-//};
-
 bool set_powersave_config(uint16_t maxWait)
 {
   packetCfg.cls = UBX_CLASS_CFG;
   packetCfg.id = UBX_CFG_PM2;
-  packetCfg.len = 0;
+  packetCfg.len = 44;
   packetCfg.startingSpot = 0;
 
+  /**
+   * @brief Message commands the Ublox to:
+   * 1. Force into backup mode when EXTINT0 pin is pulled low
+   * 2. Force into active search mode when EXTINT0 is pulled high
+   * 3. Don't automatically schedule GPS wakup and searches for fix. Manually control it from 
+   * the MCU using the EXTINT0 pin.
+   *  
+   */
+  uint8_t pm2_config_message[] = {
+      0x01,                                                                                                                   // Version
+      0x06,                                                                                                                   // reserved1
+      0xAF,                                                                                                                   // maxStartupStateDur(seconds)
+      0x00,                                                                                                                   // reserved2
+      0x6E, 0x90, 0x40, 0x01,                                                                                                 // flags
+      0x00, 0x00, 0x00, 0x00,                                                                                                 // update period ms
+      0x00, 0x00, 0x00, 0x00,                                                                                                 // search period ms
+      0x00, 0x00, 0x00, 0x00,                                                                                                 // grid offset
+      0x05, 0x00,                                                                                                             // Ontime (s)
+      0x00, 0x00,                                                                                                             // minAcqtime(s)
+      0x2C, 0x01, 0x00, 0x00, 0x4F, 0xC1, 0x03, 0x00, 0x87, 0x02, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x64, 0x40, 0x01, 0x00, // reserved
+  };
 
-//	,0x02 ,0x06 ,0x00 ,0x00 /* v2, reserved 1..3 */
-  payloadCfg[packetCfg.len++] = 0x02;            // 
-  payloadCfg[packetCfg.len++] = 0x06;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-	
-
-//	,0x60 ,0x90 ,0x40 ,0x01 /* ON/OFF tracking mode, update ephemeris */
-  payloadCfg[packetCfg.len++] = 0x60;            // 
-  payloadCfg[packetCfg.len++] = 0x90;            // 
-  payloadCfg[packetCfg.len++] = 0x40;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-
-//	,0x00 ,0x00 ,0x00 ,0x00 /* update period, 0 ms(infinity) */
-
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-	
-	//	,0x00 ,0x00 ,0x00 ,0x00 /* search period, 0 ms(infinity) */
-
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-	
-//	,0x00 ,0x00 ,0x00 ,0x00 /* grid offset */
-
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  
-//	,0x02 ,0x00             /* on-time after first fix */
-  payloadCfg[packetCfg.len++] = 0x02;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-
-//	,0x00 ,0x00             /* minimum acquisition time */
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-	
-	//	,0x2C ,0x01 ,0x00 ,0x00
-
-  payloadCfg[packetCfg.len++] = 0x2C;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-
-//	,0x4F ,0xC1 ,0x03 ,0x00
-
-  payloadCfg[packetCfg.len++] = 0x4F;            // 
-  payloadCfg[packetCfg.len++] = 0xC1;            // 
-  payloadCfg[packetCfg.len++] = 0x03;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-	
-	//	,0x87 ,0x02 ,0x00 ,0x00
-
-  payloadCfg[packetCfg.len++] = 0x87;            // 
-  payloadCfg[packetCfg.len++] = 0x02;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-
-//	,0xFF ,0x00 ,0x00 ,0x00
-
-  payloadCfg[packetCfg.len++] = 0xFF;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-	
-	//	,0x64 ,0x40 ,0x01 ,0x00
-
-  payloadCfg[packetCfg.len++] = 0x64;            // 
-  payloadCfg[packetCfg.len++] = 0x40;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-
-//	,0x00 ,0x00 ,0x00 ,0x00
-
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-	
-	
-  packetCfg.len = 0x30;
-  packetCfg.startingSpot = 0;
+  memcpy(payloadCfg, pm2_config_message, packetCfg.len);
 
   return (sendCommand(&packetCfg, maxWait) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
 }
 
-
-// Put the GPS into On/OFF power save mode, with EXTINT pin to toggle power save mode and continueous mode
-// Setting using UBX-CFG-RXM
-// This is the original packet that was sent.
-// static uint8_t set_power_save_mode[] =  
-// {0xB5 ,0x62 ,0x06 ,0x11 ,0x02 ,0x00 ,0x08 ,0x01 ,0x22 ,0x92};
-
-
-bool put_in_power_save_mode(uint16_t maxWait)
-{
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_RXM;
-  packetCfg.len = 0;
-  packetCfg.startingSpot = 0;
-
-
-	//0x08 ,0x01                  
-
-	/* 1: Power Save Mode */
-  payloadCfg[packetCfg.len++] = 0x08;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-
-
-  packetCfg.len = 0x02;
-  packetCfg.startingSpot = 0;
-
-  return (sendCommand(&packetCfg, maxWait) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
-}
-
-// Put the GPS into On/OFF power save mode, with EXTINT pin to toggle power save mode and continueous mode
-// Setting using UBX-CFG-RXM
-// This is the original packet that was sent.
-// static uint8_t set_continueous_mode[] = 
-// {0xB5 ,0x62 ,0x06 ,0x11 ,0x02 ,0x00 ,0x08 ,0x00 ,0x21 ,0x91};
-
-
-
-bool put_in_continueous_mode(uint16_t maxWait)
-{
-  packetCfg.cls = UBX_CLASS_CFG;
-  packetCfg.id = UBX_CFG_RXM;
-  packetCfg.len = 0;
-  packetCfg.startingSpot = 0;
-
-
-	//0x08 ,0x00               
-
-	/* 1: Power Save Mode */
-  payloadCfg[packetCfg.len++] = 0x08;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-
-
-  packetCfg.len = 0x02;
-  packetCfg.startingSpot = 0;
-
-  return (sendCommand(&packetCfg, maxWait) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
-}
-
-// Use only the American GPS constellation. Setting using UBX-CFG-GNSS
-// This is the original packet that was sent.
-//static uint8_t setGPSonly[] = {
-//		0xB5,0x62,0x06,0x3E,0x3C,0x00,              /* UBX-CFG-GNSS */
-//		0x00,0x00,0x20,0x07,                        /* use 32 channels, 7 configs following */
-//		0x00,0x08,0x10,0x00,0x01,0x00,0x01,0x01,    /* GPS enable */
-//		0x01,0x01,0x03,0x00,0x00,0x00,0x01,0x01,	/* SBAS disable */
-//		0x02,0x04,0x08,0x00,0x00,0x00,0x01,0x01,	/* Galileo disable */
-//		0x03,0x08,0x10,0x00,0x00,0x00,0x01,0x01,	/* Beidou disable */
-//		0x04,0x00,0x08,0x00,0x00,0x00,0x01,0x01,	/* IMES disable */
-//		0x05,0x00,0x03,0x00,0x01,0x00,0x01,0x01,	/* QZSS enable */
-//		0x06,0x08,0x0E,0x00,0x00,0x00,0x01,0x01,	/* GLONASS disable */
-//		0x2D,0x59                                   /* checksum */
-//};
-
+/* Use only the American GPS constellation. Setting using UBX-CFG-GNSS */
 bool setGPS_constellation_only(uint16_t maxWait)
 {
   packetCfg.cls = UBX_CLASS_CFG;
   packetCfg.id = UBX_CFG_GNSS;
-  packetCfg.len = 0;
-  packetCfg.startingSpot = 0;
-
-
-	//		0x00,0x00,0x20,0x07,                        /* use 32 channels, 7 configs following */
-
-	/* use 32 channels, 7 configs following */
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x20;            // 
-  payloadCfg[packetCfg.len++] = 0x07;            // 
-	
-	//		0x00,0x08,0x10,0x00,0x01,0x00,0x01,0x01,    /* GPS enable */
-
-	/* GPS enable */
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x08;            // 
-  payloadCfg[packetCfg.len++] = 0x10;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-	payloadCfg[packetCfg.len++] = 0x01;            //
-	
-	//		0x01,0x01,0x03,0x00,0x00,0x00,0x01,0x01,	/* SBAS disable */
-
-	/* SBAS disable */
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x03;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  
-	//		0x02,0x04,0x08,0x00,0x00,0x00,0x01,0x01,	/* Galileo disable */
-	/* Galileo disable */
-  payloadCfg[packetCfg.len++] = 0x02;            // 
-  payloadCfg[packetCfg.len++] = 0x04;            // 
-  payloadCfg[packetCfg.len++] = 0x08;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-
-//		0x03,0x08,0x10,0x00,0x00,0x00,0x01,0x01,	/* Beidou disable */
-	/* Beidou disable */
-  payloadCfg[packetCfg.len++] = 0x03;            // 
-  payloadCfg[packetCfg.len++] = 0x08;            // 
-  payloadCfg[packetCfg.len++] = 0x10;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-
-//		0x04,0x00,0x08,0x00,0x00,0x00,0x01,0x01,	/* IMES disable */
-	/* IMES disable */
-  payloadCfg[packetCfg.len++] = 0x04;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x08;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-
-//		0x05,0x00,0x03,0x00,0x01,0x00,0x01,0x01,	/* QZSS enable */
-	/* QZSS enable */
-  payloadCfg[packetCfg.len++] = 0x05;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x03;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-
-//		0x06,0x08,0x0E,0x00,0x00,0x00,0x01,0x01,	/* GLONASS disable */
-
-	/* GLONASS disable */
-  payloadCfg[packetCfg.len++] = 0x06;            // 
-  payloadCfg[packetCfg.len++] = 0x08;            // 
-  payloadCfg[packetCfg.len++] = 0x0E;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x00;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-  payloadCfg[packetCfg.len++] = 0x01;            // 
-	
-
-
   packetCfg.len = 0x3C;
   packetCfg.startingSpot = 0;
+
+  static uint8_t setGPSonly[] = {
+      0x00, 0x00, 0x20, 0x07,                         /* use 32 channels, 7 configs following */
+      0x00, 0x08, 0x10, 0x00, 0x01, 0x00, 0x01, 0x01, /* GPS enable */
+      0x01, 0x01, 0x03, 0x00, 0x00, 0x00, 0x01, 0x01, /* SBAS disable */
+      0x02, 0x04, 0x08, 0x00, 0x00, 0x00, 0x01, 0x01, /* Galileo disable */
+      0x03, 0x08, 0x10, 0x00, 0x00, 0x00, 0x01, 0x01, /* Beidou disable */
+      0x04, 0x00, 0x08, 0x00, 0x00, 0x00, 0x01, 0x01, /* IMES disable */
+      0x05, 0x00, 0x03, 0x00, 0x01, 0x00, 0x01, 0x01, /* QZSS enable */
+      0x06, 0x08, 0x0E, 0x00, 0x00, 0x00, 0x01, 0x01, /* GLONASS disable */
+  };
+
+  memcpy(payloadCfg, setGPSonly, packetCfg.len);
 
   return (sendCommand(&packetCfg, maxWait) == SFE_UBLOX_STATUS_DATA_SENT); // We are only expecting an ACK
 }
@@ -2574,6 +2311,46 @@ uint8_t getDynamicModel(uint16_t maxWait)
     return (255);
 
   return (payloadCfg[2]); // Return the dynamic model
+}
+
+/**
+ * @brief Set the Soft Backup object
+ * 
+ * @param do_it 
+ * @param maxWait 
+ * @return true 
+ * @return false 
+ */
+void setSoftBackup(bool do_it)
+{
+  packetCfg.cls = UBX_CLASS_RXM;
+  packetCfg.id = UBX_RXM_PMREQ;
+  packetCfg.len = 8;
+  packetCfg.startingSpot = 0;
+
+  /* U4 Duration(ms) of backup. Set 0 for inifinity */
+  payloadCfg[0] = 0x00;
+  payloadCfg[1] = 0x00;
+  payloadCfg[2] = 0x00;
+  payloadCfg[3] = 0x00;
+
+  /* X4 Backup flag on bit 2 */
+  if (do_it == true)
+  {
+    payloadCfg[4] = 0x02;
+  }
+  else
+  {
+    payloadCfg[4] = 0x00;
+  }
+  payloadCfg[5] = 0x00;
+  payloadCfg[6] = 0x00;
+  payloadCfg[7] = 0x00;
+
+  /* Wakup Sources */
+  payloadCfg[12] = 0x20; /* 0b00100000  Wake up the receiver if there is an edge on the EXTINT0 pin */
+
+  sendCommand(&packetCfg, 0); // don't expect ACK
 }
 
 //Given a spot in the payload array, extract four bytes and build a long

@@ -520,6 +520,7 @@ typedef struct
 	bool saveConfiguration(uint16_t maxWait);						 //Save current configuration to flash and BBR (battery backed RAM)
 	bool factoryDefault(uint16_t maxWait);							 //Reset module to factory defaults
 	bool saveConfigSelective(uint32_t configMask, uint16_t maxWait); //Save the selected configuration sub-sections to flash and BBR (battery backed RAM)
+	void setSoftBackup(bool do_it);
 
 	sfe_ublox_status_e waitForACKResponse(ubxPacket *outgoingUBX, uint8_t requestedClass, uint8_t requestedID, uint16_t maxTime );	 //Poll the module until a config packet and an ACK is received
 	sfe_ublox_status_e waitForNoACKResponse(ubxPacket *outgoingUBX, uint8_t requestedClass, uint8_t requestedID, uint16_t maxTime ); //Poll the module until a config packet is received
@@ -655,16 +656,6 @@ typedef struct
   // Set power save config for the pico tracker lora
 	bool set_powersave_config(uint16_t maxWait);
 
-  // toggle putting into power save mode and continueous mode
-	bool put_in_power_save_mode(uint16_t maxWait);
-	bool put_in_continueous_mode(uint16_t maxWait);
-
-
-
-
-
-
-
 	//Functions
 	bool checkUbloxInternal(ubxPacket *incomingUBX, uint8_t requestedClass, uint8_t requestedID); //Checks module with user selected commType
 	uint32_t extractLong(uint8_t spotToStart);																	 //Combine four bytes from payload into long
@@ -672,14 +663,6 @@ typedef struct
 	uint8_t extractByte(uint8_t spotToStart);																	 //Get byte from payload
 	int8_t extractSignedChar(uint8_t spotToStart);																 //Get signed 8-bit value from payload
 	void addToChecksum(uint8_t incoming);																		 //Given an incoming byte, adjust rollingChecksumA/B
-
-
-
-
-
-
-
-
 
 #endif
 #ifdef __cplusplus
