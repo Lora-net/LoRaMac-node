@@ -167,7 +167,7 @@ loop_status_t run_loop_once(void);
 int init_loramac_stack_and_tx_scheduling(void);
 void loop(void);
 void update_geofence_status();
-void do_transmission();
+void do_n_transmissions(uint32_t n_transmissions_todo);
 void WatchdogProcess(void);
 
 static LmHandlerCallbacks_t LmHandlerCallbacks =
@@ -233,7 +233,7 @@ extern TimerTime_t current_time;
 #endif
 
 uint32_t tx_count = 0;
-uint32_t n_tx_per_network = 3;
+uint32_t n_tx_per_network = 1;
 
 /*!
  * Main application entry point.
@@ -271,13 +271,22 @@ void loop()
 
         if (current_geofence_status.tx_permission == TX_OK)
         {
-            do_transmission();
+            if (get_latest_gps_status() == GPS_SUCCESS)
+            {
+                do_n_transmissions(YES_FIX_N_TRANSMISSIONS);
+            }
+            else
+            {
+                do_n_transmissions(NO_FIX_N_TRANSMISSIONS);
+            }
         }
     }
 }
 
-void do_transmission()
+void do_n_transmissions(uint32_t n_transmissions_todo)
 {
+    n_tx_per_network = n_transmissions_todo;
+
     init_loramac_stack_and_tx_scheduling();
 
     TimerInit(&WatchdogKickTimer, OnWatchdogKickTimerEvent);
@@ -288,7 +297,7 @@ void do_transmission()
     {
         run_loop_once();
 
-        if (tx_count > n_tx_per_network)
+        if (tx_count > n_transmissions_todo)
         {
             break;
         }

@@ -102,6 +102,13 @@ extern "C"
  */
 #define N_POSITIONS_TO_PRINTOUT 30
 
+/**
+ * @brief Select number of transmission to do without a new fix on a single network
+ * 
+ */
+#define NO_FIX_N_TRANSMISSIONS 1
+#define YES_FIX_N_TRANSMISSIONS 3
+
 #ifdef __cplusplus
 }
 #endif
