@@ -39,11 +39,11 @@ void DeepSleepDelayMs(uint32_t ms)
             break;
         }
     }
-
-    TimerStop(&DeepSleepDelayTimeoutTimer);
 }
 
 static void DeepSleepDelayTimeoutEvent(void *context)
 {
+    TimerStop(&DeepSleepDelayTimeoutTimer);
+
     timeout = true;
 }
