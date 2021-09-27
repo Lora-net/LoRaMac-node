@@ -115,10 +115,10 @@ uint32_t tx_interval_calculator(LoRaMacRegion_t LoRaMacRegion)
         interval = 60000;
         break;
     case LORAMAC_REGION_US915:
-        interval = 10000;
+        interval = 60000;
         break;
     default:
-        interval = 40000;
+        interval = 60000;
         break;
     }
 
