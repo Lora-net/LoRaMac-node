@@ -72,7 +72,16 @@ Now you can update the settings of your devices. An example below sets the perio
 ttn-lw-cli end-devices set --application-id "icss-lora-tracker" --device-id "icspace26-hab-eu-863-870" --mac-settings.status-time-periodicity 20000h2m3s -c ttn-lw-cli.yml
 ```
 
+An example below sets the period between device status requests to 20000 hours(over 2 years)
+```bash
+ttn-lw-cli end-devices set --application-id "icss-lora-tracker" --device-id "icspace26-hab-eu-863-870" --mac-settings.status-time-periodicity 20000h2m3s -c ttn-lw-cli.yml
+```
 
+Set the fcount size option with:
+```bash
+ttn-lw-cli end-devices set --application-id "icss-lora-tracker" --device-id "icspace26-hab-eu-863-870" --mac-settings.supports-32-bit-f-cnt true -c ttn-lw-cli.yml
+
+```
 
 # LoRaWAN end-device stack implementation and example projects
 
