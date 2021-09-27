@@ -38,7 +38,7 @@
 	{                                                                                                  \
 		0xAE, 0x8F, 0xC7, 0xCD, 0x28, 0x79, 0xDA, 0x24, 0x8D, 0xF5, 0x2A, 0x09, 0x8A, 0x60, 0x6E, 0x33 \
 	}
-network_keys_t AS923_network_keys = {
+const network_keys_t AS923_network_keys = {
 	.FNwkSIntKey = COMMON_AS923_KEYS,
 	.SNwkSIntKey = COMMON_AS923_KEYS,
 	.NwkSEncKey = COMMON_AS923_KEYS,
@@ -50,7 +50,7 @@ network_keys_t AS923_network_keys = {
 	{                                                                                                  \
 		0x7F, 0x94, 0xCA, 0xBE, 0x58, 0x50, 0x40, 0x37, 0xA9, 0xDB, 0x1D, 0x2E, 0xCC, 0xD8, 0x8E, 0x52 \
 	}
-network_keys_t AU915_network_keys = {
+const network_keys_t AU915_network_keys = {
 	.FNwkSIntKey = COMMON_AU915_KEYS,
 	.SNwkSIntKey = COMMON_AU915_KEYS,
 	.NwkSEncKey = COMMON_AU915_KEYS,
@@ -62,7 +62,7 @@ network_keys_t AU915_network_keys = {
 	{                                                                                                  \
 		0x82, 0xF8, 0x47, 0x2D, 0x18, 0x83, 0x3E, 0x9B, 0xE0, 0x5E, 0x76, 0x9E, 0x2A, 0x28, 0x94, 0xB2 \
 	}
-network_keys_t CN470_network_keys = {
+const network_keys_t CN470_network_keys = {
 	.FNwkSIntKey = COMMON_CN470_KEYS,
 	.SNwkSIntKey = COMMON_CN470_KEYS,
 	.NwkSEncKey = COMMON_CN470_KEYS,
@@ -76,7 +76,7 @@ network_keys_t CN470_network_keys = {
 	{                                                                                                  \
 		0x54, 0x58, 0xC6, 0xF6, 0xF8, 0x65, 0x87, 0x1F, 0x56, 0xAF, 0xC8, 0xF4, 0xC1, 0x2A, 0xEA, 0xE6 \
 	}
-network_keys_t EU868_network_keys = {
+const network_keys_t EU868_network_keys = {
 	.FNwkSIntKey = COMMON_EU868_KEYS,
 	.SNwkSIntKey = COMMON_EU868_KEYS,
 	.NwkSEncKey = COMMON_EU868_KEYS,
@@ -90,7 +90,7 @@ network_keys_t EU868_network_keys = {
 	{                                                                                                  \
 		0xCD, 0x5F, 0x49, 0x98, 0xA1, 0x15, 0x1D, 0x3F, 0xF1, 0xED, 0xB4, 0x47, 0xD4, 0xDF, 0x66, 0x01 \
 	}
-network_keys_t KR920_network_keys = {
+const network_keys_t KR920_network_keys = {
 	.FNwkSIntKey = COMMON_KR920_KEYS,
 	.SNwkSIntKey = COMMON_KR920_KEYS,
 	.NwkSEncKey = COMMON_KR920_KEYS,
@@ -102,7 +102,7 @@ network_keys_t KR920_network_keys = {
 	{                                                                                                  \
 		0x64, 0xB4, 0x78, 0x96, 0xD9, 0x24, 0x6F, 0x99, 0xA5, 0xA6, 0x56, 0x08, 0x80, 0x04, 0x70, 0x9A \
 	}
-network_keys_t IN865_network_keys = {
+const network_keys_t IN865_network_keys = {
 	.FNwkSIntKey = COMMON_IN865_KEYS,
 	.SNwkSIntKey = COMMON_IN865_KEYS,
 	.NwkSEncKey = COMMON_IN865_KEYS,
@@ -114,7 +114,7 @@ network_keys_t IN865_network_keys = {
 	{                                                                                                  \
 		0xFB, 0x72, 0xF1, 0x86, 0x7C, 0xD8, 0x38, 0x3E, 0x61, 0x33, 0xAC, 0xEA, 0xE3, 0x0D, 0x5A, 0x2F \
 	}
-network_keys_t US915_network_keys = {
+const network_keys_t US915_network_keys = {
 	.FNwkSIntKey = COMMON_US915_KEYS,
 	.SNwkSIntKey = COMMON_US915_KEYS,
 	.NwkSEncKey = COMMON_US915_KEYS,
@@ -128,7 +128,7 @@ network_keys_t US915_network_keys = {
 	{                                                                                                  \
 		0xB4, 0xDF, 0xCD, 0x17, 0x6E, 0x52, 0xE9, 0x3C, 0x27, 0x8C, 0x10, 0xFF, 0xE1, 0x0D, 0x45, 0xC6 \
 	}
-network_keys_t RU864_network_keys = {
+const network_keys_t RU864_network_keys = {
 	.FNwkSIntKey = COMMON_RU864_KEYS,
 	.SNwkSIntKey = COMMON_RU864_KEYS,
 	.NwkSEncKey = COMMON_RU864_KEYS,

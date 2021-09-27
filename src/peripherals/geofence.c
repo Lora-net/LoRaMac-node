@@ -55,7 +55,7 @@ geofence_status_t current_geofence_status =
  */
 
 // GEOFENCE ARRAYS (longitude, latitude)
-static float EU863870_AFRICA_F[36] = {
+static const float EU863870_AFRICA_F[36] = {
 	-21.22329,
 	5.69349,
 	6.37369,
@@ -95,7 +95,7 @@ static float EU863870_AFRICA_F[36] = {
 
 };
 
-static float EU863870_PHILIPPINES_F[14] = {
+static const float EU863870_PHILIPPINES_F[14] = {
 	119.35326,
 	19.47621,
 	115.48607,
@@ -113,7 +113,7 @@ static float EU863870_PHILIPPINES_F[14] = {
 
 };
 
-static float US902928_NAMERICA_F[32] = {
+static const float US902928_NAMERICA_F[32] = {
 	-168.70273,
 	73.32477,
 	-173.14487,
@@ -149,7 +149,7 @@ static float US902928_NAMERICA_F[32] = {
 
 };
 
-static float AS923925_BRUNEI_F[12] = {
+static const float AS923925_BRUNEI_F[12] = {
 	114.06400,
 	4.89831,
 	114.52543,
@@ -165,7 +165,7 @@ static float AS923925_BRUNEI_F[12] = {
 
 };
 
-static float AS923925_TAIWAN_F[14] = {
+static const float AS923925_TAIWAN_F[14] = {
 	112.43139,
 	21.52394,
 	115.44164,
@@ -183,7 +183,7 @@ static float AS923925_TAIWAN_F[14] = {
 
 };
 
-static float AS923925_INDONESIA_F[28] = {
+static const float AS923925_INDONESIA_F[28] = {
 	92.01692,
 	5.86666,
 	103.00325,
@@ -215,7 +215,7 @@ static float AS923925_INDONESIA_F[28] = {
 
 };
 
-static float AS923925_THAILAND_F[24] = {
+static const float AS923925_THAILAND_F[24] = {
 	95.86952,
 	12.49757,
 	97.08270,
@@ -243,7 +243,7 @@ static float AS923925_THAILAND_F[24] = {
 
 };
 
-static float US902928_ARGENTINA_F[20] = {
+static const float US902928_ARGENTINA_F[20] = {
 	-67.49103,
 	-22.91785,
 	-70.28316,
@@ -267,7 +267,7 @@ static float US902928_ARGENTINA_F[20] = {
 
 };
 
-static float AU915928_BRAZIL_F[16] = {
+static const float AU915928_BRAZIL_F[16] = {
 	-68.90763,
 	4.40695,
 	-57.68823,
@@ -287,7 +287,7 @@ static float AU915928_BRAZIL_F[16] = {
 
 };
 
-static float AU915928_CHILE_F[16] = {
+static const float AU915928_CHILE_F[16] = {
 	-70.88094,
 	-17.08505,
 	-76.49889,
@@ -307,7 +307,7 @@ static float AU915928_CHILE_F[16] = {
 
 };
 
-static float CN779787_CHINA_F[40] = {
+static const float CN779787_CHINA_F[40] = {
 	82.29205,
 	48.54875,
 	67.87798,
@@ -351,7 +351,7 @@ static float CN779787_CHINA_F[40] = {
 
 };
 
-static float IN865867_INDIA_F[16] = {
+static const float IN865867_INDIA_F[16] = {
 	74.81150,
 	34.52082,
 	67.28233,
@@ -371,7 +371,7 @@ static float IN865867_INDIA_F[16] = {
 
 };
 
-static float AS920923_JAPAN_F[22] = {
+static const float AS920923_JAPAN_F[22] = {
 	141.98268,
 	50.05733,
 	138.86120,
@@ -397,7 +397,7 @@ static float AS920923_JAPAN_F[22] = {
 
 };
 
-static float KR920923_SKOREA_F[18] = {
+static const float KR920923_SKOREA_F[18] = {
 	122.94545,
 	36.60046,
 	122.59912,
@@ -419,7 +419,7 @@ static float KR920923_SKOREA_F[18] = {
 
 };
 
-static float AS920923_MALAYSIASG_F[30] = {
+static const float AS920923_MALAYSIASG_F[30] = {
 	97.26683,
 	6.67666,
 	99.27305,
@@ -453,7 +453,7 @@ static float AS920923_MALAYSIASG_F[30] = {
 
 };
 
-static float AU915928_AUSTRALIA_F[26] = {
+static const float AU915928_AUSTRALIA_F[26] = {
 	119.84993,
 	-43.64813,
 	131.06762,
@@ -483,7 +483,7 @@ static float AU915928_AUSTRALIA_F[26] = {
 
 };
 
-static float RU864870_RUSSIA_F[50] = {
+static const float RU864870_RUSSIA_F[50] = {
 	114.00630,
 	77.20060,
 	27.20759,
@@ -537,7 +537,7 @@ static float RU864870_RUSSIA_F[50] = {
 
 };
 
-static float EU863870_EUROPE_F[76] = {
+static const float EU863870_EUROPE_F[76] = {
 	-71.71870,
 	78.35168,
 	-45.13904,
@@ -629,7 +629,7 @@ static float EU863870_EUROPE_F[76] = {
 
 /* Function prototypes for private (static) functions go here */
 
-static int32_t pointInPolygonF(int32_t polyCorners, float *polygon, float latitude, float longitude);
+static int32_t pointInPolygonF(int32_t polyCorners, const float *polygon, float latitude, float longitude);
 Polygon_t get_polygon(float latitude, float longitude);
 static void set_current_loramac_region(Polygon_t current_poly);
 
@@ -653,7 +653,7 @@ LoRaMacRegion_t get_current_loramac_region()
 	
 	Uses FLOAT input for better accuracy.
 */
-int32_t pointInPolygonF(int32_t polyCorners, float *polygon, float latitude, float longitude)
+int32_t pointInPolygonF(int32_t polyCorners, const float *polygon, float latitude, float longitude)
 {
 	int32_t i;
 	int32_t j = polyCorners * 2 - 2;
