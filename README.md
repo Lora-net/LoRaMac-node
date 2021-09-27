@@ -8,6 +8,8 @@ This is the code repo for the picotracker LoRa. It is based off the Loramac-node
  * Stores NVM memory for 3 different loraWAN regions - US, EU and CN. It preserves the LoRaWAN key information(network keys, channel frequency lists) in EEPROM so that it only has to join once.
  * Completely updates the non-volatile memory module to write to EEPROM in under 200 milliseconds, down from 1-5 seconds. It works by using a hybrid approach. Parameters that are rarely changed(channel frequency lists, keys) are compressed with LZ4 and saved to EEPROM to take up least space. Parameters that change with every transmission(frame count) are not compressed. However, the algorithm only writes to EEPROM the changed bytes, resulting in massive write time savings. On average, only around 30 bytes are changed between each transmission, and so it takes around 200 ms to write those bytes.
 
+The hardware designs remain the same as the ones in the old respository: https://github.com/ImperialSpaceSociety/picotracker-Lora
+
 ## Uploading the code to the picotracker
 Install STM32CubeProg which you can download from here: https://www.st.com/en/development-tools/stm32cubeprog.html. There are versions for Windows and Linux.![image](https://user-images.githubusercontent.com/26815217/134256818-4c9f53b5-6c89-44b3-8eeb-309d7b0ad28a.png)
 
