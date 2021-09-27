@@ -19,7 +19,7 @@ uint32_t tx_interval_calculator(LoRaMacRegion_t LoRaMacRegion);
 bool is_over_the_air_activation = true;
 extern bool context_management_enabled;
 
-picotracker_lorawan_settings_t get_otaa_abp_setting(LoRaMacRegion_t current_region)
+picotracker_lorawan_settings_t get_lorawan_setting(LoRaMacRegion_t current_region)
 {
     /**
      * @brief Alternate between OTAA and ABP(Helium network and TTN)

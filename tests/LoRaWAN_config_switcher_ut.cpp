@@ -32,25 +32,25 @@ TEST(config_switcher_tests, test_eu868_4_tx)
 
     picotracker_lorawan_settings_t setting;
 
-    setting = get_otaa_abp_setting(target_region);
+    setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
     CHECK_EQUAL(false, setting.is_over_the_air_activation);
     CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(false, context_management_enabled);
 
-    setting = get_otaa_abp_setting(target_region);
+    setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
     CHECK_EQUAL(true, setting.is_over_the_air_activation);
     CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(true, context_management_enabled);
 
-    setting = get_otaa_abp_setting(target_region);
+    setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
     CHECK_EQUAL(false, setting.is_over_the_air_activation);
     CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(false, context_management_enabled);
 
-    setting = get_otaa_abp_setting(target_region);
+    setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
     CHECK_EQUAL(true, setting.is_over_the_air_activation);
     CHECK_EQUAL(target_region, setting.region);
@@ -65,25 +65,25 @@ TEST(config_switcher_tests, test_us915_4_tx)
 
     picotracker_lorawan_settings_t setting;
 
-    setting = get_otaa_abp_setting(target_region);
+    setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
     CHECK_EQUAL(false, setting.is_over_the_air_activation);
     CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(false, context_management_enabled);
 
-    setting = get_otaa_abp_setting(target_region);
+    setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
     CHECK_EQUAL(true, setting.is_over_the_air_activation);
     CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(true, context_management_enabled);
 
-    setting = get_otaa_abp_setting(target_region);
+    setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
     CHECK_EQUAL(false, setting.is_over_the_air_activation);
     CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(false, context_management_enabled);
 
-    setting = get_otaa_abp_setting(target_region);
+    setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
     CHECK_EQUAL(true, setting.is_over_the_air_activation);
     CHECK_EQUAL(target_region, setting.region);
@@ -100,26 +100,26 @@ TEST(config_switcher_tests, test_as923_4_tx)
 
     picotracker_lorawan_settings_t setting;
 
-    setting = get_otaa_abp_setting(target_region);
+    setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
     CHECK_EQUAL(false, setting.is_over_the_air_activation);
     CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(false, context_management_enabled);
 
 
-    setting = get_otaa_abp_setting(target_region);
+    setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
     CHECK_EQUAL(false, setting.is_over_the_air_activation);
     CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(false, context_management_enabled);
 
-    setting = get_otaa_abp_setting(target_region);
+    setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
     CHECK_EQUAL(false, setting.is_over_the_air_activation);
     CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(false, context_management_enabled);
 
-    setting = get_otaa_abp_setting(target_region);
+    setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
     CHECK_EQUAL(false, setting.is_over_the_air_activation);
     CHECK_EQUAL(target_region, setting.region);

@@ -164,10 +164,10 @@ typedef enum
 
 int setup_board(void);
 loop_status_t run_loop_once(void);
-int init_loramac_stack_and_tx_scheduling(void);
+int init_loramac_stack_and_tx_scheduling(bool use_default_tx_interval);
 void loop(void);
 void update_geofence_status();
-void do_n_transmissions(uint32_t n_transmissions_todo);
+void do_n_transmissions(uint32_t n_transmissions_todo, bool use_default_tx_interval);
 void WatchdogProcess(void);
 
 static LmHandlerCallbacks_t LmHandlerCallbacks =
@@ -273,21 +273,21 @@ void loop()
         {
             if (get_latest_gps_status() == GPS_SUCCESS)
             {
-                do_n_transmissions(YES_FIX_N_TRANSMISSIONS);
+                do_n_transmissions(YES_FIX_N_TRANSMISSIONS, true);
             }
             else
             {
-                do_n_transmissions(NO_FIX_N_TRANSMISSIONS);
+                do_n_transmissions(NO_FIX_N_TRANSMISSIONS, false);
             }
         }
     }
 }
 
-void do_n_transmissions(uint32_t n_transmissions_todo)
+void do_n_transmissions(uint32_t n_transmissions_todo, bool use_default_tx_interval)
 {
     n_tx_per_network = n_transmissions_todo;
 
-    init_loramac_stack_and_tx_scheduling();
+    init_loramac_stack_and_tx_scheduling(use_default_tx_interval);
 
     TimerInit(&WatchdogKickTimer, OnWatchdogKickTimerEvent);
     OnWatchdogKickTimerEvent(NULL);
@@ -317,13 +317,21 @@ void update_geofence_status()
     IWDG_reset();
 }
 
-int init_loramac_stack_and_tx_scheduling()
+int init_loramac_stack_and_tx_scheduling(bool use_default_tx_interval)
 {
     const char *region_string = get_lorawan_region_string(current_geofence_status.current_loramac_region);
     printf("Initialising Loramac Stack with Loramac region: %s\n", region_string);
 
-    picotracker_lorawan_settings_t settings = get_otaa_abp_setting(current_geofence_status.current_loramac_region);
-    APP_TX_DUTYCYCLE = settings.tx_interval;
+    picotracker_lorawan_settings_t settings = get_lorawan_setting(current_geofence_status.current_loramac_region);
+
+    if (use_default_tx_interval == true)
+    {
+        APP_TX_DUTYCYCLE = settings.tx_interval;
+    }
+    else
+    {
+        APP_TX_DUTYCYCLE = 10000; // Start search 10 seconds after tx. It normally takes ~ 5 seconds for the second rx to finish
+    }
 
     init_loramac(settings);
 

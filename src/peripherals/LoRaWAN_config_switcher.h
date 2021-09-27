@@ -20,4 +20,4 @@ typedef struct
 
 } picotracker_lorawan_settings_t;
 
-picotracker_lorawan_settings_t get_otaa_abp_setting(LoRaMacRegion_t current_region);
+picotracker_lorawan_settings_t get_lorawan_setting(LoRaMacRegion_t current_region);
