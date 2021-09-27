@@ -39,6 +39,7 @@
 #include "config.h"
 #include "deep_sleep_delay.h"
 #include "iwdg.h"
+#include "string.h"
 
 /*!
  * Unique Devices IDs register set ( STM32L0xxx )
@@ -111,6 +112,13 @@ static void CalibrateSystemWakeupTime( void );
  * System Clock Re-Configuration when waking up from STOP mode
  */
 static void SystemClockReConfig( void );
+
+/**
+ * @brief Set lowest brownout level
+ * 
+ */
+void SetBrownoutLevel();
+
 
 /*!
  * Timer used at first boot to calibrate the SystemWakeupTime
@@ -202,6 +210,8 @@ void BoardInitMcu( void )
         
         DeepSleepDelayMsInit();
 
+        SetBrownoutLevel();
+
         for (uint8_t i = 0; i < 5; i++)
         {
             GpioWrite( &Led1, 1 );
@@ -236,6 +246,29 @@ void BoardInitMcu( void )
         {
             CalibrateSystemWakeupTime( );
         }
+    }
+}
+
+void SetBrownoutLevel()
+{
+    /* BOR is disabled at power down, the reset is asserted when the VDD power supply 
+     * reaches the PDR(Power Down Reset) threshold (1.5V)
+     * Changes only if its not at this level
+     */
+
+    FLASH_OBProgramInitTypeDef pOBInit;
+    HAL_FLASHEx_OBGetConfig(&pOBInit);
+
+    if (pOBInit.BORLevel != OB_BOR_OFF)
+    {
+        memset(&pOBInit, 0, sizeof(FLASH_OBProgramInitTypeDef));
+        pOBInit.OptionType = OPTIONBYTE_BOR;
+        pOBInit.BORLevel = OB_BOR_OFF;
+
+        HAL_FLASH_OB_Unlock();
+        HAL_FLASHEx_OBProgram(&pOBInit);
+        HAL_FLASH_OB_Launch();
+        HAL_FLASH_OB_Lock();
     }
 }
 
