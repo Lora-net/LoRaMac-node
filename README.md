@@ -24,6 +24,54 @@ Now the code should have been flashed!
 ## Notes on updating the flash firmware on the Ublox module.
 If you have a module with FW version older than FW3.01, you may be able to update it. The instructions to do so, and the firmware binary, can be found in this link: https://junipersys.com/data/support/mesa-2-ublox-gnss-firmware-update.pdf
 
+
+## Modifying the mac settings on Things Network
+
+Install ttn-cli with the following commands(documentation: https://www.thethingsindustries.com/docs/getting-started/cli/installing-cli/)
+```bash
+sudo snap install ttn-lw-stack
+sudo snap alias ttn-lw-stack.ttn-lw-cli ttn-lw-cli
+```
+Now proceed to the root of this directory. Here you will have a file called `ttn-lw-cli.yml` that will point to the right TTN server. The contents
+look like this:
+```bash
+oauth-server-address: 'https://eu1.cloud.thethings.network/oauth'
+identity-server-grpc-address: 'eu1.cloud.thethings.network:8884'
+
+gateway-server-grpc-address: 'eu1.cloud.thethings.network:8884'
+network-server-grpc-address: 'eu1.cloud.thethings.network:8884'
+application-server-grpc-address: 'eu1.cloud.thethings.network:8884'
+join-server-grpc-address: 'eu1.cloud.thethings.network:8884'
+device-claiming-server-grpc-address: 'eu1.cloud.thethings.network:8884'
+device-template-converter-grpc-address: 'eu1.cloud.thethings.network:8884'
+qr-code-generator-grpc-address: 'eu1.cloud.thethings.network:8884'
+```
+
+Note that it will be a different address if you use the US/AU servers. This is the address of the EU servers.
+
+Then do an authentication. It will open up the browser to key in the things network credentials. 
+
+```bash
+ttn-lw-cli login -c ttn-lw-cli.yml
+```
+
+You will see an output like this.
+
+```bash
+medad@medad-ThinkPad-P51:~/Documents/GitHub/LoRaMac-node$ ttn-lw-cli login -c ttn-lw-cli.yml
+INFO	Opening your browser on https://eu1.cloud.thethings.network/oauth/authorize?client_id=cli&redirect_uri=local-callback&response_type=code
+WARN	Could not open your browser, you'll have to go there yourself	{"error": "fork/exec /usr/bin/xdg-open: permission denied"}
+INFO	After logging in and authorizing the CLI, we'll get an access token for future commands.
+INFO	Waiting for your authorization...
+INFO	Successfully got an access token.
+```
+Now you can update the settings of your devices. An example below sets the period between device status requests to 20000 hours(over 2 years)
+```bash
+ttn-lw-cli end-devices set --application-id "icss-lora-tracker" --device-id "icspace26-hab-eu-863-870" --mac-settings.status-time-periodicity 20000h2m3s -c ttn-lw-cli.yml
+```
+
+
+
 # LoRaWAN end-device stack implementation and example projects
 
       ______                              _

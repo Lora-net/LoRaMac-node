@@ -1,0 +1,10 @@
+oauth-server-address: 'https://eu1.cloud.thethings.network/oauth'
+identity-server-grpc-address: 'eu1.cloud.thethings.network:8884'
+
+gateway-server-grpc-address: 'eu1.cloud.thethings.network:8884'
+network-server-grpc-address: 'eu1.cloud.thethings.network:8884'
+application-server-grpc-address: 'eu1.cloud.thethings.network:8884'
+join-server-grpc-address: 'eu1.cloud.thethings.network:8884'
+device-claiming-server-grpc-address: 'eu1.cloud.thethings.network:8884'
+device-template-converter-grpc-address: 'eu1.cloud.thethings.network:8884'
+qr-code-generator-grpc-address: 'eu1.cloud.thethings.network:8884'
