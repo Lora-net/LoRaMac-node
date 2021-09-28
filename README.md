@@ -1,5 +1,5 @@
 # Picotracker Lora
-This is the code repo for the picotracker LoRa. It is based off the Loramac-node v4.4.5 release. It has the following new features:
+This is the code repo for the picotracker LoRa. It is based off the Loramac-node v4.4.7 release. It uses Lorawan version 1.0.3 and Regional Parameters v1.0.3revA. The code has the following new features:
  * Ability to switch LoRaWAN credentials depending on loramac region(determined by GPS position)
  * Alternates between two networks, The Things Network and the Helium Network on every 3 transmissions.
  * Saves 360 past positions in EEPROM and sends 12 of them down in each transmission.
