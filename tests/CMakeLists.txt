@@ -92,6 +92,7 @@ set(MOCKS
     nvm_images.cpp
     gps_mock_utils.cpp
     delay-board-mock.c
+    gpio_mock.c
 )
 
 set(LZ4_LIB_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src/system/)
