@@ -1,12 +1,13 @@
 # Picotracker Lora
 This is the code repo for the picotracker LoRa. It is based off the Loramac-node v4.4.7 release. It uses Lorawan version 1.0.3 and Regional Parameters v1.0.3revA. The code has the following new features:
  * Ability to switch LoRaWAN credentials depending on loramac region(determined by GPS position)
- * Alternates between two networks, The Things Network and the Helium Network on every 3 transmissions.
+ * Alternates between two networks, The Things Network(ABP only) and the Helium Network(OTAA only) on every 3 transmissions.
  * Saves 360 past positions in EEPROM and sends 12 of them down in each transmission.
  * Adds Unit tests with CppUTest.
- * Adds driver for a U-blox MAX-M8C/Q GPS module.
- * Stores NVM memory for 3 different loraWAN regions - US, EU and CN. It preserves the LoRaWAN key information(network keys, channel frequency lists) in EEPROM so that it only has to join once.
- * Completely updates the non-volatile memory module to write to EEPROM in under 200 milliseconds, down from 1-5 seconds. It works by using a hybrid approach. Parameters that are rarely changed(channel frequency lists, keys) are compressed with LZ4 and saved to EEPROM to take up least space. Parameters that change with every transmission(frame count) are not compressed. However, the algorithm only writes to EEPROM the changed bytes, resulting in massive write time savings. On average, only around 30 bytes are changed between each transmission, and so it takes around 200 ms to write those bytes.
+ * Adds driver for a U-blox MAX-M8C/Q GPS module. Written to ensure GPS and MCU don't run at same time, to minimise peak current consumption.
+ * Stores OTAA NVM memory for 3 different loraWAN regions - US, EU and CN. It preserves the LoRaWAN key information(network keys, channel frequency lists) in EEPROM so that it only has to join once. Used for Helium network only.
+ * Adds Watchdog
+ * Improves the non-volatile memory module to write to EEPROM in under 200 milliseconds, down from 1-5 seconds. It works by using a hybrid approach. Parameters that are rarely changed(channel frequency lists, keys) are compressed with LZ4 and saved to EEPROM to take up least space. Parameters that change with every transmission(frame count) are not compressed. However, the algorithm only writes to EEPROM the changed bytes, resulting in massive write time savings. On average, only around 30 bytes are changed between each transmission, and so it takes around 200 ms to write those bytes.
 
 The hardware designs remain the same as the ones in the old respository: https://github.com/ImperialSpaceSociety/picotracker-Lora
 
