@@ -83,6 +83,26 @@ ttn-lw-cli end-devices set --application-id "icss-lora-tracker" --device-id "ics
 
 ```
 
+## Development Environment and Unittesting
+
+Here are the instructions for compiling the unittests in this project. Some of the unittests include:
+1. Testing geofencing
+2. testing compression of NVM data with LZ4
+
+So far, all development has been tested only on Ubuntu 20.01 desktop. First, install [Visual Studio code](https://code.visualstudio.com/). Then clone this project:
+```bash
+git clone https://github.com/ImperialSpaceSociety/LoRaMac-node.git
+```
+
+Then open the project folder in VS code. Install all the recommended extensions specified in `.vscode/extensions.json`. IMPORTANT: downgrade the CppuTest Adaptor extension(`bneumann.cpputest-test-adapter`) to version `v0.1.6`. Later versions have a bug where it cannot parse test output that has printouts in them.
+
+Shown below is the interface you will use to run the tests.
+1. Set the compiler to your machine's GCC compiler.
+2. Set the target to Unittest_build to generate the make files.
+3. Build the project.
+4. Hit the play button on the test adaptor to run all tests.
+![image](https://user-images.githubusercontent.com/26815217/135118102-049eb3b5-659b-4323-9385-58118ac69132.png)
+
 # LoRaWAN end-device stack implementation and example projects
 
       ______                              _
