@@ -65,6 +65,10 @@ int8_t datarate_calculator(LoRaMacRegion_t LoRaMacRegion)
         dr = DR_5;
         break;
 
+    case LORAMAC_REGION_US915:
+        dr = DR_4;  // IN the US, this is the highest datarate
+        break;
+
     default:
         dr = DR_4;
         break;
