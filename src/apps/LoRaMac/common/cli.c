@@ -36,22 +36,7 @@ void CliProcess( Uart_t* uart )
             {
             }
             printf( "%c\n", data );
-            if( data == 'N' )
-            { // N character has been received
-                data = 0;
-                // Reset NVM
-                if( NvmDataMgmtFactoryReset( ) == true )
-                {
-                    printf( "\n\nNVM factory reset succeed\n" );
-                }
-                else
-                {
-                    printf( "\n\nNVM factory reset failed\n" );
-                }
-                
-                printf( "\n\nPLEASE RESET THE END-DEVICE\n\n" );
-                while( 1 );
-            }else if (data == 'W')
+            if( data == 'W' )
             {
                 printf( "Wiping EEPROM. It will take a few seconds....\n" );
 

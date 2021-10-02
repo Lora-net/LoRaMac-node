@@ -37,7 +37,7 @@
 #include "se-identity.h"
 #include "soft-se-hal.h"
 
-#include "region_setting.h"
+#include "LoRaWAN_config_switcher.h"
 #include "geofence.h"
 
 SecureElementNvmData_t* SeNvm;
@@ -123,7 +123,7 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmData_t* nvm )
 {
 
     /* Get ABP network keys */
-    network_keys_t network_keys = get_network_keys(current_geofence_status.current_loramac_region);
+    network_keys_t network_keys = get_network_keys(current_geofence_status.current_loramac_region, get_current_network());
 
     SecureElementNvmData_t seNvmInit =
     {
