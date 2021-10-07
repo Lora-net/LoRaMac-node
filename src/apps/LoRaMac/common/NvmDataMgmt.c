@@ -143,7 +143,18 @@ uint16_t NvmDataMgmtRestore( void )
 
         // Read from eeprom the region/networks fcount
         uint16_t bytes_read;
-        bytes_read = NvmmRead((uint8_t *)&lormac_params, sizeof(selected_loramac_params_t), 0);
+        NvmmRead((uint8_t *)&lormac_params, sizeof(selected_loramac_params_t), 0);
+
+        /**
+         * Increment the Fcount in EEPROM and locally to be absolutely sure that every
+         * transmission increments the fcount. There could be instances when tx is done,
+         * but incrementation of fcount in EEPROM does not happen due to brownout.
+         * So to be absolutely sure, increment fcount in EEPROM during the initialisation 
+         * phase that always happens after boot.
+         * 
+         */
+        lormac_params.fcount += 1;
+        NvmmWrite((uint8_t *)&lormac_params, sizeof(selected_loramac_params_t), 0);
 
         nvm->Crypto.FCntList.FCntUp = lormac_params.fcount;
 
