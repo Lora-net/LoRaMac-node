@@ -288,6 +288,8 @@ void BSP_sensor_Init(void)
 
 	update_reset_counts_in_ram_nvm();
 
+	playback_hw_init();
+
 	IWDG_reset();
 
 	printf("SELFTEST: Initialisng ms5607\n\r");
@@ -310,8 +312,6 @@ void BSP_sensor_Init(void)
 	IWDG_reset();
 
 #endif
-
-	playback_hw_init();
 }
 
 /**
