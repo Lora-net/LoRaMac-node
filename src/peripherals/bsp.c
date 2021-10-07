@@ -142,7 +142,17 @@ void BSP_sensor_Read(void)
  */
 void fill_to_send_structs(double *TEMPERATURE_Value, double *PRESSURE_Value, gps_info_t *gps_info, uint16_t *no_load_solar_voltage, uint16_t *load_solar_voltage)
 {
-	current_position.altitude = (gps_info->GPSaltitude >> 8) & 0xffff;
+	// This cast from int32_t to uint16_t could have a roll over if the value was negative.
+	// So clip to 0 if below zero altitude.
+	if (gps_info->GPSaltitude < 0)
+	{
+		current_position.altitude = 0;
+	}
+	else
+	{
+		current_position.altitude = (gps_info->GPSaltitude >> 8) & 0xffff;
+	}
+
 	current_position.latitude = (gps_info->GPS_UBX_latitude >> 16) & 0xffff;
 	current_position.longitude = (gps_info->GPS_UBX_longitude >> 16) & 0xffff;
 	current_position.minutes_since_epoch = unix_time_to_minutes_since_epoch(gps_info->unix_time) & 0x00ffffff;
