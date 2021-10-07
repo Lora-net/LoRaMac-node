@@ -335,6 +335,8 @@ int init_loramac_stack_and_tx_scheduling(bool use_default_tx_interval)
 
     init_loramac(settings);
 
+    switch_to_next_region(); // Credentials have been set. So now tell it that next time credentials are called for, use the next set.
+
     //LmHandlerJoin( );
 
     /* Start up periodic timer for sending uplinks */

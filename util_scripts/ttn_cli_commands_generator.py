@@ -1,5 +1,20 @@
-
-# cmds:
+# Run this program to generate command line commands to register new end nodes on the things network.
+# To run, run:
+# ```bash
+# python3 python3 util_scripts/ttn_cli_commands_generator.py
+# ```
+#
+# Note that you must have a valid ttm-lw-cli.yml file in the root directory.
+# Then you must login with:
+# ```bash
+# ttn-lw-cli login -c ttn-lw-cli.yml`
+# ````
+# Then you can run one of the commands. Such as
+# ```bash
+# ttn-lw-cli end-devices create --application-id "icss-lora-tracker"  --device-id "nam1-u-902-928-fsb-2"  --frequency-plan-id US_902_928_FSB_2 --lorawan-version 1.0.3 --lorawan-phy-version 1.0.3-a --abp --with-session --mac-settings.resets-f-cnt  --mac-settings.supports-32-bit-f-cnt true  --mac-settings.status-count-periodicity 10000000 --mac-settings.status-time-periodicity 40000h2m3s -c ttn-lw-cli.yml
+# ```
+#
+# Other cmds:
 #
 # ttn-lw-cli end-devices create --application-id "icss-lora-tracker"  --device-id "testing-budgie1"  --frequency-plan-id EU_863_870 --lorawan-version 1.0.2 --lorawan-phy-version 1.0.2-b --abp --with-session --mac-settings.resets-f-cnt -c ttn-lw-cli.yml
 # ttn-lw-cli end-devices list-frequency-plans -c ttn-lw-cli.yml
@@ -56,7 +71,7 @@ def generate_commands(frequency_plan_string):
           ' --mac-settings.resets-f-cnt ' \
           ' --mac-settings.supports-32-bit-f-cnt true '\
           ' --mac-settings.status-count-periodicity 10000000'\
-          ' --mac-settings.status-time-periodicity 20000h2m3s'\
+          ' --mac-settings.status-time-periodicity 40000h2m3s'\
           ' -c ttn-lw-cli.yml'.format(dev_id_for_plan, frequency_plan_string)
 
     return cmd
@@ -67,16 +82,17 @@ def generate_add_fcount_32bit_option(device_id):
     print(cmd)
     return cmd
 
+
 def generate_add_status_count_periodicity_option(device_id):
     cmd = f'ttn-lw-cli end-devices set --application-id "icss-lora-tracker" --device-id "{device_id}" --mac-settings.status-count-periodicity 10000000 -c ttn-lw-cli.yml'
     print(cmd)
     return cmd
 
+
 def generate_update_commands():
     for i in registered_devices:
-        #generate_add_fcount_32bit_option(i)
+        # generate_add_fcount_32bit_option(i)
         generate_add_status_count_periodicity_option(i)
-
 
 
 def generate_code():
@@ -87,5 +103,4 @@ def generate_code():
 
 if __name__ == "__main__":
     generate_code()
-    generate_update_commands()
-
+    # generate_update_commands()

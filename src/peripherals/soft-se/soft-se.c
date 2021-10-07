@@ -123,7 +123,7 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmData_t* nvm )
 {
 
     /* Get ABP network keys */
-    network_keys_t network_keys = get_network_keys(current_geofence_status.current_loramac_region, get_current_network());
+    network_keys_t network_keys = get_current_network_keys();
 
     SecureElementNvmData_t seNvmInit =
     {
@@ -137,9 +137,6 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmData_t* nvm )
         .KeyList = SOFT_SE_KEY_LIST
     };
 
-    /* Copy over DevEui and JoinEui */
-    memcpy1((uint8_t *)&seNvmInit.DevEui, (uint8_t *)&network_keys.LoRaWAN_Device_Eui, sizeof(network_keys.LoRaWAN_Device_Eui));
-    memcpy1((uint8_t *)&seNvmInit.JoinEui, (uint8_t *)&network_keys.LoRaWAN_Join_Eui, sizeof(network_keys.LoRaWAN_Join_Eui));
 
     if( nvm == NULL )
     {
@@ -158,8 +155,6 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmData_t* nvm )
     SecureElementSetKey(NWK_S_ENC_KEY, network_keys.NwkSEncKey);
     SecureElementSetKey(APP_S_KEY, network_keys.AppSKey);
 
-    /* OTAA Keys */
-    SecureElementSetKey(NWK_KEY, network_keys.Network_Key);
 
 #if !defined( SECURE_ELEMENT_PRE_PROVISIONED )
 #if( STATIC_DEVICE_EUI == 0 )

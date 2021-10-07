@@ -113,7 +113,6 @@ set(LZ4_SOURCES
 set(FILES_UNDER_TEST 
     ${PROJECT_SOURCE_DIR}/src/peripherals/config.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/geofence.c
-    ${PROJECT_SOURCE_DIR}/src/peripherals/region_settings.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/playback.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/bsp.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/struct.c

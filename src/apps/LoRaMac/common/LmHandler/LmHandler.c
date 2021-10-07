@@ -309,7 +309,7 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
         if( LmHandlerParams->is_over_the_air_activation == false )
         {
             /* Get dev address for abp */
-            network_keys_t network_keys = get_network_keys(current_geofence_status.current_loramac_region, get_current_network());
+            network_keys_t network_keys = get_current_network_keys();
             CommissioningParams.DevAddr = network_keys.DevAddr;
 
             // Configure the default datarate

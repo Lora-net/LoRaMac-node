@@ -75,12 +75,10 @@ static uint16_t NvmNotifyFlags = 0;
 
 typedef struct
 {
-    uint32_t Helium_fcnt;
-    uint32_t TTN_fcnt;
-}frame_counts_t;
+    uint32_t fcount;
+} selected_loramac_params_t;
 
-
-frame_counts_t fcnts_list_for_networks;
+selected_loramac_params_t lormac_params;
 
 
 
@@ -116,18 +114,9 @@ uint16_t NvmDataMgmtStore( void )
 
         uint16_t bytes_written;
 
-        network_t current_network = get_current_network();
+        lormac_params.fcount = nvm->Crypto.FCntList.FCntUp;
 
-        if (current_network == HELIUM_NETWORK)
-        {
-            fcnts_list_for_networks.Helium_fcnt = nvm->Crypto.FCntList.FCntUp;
-        }
-        else if (current_network == THE_THINGS_NETWORK)
-        {
-            fcnts_list_for_networks.TTN_fcnt = nvm->Crypto.FCntList.FCntUp;
-        }
-
-        bytes_written = NvmmWrite((uint8_t * )&fcnts_list_for_networks, sizeof(frame_counts_t), 0);
+        bytes_written = NvmmWrite((uint8_t *)&lormac_params, sizeof(selected_loramac_params_t), 0);
 
         // Reset notification flags
         NvmNotifyFlags = LORAMAC_NVM_NOTIFY_FLAG_NONE;
@@ -154,17 +143,9 @@ uint16_t NvmDataMgmtRestore( void )
 
         // Read from eeprom the region/networks fcount
         uint16_t bytes_read;
-        bytes_read = NvmmRead((uint8_t *)&fcnts_list_for_networks, sizeof(frame_counts_t), 0);
+        bytes_read = NvmmRead((uint8_t *)&lormac_params, sizeof(selected_loramac_params_t), 0);
 
-        network_t current_network = get_current_network();
-        if (current_network == HELIUM_NETWORK)
-        {
-            nvm->Crypto.FCntList.FCntUp = fcnts_list_for_networks.Helium_fcnt;
-        }
-        else if (current_network == THE_THINGS_NETWORK)
-        {
-            nvm->Crypto.FCntList.FCntUp = fcnts_list_for_networks.TTN_fcnt;
-        }
+        nvm->Crypto.FCntList.FCntUp = lormac_params.fcount;
 
         return 0;
     }
