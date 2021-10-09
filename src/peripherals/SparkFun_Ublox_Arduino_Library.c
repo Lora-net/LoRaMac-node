@@ -403,15 +403,15 @@ bool checkUbloxI2C(ubxPacket *incomingUBX, uint8_t requestedClass, uint8_t reque
     }
 		
 
+    uint8_t temp_byte_buffer[bytesAvailable];
 
-		if (I2cReadMemBuffer(&I2c,(uint16_t) _gpsI2Caddress << 1,(uint16_t)0xFF,payloadCfg,bytesAvailable ) != LMN_STATUS_OK)
+		if (I2cReadMemBuffer(&I2c,(uint16_t) _gpsI2Caddress << 1,(uint16_t)0xFF,temp_byte_buffer,bytesAvailable ) != LMN_STATUS_OK)
 		{
 			return (false);  //Sensor did not ACK
 		}
-		for(int i = 0; i < bytesAvailable ; i++)
+		for(uint32_t i = 0; i < bytesAvailable ; i++)
 		{
-			uint8_t incoming = payloadCfg[i];
-			process(incoming, incomingUBX, requestedClass, requestedID); //Process this valid character
+			process(temp_byte_buffer[i], incomingUBX, requestedClass, requestedID); //Process this valid character
 		}
   }
 
