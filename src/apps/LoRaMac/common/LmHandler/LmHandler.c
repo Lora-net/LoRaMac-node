@@ -37,8 +37,6 @@
 #include "LmhpRemoteMcastSetup.h"
 #include "LmhpFragmentation.h"
 
-#include "LoRaWAN_config_switcher.h"
-#include "geofence.h"
 
 #ifndef ACTIVE_REGION
 
@@ -283,6 +281,15 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
     // Restore data if required
     nbNvmData = NvmDataMgmtRestore( );
 
+    // Configure the default datarate
+    mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
+    mibReq.Param.ChannelsDefaultDatarate = LmHandlerParams->TxDatarate;
+    LoRaMacMibSetRequestConfirm( &mibReq );
+
+    mibReq.Type = MIB_CHANNELS_DATARATE;
+    mibReq.Param.ChannelsDatarate = LmHandlerParams->TxDatarate;
+    LoRaMacMibSetRequestConfirm( &mibReq );
+
     // Try to restore from NVM and query the mac if possible.
     if( nbNvmData > 0 )
     {
@@ -308,19 +315,6 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
 
         if( LmHandlerParams->is_over_the_air_activation == false )
         {
-            /* Get dev address for abp */
-            network_keys_t network_keys = get_current_network_keys();
-            CommissioningParams.DevAddr = network_keys.DevAddr;
-
-            // Configure the default datarate
-            mibReq.Type = MIB_CHANNELS_DEFAULT_DATARATE;
-            mibReq.Param.ChannelsDefaultDatarate = LmHandlerParams->TxDatarate;
-            LoRaMacMibSetRequestConfirm( &mibReq );
-
-            mibReq.Type = MIB_CHANNELS_DATARATE;
-            mibReq.Param.ChannelsDatarate = LmHandlerParams->TxDatarate;
-            LoRaMacMibSetRequestConfirm( &mibReq );
-
             // Tell the MAC layer which network server version are we connecting too.
             mibReq.Type = MIB_ABP_LORAWAN_VERSION;
             mibReq.Param.AbpLrWanVersion.Value = ABP_ACTIVATION_LRWAN_VERSION;

@@ -39,12 +39,30 @@ typedef struct
     uint8_t NwkSEncKey[16];
     uint8_t AppSKey[16];
     uint32_t DevAddr;
+    uint32_t frame_count;
+    uint32_t Crc32;
 } network_keys_t;
 
-network_keys_t get_current_network_keys();
-picotracker_lorawan_settings_t get_lorawan_setting(LoRaMacRegion_t current_region);
-void switch_to_next_region();
+    typedef enum
+    {
+        AS923_KEYS_EU1,
+        AS923_KEYS_AU1,
+        AU915_KEYS_AU1,
+        CN470_KEYS_EU1,
+        EU868_KEYS_EU1,
+        HELIUM_KEYS,
+        KR920_KEYS_EU1,
+        IN865_KEYS_EU1,
+        US915_KEYS_US1,
+        RU864_KEYS_EU1,
+        NUMBER_OF_REGISTERED_DEVICES,
 
+    } registered_devices_t;
+
+    registered_devices_t get_current_network();
+    network_keys_t get_current_network_keys();
+    picotracker_lorawan_settings_t get_lorawan_setting(LoRaMacRegion_t current_region);
+    void switch_to_next_region();
 
 #endif
 #ifdef __cplusplus

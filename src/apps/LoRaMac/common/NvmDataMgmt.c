@@ -31,17 +31,10 @@
  * \author    Johannes Bruder ( STACKFORCE )
  */
 
-#include <stdio.h>
-#include "utilities.h"
 #include "nvmm.h"
-#include "LoRaMac.h"
 #include "NvmDataMgmt.h"
-#include "print_utils.h"
-#include "config.h"
-#include "region_nvm.h"
-#include "geofence.h"
-#include "compression_structs.h"
 #include "LoRaWAN_config_switcher.h"
+#include "secure-element.h"
 
 
 /*!
@@ -71,15 +64,6 @@ bool context_management_enabled = true;
 
 
 static uint16_t NvmNotifyFlags = 0;
-
-
-typedef struct
-{
-    uint32_t fcount;
-} selected_loramac_params_t;
-
-selected_loramac_params_t lormac_params;
-
 
 
 
@@ -114,9 +98,16 @@ uint16_t NvmDataMgmtStore( void )
 
         uint16_t bytes_written;
 
-        lormac_params.fcount = nvm->Crypto.FCntList.FCntUp;
+        // read nvm fcount for the registered device
+        network_keys_t current_keys = get_current_network_keys();
+        registered_devices_t registered_device = get_current_network();
+        current_keys.frame_count = nvm->Crypto.FCntList.FCntUp;
 
-        bytes_written = NvmmWrite((uint8_t *)&lormac_params, sizeof(selected_loramac_params_t), 0);
+        // now update CRC before writing to EEPROM
+        current_keys.Crc32 = Crc32((uint8_t *)&current_keys, sizeof(current_keys) - sizeof(current_keys.Crc32));
+
+        // Now write current keys for this network(including frame count) to EEPROM into the right place in the EEPROM
+        bytes_written = NvmmUpdate((uint8_t *)&current_keys, sizeof(network_keys_t), registered_device * sizeof(network_keys_t));
 
         // Reset notification flags
         NvmNotifyFlags = LORAMAC_NVM_NOTIFY_FLAG_NONE;
@@ -124,7 +115,7 @@ uint16_t NvmDataMgmtStore( void )
         // Resume LoRaMac
         LoRaMacStart( );
 
-        return 0;
+        return bytes_written;
     }
     else
     {
@@ -143,7 +134,19 @@ uint16_t NvmDataMgmtRestore( void )
 
         // Read from eeprom the region/networks fcount
         uint16_t bytes_read;
-        NvmmRead((uint8_t *)&lormac_params, sizeof(selected_loramac_params_t), 0);
+
+        // read nvm fcount for the registered device
+        registered_devices_t registered_device = get_current_network();
+        network_keys_t current_keys;
+        bytes_read = NvmmRead((uint8_t *)&current_keys, sizeof(network_keys_t), registered_device * sizeof(network_keys_t));
+
+        // check if NVM crc matches for fcount
+        // if crc fails, frame count = 0
+        // else, use the stored frame count
+        if (is_crc_correct(sizeof(current_keys), &current_keys) == false)
+        {
+            current_keys = get_current_network_keys();
+        }
 
         /**
          * Increment the Fcount in EEPROM and locally to be absolutely sure that every
@@ -153,12 +156,22 @@ uint16_t NvmDataMgmtRestore( void )
          * phase that always happens after boot.
          * 
          */
-        lormac_params.fcount += 1;
-        NvmmWrite((uint8_t *)&lormac_params, sizeof(selected_loramac_params_t), 0);
+        current_keys.frame_count += 1;
+        // now update CRC before writing to EEPROM
+        current_keys.Crc32 = Crc32((uint8_t *)&current_keys, sizeof(current_keys) - sizeof(current_keys.Crc32));
+        // Now write current keys for this network(including frame count) to EEPROM into the right place in the EEPROM
+        NvmmWrite((uint8_t *)&current_keys, sizeof(network_keys_t), registered_device * sizeof(network_keys_t));
 
-        nvm->Crypto.FCntList.FCntUp = lormac_params.fcount;
+        nvm->Crypto.FCntList.FCntUp = current_keys.frame_count;
+        nvm->MacGroup2.DevAddr = current_keys.DevAddr;
 
-        return 0;
+        /* ABP Keys */
+        SecureElementSetKey(F_NWK_S_INT_KEY, current_keys.FNwkSIntKey);
+        SecureElementSetKey(S_NWK_S_INT_KEY, current_keys.SNwkSIntKey);
+        SecureElementSetKey(NWK_S_ENC_KEY, current_keys.NwkSEncKey);
+        SecureElementSetKey(APP_S_KEY, current_keys.AppSKey);
+
+        return bytes_read;
     }
     return 0;
 }

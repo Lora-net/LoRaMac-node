@@ -20,11 +20,15 @@ extern "C"
 #include "main.h"
 #include "nvmm.h"
 #include "region_nvm.h"
-#include "compression_structs.h"
 #include "bsp.h"
+#include "geofence.h"
+#include "eeprom-board.h"
+#include "LoRaWAN_config_switcher.h"
 }
 #include <string.h> // For memcmp()
 #include "nvm_images.hpp"
+
+void set_correct_notify_flags();
 
 TEST_GROUP(NvmDataMgmt){
     void setup(){}
@@ -34,58 +38,6 @@ TEST_GROUP(NvmDataMgmt){
 }
 }
 ;
-/**
- * @brief Check if the data compressed and stored is the same after decompression.
- * 
- */
-extern bool is_over_the_air_activation;
-
-TEST(NvmDataMgmt, test_storing_of_data_with_compression)
-{
-    is_over_the_air_activation = false;
-    /* Initilalise the mac layer */
-    init_loramac_stack_and_tx_scheduling();
-
-    /*
-     * Set LoRaMacNvmData_t nvm as it would have been after being
-     * restored from EEPROM. 
-     */
-    MibRequestConfirm_t mibReq;
-    mibReq.Type = MIB_NVM_CTXS;
-    LoRaMacMibGetRequestConfirm(&mibReq);
-    LoRaMacNvmData_t *nvm = mibReq.Param.Contexts;
-
-    memcpy((uint8_t *)nvm, new_nvm_struct, sizeof(LoRaMacNvmData_t));
-
-    /* Make a copy for later comparison */
-    LoRaMacNvmData_t original_nvm = *nvm;
-
-    /* Set flags so that it does the store function */
-    uint16_t notifyFlags = LORAMAC_NVM_NOTIFY_FLAG_NONE;
-    notifyFlags |= LORAMAC_NVM_NOTIFY_FLAG_CRYPTO;
-    notifyFlags |= LORAMAC_NVM_NOTIFY_FLAG_MAC_GROUP1;
-    notifyFlags |= LORAMAC_NVM_NOTIFY_FLAG_MAC_GROUP2;
-    notifyFlags |= LORAMAC_NVM_NOTIFY_FLAG_SECURE_ELEMENT;
-    notifyFlags |= LORAMAC_NVM_NOTIFY_FLAG_REGION_GROUP1;
-    notifyFlags |= LORAMAC_NVM_NOTIFY_FLAG_REGION_GROUP2;
-    notifyFlags |= LORAMAC_NVM_NOTIFY_FLAG_CLASS_B;
-
-    NvmDataMgmtEvent(notifyFlags);
-
-    /* Now run the store/restore function */
-
-    /* Store to eeprom in compressed state */
-    uint16_t ret1 = NvmDataMgmtStore();
-
-    /* Now assume restart from boot. LoRaMacNvmData_t Nvm not set yet */
-    memset(nvm, 0, sizeof(LoRaMacNvmData_t));
-
-    /* Now restore data from nvm after decompression */
-    NvmDataMgmtRestore();
-
-    /* Check if compression and then decompression does work */
-    CHECK_EQUAL(0, memcmp(&original_nvm, nvm, sizeof(LoRaMacNvmData_t)));
-}
 
 /**
  * @brief Verify if CRC test passes when indeed it should.
@@ -94,7 +46,7 @@ TEST(NvmDataMgmt, test_storing_of_data_with_compression)
 TEST(NvmDataMgmt, test_crc_check_pass)
 {
     /* Initilalise the mac layer */
-    int ret = init_loramac_stack_and_tx_scheduling();
+    int ret = init_loramac_stack_and_tx_scheduling(true);
 
     /*
      * Set LoRaMacNvmData_t nvm as it would have been after being
@@ -123,7 +75,7 @@ TEST(NvmDataMgmt, test_crc_check_pass)
 TEST(NvmDataMgmt, memset_test)
 {
     /* Initilalise the mac layer */
-    int ret = init_loramac_stack_and_tx_scheduling();
+    int ret = init_loramac_stack_and_tx_scheduling(true);
 
     /*
      * Set LoRaMacNvmData_t nvm as it would have been after being
@@ -150,7 +102,7 @@ TEST(NvmDataMgmt, memset_test)
 TEST(NvmDataMgmt, test_crc_check_fail)
 {
     /* Initilalise the mac layer */
-    int ret = init_loramac_stack_and_tx_scheduling();
+    int ret = init_loramac_stack_and_tx_scheduling(true);
 
     /*
      * Set LoRaMacNvmData_t nvm as it would have been after being
@@ -174,20 +126,6 @@ TEST(NvmDataMgmt, test_crc_check_fail)
     crc_status = is_crc_correct(sizeof(LoRaMacNvmDataGroup2_t), &nvm->MacGroup2);
     CHECK_FALSE(crc_status);
 }
-
-/**
- * @brief IF the EEPROM is filled with garbage, it ought to restore no bytes
- * 
- */
-TEST(NvmDataMgmt, test_if_nvm_restore_works_correctly_when_nvm_incorrect)
-{
-    /* Initilalise the mac layer */
-    int ret = init_loramac_stack_and_tx_scheduling();
-
-    uint16_t ret1 = NvmDataMgmtRestore();
-    CHECK_EQUAL(0, ret1);
-}
-
 /**
  * @brief Tests whether eeprom read write works
  * 
@@ -196,57 +134,6 @@ TEST(NvmDataMgmt, test_eeprom_read_write)
 {
     int res = eeprom_read_write_test();
     CHECK_EQUAL(0, res);
-}
-
-/**
- * @brief Checks to see if the eeprom location to store NVM data is
- * correct for each region.
- * 
- */
-TEST(NvmDataMgmt, check_if_correct_region_eeprom_location_set)
-{
-    uint16_t EEPROM_location;
-    EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_EU868);
-    CHECK_EQUAL(0, EEPROM_location);
-
-    EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_US915);
-    CHECK_EQUAL(948, EEPROM_location);
-
-    EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_CN470);
-    CHECK_EQUAL(1896, EEPROM_location);
-
-    EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_IN865);
-    CHECK_EQUAL(0, EEPROM_location);
-    EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_AS923);
-    CHECK_EQUAL(0, EEPROM_location);
-    EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_CN779);
-    CHECK_EQUAL(0, EEPROM_location);
-    EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_RU864);
-    CHECK_EQUAL(0, EEPROM_location);
-    EEPROM_location = get_eeprom_location_for_region(LORAMAC_REGION_KR920);
-    CHECK_EQUAL(0, EEPROM_location);
-}
-
-/**
- * @brief Prevent overlap of eeprom regions
- * 
- */
-TEST(NvmDataMgmt, ensure_no_overlap_of_eeprom_region)
-{
-    extern nvm_data_t nvm_data_struct;
-
-    CHECK_TRUE(3 * sizeof(nvm_data_struct) < NVM_PlAYBACK_EEPROM_ADDR_START);
-}
-
-/**
- * @brief Verify sizes of define
- * 
- */
-TEST(NvmDataMgmt, check_sizes)
-{
-    extern nvm_data_t nvm_data_struct;
-
-    CHECK_EQUAL(3 * sizeof(nvm_data_struct) + 1, NVM_PlAYBACK_EEPROM_ADDR_START);
 }
 
 /**
@@ -281,7 +168,7 @@ TEST(NvmDataMgmt, check_struct_sizes)
     CHECK_EQUAL(1180, sizeof(RegionNvmDataGroup2_t));
 
     CHECK_EQUAL(2200, sizeof(LoRaMacNvmData_t));
-}
+};
 
 /**
  * @brief Reads and checks if the dummy eeprom returns
@@ -294,65 +181,76 @@ TEST(NvmDataMgmt, read_and_check_nvm_values)
     LoRaMacNvmData_t nvm_inited;
     LoRaMacNvmData_t *nvm = &nvm_inited;
 
-    printf("LoRaMacNvmData_t size: %d\n", sizeof(LoRaMacNvmData_t));
-
     memcpy((uint8_t *)nvm, new_nvm_struct, sizeof(LoRaMacNvmData_t));
 
     CHECK_EQUAL(18, nvm->Crypto.FCntList.FCntUp);
 
-    uint8_t expected[] = {0x70, 0xB3, 0xD5, 0x7E, 0xD0, 0x02, 0x82, 0x4D};
+    uint8_t expected[8] = {0x70, 0xB3, 0xD5, 0x7E, 0xD0, 0x02, 0x82, 0x4D};
 
-    for (unsigned int a = 0; a < sizeof(expected) / sizeof(expected[0]); a++)
-    {
-        CHECK_EQUAL(expected[a], nvm->SecureElement.JoinEui[a]);
-    }
+    MEMCMP_EQUAL(&expected, &nvm->SecureElement.JoinEui, 8);
 
     CHECK_EQUAL(LORAMAC_REGION_EU868, nvm->MacGroup2.Region);
 };
 
-/**
- * @brief Check if NVM read is happening.
- * 
- */
-TEST(NvmDataMgmt, check_crc_for_all_parameters)
+void set_correct_notify_flags()
 {
+    /* Set flags so that it does the store function */
+    uint16_t notifyFlags = LORAMAC_NVM_NOTIFY_FLAG_NONE;
+    notifyFlags |= LORAMAC_NVM_NOTIFY_FLAG_CRYPTO;
+    notifyFlags |= LORAMAC_NVM_NOTIFY_FLAG_MAC_GROUP1;
+    notifyFlags |= LORAMAC_NVM_NOTIFY_FLAG_MAC_GROUP2;
+    notifyFlags |= LORAMAC_NVM_NOTIFY_FLAG_SECURE_ELEMENT;
+    notifyFlags |= LORAMAC_NVM_NOTIFY_FLAG_REGION_GROUP1;
+    notifyFlags |= LORAMAC_NVM_NOTIFY_FLAG_REGION_GROUP2;
+    notifyFlags |= LORAMAC_NVM_NOTIFY_FLAG_CLASS_B;
 
-    /* Setup environment params */
-    LoRaMacNvmData_t nvm_inited;
-    LoRaMacNvmData_t *nvm = &nvm_inited;
+    NvmDataMgmtEvent(notifyFlags);
+}
 
-    printf("LoRaMacNvmData_t size: %d\n", sizeof(LoRaMacNvmData_t));
+TEST(NvmDataMgmt, test_storing_of_fcount_and_keys)
+{
+    LoRaMacRegion_t Loramac_region = LORAMAC_REGION_US915;
+    current_geofence_status.current_loramac_region = Loramac_region;
 
-    NvmmRead((uint8_t *)nvm, sizeof(LoRaMacNvmData_t), 0);
+    MibRequestConfirm_t mibReq;
+    mibReq.Type = MIB_NVM_CTXS;
+    LoRaMacMibGetRequestConfirm(&mibReq);
+    LoRaMacNvmData_t *nvm = mibReq.Param.Contexts;
 
-    uint16_t offset = 0;
+    init_loramac_stack_and_tx_scheduling(true);
 
-    // Crypto
-    CHECK_FALSE(NvmmCrc32Check(sizeof(LoRaMacCryptoNvmData_t), offset) == false);
-    offset += sizeof(LoRaMacCryptoNvmData_t);
+    set_correct_notify_flags();
 
-    // Mac Group 1
-    CHECK_FALSE(NvmmCrc32Check(sizeof(LoRaMacNvmDataGroup1_t), offset) == false);
-    offset += sizeof(LoRaMacNvmDataGroup1_t);
+    // restore as if booting up
+    NvmDataMgmtRestore();
 
-    // Mac Group 2
-    CHECK_FALSE(NvmmCrc32Check(sizeof(LoRaMacNvmDataGroup2_t), offset) == false);
-    offset += sizeof(LoRaMacNvmDataGroup2_t);
+    // now store as if a few transmissions have been done
+    nvm->Crypto.FCntList.FCntUp += 1;
+    NvmDataMgmtStore();
 
-    // Secure element
-    CHECK_FALSE(NvmmCrc32Check(sizeof(SecureElementNvmData_t), offset) == false);
-    offset += sizeof(SecureElementNvmData_t);
+    nvm->Crypto.FCntList.FCntUp += 1;
+    NvmDataMgmtStore();
 
-    // Region group 1
-    CHECK_FALSE(NvmmCrc32Check(sizeof(RegionNvmDataGroup1_t), offset) == false);
+    // now verify if the eeprom is the way it must be.
+    uint32_t read_bytes = sizeof(network_keys_t);
 
-    offset += sizeof(RegionNvmDataGroup1_t);
+    // IT should be the second device credential for the US, because after running init_loramac_stack_and_tx_scheduling(), the s
+    // stack moves on to the second one.
+    uint8_t expected_eeprom[read_bytes] =
+        {
+            0x6A, 0x0C, 0x26, 0x51, 0xF3, 0x75, 0x73, 0x40, 0x0E, 0x8D, 0xCC, 0xE6, 0x27, 0xFE, 0x33, 0x8D, // FNwkSIntKey
+            0x6A, 0x0C, 0x26, 0x51, 0xF3, 0x75, 0x73, 0x40, 0x0E, 0x8D, 0xCC, 0xE6, 0x27, 0xFE, 0x33, 0x8D, // SNwkSIntKey
+            0x6A, 0x0C, 0x26, 0x51, 0xF3, 0x75, 0x73, 0x40, 0x0E, 0x8D, 0xCC, 0xE6, 0x27, 0xFE, 0x33, 0x8D, // NwkSEncKey
+            0xF9, 0x88, 0x01, 0xF6, 0x58, 0xC2, 0xB2, 0x83, 0x79, 0x2D, 0x3C, 0xD5, 0x5C, 0x08, 0x3A, 0x79, // AppSKey
+            0x2D, 0x00, 0x00, 0x48,                                                                         // DevAddr for Helium network
+            0x02, 0x00, 0x00, 0x00,                                                                         // frame_count of 2
+            0x36, 0x60, 0xDC, 0x91,                                                                         // Crc32
+        };
+    uint8_t current_eeprom[read_bytes] = {};
 
-    // Region group 2
-    CHECK_FALSE(NvmmCrc32Check(sizeof(RegionNvmDataGroup2_t), offset) == false);
+    network_keys_t current_keys = get_current_network_keys();
+    registered_devices_t registered_device = get_current_network();
+    EepromMcuReadBuffer(registered_device * sizeof(network_keys_t), current_eeprom, sizeof(network_keys_t));
 
-    offset += sizeof(RegionNvmDataGroup2_t);
-
-    // Class b
-    CHECK_FALSE(NvmmCrc32Check(sizeof(LoRaMacClassBNvmData_t), offset) == false);
-};
+    MEMCMP_EQUAL(expected_eeprom, current_eeprom, read_bytes);
+}

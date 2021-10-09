@@ -22,7 +22,7 @@ extern "C"
     int run_app(void);
     int setup_board(void);
     bool run_loop_once(void);
-    int init_loramac_stack_and_tx_scheduling(void);
+    int init_loramac_stack_and_tx_scheduling(bool use_default_tx_interval);
     void loop(void);
 #endif
 

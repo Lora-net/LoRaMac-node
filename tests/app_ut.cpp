@@ -52,7 +52,7 @@ TEST(app, test_init_sequence)
     ret = setup_board();
     CHECK_EQUAL(EXIT_SUCCESS, ret);
 
-    ret = init_loramac_stack_and_tx_scheduling();
+    ret = init_loramac_stack_and_tx_scheduling(true);
     CHECK_EQUAL(EXIT_SUCCESS, ret);
 }
 
@@ -107,7 +107,7 @@ TEST(app, ensure_its_abp_always_after_initing_for_region)
         loop();
     }
 
-    init_loramac_stack_and_tx_scheduling();
+    init_loramac_stack_and_tx_scheduling(true);
     int n_loops = 3;
 
     while (n_loops--)
@@ -166,7 +166,7 @@ TEST(app, ensure_tx_happens_immediately_after_boot)
 
     ret = setup_board();
     CHECK_EQUAL(EXIT_SUCCESS, ret);
-    ret = init_loramac_stack_and_tx_scheduling();
+    ret = init_loramac_stack_and_tx_scheduling(true);
     CHECK_EQUAL(EXIT_SUCCESS, ret);
 
     /* Get pointer to frame counter */
@@ -187,59 +187,4 @@ TEST(app, ensure_tx_happens_immediately_after_boot)
 
     expected_fcount += 1;
     CHECK_EQUAL(expected_fcount, nvm->Crypto.FCntList.FCntUp);
-};
-
-/**
- * @brief Ensure transmission happens immediately after boot. 
- * 
- */
-
-extern bool is_over_the_air_activation;
-
-TEST(app, ensure_region_is_set_according_to_nvm)
-{
-    /* Setup environment params */
-
-    USE_NVM_STORED_LORAWAN_REGION = false;
-    APP_TX_DUTYCYCLE = 40000; /* 40 second interval between transmissions */
-
-    /* Setup mocks */
-    float latitude = 53.23;
-    float longitude = 0;
-
-    gps_info_t world_trip_mock = {
-        .GPS_UBX_latitude_Float = latitude,
-        .GPS_UBX_longitude_Float = (float)longitude,
-        .GPSaltitude = 12342000,
-        .GPS_UBX_latitude = latitude * 1e7,
-        .GPS_UBX_longitude = longitude * 1e7,
-        .unix_time = 1627938039 + 60 * 60 * 2, /* travel one degree longitude every day */
-        .latest_gps_status = GPS_SUCCESS,
-
-    };
-    mock().expectNCalls(3, "get_latest_gps_info").andReturnValue(&world_trip_mock);
-
-    /* Now setup the main program */
-    int number_of_milliseconds_to_run;
-    is_over_the_air_activation = false;
-    fake_eeprom_set();
-
-    setup_board();
-    init_loramac_stack_and_tx_scheduling();
-
-    /* Get pointer to NVM context */
-    MibRequestConfirm_t mibReq;
-    mibReq.Type = MIB_NVM_CTXS;
-    LoRaMacMibGetRequestConfirm(&mibReq);
-    LoRaMacNvmData_t *nvm = mibReq.Param.Contexts;
-
-    number_of_milliseconds_to_run = 3;
-    while (number_of_milliseconds_to_run--)
-    {
-        run_loop_once();
-    }
-
-    mock().checkExpectations();
-    CHECK_EQUAL(10, nvm->Crypto.FCntList.FCntUp);
-    CHECK_EQUAL(LORAMAC_REGION_EU868, nvm->MacGroup2.Region);
 };
