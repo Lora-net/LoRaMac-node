@@ -36,55 +36,47 @@
 #include "LoRaWAN_config_switcher.h"
 #include "secure-element.h"
 
-
 /*!
  * Enables/Disables the context storage management storage.
  * Must be enabled for LoRaWAN 1.0.4 or later.
  */
 bool context_management_enabled = true;
 
-
-
-
-#define PRINT_TIME( )                                                                \
+#define PRINT_TIME()                                                                 \
     do                                                                               \
     {                                                                                \
-        SysTime_t time = SysTimeGet( );                                              \
-        printf( "%ld.%03d: ", time.Seconds-UNIX_GPS_EPOCH_OFFSET, time.SubSeconds ); \
-    } while( 0 )
+        SysTime_t time = SysTimeGet();                                               \
+        printf("%ld.%03d: ", time.Seconds - UNIX_GPS_EPOCH_OFFSET, time.SubSeconds); \
+    } while (0)
 
-#define PRINT( ... )            \
-    do                          \
-    {                           \
-        PRINT_TIME( );          \
-        printf( "[DBG    ] " ); \
-        printf( __VA_ARGS__ );  \
-    } while( 0 )
-
-
+#define PRINT(...)            \
+    do                        \
+    {                         \
+        PRINT_TIME();         \
+        printf("[DBG    ] "); \
+        printf(__VA_ARGS__);  \
+    } while (0)
 
 static uint16_t NvmNotifyFlags = 0;
 
-
-
-void NvmDataMgmtEvent( uint16_t notifyFlags )
+void NvmDataMgmtEvent(uint16_t notifyFlags)
 {
     NvmNotifyFlags = notifyFlags;
 }
 
-uint16_t NvmDataMgmtStore( void )
+uint16_t NvmDataMgmtStore(void)
 {
     if (context_management_enabled == true)
     {
 
         // Input checks
-        if( NvmNotifyFlags == LORAMAC_NVM_NOTIFY_FLAG_NONE )
+        if (NvmNotifyFlags == LORAMAC_NVM_NOTIFY_FLAG_NONE)
         {
             // There was no update.
             return 0;
         }
-        
-        if( LoRaMacStop( ) != LORAMAC_STATUS_OK )
+
+        if (LoRaMacStop() != LORAMAC_STATUS_OK)
         {
             return 0;
         }
@@ -93,8 +85,8 @@ uint16_t NvmDataMgmtStore( void )
 
         MibRequestConfirm_t mibReq;
         mibReq.Type = MIB_NVM_CTXS;
-        LoRaMacMibGetRequestConfirm( &mibReq );
-        LoRaMacNvmData_t* nvm = mibReq.Param.Contexts;
+        LoRaMacMibGetRequestConfirm(&mibReq);
+        LoRaMacNvmData_t *nvm = mibReq.Param.Contexts;
 
         uint16_t bytes_written;
 
@@ -113,7 +105,7 @@ uint16_t NvmDataMgmtStore( void )
         NvmNotifyFlags = LORAMAC_NVM_NOTIFY_FLAG_NONE;
 
         // Resume LoRaMac
-        LoRaMacStart( );
+        LoRaMacStart();
 
         return bytes_written;
     }
@@ -123,7 +115,7 @@ uint16_t NvmDataMgmtStore( void )
     }
 }
 
-uint16_t NvmDataMgmtRestore( void )
+uint16_t NvmDataMgmtRestore(void)
 {
     if (context_management_enabled == true)
     {
@@ -175,5 +167,3 @@ uint16_t NvmDataMgmtRestore( void )
     }
     return 0;
 }
-
-

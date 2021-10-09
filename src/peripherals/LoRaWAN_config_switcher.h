@@ -17,31 +17,30 @@ extern "C"
 #ifndef REGION_SETTING_H
 #define REGION_SETTING_H
 
-
 #include "LoRaMac.h"
 #include "stdint.h"
 
-typedef struct
-{
-    LoRaMacRegion_t region;
-    int8_t datarate;
-    bool is_over_the_air_activation;
-    uint32_t tx_interval;
-} picotracker_lorawan_settings_t;
+    typedef struct
+    {
+        LoRaMacRegion_t region;
+        int8_t datarate;
+        bool is_over_the_air_activation;
+        uint32_t tx_interval;
+    } picotracker_lorawan_settings_t;
 
-typedef struct
-{
-    /**
+    typedef struct
+    {
+        /**
 		 * ABP Credentials
 		 */
-    uint8_t FNwkSIntKey[16];
-    uint8_t SNwkSIntKey[16];
-    uint8_t NwkSEncKey[16];
-    uint8_t AppSKey[16];
-    uint32_t DevAddr;
-    uint32_t frame_count;
-    uint32_t Crc32;
-} network_keys_t;
+        uint8_t FNwkSIntKey[16];
+        uint8_t SNwkSIntKey[16];
+        uint8_t NwkSEncKey[16];
+        uint8_t AppSKey[16];
+        uint32_t DevAddr;
+        uint32_t frame_count;
+        uint32_t Crc32;
+    } network_keys_t;
 
     typedef enum
     {
