@@ -30,7 +30,7 @@ from datetime import datetime
 import secrets
 
 
-frequency_plan_strings = ["EU_863_870_TTN",
+frequency_plan_strings = ["EU_863_870",
                           "US_902_928_FSB_2",
                           "AU_915_928_FSB_2",
                           "AS_923",
