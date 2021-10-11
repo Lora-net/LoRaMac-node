@@ -91,9 +91,13 @@ uint16_t NvmDataMgmtStore(void)
         uint16_t bytes_written;
 
         // read nvm fcount for the registered device
-        network_keys_t current_keys = get_current_network_keys();
+        network_keys_t current_keys = get_current_network_keys(); // TODO: this should not be done here. It should read the current mac state
         registered_devices_t registered_device = get_current_network();
+
+        /* update current mac state to be saved */
         current_keys.frame_count = nvm->Crypto.FCntList.FCntUp;
+        current_keys.ReceiveDelay1 = nvm->MacGroup2.MacParams.ReceiveDelay1;
+        current_keys.ReceiveDelay2 = nvm->MacGroup2.MacParams.ReceiveDelay2;
 
         // now update CRC before writing to EEPROM
         current_keys.Crc32 = Crc32((uint8_t *)&current_keys, sizeof(current_keys) - sizeof(current_keys.Crc32));
@@ -134,7 +138,7 @@ uint16_t NvmDataMgmtRestore(void)
 
         // check if NVM crc matches for fcount
         // if crc fails, frame count = 0
-        // else, use the stored frame count
+        // else, use the EEPROM stored frame count
         if (is_crc_correct(sizeof(current_keys), &current_keys) == false)
         {
             current_keys = get_current_network_keys();
@@ -154,10 +158,14 @@ uint16_t NvmDataMgmtRestore(void)
         // Now write current keys for this network(including frame count) to EEPROM into the right place in the EEPROM
         NvmmWrite((uint8_t *)&current_keys, sizeof(network_keys_t), registered_device * sizeof(network_keys_t));
 
+        /* Now update the mac state. We set the frame count, dev_addr, rx1 delay and rx2 delay
+         * and  FNwkSIntKey,SNwkSIntKey, NwkSEncKey, AppSKey. The rest we leave as default for
+         * this region.
+         */
         nvm->Crypto.FCntList.FCntUp = current_keys.frame_count;
         nvm->MacGroup2.DevAddr = current_keys.DevAddr;
-
-        /* ABP Keys */
+        nvm->MacGroup2.MacParams.ReceiveDelay1 = current_keys.ReceiveDelay1;
+        nvm->MacGroup2.MacParams.ReceiveDelay2 = current_keys.ReceiveDelay2;
         SecureElementSetKey(F_NWK_S_INT_KEY, current_keys.FNwkSIntKey);
         SecureElementSetKey(S_NWK_S_INT_KEY, current_keys.SNwkSIntKey);
         SecureElementSetKey(NWK_S_ENC_KEY, current_keys.NwkSEncKey);

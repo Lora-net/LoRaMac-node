@@ -39,6 +39,8 @@ extern "C"
         uint8_t AppSKey[16];
         uint32_t DevAddr;
         uint32_t frame_count;
+        uint32_t ReceiveDelay1;
+        uint32_t ReceiveDelay2;
         uint32_t Crc32;
     } network_keys_t;
 

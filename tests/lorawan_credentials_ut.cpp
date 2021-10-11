@@ -37,6 +37,7 @@ TEST(lorawan_credentials, test_cycling_through_eu_settings)
     current_geofence_status.current_loramac_region = Loramac_region;
 
     network_keys_t network_keys;
+    registered_devices_t registered_device;
 
     uint32_t helium_dev_addr = 0x4800002d;
     uint32_t ttn_eu1_dev_addr = 0x260BD67C;
@@ -44,12 +45,18 @@ TEST(lorawan_credentials, test_cycling_through_eu_settings)
     for (int i = 1; i < 5; ++i)
     {
         network_keys = get_current_network_keys();
+        registered_device = get_current_network();
+
         switch_to_next_region();
         CHECK_EQUAL(ttn_eu1_dev_addr, network_keys.DevAddr);
+        CHECK_EQUAL(EU868_KEYS_EU1, registered_device);
 
         network_keys = get_current_network_keys();
+        registered_device = get_current_network();
+
         switch_to_next_region();
         CHECK_EQUAL(helium_dev_addr, network_keys.DevAddr);
+        CHECK_EQUAL(HELIUM_KEYS, registered_device);
     }
 }
 

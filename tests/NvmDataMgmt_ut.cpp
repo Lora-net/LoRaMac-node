@@ -217,40 +217,109 @@ TEST(NvmDataMgmt, test_storing_of_fcount_and_keys)
     LoRaMacMibGetRequestConfirm(&mibReq);
     LoRaMacNvmData_t *nvm = mibReq.Param.Contexts;
 
+    // Use the first device setting
+
     init_loramac_stack_and_tx_scheduling(true);
-
-    set_correct_notify_flags();
-
-    // restore as if booting up
-    NvmDataMgmtRestore();
 
     // now store as if a few transmissions have been done
     nvm->Crypto.FCntList.FCntUp += 1;
+    nvm->MacGroup2.MacParams.ReceiveDelay1 = 5000;
+    nvm->MacGroup2.MacParams.ReceiveDelay2 = 6000;
+    set_correct_notify_flags();
     NvmDataMgmtStore();
 
     nvm->Crypto.FCntList.FCntUp += 1;
+    set_correct_notify_flags();
     NvmDataMgmtStore();
 
     // now verify if the eeprom is the way it must be.
     uint32_t read_bytes = sizeof(network_keys_t);
+    uint8_t current_eeprom[read_bytes];
 
     // IT should be the second device credential for the US, because after running init_loramac_stack_and_tx_scheduling(), the s
     // stack moves on to the second one.
-    uint8_t expected_eeprom[read_bytes] =
+    uint8_t expected_eeprom_2nd_device[read_bytes] =
         {
             0x6A, 0x0C, 0x26, 0x51, 0xF3, 0x75, 0x73, 0x40, 0x0E, 0x8D, 0xCC, 0xE6, 0x27, 0xFE, 0x33, 0x8D, // FNwkSIntKey
             0x6A, 0x0C, 0x26, 0x51, 0xF3, 0x75, 0x73, 0x40, 0x0E, 0x8D, 0xCC, 0xE6, 0x27, 0xFE, 0x33, 0x8D, // SNwkSIntKey
             0x6A, 0x0C, 0x26, 0x51, 0xF3, 0x75, 0x73, 0x40, 0x0E, 0x8D, 0xCC, 0xE6, 0x27, 0xFE, 0x33, 0x8D, // NwkSEncKey
             0xF9, 0x88, 0x01, 0xF6, 0x58, 0xC2, 0xB2, 0x83, 0x79, 0x2D, 0x3C, 0xD5, 0x5C, 0x08, 0x3A, 0x79, // AppSKey
             0x2D, 0x00, 0x00, 0x48,                                                                         // DevAddr for Helium network
-            0x02, 0x00, 0x00, 0x00,                                                                         // frame_count of 2
-            0x36, 0x60, 0xDC, 0x91,                                                                         // Crc32
+            0x03, 0x00, 0x00, 0x00,                                                                         // frame_count of 3
+            0x88, 0x13, 0x00, 0x00,                                                                         // ReceiveDelay1
+            0x70, 0x17, 0x00, 0x00,                                                                         // ReceiveDelay2
+            0xB8, 0x5A, 0xB7, 0x1B,                                                                         // Crc32
         };
-    uint8_t current_eeprom[read_bytes] = {};
 
-    network_keys_t current_keys = get_current_network_keys();
     registered_devices_t registered_device = get_current_network();
-    EepromMcuReadBuffer(registered_device * sizeof(network_keys_t), current_eeprom, sizeof(network_keys_t));
+    uint16_t eeprom_location = registered_device * sizeof(network_keys_t);
+    EepromMcuReadBuffer(eeprom_location, current_eeprom, sizeof(network_keys_t));
 
-    MEMCMP_EQUAL(expected_eeprom, current_eeprom, read_bytes);
+    MEMCMP_EQUAL(expected_eeprom_2nd_device, current_eeprom, read_bytes);
+    CHECK_EQUAL(HELIUM_KEYS, registered_device);
+    CHECK_EQUAL(420, eeprom_location);
+
+    // Now move on to the next device credentials
+
+    // Startup as usual
+    init_loramac_stack_and_tx_scheduling(true);
+
+    // now store as if a few transmissions have been done
+    nvm->Crypto.FCntList.FCntUp += 1;
+    set_correct_notify_flags();
+    NvmDataMgmtStore();
+
+    nvm->Crypto.FCntList.FCntUp += 1;
+    set_correct_notify_flags();
+    NvmDataMgmtStore();
+
+    // IT should be the second device credential for the US, because after running init_loramac_stack_and_tx_scheduling(), the s
+    // stack moves on to the second one.
+    uint8_t expected_eeprom_1st_device[read_bytes] =
+        {
+            0xAC, 0x7E, 0xF6, 0x61, 0x48, 0x02, 0x71, 0x9C, 0x03, 0xD0, 0xF5, 0x3D, 0xDE, 0xE4, 0xEE, 0x07, // FNwkSIntKey
+            0xAC, 0x7E, 0xF6, 0x61, 0x48, 0x02, 0x71, 0x9C, 0x03, 0xD0, 0xF5, 0x3D, 0xDE, 0xE4, 0xEE, 0x07, // SNwkSIntKey
+            0xAC, 0x7E, 0xF6, 0x61, 0x48, 0x02, 0x71, 0x9C, 0x03, 0xD0, 0xF5, 0x3D, 0xDE, 0xE4, 0xEE, 0x07, // NwkSEncKey
+            0xE4, 0x70, 0xDC, 0x81, 0xE1, 0x43, 0x8D, 0x99, 0x14, 0x22, 0x84, 0x83, 0xD9, 0xA3, 0x6B, 0xC7, // AppSKey
+            0x28, 0xB9, 0x0C, 0x26,                                                                         // DevAddr for Helium network
+            0x03, 0x00, 0x00, 0x00,                                                                         // frame_count of 3
+            0xE8, 0x03, 0x00, 0x00,                                                                         // ReceiveDelay1
+            0xD0, 0x07, 0x00, 0x00,                                                                         // ReceiveDelay2
+            0x2E, 0x24, 0x43, 0x82,                                                                         // Crc32
+        };
+
+    registered_device = get_current_network();
+    eeprom_location = registered_device * sizeof(network_keys_t);
+    EepromMcuReadBuffer(eeprom_location, current_eeprom, sizeof(network_keys_t));
+
+    CHECK_EQUAL(US915_KEYS_US1, registered_device);
+    CHECK_EQUAL(672, eeprom_location);
+    MEMCMP_EQUAL(expected_eeprom_1st_device, current_eeprom, read_bytes);
+
+    // Finally, lets move to the next device setting, which should be the first one.
+    // It should have persisted the RX1/2 delay value
+
+    // Startup as usual
+    init_loramac_stack_and_tx_scheduling(true);
+
+    uint8_t expected_eeprom_1st_device_second_time[read_bytes] =
+        {
+            0x6A, 0x0C, 0x26, 0x51, 0xF3, 0x75, 0x73, 0x40, 0x0E, 0x8D, 0xCC, 0xE6, 0x27, 0xFE, 0x33, 0x8D, // FNwkSIntKey
+            0x6A, 0x0C, 0x26, 0x51, 0xF3, 0x75, 0x73, 0x40, 0x0E, 0x8D, 0xCC, 0xE6, 0x27, 0xFE, 0x33, 0x8D, // SNwkSIntKey
+            0x6A, 0x0C, 0x26, 0x51, 0xF3, 0x75, 0x73, 0x40, 0x0E, 0x8D, 0xCC, 0xE6, 0x27, 0xFE, 0x33, 0x8D, // NwkSEncKey
+            0xF9, 0x88, 0x01, 0xF6, 0x58, 0xC2, 0xB2, 0x83, 0x79, 0x2D, 0x3C, 0xD5, 0x5C, 0x08, 0x3A, 0x79, // AppSKey
+            0x2D, 0x00, 0x00, 0x48,                                                                         // DevAddr for Helium network
+            0x04, 0x00, 0x00, 0x00,                                                                         // frame_count of 4
+            0x88, 0x13, 0x00, 0x00,                                                                         // ReceiveDelay1
+            0x70, 0x17, 0x00, 0x00,                                                                         // ReceiveDelay2
+            0x37, 0xB3, 0x2F, 0x6F,                                                                         // Crc32
+        };
+
+    registered_device = get_current_network();
+    eeprom_location = registered_device * sizeof(network_keys_t);
+    EepromMcuReadBuffer(eeprom_location, current_eeprom, sizeof(network_keys_t));
+
+    MEMCMP_EQUAL(expected_eeprom_1st_device_second_time, current_eeprom, read_bytes);
+    CHECK_EQUAL(HELIUM_KEYS, registered_device);
+    CHECK_EQUAL(420, eeprom_location);
 }

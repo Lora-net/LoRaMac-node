@@ -319,6 +319,8 @@ void update_geofence_status()
 
 int init_loramac_stack_and_tx_scheduling(bool use_default_tx_interval)
 {
+    switch_to_next_region(); // Credentials have been set. So now tell it that next time credentials are called for, use the next set.
+
     const char *region_string = get_lorawan_region_string(current_geofence_status.current_loramac_region);
     printf("Initialising Loramac Stack with Loramac region: %s\n", region_string);
 
@@ -334,8 +336,6 @@ int init_loramac_stack_and_tx_scheduling(bool use_default_tx_interval)
     }
 
     init_loramac(settings);
-
-    switch_to_next_region(); // Credentials have been set. So now tell it that next time credentials are called for, use the next set.
 
     //LmHandlerJoin( );
 
