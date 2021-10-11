@@ -41,12 +41,39 @@
  * 
  */
 
+/*!
+ * Polygon region enumeration
+ */
+typedef enum polygon_t
+{
+	EU863870_AFRICA_polygon,
+	EU863870_PHILIPPINES_polygon,
+	US902928_NAMERICA_polygon,
+	AS923925_BRUNEI_polygon,
+	AS923925_TAIWAN_polygon,
+	AS923925_INDONESIA_polygon,
+	AS923925_THAILAND_polygon,
+	US902928_ARGENTINA_polygon,
+	AU915928_BRAZIL_polygon,
+	AU915928_CHILE_polygon,
+	CN779787_CHINA_polygon,
+	IN865867_INDIA_polygon,
+	AS920923_JAPAN_polygon,
+	KR920923_SKOREA_polygon,
+	AS920923_MALAYSIASG_polygon,
+	AU915928_AUSTRALIA_polygon,
+	RU864870_RUSSIA_polygon,
+	EU863870_EUROPE_polygon,
+	OUTSIDE_polygon
+} Polygon_t;
+
 geofence_status_t current_geofence_status =
 	{
 		.current_loramac_region = LORAMAC_REGION_EU868,
-		.curr_poly_region = EU863870_EUROPE_polygon,
 		.tx_permission = TX_OK,
 };
+
+Polygon_t curr_poly_region;
 
 /* These are the fence polygons. There are several 
  * polygons that have the same frequency names but have a 
@@ -855,7 +882,7 @@ static void set_current_loramac_region(Polygon_t current_poly)
 		break;
 	case RU864870_RUSSIA_polygon:
 		current_geofence_status.tx_permission = TX_OK;
-		current_geofence_status.current_loramac_region = LORAMAC_REGION_EU868;
+		current_geofence_status.current_loramac_region = LORAMAC_REGION_RU864;
 		break;
 	case EU863870_EUROPE_polygon:
 		current_geofence_status.tx_permission = TX_OK;
@@ -871,10 +898,10 @@ static void set_current_loramac_region(Polygon_t current_poly)
 void update_geofence_position(float latitude, float longitude)
 {
 	/* get our current polygon */
-	current_geofence_status.curr_poly_region = get_polygon(latitude, longitude);
+	curr_poly_region = get_polygon(latitude, longitude);
 
 	/* now set the current lora region settings based on 
 	   * new or unchanged polygon we are in.
 	   */
-	set_current_loramac_region(current_geofence_status.curr_poly_region);
+	set_current_loramac_region(curr_poly_region);
 }

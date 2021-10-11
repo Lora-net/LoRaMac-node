@@ -66,28 +66,6 @@ TEST(app, test_successful_setup)
     teardown_n_positions_mock();
 }
 
-TEST(app, run_app_through_3_geofence_regions_5degrees_shift_per_fix)
-{
-
-    prepare_n_position_mocks(10000, 5);
-    setup_board();
-
-    int region_switches = 4;
-
-    polygon_t current_polygon;
-    while (region_switches--)
-    {
-        current_polygon = current_geofence_status.curr_poly_region;
-
-        loop();
-        /* Ensure that region switches happen ONLY when polygon change is detected */
-        CHECK_TRUE(current_polygon != current_geofence_status.curr_poly_region);
-    }
-    teardown_n_positions_mock();
-
-    CHECK_EQUAL(LORAMAC_REGION_EU868, current_geofence_status.current_loramac_region);
-};
-
 extern bool is_over_the_air_activation;
 extern bool tx_done;
 

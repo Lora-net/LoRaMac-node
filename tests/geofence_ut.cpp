@@ -7,7 +7,7 @@ extern "C"
 #include "geofence.h"
 }
 
-TEST_GROUP(Geofence_Polygon){
+TEST_GROUP(test_get_current_lorawan_region){
     void setup(){}
 
     void teardown(){
@@ -20,190 +20,232 @@ TEST_GROUP(Geofence_Polygon){
  * @brief Test point in polygon
  * 
  */
-TEST(Geofence_Polygon, UK_test)
+TEST(test_get_current_lorawan_region, UK_test)
 {
-    Polygon_t poly = get_polygon(52, 0);
-    CHECK_EQUAL(EU863870_EUROPE_polygon, poly);
+    update_geofence_position(52, 0);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
 }
 
-TEST(Geofence_Polygon, Au_test)
+TEST(test_get_current_lorawan_region, Au_test)
 {
-    Polygon_t poly = get_polygon(-33.8696, 151.20695);
-    CHECK_EQUAL(AU915928_AUSTRALIA_polygon, poly);
+    update_geofence_position(-33.8696, 151.20695);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_AU915, region);
 }
 
-TEST(Geofence_Polygon, US_test)
+TEST(test_get_current_lorawan_region, US_test)
 {
-    Polygon_t poly = get_polygon(47.7511, -120.7401);
-    CHECK_EQUAL(US902928_NAMERICA_polygon, poly);
+    update_geofence_position(47.7511, -120.7401);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_US915, region);
 }
 
-TEST(Geofence_Polygon, Singapore_test)
+TEST(test_get_current_lorawan_region, Singapore_test)
 {
-    Polygon_t poly = get_polygon(1.3521, 103.8198);
-    CHECK_EQUAL(AS920923_MALAYSIASG_polygon, poly);
+    update_geofence_position(1.3521, 103.8198);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_AS923, region);
 }
 
-TEST(Geofence_Polygon, Russia_test)
+TEST(test_get_current_lorawan_region, Russia_test)
 {
-    Polygon_t poly = get_polygon(61.5240, 105.3188);
-    CHECK_EQUAL(RU864870_RUSSIA_polygon, poly);
+    update_geofence_position(61.5240, 105.3188);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_RU864, region);
 }
 
-TEST(Geofence_Polygon, Iran_test)
+TEST(test_get_current_lorawan_region, Iran_test)
 {
-    Polygon_t poly = get_polygon(32.6539, 51.6660);
-    CHECK_EQUAL(EU863870_EUROPE_polygon, poly);
+    update_geofence_position(32.6539, 51.6660);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
 }
 
-TEST(Geofence_Polygon, China_test)
+TEST(test_get_current_lorawan_region, China_test)
 {
-    Polygon_t poly = get_polygon(35.8617, 104.1954);
-    CHECK_EQUAL(CN779787_CHINA_polygon, poly);
+    update_geofence_position(35.8617, 104.1954);
+    LoRaMacRegion_t region = get_current_loramac_region();
+
+    CHECK_EQUAL(LORAMAC_REGION_CN470, region);
 }
 
-TEST(Geofence_Polygon, Hawaii)
+TEST(test_get_current_lorawan_region, Hawaii)
 {
-    Polygon_t poly = get_polygon(19.38629551, -155.69824219);
-    CHECK_EQUAL(US902928_NAMERICA_polygon, poly);
+    update_geofence_position(19.38629551, -155.69824219);
+    LoRaMacRegion_t region = get_current_loramac_region();
+
+    CHECK_EQUAL(LORAMAC_REGION_US915, region);
 }
 
-TEST(Geofence_Polygon, Germany)
+TEST(test_get_current_lorawan_region, Germany)
 {
-    Polygon_t poly = get_polygon(51.1657, 10.4515);
-    CHECK_EQUAL(EU863870_EUROPE_polygon, poly);
+    update_geofence_position(51.1657, 10.4515);
+    LoRaMacRegion_t region = get_current_loramac_region();
+
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
 }
 
-TEST(Geofence_Polygon, Japan)
+TEST(test_get_current_lorawan_region, Japan)
 {
-    Polygon_t poly = get_polygon(35.6762, 139.6503);
-    CHECK_EQUAL(AS920923_JAPAN_polygon, poly);
+    update_geofence_position(35.6762, 139.6503);
+    LoRaMacRegion_t region = get_current_loramac_region();
+
+    CHECK_EQUAL(LORAMAC_REGION_AS923, region);
 }
 
-TEST(Geofence_Polygon, India)
+TEST(test_get_current_lorawan_region, India)
 {
-    Polygon_t poly = get_polygon(13.0827, 80.2707);
-    CHECK_EQUAL(IN865867_INDIA_polygon, poly);
+    update_geofence_position(13.0827, 80.2707);
+    LoRaMacRegion_t region = get_current_loramac_region();
+
+    CHECK_EQUAL(LORAMAC_REGION_IN865, region);
 }
 
-TEST(Geofence_Polygon, China)
+TEST(test_get_current_lorawan_region, China)
 {
-    Polygon_t poly = get_polygon(28.087486, 116.255585);
-    CHECK_EQUAL(CN779787_CHINA_polygon, poly);
+    update_geofence_position(28.087486, 116.255585);
+    LoRaMacRegion_t region = get_current_loramac_region();
+
+    CHECK_EQUAL(LORAMAC_REGION_CN470, region);
 }
 
-TEST(Geofence_Polygon, Sudan)
+TEST(test_get_current_lorawan_region, Sudan)
 {
-    Polygon_t poly = get_polygon(17.409349, 30.866612);
-    CHECK_EQUAL(EU863870_AFRICA_polygon, poly);
+    update_geofence_position(17.409349, 30.866612);
+    LoRaMacRegion_t region = get_current_loramac_region();
+
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
 }
 
-TEST(Geofence_Polygon, Kazakstan)
+TEST(test_get_current_lorawan_region, Kazakstan)
 {
-    Polygon_t poly = get_polygon(46.631330, 68.461685);
-    CHECK_EQUAL(EU863870_EUROPE_polygon, poly);
+    update_geofence_position(46.631330, 68.461685);
+    LoRaMacRegion_t region = get_current_loramac_region();
+
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
 }
 
-TEST(Geofence_Polygon, Korea)
+TEST(test_get_current_lorawan_region, Korea)
 {
-    Polygon_t poly = get_polygon(34.972397, 127.850327);
-    CHECK_EQUAL(KR920923_SKOREA_polygon, poly);
+    update_geofence_position(34.972397, 127.850327);
+    LoRaMacRegion_t region = get_current_loramac_region();
+
+    CHECK_EQUAL(LORAMAC_REGION_KR920, region);
 }
 
-TEST(Geofence_Polygon, Russia)
+TEST(test_get_current_lorawan_region, Russia)
 {
-    Polygon_t poly = get_polygon(56.032768, 158.066928);
-    CHECK_EQUAL(RU864870_RUSSIA_polygon, poly);
+    update_geofence_position(56.032768, 158.066928);
+    LoRaMacRegion_t region = get_current_loramac_region();
+
+    CHECK_EQUAL(LORAMAC_REGION_RU864, region);
 }
 
-TEST(Geofence_Polygon, Tasmaina)
+TEST(test_get_current_lorawan_region, Tasmaina)
 {
-    Polygon_t poly = get_polygon(-42.475341, 145.066763);
-    CHECK_EQUAL(AU915928_AUSTRALIA_polygon, poly);
+    update_geofence_position(-42.475341, 145.066763);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_AU915, region);
 }
 
-TEST(Geofence_Polygon, Hokkaido)
+TEST(test_get_current_lorawan_region, Hokkaido)
 {
-    Polygon_t poly = get_polygon(41.849920, 141.553205);
-    CHECK_EQUAL(AS920923_JAPAN_polygon, poly);
+    update_geofence_position(41.849920, 141.553205);
+    LoRaMacRegion_t region = get_current_loramac_region();
+
+    CHECK_EQUAL(LORAMAC_REGION_AS923, region);
 }
 
-TEST(Geofence_Polygon, Honduras)
+TEST(test_get_current_lorawan_region, Honduras)
 {
-    Polygon_t poly = get_polygon(14.366573, -87.882151);
-    CHECK_EQUAL(US902928_NAMERICA_polygon, poly);
+    update_geofence_position(14.366573, -87.882151);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_US915, region);
 }
 
-TEST(Geofence_Polygon, Mexico)
+TEST(test_get_current_lorawan_region, Mexico)
 {
-    Polygon_t poly = get_polygon(25.097538, -104.062500);
-    CHECK_EQUAL(US902928_NAMERICA_polygon, poly);
+    update_geofence_position(25.097538, -104.062500);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_US915, region);
 }
 
-TEST(Geofence_Polygon, Honolulu)
+TEST(test_get_current_lorawan_region, Honolulu)
 {
-    Polygon_t poly = get_polygon(21.31240491, -157.89276123);
-    CHECK_EQUAL(US902928_NAMERICA_polygon, poly);
+    update_geofence_position(21.31240491, -157.89276123);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_US915, region);
 }
 
-TEST(Geofence_Polygon, Israel)
+TEST(test_get_current_lorawan_region, Israel)
 {
-    Polygon_t poly = get_polygon(32.896193, 35.374242);
-    CHECK_EQUAL(EU863870_AFRICA_polygon, poly);
+    update_geofence_position(32.896193, 35.374242);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
 }
 
-TEST(Geofence_Polygon, Norway)
+TEST(test_get_current_lorawan_region, Norway)
 {
-    Polygon_t poly = get_polygon(62.629729, 10.526518);
-    CHECK_EQUAL(EU863870_EUROPE_polygon, poly);
+    update_geofence_position(62.629729, 10.526518);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
 }
 
-TEST(Geofence_Polygon, Sweden)
+TEST(test_get_current_lorawan_region, Sweden)
 {
-    Polygon_t poly = get_polygon(64.544663, 18.256346);
-    CHECK_EQUAL(EU863870_EUROPE_polygon, poly);
+    update_geofence_position(64.544663, 18.256346);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
 }
 
-TEST(Geofence_Polygon, Manila)
+TEST(test_get_current_lorawan_region, Manila)
 {
-    Polygon_t poly = get_polygon(14.426168, 120.662100);
-    CHECK_EQUAL(EU863870_PHILIPPINES_polygon, poly);
+    update_geofence_position(14.426168, 120.662100);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
 }
 
-TEST(Geofence_Polygon, Taiwan)
+TEST(test_get_current_lorawan_region, Taiwan)
 {
-    Polygon_t poly = get_polygon(23.883828, 121.194817);
-    CHECK_EQUAL(AS923925_TAIWAN_polygon, poly);
+    update_geofence_position(23.883828, 121.194817);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_AS923, region);
 }
 
-TEST(Geofence_Polygon, Fukuda)
+TEST(test_get_current_lorawan_region, Fukuda)
 {
-    Polygon_t poly = get_polygon(33.227660, 130.136745);
-    CHECK_EQUAL(AS920923_JAPAN_polygon, poly);
+    update_geofence_position(33.227660, 130.136745);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_AS923, region);
 }
 
-TEST(Geofence_Polygon, Azores)
+TEST(test_get_current_lorawan_region, Azores)
 {
-    Polygon_t poly = get_polygon(38.815743, -27.794621);
-    CHECK_EQUAL(EU863870_EUROPE_polygon, poly);
+    update_geofence_position(38.815743, -27.794621);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
 }
 
-TEST(Geofence_Polygon, Iceland)
+TEST(test_get_current_lorawan_region, Iceland)
 {
-    Polygon_t poly = get_polygon(64.990508, -16.913441);
-    CHECK_EQUAL(EU863870_EUROPE_polygon, poly);
+    update_geofence_position(64.990508, -16.913441);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
 }
 
-TEST(Geofence_Polygon, Greenland)
+TEST(test_get_current_lorawan_region, Greenland)
 {
-    Polygon_t poly = get_polygon(68.904679, -37.814359);
-    CHECK_EQUAL(EU863870_EUROPE_polygon, poly);
+    update_geofence_position(68.904679, -37.814359);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
 }
 
-TEST(Geofence_Polygon, Norge)
+TEST(test_get_current_lorawan_region, Norge)
 {
-    Polygon_t poly = get_polygon(79.134947, 15.767405);
-    CHECK_EQUAL(EU863870_EUROPE_polygon, poly);
+    update_geofence_position(79.134947, 15.767405);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
 }
 
 /**
@@ -211,52 +253,60 @@ TEST(Geofence_Polygon, Norge)
  * 
  */
 
-TEST(Geofence_Polygon, Chile)
+TEST(test_get_current_lorawan_region, Chile)
 {
-    Polygon_t poly = get_polygon(-33.447487, -70.673676);
-    CHECK_EQUAL(AU915928_CHILE_polygon, poly);
+    update_geofence_position(-33.447487, -70.673676);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_AU915, region);
 }
 
-TEST(Geofence_Polygon, Argentina)
+TEST(test_get_current_lorawan_region, Argentina)
 {
-    Polygon_t poly = get_polygon(-41.032962, -67.575228);
-    CHECK_EQUAL(US902928_ARGENTINA_polygon, poly);
+    update_geofence_position(-41.032962, -67.575228);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_US915, region);
 }
 
-TEST(Geofence_Polygon, Falklands)
+TEST(test_get_current_lorawan_region, Falklands)
 {
-    Polygon_t poly = get_polygon(-51.639841, -58.97460938);
-    CHECK_EQUAL(OUTSIDE_polygon, poly);
+    update_geofence_position(-51.639841, -58.97460938);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
 }
 
-TEST(Geofence_Polygon, Brazil)
+TEST(test_get_current_lorawan_region, Brazil)
 {
-    Polygon_t poly = get_polygon(-13.49647277, -47.54882813);
-    CHECK_EQUAL(AU915928_BRAZIL_polygon, poly);
+    update_geofence_position(-13.49647277, -47.54882813);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_AU915, region);
 }
 
-TEST(Geofence_Polygon, Paraguay)
+TEST(test_get_current_lorawan_region, Paraguay)
 {
-    Polygon_t poly = get_polygon(-22.18740499, -59.72167969);
-    CHECK_EQUAL(US902928_ARGENTINA_polygon, poly);
+    update_geofence_position(-22.18740499, -59.72167969);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_US915, region);
 }
 
-TEST(Geofence_Polygon, Ecuador)
+TEST(test_get_current_lorawan_region, Ecuador)
 {
-    Polygon_t poly = get_polygon(-1.40610884, -78.09082031);
-    CHECK_EQUAL(US902928_NAMERICA_polygon, poly);
+    update_geofence_position(-1.40610884, -78.09082031);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_US915, region);
 }
 
-TEST(Geofence_Polygon, Bolivia)
+TEST(test_get_current_lorawan_region, Bolivia)
 {
-    Polygon_t poly = get_polygon(-17.484816, -64.6875);
-    CHECK_EQUAL(US902928_NAMERICA_polygon, poly);
+    update_geofence_position(-17.484816, -64.6875);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_US915, region);
 }
 
-TEST(Geofence_Polygon, calama_chile)
+TEST(test_get_current_lorawan_region, calama_chile)
 {
-    Polygon_t poly = get_polygon(-22.899707, -68.87878418);
-    CHECK_EQUAL(AU915928_CHILE_polygon, poly);
+    update_geofence_position(-22.899707, -68.87878418);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_AU915, region);
 }
 
 /**
@@ -264,20 +314,23 @@ TEST(Geofence_Polygon, calama_chile)
  * 
  */
 
-TEST(Geofence_Polygon, Arizona)
+TEST(test_get_current_lorawan_region, Arizona)
 {
-    Polygon_t poly = get_polygon(34.884128, -112.21435547);
-    CHECK_EQUAL(US902928_NAMERICA_polygon, poly);
+    update_geofence_position(34.884128, -112.21435547);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_US915, region);
 }
 
-TEST(Geofence_Polygon, Albuquerque)
+TEST(test_get_current_lorawan_region, Albuquerque)
 {
-    Polygon_t poly = get_polygon(34.811999, -106.67724609);
-    CHECK_EQUAL(US902928_NAMERICA_polygon, poly);
+    update_geofence_position(34.811999, -106.67724609);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_US915, region);
 }
 
-TEST(Geofence_Polygon, Seattle)
+TEST(test_get_current_lorawan_region, Seattle)
 {
-    Polygon_t poly = get_polygon(47.79101618, -121.94824219);
-    CHECK_EQUAL(US902928_NAMERICA_polygon, poly);
+    update_geofence_position(47.79101618, -121.94824219);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_US915, region);
 }
