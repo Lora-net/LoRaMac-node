@@ -156,7 +156,7 @@ uint16_t NvmDataMgmtRestore(void)
         // now update CRC before writing to EEPROM
         current_keys.Crc32 = Crc32((uint8_t *)&current_keys, sizeof(current_keys) - sizeof(current_keys.Crc32));
         // Now write current keys for this network(including frame count) to EEPROM into the right place in the EEPROM
-        NvmmWrite((uint8_t *)&current_keys, sizeof(network_keys_t), registered_device * sizeof(network_keys_t));
+        NvmmUpdate((uint8_t *)&current_keys, sizeof(network_keys_t), registered_device * sizeof(network_keys_t));
 
         /* Now update the mac state. We set the frame count, dev_addr, rx1 delay and rx2 delay
          * and  FNwkSIntKey,SNwkSIntKey, NwkSEncKey, AppSKey. The rest we leave as default for
