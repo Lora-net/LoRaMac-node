@@ -25,6 +25,79 @@ TEST(test_get_current_lorawan_region, UK_test)
     update_geofence_position(52, 0);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
+}
+
+TEST(test_get_current_lorawan_region, Ascension_island)
+{
+    update_geofence_position(-7.96666, -14.4);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
+}
+
+TEST(test_get_current_lorawan_region, Saint_Helena)
+{
+    update_geofence_position(-15.9500, -5.7167);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
+}
+
+TEST(test_get_current_lorawan_region, Tristan_da_Cunha)
+{
+    update_geofence_position(-37.1052, -12.2777);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
+}
+
+TEST(test_get_current_lorawan_region, mauritius)
+{
+    update_geofence_position(-20.165111, 57.499266);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
+}
+
+TEST(test_get_current_lorawan_region, Chagos_islands)
+{
+    update_geofence_position(-6.166666, 72.0);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
+}
+
+TEST(test_get_current_lorawan_region, azores)
+{
+    update_geofence_position(37.7412, -25.6756);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
+}
+
+TEST(test_get_current_lorawan_region, Heard_and_McDonald_Islands)
+{
+    update_geofence_position(-53.0818, 73.5042);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
+}
+
+TEST(test_get_current_lorawan_region, antartica)
+{
+    update_geofence_position(-80.96000880094358, 35.106277888713585);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_US915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
+}
+
+TEST(test_get_current_lorawan_region, McMurdo_Station_antartica)
+{
+    update_geofence_position(-77.51, 166.40);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_US915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Au_test)
@@ -32,6 +105,7 @@ TEST(test_get_current_lorawan_region, Au_test)
     update_geofence_position(-33.8696, 151.20695);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_AU915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, US_test)
@@ -39,6 +113,7 @@ TEST(test_get_current_lorawan_region, US_test)
     update_geofence_position(47.7511, -120.7401);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_US915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Singapore_test)
@@ -46,6 +121,7 @@ TEST(test_get_current_lorawan_region, Singapore_test)
     update_geofence_position(1.3521, 103.8198);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_AS923, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Russia_test)
@@ -53,6 +129,7 @@ TEST(test_get_current_lorawan_region, Russia_test)
     update_geofence_position(61.5240, 105.3188);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_RU864, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Iran_test)
@@ -60,6 +137,7 @@ TEST(test_get_current_lorawan_region, Iran_test)
     update_geofence_position(32.6539, 51.6660);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, China_test)
@@ -68,6 +146,7 @@ TEST(test_get_current_lorawan_region, China_test)
     LoRaMacRegion_t region = get_current_loramac_region();
 
     CHECK_EQUAL(LORAMAC_REGION_CN470, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Hawaii)
@@ -76,6 +155,7 @@ TEST(test_get_current_lorawan_region, Hawaii)
     LoRaMacRegion_t region = get_current_loramac_region();
 
     CHECK_EQUAL(LORAMAC_REGION_US915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Germany)
@@ -84,6 +164,7 @@ TEST(test_get_current_lorawan_region, Germany)
     LoRaMacRegion_t region = get_current_loramac_region();
 
     CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Japan)
@@ -92,6 +173,7 @@ TEST(test_get_current_lorawan_region, Japan)
     LoRaMacRegion_t region = get_current_loramac_region();
 
     CHECK_EQUAL(LORAMAC_REGION_AS923, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, India)
@@ -100,6 +182,7 @@ TEST(test_get_current_lorawan_region, India)
     LoRaMacRegion_t region = get_current_loramac_region();
 
     CHECK_EQUAL(LORAMAC_REGION_IN865, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, China)
@@ -108,6 +191,7 @@ TEST(test_get_current_lorawan_region, China)
     LoRaMacRegion_t region = get_current_loramac_region();
 
     CHECK_EQUAL(LORAMAC_REGION_CN470, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Sudan)
@@ -116,6 +200,7 @@ TEST(test_get_current_lorawan_region, Sudan)
     LoRaMacRegion_t region = get_current_loramac_region();
 
     CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Kazakstan)
@@ -124,6 +209,7 @@ TEST(test_get_current_lorawan_region, Kazakstan)
     LoRaMacRegion_t region = get_current_loramac_region();
 
     CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Korea)
@@ -132,6 +218,7 @@ TEST(test_get_current_lorawan_region, Korea)
     LoRaMacRegion_t region = get_current_loramac_region();
 
     CHECK_EQUAL(LORAMAC_REGION_KR920, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Russia)
@@ -140,6 +227,7 @@ TEST(test_get_current_lorawan_region, Russia)
     LoRaMacRegion_t region = get_current_loramac_region();
 
     CHECK_EQUAL(LORAMAC_REGION_RU864, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Tasmaina)
@@ -147,6 +235,7 @@ TEST(test_get_current_lorawan_region, Tasmaina)
     update_geofence_position(-42.475341, 145.066763);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_AU915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Hokkaido)
@@ -155,6 +244,7 @@ TEST(test_get_current_lorawan_region, Hokkaido)
     LoRaMacRegion_t region = get_current_loramac_region();
 
     CHECK_EQUAL(LORAMAC_REGION_AS923, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Honduras)
@@ -162,6 +252,7 @@ TEST(test_get_current_lorawan_region, Honduras)
     update_geofence_position(14.366573, -87.882151);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_US915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Mexico)
@@ -169,6 +260,7 @@ TEST(test_get_current_lorawan_region, Mexico)
     update_geofence_position(25.097538, -104.062500);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_US915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Honolulu)
@@ -176,6 +268,7 @@ TEST(test_get_current_lorawan_region, Honolulu)
     update_geofence_position(21.31240491, -157.89276123);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_US915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Israel)
@@ -183,6 +276,7 @@ TEST(test_get_current_lorawan_region, Israel)
     update_geofence_position(32.896193, 35.374242);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Norway)
@@ -190,6 +284,7 @@ TEST(test_get_current_lorawan_region, Norway)
     update_geofence_position(62.629729, 10.526518);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Sweden)
@@ -197,6 +292,7 @@ TEST(test_get_current_lorawan_region, Sweden)
     update_geofence_position(64.544663, 18.256346);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Manila)
@@ -204,6 +300,15 @@ TEST(test_get_current_lorawan_region, Manila)
     update_geofence_position(14.426168, 120.662100);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
+}
+
+TEST(test_get_current_lorawan_region, New_Zealand)
+{
+    update_geofence_position(-40.9006, 174.8860);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_AU915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Taiwan)
@@ -211,6 +316,7 @@ TEST(test_get_current_lorawan_region, Taiwan)
     update_geofence_position(23.883828, 121.194817);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_AS923, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Fukuda)
@@ -218,6 +324,7 @@ TEST(test_get_current_lorawan_region, Fukuda)
     update_geofence_position(33.227660, 130.136745);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_AS923, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Azores)
@@ -225,6 +332,7 @@ TEST(test_get_current_lorawan_region, Azores)
     update_geofence_position(38.815743, -27.794621);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Iceland)
@@ -232,6 +340,7 @@ TEST(test_get_current_lorawan_region, Iceland)
     update_geofence_position(64.990508, -16.913441);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Greenland)
@@ -239,6 +348,7 @@ TEST(test_get_current_lorawan_region, Greenland)
     update_geofence_position(68.904679, -37.814359);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Norge)
@@ -246,6 +356,7 @@ TEST(test_get_current_lorawan_region, Norge)
     update_geofence_position(79.134947, 15.767405);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 /**
@@ -258,6 +369,7 @@ TEST(test_get_current_lorawan_region, Chile)
     update_geofence_position(-33.447487, -70.673676);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_AU915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Argentina)
@@ -265,6 +377,7 @@ TEST(test_get_current_lorawan_region, Argentina)
     update_geofence_position(-41.032962, -67.575228);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_US915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Falklands)
@@ -272,6 +385,7 @@ TEST(test_get_current_lorawan_region, Falklands)
     update_geofence_position(-51.639841, -58.97460938);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Brazil)
@@ -279,6 +393,7 @@ TEST(test_get_current_lorawan_region, Brazil)
     update_geofence_position(-13.49647277, -47.54882813);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_AU915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Paraguay)
@@ -286,6 +401,7 @@ TEST(test_get_current_lorawan_region, Paraguay)
     update_geofence_position(-22.18740499, -59.72167969);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_US915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Ecuador)
@@ -293,6 +409,7 @@ TEST(test_get_current_lorawan_region, Ecuador)
     update_geofence_position(-1.40610884, -78.09082031);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_US915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Bolivia)
@@ -300,6 +417,7 @@ TEST(test_get_current_lorawan_region, Bolivia)
     update_geofence_position(-17.484816, -64.6875);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_US915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, calama_chile)
@@ -307,6 +425,7 @@ TEST(test_get_current_lorawan_region, calama_chile)
     update_geofence_position(-22.899707, -68.87878418);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_AU915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 /**
@@ -319,6 +438,7 @@ TEST(test_get_current_lorawan_region, Arizona)
     update_geofence_position(34.884128, -112.21435547);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_US915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Albuquerque)
@@ -326,6 +446,7 @@ TEST(test_get_current_lorawan_region, Albuquerque)
     update_geofence_position(34.811999, -106.67724609);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_US915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }
 
 TEST(test_get_current_lorawan_region, Seattle)
@@ -333,4 +454,13 @@ TEST(test_get_current_lorawan_region, Seattle)
     update_geofence_position(47.79101618, -121.94824219);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_US915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
+}
+
+TEST(test_get_current_lorawan_region, Guam)
+{
+    update_geofence_position(13.444304, 144.793732);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_US915, region);
+    CHECK_EQUAL(TX_OK, current_geofence_status.tx_permission);
 }

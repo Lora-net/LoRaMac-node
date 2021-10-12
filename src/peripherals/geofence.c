@@ -46,7 +46,6 @@
  */
 typedef enum polygon_t
 {
-	EU863870_AFRICA_polygon,
 	EU863870_PHILIPPINES_polygon,
 	US902928_NAMERICA_polygon,
 	AS923925_BRUNEI_polygon,
@@ -64,6 +63,8 @@ typedef enum polygon_t
 	AU915928_AUSTRALIA_polygon,
 	RU864870_RUSSIA_polygon,
 	EU863870_EUROPE_polygon,
+	US902928_GUAM_polygon,
+	US902928_ANTARTICA_polygon,
 	OUTSIDE_polygon
 } Polygon_t;
 
@@ -82,46 +83,6 @@ Polygon_t curr_poly_region;
  */
 
 // GEOFENCE ARRAYS (longitude, latitude)
-static const float EU863870_AFRICA_F[36] = {
-	-21.22329,
-	5.69349,
-	6.37369,
-	-16.48638,
-	6.23787,
-	-23.43953,
-	8.70511,
-	-30.44255,
-	18.75909,
-	-37.71921,
-	35.54449,
-	-38.02720,
-	70.40569,
-	-22.92416,
-	65.22884,
-	-3.14600,
-	67.28233,
-	20.93704,
-	43.97169,
-	29.64856,
-	36.57473,
-	35.55413,
-	33.89509,
-	31.80673,
-	32.61551,
-	32.08202,
-	12.86095,
-	34.05438,
-	6.75486,
-	38.22080,
-	-5.65814,
-	36.09149,
-	-16.89894,
-	23.66313,
-	-21.22329,
-	5.69349,
-
-};
-
 static const float EU863870_PHILIPPINES_F[14] = {
 	119.35326,
 	19.47621,
@@ -140,13 +101,21 @@ static const float EU863870_PHILIPPINES_F[14] = {
 
 };
 
-static const float US902928_NAMERICA_F[32] = {
+static const float US902928_NAMERICA_F[40] = {
 	-168.70273,
 	73.32477,
-	-173.14487,
-	55.59241,
-	-158.37536,
-	-15.94766,
+	-180.00000,
+	46.37053,
+	-180.00000,
+	25.64941,
+	-180.00000,
+	24.28805,
+	-180.00000,
+	4.08145,
+	-180.00000,
+	1.28292,
+	-180.00000,
+	-20.25916,
 	-73.01078,
 	-60.51533,
 	-76.49889,
@@ -210,7 +179,7 @@ static const float AS923925_TAIWAN_F[14] = {
 
 };
 
-static const float AS923925_INDONESIA_F[28] = {
+static const float AS923925_INDONESIA_F[30] = {
 	92.01692,
 	5.86666,
 	103.00325,
@@ -221,8 +190,10 @@ static const float AS923925_INDONESIA_F[28] = {
 	-9.54732,
 	139.56575,
 	-9.72062,
-	141.32356,
-	3.58943,
+	140.15829,
+	0.93777,
+	130.95303,
+	4.18266,
 	122.51497,
 	3.76485,
 	117.76887,
@@ -294,7 +265,7 @@ static const float US902928_ARGENTINA_F[20] = {
 
 };
 
-static const float AU915928_BRAZIL_F[16] = {
+static const float AU915928_BRAZIL_F[18] = {
 	-68.90763,
 	4.40695,
 	-57.68823,
@@ -303,10 +274,12 @@ static const float AU915928_BRAZIL_F[16] = {
 	-30.69796,
 	-52.26812,
 	-32.34613,
-	-32.69593,
-	-31.84013,
-	-26.84638,
-	-1.51932,
+	-47.48924,
+	-33.37801,
+	-36.30188,
+	-20.52197,
+	-29.62669,
+	-2.07565,
 	-51.18327,
 	5.64711,
 	-68.90763,
@@ -350,11 +323,11 @@ static const float CN779787_CHINA_F[40] = {
 	110.80828,
 	20.99835,
 	116.86311,
-	23.15488,
+	23.15489,
 	121.31548,
 	26.23843,
 	121.84283,
-	36.31884,
+	36.31883,
 	123.86964,
 	39.73139,
 	129.92800,
@@ -402,7 +375,7 @@ static const float AS920923_JAPAN_F[22] = {
 	141.98268,
 	50.05733,
 	138.86120,
-	46.78277,
+	46.78276,
 	135.11622,
 	43.28542,
 	132.01787,
@@ -413,7 +386,7 @@ static const float AS920923_JAPAN_F[22] = {
 	35.15270,
 	126.28398,
 	32.57064,
-	136.03908,
+	136.03907,
 	22.60415,
 	150.10157,
 	33.80679,
@@ -491,8 +464,8 @@ static const float AU915928_AUSTRALIA_F[26] = {
 	-54.07644,
 	179.46983,
 	-48.46907,
-	179.63306,
-	-38.42140,
+	185.02757,
+	-33.42431,
 	171.92924,
 	-16.91222,
 	148.12775,
@@ -564,33 +537,37 @@ static const float RU864870_RUSSIA_F[50] = {
 
 };
 
-static const float EU863870_EUROPE_F[76] = {
+static const float EU863870_EUROPE_F[80] = {
 	-71.71870,
 	78.35168,
+	-59.04415,
+	68.96731,
 	-45.13904,
 	53.93611,
-	-34.49162,
-	49.45897,
-	-41.01292,
-	34.67850,
-	-26.33114,
-	10.21090,
-	-19.13538,
-	11.26893,
-	-16.75165,
-	23.55956,
-	-5.54613,
-	35.62518,
-	6.61843,
-	38.10661,
-	12.71712,
-	34.32510,
-	33.93480,
-	31.83469,
-	36.55469,
-	35.56712,
-	44.19108,
-	29.54567,
+	-43.36858,
+	48.94212,
+	-51.18327,
+	5.64711,
+	-29.67099,
+	-1.46785,
+	-36.94581,
+	-21.44597,
+	-66.93514,
+	-53.89986,
+	-17.65920,
+	-63.75386,
+	33.89876,
+	-60.35518,
+	88.84521,
+	-57.64581,
+	101.60152,
+	-40.28590,
+	108.30890,
+	-14.01536,
+	93.03493,
+	-3.08195,
+	78.27622,
+	-0.69161,
 	67.41226,
 	21.01872,
 	74.81150,
@@ -641,6 +618,74 @@ static const float EU863870_EUROPE_F[76] = {
 	85.98405,
 	-71.71870,
 	78.35168,
+
+};
+
+static const float US902928_GUAM_F[30] = {
+	177.53889,
+	-21.93288,
+	179.24178,
+	-20.49939,
+	179.24502,
+	46.05195,
+	177.49681,
+	59.81079,
+	176.25674,
+	62.21270,
+	164.30361,
+	55.75932,
+	152.08682,
+	35.86420,
+	136.53018,
+	21.34268,
+	131.60830,
+	27.81195,
+	126.33486,
+	26.95349,
+	127.06306,
+	20.52353,
+	132.39932,
+	4.18435,
+	147.51650,
+	-1.52463,
+	158.32648,
+	-4.22688,
+	177.53889,
+	-21.93288,
+
+};
+
+static const float US902928_ANTARTICA_F[30] = {
+	-174.56046,
+	-84.76164,
+	-37.09953,
+	-83.26629,
+	84.54110,
+	-84.63167,
+	153.79891,
+	-84.49848,
+	175.94735,
+	-84.39643,
+	178.91691,
+	-62.95768,
+	148.01429,
+	-55.17260,
+	112.73509,
+	-54.69288,
+	66.83555,
+	-60.44192,
+	6.53924,
+	-61.92870,
+	-57.13859,
+	-62.54845,
+	-128.50578,
+	-63.34784,
+	-155.57609,
+	-63.34784,
+	-177.37296,
+	-63.18970,
+	-174.56046,
+	-84.76164,
 
 };
 
@@ -718,17 +763,12 @@ Polygon_t get_polygon(float latitude, float longitude)
 {
 	/* check if point is in polygon region */
 	/* Autogenerated code with python script. hopefully no bugs! */
-	if (pointInPolygonF(18, EU863870_AFRICA_F, latitude, longitude) == 1)
-	{
-		return EU863870_AFRICA_polygon;
-	}
-
-	else if (pointInPolygonF(7, EU863870_PHILIPPINES_F, latitude, longitude) == 1)
+	if (pointInPolygonF(7, EU863870_PHILIPPINES_F, latitude, longitude) == 1)
 	{
 		return EU863870_PHILIPPINES_polygon;
 	}
 
-	else if (pointInPolygonF(16, US902928_NAMERICA_F, latitude, longitude) == 1)
+	else if (pointInPolygonF(20, US902928_NAMERICA_F, latitude, longitude) == 1)
 	{
 		return US902928_NAMERICA_polygon;
 	}
@@ -743,7 +783,7 @@ Polygon_t get_polygon(float latitude, float longitude)
 		return AS923925_TAIWAN_polygon;
 	}
 
-	else if (pointInPolygonF(14, AS923925_INDONESIA_F, latitude, longitude) == 1)
+	else if (pointInPolygonF(15, AS923925_INDONESIA_F, latitude, longitude) == 1)
 	{
 		return AS923925_INDONESIA_polygon;
 	}
@@ -758,7 +798,7 @@ Polygon_t get_polygon(float latitude, float longitude)
 		return US902928_ARGENTINA_polygon;
 	}
 
-	else if (pointInPolygonF(8, AU915928_BRAZIL_F, latitude, longitude) == 1)
+	else if (pointInPolygonF(9, AU915928_BRAZIL_F, latitude, longitude) == 1)
 	{
 		return AU915928_BRAZIL_polygon;
 	}
@@ -803,9 +843,19 @@ Polygon_t get_polygon(float latitude, float longitude)
 		return RU864870_RUSSIA_polygon;
 	}
 
-	else if (pointInPolygonF(38, EU863870_EUROPE_F, latitude, longitude) == 1)
+	else if (pointInPolygonF(40, EU863870_EUROPE_F, latitude, longitude) == 1)
 	{
 		return EU863870_EUROPE_polygon;
+	}
+
+	else if (pointInPolygonF(15, US902928_GUAM_F, latitude, longitude) == 1)
+	{
+		return US902928_GUAM_polygon;
+	}
+
+	else if (pointInPolygonF(15, US902928_ANTARTICA_F, latitude, longitude) == 1)
+	{
+		return US902928_ANTARTICA_polygon;
 	}
 
 	return OUTSIDE_polygon;
@@ -814,12 +864,9 @@ Polygon_t get_polygon(float latitude, float longitude)
 static void set_current_loramac_region(Polygon_t current_poly)
 {
 	// Autogenerated code with python script. hopefully no bugs!
+
 	switch (current_poly)
 	{
-	case EU863870_AFRICA_polygon:
-		current_geofence_status.tx_permission = TX_OK;
-		current_geofence_status.current_loramac_region = LORAMAC_REGION_EU868;
-		break;
 	case EU863870_PHILIPPINES_polygon:
 		current_geofence_status.tx_permission = TX_OK;
 		current_geofence_status.current_loramac_region = LORAMAC_REGION_EU868;
@@ -887,6 +934,14 @@ static void set_current_loramac_region(Polygon_t current_poly)
 	case EU863870_EUROPE_polygon:
 		current_geofence_status.tx_permission = TX_OK;
 		current_geofence_status.current_loramac_region = LORAMAC_REGION_EU868;
+		break;
+	case US902928_GUAM_polygon:
+		current_geofence_status.tx_permission = TX_OK;
+		current_geofence_status.current_loramac_region = LORAMAC_REGION_US915;
+		break;
+	case US902928_ANTARTICA_polygon:
+		current_geofence_status.tx_permission = TX_OK;
+		current_geofence_status.current_loramac_region = LORAMAC_REGION_US915;
 		break;
 	case OUTSIDE_polygon:
 		current_geofence_status.tx_permission = TX_NOT_OK;
