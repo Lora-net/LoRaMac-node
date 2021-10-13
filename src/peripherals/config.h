@@ -107,7 +107,7 @@ extern "C"
  * 
  */
 #define NO_FIX_N_TRANSMISSIONS 1
-#define YES_FIX_N_TRANSMISSIONS 3
+#define YES_FIX_N_TRANSMISSIONS 2
 
 #ifdef __cplusplus
 }
