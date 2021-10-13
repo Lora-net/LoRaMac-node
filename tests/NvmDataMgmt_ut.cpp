@@ -256,7 +256,7 @@ TEST(NvmDataMgmt, test_storing_of_fcount_and_keys)
     EepromMcuReadBuffer(eeprom_location, current_eeprom, sizeof(network_keys_t));
 
     MEMCMP_EQUAL(expected_eeprom_2nd_device, current_eeprom, read_bytes);
-    CHECK_EQUAL(HELIUM_KEYS, registered_device);
+    CHECK_EQUAL(icspace26_helium_1, registered_device);
     CHECK_EQUAL(420, eeprom_location);
 
     // Now move on to the next device credentials
@@ -292,7 +292,7 @@ TEST(NvmDataMgmt, test_storing_of_fcount_and_keys)
     eeprom_location = registered_device * sizeof(network_keys_t);
     EepromMcuReadBuffer(eeprom_location, current_eeprom, sizeof(network_keys_t));
 
-    CHECK_EQUAL(US915_KEYS_US1, registered_device);
+    CHECK_EQUAL(icspace26_us1_us915_device_1, registered_device);
     CHECK_EQUAL(672, eeprom_location);
     MEMCMP_EQUAL(expected_eeprom_1st_device, current_eeprom, read_bytes);
 
@@ -320,6 +320,6 @@ TEST(NvmDataMgmt, test_storing_of_fcount_and_keys)
     EepromMcuReadBuffer(eeprom_location, current_eeprom, sizeof(network_keys_t));
 
     MEMCMP_EQUAL(expected_eeprom_1st_device_second_time, current_eeprom, read_bytes);
-    CHECK_EQUAL(HELIUM_KEYS, registered_device);
+    CHECK_EQUAL(icspace26_helium_1, registered_device);
     CHECK_EQUAL(420, eeprom_location);
 }

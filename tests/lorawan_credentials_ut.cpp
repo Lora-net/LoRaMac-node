@@ -49,14 +49,14 @@ TEST(lorawan_credentials, test_cycling_through_eu_settings)
 
         switch_to_next_region();
         CHECK_EQUAL(ttn_eu1_dev_addr, network_keys.DevAddr);
-        CHECK_EQUAL(EU868_KEYS_EU1, registered_device);
+        CHECK_EQUAL(icspace26_eu1_eu_863_870_device_1, registered_device);
 
         network_keys = get_current_network_keys();
         registered_device = get_current_network();
 
         switch_to_next_region();
         CHECK_EQUAL(helium_dev_addr, network_keys.DevAddr);
-        CHECK_EQUAL(HELIUM_KEYS, registered_device);
+        CHECK_EQUAL(icspace26_helium_1, registered_device);
     }
 }
 
@@ -225,4 +225,11 @@ TEST(lorawan_credentials, test_cycling_through_korea_settings)
         switch_to_next_region();
         CHECK_EQUAL(helium_dev_addr, network_keys.DevAddr);
     }
+}
+
+extern size_t network_key_list_size;
+
+TEST(lorawan_credentials, basic_sanity_check)
+{
+    CHECK_EQUAL(NUMBER_OF_REGISTERED_DEVICES, network_key_list_size / sizeof(network_keys_t));
 }
