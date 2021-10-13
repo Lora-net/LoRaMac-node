@@ -486,7 +486,11 @@ const registered_devices_t as923_region_keys[] = {
     AS923_KEYS_AU1,
     icspace26_helium_1,
     AS923_KEYS_EU1,
-    icspace26_helium_1,
+    icspace26_helium_2,
+    AS923_KEYS_AU1,
+    icspace26_helium_3,
+    AS923_KEYS_EU1,
+    icspace26_helium_4,
 }; // In japan, start with helium network first, then go through ttn end node registered on EU cluster then AU cluster
 
 const registered_devices_t ru864_region_keys[] = {
@@ -512,7 +516,15 @@ const registered_devices_t ru864_region_keys[] = {
     icspace26_helium_10,
 };
 
-const registered_devices_t au915_region_keys[] = {AU915_KEYS_AU1, icspace26_helium_3};
+const registered_devices_t au915_region_keys[] = {
+    AU915_KEYS_AU1,
+    icspace26_helium_3,
+    AU915_KEYS_AU1,
+    icspace26_helium_4,
+    AU915_KEYS_AU1,
+    icspace26_helium_5,
+};
+
 const registered_devices_t kr920_region_keys[] = {
     KR920_KEYS_EU1,
     icspace26_helium_4,
@@ -523,8 +535,24 @@ const registered_devices_t kr920_region_keys[] = {
     icspace26_au1_kr_920_923_ttn,
     icspace26_helium_7,
 };
-const registered_devices_t in865_region_keys[] = {IN865_KEYS_EU1, icspace26_helium_5};
-const registered_devices_t cn470_region_keys[] = {CN470_KEYS_EU1, icspace26_helium_6};
+
+const registered_devices_t in865_region_keys[] = {
+    IN865_KEYS_EU1,
+    icspace26_helium_5,
+    IN865_KEYS_EU1,
+    icspace26_helium_6,
+    IN865_KEYS_EU1,
+    icspace26_helium_7,
+};
+
+const registered_devices_t cn470_region_keys[] = {
+    CN470_KEYS_EU1,
+    icspace26_helium_5,
+    CN470_KEYS_EU1,
+    icspace26_helium_6,
+    CN470_KEYS_EU1,
+    icspace26_helium_7,
+};
 
 void switch_to_next_region()
 {
