@@ -239,16 +239,6 @@ const network_keys_t network_key_list[] = {
 
     },
     {
-        // icspace26_au1_kr_920_923_ttn
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x34, 0x7F, 0x7F, 0x62, 0x34, 0xEE, 0x13, 0x94, 0xBC, 0x7E, 0xE5, 0x6C, 0x63, 0x50, 0x85, 0x97},
-        .AppSKey = {0xC9, 0x40, 0xE7, 0x86, 0x69, 0x27, 0x92, 0xB9, 0xA5, 0x8E, 0xB9, 0xFF, 0x46, 0x3D, 0x60, 0x80},
-        .DevAddr = (uint32_t)0x260DD5C5,
-        .frame_count = TTN_FRAME_COUNT_START,
-        .ReceiveDelay1 = 1000,
-        .ReceiveDelay2 = 2000,
-
-    },
-    {
         .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = COMMON_IN865_KEYS,
         .AppSKey = {0xB9, 0xA6, 0xF2, 0x26, 0x4B, 0x48, 0x05, 0x5B, 0x79, 0x53, 0xDE, 0x55, 0x9C, 0x2A, 0x77, 0x08},
         .DevAddr = (uint32_t)0x260BE033,
@@ -513,16 +503,7 @@ const registered_devices_t ru864_region_keys[] = {
 };
 
 const registered_devices_t au915_region_keys[] = {AU915_KEYS_AU1, icspace26_helium_3};
-const registered_devices_t kr920_region_keys[] = {
-    KR920_KEYS_EU1,
-    icspace26_helium_4,
-    icspace26_au1_kr_920_923_ttn,
-    icspace26_helium_5,
-    KR920_KEYS_EU1,
-    icspace26_helium_6,
-    icspace26_au1_kr_920_923_ttn,
-    icspace26_helium_7,
-};
+const registered_devices_t kr920_region_keys[] = {KR920_KEYS_EU1, icspace26_helium_4}; // update keys, possibly to AU1
 const registered_devices_t in865_region_keys[] = {IN865_KEYS_EU1, icspace26_helium_5};
 const registered_devices_t cn470_region_keys[] = {CN470_KEYS_EU1, icspace26_helium_6};
 

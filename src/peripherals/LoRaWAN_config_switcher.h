@@ -54,7 +54,6 @@ extern "C"
         icspace26_eu1_eu_863_870_device_4,
         icspace26_eu1_eu_863_870_device_5,
         KR920_KEYS_EU1,
-        icspace26_au1_kr_920_923_ttn,
         IN865_KEYS_EU1,
         icspace26_us1_us915_device_1,
         icspace26_us1_us915_device_2,
