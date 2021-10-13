@@ -33,9 +33,7 @@ extern "C"
         /**
 		 * ABP Credentials
 		 */
-        uint8_t FNwkSIntKey[16];
-        uint8_t SNwkSIntKey[16];
-        uint8_t NwkSEncKey[16];
+        uint8_t FNwkSIntKey_SNwkSIntKey_NwkSEncKey[16];
         uint8_t AppSKey[16];
         uint32_t DevAddr;
         uint32_t frame_count;

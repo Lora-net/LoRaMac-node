@@ -166,9 +166,9 @@ uint16_t NvmDataMgmtRestore(void)
         nvm->MacGroup2.DevAddr = current_keys.DevAddr;
         nvm->MacGroup2.MacParams.ReceiveDelay1 = current_keys.ReceiveDelay1;
         nvm->MacGroup2.MacParams.ReceiveDelay2 = current_keys.ReceiveDelay2;
-        SecureElementSetKey(F_NWK_S_INT_KEY, current_keys.FNwkSIntKey);
-        SecureElementSetKey(S_NWK_S_INT_KEY, current_keys.SNwkSIntKey);
-        SecureElementSetKey(NWK_S_ENC_KEY, current_keys.NwkSEncKey);
+        SecureElementSetKey(F_NWK_S_INT_KEY, current_keys.FNwkSIntKey_SNwkSIntKey_NwkSEncKey);
+        SecureElementSetKey(S_NWK_S_INT_KEY, current_keys.FNwkSIntKey_SNwkSIntKey_NwkSEncKey);
+        SecureElementSetKey(NWK_S_ENC_KEY, current_keys.FNwkSIntKey_SNwkSIntKey_NwkSEncKey);
         SecureElementSetKey(APP_S_KEY, current_keys.AppSKey);
 
         return bytes_read;
