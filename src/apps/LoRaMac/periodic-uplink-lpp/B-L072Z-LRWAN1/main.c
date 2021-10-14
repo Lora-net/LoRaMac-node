@@ -132,12 +132,6 @@ static bool AppLedStateOn = false;
  */
 static TimerEvent_t TxTimer;
 
-/**
- * @brief Timer to handle watchdog kicking
- * 
- */
-static TimerEvent_t WatchdogKickTimer;
-
 static void OnMacProcessNotify(void);
 void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params);
 
@@ -153,8 +147,6 @@ static void init_loramac(picotracker_lorawan_settings_t settings);
  */
 static void OnTxTimerEvent(void *context);
 
-static void OnWatchdogKickTimerEvent(void *context);
-
 static void retrieve_lorawan_region(void);
 
 typedef enum
@@ -169,7 +161,6 @@ int init_loramac_stack_and_tx_scheduling(bool use_default_tx_interval);
 void loop(void);
 void update_geofence_status();
 void do_n_transmissions(uint32_t n_transmissions_todo, bool use_default_tx_interval);
-void WatchdogProcess(void);
 
 static LmHandlerCallbacks_t LmHandlerCallbacks =
     {
@@ -290,9 +281,6 @@ void do_n_transmissions(uint32_t n_transmissions_todo, bool use_default_tx_inter
 
     init_loramac_stack_and_tx_scheduling(use_default_tx_interval);
 
-    TimerInit(&WatchdogKickTimer, OnWatchdogKickTimerEvent);
-    OnWatchdogKickTimerEvent(NULL);
-
     tx_count = 0;
     while (1)
     {
@@ -354,8 +342,6 @@ loop_status_t run_loop_once()
     TimerIrqHandler();
 #endif
 
-    WatchdogProcess();
-
     // Process characters sent over the command line interface
     CliProcess(&Uart1);
 
@@ -380,6 +366,8 @@ loop_status_t run_loop_once()
     }
     CRITICAL_SECTION_END();
 
+    IWDG_reset();
+
     return no_issue_carry_on;
 }
 
@@ -403,12 +391,6 @@ int setup_board()
     retrieve_lorawan_region();
 
     return EXIT_SUCCESS;
-}
-
-void WatchdogProcess(void)
-{
-    IWDG_reset();
-    IsWatchdogKickPending = false;
 }
 
 static void print_board_info()
@@ -597,12 +579,4 @@ static void OnTxTimerEvent(void *context)
     // Schedule next transmission
     TimerSetValue(&TxTimer, APP_TX_DUTYCYCLE + randr(-APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND));
     TimerStart(&TxTimer);
-}
-
-static void OnWatchdogKickTimerEvent(void *context)
-{
-    TimerStop(&WatchdogKickTimer);
-    IsWatchdogKickPending = true;
-    TimerSetValue(&WatchdogKickTimer, WATCH_DOG_KICK_INTERVAL);
-    TimerStart(&WatchdogKickTimer);
 }
