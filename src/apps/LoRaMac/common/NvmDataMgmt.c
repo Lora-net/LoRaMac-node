@@ -57,11 +57,52 @@ bool context_management_enabled = true;
         printf(__VA_ARGS__);  \
     } while (0)
 
+uint16_t read_current_keys(network_keys_t *current_keys, registered_devices_t registered_device);
+uint16_t save_to_eeprom_with_CRC(network_keys_t *current_keys, registered_devices_t registered_device);
+
 static uint16_t NvmNotifyFlags = 0;
 
 void NvmDataMgmtEvent(uint16_t notifyFlags)
 {
     NvmNotifyFlags = notifyFlags;
+}
+
+/**
+ * @brief reads the keys from EEPROM. if eeprom keys are corrupted, 
+ * 
+ * @param current_keys Pointer to the structure to fill with keys
+ * @param registered_device the registered device
+ * @return uint16_t number of bytes read
+ */
+uint16_t read_current_keys(network_keys_t *current_keys, registered_devices_t registered_device)
+{
+    uint16_t bytes_read = NvmmRead((uint8_t *)current_keys, sizeof(network_keys_t), registered_device * sizeof(network_keys_t));
+
+    // check if NVM crc matches for fcount
+    // if crc fails, frame count = 0
+    // else, use the EEPROM stored frame count
+    if (is_crc_correct(sizeof(*current_keys), current_keys) == false)
+    {
+        *current_keys = get_current_network_keys();
+    }
+
+    return bytes_read;
+}
+
+/**
+ * @brief 
+ * 
+ * @param current_keys 
+ * @param registered_device 
+ * @return uint16_t 
+ */
+uint16_t save_to_eeprom_with_CRC(network_keys_t *current_keys, registered_devices_t registered_device)
+{
+    // now update CRC before writing to EEPROM
+    current_keys->Crc32 = Crc32((uint8_t *)current_keys, sizeof(*current_keys) - sizeof(current_keys->Crc32));
+
+    // Now write current keys for this network(including frame count) to EEPROM into the right place in the EEPROM
+    return update_device_credentials_to_eeprom(*current_keys, registered_device);
 }
 
 uint16_t NvmDataMgmtStore(void)
@@ -88,22 +129,18 @@ uint16_t NvmDataMgmtStore(void)
         LoRaMacMibGetRequestConfirm(&mibReq);
         LoRaMacNvmData_t *nvm = mibReq.Param.Contexts;
 
-        uint16_t bytes_written;
-
         // read nvm fcount for the registered device
-        network_keys_t current_keys = get_current_network_keys(); // TODO: this should not be done here. It should read the current mac state
+        network_keys_t current_keys;
         registered_devices_t registered_device = get_current_network();
+
+        read_current_keys(&current_keys, registered_device);
 
         /* update current mac state to be saved */
         current_keys.frame_count = nvm->Crypto.FCntList.FCntUp;
         current_keys.ReceiveDelay1 = nvm->MacGroup2.MacParams.ReceiveDelay1;
         current_keys.ReceiveDelay2 = nvm->MacGroup2.MacParams.ReceiveDelay2;
 
-        // now update CRC before writing to EEPROM
-        current_keys.Crc32 = Crc32((uint8_t *)&current_keys, sizeof(current_keys) - sizeof(current_keys.Crc32));
-
-        // Now write current keys for this network(including frame count) to EEPROM into the right place in the EEPROM
-        bytes_written = NvmmUpdate((uint8_t *)&current_keys, sizeof(network_keys_t), registered_device * sizeof(network_keys_t));
+        uint16_t bytes_written = save_to_eeprom_with_CRC(&current_keys, registered_device);
 
         // Reset notification flags
         NvmNotifyFlags = LORAMAC_NVM_NOTIFY_FLAG_NONE;
@@ -129,20 +166,12 @@ uint16_t NvmDataMgmtRestore(void)
         LoRaMacNvmData_t *nvm = mibReq.Param.Contexts;
 
         // Read from eeprom the region/networks fcount
-        uint16_t bytes_read;
 
         // read nvm fcount for the registered device
         registered_devices_t registered_device = get_current_network();
         network_keys_t current_keys;
-        bytes_read = NvmmRead((uint8_t *)&current_keys, sizeof(network_keys_t), registered_device * sizeof(network_keys_t));
 
-        // check if NVM crc matches for fcount
-        // if crc fails, frame count = 0
-        // else, use the EEPROM stored frame count
-        if (is_crc_correct(sizeof(current_keys), &current_keys) == false)
-        {
-            current_keys = get_current_network_keys();
-        }
+        uint16_t bytes_read = read_current_keys(&current_keys, registered_device);
 
         /**
          * Increment the Fcount in EEPROM and locally to be absolutely sure that every
@@ -153,10 +182,7 @@ uint16_t NvmDataMgmtRestore(void)
          * 
          */
         current_keys.frame_count += 1;
-        // now update CRC before writing to EEPROM
-        current_keys.Crc32 = Crc32((uint8_t *)&current_keys, sizeof(current_keys) - sizeof(current_keys.Crc32));
-        // Now write current keys for this network(including frame count) to EEPROM into the right place in the EEPROM
-        NvmmUpdate((uint8_t *)&current_keys, sizeof(network_keys_t), registered_device * sizeof(network_keys_t));
+        save_to_eeprom_with_CRC(&current_keys, registered_device);
 
         /* Now update the mac state. We set the frame count, dev_addr, rx1 delay and rx2 delay
          * and  FNwkSIntKey,SNwkSIntKey, NwkSEncKey, AppSKey. The rest we leave as default for
@@ -174,4 +200,17 @@ uint16_t NvmDataMgmtRestore(void)
         return bytes_read;
     }
     return 0;
+}
+
+/**
+ * @brief Write passed in keys to EEPROM, in the location allocated for the registered_device
+ * 
+ * @param keys keys to write
+ * @param registered_device which key to write
+ * @return uint16_t returns number of bytes written
+ */
+uint16_t update_device_credentials_to_eeprom(network_keys_t keys, registered_devices_t registered_device)
+{
+    // Now write current keys for this network(including frame count) to EEPROM into the right place in the EEPROM
+    return NvmmUpdate((uint8_t *)&keys, sizeof(network_keys_t), registered_device * sizeof(network_keys_t));
 }

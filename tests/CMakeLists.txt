@@ -75,6 +75,7 @@ set(UNIT_TESTS
     print_utils_ut.cpp
     soft_se_ut.cpp
     LoRaWAN_config_switcher_ut.cpp
+    uplink_commands_ut.cpp
 )
 
 # Mocks

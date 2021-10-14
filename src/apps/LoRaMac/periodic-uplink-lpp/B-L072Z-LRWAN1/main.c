@@ -43,7 +43,8 @@
 #include "nvmm.h"
 #include "iwdg.h"
 #include "print_utils.h"
-#include "LoRaWAN_config_switcher.h"
+#include "NvmDataMgmt.h"
+#include "string.h"
 
 #include "callbacks.h"
 
@@ -138,7 +139,7 @@ static TimerEvent_t TxTimer;
 static TimerEvent_t WatchdogKickTimer;
 
 static void OnMacProcessNotify(void);
-static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params);
+void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params);
 
 static void PrepareTxFrame(void);
 static void StartTxProcess(LmHandlerTxEvents_t txEvent);
@@ -464,7 +465,15 @@ static void OnMacProcessNotify(void)
     IsMacProcessPending = 1;
 }
 
-static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
+typedef struct
+{
+    network_keys_t keys;
+    registered_devices_t registered_device;
+} uplink_key_setter_message_t;
+
+uplink_key_setter_message_t uplink_key_setter_message;
+
+void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 {
     DisplayRxUpdate(appData, params);
 
@@ -480,9 +489,19 @@ static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
     case DOWNLINK_CONFIG_PORT:
     {
 
-        printf("Received data: ");
+        printf("Received data to poll date range: ");
         print_bytes(appData->Buffer, appData->BufferSize);
         manage_incoming_instruction(appData->Buffer);
+    }
+    break;
+
+    case CHANGE_KEYS_PORT:
+    {
+
+        printf("Received data to CHANGE_KEYS:  ");
+        print_bytes(appData->Buffer, appData->BufferSize);
+        memcpy(&uplink_key_setter_message, appData->Buffer, appData->BufferSize);                                         // copy the bytes to the struct
+        update_device_credentials_to_eeprom(uplink_key_setter_message.keys, uplink_key_setter_message.registered_device); // update keys in EEPROM. make it return success
     }
     break;
 
