@@ -382,6 +382,12 @@ int setup_board()
     /* Print reset cause after print function initialised */
     printf("\n\nThe system reset cause is \"%s\"\n", reset_cause_get_name(reset_cause));
 
+#if DISABLE_SERIAL_OUTPUT
+    printf("DISABLING SERIAL(UART) DEBUG OUTPUT. NO MORE DATA WILL APPEAR ON YOUR SERIAL TERMINAL!\n");
+
+    disable_serial_output();
+#endif
+
     BoardInitPeriph();
 
     /* Print board info */

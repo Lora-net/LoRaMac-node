@@ -93,6 +93,12 @@ Uart_t Uart1;
 I2c_t I2c;
 Adc_t Adc;
 
+/**
+ * @brief Enable or disable serial uart output
+ * 
+ */
+bool uart_disable = false;
+
 /*!
  * Initializes the unused GPIO to a know status
  */
@@ -172,6 +178,11 @@ void BoardCriticalSectionEnd( uint32_t *mask )
 void BoardInitPeriph( void )
 {
     BSP_sensor_Init();
+}
+
+void disable_serial_output()
+{
+    uart_disable = true;
 }
 
 void BoardInitMcu( void )
@@ -564,7 +575,12 @@ void BoardLowPowerHandler( void )
  */
 int _write( int fd, const void *buf, size_t count )
 {
-    while( UartPutBuffer( &Uart1, ( uint8_t* )buf, ( uint16_t )count ) != 0 ){ };
+    if (uart_disable == false)
+    {
+        while (UartPutBuffer(&Uart1, (uint8_t *)buf, (uint16_t)count) != 0)
+        {
+        };
+    }
     return count;
 }
 

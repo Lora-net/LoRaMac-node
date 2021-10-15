@@ -92,6 +92,12 @@ extern "C"
  */
 #define DEEP_SLEEP_ENABLE true
 
+/**
+ * @brief Choose weather to disable serial output to reduce peak currents
+ * 
+ */
+#define DISABLE_SERIAL_OUTPUT true
+
 /*!
  * LoRaWAN default end-device class
  */
