@@ -281,6 +281,8 @@ void do_n_transmissions(uint32_t n_transmissions_todo, bool use_default_tx_inter
 
     init_loramac_stack_and_tx_scheduling(use_default_tx_interval);
 
+    IWDG_reset();
+
     tx_count = 0;
     while (1)
     {
@@ -351,8 +353,6 @@ loop_status_t run_loop_once()
     // Process application uplinks management
     UplinkProcess();
 
-    IWDG_reset();
-
     CRITICAL_SECTION_BEGIN();
     if (IsMacProcessPending == 1)
     {
@@ -365,8 +365,6 @@ loop_status_t run_loop_once()
         BoardLowPowerHandler();
     }
     CRITICAL_SECTION_END();
-
-    IWDG_reset();
 
     return no_issue_carry_on;
 }
@@ -569,7 +567,9 @@ static void UplinkProcess(void)
     CRITICAL_SECTION_END();
     if (isPending == 1)
     {
+        IWDG_reset();
         PrepareTxFrame();
+        IWDG_reset();
     }
 }
 
