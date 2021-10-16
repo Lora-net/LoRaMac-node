@@ -440,24 +440,61 @@ uint32_t counter = 0;
 const registered_devices_t eu868_region_keys[] = {
     icspace26_eu1_eu_863_870_device_1,
     icspace26_helium_1,
+
     icspace26_eu1_eu_863_870_device_2,
     icspace26_helium_2,
+    icspace26_helium_2,
+    icspace26_helium_2,
+    icspace26_helium_2,
+
     icspace26_eu1_eu_863_870_device_3,
     icspace26_helium_3,
+    icspace26_helium_3,
+    icspace26_helium_3,
+    icspace26_helium_3,
+
     icspace26_eu1_eu_863_870_device_4,
     icspace26_helium_4,
+    icspace26_helium_4,
+    icspace26_helium_4,
+    icspace26_helium_4,
+
     icspace26_eu1_eu_863_870_device_5,
     icspace26_helium_5,
+    icspace26_helium_5,
+    icspace26_helium_5,
+    icspace26_helium_5,
+
     icspace26_eu1_eu_863_870_device_1,
     icspace26_helium_6,
+    icspace26_helium_6,
+    icspace26_helium_6,
+    icspace26_helium_6,
+
     icspace26_eu1_eu_863_870_device_2,
     icspace26_helium_7,
+    icspace26_helium_7,
+    icspace26_helium_7,
+    icspace26_helium_7,
+
     icspace26_eu1_eu_863_870_device_3,
     icspace26_helium_8,
+    icspace26_helium_8,
+    icspace26_helium_8,
+    icspace26_helium_8,
+
     icspace26_eu1_eu_863_870_device_4,
     icspace26_helium_9,
+    icspace26_helium_9,
+    icspace26_helium_9,
+    icspace26_helium_9,
+
     icspace26_eu1_eu_863_870_device_5,
     icspace26_helium_10,
+    icspace26_helium_10,
+    icspace26_helium_10,
+    icspace26_helium_10,
+
 };
 
 const registered_devices_t us915_region_keys[] = {
@@ -465,93 +502,459 @@ const registered_devices_t us915_region_keys[] = {
     icspace26_helium_1,
     icspace26_us1_us915_device_2,
     icspace26_helium_2,
+    icspace26_helium_2,
+    icspace26_helium_2,
+    icspace26_helium_2,
+
     icspace26_us1_us915_device_3,
     icspace26_helium_3,
+    icspace26_helium_3,
+    icspace26_helium_3,
+    icspace26_helium_3,
+
     icspace26_us1_us915_device_4,
     icspace26_helium_4,
+    icspace26_helium_4,
+    icspace26_helium_4,
+    icspace26_helium_4,
+
     icspace26_us1_us915_device_5,
     icspace26_helium_5,
+    icspace26_helium_5,
+    icspace26_helium_5,
+    icspace26_helium_5,
+
     icspace26_us1_us915_device_1,
     icspace26_helium_6,
+    icspace26_helium_6,
+    icspace26_helium_6,
+    icspace26_helium_6,
+
     icspace26_us1_us915_device_2,
     icspace26_helium_7,
+    icspace26_helium_7,
+    icspace26_helium_7,
+    icspace26_helium_7,
+
     icspace26_us1_us915_device_3,
     icspace26_helium_8,
+    icspace26_helium_8,
+    icspace26_helium_8,
+    icspace26_helium_8,
+
     icspace26_us1_us915_device_4,
     icspace26_helium_9,
+    icspace26_helium_9,
+    icspace26_helium_9,
+    icspace26_helium_9,
+
     icspace26_us1_us915_device_5,
     icspace26_helium_10,
+    icspace26_helium_10,
+    icspace26_helium_10,
+    icspace26_helium_10,
+
 };
 const registered_devices_t as923_region_keys[] = {
     AS923_KEYS_AU1,
+
     icspace26_helium_1,
     AS923_KEYS_EU1,
-    icspace26_helium_2,
     AS923_KEYS_AU1,
+
+    icspace26_helium_2,
+    icspace26_helium_2,
+    icspace26_helium_2,
+
+    icspace26_helium_2,
+    AS923_KEYS_EU1,
+    AS923_KEYS_AU1,
+
+    icspace26_helium_3,
+    icspace26_helium_3,
+    icspace26_helium_3,
+
     icspace26_helium_3,
     AS923_KEYS_EU1,
+    AS923_KEYS_AU1,
+
     icspace26_helium_4,
+    icspace26_helium_4,
+    icspace26_helium_4,
+
+    icspace26_helium_4,
+    AS923_KEYS_EU1,
+    AS923_KEYS_AU1,
+
+    icspace26_helium_5,
+    icspace26_helium_5,
+    icspace26_helium_5,
+
+    icspace26_helium_5,
+    AS923_KEYS_EU1,
+    AS923_KEYS_AU1,
+
+    icspace26_helium_6,
+    icspace26_helium_6,
+    icspace26_helium_6,
+
+    icspace26_helium_6,
+    AS923_KEYS_EU1,
+    AS923_KEYS_AU1,
+
+    icspace26_helium_7,
+    icspace26_helium_7,
+    icspace26_helium_7,
+
+    icspace26_helium_7,
+    AS923_KEYS_EU1,
+    AS923_KEYS_AU1,
+
+    icspace26_helium_8,
+    icspace26_helium_8,
+    icspace26_helium_8,
+
+    icspace26_helium_8,
+    AS923_KEYS_EU1,
+    AS923_KEYS_AU1,
+
+    icspace26_helium_9,
+    icspace26_helium_9,
+    icspace26_helium_9,
+
+    icspace26_helium_9,
+    AS923_KEYS_EU1,
+    AS923_KEYS_AU1,
+
+    icspace26_helium_10,
+    icspace26_helium_10,
+    icspace26_helium_10,
+
+    icspace26_helium_10,
+    AS923_KEYS_EU1,
+    AS923_KEYS_AU1,
+
 }; // In japan, start with helium network first, then go through ttn end node registered on EU cluster then AU cluster
 
 const registered_devices_t ru864_region_keys[] = {
     RU864_KEYS_EU1,
     icspace26_helium_1,
+
     RU864_KEYS_EU1,
     icspace26_helium_2,
+    icspace26_helium_2,
+    icspace26_helium_2,
+    icspace26_helium_2,
+
     RU864_KEYS_EU1,
     icspace26_helium_3,
+    icspace26_helium_3,
+    icspace26_helium_3,
+    icspace26_helium_3,
+
     RU864_KEYS_EU1,
     icspace26_helium_4,
+    icspace26_helium_4,
+    icspace26_helium_4,
+    icspace26_helium_4,
+
     RU864_KEYS_EU1,
     icspace26_helium_5,
+    icspace26_helium_5,
+    icspace26_helium_5,
+    icspace26_helium_5,
+
     RU864_KEYS_EU1,
     icspace26_helium_6,
+    icspace26_helium_6,
+    icspace26_helium_6,
+    icspace26_helium_6,
+
     RU864_KEYS_EU1,
     icspace26_helium_7,
+    icspace26_helium_7,
+    icspace26_helium_7,
+    icspace26_helium_7,
+
     RU864_KEYS_EU1,
     icspace26_helium_8,
+    icspace26_helium_8,
+    icspace26_helium_8,
+    icspace26_helium_8,
+
     RU864_KEYS_EU1,
     icspace26_helium_9,
+    icspace26_helium_9,
+    icspace26_helium_9,
+    icspace26_helium_9,
+
     RU864_KEYS_EU1,
     icspace26_helium_10,
+    icspace26_helium_10,
+    icspace26_helium_10,
+    icspace26_helium_10,
+
 };
 
 const registered_devices_t au915_region_keys[] = {
     AU915_KEYS_AU1,
+    icspace26_helium_1,
+
+    AU915_KEYS_AU1,
+    icspace26_helium_2,
+    icspace26_helium_2,
+    icspace26_helium_2,
+    icspace26_helium_2,
+
+    AU915_KEYS_AU1,
     icspace26_helium_3,
+    icspace26_helium_3,
+    icspace26_helium_3,
+    icspace26_helium_3,
+
     AU915_KEYS_AU1,
     icspace26_helium_4,
+    icspace26_helium_4,
+    icspace26_helium_4,
+    icspace26_helium_4,
+
     AU915_KEYS_AU1,
     icspace26_helium_5,
+    icspace26_helium_5,
+    icspace26_helium_5,
+    icspace26_helium_5,
+
+    AU915_KEYS_AU1,
+    icspace26_helium_6,
+    icspace26_helium_6,
+    icspace26_helium_6,
+    icspace26_helium_6,
+
+    AU915_KEYS_AU1,
+    icspace26_helium_7,
+    icspace26_helium_7,
+    icspace26_helium_7,
+    icspace26_helium_7,
+
+    AU915_KEYS_AU1,
+    icspace26_helium_8,
+    icspace26_helium_8,
+    icspace26_helium_8,
+    icspace26_helium_8,
+
+    AU915_KEYS_AU1,
+    icspace26_helium_9,
+    icspace26_helium_9,
+    icspace26_helium_9,
+    icspace26_helium_9,
+
+    AU915_KEYS_AU1,
+    icspace26_helium_10,
+    icspace26_helium_10,
+    icspace26_helium_10,
+    icspace26_helium_10,
+
 };
 
 const registered_devices_t kr920_region_keys[] = {
     KR920_KEYS_EU1,
+
+    icspace26_helium_1,
+    icspace26_au1_kr_920_923_ttn,
+    KR920_KEYS_EU1,
+
+    icspace26_helium_2,
+    icspace26_helium_2,
+    icspace26_helium_2,
+
+    icspace26_helium_2,
+    icspace26_au1_kr_920_923_ttn,
+    KR920_KEYS_EU1,
+
+    icspace26_helium_3,
+    icspace26_helium_3,
+    icspace26_helium_3,
+
+    icspace26_helium_3,
+    icspace26_au1_kr_920_923_ttn,
+    KR920_KEYS_EU1,
+
+    icspace26_helium_4,
+    icspace26_helium_4,
+    icspace26_helium_4,
+
     icspace26_helium_4,
     icspace26_au1_kr_920_923_ttn,
-    icspace26_helium_5,
     KR920_KEYS_EU1,
+
+    icspace26_helium_5,
+    icspace26_helium_5,
+    icspace26_helium_5,
+
+    icspace26_helium_5,
+    icspace26_au1_kr_920_923_ttn,
+    KR920_KEYS_EU1,
+
+    icspace26_helium_6,
+    icspace26_helium_6,
+    icspace26_helium_6,
+
     icspace26_helium_6,
     icspace26_au1_kr_920_923_ttn,
+    KR920_KEYS_EU1,
+
     icspace26_helium_7,
+    icspace26_helium_7,
+    icspace26_helium_7,
+
+    icspace26_helium_7,
+    icspace26_au1_kr_920_923_ttn,
+    KR920_KEYS_EU1,
+
+    icspace26_helium_8,
+    icspace26_helium_8,
+    icspace26_helium_8,
+
+    icspace26_helium_8,
+    icspace26_au1_kr_920_923_ttn,
+    KR920_KEYS_EU1,
+
+    icspace26_helium_9,
+    icspace26_helium_9,
+    icspace26_helium_9,
+
+    icspace26_helium_9,
+    icspace26_au1_kr_920_923_ttn,
+    KR920_KEYS_EU1,
+
+    icspace26_helium_10,
+    icspace26_helium_10,
+    icspace26_helium_10,
+
+    icspace26_helium_10,
+    icspace26_au1_kr_920_923_ttn,
+    KR920_KEYS_EU1,
+
 };
 
 const registered_devices_t in865_region_keys[] = {
     IN865_KEYS_EU1,
+    icspace26_helium_1,
+
+    IN865_KEYS_EU1,
+    icspace26_helium_2,
+    icspace26_helium_2,
+    icspace26_helium_2,
+    icspace26_helium_2,
+
+    IN865_KEYS_EU1,
+    icspace26_helium_3,
+    icspace26_helium_3,
+    icspace26_helium_3,
+    icspace26_helium_3,
+
+    IN865_KEYS_EU1,
+    icspace26_helium_4,
+    icspace26_helium_4,
+    icspace26_helium_4,
+    icspace26_helium_4,
+
+    IN865_KEYS_EU1,
     icspace26_helium_5,
+    icspace26_helium_5,
+    icspace26_helium_5,
+    icspace26_helium_5,
+
     IN865_KEYS_EU1,
     icspace26_helium_6,
+    icspace26_helium_6,
+    icspace26_helium_6,
+    icspace26_helium_6,
+
     IN865_KEYS_EU1,
     icspace26_helium_7,
+    icspace26_helium_7,
+    icspace26_helium_7,
+    icspace26_helium_7,
+
+    IN865_KEYS_EU1,
+    icspace26_helium_8,
+    icspace26_helium_8,
+    icspace26_helium_8,
+    icspace26_helium_8,
+
+    IN865_KEYS_EU1,
+    icspace26_helium_9,
+    icspace26_helium_9,
+    icspace26_helium_9,
+    icspace26_helium_9,
+
+    IN865_KEYS_EU1,
+    icspace26_helium_10,
+    icspace26_helium_10,
+    icspace26_helium_10,
+    icspace26_helium_10,
+
 };
 
 const registered_devices_t cn470_region_keys[] = {
     CN470_KEYS_EU1,
+    icspace26_helium_1,
+
+    CN470_KEYS_EU1,
+    icspace26_helium_2,
+    icspace26_helium_2,
+    icspace26_helium_2,
+    icspace26_helium_2,
+
+    CN470_KEYS_EU1,
+    icspace26_helium_3,
+    icspace26_helium_3,
+    icspace26_helium_3,
+    icspace26_helium_3,
+
+    CN470_KEYS_EU1,
+    icspace26_helium_4,
+    icspace26_helium_4,
+    icspace26_helium_4,
+    icspace26_helium_4,
+
+    CN470_KEYS_EU1,
     icspace26_helium_5,
+    icspace26_helium_5,
+    icspace26_helium_5,
+    icspace26_helium_5,
+
     CN470_KEYS_EU1,
     icspace26_helium_6,
+    icspace26_helium_6,
+    icspace26_helium_6,
+    icspace26_helium_6,
+
     CN470_KEYS_EU1,
     icspace26_helium_7,
+    icspace26_helium_7,
+    icspace26_helium_7,
+    icspace26_helium_7,
+
+    CN470_KEYS_EU1,
+    icspace26_helium_8,
+    icspace26_helium_8,
+    icspace26_helium_8,
+    icspace26_helium_8,
+
+    CN470_KEYS_EU1,
+    icspace26_helium_9,
+    icspace26_helium_9,
+    icspace26_helium_9,
+    icspace26_helium_9,
+
+    CN470_KEYS_EU1,
+    icspace26_helium_10,
+    icspace26_helium_10,
+    icspace26_helium_10,
+    icspace26_helium_10,
+
 };
 
 void switch_to_next_registered_credentials()
