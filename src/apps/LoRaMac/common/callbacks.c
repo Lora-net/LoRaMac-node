@@ -11,6 +11,26 @@
 
 #include "callbacks.h"
 #include "config.h"
+#include "stdio.h"
+#include "print_utils.h"
+#include "board.h"
+#include "iwdg.h"
+#include <stdlib.h>
+#include "NvmDataMgmt.h"
+#include "string.h"
+
+/*!
+ * Specifies the state of the application LED
+ */
+static bool AppLedStateOn = false;
+
+typedef struct
+{
+    network_keys_t keys;
+    registered_devices_t registered_device;
+} uplink_key_setter_message_t;
+
+uplink_key_setter_message_t uplink_key_setter_message;
 
 void OnNvmDataChange(LmHandlerNvmContextStates_t state, uint16_t size)
 {
@@ -94,3 +114,92 @@ void OnSysTimeUpdate(void)
 {
 }
 #endif
+
+void print_board_info()
+{
+
+    const Version_t appVersion = {.Fields.Major = 1, .Fields.Minor = 0, .Fields.Patch = 0};
+    const Version_t gitHubVersion = {.Fields.Major = 4, .Fields.Minor = 4, .Fields.Patch = 7};
+    DisplayAppInfo("periodic-uplink-lpp",
+                   &appVersion,
+                   &gitHubVersion);
+}
+
+void fill_tx_buffer(LmHandlerAppData_t *AppData)
+{
+
+    PicoTrackerAppData_t data = prepare_tx_buffer();
+
+    AppData->Port = LORAWAN_APP_PORT;
+    AppData->Buffer = data.Buffer;
+    AppData->BufferSize = data.BufferSize;
+
+    // Print out buffer for debug
+    printf("Buffer to tx (%d bytes):\n", AppData->BufferSize);
+    print_bytes(AppData->Buffer, AppData->BufferSize);
+}
+
+int setup_board()
+{
+    /* Get reset cause for diagnosis */
+    reset_cause_t reset_cause = reset_cause_get();
+
+    /* Initialising board and peripherals */
+    BoardInitMcu();
+
+    /* Print reset cause after print function initialised */
+    printf("\n\nThe system reset cause is \"%s\"\n", reset_cause_get_name(reset_cause));
+
+#if DISABLE_SERIAL_OUTPUT
+    printf("DISABLING SERIAL(UART) DEBUG OUTPUT. NO MORE DATA WILL APPEAR ON YOUR SERIAL TERMINAL!\n");
+
+    disable_serial_output();
+#endif
+
+    BoardInitPeriph();
+
+    /* Print board info */
+    print_board_info();
+
+    /* Get initial GPS fix for setting loramac region */
+    retrieve_eeprom_stored_lorawan_region();
+
+    return EXIT_SUCCESS;
+}
+
+void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
+{
+    DisplayRxUpdate(appData, params);
+
+    switch (appData->Port)
+    {
+    case 1: // The application LED can be controlled on port 1 or 2
+    case LORAWAN_APP_PORT:
+    {
+        AppLedStateOn = appData->Buffer[0] & 0x01;
+    }
+    break;
+
+    case DOWNLINK_CONFIG_PORT:
+    {
+
+        printf("Received data to poll date range: ");
+        print_bytes(appData->Buffer, appData->BufferSize);
+        manage_incoming_instruction(appData->Buffer);
+    }
+    break;
+
+    case CHANGE_KEYS_PORT:
+    {
+
+        printf("Received data to CHANGE_KEYS:  ");
+        print_bytes(appData->Buffer, appData->BufferSize);
+        memcpy(&uplink_key_setter_message, appData->Buffer, appData->BufferSize);                                         // copy the bytes to the struct
+        update_device_credentials_to_eeprom(uplink_key_setter_message.keys, uplink_key_setter_message.registered_device); // update keys in EEPROM. make it return success
+    }
+    break;
+
+    default:
+        break;
+    }
+}

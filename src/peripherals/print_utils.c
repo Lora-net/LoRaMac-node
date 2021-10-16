@@ -11,6 +11,7 @@
 
 #include "stdio.h"
 #include "print_utils.h"
+#include "geofence.h"
 
 void print_bytes(void *ptr, int size)
 {
@@ -44,4 +45,10 @@ const char *RegionStrings[] =
 const char *get_lorawan_region_string(LoRaMacRegion_t region)
 {
     return RegionStrings[region];
+}
+
+void print_current_region()
+{
+    const char *region_string = get_lorawan_region_string(current_geofence_status.current_loramac_region);
+    printf("Initialising Loramac Stack with Loramac region: %s\n", region_string);
 }

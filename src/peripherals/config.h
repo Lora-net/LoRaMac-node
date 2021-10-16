@@ -98,11 +98,6 @@ extern "C"
  */
 #define DISABLE_SERIAL_OUTPUT true
 
-/*!
- * LoRaWAN default end-device class
- */
-#define LORAWAN_DEFAULT_CLASS CLASS_A
-
 /**
  * @brief Number of past positions saved in EEPROM to printout for debugging
  * 
@@ -110,11 +105,61 @@ extern "C"
 #define N_POSITIONS_TO_PRINTOUT 30
 
 /**
- * @brief Select number of transmission to do without a new fix on a single network
+ * @brief Define how quickly to return to searching for a GPS fix after transmitting
  * 
  */
-#define NO_FIX_N_TRANSMISSIONS 1
-#define YES_FIX_N_TRANSMISSIONS 2
+#define TX_INTERVAL_GPS_FIX_OK 20000     /* When fix was aquired, then sleep for this period (in milliseconds) before searching again */
+#define TX_INTERVAL_GPS_FIX_NOT_OK 10000 /* If fix search was not successful, then sleep for this period (in milliseconds) before searching again */
+
+  /**
+   * @brief Lorawan defaults, normally will not be changed 
+   * 
+   */
+
+  /*!
+ * LoRaWAN default end-device class
+ */
+#define LORAWAN_DEFAULT_CLASS CLASS_A
+
+#define ACTIVE_REGION LORAMAC_REGION_EU868
+
+/*!
+ * LoRaWAN application port
+ * @remark The allowed port range is from 1 up to 223. Other values are reserved.
+ */
+#define LORAWAN_APP_PORT 99
+
+/*!
+ * Defines a random delay for application data transmission duty cycle. 1s,
+ * value in [ms].
+ */
+#define APP_TX_DUTYCYCLE_RND 1000
+
+/*!
+ * LoRaWAN Adaptive Data Rate
+ *
+ * \remark Please note that when ADR is enabled the end-device should be static
+ */
+#define LORAWAN_ADR_STATE LORAMAC_HANDLER_ADR_OFF
+
+/*!
+ * Default datarate
+ *
+ * \remark Please note that LORAWAN_DEFAULT_DATARATE is used only when ADR is disabled 
+ */
+#define LORAWAN_DEFAULT_DATARATE DR_4
+
+/*!
+ * LoRaWAN confirmed messages
+ */
+#define LORAWAN_DEFAULT_CONFIRMED_MSG_STATE LORAMAC_HANDLER_UNCONFIRMED_MSG
+
+/*!
+ * LoRaWAN ETSI duty cycle control enable/disable
+ *
+ * \remark Please note that ETSI mandates duty cycled transmissions. Use only for test purposes
+ */
+#define LORAWAN_DUTYCYCLE_ON true
 
 #ifdef __cplusplus
 }

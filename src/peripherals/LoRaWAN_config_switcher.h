@@ -79,7 +79,7 @@ extern "C"
     registered_devices_t get_current_network();
     network_keys_t get_current_network_keys();
     picotracker_lorawan_settings_t get_lorawan_setting(LoRaMacRegion_t current_region);
-    void switch_to_next_region();
+    void switch_to_next_registered_credentials();
 
 #endif
 #ifdef __cplusplus

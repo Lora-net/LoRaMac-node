@@ -79,6 +79,7 @@ void fill_to_send_structs(double *TEMPERATURE_Value, double *PRESSURE_Value, gps
 void printDouble(double v, int decimalDigits);
 uint32_t minutes_since_epoch_to_unix_time(uint32_t minutes_since_epoch);
 void print_time_pos_fix(time_pos_fix_t temp);
+void update_geofence_status();
 
 /* Exported functions ---------------------------------------------------------*/
 
@@ -104,6 +105,11 @@ void BSP_sensor_Read(void)
 	IWDG_reset();
 #endif
 
+	if (get_latest_gps_status() == GPS_SUCCESS)
+	{
+		update_geofence_status();
+	}
+
 	/* read solar voltage under gps and no load */
 	uint16_t no_load_solar_voltage = BoardGetBatteryVoltage();
 	uint16_t load_solar_voltage = get_load_solar_voltage();
@@ -127,6 +133,19 @@ void BSP_sensor_Read(void)
 
 	/* Save GPS data to non volatile memory */
 	save_data_to_nvm();
+}
+
+void update_geofence_status()
+{
+	/* Find out which region of world we are in and update region parm*/
+
+	gps_info_t gps_info = get_latest_gps_info();
+	update_geofence_position(gps_info.GPS_UBX_latitude_Float, gps_info.GPS_UBX_longitude_Float);
+
+	/* Save current polygon to eeprom only if gps fix was valid */
+	NvmmWrite((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
+
+	IWDG_reset();
 }
 
 /**
@@ -411,7 +430,7 @@ void print_stored_coordinates()
 		   eeprom_playback_stats.n_playback_positions_saved,
 		   n_positions_to_print);
 
-		for (uint16_t i = 0; i < n_positions_to_print; i++)
+	for (uint16_t i = 0; i < n_positions_to_print; i++)
 	{
 		time_pos_fix_t temp = retrieve_eeprom_time_pos(i);
 		printf("index: %d,", i);
@@ -573,4 +592,17 @@ uint32_t minutes_since_epoch_to_unix_time(uint32_t minutes_since_epoch)
 	return minutes_since_epoch * 60 + 1577840461;
 }
 
+void retrieve_eeprom_stored_lorawan_region()
+{
+
+	IWDG_reset();
+
+	/* read the eeprom value instead */
+	// TODO: must ensure that eeprom is not filled with garbage. i.e. when the eeprom has never been programed
+	if (USE_NVM_STORED_LORAWAN_REGION == true)
+	{
+		NvmmRead((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
+	}
+	IWDG_reset();
+}
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

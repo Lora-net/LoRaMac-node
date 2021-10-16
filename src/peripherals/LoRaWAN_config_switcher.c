@@ -554,7 +554,7 @@ const registered_devices_t cn470_region_keys[] = {
     icspace26_helium_7,
 };
 
-void switch_to_next_region()
+void switch_to_next_registered_credentials()
 {
     counter++;
 }

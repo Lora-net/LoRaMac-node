@@ -9,11 +9,17 @@
  * 
  */
 
+#ifndef __CALLBACKS_H__
+#define __CALLBACKS_H__
+
 #include "LmHandler.h"
 #include "LmhpCompliance.h"
 #include "LmHandlerMsgDisplay.h"
+#include "playback.h"
 
-
+void print_board_info();
+void fill_tx_buffer(LmHandlerAppData_t *AppData);
+int setup_board(void);
 void OnNvmDataChange(LmHandlerNvmContextStates_t state, uint16_t size);
 void OnNetworkParametersChange(CommissioningParams_t *params);
 void OnMacMcpsRequest(LoRaMacStatus_t status, McpsReq_t *mcpsReq, TimerTime_t nextTxIn);
@@ -27,3 +33,7 @@ void OnSysTimeUpdate(bool isSynchronized, int32_t timeCorrection);
 #else
 void OnSysTimeUpdate(void);
 #endif
+
+void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params);
+
+#endif // __CALLBACKS_H__

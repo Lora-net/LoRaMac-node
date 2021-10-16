@@ -22,82 +22,19 @@
 /*! \file periodic-uplink/B-L072Z-LRWAN1/main.c */
 
 #include <stdio.h>
-#include "utilities.h"
 #include "board.h"
-#include "gpio.h"
-#include "uart.h"
 
 #include "cli.h"
 #include "Commissioning.h"
-#include "LmHandler.h"
-#include "LmhpCompliance.h"
-#include "CayenneLpp.h"
-#include "LmHandlerMsgDisplay.h"
 
-#include "delay.h"
 #include "config.h"
 #include "ublox.h"
-#include "bsp.h"
 #include "geofence.h"
-#include "playback.h"
-#include "nvmm.h"
 #include "iwdg.h"
 #include "print_utils.h"
 #include "NvmDataMgmt.h"
-#include "string.h"
 
 #include "callbacks.h"
-
-#ifndef ACTIVE_REGION
-
-#warning "No active region defined, LORAMAC_REGION_EU868 will be used as default."
-
-#define ACTIVE_REGION LORAMAC_REGION_EU868
-
-#endif
-
-/*!
- * Defines the application data transmission duty cycle. 5s, value in [ms].
- */
-uint32_t APP_TX_DUTYCYCLE;
-
-/*!
- * Defines a random delay for application data transmission duty cycle. 1s,
- * value in [ms].
- */
-#define APP_TX_DUTYCYCLE_RND 1000
-
-/*!
- * LoRaWAN Adaptive Data Rate
- *
- * \remark Please note that when ADR is enabled the end-device should be static
- */
-#define LORAWAN_ADR_STATE LORAMAC_HANDLER_ADR_OFF
-
-/*!
- * Default datarate
- *
- * \remark Please note that LORAWAN_DEFAULT_DATARATE is used only when ADR is disabled 
- */
-#define LORAWAN_DEFAULT_DATARATE DR_4
-
-/*!
- * LoRaWAN confirmed messages
- */
-#define LORAWAN_DEFAULT_CONFIRMED_MSG_STATE LORAMAC_HANDLER_UNCONFIRMED_MSG
-
-/*!
- * LoRaWAN ETSI duty cycle control enable/disable
- *
- * \remark Please note that ETSI mandates duty cycled transmissions. Use only for test purposes
- */
-#define LORAWAN_DUTYCYCLE_ON true
-
-/*!
- * LoRaWAN application port
- * @remark The allowed port range is from 1 up to 223. Other values are reserved.
- */
-#define LORAWAN_APP_PORT 99
 
 /*!
  *
@@ -123,31 +60,9 @@ static LmHandlerAppData_t AppData =
         .Port = 0};
 
 /*!
- * Specifies the state of the application LED
- */
-static bool AppLedStateOn = false;
-
-/*!
  * Timer to handle the application data transmission duty cycle
  */
 static TimerEvent_t TxTimer;
-
-static void OnMacProcessNotify(void);
-void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params);
-
-static void PrepareTxFrame(void);
-static void StartTxProcess(LmHandlerTxEvents_t txEvent);
-static void UplinkProcess(void);
-
-static void print_board_info();
-static void init_loramac(picotracker_lorawan_settings_t settings);
-
-/*!
- * Function executed on TxTimer event
- */
-static void OnTxTimerEvent(void *context);
-
-static void retrieve_lorawan_region(void);
 
 typedef enum
 {
@@ -155,12 +70,19 @@ typedef enum
     no_issue_carry_on,
 } loop_status_t;
 
-int setup_board(void);
+static void OnMacProcessNotify(void);
+static void StartTxProcess(LmHandlerTxEvents_t txEvent);
+static void UplinkProcess(void);
+static void init_loramac(picotracker_lorawan_settings_t settings);
+
+/*!
+ * Function executed on TxTimer event
+ */
+static void OnTxTimerEvent(void *context);
+
 loop_status_t run_loop_once(void);
-int init_loramac_stack_and_tx_scheduling(bool use_default_tx_interval);
-void loop(void);
-void update_geofence_status();
-void do_n_transmissions(uint32_t n_transmissions_todo, bool use_default_tx_interval);
+void run_main_loop(void);
+void do_n_transmissions(uint32_t n_transmissions_todo);
 
 static LmHandlerCallbacks_t LmHandlerCallbacks =
     {
@@ -206,14 +128,7 @@ static LmhpComplianceParams_t LmhpComplianceParams =
  * \warning If variable is equal to 0 then the MCU can be set in low power mode
  */
 static volatile uint8_t IsMacProcessPending = 0;
-
 static volatile uint8_t IsTxFramePending = 0;
-
-static volatile bool IsWatchdogKickPending = false;
-/*!
- * LED GPIO pins objects
- */
-extern Gpio_t Led1; // Tx
 
 /*!
  * UART object used for command line interface handling
@@ -245,41 +160,33 @@ int run_app(void)
     printf("\n");
 #endif
 
-    loop();
+    run_main_loop();
 }
 
-void loop()
+void run_main_loop()
 {
+
     while (1)
     {
-
-        /* reading sensors and GPS */
-        BSP_sensor_Read();
-
-        if (get_latest_gps_status() == GPS_SUCCESS)
-        {
-            update_geofence_status();
-        }
-
-        if (current_geofence_status.tx_permission == TX_OK)
-        {
-            if (get_latest_gps_status() == GPS_SUCCESS)
-            {
-                do_n_transmissions(YES_FIX_N_TRANSMISSIONS, true);
-            }
-            else
-            {
-                do_n_transmissions(NO_FIX_N_TRANSMISSIONS, false);
-            }
-        }
+        do_n_transmissions(2); // do 2 transmissions on the same network
     }
 }
 
-void do_n_transmissions(uint32_t n_transmissions_todo, bool use_default_tx_interval)
+void do_n_transmissions(uint32_t n_transmissions_todo)
 {
     n_tx_per_network = n_transmissions_todo;
 
-    init_loramac_stack_and_tx_scheduling(use_default_tx_interval);
+    switch_to_next_registered_credentials(); // Credentials have been set. So now tell it that next time credentials are called for, use the next set.
+
+    print_current_region();
+    picotracker_lorawan_settings_t settings = get_lorawan_setting(current_geofence_status.current_loramac_region);
+
+    init_loramac(settings);
+
+    LmHandlerJoin();
+
+    /* Start up periodic timer for sending uplinks */
+    StartTxProcess(LORAMAC_HANDLER_TX_ON_TIMER);
 
     IWDG_reset();
 
@@ -293,47 +200,6 @@ void do_n_transmissions(uint32_t n_transmissions_todo, bool use_default_tx_inter
             break;
         }
     }
-}
-
-void update_geofence_status()
-{
-    /* Find out which region of world we are in and update region parm*/
-
-    gps_info_t gps_info = get_latest_gps_info();
-    update_geofence_position(gps_info.GPS_UBX_latitude_Float, gps_info.GPS_UBX_longitude_Float);
-
-    /* Save current polygon to eeprom only if gps fix was valid */
-    NvmmWrite((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
-
-    IWDG_reset();
-}
-
-int init_loramac_stack_and_tx_scheduling(bool use_default_tx_interval)
-{
-    switch_to_next_region(); // Credentials have been set. So now tell it that next time credentials are called for, use the next set.
-
-    const char *region_string = get_lorawan_region_string(current_geofence_status.current_loramac_region);
-    printf("Initialising Loramac Stack with Loramac region: %s\n", region_string);
-
-    picotracker_lorawan_settings_t settings = get_lorawan_setting(current_geofence_status.current_loramac_region);
-
-    if (use_default_tx_interval == true)
-    {
-        APP_TX_DUTYCYCLE = settings.tx_interval;
-    }
-    else
-    {
-        APP_TX_DUTYCYCLE = 10000; // Start search 10 seconds after tx. It normally takes ~ 5 seconds for the second rx to finish
-    }
-
-    init_loramac(settings);
-
-    //LmHandlerJoin( );
-
-    /* Start up periodic timer for sending uplinks */
-    StartTxProcess(LORAMAC_HANDLER_TX_ON_TIMER);
-
-    return EXIT_SUCCESS;
 }
 
 loop_status_t run_loop_once()
@@ -369,44 +235,6 @@ loop_status_t run_loop_once()
     return no_issue_carry_on;
 }
 
-int setup_board()
-{
-    /* Get reset cause for diagnosis */
-    reset_cause_t reset_cause = reset_cause_get();
-
-    /* Initialising board and peripherals */
-    BoardInitMcu();
-
-    /* Print reset cause after print function initialised */
-    printf("\n\nThe system reset cause is \"%s\"\n", reset_cause_get_name(reset_cause));
-
-#if DISABLE_SERIAL_OUTPUT
-    printf("DISABLING SERIAL(UART) DEBUG OUTPUT. NO MORE DATA WILL APPEAR ON YOUR SERIAL TERMINAL!\n");
-
-    disable_serial_output();
-#endif
-
-    BoardInitPeriph();
-
-    /* Print board info */
-    print_board_info();
-
-    /* Get initial GPS fix for setting loramac region */
-    retrieve_lorawan_region();
-
-    return EXIT_SUCCESS;
-}
-
-static void print_board_info()
-{
-
-    const Version_t appVersion = {.Fields.Major = 1, .Fields.Minor = 0, .Fields.Patch = 0};
-    const Version_t gitHubVersion = {.Fields.Major = 4, .Fields.Minor = 4, .Fields.Patch = 7};
-    DisplayAppInfo("periodic-uplink-lpp",
-                   &appVersion,
-                   &gitHubVersion);
-}
-
 static void init_loramac(picotracker_lorawan_settings_t settings)
 {
 
@@ -432,68 +260,9 @@ static void init_loramac(picotracker_lorawan_settings_t settings)
     LmHandlerPackageRegister(PACKAGE_ID_COMPLIANCE, &LmhpComplianceParams);
 }
 
-static void retrieve_lorawan_region()
-{
-
-    IWDG_reset();
-
-    /* read the eeprom value instead */
-    // TODO: must ensure that eeprom is not filled with garbage. i.e. when the eeprom has never been programed
-    if (USE_NVM_STORED_LORAWAN_REGION == true)
-    {
-        NvmmRead((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
-    }
-    IWDG_reset();
-}
-
 static void OnMacProcessNotify(void)
 {
     IsMacProcessPending = 1;
-}
-
-typedef struct
-{
-    network_keys_t keys;
-    registered_devices_t registered_device;
-} uplink_key_setter_message_t;
-
-uplink_key_setter_message_t uplink_key_setter_message;
-
-void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
-{
-    DisplayRxUpdate(appData, params);
-
-    switch (appData->Port)
-    {
-    case 1: // The application LED can be controlled on port 1 or 2
-    case LORAWAN_APP_PORT:
-    {
-        AppLedStateOn = appData->Buffer[0] & 0x01;
-    }
-    break;
-
-    case DOWNLINK_CONFIG_PORT:
-    {
-
-        printf("Received data to poll date range: ");
-        print_bytes(appData->Buffer, appData->BufferSize);
-        manage_incoming_instruction(appData->Buffer);
-    }
-    break;
-
-    case CHANGE_KEYS_PORT:
-    {
-
-        printf("Received data to CHANGE_KEYS:  ");
-        print_bytes(appData->Buffer, appData->BufferSize);
-        memcpy(&uplink_key_setter_message, appData->Buffer, appData->BufferSize);                                         // copy the bytes to the struct
-        update_device_credentials_to_eeprom(uplink_key_setter_message.keys, uplink_key_setter_message.registered_device); // update keys in EEPROM. make it return success
-    }
-    break;
-
-    default:
-        break;
-    }
 }
 
 /*!
@@ -513,19 +282,22 @@ static void PrepareTxFrame(void)
         return;
     }
 
-    PicoTrackerAppData_t data = prepare_tx_buffer();
+    TimerStop(&TxTimer); /* Temporarily stop tx interval timer until GPS gets a lock */
+    BSP_sensor_Read();   /* reading sensors and GPS */
 
-    AppData.Port = LORAWAN_APP_PORT;
-    AppData.Buffer = data.Buffer;
-    AppData.BufferSize = data.BufferSize;
+    if (get_latest_gps_status() == GPS_SUCCESS)
+    {
+        TimerSetValue(&TxTimer, TX_INTERVAL_GPS_FIX_OK); /* if fix, then tx again after 25 seconds */
+        TimerStart(&TxTimer);                            /* Restart tx interval timer */
+    }
+    else
+    {
+        TimerSetValue(&TxTimer, TX_INTERVAL_GPS_FIX_NOT_OK); /* if no fix, return back to search in 10 seconds*/
+        TimerStart(&TxTimer);                                /* Restart tx interval timer */
+    }
 
-    // Print out buffer for debug
-    printf("Buffer to tx:\n");
-    print_bytes(AppData.Buffer, AppData.BufferSize);
-    printf("tx_str_buffer_len: %d\n\n", AppData.BufferSize);
-
-    const char *region_string = get_lorawan_region_string(current_geofence_status.current_loramac_region);
-    printf("Loramac region: %s \n", region_string);
+    print_current_region();
+    fill_tx_buffer(&AppData);
 
     if (LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE) == LORAMAC_HANDLER_SUCCESS)
     {
@@ -543,12 +315,8 @@ static void StartTxProcess(LmHandlerTxEvents_t txEvent)
     {
         // Schedule 1st packet transmission
         TimerInit(&TxTimer, OnTxTimerEvent);
-
         TimerStop(&TxTimer);
         IsTxFramePending = 1;
-        // Schedule next transmission
-        TimerSetValue(&TxTimer, 5); /* Start first tranmission 5 milliseconds after initalisation */
-        TimerStart(&TxTimer);
     }
     break;
     case LORAMAC_HANDLER_TX_ON_EVENT:
@@ -581,8 +349,4 @@ static void OnTxTimerEvent(void *context)
     TimerStop(&TxTimer);
 
     IsTxFramePending = 1;
-
-    // Schedule next transmission
-    TimerSetValue(&TxTimer, APP_TX_DUTYCYCLE + randr(-APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND));
-    TimerStart(&TxTimer);
 }
