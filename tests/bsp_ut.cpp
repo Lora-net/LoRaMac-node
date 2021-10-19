@@ -29,7 +29,7 @@ TEST(bsp_ut, test_write_read)
 {
     uint8_t write_data = 0x88;
     uint8_t flash_address = (uint16_t)0;
-    NvmmWrite(&write_data, 1, flash_address);
+    NvmmUpdate(&write_data, 1, flash_address);
 
     uint8_t read_data = 0;
     NvmmRead(&read_data, 1, flash_address);

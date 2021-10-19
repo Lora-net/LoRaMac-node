@@ -143,7 +143,7 @@ void update_geofence_status()
 	update_geofence_position(gps_info.GPS_UBX_latitude_Float, gps_info.GPS_UBX_longitude_Float);
 
 	/* Save current polygon to eeprom only if gps fix was valid */
-	NvmmWrite((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
+	NvmmUpdate((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
 
 	IWDG_reset();
 }
@@ -354,7 +354,7 @@ void update_reset_counts_in_ram_nvm()
 	/* record number of resets to EEPROM, and also to send down */
 	NvmmRead((void *)&sensor_data.reset_count, RESET_COUNTER_LEN, RESET_COUNTER_ADDR);
 	sensor_data.reset_count += 1;
-	NvmmWrite((void *)&sensor_data.reset_count, RESET_COUNTER_LEN, RESET_COUNTER_ADDR);
+	NvmmUpdate((void *)&sensor_data.reset_count, RESET_COUNTER_LEN, RESET_COUNTER_ADDR);
 }
 
 /**
@@ -519,7 +519,7 @@ void increment_eeprom_index_counters()
 	playback_key_info_ptr->n_positions_saved_since_boot += 1;
 
 	eeprom_playback_stats.Crc32 = Crc32((uint8_t *)&eeprom_playback_stats, sizeof(eeprom_playback_stats) - sizeof(eeprom_playback_stats.Crc32));
-	NvmmWrite((void *)&eeprom_playback_stats, sizeof(eeprom_playback_stats), CURRENT_PLAYBACK_INDEX_IN_EEPROM_ADDR);
+	NvmmUpdate((void *)&eeprom_playback_stats, sizeof(eeprom_playback_stats), CURRENT_PLAYBACK_INDEX_IN_EEPROM_ADDR);
 }
 
 /**
@@ -531,10 +531,10 @@ void save_current_position_info_to_EEPROM(time_pos_fix_t *currrent_position)
 {
 	/* save Long, Lat, Altitude, minutes since epoch to EEPROM */
 	uint16_t location_to_write = PLAYBACK_EEPROM_ADDR_START + eeprom_playback_stats.current_EEPROM_index;
-	NvmmWrite((void *)&current_position.altitude, ALTITUDE_BYTES_LEN, location_to_write + 0);
-	NvmmWrite((void *)&current_position.latitude, LATITUDE_BYTES_LEN, location_to_write + 2);
-	NvmmWrite((void *)&current_position.longitude, LONGITUDE_BYTES_LEN, location_to_write + 4);
-	NvmmWrite((void *)&current_position.minutes_since_epoch, MINUTES_SINCE_EPOCH_BYTES_LEN, location_to_write + 6);
+	NvmmUpdate((void *)&current_position.altitude, ALTITUDE_BYTES_LEN, location_to_write + 0);
+	NvmmUpdate((void *)&current_position.latitude, LATITUDE_BYTES_LEN, location_to_write + 2);
+	NvmmUpdate((void *)&current_position.longitude, LONGITUDE_BYTES_LEN, location_to_write + 4);
+	NvmmUpdate((void *)&current_position.minutes_since_epoch, MINUTES_SINCE_EPOCH_BYTES_LEN, location_to_write + 6);
 }
 
 /**
