@@ -91,7 +91,6 @@ uint16_t get_load_solar_voltage()
 	return load_solar_voltage;
 }
 
-
 /* 
  * Sets up gps by putting in airbourne mode, setting to use GPS satellites only, turning off NMEA
  * 
@@ -133,7 +132,6 @@ gps_status_t setup_GPS()
 	{
 		printf("set_powersave_config carried out successfully!\n");
 	}
-
 
 	return GPS_SUCCESS;
 }
@@ -209,7 +207,7 @@ gps_status_t get_location_fix(uint32_t timeout)
 
 		load_solar_voltage = BoardGetBatteryVoltage();
 
-		if (temp_GPSfix_type == 3 && temp_GPSsats >= SATS && temp_GPSfix_OK == 1) // check if we have a good fix
+		if (temp_GPSsats >= SATS) // As long as we have 4 sats in solution, the fix is good enough. First time to fix is much more important than accuracy.
 		{
 			display_fix_found();
 
