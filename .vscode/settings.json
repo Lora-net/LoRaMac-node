@@ -78,7 +78,7 @@
 
         // Default channel plan for region AS923. Possible selections:
         // CHANNEL_PLAN_GROUP_AS923_1, CHANNEL_PLAN_GROUP_AS923_2, CHANNEL_PLAN_GROUP_AS923_3, CHANNEL_PLAN_GROUP_AS923_1_JP
-        "REGION_AS923_DEFAULT_CHANNEL_PLAN":"CHANNEL_PLAN_GROUP_AS923_1"
+        "REGION_AS923_DEFAULT_CHANNEL_PLAN":"CHANNEL_PLAN_GROUP_AS923_1_JP"
     },
     "cpputestExplorer.testExecutable": "${workspaceFolder}/build/tests/picotracker_lora_tests",
     "cpputestExplorer.testExecutablePath": "${workspaceFolder}/build/tests",
