@@ -143,7 +143,9 @@ void update_geofence_status()
 	update_geofence_position(gps_info.GPS_UBX_latitude_Float, gps_info.GPS_UBX_longitude_Float);
 
 	/* Save current polygon to eeprom only if gps fix was valid */
-	NvmmUpdate((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
+
+	LoRaMacRegion_t current_region = get_current_loramac_region();
+	NvmmUpdate((void *)&current_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
 
 	IWDG_reset();
 }
@@ -266,7 +268,7 @@ void pretty_print_sensor_values(double *TEMPERATURE_Value, double *PRESSURE_Valu
 	printf(" altitude: ");
 	printf("%ld", gps_info->GPSaltitude / 1000);
 	printf("\r\n");
-	const char *region_string = get_lorawan_region_string(current_geofence_status.current_loramac_region);
+	const char *region_string = get_lorawan_region_string(get_current_loramac_region());
 	printf("Loramac region: %s\r\n", region_string);
 	printf("GPS time: ");
 	printf("%ld", gps_info->unix_time);
@@ -601,7 +603,9 @@ void retrieve_eeprom_stored_lorawan_region()
 	// TODO: must ensure that eeprom is not filled with garbage. i.e. when the eeprom has never been programed
 	if (USE_NVM_STORED_LORAWAN_REGION == true)
 	{
-		NvmmRead((void *)&current_geofence_status.current_loramac_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
+		LoRaMacRegion_t eeprom_region;
+		NvmmRead((void *)&eeprom_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
+		set_current_loramac_region(eeprom_region);
 	}
 	IWDG_reset();
 }

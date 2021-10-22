@@ -179,7 +179,7 @@ void do_n_transmissions(uint32_t n_transmissions_todo)
     switch_to_next_registered_credentials(); // Credentials have been set. So now tell it that next time credentials are called for, use the next set.
 
     print_current_region();
-    picotracker_lorawan_settings_t settings = get_lorawan_setting(current_geofence_status.current_loramac_region);
+    picotracker_lorawan_settings_t settings = get_lorawan_setting(get_current_loramac_region());
 
     init_loramac(settings);
 

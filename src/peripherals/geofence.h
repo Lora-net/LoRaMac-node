@@ -54,9 +54,6 @@ extern "C"
 
 	} geofence_status_t;
 
-	// Externally accessible variables
-	extern geofence_status_t current_geofence_status;
-
 	/* ==================================================================== */
 	/* ======================= public functions =========================== */
 	/* ==================================================================== */
@@ -66,6 +63,8 @@ extern "C"
 	void update_geofence_position(float latitude, float longitude);
 	void geofence_init(void);
 	LoRaMacRegion_t get_current_loramac_region();
+	void set_current_loramac_region(LoRaMacRegion_t region);
+
 
 #endif
 #ifdef __cplusplus
