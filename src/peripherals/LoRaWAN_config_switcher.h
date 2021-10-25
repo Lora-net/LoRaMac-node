@@ -61,7 +61,7 @@ extern "C"
         icspace26_us1_us915_device_3,
         icspace26_us1_us915_device_4,
         icspace26_us1_us915_device_5,
-        RU864_KEYS_EU1,
+        RU864_KEYS_EU1, //18 devices on TTN
         icspace26_helium_1,
         icspace26_helium_2,
         icspace26_helium_3,

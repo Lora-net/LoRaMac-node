@@ -84,6 +84,12 @@ ttn-lw-cli end-devices set --application-id "icss-lora-tracker" --device-id "ics
 
 ```
 
+Set Rx1 delay to 1 second
+```bash
+ttn-lw-cli end-devices set --application-id "icss-lora-tracker" --device-id "icspace26-eu1-eu-863-870-device-5"  --mac-settings.desired-rx1-delay RX_DELAY_1 -c ttn-lw-cli.yml
+```
+
+
 ## Development Environment and Unittesting
 
 Here are the instructions for compiling the unittests in this project. Some of the unittests include:

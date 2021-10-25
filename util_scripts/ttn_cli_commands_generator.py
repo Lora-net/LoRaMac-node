@@ -70,6 +70,7 @@ def generate_commands(frequency_plan_string):
           '--with-session' \
           ' --mac-settings.resets-f-cnt ' \
           ' --mac-settings.supports-32-bit-f-cnt true '\
+          ' --mac-settings.desired-rx1-delay RX_DELAY_1 '\
           ' --mac-settings.status-count-periodicity 10000000'\
           ' --mac-settings.status-time-periodicity 40000h2m3s'\
           ' -c ttn-lw-cli.yml'.format(dev_id_for_plan, frequency_plan_string)
