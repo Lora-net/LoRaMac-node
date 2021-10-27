@@ -86,7 +86,7 @@ PicoTrackerAppData_t setup_passing_through_regions()
     region_switches = 1;
     while (region_switches--)
     {
-        loop();
+        //loop();
     }
 
     playback_key_info_t *playback_key_info_ptr = get_playback_key_info_ptr();
@@ -98,7 +98,7 @@ PicoTrackerAppData_t setup_passing_through_regions()
     region_switches = 1;
     while (region_switches--)
     {
-        loop();
+        //loop();
     }
 
     setup_board();

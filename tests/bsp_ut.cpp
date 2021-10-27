@@ -54,9 +54,11 @@ TEST(bsp_ut, bsp_init)
 
 TEST(bsp_ut, bsp_sensor_read)
 {
-    mock().expectNCalls(2, "get_latest_gps_info").andReturnValue(&gps_info_mock);
-
+    mock().expectNCalls(1, "get_latest_gps_info").andReturnValue(&gps_info_mock);
     BSP_sensor_Init();
+    mock().checkExpectations();
+
+    mock().expectNCalls(2, "get_latest_gps_info").andReturnValue(&gps_info_mock);
     BSP_sensor_Read();
     mock().checkExpectations();
 }

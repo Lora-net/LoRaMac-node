@@ -39,60 +39,9 @@ TEST_GROUP(NvmDataMgmt){
 }
 ;
 
-/**
- * @brief Verify if CRC test passes when indeed it should.
- * 
- */
-TEST(NvmDataMgmt, test_crc_check_pass)
-{
-    /* Initilalise the mac layer */
-    int ret = init_loramac_stack_and_tx_scheduling(true);
 
-    /*
-     * Set LoRaMacNvmData_t nvm as it would have been after being
-     * restored from EEPROM. 
-     */
-    MibRequestConfirm_t mibReq;
-    mibReq.Type = MIB_NVM_CTXS;
-    LoRaMacMibGetRequestConfirm(&mibReq);
-    LoRaMacNvmData_t *nvm = mibReq.Param.Contexts;
 
-    memcpy((uint8_t *)nvm, new_nvm_struct, sizeof(LoRaMacNvmData_t));
 
-    bool crc_status;
-
-    crc_status = is_crc_correct(sizeof(LoRaMacNvmDataGroup1_t), &nvm->MacGroup1);
-    CHECK_TRUE(crc_status);
-
-    crc_status = is_crc_correct(sizeof(LoRaMacNvmDataGroup2_t), &nvm->MacGroup2);
-    CHECK_TRUE(crc_status);
-}
-
-/**
- * @brief Just verify that the memset function works
- * 
- */
-TEST(NvmDataMgmt, memset_test)
-{
-    /* Initilalise the mac layer */
-    int ret = init_loramac_stack_and_tx_scheduling(true);
-
-    /*
-     * Set LoRaMacNvmData_t nvm as it would have been after being
-     * restored from EEPROM. 
-     */
-    MibRequestConfirm_t mibReq;
-    mibReq.Type = MIB_NVM_CTXS;
-    LoRaMacMibGetRequestConfirm(&mibReq);
-    LoRaMacNvmData_t *nvm = mibReq.Param.Contexts;
-
-    memcpy((uint8_t *)nvm, new_nvm_struct, sizeof(LoRaMacNvmData_t));
-
-    /* Now assume restart from boot. LoRaMacNvmData_t Nvm not set yet */
-    memset((void *)&nvm->MacGroup2.MaxDCycle, 34, sizeof(uint8_t));
-
-    CHECK_EQUAL(34, nvm->MacGroup2.MaxDCycle);
-}
 
 /**
  * @brief Test to see if there is garbage data in the EEPROM, it will fail
@@ -102,7 +51,7 @@ TEST(NvmDataMgmt, memset_test)
 TEST(NvmDataMgmt, test_crc_check_fail)
 {
     /* Initilalise the mac layer */
-    int ret = init_loramac_stack_and_tx_scheduling(true);
+    //int ret = init_loramac_stack_and_tx_scheduling(true);
 
     /*
      * Set LoRaMacNvmData_t nvm as it would have been after being
@@ -210,7 +159,7 @@ void set_correct_notify_flags()
 TEST(NvmDataMgmt, test_storing_of_fcount_and_keys)
 {
     LoRaMacRegion_t Loramac_region = LORAMAC_REGION_US915;
-    current_geofence_status.current_loramac_region = Loramac_region;
+    set_current_loramac_region(Loramac_region);
 
     MibRequestConfirm_t mibReq;
     mibReq.Type = MIB_NVM_CTXS;
@@ -219,7 +168,7 @@ TEST(NvmDataMgmt, test_storing_of_fcount_and_keys)
 
     // Use the first device setting
 
-    init_loramac_stack_and_tx_scheduling(true);
+    // init_loramac_stack_and_tx_scheduling(true);
 
     // now store as if a few transmissions have been done
     nvm->Crypto.FCntList.FCntUp += 1;
@@ -260,7 +209,7 @@ TEST(NvmDataMgmt, test_storing_of_fcount_and_keys)
     // Now move on to the next device credentials
 
     // Startup as usual
-    init_loramac_stack_and_tx_scheduling(true);
+    // init_loramac_stack_and_tx_scheduling(true);
 
     // now store as if a few transmissions have been done
     nvm->Crypto.FCntList.FCntUp += 1;
@@ -296,7 +245,7 @@ TEST(NvmDataMgmt, test_storing_of_fcount_and_keys)
     // It should have persisted the RX1/2 delay value
 
     // Startup as usual
-    init_loramac_stack_and_tx_scheduling(true);
+    // init_loramac_stack_and_tx_scheduling(true);
 
     uint8_t expected_eeprom_1st_device_second_time[read_bytes] =
         {

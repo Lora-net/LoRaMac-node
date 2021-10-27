@@ -424,3 +424,9 @@ reset_cause_t reset_cause_get(void)
 
      return reset_cause;
 }
+
+
+void disable_serial_output()
+{
+    
+}

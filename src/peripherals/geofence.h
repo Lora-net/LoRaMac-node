@@ -64,6 +64,7 @@ extern "C"
 	void geofence_init(void);
 	LoRaMacRegion_t get_current_loramac_region();
 	void set_current_loramac_region(LoRaMacRegion_t region);
+	tx_permission_t get_current_tx_permission();
 
 
 #endif

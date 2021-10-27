@@ -52,7 +52,7 @@ TEST(app, test_init_sequence)
     ret = setup_board();
     CHECK_EQUAL(EXIT_SUCCESS, ret);
 
-    ret = init_loramac_stack_and_tx_scheduling(true);
+    // ret = init_loramac_stack_and_tx_scheduling(true);
     CHECK_EQUAL(EXIT_SUCCESS, ret);
 }
 
@@ -72,7 +72,6 @@ extern bool tx_done;
 TEST(app, ensure_its_abp_always_after_initing_for_region)
 {
 
-    APP_TX_DUTYCYCLE = 40000; /* 40 second interval between transmissions */
 
     prepare_n_position_mocks(10000, 2);
 
@@ -82,10 +81,10 @@ TEST(app, ensure_its_abp_always_after_initing_for_region)
 
     while (region_switches--)
     {
-        loop();
+        // loop();
     }
 
-    init_loramac_stack_and_tx_scheduling(true);
+    // init_loramac_stack_and_tx_scheduling(true);
     int n_loops = 3;
 
     while (n_loops--)
@@ -109,7 +108,6 @@ TEST(app, ensure_tx_happens_immediately_after_boot)
     /* Setup environment params */
 
     USE_NVM_STORED_LORAWAN_REGION = false;
-    APP_TX_DUTYCYCLE = 40000; /* 40 second interval between transmissions */
 
     /* Setup mocks */
     float latitude = 53.23;
@@ -144,7 +142,7 @@ TEST(app, ensure_tx_happens_immediately_after_boot)
 
     ret = setup_board();
     CHECK_EQUAL(EXIT_SUCCESS, ret);
-    ret = init_loramac_stack_and_tx_scheduling(true);
+    // ret = init_loramac_stack_and_tx_scheduling(true);
     CHECK_EQUAL(EXIT_SUCCESS, ret);
 
     /* Get pointer to frame counter */

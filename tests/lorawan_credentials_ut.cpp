@@ -34,7 +34,7 @@ TEST_GROUP(lorawan_credentials){
 TEST(lorawan_credentials, test_cycling_through_eu_settings)
 {
     LoRaMacRegion_t Loramac_region = LORAMAC_REGION_EU868;
-    current_geofence_status.current_loramac_region = Loramac_region;
+    set_current_loramac_region(Loramac_region);
 
     network_keys_t network_keys;
     registered_devices_t registered_device;
@@ -47,14 +47,14 @@ TEST(lorawan_credentials, test_cycling_through_eu_settings)
         network_keys = get_current_network_keys();
         registered_device = get_current_network();
 
-        switch_to_next_region();
+        switch_to_next_registered_credentials();
         CHECK_EQUAL(ttn_eu1_dev_addr, network_keys.DevAddr);
         CHECK_EQUAL(icspace26_eu1_eu_863_870_device_1, registered_device);
 
         network_keys = get_current_network_keys();
         registered_device = get_current_network();
 
-        switch_to_next_region();
+        switch_to_next_registered_credentials();
         CHECK_EQUAL(helium_dev_addr, network_keys.DevAddr);
         CHECK_EQUAL(icspace26_helium_1, registered_device);
     }
@@ -63,7 +63,7 @@ TEST(lorawan_credentials, test_cycling_through_eu_settings)
 TEST(lorawan_credentials, test_cycling_through_us_settings)
 {
     LoRaMacRegion_t Loramac_region = LORAMAC_REGION_US915;
-    current_geofence_status.current_loramac_region = Loramac_region;
+    set_current_loramac_region(Loramac_region);
 
     network_keys_t network_keys;
 
@@ -77,10 +77,10 @@ TEST(lorawan_credentials, test_cycling_through_us_settings)
         uint8_t expected[] = {0xE4, 0x70, 0xDC, 0x81, 0xE1, 0x43, 0x8D, 0x99, 0x14, 0x22, 0x84, 0x83, 0xD9, 0xA3, 0x6B, 0xC7};
         MEMCMP_EQUAL(expected, network_keys.AppSKey, 16);
 
-        switch_to_next_region();
+        switch_to_next_registered_credentials();
 
         network_keys = get_current_network_keys();
-        switch_to_next_region();
+        switch_to_next_registered_credentials();
         CHECK_EQUAL(helium_dev_addr, network_keys.DevAddr);
         uint8_t expected_helium_appskey[] = {249, 136, 1, 246, 88, 194, 178, 131, 121, 45, 60, 213, 92, 8, 58, 121};
         MEMCMP_EQUAL(expected_helium_appskey, network_keys.AppSKey, 16);
@@ -90,7 +90,7 @@ TEST(lorawan_credentials, test_cycling_through_us_settings)
 TEST(lorawan_credentials, test_cycling_through_japan_settings)
 {
     LoRaMacRegion_t Loramac_region = LORAMAC_REGION_AS923;
-    current_geofence_status.current_loramac_region = Loramac_region;
+    set_current_loramac_region(Loramac_region);
 
     network_keys_t network_keys;
 
@@ -101,15 +101,15 @@ TEST(lorawan_credentials, test_cycling_through_japan_settings)
     for (int i = 1; i < 5; ++i)
     {
         network_keys = get_current_network_keys();
-        switch_to_next_region();
+        switch_to_next_registered_credentials();
         CHECK_EQUAL(helium_dev_addr, network_keys.DevAddr);
 
         network_keys = get_current_network_keys();
-        switch_to_next_region();
+        switch_to_next_registered_credentials();
         CHECK_EQUAL(ttn_eu1_dev_addr, network_keys.DevAddr);
 
         network_keys = get_current_network_keys();
-        switch_to_next_region();
+        switch_to_next_registered_credentials();
         CHECK_EQUAL(ttn_au1_dev_addr, network_keys.DevAddr);
     }
 }
@@ -117,7 +117,7 @@ TEST(lorawan_credentials, test_cycling_through_japan_settings)
 TEST(lorawan_credentials, test_cycling_through_russia_settings)
 {
     LoRaMacRegion_t Loramac_region = LORAMAC_REGION_RU864;
-    current_geofence_status.current_loramac_region = Loramac_region;
+    set_current_loramac_region(Loramac_region);
 
     network_keys_t network_keys;
 
@@ -127,11 +127,11 @@ TEST(lorawan_credentials, test_cycling_through_russia_settings)
     for (int i = 1; i < 5; ++i)
     {
         network_keys = get_current_network_keys();
-        switch_to_next_region();
+        switch_to_next_registered_credentials();
         CHECK_EQUAL(ttn_eu1_dev_addr, network_keys.DevAddr);
 
         network_keys = get_current_network_keys();
-        switch_to_next_region();
+        switch_to_next_registered_credentials();
         CHECK_EQUAL(helium_dev_addr, network_keys.DevAddr);
     }
 }
@@ -139,7 +139,7 @@ TEST(lorawan_credentials, test_cycling_through_russia_settings)
 TEST(lorawan_credentials, test_cycling_through_australia_settings)
 {
     LoRaMacRegion_t Loramac_region = LORAMAC_REGION_AU915;
-    current_geofence_status.current_loramac_region = Loramac_region;
+    set_current_loramac_region(Loramac_region);
 
     network_keys_t network_keys;
 
@@ -149,11 +149,11 @@ TEST(lorawan_credentials, test_cycling_through_australia_settings)
     for (int i = 1; i < 5; ++i)
     {
         network_keys = get_current_network_keys();
-        switch_to_next_region();
+        switch_to_next_registered_credentials();
         CHECK_EQUAL(ttn_au1_dev_addr, network_keys.DevAddr);
 
         network_keys = get_current_network_keys();
-        switch_to_next_region();
+        switch_to_next_registered_credentials();
         CHECK_EQUAL(helium_dev_addr, network_keys.DevAddr);
     }
 }
@@ -161,7 +161,7 @@ TEST(lorawan_credentials, test_cycling_through_australia_settings)
 TEST(lorawan_credentials, test_cycling_through_china_settings)
 {
     LoRaMacRegion_t Loramac_region = LORAMAC_REGION_CN470;
-    current_geofence_status.current_loramac_region = Loramac_region;
+    set_current_loramac_region(Loramac_region);
 
     network_keys_t network_keys;
 
@@ -172,11 +172,11 @@ TEST(lorawan_credentials, test_cycling_through_china_settings)
     {
 
         network_keys = get_current_network_keys();
-        switch_to_next_region();
+        switch_to_next_registered_credentials();
         CHECK_EQUAL(ttn_eu1_dev_addr, network_keys.DevAddr);
 
         network_keys = get_current_network_keys();
-        switch_to_next_region();
+        switch_to_next_registered_credentials();
         CHECK_EQUAL(helium_dev_addr, network_keys.DevAddr);
     }
 }
@@ -184,7 +184,7 @@ TEST(lorawan_credentials, test_cycling_through_china_settings)
 TEST(lorawan_credentials, test_cycling_through_india_settings)
 {
     LoRaMacRegion_t Loramac_region = LORAMAC_REGION_IN865;
-    current_geofence_status.current_loramac_region = Loramac_region;
+    set_current_loramac_region(Loramac_region);
 
     network_keys_t network_keys;
 
@@ -195,11 +195,11 @@ TEST(lorawan_credentials, test_cycling_through_india_settings)
     {
 
         network_keys = get_current_network_keys();
-        switch_to_next_region();
+        switch_to_next_registered_credentials();
         CHECK_EQUAL(ttn_eu1_dev_addr, network_keys.DevAddr);
 
         network_keys = get_current_network_keys();
-        switch_to_next_region();
+        switch_to_next_registered_credentials();
         CHECK_EQUAL(helium_dev_addr, network_keys.DevAddr);
     }
 }
@@ -207,7 +207,7 @@ TEST(lorawan_credentials, test_cycling_through_india_settings)
 TEST(lorawan_credentials, test_cycling_through_korea_settings)
 {
     LoRaMacRegion_t Loramac_region = LORAMAC_REGION_KR920;
-    current_geofence_status.current_loramac_region = Loramac_region;
+    set_current_loramac_region(Loramac_region);
 
     network_keys_t network_keys;
 
@@ -218,11 +218,11 @@ TEST(lorawan_credentials, test_cycling_through_korea_settings)
     {
 
         network_keys = get_current_network_keys();
-        switch_to_next_region();
+        switch_to_next_registered_credentials();
         CHECK_EQUAL(ttn_eu1_dev_addr, network_keys.DevAddr);
 
         network_keys = get_current_network_keys();
-        switch_to_next_region();
+        switch_to_next_registered_credentials();
         CHECK_EQUAL(helium_dev_addr, network_keys.DevAddr);
     }
 }

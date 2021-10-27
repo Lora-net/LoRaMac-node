@@ -975,3 +975,8 @@ void update_geofence_position(float latitude, float longitude)
 	   */
 	set_current_loramac_region_from_polygon(curr_poly_region);
 }
+
+tx_permission_t get_current_tx_permission()
+{
+	return current_geofence_status.tx_permission;
+}
