@@ -300,10 +300,7 @@ static void PrepareTxFrame(void)
         print_current_region();
         fill_tx_buffer(&AppData);
 
-        if (LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE) == LORAMAC_HANDLER_SUCCESS)
-        {
-            // Switch LED 1 ON
-        }
+        LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE);
     }
 
     TimerStart(&TxTimer); /* Restart tx interval timer */
