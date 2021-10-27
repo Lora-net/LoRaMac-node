@@ -275,34 +275,38 @@ static void PrepareTxFrame(void)
         return;
     }
 
+    TimerStop(&TxTimer); /* Stop tx timer. Requirement before starting it back up again */
+
     tx_count++;
 
     if (tx_count > n_tx_per_network)
     {
-        return;
-    }
-
-    TimerStop(&TxTimer); /* Temporarily stop tx interval timer until GPS gets a lock */
-    BSP_sensor_Read();   /* reading sensors and GPS */
-
-    if (get_latest_gps_status() == GPS_SUCCESS)
-    {
-        TimerSetValue(&TxTimer, TX_INTERVAL_GPS_FIX_OK); /* if fix, then tx again after 25 seconds */
-        TimerStart(&TxTimer);                            /* Restart tx interval timer */
+        TimerSetValue(&TxTimer, TX_INTERVAL_GPS_FIX_NOT_OK); /* return back to search in 10 seconds to tx on next network*/
     }
     else
     {
-        TimerSetValue(&TxTimer, TX_INTERVAL_GPS_FIX_NOT_OK); /* if no fix, return back to search in 10 seconds*/
-        TimerStart(&TxTimer);                                /* Restart tx interval timer */
+
+        BSP_sensor_Read(); /* reading sensors and GPS. This could take up to 3 minutes */
+
+        if (get_latest_gps_status() == GPS_SUCCESS)
+        {
+            TimerSetValue(&TxTimer, TX_INTERVAL_GPS_FIX_OK); /* if fix, then tx again after 25 seconds */
+        }
+        else
+        {
+            TimerSetValue(&TxTimer, TX_INTERVAL_GPS_FIX_NOT_OK); /* if no fix, return back to search in 10 seconds*/
+        }
+
+        print_current_region();
+        fill_tx_buffer(&AppData);
+
+        if (LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE) == LORAMAC_HANDLER_SUCCESS)
+        {
+            // Switch LED 1 ON
+        }
     }
 
-    print_current_region();
-    fill_tx_buffer(&AppData);
-
-    if (LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE) == LORAMAC_HANDLER_SUCCESS)
-    {
-        // Switch LED 1 ON
-    }
+    TimerStart(&TxTimer); /* Restart tx interval timer */
 }
 
 static void StartTxProcess(LmHandlerTxEvents_t txEvent)
