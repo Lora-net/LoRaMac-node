@@ -35,6 +35,7 @@
 #include "NvmDataMgmt.h"
 
 #include "callbacks.h"
+#include "message_sender.h"
 
 /*!
  *
@@ -265,6 +266,23 @@ static void OnMacProcessNotify(void)
     IsMacProcessPending = 1;
 }
 
+void setup_next_tx_alarm()
+{
+
+    TimerStop(&TxTimer); /* Stop tx timer. Requirement before starting it back up again */
+
+    if (get_latest_gps_status() == GPS_SUCCESS)
+    {
+        TimerSetValue(&TxTimer, TX_INTERVAL_GPS_FIX_OK); /* if fix, then tx again after 25 seconds */
+    }
+    else
+    {
+        TimerSetValue(&TxTimer, TX_INTERVAL_GPS_FIX_NOT_OK); /* if no fix, return back to search in 10 seconds*/
+    }
+
+    TimerStart(&TxTimer); /* Restart tx interval timer */
+}
+
 /*!
  * Prepares the payload of the frame and transmits it.
  */
@@ -275,35 +293,14 @@ static void PrepareTxFrame(void)
         return;
     }
 
-    TimerStop(&TxTimer); /* Stop tx timer. Requirement before starting it back up again */
-
     tx_count++;
 
-    if (tx_count > n_tx_per_network)
+    if (tx_count < n_tx_per_network)
     {
-        TimerSetValue(&TxTimer, TX_INTERVAL_GPS_FIX_NOT_OK); /* return back to search in 10 seconds to tx on next network*/
-    }
-    else
-    {
-
-        BSP_sensor_Read(); /* reading sensors and GPS. This could take up to 3 minutes */
-
-        if (get_latest_gps_status() == GPS_SUCCESS)
-        {
-            TimerSetValue(&TxTimer, TX_INTERVAL_GPS_FIX_OK); /* if fix, then tx again after 25 seconds */
-        }
-        else
-        {
-            TimerSetValue(&TxTimer, TX_INTERVAL_GPS_FIX_NOT_OK); /* if no fix, return back to search in 10 seconds*/
-        }
-
-        print_current_region();
-        fill_tx_buffer(&AppData);
-
-        LmHandlerSend(&AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE);
+        sensor_read_and_send(&AppData, LmHandlerParams.Region);
     }
 
-    TimerStart(&TxTimer); /* Restart tx interval timer */
+    setup_next_tx_alarm();
 }
 
 static void StartTxProcess(LmHandlerTxEvents_t txEvent)

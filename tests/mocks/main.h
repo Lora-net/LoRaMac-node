@@ -22,11 +22,7 @@ extern "C"
 
 #ifdef UNITTESTING_LORA
     int run_app(void);
-    int setup_board(void);
-    bool run_loop_once(void);
-    int init_loramac_stack_and_tx_scheduling(bool use_default_tx_interval);
-    void loop(void);
-    void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params);
+    void do_n_transmissions(uint32_t n_transmissions_todo);
 
 #endif
 
