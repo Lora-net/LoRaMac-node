@@ -134,9 +134,9 @@ void fill_positions_to_send_buffer(void)
 
 		time_pos_fix_t random_time_pos = Retrieve_eeprom_time_pos_ptr(rand_time_pos_index);
 
-		subset_positions[i].altitude = random_time_pos.altitude;
-		subset_positions[i].latitude = random_time_pos.latitude;
-		subset_positions[i].longitude = random_time_pos.longitude;
+		subset_positions[i].altitude_encoded = random_time_pos.altitude_encoded;
+		subset_positions[i].latitude_encoded = random_time_pos.latitude_encoded;
+		subset_positions[i].longitude_encoded = random_time_pos.longitude_encoded;
 		subset_positions[i].minutes_since_epoch = random_time_pos.minutes_since_epoch;
 	}
 
@@ -225,9 +225,9 @@ void fill_tx_buffer_with_past_data(uint16_t start_point, uint8_t *buffer)
 
 		fill_tx_buffer_with_location_and_time(start_point + i * (POSITION_BYTES_LEN + MINUTES_SINCE_EPOCH_DELTA_BYTES_LEN),
 											  buffer,
-											  temp_pos.latitude,
-											  temp_pos.longitude,
-											  temp_pos.altitude,
+											  temp_pos.latitude_encoded,
+											  temp_pos.longitude_encoded,
+											  temp_pos.altitude_encoded,
 											  delta_time);
 	}
 }
@@ -242,7 +242,7 @@ PicoTrackerAppData_t prepare_tx_buffer()
 {
 	fill_tx_buffer_with_sensor_debug_data(0, tx_str_buffer);
 
-	fill_tx_buffer_with_location(SENSOR_DEBUG_BYTES_LEN, tx_str_buffer, current_pos_ptr->latitude, current_pos_ptr->longitude, current_pos_ptr->altitude);
+	fill_tx_buffer_with_location(SENSOR_DEBUG_BYTES_LEN, tx_str_buffer, current_pos_ptr->latitude_encoded, current_pos_ptr->longitude_encoded, current_pos_ptr->altitude_encoded);
 
 	fill_tx_buffer_with_past_data(SENSOR_DEBUG_BYTES_LEN + POSITION_BYTES_LEN, tx_str_buffer);
 

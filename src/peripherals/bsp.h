@@ -63,9 +63,9 @@ typedef struct{
 typedef struct
 {
   uint32_t minutes_since_epoch; // minutes since Epoch
-  uint16_t latitude;        // Latitude
-  uint16_t longitude;       // Longitude
-  uint16_t altitude;     // Altitude
+  uint16_t latitude_encoded;        // Latitude * 65536
+  uint16_t longitude_encoded;       // Longitude * 65536
+  uint16_t altitude_encoded;     // Altitude in meters / 256
 
 }time_pos_fix_t;
 

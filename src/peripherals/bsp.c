@@ -49,9 +49,9 @@ eeprom_playback_stats_t eeprom_playback_stats = {0};
 time_pos_fix_t current_position =
 	{
 		.minutes_since_epoch = 0x0007342E, /*472110 minutes */
-		.latitude = 0x17CA /*399121314 == 399121314*/,
-		.longitude = 0xD312 /*3541187191 == -753780105 */,
-		.altitude = 0x00F2 /*0x0000F221 >>2 */
+		.latitude_encoded = 0x17CA /*399121314 == 399121314*/,
+		.longitude_encoded = 0xD312 /*3541187191 == -753780105 */,
+		.altitude_encoded = 0x00F2 /*0x0000F221 >>2 */
 };
 
 sensor_t sensor_data;
@@ -167,15 +167,15 @@ void fill_to_send_structs(double *TEMPERATURE_Value, double *PRESSURE_Value, gps
 	// So clip to 0 if below zero altitude.
 	if (gps_info->GPSaltitude < 0)
 	{
-		current_position.altitude = 0;
+		current_position.altitude_encoded = 0;
 	}
 	else
 	{
-		current_position.altitude = (gps_info->GPSaltitude >> 8) & 0xffff;
+		current_position.altitude_encoded = (gps_info->GPSaltitude >> 8) & 0xffff;
 	}
 
-	current_position.latitude = (gps_info->GPS_UBX_latitude >> 16) & 0xffff;
-	current_position.longitude = (gps_info->GPS_UBX_longitude >> 16) & 0xffff;
+	current_position.latitude_encoded = (gps_info->GPS_UBX_latitude >> 16) & 0xffff;
+	current_position.longitude_encoded = (gps_info->GPS_UBX_longitude >> 16) & 0xffff;
 	current_position.minutes_since_epoch = unix_time_to_minutes_since_epoch(gps_info->unix_time) & 0x00ffffff;
 
 	sensor_data.temperature = (int8_t)*TEMPERATURE_Value;
@@ -454,7 +454,7 @@ void print_time_pos_fix(time_pos_fix_t temp)
 	ts = *localtime(&now);
 	strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
 
-	printf("long: %d, lat: %d, alt: %d, ts: %s\n", temp.longitude, temp.latitude, temp.altitude, buf);
+	printf("long: %d, lat: %d, alt: %d, ts: %s\n", temp.longitude_encoded, temp.latitude_encoded, temp.altitude_encoded, buf);
 }
 
 /**
@@ -533,9 +533,9 @@ void save_current_position_info_to_EEPROM(time_pos_fix_t *currrent_position)
 {
 	/* save Long, Lat, Altitude, minutes since epoch to EEPROM */
 	uint16_t location_to_write = PLAYBACK_EEPROM_ADDR_START + eeprom_playback_stats.current_EEPROM_index;
-	NvmmUpdate((void *)&current_position.altitude, ALTITUDE_BYTES_LEN, location_to_write + 0);
-	NvmmUpdate((void *)&current_position.latitude, LATITUDE_BYTES_LEN, location_to_write + 2);
-	NvmmUpdate((void *)&current_position.longitude, LONGITUDE_BYTES_LEN, location_to_write + 4);
+	NvmmUpdate((void *)&current_position.altitude_encoded, ALTITUDE_BYTES_LEN, location_to_write + 0);
+	NvmmUpdate((void *)&current_position.latitude_encoded, LATITUDE_BYTES_LEN, location_to_write + 2);
+	NvmmUpdate((void *)&current_position.longitude_encoded, LONGITUDE_BYTES_LEN, location_to_write + 4);
 	NvmmUpdate((void *)&current_position.minutes_since_epoch, MINUTES_SINCE_EPOCH_BYTES_LEN, location_to_write + 6);
 }
 
@@ -554,9 +554,9 @@ time_pos_fix_t retrieve_eeprom_time_pos(uint16_t time_pos_index)
 
 	/* read Long, Lat, Altitude, minutes since epoch from EEPROM */
 	uint16_t location_to_read = PLAYBACK_EEPROM_ADDR_START + mod(eeprom_playback_stats.current_EEPROM_index - (time_pos_index + 1) * PLAYBACK_EEPROM_PACKET_SIZE, PLAYBACK_EEPROM_SIZE);
-	NvmmRead((void *)&time_pos_fix.altitude, ALTITUDE_BYTES_LEN, location_to_read + 0);
-	NvmmRead((void *)&time_pos_fix.latitude, LATITUDE_BYTES_LEN, location_to_read + 2);
-	NvmmRead((void *)&time_pos_fix.longitude, LONGITUDE_BYTES_LEN, location_to_read + 4);
+	NvmmRead((void *)&time_pos_fix.altitude_encoded, ALTITUDE_BYTES_LEN, location_to_read + 0);
+	NvmmRead((void *)&time_pos_fix.latitude_encoded, LATITUDE_BYTES_LEN, location_to_read + 2);
+	NvmmRead((void *)&time_pos_fix.longitude_encoded, LONGITUDE_BYTES_LEN, location_to_read + 4);
 	NvmmRead((void *)&time_pos_fix.minutes_since_epoch, MINUTES_SINCE_EPOCH_BYTES_LEN, location_to_read + 6);
 
 	IWDG_reset();
