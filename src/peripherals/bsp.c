@@ -32,6 +32,7 @@
 #include "print_utils.h"
 #include "struct.h"
 #include "gpio.h"
+#include "position_time_encoder.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -64,7 +65,6 @@ double TEMPERATURE_Value;
 
 /* Private function prototypes -----------------------------------------------*/
 void save_current_position_info_to_EEPROM(time_pos_fix_t *currrent_position);
-uint32_t unix_time_to_minutes_since_epoch(uint32_t unix_time);
 int mod(int a, int b);
 void print_stored_coordinates(void);
 time_pos_fix_t get_oldest_pos_time(void);
@@ -76,7 +76,6 @@ void pretty_print_sensor_values(double *TEMPERATURE_Value, uint8_t *bitfields, g
 void save_data_to_nvm(void);
 void fill_to_send_structs(double *TEMPERATURE_Value, uint8_t *bitfields, gps_info_t *gps_info, uint16_t *no_load_solar_voltage, uint16_t *load_solar_voltage);
 void printDouble(double v, int decimalDigits);
-uint32_t minutes_since_epoch_to_unix_time(uint32_t minutes_since_epoch);
 void print_time_pos_fix(time_pos_fix_t temp);
 void update_geofence_status();
 void printBits(size_t const size, void const *const ptr);
@@ -187,20 +186,8 @@ void update_geofence_status()
  */
 void fill_to_send_structs(double *TEMPERATURE_Value, uint8_t *bitfields, gps_info_t *gps_info, uint16_t *no_load_solar_voltage, uint16_t *load_solar_voltage)
 {
-	// This cast from int32_t to uint16_t could have a roll over if the value was negative.
-	// So clip to 0 if below zero altitude.
-	if (gps_info->GPSaltitude < 0)
-	{
-		current_position.altitude_encoded = 0;
-	}
-	else
-	{
-		current_position.altitude_encoded = (gps_info->GPSaltitude >> 8) & 0xffff;
-	}
 
-	current_position.latitude_encoded = (gps_info->GPS_UBX_latitude >> 16) & 0xffff;
-	current_position.longitude_encoded = (gps_info->GPS_UBX_longitude >> 16) & 0xffff;
-	current_position.minutes_since_epoch = unix_time_to_minutes_since_epoch(gps_info->unix_time) & 0x00ffffff;
+	current_position = encode_time_pos(*gps_info);
 
 	sensor_data.temperature = (int8_t)*TEMPERATURE_Value;
 	sensor_data.status_bitfields = *bitfields;
@@ -307,7 +294,7 @@ void pretty_print_sensor_values(double *TEMPERATURE_Value, uint8_t *bitfields, g
 	printf(" Latitude: ");
 	printDouble(gps_info->GPS_UBX_latitude_Float, 6);
 	printf(" altitude: ");
-	printf("%ld", gps_info->GPSaltitude / 1000);
+	printf("%ld", gps_info->GPSaltitude_mm / 1000);
 	printf("\r\n");
 	const char *region_string = get_lorawan_region_string(get_current_loramac_region());
 	printf("Loramac region: %s\r\n", region_string);
@@ -483,13 +470,13 @@ void print_stored_coordinates()
 
 void print_time_pos_fix(time_pos_fix_t temp)
 {
-	uint32_t unix_time = minutes_since_epoch_to_unix_time(temp.minutes_since_epoch);
+	gps_info_t gps_info = decode_time_pos(temp);
 
 	time_t now;
 	struct tm ts;
 	char buf[80];
 
-	now = unix_time;
+	now = gps_info.unix_time;
 
 	// Format time, "ddd yyyy-mm-dd hh:mm:ss zzz"
 	ts = *localtime(&now);
@@ -617,22 +604,6 @@ int mod(int a, int b)
 {
 	int r = a % b;
 	return r < 0 ? r + b : r;
-}
-
-/**
-  * @brief Calculate minutes since epoch. Based on GPS time.
-	* Epoch is set to 1 Jan 2020 01:01:01H( unix time: 1577840461)
-  * @param none
-  * @retval none
-  */
-uint32_t unix_time_to_minutes_since_epoch(uint32_t unix_time)
-{
-	return (unix_time - 1577840461) / 60;
-}
-
-uint32_t minutes_since_epoch_to_unix_time(uint32_t minutes_since_epoch)
-{
-	return minutes_since_epoch * 60 + 1577840461;
 }
 
 void retrieve_eeprom_stored_lorawan_region()

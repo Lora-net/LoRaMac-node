@@ -77,6 +77,7 @@ set(UNIT_TESTS
     LoRaWAN_config_switcher_ut.cpp
     uplink_commands_ut.cpp
     message_sender_ut.cpp
+    position_time_encoder_ut.cpp
 )
 
 # Mocks
@@ -119,6 +120,7 @@ set(FILES_UNDER_TEST
     ${PROJECT_SOURCE_DIR}/src/peripherals/bsp.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/struct.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/print_utils.c
+    ${PROJECT_SOURCE_DIR}/src/peripherals/position_time_encoder.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/LoRaWAN_config_switcher.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/linear_congruential_generator.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/periodic-uplink-lpp/B-L072Z-LRWAN1/main.c

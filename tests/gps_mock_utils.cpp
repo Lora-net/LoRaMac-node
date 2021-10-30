@@ -20,9 +20,7 @@ extern "C"
 }
 #include <list>
 
-
 std::list<gps_info_t> position_list;
-
 
 void prepare_n_position_mocks(int number_of_readings, int degrees_moved_per_shift)
 {
@@ -38,9 +36,7 @@ void prepare_n_position_mocks(int number_of_readings, int degrees_moved_per_shif
 
         world_trip_mock.GPS_UBX_latitude_Float = latitude;
         world_trip_mock.GPS_UBX_longitude_Float = (float)longitude;
-        world_trip_mock.GPSaltitude = 12342000;
-        world_trip_mock.GPS_UBX_latitude = latitude * 1e7;
-        world_trip_mock.GPS_UBX_longitude = longitude * 1e7;
+        world_trip_mock.GPSaltitude_mm = 12342000;
         world_trip_mock.unix_time = 1631323786 + 60 * 60 * i; /* travel one degree longitude every hour */
         world_trip_mock.latest_gps_status = GPS_SUCCESS;
         world_trip_mock.GPSsats = 16;

@@ -100,9 +100,7 @@ void sensor_read_and_printout(uint32_t number_of_readings)
         gps_info_t world_trip_mock = {
             .GPS_UBX_latitude_Float = latitude,
             .GPS_UBX_longitude_Float = (float)longitude,
-            .GPSaltitude = 12342000,
-            .GPS_UBX_latitude = latitude * 1e7,
-            .GPS_UBX_longitude = longitude * 1e7,
+            .GPSaltitude_mm = 12342000,
             .unix_time = 1627938039 + 60 * 60 * i, /* travel one degree longitude every day */
             .latest_gps_status = GPS_SUCCESS,
 
@@ -122,7 +120,6 @@ void sensor_read_and_printout(uint32_t number_of_readings)
     }
 }
 
-
 /**
  * @brief Verify sizes of define
  * 
@@ -131,4 +128,3 @@ TEST(bsp_ut, check_sizes)
 {
     CHECK_EQUAL(sizeof(eeprom_playback_stats_t), CURRENT_PLAYBACK_INDEX_IN_EEPROM_LEN);
 }
-

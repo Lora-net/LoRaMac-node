@@ -42,11 +42,8 @@ extern "C"
 	{
 		float GPS_UBX_latitude_Float;  // YY.YYYYYYY, in +/- DEGREES,
 		float GPS_UBX_longitude_Float; // XXX.XXXXXXX, in +/- DEGREES,
-		int32_t GPSaltitude;
+		int32_t GPSaltitude_mm;		   // in millimeters
 		uint8_t GPSsats;
-
-		int32_t GPS_UBX_latitude;  // YYYYYYYYY, +/-
-		int32_t GPS_UBX_longitude; // XXXXXXXXXX, +/-
 
 		uint8_t GPShour;
 		uint8_t GPSminute;
