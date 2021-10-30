@@ -222,7 +222,7 @@ gps_status_t get_location_fix(uint32_t timeout)
 			gps_info.GPSfix_OK = temp_GPSfix_OK;
 			gps_info.GPS_UBX_latitude_Float = (float)getLatitude(defaultMaxWait) / 10000000;
 			gps_info.GPS_UBX_longitude_Float = (float)getLongitude(defaultMaxWait) / 10000000;
-			gps_info.GPSaltitude = getAltitude(defaultMaxWait);
+			gps_info.GPSaltitude_mm = getAltitude(defaultMaxWait);
 			gps_info.unix_time = (uint32_t)t_of_day;
 			GpioWrite(&Gps_int, 0); /* force it to sleep*/
 
