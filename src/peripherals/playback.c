@@ -46,7 +46,6 @@ static uint8_t tx_str_buffer[LORAWAN_APP_DATA_BUFFER_MAX_SIZE];
 static uint16_t tx_str_buffer_len = 0;
 time_pos_fix_t subset_positions[MAX_N_POSITIONS_TO_SEND];
 
-sensor_t *current_sensor_data_ptr;
 time_pos_fix_t *current_pos_ptr;
 
 /* ==================================================================== */
@@ -193,24 +192,24 @@ void fill_tx_buffer_with_location_and_time(uint16_t start_point, uint8_t *buffer
 
 void fill_tx_buffer_with_sensor_debug_data(uint16_t start_point, uint8_t *buffer)
 {
+	sensor_t current_sensor_data = get_current_sensor_data();
 	/* byte 0: no load voltage(5 bits) and load voltage(3 bits) */
-	tx_str_buffer[0] = ((current_sensor_data_ptr->no_load_solar_voltage - 18) & 0x1F) << 3;
-	tx_str_buffer[0] |= ((current_sensor_data_ptr->load_solar_voltage - 18) & 0x1C) >> 2;
+	tx_str_buffer[0] = ((current_sensor_data.no_load_solar_voltage - 18) & 0x1F) << 3;
+	tx_str_buffer[0] |= ((current_sensor_data.load_solar_voltage - 18) & 0x1C) >> 2;
 
 	/* byte1: load voltage(remaining 2 bits) and days of playback available (6 bits) */
-	tx_str_buffer[1] = ((current_sensor_data_ptr->load_solar_voltage - 18) & 0x03) << 6;
-	tx_str_buffer[1] |= (current_sensor_data_ptr->days_of_playback & 0x3F);
+	tx_str_buffer[1] = ((current_sensor_data.load_solar_voltage - 18) & 0x03) << 6;
+	tx_str_buffer[1] |= (current_sensor_data.days_of_playback & 0x3F);
 
-	/* byte2: pressure(7 bits) and data received flag(1 bit)*/
-	tx_str_buffer[2] = ((current_sensor_data_ptr->pressure / 10) & 0x7F) << 1;
-	tx_str_buffer[2] |= (current_playback_key_info.playback_error & 0x01);
+	/* byte2: status_bitfields(8 bits) */
+	tx_str_buffer[2] = current_sensor_data.status_bitfields;
 
 	/* byte3: Sats(5 bits) and reset count(3 bits)*/
-	tx_str_buffer[3] = (current_sensor_data_ptr->sats & 0x1F) << 3;
-	tx_str_buffer[3] |= (current_sensor_data_ptr->reset_count & 0x07);
+	tx_str_buffer[3] = (current_sensor_data.sats & 0x1F) << 3;
+	tx_str_buffer[3] |= (current_sensor_data.reset_count & 0x07);
 
 	/* byte4: Temperature (8 bits)*/
-	tx_str_buffer[4] = (uint8_t)(current_sensor_data_ptr->temperature);
+	tx_str_buffer[4] = (uint8_t)(current_sensor_data.temperature);
 }
 
 void fill_tx_buffer_with_past_data(uint16_t start_point, uint8_t *buffer)
@@ -248,7 +247,8 @@ PicoTrackerAppData_t prepare_tx_buffer()
 
 	tx_str_buffer_len = SENSOR_DEBUG_BYTES_LEN + POSITION_BYTES_LEN + (POSITION_BYTES_LEN + MINUTES_SINCE_EPOCH_DELTA_BYTES_LEN) * current_playback_key_info.n_positions_to_send;
 
-	current_playback_key_info.playback_error = false;
+	// Clear error flags in preparation for the next transmission
+	clear_bits();
 
 	PicoTrackerAppData_t data = {.Buffer = tx_str_buffer, .BufferSize = tx_str_buffer_len};
 
@@ -264,7 +264,7 @@ PicoTrackerAppData_t prepare_tx_buffer()
  * 
  * \return void
  */
-void init_playback(sensor_t *sensor_data, time_pos_fix_t *current_pos,
+void init_playback(time_pos_fix_t *current_pos,
 				   retrieve_eeprom_time_pos_ptr_T retrieve_eeprom_time_pos_ptr,
 				   uint16_t n_positions_to_select_from)
 {
@@ -273,7 +273,6 @@ void init_playback(sensor_t *sensor_data, time_pos_fix_t *current_pos,
 	current_playback_key_info.n_positions_to_send = DEFAULT_N_POSITIONS_TO_SEND;
 	current_playback_key_info.position_pool_size_to_select_from = n_positions_to_select_from;
 
-	current_sensor_data_ptr = sensor_data;
 	current_pos_ptr = current_pos;
 	Retrieve_eeprom_time_pos_ptr = retrieve_eeprom_time_pos_ptr;
 
@@ -302,8 +301,7 @@ bool process_playback_instructions(uint16_t recent_timepos_index, uint16_t older
 	}
 	else
 	{
-		current_playback_key_info.playback_error = true;
-
+		set_bits(PLAYBACK_ERROR);
 		success = false;
 	}
 

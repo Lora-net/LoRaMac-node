@@ -72,9 +72,9 @@ bool NvmDataMgmtFactoryReset( void );
  * 
  * @param keys keys to write
  * @param registered_device which key to write
- * @return uint16_t returns number of bytes written
+ * @return bool returns if eeprom values changed
  */
-uint16_t update_device_credentials_to_eeprom(network_keys_t keys, registered_devices_t registered_device);
+bool update_device_credentials_to_eeprom(network_keys_t keys, registered_devices_t registered_device);
 
 /* \} */
 

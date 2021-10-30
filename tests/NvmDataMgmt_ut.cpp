@@ -39,10 +39,6 @@ TEST_GROUP(NvmDataMgmt){
 }
 ;
 
-
-
-
-
 /**
  * @brief Test to see if there is garbage data in the EEPROM, it will fail
  * the CRC check. It should.
@@ -265,4 +261,65 @@ TEST(NvmDataMgmt, test_storing_of_fcount_and_keys)
     MEMCMP_EQUAL(expected_eeprom_1st_device_second_time, current_eeprom, read_bytes);
     CHECK_EQUAL(icspace26_helium_2, registered_device);
     CHECK_EQUAL(988, eeprom_location);
+}
+
+/**
+ * @brief test the function update_device_credentials_to_eeprom() to see if
+ * it correctly changes the value in EEPROM
+ * 
+ */
+TEST(NvmDataMgmt, test_behaviour_of_update_device_credentials_to_eeprom)
+{
+    network_keys_t keys = {
+        //icspace26_us1_us915_device_2
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x47, 0x18, 0xA9, 0x3A, 0x91, 0x7E, 0xB6, 0x1A, 0xFD, 0xB3, 0x78, 0x6E, 0xA0, 0x4E, 0xC3, 0xEE},
+        .AppSKey = {0xD3, 0xAB, 0xC3, 0x3C, 0x12, 0xD9, 0x75, 0xF2, 0x78, 0x5F, 0xFA, 0x46, 0xAF, 0x75, 0x95, 0xE2},
+        .DevAddr = (uint32_t)0x260C4E99,
+        .frame_count = 0,
+        .ReceiveDelay1 = 1000,
+        .ReceiveDelay2 = 2000,
+
+    };
+    registered_devices_t registered_device = icspace26_us1_us915_device_2;
+
+    // do update credentials
+    update_device_credentials_to_eeprom(keys, registered_device);
+
+    network_keys_t current_eeprom;
+
+    // now check the flash data
+    EepromMcuReadBuffer(icspace26_us1_us915_device_2 * sizeof(network_keys_t), (uint8_t *)&current_eeprom, sizeof(network_keys_t));
+
+    MEMCMP_EQUAL(&keys, &current_eeprom, sizeof(network_keys_t));
+}
+
+/**
+ * @brief test the function update_device_credentials_to_eeprom() returns correct values
+ * 
+ */
+TEST(NvmDataMgmt, test_return_value_of_update_device_credentials_to_eeprom)
+{
+    network_keys_t keys = {
+        //icspace26_us1_us915_device_2
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x47, 0x18, 0xA9, 0x3A, 0x91, 0x7E, 0xB6, 0x1A, 0xFD, 0xB3, 0x78, 0x6E, 0xA0, 0x4E, 0xC3, 0xEE},
+        .AppSKey = {0xD3, 0xAB, 0xC3, 0x3C, 0x12, 0xD9, 0x75, 0xF2, 0x78, 0x5F, 0xFA, 0x46, 0xAF, 0x75, 0x95, 0xE2},
+        .DevAddr = (uint32_t)0x260C4E99,
+        .frame_count = 0,
+        .ReceiveDelay1 = 1000,
+        .ReceiveDelay2 = 2000,
+
+    };
+
+    registered_devices_t registered_device = icspace26_us1_us915_device_2;
+
+    // do update credentials. It should update from a EEPROm state of all zeros
+    bool ret = update_device_credentials_to_eeprom(keys, registered_device);
+
+    CHECK_TRUE(ret);
+
+    // do update credentials. It should in theory not change any bytes since its already been set
+    ret = update_device_credentials_to_eeprom(keys, registered_device);
+
+    CHECK_FALSE(ret);
+
 }

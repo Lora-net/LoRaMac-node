@@ -46,12 +46,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 /* Exported types ------------------------------------------------------------*/
 
 typedef struct{
-  uint16_t pressure;    /* in mbar */  
+  uint8_t status_bitfields;    /* flexible bitfields for sending status. */  
   int8_t temperature; /* in °C   */
-  int8_t humidity;    /* in %    */
-  uint16_t latitude;
-  uint16_t longitude ;
-  uint16_t altitudeGps;       /* in m */
   uint8_t no_load_solar_voltage;
   uint8_t load_solar_voltage;
   uint8_t sats;                 /* satellites in fix */
@@ -145,6 +141,17 @@ uint16_t get_time_pos_index_older_than(uint32_t minutes_from_epoch);
 bool manage_incoming_instruction(uint8_t *instructions);
 
   void retrieve_eeprom_stored_lorawan_region();
+
+  typedef enum
+  {
+    PLAYBACK_ERROR,
+    EEPROM_CHANGED_BITS,
+
+  } bit_location_t;
+
+  void set_bits(bit_location_t bit_location);
+  void clear_bits();
+  sensor_t get_current_sensor_data();
 
 #ifdef __cplusplus
 }

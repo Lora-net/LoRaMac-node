@@ -195,7 +195,16 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
         printf("Received data to CHANGE_KEYS:  ");
         print_bytes(appData->Buffer, appData->BufferSize);
         memcpy(&uplink_key_setter_message, appData->Buffer, appData->BufferSize);                                         // copy the bytes to the struct
-        update_device_credentials_to_eeprom(uplink_key_setter_message.keys, uplink_key_setter_message.registered_device); // update keys in EEPROM. make it return success
+        bool eeprom_changed = update_device_credentials_to_eeprom(uplink_key_setter_message.keys, uplink_key_setter_message.registered_device); // update keys in EEPROM. make it return success
+        
+        /* Send down telemetry to indicate that bytes have changed in EEPROM */
+        if (eeprom_changed == true)
+        {
+            set_bits(EEPROM_CHANGED_BITS);
+        }
+        
+
+
     }
     break;
 

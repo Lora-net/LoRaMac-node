@@ -41,25 +41,124 @@ TEST(Playback, process_playback_instructions_invalid)
     CHECK_FALSE(success);
 }
 
+
+time_pos_fix_t time_pos_fixs[18] =
+    {
+        {
+            .minutes_since_epoch = 9832,
+            .latitude_encoded = 312,
+            .longitude_encoded = 44,
+            .altitude_encoded = 123,
+        },
+        {
+            .minutes_since_epoch = 212,
+            .latitude_encoded = 322,
+            .longitude_encoded = 45,
+            .altitude_encoded = 124,
+        },
+        {
+            .minutes_since_epoch = 234324,
+            .latitude_encoded = 332,
+            .longitude_encoded = 46,
+            .altitude_encoded = 125,
+        },
+        {
+            .minutes_since_epoch = 93845,
+            .latitude_encoded = 342,
+            .longitude_encoded = 47,
+            .altitude_encoded = 126,
+        },
+        {
+            .minutes_since_epoch = 398,
+            .latitude_encoded = 352,
+            .longitude_encoded = 48,
+            .altitude_encoded = 127,
+        },
+        {
+            .minutes_since_epoch = 23123,
+            .latitude_encoded = 362,
+            .longitude_encoded = 49,
+            .altitude_encoded = 128,
+        },
+        {
+            .minutes_since_epoch = 324234234,
+            .latitude_encoded = 372,
+            .longitude_encoded = 50,
+            .altitude_encoded = 129,
+        },
+        {
+            .minutes_since_epoch = 2213,
+            .latitude_encoded = 382,
+            .longitude_encoded = 51,
+            .altitude_encoded = 1210,
+        },
+        {
+            .minutes_since_epoch = 943,
+            .latitude_encoded = 392,
+            .longitude_encoded = 52,
+            .altitude_encoded = 1223,
+        },
+        {
+            .minutes_since_epoch = 78,
+            .latitude_encoded = 402,
+            .longitude_encoded = 53,
+            .altitude_encoded = 1233,
+        },
+        {
+            .minutes_since_epoch = 21312,
+            .latitude_encoded = 412,
+            .longitude_encoded = 54,
+            .altitude_encoded = 1237,
+        },
+
+};
+
 time_pos_fix_t retrieve_eeprom_time_pos(uint16_t time_pos_index)
 {
 
-    time_pos_fix_t time_pos_fix = {0};
-
-    return time_pos_fix;
+    return time_pos_fixs[time_pos_index];
 }
 
 TEST(Playback, prepare_tx_buffer_test)
 {
-    sensor_t sensor_data = {};
-    time_pos_fix_t current_position = {};
+
+    time_pos_fix_t current_position =
+        {
+            .minutes_since_epoch = 4533,
+            .latitude_encoded = 52,
+            .longitude_encoded = 2,
+            .altitude_encoded = 232,
+        };
+
     uint16_t earliest_timepos_index = 10;
 
-    init_playback(&sensor_data, &current_position, &retrieve_eeprom_time_pos, earliest_timepos_index);
+    init_playback(&current_position, &retrieve_eeprom_time_pos, earliest_timepos_index);
 
+    fill_positions_to_send_buffer(); // must be called before preparing buffer
     PicoTrackerAppData_t PicoTrackerAppData = prepare_tx_buffer();
 
-    CHECK_EQUAL(0x00, PicoTrackerAppData.Buffer[5]);
+    uint8_t tx_string_size = PicoTrackerAppData.BufferSize;
+
+    uint8_t expected_tx_string[tx_string_size] =
+        {
+            0x73, 0x80, 0x00, 0x00, 0x00,                   // sensor and debug data
+            0x34, 0x00, 0x02, 0x00, 0xE8, 0x00,             // latitude, longitude, altitude
+            0x74, 0x01, 0x32, 0x00, 0x81, 0x00, 0xBB, 0xA5, // past position - time 1
+            0x88, 0x01, 0x34, 0x00, 0xC7, 0x04, 0x06, 0x0E, // past position - time 2
+            0x42, 0x01, 0x2D, 0x00, 0x7C, 0x00, 0xE1, 0x10, // past position - time 3
+            0x56, 0x01, 0x2F, 0x00, 0x7E, 0x00, 0x20, 0xA3, // past position - time 4
+            0x38, 0x01, 0x2C, 0x00, 0x7B, 0x00, 0x4D, 0xEB, // past position - time 5
+            0x6A, 0x01, 0x31, 0x00, 0x80, 0x00, 0x62, 0xB7, // past position - time 6
+            0x4C, 0x01, 0x2E, 0x00, 0x7D, 0x00, 0x61, 0x7E, // past position - time 7
+            0x7E, 0x01, 0x33, 0x00, 0xBA, 0x04, 0x10, 0x09, // past position - time 8
+            0x60, 0x01, 0x30, 0x00, 0x7F, 0x00, 0x27, 0x10, // past position - time 9
+            0x92, 0x01, 0x35, 0x00, 0xD1, 0x04, 0x67, 0x11, // past position - time 10
+            0x74, 0x01, 0x32, 0x00, 0x81, 0x00, 0xBB, 0xA5, // past position - time 11
+            0x88, 0x01, 0x34, 0x00, 0xC7, 0x04, 0x06, 0x0E, // past position - time 12
+            0x42, 0x01, 0x2D, 0x00, 0x7C, 0x00, 0xE1, 0x10, // past position - time 13
+        };
+
+    MEMCMP_EQUAL(expected_tx_string, PicoTrackerAppData.Buffer, tx_string_size);
 }
 
 TEST(Playback, playback_key_info_test1)
@@ -118,12 +217,14 @@ TEST(Playback, check_if_gps_playback_struct_is_set_correctly)
 {
     PicoTrackerAppData_t PicoTrackerAppData = setup_passing_through_regions();
 
-    CHECK_EQUAL(32, current_sensor_data_ptr->no_load_solar_voltage);
-    CHECK_EQUAL(23, current_sensor_data_ptr->load_solar_voltage);
-    CHECK_EQUAL(1, current_sensor_data_ptr->days_of_playback);
-    CHECK_EQUAL(12, current_sensor_data_ptr->temperature);
-    CHECK_EQUAL(14, current_sensor_data_ptr->reset_count);
-    CHECK_EQUAL(16, current_sensor_data_ptr->sats);
+    sensor_t current_sensor_data = get_current_sensor_data();
+
+    CHECK_EQUAL(32, current_sensor_data.no_load_solar_voltage);
+    CHECK_EQUAL(23, current_sensor_data.load_solar_voltage);
+    CHECK_EQUAL(1, current_sensor_data.days_of_playback);
+    CHECK_EQUAL(12, current_sensor_data.temperature);
+    CHECK_EQUAL(14, current_sensor_data.reset_count);
+    CHECK_EQUAL(16, current_sensor_data.sats);
     teardown_n_positions_mock();
 }
 

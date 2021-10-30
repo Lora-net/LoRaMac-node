@@ -74,7 +74,6 @@ extern "C"
   playback_key_info_t *get_playback_key_info_ptr(void);
 
   void init_playback(
-      sensor_t *sensor_data,
       time_pos_fix_t *current_pos,
       retrieve_eeprom_time_pos_ptr_T retrieve_eeprom_time_pos_ptr,
       uint16_t n_positions_to_select_from);

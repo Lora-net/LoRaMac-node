@@ -207,10 +207,12 @@ uint16_t NvmDataMgmtRestore(void)
  * 
  * @param keys keys to write
  * @param registered_device which key to write
- * @return uint16_t returns number of bytes written
+ * @return bool returns if eeprom values changed
  */
-uint16_t update_device_credentials_to_eeprom(network_keys_t keys, registered_devices_t registered_device)
+bool update_device_credentials_to_eeprom(network_keys_t keys, registered_devices_t registered_device)
 {
     // Now write current keys for this network(including frame count) to EEPROM into the right place in the EEPROM
-    return NvmmUpdate((uint8_t *)&keys, sizeof(network_keys_t), registered_device * sizeof(network_keys_t));
+    uint16_t bytes_changed = NvmmUpdate((uint8_t *)&keys, sizeof(network_keys_t), registered_device * sizeof(network_keys_t));
+
+    return bytes_changed == 0 ? false : true;
 }

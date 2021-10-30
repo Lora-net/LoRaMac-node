@@ -61,7 +61,6 @@ gps_info_t gps_info_latest;
 extern Gpio_t Load_enable;
 
 double TEMPERATURE_Value;
-double PRESSURE_Value;
 
 /* Private function prototypes -----------------------------------------------*/
 void save_current_position_info_to_EEPROM(time_pos_fix_t *currrent_position);
@@ -73,13 +72,14 @@ time_pos_fix_t retrieve_eeprom_time_pos(uint16_t time_pos_index);
 void increment_eeprom_index_counters(void);
 void playback_hw_init(void);
 void update_reset_counts_in_ram_nvm(void);
-void pretty_print_sensor_values(double *TEMPERATURE_Value, double *PRESSURE_Value, gps_info_t *gps_info, uint16_t *no_load_solar_voltage, uint16_t *load_solar_voltage);
+void pretty_print_sensor_values(double *TEMPERATURE_Value, uint8_t *bitfields, gps_info_t *gps_info, uint16_t *no_load_solar_voltage, uint16_t *load_solar_voltage);
 void save_data_to_nvm(void);
-void fill_to_send_structs(double *TEMPERATURE_Value, double *PRESSURE_Value, gps_info_t *gps_info, uint16_t *no_load_solar_voltage, uint16_t *load_solar_voltage);
+void fill_to_send_structs(double *TEMPERATURE_Value, uint8_t *bitfields, gps_info_t *gps_info, uint16_t *no_load_solar_voltage, uint16_t *load_solar_voltage);
 void printDouble(double v, int decimalDigits);
 uint32_t minutes_since_epoch_to_unix_time(uint32_t minutes_since_epoch);
 void print_time_pos_fix(time_pos_fix_t temp);
 void update_geofence_status();
+void printBits(size_t const size, void const *const ptr);
 
 /* Exported functions ---------------------------------------------------------*/
 
@@ -121,10 +121,10 @@ void BSP_sensor_Read(void)
 	sensor_data.days_of_playback = (uint8_t)((most_recent_timepos_record.minutes_since_epoch - oldest_timepos_record.minutes_since_epoch) / MINUTES_IN_DAY);
 
 	/* pretty print sensor values for debugging */
-	pretty_print_sensor_values(&TEMPERATURE_Value, &PRESSURE_Value, &gps_info_latest, &no_load_solar_voltage, &load_solar_voltage);
+	pretty_print_sensor_values(&TEMPERATURE_Value, &sensor_data.status_bitfields, &gps_info_latest, &no_load_solar_voltage, &load_solar_voltage);
 
 	/* Fill up the structs that will be used to make the packet that is sent down over radio */
-	fill_to_send_structs(&TEMPERATURE_Value, &PRESSURE_Value, &gps_info_latest, &no_load_solar_voltage, &load_solar_voltage);
+	fill_to_send_structs(&TEMPERATURE_Value, &sensor_data.status_bitfields, &gps_info_latest, &no_load_solar_voltage, &load_solar_voltage);
 
 	/* fill up the buffer to send down */
 	fill_positions_to_send_buffer();
@@ -133,6 +133,30 @@ void BSP_sensor_Read(void)
 
 	/* Save GPS data to non volatile memory */
 	save_data_to_nvm();
+}
+
+sensor_t get_current_sensor_data()
+{
+	return sensor_data;
+}
+
+void set_bits(bit_location_t bit_location)
+{
+	/**
+	 * Ensure it does not write outside the 
+	 * memory allocated for bitfields
+	 */
+
+	uint8_t max_bits = sizeof(sensor_data.status_bitfields) * 8;
+	if (bit_location < max_bits)
+	{
+		sensor_data.status_bitfields |= 1UL << bit_location;
+	}
+}
+
+void clear_bits()
+{
+	sensor_data.status_bitfields = 0;
 }
 
 void update_geofence_status()
@@ -154,14 +178,14 @@ void update_geofence_status()
  * \brief Fill the structs that will be used for generating the packet that will be sent down over
  * the radio 
  * \param TEMPERATURE_Value
- * \param PRESSURE_Value
+ * \param bitfields
  * \param gps_info
  * \param no_load_solar_voltage
  * \param load_solar_voltage
  * 
  * \return void
  */
-void fill_to_send_structs(double *TEMPERATURE_Value, double *PRESSURE_Value, gps_info_t *gps_info, uint16_t *no_load_solar_voltage, uint16_t *load_solar_voltage)
+void fill_to_send_structs(double *TEMPERATURE_Value, uint8_t *bitfields, gps_info_t *gps_info, uint16_t *no_load_solar_voltage, uint16_t *load_solar_voltage)
 {
 	// This cast from int32_t to uint16_t could have a roll over if the value was negative.
 	// So clip to 0 if below zero altitude.
@@ -179,7 +203,7 @@ void fill_to_send_structs(double *TEMPERATURE_Value, double *PRESSURE_Value, gps
 	current_position.minutes_since_epoch = unix_time_to_minutes_since_epoch(gps_info->unix_time) & 0x00ffffff;
 
 	sensor_data.temperature = (int8_t)*TEMPERATURE_Value;
-	sensor_data.pressure = (uint16_t)*PRESSURE_Value;
+	sensor_data.status_bitfields = *bitfields;
 	sensor_data.no_load_solar_voltage = (uint8_t)(*no_load_solar_voltage / 100);
 	sensor_data.load_solar_voltage = (uint8_t)(*load_solar_voltage / 100);
 	sensor_data.sats = (uint8_t)gps_info->GPSsats;
@@ -236,11 +260,28 @@ void printDouble(double v, int decimalDigits)
 	printf("%i.%i", intPart, fractPart);
 }
 
+// Assumes little endian
+void printBits(size_t const size, void const *const ptr)
+{
+	unsigned char *b = (unsigned char *)ptr;
+	unsigned char byte;
+	int i, j;
+
+	for (i = size - 1; i >= 0; i--)
+	{
+		for (j = 7; j >= 0; j--)
+		{
+			byte = (b[i] >> j) & 1;
+			printf("%u", byte);
+		}
+	}
+}
+
 /**
  * \brief Pretty print sensor reading values for debugging
  * 
  * \param TEMPERATURE_Value
- * \param PRESSURE_Value
+ * \param bitfields
  * \param gps_info
  * \param no_load_solar_voltage
  * \param load_solar_voltage
@@ -248,7 +289,7 @@ void printDouble(double v, int decimalDigits)
  * \return void
  */
 
-void pretty_print_sensor_values(double *TEMPERATURE_Value, double *PRESSURE_Value, gps_info_t *gps_info, uint16_t *no_load_solar_voltage, uint16_t *load_solar_voltage)
+void pretty_print_sensor_values(double *TEMPERATURE_Value, uint8_t *bitfields, gps_info_t *gps_info, uint16_t *no_load_solar_voltage, uint16_t *load_solar_voltage)
 {
 	printf("================================================================\r\n");
 	printf("SENSOR AND GPS VALUES");
@@ -258,8 +299,8 @@ void pretty_print_sensor_values(double *TEMPERATURE_Value, double *PRESSURE_Valu
 	printf("Temperature degrees C: ");
 	printDouble(*TEMPERATURE_Value, 3);
 	printf("\r\n");
-	printf("Pressure mBar: ");
-	printDouble(*PRESSURE_Value, 3);
+	printf("Bitfields: ");
+	printBits(sizeof(uint8_t), bitfields);
 	printf("\r\n");
 	printf("Longitude: ");
 	printDouble(gps_info->GPS_UBX_longitude_Float, 6);
@@ -404,7 +445,7 @@ void playback_hw_init()
 	printf("older_index: %d\n", older_index);
 
 	/* Initialise playback */
-	init_playback(&sensor_data, &current_position, &retrieve_eeprom_time_pos, earliest_timepos_index);
+	init_playback(&current_position, &retrieve_eeprom_time_pos, earliest_timepos_index);
 
 	IWDG_reset();
 
