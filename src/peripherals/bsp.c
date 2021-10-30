@@ -482,7 +482,13 @@ void print_time_pos_fix(time_pos_fix_t temp)
 	ts = *localtime(&now);
 	strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
 
-	printf("long: %d, lat: %d, alt: %d, ts: %s\n", temp.longitude_encoded, temp.latitude_encoded, temp.altitude_encoded, buf);
+	printf(" Longitude: ");
+	printDouble(gps_info.GPS_UBX_longitude_Float, 6);
+	printf(" Latitude: ");
+	printDouble(gps_info.GPS_UBX_latitude_Float, 6);
+	printf(" altitude: ");
+	printf("%ld ", gps_info.GPSaltitude_mm / 1000);
+	printf("timestamp: %s\n", buf);
 }
 
 /**
