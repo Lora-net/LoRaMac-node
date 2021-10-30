@@ -79,7 +79,7 @@ PicoTrackerAppData_t setup_passing_through_regions()
     fake_eeprom_set_target_image(EEPROM_dump_with_34_stored_pos_fixes);
 
     prepare_n_position_mocks(10000, 24);
-    setup_board();
+    // setup_board();
 
     int region_switches;
 
@@ -93,7 +93,7 @@ PicoTrackerAppData_t setup_passing_through_regions()
 
     playback_key_info_ptr->n_positions_saved_since_boot = 0;
 
-    setup_board();
+    // setup_board();
 
     region_switches = 1;
     while (region_switches--)
@@ -101,7 +101,7 @@ PicoTrackerAppData_t setup_passing_through_regions()
         //loop();
     }
 
-    setup_board();
+    // setup_board();
 
     /* fill up the buffer to send down */
     fill_positions_to_send_buffer();
