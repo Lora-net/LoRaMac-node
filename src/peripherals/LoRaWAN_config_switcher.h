@@ -20,6 +20,8 @@ extern "C"
 #include "LoRaMac.h"
 #include "stdint.h"
 
+#define SIZE_OF_NETWORK_KEYS_T 52
+
     typedef struct
     {
         LoRaMacRegion_t region;

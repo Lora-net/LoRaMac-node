@@ -34,8 +34,26 @@ TEST_GROUP(uplink_commands){
 }
 ;
 
-#define SIZE_OF_NETWORK_KEYS_T 52
 #define LOCATION 12
+
+/**
+ * @brief Verifies the size of the network keys. VERY IMPORTANT TO PASS
+ * 
+ * 
+ */
+TEST(uplink_commands, verify_sizeof_network_keys_struct)
+{
+    CHECK_EQUAL(SIZE_OF_NETWORK_KEYS_T, sizeof(network_keys_t)); // just check the size of the enum
+}
+
+/**
+ * @brief Verify location of specify registration keys
+ * 
+ */
+TEST(uplink_commands, verify_location_of_specify_registration_keys)
+{
+    CHECK_EQUAL(icspace26_us1_us915_device_1, LOCATION);
+}
 
 /**
  * @brief Test whether the tracker can accept a message from ground telling it to 
@@ -45,8 +63,6 @@ TEST_GROUP(uplink_commands){
  */
 TEST(uplink_commands, test_keys_set)
 {
-    CHECK_EQUAL(1, sizeof(registered_devices_t)); // just check the size of the enum
-    CHECK_EQUAL(icspace26_us1_us915_device_1, LOCATION);
 
     /**
      * @brief Simulate a downlink from ground, requesting a change for the icspace26_us1_us915_device_1
