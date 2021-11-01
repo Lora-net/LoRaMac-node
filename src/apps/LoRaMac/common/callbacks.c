@@ -19,6 +19,8 @@
 #include "NvmDataMgmt.h"
 #include "string.h"
 #include "ublox.h"
+#include "soft-se-hal.h"
+
 
 /*!
  * Specifies the state of the application LED
@@ -167,6 +169,9 @@ int setup_board()
 
     disable_serial_output();
 #endif
+
+    /* Get random seed and set it */
+    srand1(SoftSeHalGetRandomNumber());
 
     BoardInitPeriph();
 

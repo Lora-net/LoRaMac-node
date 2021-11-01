@@ -351,6 +351,12 @@ void BSP_sensor_Init(void)
 
 	IWDG_reset();
 
+	/* Setup the switcher for lorawan end node device registrations. It may be 
+	 * power hungry due to starting up the radio, so do this before the 
+	 * GPS is turned on.
+	 */
+	init_LoRaWAN_config_switcher();
+
 	printf("SELFTEST: Initialisng ms5607\n\r");
 #if SENSOR_ENABLED
 	/* Initialize sensors */

@@ -18,6 +18,7 @@ uint32_t tx_interval_calculator(LoRaMacRegion_t LoRaMacRegion);
 network_keys_t get_next_network_keys_in_region(LoRaMacRegion_t region);
 
 bool is_over_the_air_activation = false;
+uint32_t counter = 0;
 
 picotracker_lorawan_settings_t get_lorawan_setting(LoRaMacRegion_t current_region)
 {
@@ -435,7 +436,10 @@ network_keys_t get_current_network_keys()
  * registered device and carry on.
  */
 
-uint32_t counter = 0;
+void init_LoRaWAN_config_switcher()
+{
+    counter = randr(0, NUMBER_OF_REGISTERED_DEVICES + 1);
+}
 
 const registered_devices_t eu868_region_keys[] = {
     icspace26_eu1_eu_863_870_device_1,
