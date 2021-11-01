@@ -102,7 +102,7 @@ extern "C"
 /*!
  * Default Max EIRP
  */
-#define CN470_DEFAULT_MAX_EIRP                      19.15f
+#define CN470_DEFAULT_MAX_EIRP                      30.0f
 
 /*!
  * Default antenna gain
