@@ -28,7 +28,7 @@ time_pos_fix_t encode_time_pos(gps_info_t gps_info)
     }
     else
     {
-        current_position.altitude_encoded = (gps_info.GPSaltitude_mm >> 8) & 0xffff;
+        current_position.altitude_encoded = (gps_info.GPSaltitude_mm / 1000) & 0xffff;
     }
 
     uint32_t latitude = gps_info.GPS_UBX_latitude_Float * 1e7;
@@ -62,7 +62,7 @@ gps_info_t decode_time_pos(time_pos_fix_t time_pos_fix)
 
     gps_info.GPS_UBX_longitude_Float = (float)((time_pos_fix.longitude_encoded * 0xFFFF) / 1e7);
 
-    gps_info.GPSaltitude_mm = time_pos_fix.altitude_encoded << 8;
+    gps_info.GPSaltitude_mm = time_pos_fix.altitude_encoded * 1000;
 
     return gps_info;
 }

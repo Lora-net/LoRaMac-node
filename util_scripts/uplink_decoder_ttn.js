@@ -12,7 +12,7 @@ function decodeUplink(input) {
                 data: {
                     longitude: readInt16LE(input.bytes.slice(7, 9)) * 0xffff / 1e7,
                     latitude: readInt16LE(input.bytes.slice(5, 7)) * 0xffff / 1e7,
-                    altitude: readUInt16LE(input.bytes.slice(9, 11)) * 0xff / 1000,
+                    altitude: readUInt16LE(input.bytes.slice(9, 11)),
                     sats: input.bytes[3] >> 3 & 0x1F,
                     pressure: ((input.bytes[2] >> 1) & 0x7F) * 10,
                     app_ack: input.bytes[2] & 0x01,
