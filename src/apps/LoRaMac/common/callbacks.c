@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include "NvmDataMgmt.h"
 #include "string.h"
+#include "ublox.h"
 
 /*!
  * Specifies the state of the application LED
@@ -35,6 +36,17 @@ uplink_key_setter_message_t uplink_key_setter_message;
 void OnNvmDataChange(LmHandlerNvmContextStates_t state, uint16_t size)
 {
     DisplayNvmDataChange(state, size);
+
+    /**
+     * @brief Only turn back on the GPS during the Store function call. This is the last
+     * event in a Class A transmission, so its now safe to turn back on the GPS. The last 
+     * RX window has closed by now.
+     * 
+     */
+    if (state == LORAMAC_HANDLER_NVM_STORE)
+    {
+        setup_GPS();
+    }
 }
 
 void OnNetworkParametersChange(CommissioningParams_t *params)
