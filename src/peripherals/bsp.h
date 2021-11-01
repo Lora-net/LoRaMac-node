@@ -93,17 +93,15 @@ typedef struct
 
 #define PLAYBACK_EEPROM_ADDR_START                 (18 + NVM_PlAYBACK_EEPROM_ADDR_START)
 #define PLAYBACK_EEPROM_PACKET_SIZE                (9)
-#define MAX_PLAYBACK_POSITIONS_SAVED_IN_EEPROM     (680)
+#define MAX_PLAYBACK_POSITIONS_SAVED_IN_EEPROM     (510)
 #define PLAYBACK_EEPROM_SIZE                       (MAX_PLAYBACK_POSITIONS_SAVED_IN_EEPROM * PLAYBACK_EEPROM_PACKET_SIZE)
 
 /* WARNING! Ensure this value is less than DATA_EEPROM_BANK2_END. Or else, it will overflow EEPROM */
 #define EEPROM_ADDR_END                            (NVM_PlAYBACK_EEPROM_ADDR_START + PLAYBACK_EEPROM_SIZE)
 
 #define EEPROM_SIZE 0x17FFUL /* 6143 bytes */
-#if ( EEPROM_ADDR_END > EEPROM_SIZE )
-#error Space allocated to playback exceeds available EEPROM
-#endif
-																												
+
+																
 
 
 /* Exported constants --------------------------------------------------------*/
