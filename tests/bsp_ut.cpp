@@ -129,8 +129,6 @@ TEST(bsp_ut, check_sizes)
     CHECK_EQUAL(sizeof(eeprom_playback_stats_t), CURRENT_PLAYBACK_INDEX_IN_EEPROM_LEN);
 }
 
-
-
 /**
  * @brief Verify that attempts to write past positions outside EEPROM range does not happen.
  * MUST PASS
@@ -139,5 +137,5 @@ TEST(bsp_ut, check_sizes)
 TEST(bsp_ut, MUST_PASS_check_eeprom_range)
 {
     CHECK_EQUAL(6051, EEPROM_ADDR_END);
-    CHECK_TRUE(EEPROM_ADDR_END<EEPROM_SIZE);
+    CHECK_TRUE(EEPROM_ADDR_END < EEPROM_SIZE - PLAYBACK_EEPROM_PACKET_SIZE * 2); // ensure there is leeway a the end of the eeprom area to allow a wield overflow read. Its a bug in getting position index 0.
 }
