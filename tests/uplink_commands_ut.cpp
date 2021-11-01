@@ -41,7 +41,7 @@ TEST_GROUP(uplink_commands){
  * 
  * 
  */
-TEST(uplink_commands, verify_sizeof_network_keys_struct)
+TEST(uplink_commands, MUST_PASS_verify_sizeof_network_keys_struct)
 {
     CHECK_EQUAL(SIZE_OF_NETWORK_KEYS_T, sizeof(network_keys_t)); // just check the size of the enum
 }
