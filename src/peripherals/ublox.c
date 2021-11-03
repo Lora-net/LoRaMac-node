@@ -136,13 +136,9 @@ gps_status_t setup_GPS()
 	return GPS_SUCCESS;
 }
 
-/* Get the location fix */
+/* Get the location fix. setup_GPS() must have been called prior to this call  */
 gps_status_t get_location_fix(uint32_t timeout)
 {
-
-	IWDG_reset();
-
-	setup_GPS();
 
 	IWDG_reset();
 
