@@ -202,7 +202,16 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 
         printf("Received data to poll date range: ");
         print_bytes(appData->Buffer, appData->BufferSize);
-        manage_incoming_instruction(appData->Buffer);
+        bool ret = manage_incoming_instruction(appData->Buffer);
+
+        if (ret == true)
+        {
+            set_bits(PLAYBACK_ACK);
+        }
+        else
+        {
+            set_bits(PLAYBACK_NAK);
+        }
     }
     break;
 

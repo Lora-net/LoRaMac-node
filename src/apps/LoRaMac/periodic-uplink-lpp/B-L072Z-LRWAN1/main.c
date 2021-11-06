@@ -37,6 +37,8 @@
 #include "callbacks.h"
 #include "message_sender.h"
 
+#include "nvmm.h"
+
 /*!
  *
  */

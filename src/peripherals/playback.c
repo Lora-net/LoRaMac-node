@@ -36,7 +36,6 @@ playback_key_info_t current_playback_key_info =
 		.position_pool_size_to_select_from = 0,				/* Define size of pool of positions to select from */
 		.n_positions_saved_since_boot = 0,					/* Define size of pool of positions to select from */
 		.request_from_gnd = false,
-		.playback_error = false,
 		.requested_pos_index_lower = 0,
 		.requested_pos_index_upper = 0
 
@@ -301,7 +300,6 @@ bool process_playback_instructions(uint16_t recent_timepos_index, uint16_t older
 	}
 	else
 	{
-		set_bits(PLAYBACK_ERROR);
 		success = false;
 	}
 

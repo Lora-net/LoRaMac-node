@@ -43,7 +43,7 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 
-eeprom_playback_stats_t eeprom_playback_stats = {0};
+eeprom_playback_stats_t eeprom_playback_stats = {.n_playback_positions_saved = 27, .current_EEPROM_index = 27 * PLAYBACK_EEPROM_PACKET_SIZE};
 
 /* Dummy values for testing */
 
@@ -79,6 +79,7 @@ void printDouble(double v, int decimalDigits);
 void print_time_pos_fix(time_pos_fix_t temp);
 void update_geofence_status();
 void printBits(size_t const size, void const *const ptr);
+void print_human_readable_time(uint32_t unix_time);
 
 /* Exported functions ---------------------------------------------------------*/
 
@@ -317,17 +318,28 @@ void pretty_print_sensor_values(double *TEMPERATURE_Value, uint8_t *bitfields, g
 	printf("================================================================\r\n");
 }
 
+/**
+ * @brief Handle instructions to poll specific range of past positions
+ * 
+ * @param instructions encoded instructions
+ * @return true If successful, return true
+ * @return false If unsuccessful, return false
+ */
 bool manage_incoming_instruction(uint8_t *instructions)
 {
 	uint32_t recent_time_min = extractLong_from_buff(0, instructions);
+	uint32_t unix_time = minutes_since_epoch_to_unix_time(recent_time_min);
 	uint16_t recent_timepos_index = get_time_pos_index_older_than(recent_time_min);
-
-	printf("Received instruction recent. time(min):%lu timepos index: %d\n", recent_time_min, recent_timepos_index);
+	printf("Received instruction recent. timepos index: %d ", recent_timepos_index);
+	print_human_readable_time(unix_time);
+	printf("\n");
 
 	uint32_t older_time_min = extractLong_from_buff(4, instructions);
+	unix_time = minutes_since_epoch_to_unix_time(older_time_min);
 	uint16_t older_timepos_index = get_time_pos_index_older_than(older_time_min);
-
-	printf("Received instruction older. time(min):%lu timepos index: %d\n", older_time_min, older_timepos_index);
+	printf("Received instruction older. timepos index: %d ", older_timepos_index);
+	print_human_readable_time(unix_time);
+	printf("\n");
 
 	bool success = process_playback_instructions(recent_timepos_index, older_timepos_index);
 
@@ -474,19 +486,26 @@ void print_stored_coordinates()
 	}
 }
 
-void print_time_pos_fix(time_pos_fix_t temp)
+/**
+ * @brief Print time in a human readable way, from a unix timestamp
+ * 
+ * @param unix_time 
+ */
+void print_human_readable_time(uint32_t unix_time)
 {
-	gps_info_t gps_info = decode_time_pos(temp);
-
-	time_t now;
+	time_t now = unix_time;
 	struct tm ts;
 	char buf[80];
-
-	now = gps_info.unix_time;
 
 	// Format time, "ddd yyyy-mm-dd hh:mm:ss zzz"
 	ts = *localtime(&now);
 	strftime(buf, sizeof(buf), "%a %Y-%m-%d %H:%M:%S %Z", &ts);
+	printf("timestamp: %s\n", buf);
+}
+
+void print_time_pos_fix(time_pos_fix_t temp)
+{
+	gps_info_t gps_info = decode_time_pos(temp);
 
 	printf(" Longitude: ");
 	printDouble(gps_info.GPS_UBX_longitude_Float, 6);
@@ -494,7 +513,7 @@ void print_time_pos_fix(time_pos_fix_t temp)
 	printDouble(gps_info.GPS_UBX_latitude_Float, 6);
 	printf(" altitude: ");
 	printf("%ld ", gps_info.GPSaltitude_mm / 1000);
-	printf("timestamp: %s\n", buf);
+	print_human_readable_time(gps_info.unix_time);
 }
 
 /**

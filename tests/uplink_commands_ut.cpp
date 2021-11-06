@@ -61,7 +61,7 @@ TEST(uplink_commands, verify_location_of_specify_registration_keys)
  * from ground, and the checks if correctly written to EEPROM.
  * 
  */
-TEST(uplink_commands, test_keys_set)
+TEST(uplink_commands, test_eeprom_keys_set_correctly)
 {
 
     /**
@@ -174,4 +174,109 @@ TEST(uplink_commands, test_eeprom_changed_ack)
     /* Get bitfield flags and check if correctly set */
     /* Expect eeprom changed flag to be set: 0b00000010 = 0x02 */
     CHECK_EQUAL(0x2, current_sensor_data.status_bitfields);
+}
+
+/**
+ * @brief Test if an uplink to poll a specific time range of past position can return the
+ * ack if the date range is available in EEPROM. We expect it to nack here because the
+ * simulated EEPROM has no past data in it.
+ */
+TEST(uplink_commands, test_get_time_range_of_past_positions_nak)
+{
+    /**
+     * @brief Simulate a downlink from ground, requesting a past position
+     * range from 2021-10-15 10:30:01 to 2021-10-15 11:55:01
+     */
+
+    uint8_t length_of_uplink = 8;
+    uint8_t simulated_downlink_from_ground[length_of_uplink] =
+        {
+            0x72, 0x5b, 0x0e, 0x00, // '2021-10-15 10:30:01'
+            0x1d, 0x5b, 0x0e, 0x00, // '2021-10-15 11:55:01'
+        };
+
+    /**
+     * @brief Fill the required structs for the downlink processor
+     */
+    LmHandlerAppData_t appData = {
+        .Port = 18,
+        .BufferSize = length_of_uplink,
+        .Buffer = simulated_downlink_from_ground,
+    };
+
+    LmHandlerRxParams_t LmHandlerRxParams = {
+        .Status = LORAMAC_EVENT_INFO_STATUS_OK,
+    };
+
+    /**
+     * @brief Handle the downlink from ground
+     */
+    OnRxData(&appData, &LmHandlerRxParams);
+
+    /**
+     * Now verify if the bitfield flags have been set
+     */
+
+    sensor_t current_sensor_data = get_current_sensor_data();
+
+    /* Get bitfield flags and check if correctly set */
+    /* Expect eeprom changed flag to be set: 0b00000001 = 0x01 */
+    CHECK_EQUAL(0x01, current_sensor_data.status_bitfields);
+}
+
+
+/**
+ * @brief Test if an uplink to poll a specific time range of past position can return the
+ * ack if the date range is available in EEPROM. We expect it to ack here as the request does
+ * match the data in the EEPROM
+ */
+TEST(uplink_commands, test_get_time_range_of_past_positions_ack)
+{
+    /**
+     * @brief Set the EEPROM to have some past data
+     * 
+     */
+
+    uint16_t past_data_size = 9 * 27;
+    EepromMcuWriteBuffer(PLAYBACK_EEPROM_ADDR_START, past_saved_data, past_data_size);
+
+    /**
+     * @brief Simulate a downlink from ground, requesting a past position
+     * range from 2021-11-4 15:30:01 to 2021-11-4 19:30:01
+     */
+
+    uint8_t length_of_uplink = 8;
+    uint8_t simulated_downlink_from_ground[length_of_uplink] =
+        {
+            0xf5, 0xcd, 0x0e, 0x00, // 2021-11-4 15:30:01
+            0x05, 0xcd, 0x0e, 0x00, // 2021-11-4 19:30:01
+        };
+
+    /**
+     * @brief Fill the required structs for the downlink processor
+     */
+    LmHandlerAppData_t appData = {
+        .Port = 18,
+        .BufferSize = length_of_uplink,
+        .Buffer = simulated_downlink_from_ground,
+    };
+
+    LmHandlerRxParams_t LmHandlerRxParams = {
+        .Status = LORAMAC_EVENT_INFO_STATUS_OK,
+    };
+
+    /**
+     * @brief Handle the downlink from ground
+     */
+    OnRxData(&appData, &LmHandlerRxParams);
+
+    /**
+     * Now verify if the bitfield flags have been set
+     */
+
+    sensor_t current_sensor_data = get_current_sensor_data();
+
+    /* Get bitfield flags and check if correctly set */
+    /* Expect eeprom changed flag to be set: 0b00000100 = 0x04 */
+    CHECK_EQUAL(0x04, current_sensor_data.status_bitfields);
 }

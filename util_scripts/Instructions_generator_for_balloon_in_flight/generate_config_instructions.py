@@ -48,5 +48,3 @@ if __name__ == "__main__":
     print(gen_instruction(convert_datatime_to_special_epoch_min(date_time_older),
                           convert_datatime_to_special_epoch_min(date_time_newer)))
 
-    print(convert_special_epoch_min_to_datetime(811758))
-    print(convert_special_epoch_min_to_datetime(811718))

@@ -48,7 +48,6 @@ extern "C"
     uint16_t position_pool_size_to_select_from; /* Define size of pool of positions to select from */
     uint16_t n_positions_saved_since_boot;      /* Number of posiionts that have been saved since boot */
     bool request_from_gnd;
-    bool playback_error;
     uint16_t requested_pos_index_lower;
     uint16_t requested_pos_index_upper;
 

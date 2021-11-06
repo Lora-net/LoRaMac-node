@@ -143,9 +143,9 @@ bool manage_incoming_instruction(uint8_t *instructions);
 
   typedef enum
   {
-    PLAYBACK_ERROR,
+    PLAYBACK_NAK,
     EEPROM_CHANGED_BITS,
-
+    PLAYBACK_ACK,
   } bit_location_t;
 
   void set_bits(bit_location_t bit_location);
