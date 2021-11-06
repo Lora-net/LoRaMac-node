@@ -15,6 +15,8 @@
 #include "print_utils.h"
 #include "callbacks.h"
 
+bool can_tx(LoRaMacRegion_t current_stack_region);
+
 bool sensor_read_and_send(LmHandlerAppData_t *AppData, LoRaMacRegion_t current_stack_region)
 {
 
@@ -28,12 +30,40 @@ bool sensor_read_and_send(LmHandlerAppData_t *AppData, LoRaMacRegion_t current_s
 
     BSP_sensor_Read(); /* reading sensors and GPS. This could take up to 3 minutes */
 
-    if (get_current_loramac_region() == current_stack_region)
+    /**
+     * @brief Check if our LoRaWAN stack has been setup in the right region params AND
+     * check if we can TX in this location. If we can, then go ahead and do a transmission.
+     * 
+     */
+    if (can_tx(current_stack_region) == true)
     {
         print_current_region();
         fill_tx_buffer(AppData);
         LmHandlerSend(AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE);
         ret = true;
+    }
+
+    return ret;
+}
+
+/**
+ * @brief Find out if its ok to TX here. Uses our geofence to check if TX is allowed here,
+ * and also checks if our LoRaWAN stack has been configured to the right regional settings
+ * 
+ * @param current_stack_region The regional settings the LoRaWAN stack has been setup to.
+ * @return true  TX is allowed
+ * @return false TX not allowed
+ */
+bool can_tx(LoRaMacRegion_t current_stack_region)
+{
+    bool ret = false;
+
+    if (get_current_loramac_region() == current_stack_region)
+    {
+        if (get_current_tx_permission() == TX_OK)
+        {
+            ret = true;
+        }
     }
 
     return ret;
