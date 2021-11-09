@@ -22,6 +22,7 @@ extern "C"
 
     time_pos_fix_t encode_time_pos(gps_info_t gps_info);
     gps_info_t decode_time_pos(time_pos_fix_t time_pos_fix);
+    uint32_t minutes_since_epoch_to_unix_time(uint32_t minutes_since_epoch);
 
 #endif
 #ifdef __cplusplus

@@ -13,7 +13,6 @@
 
 #define UNIX_TIME_ON_1_JAN_2020 1577840461
 
-uint32_t minutes_since_epoch_to_unix_time(uint32_t minutes_since_epoch);
 uint32_t unix_time_to_minutes_since_epoch(uint32_t unix_time);
 
 time_pos_fix_t encode_time_pos(gps_info_t gps_info)
