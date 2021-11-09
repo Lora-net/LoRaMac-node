@@ -405,6 +405,18 @@ void update_reset_counts_in_ram_nvm()
 	NvmmUpdate((void *)&sensor_data.reset_count, RESET_COUNTER_LEN, RESET_COUNTER_ADDR);
 }
 
+void read_playback_stats_from_eeprom()
+{
+	NvmmRead((void *)&eeprom_playback_stats, sizeof(eeprom_playback_stats), CURRENT_PLAYBACK_INDEX_IN_EEPROM_ADDR);
+
+	/* Check if CRC is correct */
+	if (is_crc_correct(sizeof(eeprom_playback_stats), &eeprom_playback_stats) == false)
+	{
+		eeprom_playback_stats.current_EEPROM_index = 0;
+		eeprom_playback_stats.n_playback_positions_saved = 0;
+	}
+}
+
 /**
  * \brief Initialise the hardware aspects of playback i.e. reading from EEPROM.
  * 
@@ -415,14 +427,7 @@ void playback_hw_init()
 {
 	IWDG_reset();
 
-	NvmmRead((void *)&eeprom_playback_stats, sizeof(eeprom_playback_stats), CURRENT_PLAYBACK_INDEX_IN_EEPROM_ADDR);
-
-	/* Check if CRC is correct */
-	if (is_crc_correct(sizeof(eeprom_playback_stats), &eeprom_playback_stats) == false)
-	{
-		eeprom_playback_stats.current_EEPROM_index = 0;
-		eeprom_playback_stats.n_playback_positions_saved = 0;
-	}
+	read_playback_stats_from_eeprom();
 
 	/* We want to send positions from the last n days, defined by PLAYBACK_DAYS. Therefore, we need to calculate how 
 	 * many saved eeprom position/times we should select from. We take the most recent timepos, then calculate back n days
@@ -577,6 +582,7 @@ void increment_eeprom_index_counters()
 	/* Now update the index in EEPROM */
 	eeprom_playback_stats.current_EEPROM_index = mod(eeprom_playback_stats.current_EEPROM_index + PLAYBACK_EEPROM_PACKET_SIZE, PLAYBACK_EEPROM_SIZE);
 	eeprom_playback_stats.n_playback_positions_saved = MIN(eeprom_playback_stats.n_playback_positions_saved + 1, MAX_PLAYBACK_POSITIONS_SAVED_IN_EEPROM);
+
 	playback_key_info_ptr->n_positions_saved_since_boot += 1;
 
 	eeprom_playback_stats.Crc32 = Crc32((uint8_t *)&eeprom_playback_stats, sizeof(eeprom_playback_stats) - sizeof(eeprom_playback_stats.Crc32));

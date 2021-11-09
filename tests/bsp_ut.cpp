@@ -156,3 +156,44 @@ TEST(bsp_ut, MUST_PASS_check_eeprom_playback_stats_t_size)
 {
     CHECK_EQUAL(CURRENT_PLAYBACK_INDEX_IN_EEPROM_LEN, sizeof(eeprom_playback_stats_t));
 }
+
+/**
+ * @brief Verify if playback stats are set correctly in the event of eeprom corruption
+ * 
+ */
+extern eeprom_playback_stats_t eeprom_playback_stats;
+
+TEST(bsp_ut, test_playback_stats_corrupt_eeprom)
+{
+    read_playback_stats_from_eeprom();
+    CHECK_EQUAL(0, eeprom_playback_stats.current_EEPROM_index);
+    CHECK_EQUAL(0, eeprom_playback_stats.n_playback_positions_saved);
+}
+
+/**
+ * @brief Verify if playback stats are set correctly in the event that eeprom is NOT corrupted,
+ * and there is valid data there.
+ * 
+ */
+TEST(bsp_ut, test_playback_stats_valid_eeprom)
+{
+
+    /**
+     * @brief Set the eeprom_playback_stats struct
+     */
+    eeprom_playback_stats.current_EEPROM_index = 90;
+    eeprom_playback_stats.n_playback_positions_saved = 10;
+    eeprom_playback_stats.Crc32 = 2132531280;
+    NvmmUpdate((uint8_t *)&eeprom_playback_stats, CURRENT_PLAYBACK_INDEX_IN_EEPROM_LEN, CURRENT_PLAYBACK_INDEX_IN_EEPROM_ADDR);
+
+    /**
+     * @brief Fill the EEPROM with this valid data
+     */
+    read_playback_stats_from_eeprom();
+
+    /**
+     * @brief Verify that it actually reads the valid data as expected
+     */
+    CHECK_EQUAL(90, eeprom_playback_stats.current_EEPROM_index);
+    CHECK_EQUAL(10, eeprom_playback_stats.n_playback_positions_saved);
+}

@@ -123,6 +123,7 @@ extern "C"
   sensor_t get_current_sensor_data();
   bool update_device_tx_interval_in_eeprom(uint32_t interval_ms);
   uint32_t read_tx_interval_in_eeprom();
+  void read_playback_stats_from_eeprom();
 
 #ifdef __cplusplus
 }
