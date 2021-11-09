@@ -652,4 +652,42 @@ void retrieve_eeprom_stored_lorawan_region()
 	}
 	IWDG_reset();
 }
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
+/**
+ * @brief Update tx interval in EEPROM
+ * 
+ * @param interval_ms interval in milliseconds
+ * @return true if succesfully updated
+ * @return false if not successful in update
+ */
+bool update_device_tx_interval_in_eeprom(uint32_t interval_ms)
+{
+
+	tx_interval_eeprom_t tx_interval_with_crc = {.tx_interval = interval_ms};
+	tx_interval_with_crc.Crc32 = Crc32((uint8_t *)&tx_interval_with_crc, sizeof(tx_interval_eeprom_t) - sizeof(tx_interval_with_crc.Crc32));
+
+	// Now write current keys for this network(including frame count) to EEPROM into the right place in the EEPROM
+	uint16_t bytes_changed = NvmmUpdate((uint8_t *)&tx_interval_with_crc, sizeof(tx_interval_eeprom_t), TX_INTERVAL_EEPROM_ADDRESS);
+
+	return bytes_changed == 0 ? false : true;
+}
+
+/**
+ * @brief Read the eeprom tx interval stored in EEPROM. Read only if value crc matches. Otherwise,
+ * return a default value
+ * 
+ * @return uint32_t 
+ */
+uint32_t read_tx_interval_in_eeprom()
+{
+
+	tx_interval_eeprom_t tx_interval_with_crc;
+	uint16_t bytes_read = NvmmRead((uint8_t *)&tx_interval_with_crc, sizeof(tx_interval_eeprom_t), TX_INTERVAL_EEPROM_ADDRESS);
+
+	if (is_crc_correct(sizeof(tx_interval_with_crc), &tx_interval_with_crc) == false)
+	{
+		tx_interval_with_crc.tx_interval = TX_INTERVAL_GPS_FIX_OK;
+	}
+
+	return tx_interval_with_crc.tx_interval;
+}

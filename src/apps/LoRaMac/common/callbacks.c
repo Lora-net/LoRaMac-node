@@ -21,7 +21,6 @@
 #include "ublox.h"
 #include "soft-se-hal.h"
 
-
 /*!
  * Specifies the state of the application LED
  */
@@ -220,17 +219,38 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 
         printf("Received data to CHANGE_KEYS:  ");
         print_bytes(appData->Buffer, appData->BufferSize);
-        memcpy(&uplink_key_setter_message, appData->Buffer, appData->BufferSize);                                         // copy the bytes to the struct
+        memcpy(&uplink_key_setter_message, appData->Buffer, appData->BufferSize);                                                               // copy the bytes to the struct
         bool eeprom_changed = update_device_credentials_to_eeprom(uplink_key_setter_message.keys, uplink_key_setter_message.registered_device); // update keys in EEPROM. make it return success
-        
+
         /* Send down telemetry to indicate that bytes have changed in EEPROM */
         if (eeprom_changed == true)
         {
             set_bits(EEPROM_CHANGED_BITS);
         }
-        
+    }
+    break;
 
+    case CHANGE_TX_INTERVAL_PORT:
+    {
 
+        printf("Received data to CHANGE TX INTERVAL:  ");
+        print_bytes(appData->Buffer, appData->BufferSize);
+
+        uint32_t target_tx_interval;
+
+        memcpy(&target_tx_interval, appData->Buffer, appData->BufferSize); // copy the bytes to the struct
+
+        bool eeprom_changed = update_device_tx_interval_in_eeprom(target_tx_interval);
+
+        /* Send down telemetry to indicate that bytes have changed in EEPROM */
+        if (eeprom_changed == true)
+        {
+            set_bits(TX_INTERVAL_CHANGED);
+        }
+        else
+        {
+            set_bits(TX_INTERVAL_NOT_CHANGED);
+        }
     }
     break;
 

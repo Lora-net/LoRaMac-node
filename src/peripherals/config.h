@@ -67,6 +67,8 @@ extern "C"
 #define LORAWAN_APP_DATA_BUFFER_MAX_SIZE 242
 #define DOWNLINK_CONFIG_PORT 18
 #define CHANGE_KEYS_PORT 19
+#define CHANGE_TX_INTERVAL_PORT 20
+
 
 /* PLAYBACK RELATED DEFINES */
 /* ----------------------------------------------------------------------------------- */

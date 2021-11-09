@@ -272,16 +272,7 @@ void setup_next_tx_alarm()
 {
 
     TimerStop(&TxTimer); /* Stop tx timer. Requirement before starting it back up again */
-
-    if (get_latest_gps_status() == GPS_SUCCESS)
-    {
-        TimerSetValue(&TxTimer, TX_INTERVAL_GPS_FIX_OK); /* if fix, then tx again after 25 seconds */
-    }
-    else
-    {
-        TimerSetValue(&TxTimer, TX_INTERVAL_GPS_FIX_NOT_OK); /* if no fix, return back to search in 10 seconds*/
-    }
-
+    TimerSetValue(&TxTimer, read_tx_interval_in_eeprom());
     TimerStart(&TxTimer); /* Restart tx interval timer */
 }
 

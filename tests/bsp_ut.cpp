@@ -12,8 +12,6 @@ extern "C"
 #include <math.h> /* fmod */
 }
 
-extern uint8_t simulated_flash[EEPROM_SIZE];
-
 void sensor_read_and_printout(uint32_t number_of_readings);
 
 TEST_GROUP(bsp_ut){
@@ -108,9 +106,6 @@ void sensor_read_and_printout(uint32_t number_of_readings)
         mock().expectOneCall("get_latest_gps_info").andReturnValue(&world_trip_mock);
         BSP_sensor_Read();
 
-        // printf("EEPROM: ");
-        // print_bytes(simulated_flash, EEPROM_SIZE);
-
         PicoTrackerAppData_t data = prepare_tx_buffer();
 
         // Print out buffer for debug
@@ -134,8 +129,30 @@ TEST(bsp_ut, check_sizes)
  * MUST PASS
  * 
  */
+
 TEST(bsp_ut, MUST_PASS_check_eeprom_range)
 {
-    CHECK_EQUAL(6051, EEPROM_ADDR_END);
+
+    /* WARNING! Ensure this value is less than DATA_EEPROM_BANK2_END. Or else, it will overflow EEPROM */
+    uint32_t EEPROM_ADDR_END = PLAYBACK_EEPROM_ADDR_START + PLAYBACK_EEPROM_SIZE;
+    CHECK_EQUAL(6073, EEPROM_ADDR_END);
     CHECK_TRUE(EEPROM_ADDR_END < EEPROM_SIZE - PLAYBACK_EEPROM_PACKET_SIZE * 2); // ensure there is leeway a the end of the eeprom area to allow a wield overflow read. Its a bug in getting position index 0.
+}
+
+/**
+ * @brief Check size of eeprom usage of tx interval
+ * 
+ */
+TEST(bsp_ut, MUST_PASS_check_tx_interval_eeprom_size)
+{
+    CHECK_EQUAL(TX_INTERVAL_EEPROM_LEN, sizeof(tx_interval_eeprom_t));
+}
+
+/**
+ * @brief Check size of eeprom usage of eeprom_playback_stats_t
+ * 
+ */
+TEST(bsp_ut, MUST_PASS_check_eeprom_playback_stats_t_size)
+{
+    CHECK_EQUAL(CURRENT_PLAYBACK_INDEX_IN_EEPROM_LEN, sizeof(eeprom_playback_stats_t));
 }

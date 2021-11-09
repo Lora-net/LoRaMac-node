@@ -18,6 +18,7 @@ extern "C"
 #include "NvmDataMgmt.h"
 #include "eeprom-board.h"
 #include "callbacks.h"
+#include "nvmm.h"
 }
 
 #include "nvm_images.hpp"
@@ -224,7 +225,6 @@ TEST(uplink_commands, test_get_time_range_of_past_positions_nak)
     CHECK_EQUAL(0x01, current_sensor_data.status_bitfields);
 }
 
-
 /**
  * @brief Test if an uplink to poll a specific time range of past position can return the
  * ack if the date range is available in EEPROM. We expect it to ack here as the request does
@@ -279,4 +279,69 @@ TEST(uplink_commands, test_get_time_range_of_past_positions_ack)
     /* Get bitfield flags and check if correctly set */
     /* Expect eeprom changed flag to be set: 0b00000100 = 0x04 */
     CHECK_EQUAL(0x04, current_sensor_data.status_bitfields);
+}
+
+/**
+ * @brief Check if can successfully set tx interval 
+ */
+TEST(uplink_commands, test_set_tx_interval_success)
+{
+    /**
+     * @brief Simulate a downlink from ground, requesting a past position
+     * range from 2021-11-4 15:30:01 to 2021-11-4 19:30:01
+     */
+
+    uint32_t target_interval = 15000;
+
+    uint8_t length_of_uplink = 4;
+    uint8_t simulated_downlink_from_ground[length_of_uplink];
+
+    /**
+     * @brief Set the simulated downlink
+     * 
+     */
+    memcpy(simulated_downlink_from_ground, &target_interval, sizeof(uint32_t));
+
+    /**
+     * @brief Fill the required structs for the downlink processor
+     */
+    LmHandlerAppData_t appData = {
+        .Port = 20,
+        .BufferSize = length_of_uplink,
+        .Buffer = simulated_downlink_from_ground,
+    };
+
+    LmHandlerRxParams_t LmHandlerRxParams = {
+        .Status = LORAMAC_EVENT_INFO_STATUS_OK,
+    };
+
+    /**
+     * @brief Handle the downlink from ground
+     */
+    OnRxData(&appData, &LmHandlerRxParams);
+
+    /**
+     * Now verify if the bitfield flags have been set
+     */
+
+    sensor_t current_sensor_data = get_current_sensor_data();
+
+    /* Get bitfield flags and check if correctly set */
+    /* Expect eeprom changed flag to be set: 0b00001000 = 0x08 */
+    CHECK_EQUAL(0b00001000, current_sensor_data.status_bitfields);
+
+    /**
+     * @brief Check if EEPROM stored value has correctly been
+     */
+    CHECK_EQUAL(target_interval, read_tx_interval_in_eeprom());
+
+    /**
+     * @brief Wipe out eeprom to simulate CRC error
+     */
+    EEPROM_Wipe();
+
+    /**
+     * @brief Now that CRC is wrong, it should read the default value of tx interval
+     */
+    CHECK_EQUAL(20000, read_tx_interval_in_eeprom());
 }
