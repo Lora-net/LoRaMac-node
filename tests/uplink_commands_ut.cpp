@@ -230,12 +230,20 @@ TEST(uplink_commands, test_get_time_range_of_past_positions_nak)
  * ack if the date range is available in EEPROM. We expect it to ack here as the request does
  * match the data in the EEPROM
  */
+
+extern eeprom_playback_stats_t eeprom_playback_stats;
+
 TEST(uplink_commands, test_get_time_range_of_past_positions_ack)
 {
     /**
      * @brief Set the EEPROM to have some past data
      * 
      */
+
+    eeprom_playback_stats = {
+        .current_EEPROM_index = 27 * PLAYBACK_EEPROM_PACKET_SIZE,
+        .n_playback_positions_saved = 27,
+    };
 
     uint16_t past_data_size = 9 * 27;
     EepromMcuWriteBuffer(PLAYBACK_EEPROM_ADDR_START, past_saved_data, past_data_size);

@@ -43,7 +43,7 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 
-eeprom_playback_stats_t eeprom_playback_stats = {.n_playback_positions_saved = 27, .current_EEPROM_index = 27 * PLAYBACK_EEPROM_PACKET_SIZE};
+eeprom_playback_stats_t eeprom_playback_stats = {0};
 
 /* Dummy values for testing */
 
