@@ -167,11 +167,20 @@ void update_geofence_status()
 	update_geofence_position(gps_info.GPS_UBX_latitude_Float, gps_info.GPS_UBX_longitude_Float);
 
 	/* Save current polygon to eeprom only if gps fix was valid */
-
-	LoRaMacRegion_t current_region = get_current_loramac_region();
-	NvmmUpdate((void *)&current_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
+	set_eeprom_stored_lorwan_region();
 
 	IWDG_reset();
+}
+
+/**
+ * @brief Update the eeprom stored lorwan region
+ * 
+ */
+void set_eeprom_stored_lorwan_region()
+{
+	LoRaMacRegion_t current_region = get_current_loramac_region();
+
+	NvmmUpdate((void *)&current_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
 }
 
 /**
@@ -643,20 +652,26 @@ int mod(int a, int b)
 	return r < 0 ? r + b : r;
 }
 
+/**
+ * @brief Get the eeprom stored lorwan region
+ * 
+ */
 void retrieve_eeprom_stored_lorawan_region()
 {
+#if USE_NVM_STORED_LORAWAN_REGION
 
-	IWDG_reset();
+	LoRaMacRegion_t eeprom_region;
+	NvmmRead((void *)&eeprom_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
 
-	/* read the eeprom value instead */
-	// TODO: must ensure that eeprom is not filled with garbage. i.e. when the eeprom has never been programed
-	if (USE_NVM_STORED_LORAWAN_REGION == true)
+	/**
+	 * @brief Reject invalid regions from a corrupt EEPROM 
+	 */
+	if (eeprom_region <= LORAMAC_REGION_RU864)
 	{
-		LoRaMacRegion_t eeprom_region;
-		NvmmRead((void *)&eeprom_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
 		set_current_loramac_region(eeprom_region);
 	}
-	IWDG_reset();
+
+#endif
 }
 
 /**

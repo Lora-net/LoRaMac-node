@@ -108,6 +108,7 @@ extern "C"
   bool manage_incoming_instruction(uint8_t *instructions);
 
   void retrieve_eeprom_stored_lorawan_region();
+  void set_eeprom_stored_lorwan_region();
 
   typedef enum
   {

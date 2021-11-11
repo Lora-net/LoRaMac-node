@@ -25,26 +25,54 @@ void print_bytes(void *ptr, int size)
     printf("\n");
 }
 
-/*!
- * MAC status strings
- */
-const char *RegionStrings[] =
-    {
-        "LORAMAC_REGION_AS923",
-        "LORAMAC_REGION_AU915",
-        "LORAMAC_REGION_CN470",
-        "LORAMAC_REGION_CN779",
-        "LORAMAC_REGION_EU433",
-        "LORAMAC_REGION_EU868",
-        "LORAMAC_REGION_KR920",
-        "LORAMAC_REGION_IN865",
-        "LORAMAC_REGION_US915",
-        "LORAMAC_REGION_RU864",
-};
-
 const char *get_lorawan_region_string(LoRaMacRegion_t region)
 {
-    return RegionStrings[region];
+
+    switch (region)
+    {
+    case LORAMAC_REGION_AS923:
+        return "LORAMAC_REGION_AS923";
+        break;
+
+    case LORAMAC_REGION_AU915:
+        return "LORAMAC_REGION_AU915";
+        break;
+
+    case LORAMAC_REGION_CN470:
+        return "LORAMAC_REGION_CN470";
+        break;
+
+    case LORAMAC_REGION_CN779:
+        return "LORAMAC_REGION_CN779";
+        break;
+
+    case LORAMAC_REGION_EU433:
+        return "LORAMAC_REGION_EU433";
+        break;
+
+    case LORAMAC_REGION_EU868:
+        return "LORAMAC_REGION_EU868";
+        break;
+
+    case LORAMAC_REGION_KR920:
+        return "LORAMAC_REGION_KR920";
+        break;
+
+    case LORAMAC_REGION_IN865:
+        return "LORAMAC_REGION_IN865";
+        break;
+
+    case LORAMAC_REGION_US915:
+        return "LORAMAC_REGION_US915";
+        break;
+
+    case LORAMAC_REGION_RU864:
+        return "LORAMAC_REGION_RU864";
+        break;
+    default:
+        return "UNKNOWN_REGION";
+        break;
+    }
 }
 
 void print_current_region()

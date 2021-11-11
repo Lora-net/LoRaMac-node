@@ -9,5 +9,3 @@
  * 
  */
 #include "config.h"
-
-bool USE_NVM_STORED_LORAWAN_REGION = true;

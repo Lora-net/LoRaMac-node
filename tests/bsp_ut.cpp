@@ -8,7 +8,8 @@ extern "C"
 #include "nvmm.h"
 #include "playback.h"
 #include "print_utils.h"
-
+#include "geofence.h"
+#include "LoRaMac.h"
 #include <math.h> /* fmod */
 }
 
@@ -196,4 +197,59 @@ TEST(bsp_ut, test_playback_stats_valid_eeprom)
      */
     CHECK_EQUAL(90, eeprom_playback_stats.current_EEPROM_index);
     CHECK_EQUAL(10, eeprom_playback_stats.n_playback_positions_saved);
+}
+
+/**
+ * @brief Test get EEPROM loramac region success
+ */
+TEST(bsp_ut, test_get_eeprom_loramac_region_success)
+{
+
+    LoRaMacRegion_t target_region = LORAMAC_REGION_CN470;
+    NvmmWrite((uint8_t *)&target_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
+
+    retrieve_eeprom_stored_lorawan_region();
+
+    CHECK_EQUAL(LORAMAC_REGION_CN470, get_current_loramac_region());
+}
+
+/**
+ * @brief Test get EEPROM loramac region success over russia. Its the last value in LoRaMacRegion_t.
+ */
+TEST(bsp_ut, test_get_eeprom_loramac_region_success_russia)
+{
+
+    LoRaMacRegion_t target_region = LORAMAC_REGION_RU864;
+    NvmmWrite((uint8_t *)&target_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
+
+    retrieve_eeprom_stored_lorawan_region();
+
+    CHECK_EQUAL(LORAMAC_REGION_RU864, get_current_loramac_region());
+}
+
+/**
+ * @brief Test get EEPROM loramac region fail
+ */
+TEST(bsp_ut, test_get_eeprom_loramac_region_fail)
+{
+
+    uint8_t target_region = 123;
+    NvmmWrite((uint8_t *)&target_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
+
+    retrieve_eeprom_stored_lorawan_region();
+
+    CHECK_EQUAL(LORAMAC_REGION_EU868, get_current_loramac_region());
+}
+
+/**
+ * @brief Test set EEPROM loramac region success
+ */
+TEST(bsp_ut, test_set_eeprom_loramac_region_success)
+{
+
+    set_current_loramac_region(LORAMAC_REGION_US915);
+
+    set_eeprom_stored_lorwan_region();
+
+    CHECK_EQUAL(LORAMAC_REGION_US915, get_current_loramac_region());
 }
