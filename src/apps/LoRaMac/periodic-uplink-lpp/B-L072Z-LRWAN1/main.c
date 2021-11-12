@@ -33,6 +33,7 @@
 #include "iwdg.h"
 #include "print_utils.h"
 #include "NvmDataMgmt.h"
+#include "RegionAS923.h"
 
 #include "callbacks.h"
 #include "message_sender.h"
@@ -242,6 +243,10 @@ static void init_loramac(picotracker_lorawan_settings_t settings)
 {
 
     /* Set region and datarate */
+
+    /* Configure the subband settings for AS923 BEFORE initing it */
+    set_as923_region_specific_frequencies(get_as923_subband());
+
     LmHandlerParams.Region = get_current_loramac_region();
     LmHandlerParams.TxDatarate = settings.datarate;
 

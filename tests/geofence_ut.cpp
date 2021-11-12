@@ -5,6 +5,7 @@ extern "C"
 {
 #include "LoRaMac.h"
 #include "geofence.h"
+#include "RegionAS923.h"
 }
 
 TEST_GROUP(test_get_current_lorawan_region){
@@ -122,6 +123,7 @@ TEST(test_get_current_lorawan_region, Singapore_test)
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_AS923, region);
     CHECK_EQUAL(TX_OK, get_current_tx_permission());
+    CHECK_EQUAL(CHANNEL_PLAN_GROUP_AS923_1, get_as923_subband());
 }
 
 TEST(test_get_current_lorawan_region, Russia_test)
@@ -174,6 +176,7 @@ TEST(test_get_current_lorawan_region, Japan)
 
     CHECK_EQUAL(LORAMAC_REGION_AS923, region);
     CHECK_EQUAL(TX_OK, get_current_tx_permission());
+    CHECK_EQUAL(CHANNEL_PLAN_GROUP_AS923_1_JP, get_as923_subband());
 }
 
 TEST(test_get_current_lorawan_region, India)
@@ -245,6 +248,7 @@ TEST(test_get_current_lorawan_region, Hokkaido)
 
     CHECK_EQUAL(LORAMAC_REGION_AS923, region);
     CHECK_EQUAL(TX_OK, get_current_tx_permission());
+    CHECK_EQUAL(CHANNEL_PLAN_GROUP_AS923_1_JP, get_as923_subband());
 }
 
 TEST(test_get_current_lorawan_region, Honduras)
@@ -299,8 +303,9 @@ TEST(test_get_current_lorawan_region, Manila)
 {
     update_geofence_position(14.426168, 120.662100);
     LoRaMacRegion_t region = get_current_loramac_region();
-    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(LORAMAC_REGION_AS923, region);
     CHECK_EQUAL(TX_OK, get_current_tx_permission());
+    CHECK_EQUAL(CHANNEL_PLAN_GROUP_AS923_3, get_as923_subband());
 }
 
 TEST(test_get_current_lorawan_region, New_Zealand)
@@ -317,6 +322,7 @@ TEST(test_get_current_lorawan_region, Taiwan)
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_AS923, region);
     CHECK_EQUAL(TX_OK, get_current_tx_permission());
+    CHECK_EQUAL(CHANNEL_PLAN_GROUP_AS923_1, get_as923_subband());
 }
 
 TEST(test_get_current_lorawan_region, Fukuda)
@@ -325,6 +331,7 @@ TEST(test_get_current_lorawan_region, Fukuda)
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_AS923, region);
     CHECK_EQUAL(TX_OK, get_current_tx_permission());
+    CHECK_EQUAL(CHANNEL_PLAN_GROUP_AS923_1_JP, get_as923_subband());
 }
 
 TEST(test_get_current_lorawan_region, Azores)

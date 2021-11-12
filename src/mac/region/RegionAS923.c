@@ -35,49 +35,13 @@
 // Definitions
 #define CHANNELS_MASK_SIZE                1
 
-#ifndef REGION_AS923_DEFAULT_CHANNEL_PLAN
-#define REGION_AS923_DEFAULT_CHANNEL_PLAN CHANNEL_PLAN_GROUP_AS923_1
-#endif
-
-#if( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_1 )
-
-// Channel plan CHANNEL_PLAN_GROUP_AS923_1
-
-#define REGION_AS923_FREQ_OFFSET          0
-
-#define AS923_MIN_RF_FREQUENCY            915000000
-#define AS923_MAX_RF_FREQUENCY            928000000
-
-#elif ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_2 )
-
-// Channel plan CHANNEL_PLAN_GROUP_AS923_2
-// -1.8MHz
-#define REGION_AS923_FREQ_OFFSET          ( ( ~( 0xFFFFB9B0 ) + 1 ) * 100 )
-
-#define AS923_MIN_RF_FREQUENCY            915000000
-#define AS923_MAX_RF_FREQUENCY            928000000
-
-#elif ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_3 )
-
-// Channel plan CHANNEL_PLAN_GROUP_AS923_3
-// -6.6MHz
-#define REGION_AS923_FREQ_OFFSET          ( ( ~( 0xFFFEFE30 ) + 1 ) * 100 )
-
-#define AS923_MIN_RF_FREQUENCY            915000000
-#define AS923_MAX_RF_FREQUENCY            928000000
-
-#elif ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_1_JP )
-
-// Channel plan CHANNEL_PLAN_GROUP_AS923_1_JP
-
-#define REGION_AS923_FREQ_OFFSET          0
-
-/*!
- * Restrict AS923 frequencies to channels 24 to 38
- * Center frequencies 920.6 MHz to 923.4 MHz @ 200 kHz max bandwidth
- */
-#define AS923_MIN_RF_FREQUENCY            920600000
-#define AS923_MAX_RF_FREQUENCY            923400000
+as923_subbands_t current_as923_subband = CHANNEL_PLAN_GROUP_AS923_1;
+uint32_t REGION_AS923_FREQ_OFFSET = 0;
+uint32_t AS923_MIN_RF_FREQUENCY = 915000000;
+uint32_t AS923_MAX_RF_FREQUENCY = 928000000;
+int8_t AS923_TX_MAX_DATARATE = DR_7;  // Maximal datarate that can be used by the node
+int8_t AS923_RX_MAX_DATARATE = DR_7;  // Maximal datarate that can be used by the node
+float AS923_DEFAULT_MAX_EIRP = 16.0f; // Default Max EIRP
 
 /*!
  * Specifies the reception bandwidth to be used while executing the LBT
@@ -85,16 +49,7 @@
  */
 #define AS923_LBT_RX_BANDWIDTH            200000
 
-#undef AS923_TX_MAX_DATARATE
-#define AS923_TX_MAX_DATARATE             DR_5
 
-#undef AS923_RX_MAX_DATARATE
-#define AS923_RX_MAX_DATARATE             DR_5
-
-#undef AS923_DEFAULT_MAX_EIRP
-#define AS923_DEFAULT_MAX_EIRP            13.0f
-
-#endif
 
 /*
  * Non-volatile module context.
@@ -103,6 +58,71 @@ static RegionNvmDataGroup1_t* RegionNvmGroup1;
 static RegionNvmDataGroup2_t* RegionNvmGroup2;
 
 // Static functions
+
+/**
+ * @brief Set the region specific frequencies
+ * 
+ * @param channel_plan 
+ */
+void set_as923_region_specific_frequencies(as923_subbands_t subband)
+{
+    current_as923_subband = subband;
+
+    switch (subband)
+    {
+    case CHANNEL_PLAN_GROUP_AS923_1:
+        REGION_AS923_FREQ_OFFSET = 0;
+        AS923_MIN_RF_FREQUENCY = 915000000;
+        AS923_MAX_RF_FREQUENCY = 928000000;
+        AS923_TX_MAX_DATARATE = DR_7;
+        AS923_RX_MAX_DATARATE = DR_7;
+        AS923_DEFAULT_MAX_EIRP = 16.0f;
+        break;
+
+    case CHANNEL_PLAN_GROUP_AS923_2:
+        REGION_AS923_FREQ_OFFSET = ((~(0xFFFFB9B0) + 1) * 100);
+        AS923_MIN_RF_FREQUENCY = 915000000;
+        AS923_MAX_RF_FREQUENCY = 928000000;
+        AS923_TX_MAX_DATARATE = DR_7;
+        AS923_RX_MAX_DATARATE = DR_7;
+        AS923_DEFAULT_MAX_EIRP = 16.0f;
+        break;
+
+    case CHANNEL_PLAN_GROUP_AS923_3:
+        REGION_AS923_FREQ_OFFSET = ((~(0xFFFEFE30) + 1) * 100);
+        AS923_MIN_RF_FREQUENCY = 915000000;
+        AS923_MAX_RF_FREQUENCY = 928000000;
+        AS923_TX_MAX_DATARATE = DR_7;
+        AS923_RX_MAX_DATARATE = DR_7;
+        AS923_DEFAULT_MAX_EIRP = 16.0f;
+        break;
+
+    case CHANNEL_PLAN_GROUP_AS923_1_JP:
+        REGION_AS923_FREQ_OFFSET = 0;
+        /**
+         * Restrict AS923 frequencies to channels 24 to 38
+         * Center frequencies 920.6 MHz to 923.4 MHz @ 200 kHz max bandwidth
+         * Maximal datarate that can be used by the node
+         */
+        AS923_MIN_RF_FREQUENCY = 920600000;
+        AS923_MAX_RF_FREQUENCY = 923400000;
+        AS923_TX_MAX_DATARATE = DR_5;
+        AS923_RX_MAX_DATARATE = DR_5;
+        AS923_DEFAULT_MAX_EIRP = 13.0f;
+        break;
+
+    default:
+        REGION_AS923_FREQ_OFFSET = 0;
+        AS923_MIN_RF_FREQUENCY = 915000000;
+        AS923_MAX_RF_FREQUENCY = 928000000;
+        AS923_TX_MAX_DATARATE = DR_7;
+        AS923_RX_MAX_DATARATE = DR_7;
+        AS923_DEFAULT_MAX_EIRP = 16.0f;
+        break;
+    }
+}
+
+
 static bool VerifyRfFreq( uint32_t freq )
 {
     // Check radio driver support
@@ -911,31 +931,34 @@ LoRaMacStatus_t RegionAS923NextChannel( NextChanParams_t* nextChanParams, uint8_
 
     if( status == LORAMAC_STATUS_OK )
     {
-#if ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_1_JP )
-        // Executes the LBT algorithm when operating in Japan
-        uint8_t channelNext = 0;
-
-        for( uint8_t  i = 0, j = randr( 0, nbEnabledChannels - 1 ); i < AS923_MAX_NB_CHANNELS; i++ )
+        if (current_as923_subband == CHANNEL_PLAN_GROUP_AS923_1_JP)
         {
-            channelNext = enabledChannels[j];
-            j = ( j + 1 ) % nbEnabledChannels;
+            // Executes the LBT algorithm when operating in Japan
+            uint8_t channelNext = 0;
 
-            // Perform carrier sense for AS923_CARRIER_SENSE_TIME
-            // If the channel is free, we can stop the LBT mechanism
-            if( Radio.IsChannelFree( RegionNvmGroup2->Channels[channelNext].Frequency, AS923_LBT_RX_BANDWIDTH, AS923_RSSI_FREE_TH, AS923_CARRIER_SENSE_TIME ) == true )
+            for (uint8_t i = 0, j = randr(0, nbEnabledChannels - 1); i < AS923_MAX_NB_CHANNELS; i++)
             {
-                // Free channel found
-                *channel = channelNext;
-                return LORAMAC_STATUS_OK;
+                channelNext = enabledChannels[j];
+                j = (j + 1) % nbEnabledChannels;
+
+                // Perform carrier sense for AS923_CARRIER_SENSE_TIME
+                // If the channel is free, we can stop the LBT mechanism
+                if (Radio.IsChannelFree(RegionNvmGroup2->Channels[channelNext].Frequency, AS923_LBT_RX_BANDWIDTH, AS923_RSSI_FREE_TH, AS923_CARRIER_SENSE_TIME) == true)
+                {
+                    // Free channel found
+                    *channel = channelNext;
+                    return LORAMAC_STATUS_OK;
+                }
             }
+            // Even if one or more channels are available according to the channel plan, no free channel
+            // was found during the LBT procedure.
+            status = LORAMAC_STATUS_NO_FREE_CHANNEL_FOUND;
         }
-        // Even if one or more channels are available according to the channel plan, no free channel
-        // was found during the LBT procedure.
-        status = LORAMAC_STATUS_NO_FREE_CHANNEL_FOUND;
-#else
-        // We found a valid channel
-        *channel = enabledChannels[randr( 0, nbEnabledChannels - 1 )];
-#endif
+        else
+        {
+            // We found a valid channel
+            *channel = enabledChannels[randr(0, nbEnabledChannels - 1)];
+        }
     }
     else if( status == LORAMAC_STATUS_NO_CHANNEL_FOUND )
     {

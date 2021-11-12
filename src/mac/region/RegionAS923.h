@@ -44,29 +44,33 @@ extern "C"
 
 #include "region/Region.h"
 
-/*!
- * Channel plan group AS923-1
- * AS923_FREQ_OFFSET = 0
- */
-#define CHANNEL_PLAN_GROUP_AS923_1                  1
+    typedef enum
+    {
+        /*!
+        * Channel plan group AS923-1
+        * AS923_FREQ_OFFSET = 0
+        */
+        CHANNEL_PLAN_GROUP_AS923_1,
 
-/*!
- * Channel plan group AS923-2
- * AS923_FREQ_OFFSET = -1.8MHz
- */
-#define CHANNEL_PLAN_GROUP_AS923_2                  2
+        /*!
+        * Channel plan group AS923-2
+        * AS923_FREQ_OFFSET = -1.8MHz
+        */
+        CHANNEL_PLAN_GROUP_AS923_2,
 
-/*!
- * Channel plan group AS923-3
- * AS923_FREQ_OFFSET = -6.6MHz
- */
-#define CHANNEL_PLAN_GROUP_AS923_3                  3
+        /*!
+        * Channel plan group AS923-3
+        * AS923_FREQ_OFFSET = -6.6MHz
+        */
+        CHANNEL_PLAN_GROUP_AS923_3,
 
-/*!
- * Channel plan group AS923-1 for Japan
- * AS923_FREQ_OFFSET = 0
- */
-#define CHANNEL_PLAN_GROUP_AS923_1_JP               4
+        /*!
+        * Channel plan group AS923-1 for Japan
+        * AS923_FREQ_OFFSET = 0
+        */
+        CHANNEL_PLAN_GROUP_AS923_1_JP,
+
+    } as923_subbands_t;
 
 /*!
  * LoRaMac maximum number of channels
@@ -88,20 +92,12 @@ extern "C"
  */
 #define AS923_TX_MIN_DATARATE                       DR_0
 
-/*!
- * Maximal datarate that can be used by the node
- */
-#define AS923_TX_MAX_DATARATE                       DR_7
 
 /*!
  * Minimal datarate that can be used by the node
  */
 #define AS923_RX_MIN_DATARATE                       DR_0
 
-/*!
- * Maximal datarate that can be used by the node
- */
-#define AS923_RX_MAX_DATARATE                       DR_7
 
 /*!
  * Default datarate used by the node
@@ -144,10 +140,6 @@ extern "C"
  */
 #define AS923_DEFAULT_UPLINK_DWELL_TIME             1
 
-/*!
- * Default Max EIRP
- */
-#define AS923_DEFAULT_MAX_EIRP                      16.0f
 
 /*!
  * Default antenna gain
@@ -498,6 +490,15 @@ uint8_t RegionAS923ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t d
  void RegionAS923RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
 
 /*! \} defgroup REGIONAS923 */
+
+
+/**
+ * @brief Set the as923 region specific frequencies
+ * 
+ * @param subband 
+ */
+void set_as923_region_specific_frequencies(as923_subbands_t subband);
+
 
 #ifdef __cplusplus
 }
