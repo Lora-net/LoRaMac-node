@@ -242,9 +242,8 @@ static void init_loramac(picotracker_lorawan_settings_t settings)
 {
 
     /* Set region and datarate */
-    LmHandlerParams.Region = settings.region;
+    LmHandlerParams.Region = get_current_loramac_region();
     LmHandlerParams.TxDatarate = settings.datarate;
-    LmHandlerParams.is_over_the_air_activation = settings.is_over_the_air_activation;
 
     if (LmHandlerInit(&LmHandlerCallbacks, &LmHandlerParams) != LORAMAC_HANDLER_SUCCESS)
     {

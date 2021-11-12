@@ -14,7 +14,6 @@
 #include "geofence.h"
 
 int8_t datarate_calculator(LoRaMacRegion_t LoRaMacRegion);
-uint32_t tx_interval_calculator(LoRaMacRegion_t LoRaMacRegion);
 network_keys_t get_next_network_keys_in_region(LoRaMacRegion_t region);
 
 bool is_over_the_air_activation = false;
@@ -25,15 +24,11 @@ picotracker_lorawan_settings_t get_lorawan_setting(LoRaMacRegion_t current_regio
 
     /* select data rate depending on region of the world. */
     int8_t datarate = datarate_calculator(current_region);
-    uint32_t tx_interval = tx_interval_calculator(current_region);
 
     /* Init loramac stack */
     picotracker_lorawan_settings_t settings =
         {
             .datarate = datarate,
-            .region = current_region,
-            .is_over_the_air_activation = is_over_the_air_activation,
-            .tx_interval = tx_interval,
         };
 
     return settings;
@@ -62,33 +57,6 @@ int8_t datarate_calculator(LoRaMacRegion_t LoRaMacRegion)
     }
 
     return dr;
-}
-
-/**
- * @brief select which TX interval to use for each region
- * 
- * @param LoRaMacRegion Input region
- * @return uint32_t Interval period in milliseconds 
- */
-uint32_t tx_interval_calculator(LoRaMacRegion_t LoRaMacRegion)
-{
-    // TODO: update for more regions
-    uint32_t interval = 0;
-
-    switch (LoRaMacRegion)
-    {
-    case LORAMAC_REGION_EU868:
-        interval = 25000;
-        break;
-    case LORAMAC_REGION_US915:
-        interval = 25000;
-        break;
-    default:
-        interval = 25000;
-        break;
-    }
-
-    return interval;
 }
 
 // Device icspace26-hab-as-923

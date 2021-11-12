@@ -33,26 +33,18 @@ TEST(config_switcher_tests, test_eu868_4_tx)
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(false, setting.is_over_the_air_activation);
-    CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(true, context_management_enabled);
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(false, setting.is_over_the_air_activation);
-    CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(true, context_management_enabled);
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(false, setting.is_over_the_air_activation);
-    CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(true, context_management_enabled);
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(false, setting.is_over_the_air_activation);
-    CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(true, context_management_enabled);
 }
 
@@ -65,26 +57,18 @@ TEST(config_switcher_tests, test_us915_4_tx)
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(false, setting.is_over_the_air_activation);
-    CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(true, context_management_enabled);
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(false, setting.is_over_the_air_activation);
-    CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(true, context_management_enabled);
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(false, setting.is_over_the_air_activation);
-    CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(true, context_management_enabled);
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(false, setting.is_over_the_air_activation);
-    CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(true, context_management_enabled);
 }
 
@@ -97,25 +81,17 @@ TEST(config_switcher_tests, test_as923_4_tx)
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(false, setting.is_over_the_air_activation);
-    CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(true, context_management_enabled);
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(false, setting.is_over_the_air_activation);
-    CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(true, context_management_enabled);
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(false, setting.is_over_the_air_activation);
-    CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(true, context_management_enabled);
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(false, setting.is_over_the_air_activation);
-    CHECK_EQUAL(target_region, setting.region);
     CHECK_EQUAL(true, context_management_enabled);
 }

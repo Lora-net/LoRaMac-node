@@ -24,10 +24,7 @@ extern "C"
 
     typedef struct
     {
-        LoRaMacRegion_t region;
         int8_t datarate;
-        bool is_over_the_air_activation;
-        uint32_t tx_interval;
     } picotracker_lorawan_settings_t;
 
     typedef struct
