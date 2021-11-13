@@ -65,6 +65,7 @@ typedef enum polygon_t
 	EU863870_EUROPE_polygon,
 	US902928_GUAM_polygon,
 	US902928_ANTARTICA_polygon,
+	AS920923_ISRAEL_polygon,
 	OUTSIDE_polygon
 } Polygon_t;
 
@@ -690,6 +691,24 @@ static const float US902928_ANTARTICA_F[30] = {
 
 };
 
+static const float AS920923_ISRAEL_F[14] = {
+	33.87623,
+	31.62904,
+	34.92407,
+	29.29462,
+	35.86250,
+	31.74370,
+	35.98984,
+	33.33552,
+	35.67266,
+	33.36627,
+	34.93187,
+	33.04128,
+	33.87623,
+	31.62904,
+
+};
+
 /* ==================================================================== */
 /* ========================== private data ============================ */
 /* ==================================================================== */
@@ -870,6 +889,11 @@ Polygon_t get_polygon(float latitude, float longitude)
 		return RU864870_RUSSIA_polygon;
 	}
 
+	else if (pointInPolygonF(7, AS920923_ISRAEL_F, latitude, longitude) == 1)
+	{
+		return AS920923_ISRAEL_polygon;
+	}
+
 	else if (pointInPolygonF(40, EU863870_EUROPE_F, latitude, longitude) == 1)
 	{
 		return EU863870_EUROPE_polygon;
@@ -976,6 +1000,11 @@ static void set_current_loramac_region_from_polygon(Polygon_t current_poly)
 	case US902928_ANTARTICA_polygon:
 		current_geofence_status.tx_permission = TX_OK;
 		current_geofence_status.current_loramac_region = LORAMAC_REGION_US915;
+		break;
+	case AS920923_ISRAEL_polygon:
+		current_geofence_status.tx_permission = TX_OK;
+		current_geofence_status.current_loramac_region = LORAMAC_REGION_AS923;
+		current_geofence_status.subband = CHANNEL_PLAN_GROUP_AS923_4;
 		break;
 	case OUTSIDE_polygon:
 		current_geofence_status.tx_permission = TX_NOT_OK;

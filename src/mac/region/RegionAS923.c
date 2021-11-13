@@ -97,6 +97,15 @@ void set_as923_region_specific_frequencies(as923_subbands_t subband)
         AS923_DEFAULT_MAX_EIRP = 16.0f;
         break;
 
+    case CHANNEL_PLAN_GROUP_AS923_4:
+        REGION_AS923_FREQ_OFFSET = ((~(0xFFFF1988) + 1) * 100);
+        AS923_MIN_RF_FREQUENCY = 915000000;
+        AS923_MAX_RF_FREQUENCY = 928000000;
+        AS923_TX_MAX_DATARATE = DR_7;
+        AS923_RX_MAX_DATARATE = DR_7;
+        AS923_DEFAULT_MAX_EIRP = 16.0f;
+        break;
+        
     case CHANNEL_PLAN_GROUP_AS923_1_JP:
         REGION_AS923_FREQ_OFFSET = 0;
         /**

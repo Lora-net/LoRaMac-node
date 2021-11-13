@@ -279,8 +279,9 @@ TEST(test_get_current_lorawan_region, Israel)
 {
     update_geofence_position(32.896193, 35.374242);
     LoRaMacRegion_t region = get_current_loramac_region();
-    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(LORAMAC_REGION_AS923, region);
     CHECK_EQUAL(TX_OK, get_current_tx_permission());
+    CHECK_EQUAL(CHANNEL_PLAN_GROUP_AS923_4, get_as923_subband());
 }
 
 TEST(test_get_current_lorawan_region, Norway)

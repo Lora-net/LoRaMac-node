@@ -65,6 +65,12 @@ extern "C"
         CHANNEL_PLAN_GROUP_AS923_3,
 
         /*!
+        * Channel plan group AS923-4
+        * AS923_FREQ_OFFSET = -5.90 MHz
+        */
+        CHANNEL_PLAN_GROUP_AS923_4,
+
+        /*!
         * Channel plan group AS923-1 for Japan
         * AS923_FREQ_OFFSET = 0
         */
