@@ -35,7 +35,7 @@ picotracker_lorawan_settings_t get_lorawan_setting(LoRaMacRegion_t current_regio
 }
 
 /**
-* Use datarate of DR_5 over the EU but DR_4 over rest of the world
+* Use datarate of DR_5 for China, EU, ASia but DR_4 over rest of the world
 */
 int8_t datarate_calculator(LoRaMacRegion_t LoRaMacRegion)
 {
@@ -49,6 +49,14 @@ int8_t datarate_calculator(LoRaMacRegion_t LoRaMacRegion)
 
     case LORAMAC_REGION_US915:
         dr = DR_4; // IN the US, this is the highest datarate
+        break;
+
+    case LORAMAC_REGION_CN470:
+        dr = DR_5;
+        break;
+
+    case LORAMAC_REGION_AS923:
+        dr = DR_5;
         break;
 
     default:
