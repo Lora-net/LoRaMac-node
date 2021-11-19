@@ -109,8 +109,7 @@ extern "C"
  * @brief Define how quickly to return to searching for a GPS fix after transmitting
  * 
  */
-#define TX_INTERVAL_GPS_FIX_OK 20000     /* When fix was aquired, then sleep for this period (in milliseconds) before searching again */
-#define TX_INTERVAL_GPS_FIX_NOT_OK 10000 /* If fix search was not successful, then sleep for this period (in milliseconds) before searching again */
+#define TX_INTERVAL_GPS_FIX_OK 10000 /* When fix was aquired, then sleep for this period (in milliseconds) before searching again */
 
   /**
    * @brief Lorawan defaults, normally will not be changed 
