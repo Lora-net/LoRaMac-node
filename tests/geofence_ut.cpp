@@ -473,6 +473,14 @@ TEST(test_get_current_lorawan_region, Guam)
     CHECK_EQUAL(TX_OK, get_current_tx_permission());
 }
 
+TEST(test_get_current_lorawan_region, Maldives)
+{
+    update_geofence_position(3.2028, 73.2207);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_US915, region);
+    CHECK_EQUAL(TX_OK, get_current_tx_permission());
+}
+
 /**
  * @brief Regions where its not meant to TX
  * 
