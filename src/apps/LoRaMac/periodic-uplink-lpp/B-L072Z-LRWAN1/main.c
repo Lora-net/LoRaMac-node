@@ -172,7 +172,7 @@ void run_main_loop()
 
     while (1)
     {
-        do_n_transmissions(2); // do 2 transmissions on the same network
+        do_n_transmissions(N_TRANMISSIONS_PER_NETWORK + 1); // do 2 transmissions on the same network
     }
 }
 

@@ -106,6 +106,12 @@ extern "C"
 #define N_POSITIONS_TO_PRINTOUT 30
 
 /**
+ * @brief Number of transmissions to do per network
+ * 
+ */
+#define N_TRANMISSIONS_PER_NETWORK 2
+
+/**
  * @brief Define how quickly to return to searching for a GPS fix after transmitting
  * 
  */
