@@ -56,7 +56,7 @@ void AdcMcuConfig( void )
 
         AdcHandle.Init.OversamplingMode = DISABLE;
 
-        AdcHandle.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV1;
+        AdcHandle.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
         AdcHandle.Init.Resolution = ADC_RESOLUTION_12B;
         AdcHandle.Init.SamplingTime = ADC_SAMPLETIME_160CYCLES_5;
         AdcHandle.Init.ScanConvMode = ADC_SCAN_DIRECTION_FORWARD;
@@ -69,6 +69,8 @@ void AdcMcuConfig( void )
         AdcHandle.Init.LowPowerAutoPowerOff = DISABLE;
         AdcHandle.Init.LowPowerAutoWait = DISABLE;
         AdcHandle.Init.LowPowerFrequencyMode = ENABLE;
+
+        __HAL_RCC_ADC1_CLK_ENABLE();
 
         HAL_ADC_Init(&AdcHandle);
     }
@@ -88,7 +90,7 @@ uint16_t AdcMcuReadChannel( Adc_t *obj, uint32_t channel )
 
         __HAL_RCC_ADC1_CLK_ENABLE();
 
-        /*calibrate ADC if any calibraiton hardware*/
+        /* Calibrate ADC if any calibraiton hardware. Must be called before HAL_ADC_Start() */
         HAL_ADCEx_Calibration_Start(&AdcHandle, ADC_SINGLE_ENDED);
 
         /* Deselects all channels*/
@@ -109,8 +111,8 @@ uint16_t AdcMcuReadChannel( Adc_t *obj, uint32_t channel )
 
         /* Get the converted value of regular channel */
         adcData = HAL_ADC_GetValue( &AdcHandle );
-        
-        __HAL_ADC_DISABLE( &AdcHandle );
+
+        HAL_ADC_Stop( &AdcHandle );
 
         __HAL_RCC_ADC1_CLK_DISABLE();
     }

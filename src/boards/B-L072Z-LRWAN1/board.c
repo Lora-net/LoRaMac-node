@@ -41,6 +41,8 @@
 #include "iwdg.h"
 #include "string.h"
 
+#include "stm32l0xx_ll_adc.h"
+
 /*!
  * Unique Devices IDs register set ( STM32L0xxx )
  */
@@ -53,27 +55,6 @@
  * 
  */
 #define BATTERY_ADC_CHANNEL ADC_CHANNEL_5
-#define VDDA_VREFINT_CAL ((uint32_t)3000)
-#define VREFINT_CAL ((uint16_t *)((uint32_t)0x1FF80078))
-
-
-/* Internal temperature sensor: constants data used for indicative values in  */
-/* this example. Refer to device datasheet for min/typ/max values.            */
-
-/* Internal temperature sensor, parameter TS_CAL1: TS ADC raw data acquired at 
- *a temperature of 110 DegC (+-5 DegC), VDDA = 3.3 V (+-10 mV). */
-#define TEMP30_CAL_ADDR ((uint16_t *)((uint32_t)0x1FF8007A))
-
-/* Internal temperature sensor, parameter TS_CAL2: TS ADC raw data acquired at 
- *a temperature of  30 DegC (+-5 DegC), VDDA = 3.3 V (+-10 mV). */
-#define TEMP110_CAL_ADDR ((uint16_t *)((uint32_t)0x1FF8007E))
-
-/* Vdda value with which temperature sensor has been calibrated in production 
-   (+-10 mV). */
-#define VDDA_TEMP_CAL ((uint32_t)3000)
-
-#define COMPUTE_TEMPERATURE(TS_ADC_DATA, VDDA_APPLI) \
-    (((((((int32_t)((TS_ADC_DATA * VDDA_APPLI) / VDDA_TEMP_CAL) - (int32_t)*TEMP30_CAL_ADDR)) * (int32_t)(110 - 30)) << 8) / (int32_t)(*TEMP110_CAL_ADDR - *TEMP30_CAL_ADDR)) + (30 << 8))
 
 /*!
  * LED GPIO pins objects
@@ -319,25 +300,10 @@ uint16_t BoardBatteryMeasureVoltage( void )
     return 0;
 }
 
-uint32_t BoardGetBatteryVoltage( void )
+uint32_t BoardGetBatteryVoltage(void)
 {
-    uint16_t batteryLevel = 0;
-    uint16_t measuredLevel = 0;
-    uint16_t nVrefIntLevel = 0;
-    float batteryVoltage = 0;
-    float nVddValue = 0;
-
-    measuredLevel = AdcReadChannel(&Adc, BATTERY_ADC_CHANNEL);
-    nVrefIntLevel = AdcReadChannel(&Adc, ADC_CHANNEL_VREFINT);
-
-
-    nVddValue = (((uint32_t)VDDA_VREFINT_CAL * (*VREFINT_CAL)) / nVrefIntLevel);
-
-    batteryVoltage = ((((float)(measuredLevel)*nVddValue /*3300*/) / 4096) * RESITOR_DIVIDER);
-
-    batteryLevel = (uint16_t)(batteryVoltage / 1.0);
-
-    return batteryLevel;
+    uint16_t nVrefIntLevel = AdcReadChannel(&Adc, ADC_CHANNEL_VREFINT);
+    return __LL_ADC_CALC_VREFANALOG_VOLTAGE(nVrefIntLevel, LL_ADC_RESOLUTION_12B);
 }
 
 /**
@@ -347,34 +313,9 @@ uint32_t BoardGetBatteryVoltage( void )
  */
 int32_t HW_GetTemperatureLevel_int(void)
 {
-    uint16_t measuredLevel = 0;
-    uint32_t batteryLevelmV;
-    int32_t temperatureDegreeC;
-
-    measuredLevel = AdcReadChannel(&Adc, ADC_CHANNEL_VREFINT);
-
-    if (measuredLevel == 0)
-    {
-        batteryLevelmV = 0;
-    }
-    else
-    {
-        batteryLevelmV = (((uint32_t)VDDA_VREFINT_CAL * (*VREFINT_CAL)) / measuredLevel);
-    }
-
-#if 1
-    printf("VDDA= %ld\n\r", batteryLevelmV);
-#endif
-
-    measuredLevel = AdcReadChannel(&Adc, ADC_CHANNEL_TEMPSENSOR);
-
-    temperatureDegreeC = COMPUTE_TEMPERATURE(measuredLevel, batteryLevelmV);
-
-    int16_t temperatureDegreeC_Int = (temperatureDegreeC) >> 8;
-    uint16_t temperatureDegreeC_Frac = ((temperatureDegreeC - (temperatureDegreeC_Int << 8)) * 100) >> 8;
-    printf("temperature= %d,%d degrees C\n\r", temperatureDegreeC_Int, temperatureDegreeC_Frac);
-
-    return temperatureDegreeC_Int;
+    uint16_t temp_sensor_adc_value = AdcReadChannel(&Adc, ADC_CHANNEL_TEMPSENSOR);
+    uint32_t Vdd_mV = BoardGetBatteryVoltage();
+    return __LL_ADC_CALC_TEMPERATURE(Vdd_mV, temp_sensor_adc_value, LL_ADC_RESOLUTION_12B);
 }
 
 
