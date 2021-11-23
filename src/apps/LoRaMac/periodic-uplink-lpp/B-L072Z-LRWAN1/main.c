@@ -169,6 +169,8 @@ int run_app(void)
 
 void run_main_loop()
 {
+    /* Start up periodic timer for sending uplinks */
+    StartTxProcess(LORAMAC_HANDLER_TX_ON_TIMER);
 
     while (1)
     {
@@ -188,9 +190,6 @@ void do_n_transmissions(uint32_t n_transmissions_todo)
     init_loramac(settings);
 
     LmHandlerJoin();
-
-    /* Start up periodic timer for sending uplinks */
-    StartTxProcess(LORAMAC_HANDLER_TX_ON_TIMER);
 
     IWDG_reset();
 
@@ -295,9 +294,12 @@ static void PrepareTxFrame(void)
     if (tx_count < n_tx_per_network)
     {
         sensor_read_and_send(&AppData, LmHandlerParams.Region);
+        setup_next_tx_alarm();
     }
-
-    setup_next_tx_alarm();
+    else
+    {
+        IsTxFramePending = 1;
+    }
 }
 
 static void StartTxProcess(LmHandlerTxEvents_t txEvent)
