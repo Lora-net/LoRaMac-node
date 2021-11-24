@@ -75,7 +75,7 @@ TEST(config_switcher_tests, test_us915_4_tx)
 TEST(config_switcher_tests, test_as923_4_tx)
 {
     LoRaMacRegion_t target_region = LORAMAC_REGION_AS923;
-    int8_t expected_dr = DR_4;
+    int8_t expected_dr = DR_5;
 
     picotracker_lorawan_settings_t setting;
 
