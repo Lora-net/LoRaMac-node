@@ -80,3 +80,101 @@ void print_current_region()
     const char *region_string = get_lorawan_region_string(get_current_loramac_region());
     printf("Initialising Loramac Stack with Loramac region: %s\n", region_string);
 }
+
+void print_registered_device(registered_devices_t registered_device)
+{
+    printf("Registered device: ");
+
+    switch (registered_device)
+    {
+    case AS923_KEYS_EU1:
+        printf("AS923_KEYS_EU1");
+        break;
+    case AS923_KEYS_AU1:
+        printf("AS923_KEYS_AU1");
+        break;
+    case AU915_KEYS_AU1:
+        printf("AU915_KEYS_AU1");
+        break;
+    case CN470_KEYS_EU1:
+        printf("CN470_KEYS_EU1");
+        break;
+    case icspace26_eu1_eu_863_870_device_1:
+        printf("icspace26_eu1_eu_863_870_device_1");
+        break;
+    case icspace26_eu1_eu_863_870_device_2:
+        printf("icspace26_eu1_eu_863_870_device_2");
+        break;
+    case icspace26_eu1_eu_863_870_device_3:
+        printf("icspace26_eu1_eu_863_870_device_3");
+        break;
+    case icspace26_eu1_eu_863_870_device_4:
+        printf("icspace26_eu1_eu_863_870_device_4");
+        break;
+    case icspace26_eu1_eu_863_870_device_5:
+        printf("icspace26_eu1_eu_863_870_device_5");
+        break;
+    case KR920_KEYS_EU1:
+        printf("KR920_KEYS_EU1");
+        break;
+    case icspace26_au1_kr_920_923_ttn:
+        printf("icspace26_au1_kr_920_923_ttn");
+        break;
+    case IN865_KEYS_EU1:
+        printf("IN865_KEYS_EU1");
+        break;
+    case icspace26_us1_us915_device_1:
+        printf("icspace26_us1_us915_device_1");
+        break;
+    case icspace26_us1_us915_device_2:
+        printf("icspace26_us1_us915_device_2");
+        break;
+    case icspace26_us1_us915_device_3:
+        printf("icspace26_us1_us915_device_3");
+        break;
+    case icspace26_us1_us915_device_4:
+        printf("icspace26_us1_us915_device_4");
+        break;
+    case icspace26_us1_us915_device_5:
+        printf("icspace26_us1_us915_device_5");
+        break;
+    case RU864_KEYS_EU1:
+        printf("RU864_KEYS_EU1");
+        break;
+    case icspace26_helium_1:
+        printf("icspace26_helium_1");
+        break;
+    case icspace26_helium_2:
+        printf("icspace26_helium_2");
+        break;
+    case icspace26_helium_3:
+        printf("icspace26_helium_3");
+        break;
+    case icspace26_helium_4:
+        printf("icspace26_helium_4");
+        break;
+    case icspace26_helium_5:
+        printf("icspace26_helium_5");
+        break;
+    case icspace26_helium_6:
+        printf("icspace26_helium_6");
+        break;
+    case icspace26_helium_7:
+        printf("icspace26_helium_7");
+        break;
+    case icspace26_helium_8:
+        printf("icspace26_helium_8");
+        break;
+    case icspace26_helium_9:
+        printf("icspace26_helium_9");
+        break;
+    case icspace26_helium_10:
+        printf("icspace26_helium_10");
+        break;
+
+    default:
+
+        printf("unknown device registration");
+        break;
+    }
+}

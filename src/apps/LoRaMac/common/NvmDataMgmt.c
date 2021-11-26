@@ -35,6 +35,7 @@
 #include "NvmDataMgmt.h"
 #include "LoRaWAN_config_switcher.h"
 #include "secure-element.h"
+#include "print_utils.h"
 
 /*!
  * Enables/Disables the context storage management storage.
@@ -169,6 +170,7 @@ uint16_t NvmDataMgmtRestore(void)
 
         // read nvm fcount for the registered device
         registered_devices_t registered_device = get_current_network();
+        print_registered_device(registered_device);
         network_keys_t current_keys;
 
         uint16_t bytes_read = read_current_keys(&current_keys, registered_device);
