@@ -187,6 +187,7 @@ void fill_tx_buffer_with_location_and_time(uint16_t start_point, uint8_t *buffer
 	/* Send minutes since epoch */
 	tx_str_buffer[start_point + POSITION_BYTES_LEN + 0] = (minutes_since_epoch >> 0) & 0xff;
 	tx_str_buffer[start_point + POSITION_BYTES_LEN + 1] = (minutes_since_epoch >> 8) & 0xff;
+	tx_str_buffer[start_point + POSITION_BYTES_LEN + 2] = (minutes_since_epoch >> 16) & 0xff;
 }
 
 void fill_tx_buffer_with_sensor_debug_data(uint16_t start_point, uint8_t *buffer)
@@ -218,15 +219,12 @@ void fill_tx_buffer_with_past_data(uint16_t start_point, uint8_t *buffer)
 	{
 		time_pos_fix_t temp_pos = subset_positions[i];
 
-		/* calculate time delta between current time and the past time. Up to 2 bytes in length. ~45 days */
-		uint16_t delta_time = (uint16_t)(current_pos_ptr->minutes_since_epoch - temp_pos.minutes_since_epoch);
-
-		fill_tx_buffer_with_location_and_time(start_point + i * (POSITION_BYTES_LEN + MINUTES_SINCE_EPOCH_DELTA_BYTES_LEN),
+		fill_tx_buffer_with_location_and_time(start_point + i * (POSITION_BYTES_LEN + MINUTES_SINCE_EPOCH_BYTES_LEN),
 											  buffer,
 											  temp_pos.latitude_encoded,
 											  temp_pos.longitude_encoded,
 											  temp_pos.altitude_encoded,
-											  delta_time);
+											  temp_pos.minutes_since_epoch);
 	}
 }
 
@@ -244,7 +242,7 @@ PicoTrackerAppData_t prepare_tx_buffer()
 
 	fill_tx_buffer_with_past_data(SENSOR_DEBUG_BYTES_LEN + POSITION_BYTES_LEN, tx_str_buffer);
 
-	tx_str_buffer_len = SENSOR_DEBUG_BYTES_LEN + POSITION_BYTES_LEN + (POSITION_BYTES_LEN + MINUTES_SINCE_EPOCH_DELTA_BYTES_LEN) * current_playback_key_info.n_positions_to_send;
+	tx_str_buffer_len = SENSOR_DEBUG_BYTES_LEN + POSITION_BYTES_LEN + (POSITION_BYTES_LEN + MINUTES_SINCE_EPOCH_BYTES_LEN) * current_playback_key_info.n_positions_to_send;
 
 	// Clear error flags in preparation for the next transmission
 	clear_bits();

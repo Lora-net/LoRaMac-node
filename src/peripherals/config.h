@@ -72,7 +72,7 @@ extern "C"
 /* PLAYBACK RELATED DEFINES */
 /* ----------------------------------------------------------------------------------- */
 #define HOW_OFTEN_TO_SAVE_POS_TIM_TO_EEPROM 60U /* Save to eeprom every 60 minutes */
-#define DEFAULT_N_POSITIONS_TO_SEND 13U         /* Number of past positions to send in each transmission */
+#define DEFAULT_N_POSITIONS_TO_SEND 10U         /* Number of past positions to send in each transmission */
 #define MAX_N_POSITIONS_TO_SEND DEFAULT_N_POSITIONS_TO_SEND
 #define DEFAULT_N_POSITIONS_OFFSET 0U
 #define PLAYBACK_DAYS 30U /* How many days ago to send playback positions(default). Max 45 days*/
