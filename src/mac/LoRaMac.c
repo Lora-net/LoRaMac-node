@@ -969,6 +969,7 @@ static void ProcessRadioRxDone( void )
     switch( macHdr.Bits.MType )
     {
         case FRAME_TYPE_JOIN_ACCEPT:
+        {
             // Check if the received frame size is valid
             if( size < LORAMAC_JOIN_ACCEPT_FRAME_MIN_SIZE )
             {
@@ -988,7 +989,13 @@ static void ProcessRadioRxDone( void )
             }
             macCryptoStatus = LoRaMacCryptoHandleJoinAccept( JOIN_REQ, SecureElementGetJoinEui( ), &macMsgJoinAccept );
 
-            if( LORAMAC_CRYPTO_SUCCESS == macCryptoStatus )
+            VerifyParams_t verifyRxDr;
+            bool rxDrValid = false;
+            verifyRxDr.DatarateParams.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
+            verifyRxDr.DatarateParams.DownlinkDwellTime = Nvm.MacGroup2.MacParams.DownlinkDwellTime;
+            rxDrValid = RegionVerify( Nvm.MacGroup2.Region, &verifyRxDr, PHY_RX_DR );
+
+            if( ( LORAMAC_CRYPTO_SUCCESS == macCryptoStatus ) && ( rxDrValid == true ) )
             {
                 // Network ID
                 Nvm.MacGroup2.NetID = ( uint32_t ) macMsgJoinAccept.NetID[0];
@@ -1065,6 +1072,7 @@ static void ProcessRadioRxDone( void )
                 }
             }
             break;
+        }
         case FRAME_TYPE_DATA_CONFIRMED_DOWN:
             MacCtx.McpsIndication.McpsIndication = MCPS_CONFIRMED;
             // Intentional fall through
