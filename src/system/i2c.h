@@ -28,6 +28,7 @@ extern "C"
 {
 #endif
 
+#include "utilities.h"
 #include "gpio.h"
 
 /*!
