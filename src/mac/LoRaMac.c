@@ -1974,11 +1974,11 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
 
                 for( int8_t i = 0; i < LORAMAC_MAX_MC_CTX; i++ )
                 {
-                    if( Nvm.MacGroup2.MulticastChannelList[i].ChannelParams.IsEnabled == true )
-                    // TODO: Check multicast channel device class.
+                    if( ( Nvm.MacGroup2.MulticastChannelList[i].ChannelParams.IsEnabled == true ) &&
+                        ( Nvm.MacGroup2.MulticastChannelList[i].ChannelParams.RxParams.Class == CLASS_C ) )
                     {
-                        Nvm.MacGroup2.MacParams.RxCChannel.Frequency = Nvm.MacGroup2.MulticastChannelList[i].ChannelParams.RxParams.ClassC.Frequency;
-                        Nvm.MacGroup2.MacParams.RxCChannel.Datarate = Nvm.MacGroup2.MulticastChannelList[i].ChannelParams.RxParams.ClassC.Datarate;
+                        Nvm.MacGroup2.MacParams.RxCChannel.Frequency = Nvm.MacGroup2.MulticastChannelList[i].ChannelParams.RxParams.Params.ClassC.Frequency;
+                        Nvm.MacGroup2.MacParams.RxCChannel.Datarate = Nvm.MacGroup2.MulticastChannelList[i].ChannelParams.RxParams.Params.ClassC.Datarate;
 
                         MacCtx.RxWindowCConfig.Channel = MacCtx.Channel;
                         MacCtx.RxWindowCConfig.Frequency = Nvm.MacGroup2.MacParams.RxCChannel.Frequency;
@@ -4863,12 +4863,6 @@ LoRaMacStatus_t LoRaMacMcChannelSetup( McChannelParams_t *channel )
         }
     }
 
-    if( channel->Class == CLASS_B )
-    {
-        // Calculate class b parameters
-        LoRaMacClassBSetMulticastPeriodicity( &Nvm.MacGroup2.MulticastChannelList[channel->GroupID] );
-    }
-
     // Reset multicast channel downlink counter to initial value.
     *Nvm.MacGroup2.MulticastChannelList[channel->GroupID].DownLinkCounter = FCNT_DOWN_INITAL_VALUE;
     return LORAMAC_STATUS_OK;
@@ -4917,8 +4911,7 @@ LoRaMacStatus_t LoRaMacMcChannelSetupRxParams( AddressIdentifier_t groupID, McRx
         return LORAMAC_STATUS_BUSY;
     }
 
-    DeviceClass_t devClass = Nvm.MacGroup2.MulticastChannelList[groupID].ChannelParams.Class;
-    if( ( devClass == CLASS_A ) || ( devClass > CLASS_C ) )
+    if( ( rxParams->Class == CLASS_A ) || ( rxParams->Class > CLASS_C ) )
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
@@ -4932,13 +4925,13 @@ LoRaMacStatus_t LoRaMacMcChannelSetupRxParams( AddressIdentifier_t groupID, McRx
 
     VerifyParams_t verify;
     // Check datarate
-    if( devClass == CLASS_B )
+    if( rxParams->Class == CLASS_B )
     {
-        verify.DatarateParams.Datarate = rxParams->ClassB.Datarate;
+        verify.DatarateParams.Datarate = rxParams->Params.ClassB.Datarate;
     }
     else
     {
-        verify.DatarateParams.Datarate = rxParams->ClassC.Datarate;
+        verify.DatarateParams.Datarate = rxParams->Params.ClassC.Datarate;
     }
     verify.DatarateParams.DownlinkDwellTime = Nvm.MacGroup2.MacParams.DownlinkDwellTime;
 
@@ -4948,13 +4941,13 @@ LoRaMacStatus_t LoRaMacMcChannelSetupRxParams( AddressIdentifier_t groupID, McRx
     }
 
     // Check frequency
-    if( devClass == CLASS_B )
+    if( rxParams->Class == CLASS_B )
     {
-        verify.Frequency = rxParams->ClassB.Frequency;
+        verify.Frequency = rxParams->Params.ClassB.Frequency;
     }
     else
     {
-        verify.Frequency = rxParams->ClassC.Frequency;
+        verify.Frequency = rxParams->Params.ClassC.Frequency;
     }
     if( RegionVerify( Nvm.MacGroup2.Region, &verify, PHY_FREQUENCY ) == true )
     {
@@ -4965,6 +4958,12 @@ LoRaMacStatus_t LoRaMacMcChannelSetupRxParams( AddressIdentifier_t groupID, McRx
     {
         // Apply parameters
         Nvm.MacGroup2.MulticastChannelList[groupID].ChannelParams.RxParams = *rxParams;
+    }
+
+    if( rxParams->Class == CLASS_B )
+    {
+        // Calculate class b parameters
+        LoRaMacClassBSetMulticastPeriodicity( &Nvm.MacGroup2.MulticastChannelList[groupID] );
     }
     return LORAMAC_STATUS_OK;
 }
