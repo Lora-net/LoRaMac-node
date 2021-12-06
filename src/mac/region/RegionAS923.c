@@ -841,6 +841,11 @@ int8_t RegionAS923DlChannelReq( DlChannelReqParams_t* dlChannelReq )
 {
     uint8_t status = 0x03;
 
+    if( dlChannelReq->ChannelId >= ( CHANNELS_MASK_SIZE * 16 ) )
+    {
+        return 0;
+    }
+
     // Verify if the frequency is supported
     if( VerifyRfFreq( dlChannelReq->Rx1Frequency ) == false )
     {
