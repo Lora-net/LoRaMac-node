@@ -3104,6 +3104,7 @@ static void ResetMacParameters( void )
     classBParams.LoRaMacRegion = &Nvm.MacGroup2.Region;
     classBParams.LoRaMacParams = &Nvm.MacGroup2.MacParams;
     classBParams.MulticastChannels = &Nvm.MacGroup2.MulticastChannelList[0];
+    classBParams.NetworkActivation = &Nvm.MacGroup2.NetworkActivation;
 
     LoRaMacClassBInit( &classBParams, &classBCallbacks, &Nvm.ClassB );
 }
