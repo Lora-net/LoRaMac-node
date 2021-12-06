@@ -493,10 +493,6 @@ typedef union eLoRaMacFlags_t
          */
         uint8_t MlmeInd                 : 1;
         /*!
-         * MLME-Ind to schedule an uplink pending
-         */
-        uint8_t MlmeSchedUplinkInd      : 1;
-        /*!
          * MAC cycle done
          */
         uint8_t MacDone                 : 1;
@@ -1069,7 +1065,6 @@ typedef struct sMcpsIndication
  * \ref MLME_REJOIN_1           | YES     | NO         | NO       | YES
  * \ref MLME_LINK_CHECK         | YES     | NO         | NO       | YES
  * \ref MLME_TXCW               | YES     | NO         | NO       | YES
- * \ref MLME_SCHEDULE_UPLINK    | NO      | YES        | NO       | NO
  * \ref MLME_DERIVE_MC_KE_KEY   | YES     | NO         | NO       | YES
  * \ref MLME_DERIVE_MC_KEY_PAIR | YES     | NO         | NO       | YES
  * \ref MLME_REVERT_JOIN        | NO      | YES        | NO       | NO
@@ -1119,11 +1114,6 @@ typedef enum eMlme
      * LoRaWAN end-device certification
      */
     MLME_TXCW,
-    /*!
-     * Indicates that the application shall perform an uplink as
-     * soon as possible.
-     */
-    MLME_SCHEDULE_UPLINK,
     /*!
      * Derives the McKEKey from the AppKey or NwkKey.
      */

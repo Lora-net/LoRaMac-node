@@ -188,15 +188,6 @@ LoRaMacCommandStatus_t LoRaMacCommandsGetSizeSerializedCmds( size_t* size );
 LoRaMacCommandStatus_t LoRaMacCommandsSerializeCmds( size_t availableSize, size_t* effectiveSize,  uint8_t* buffer );
 
 /*!
- * \brief Determines if there are sticky MAC commands pending.
- *
- * \param[IN]   cmdsPending        - Indicates if there are sticky MAC commands in the queue.
- *
- * \retval                     - Status of the operation
- */
-LoRaMacCommandStatus_t LoRaMacCommandsStickyCmdsPending( bool* cmdsPending );
-
-/*!
  * \brief Get the MAC command size with corresponding CID.
  *
  * \param[IN]   cid                - MAC command identifier

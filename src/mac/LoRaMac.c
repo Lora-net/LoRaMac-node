@@ -387,12 +387,6 @@ static void OnForceRejoinReqCycleTimerEvent( void* context );
 static void OnRetransmitTimeoutTimerEvent( void* context );
 
 /*!
- * \brief Configures the events to trigger an MLME-Indication with
- *        a MLME type of MLME_SCHEDULE_UPLINK.
- */
-static void SetMlmeScheduleUplinkIndication( void );
-
-/*!
  * Computes next 32 bit downlink counter value and determines the frame counter ID.
  *
  * \param[IN]     addrID                - Address identifier
@@ -1568,21 +1562,6 @@ static void LoRaMacHandleRequestEvents( void )
     }
 }
 
-static void LoRaMacHandleScheduleUplinkEvent( void )
-{
-    // Handle events
-    if( MacCtx.MacState == LORAMAC_IDLE )
-    {
-        // Verify if sticky MAC commands are pending or not
-        bool isStickyMacCommandPending = false;
-        LoRaMacCommandsStickyCmdsPending( &isStickyMacCommandPending );
-        if( isStickyMacCommandPending == true )
-        {// Setup MLME indication
-            SetMlmeScheduleUplinkIndication( );
-        }
-    }
-}
-
 static void LoRaMacHandleIndicationEvents( void )
 {
     // Handle MLME indication
@@ -1590,16 +1569,6 @@ static void LoRaMacHandleIndicationEvents( void )
     {
         MacCtx.MacFlags.Bits.MlmeInd = 0;
         MacCtx.MacPrimitives->MacMlmeIndication( &MacCtx.MlmeIndication );
-    }
-
-    if( MacCtx.MacFlags.Bits.MlmeSchedUplinkInd == 1 )
-    {
-        MlmeIndication_t schduleUplinkIndication;
-        schduleUplinkIndication.MlmeIndication = MLME_SCHEDULE_UPLINK;
-        schduleUplinkIndication.Status = LORAMAC_EVENT_INFO_STATUS_OK;
-
-        MacCtx.MacPrimitives->MacMlmeIndication( &schduleUplinkIndication );
-        MacCtx.MacFlags.Bits.MlmeSchedUplinkInd = 0;
     }
 
     // Handle MCPS indication
@@ -1826,7 +1795,6 @@ void LoRaMacProcess( void )
             LoRaMacHandleMcpsRequest( );
         }
         LoRaMacHandleRequestEvents( );
-        LoRaMacHandleScheduleUplinkEvent( );
         LoRaMacEnableRequests( LORAMAC_REQUEST_HANDLING_ON );
         MacCtx.MacFlags.Bits.NvmHandle = 1;
     }
@@ -2095,11 +2063,6 @@ static bool ValidatePayloadLength( uint8_t lenN, int8_t datarate, uint8_t fOptsL
     return false;
 }
 
-static void SetMlmeScheduleUplinkIndication( void )
-{
-    MacCtx.MacFlags.Bits.MlmeSchedUplinkInd = 1;
-}
-
 static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t commandsSize, int8_t snr, LoRaMacRxSlot_t rxSlot )
 {
     uint8_t status = 0;
@@ -2272,8 +2235,6 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 }
                 macCmdPayload[0] = status;
                 LoRaMacCommandsAddCmd( MOTE_MAC_RX_PARAM_SETUP_ANS, macCmdPayload, 1 );
-                // Setup indication to inform the application
-                SetMlmeScheduleUplinkIndication( );
                 break;
             }
             case SRV_MAC_DEV_STATUS_REQ:
@@ -2324,8 +2285,6 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 Nvm.MacGroup2.MacParams.ReceiveDelay1 = delay * 1000;
                 Nvm.MacGroup2.MacParams.ReceiveDelay2 = Nvm.MacGroup2.MacParams.ReceiveDelay1 + 1000;
                 LoRaMacCommandsAddCmd( MOTE_MAC_RX_TIMING_SETUP_ANS, macCmdPayload, 0 );
-                // Setup indication to inform the application
-                SetMlmeScheduleUplinkIndication( );
                 break;
             }
             case SRV_MAC_TX_PARAM_SETUP_REQ:
@@ -2398,8 +2357,6 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 {
                     macCmdPayload[0] = status;
                     LoRaMacCommandsAddCmd( MOTE_MAC_DL_CHANNEL_ANS, macCmdPayload, 1 );
-                    // Setup indication to inform the application
-                    SetMlmeScheduleUplinkIndication( );
                 }
                 break;
             }
@@ -2570,8 +2527,6 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 status = LoRaMacClassBPingSlotChannelReq( datarate, frequency );
                 macCmdPayload[0] = status;
                 LoRaMacCommandsAddCmd( MOTE_MAC_PING_SLOT_CHANNEL_ANS, macCmdPayload, 1 );
-                // Setup indication to inform the application
-                SetMlmeScheduleUplinkIndication( );
                 break;
             }
             case SRV_MAC_BEACON_TIMING_ANS:

@@ -862,12 +862,6 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
 
     switch( mlmeIndication->MlmeIndication )
     {
-    case MLME_SCHEDULE_UPLINK:
-        {
-            // The MAC layer signals that we shall provide an uplink as soon as possible
-            IsUplinkTxPending = true;
-        }
-        break;
     case MLME_BEACON_LOST:
         {
             MibRequestConfirm_t mibReq;
