@@ -4960,6 +4960,10 @@ LoRaMacStatus_t LoRaMacMcChannelSetupRxParams( AddressIdentifier_t groupID, McRx
         // Apply parameters
         Nvm.MacGroup2.MulticastChannelList[groupID].ChannelParams.RxParams = *rxParams;
     }
+    else
+    {
+        return LORAMAC_STATUS_PARAMETER_INVALID;
+    }
 
     if( rxParams->Class == CLASS_B )
     {
