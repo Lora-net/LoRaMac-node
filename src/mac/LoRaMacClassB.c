@@ -1682,7 +1682,7 @@ void LoRaMacClassBDeviceTimeAns( void )
 #ifdef LORAMAC_CLASSB_ENABLED
 
     SysTime_t nextBeacon = SysTimeGet( );
-    uint32_t currentTimeMs = SysTimeToMs( nextBeacon );
+    TimerTime_t currentTimeMs = SysTimeToMs( nextBeacon );
 
     nextBeacon.Seconds = nextBeacon.Seconds + ( 128 - ( nextBeacon.Seconds % 128 ) );
     nextBeacon.SubSeconds = 0;

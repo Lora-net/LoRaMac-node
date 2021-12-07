@@ -32,6 +32,7 @@ extern "C"
 
 #include <stdint.h>
 #include "time.h"
+#include "timer.h"
 
 /*!
  * \brief Days, Hours, Minutes and seconds of systime.h
@@ -134,7 +135,7 @@ SysTime_t SysTimeGetMcuTime( void );
  * 
  * \retval timeMs The RTC converted time value in ms
  */
-uint32_t SysTimeToMs( SysTime_t sysTime );
+TimerTime_t SysTimeToMs( SysTime_t sysTime );
 
 /*!
  * Converts the given RTC value in milliseconds to the equivalent SysTime
@@ -143,7 +144,7 @@ uint32_t SysTimeToMs( SysTime_t sysTime );
  * 
  * \retval sysTime Converted system time
  */
-SysTime_t SysTimeFromMs( uint32_t timeMs );
+SysTime_t SysTimeFromMs( TimerTime_t timeMs );
 
 /*!
  * \brief Convert a calendar time into time since UNIX epoch as a uint32_t.
