@@ -752,7 +752,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
     // Call packages RxProcess function
     LmHandlerPackagesNotify( PACKAGE_MCPS_INDICATION, mcpsIndication );
 
-    if( ( ( mcpsIndication->FramePending == true ) && ( LmHandlerGetCurrentClass( ) == CLASS_A ) ) ||
+    if( ( ( mcpsIndication->FramePending != 0 ) && ( LmHandlerGetCurrentClass( ) == CLASS_A ) ) ||
         ( mcpsIndication->ResponseTimeout > 0 ) )
     {
         // The server signals that it has pending data to be sent.
