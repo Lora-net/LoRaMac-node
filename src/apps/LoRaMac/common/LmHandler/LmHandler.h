@@ -334,6 +334,13 @@ LoRaMacRegion_t LmHandlerGetActiveRegion( void );
  */
 LmHandlerErrorStatus_t LmHandlerSetSystemMaxRxError( uint32_t maxErrorInMs );
 
+/*!
+ * Requests network server time update
+ *
+ * \retval status Returns \ref LORAMAC_HANDLER_SET if joined else \ref LORAMAC_HANDLER_RESET
+ */
+LmHandlerErrorStatus_t LmHandlerDeviceTimeReq( void );
+
 /*
  *=============================================================================
  * PACKAGES HANDLING

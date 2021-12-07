@@ -187,13 +187,6 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm );
 static void MlmeIndication( MlmeIndication_t *mlmeIndication );
 
 /*!
- * Requests network server time update
- *
- * \retval status Returns \ref LORAMAC_HANDLER_SET if joined else \ref LORAMAC_HANDLER_RESET
- */
-static LmHandlerErrorStatus_t LmHandlerDeviceTimeReq( void );
-
-/*!
  * Starts the beacon search
  *
  * \retval status Returns \ref LORAMAC_HANDLER_SET if joined else \ref LORAMAC_HANDLER_RESET
@@ -517,7 +510,7 @@ LmHandlerErrorStatus_t LmHandlerSend( LmHandlerAppData_t *appData, LmHandlerMsgT
     }
 }
 
-static LmHandlerErrorStatus_t LmHandlerDeviceTimeReq( void )
+LmHandlerErrorStatus_t LmHandlerDeviceTimeReq( void )
 {
     LoRaMacStatus_t status;
     MlmeReq_t mlmeReq;
