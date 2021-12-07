@@ -21,6 +21,10 @@
 #ifndef __CAYENNE_LPP_H__
 #define __CAYENNE_LPP_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 #define LPP_DIGITAL_INPUT       0       // 1 byte
@@ -72,5 +76,9 @@ uint8_t CayenneLppAddAccelerometer( uint8_t channel, float x, float y, float z )
 uint8_t CayenneLppAddBarometricPressure( uint8_t channel, float hpa );
 uint8_t CayenneLppAddGyrometer( uint8_t channel, float x, float y, float z );
 uint8_t CayenneLppAddGps( uint8_t channel, float latitude, float longitude, float meters );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __CAYENNE_LPP_H__

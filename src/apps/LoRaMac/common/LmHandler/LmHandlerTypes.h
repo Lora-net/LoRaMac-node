@@ -21,6 +21,10 @@
 #ifndef __LORAMAC_HANDLER_TYPES_H__
 #define __LORAMAC_HANDLER_TYPES_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "LoRaMac.h"
 
 /*!
@@ -120,5 +124,9 @@ typedef struct LmHandlerRequestParams_s
         Mlme_t Mlme;
     }RequestType;
 }LmHandlerRequestParams_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __LORAMAC_HANDLER_TYPES_H__

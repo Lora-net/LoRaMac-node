@@ -23,6 +23,10 @@
 #ifndef __FRAG_DECODER_H__
 #define __FRAG_DECODER_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 /*!
@@ -139,5 +143,9 @@ int32_t FragDecoderProcess( uint16_t fragCounter, uint8_t *rawData );
  * \retval status Fragmentation decoder status
  */
 FragDecoderStatus_t FragDecoderGetStatus( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __FRAG_DECODER_H__

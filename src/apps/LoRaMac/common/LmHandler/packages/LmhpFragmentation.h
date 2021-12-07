@@ -22,6 +22,10 @@
 #ifndef __LMHP_FRAGMENTATION_H__
 #define __LMHP_FRAGMENTATION_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "LoRaMac.h"
 #include "LmHandlerTypes.h"
 #include "LmhPackage.h"
@@ -88,5 +92,9 @@ typedef struct LmhpFragmentationParams_s
 }LmhpFragmentationParams_t;
 
 LmhPackage_t *LmhpFragmentationPackageFactory( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __LMHP_FRAGMENTATION_H__

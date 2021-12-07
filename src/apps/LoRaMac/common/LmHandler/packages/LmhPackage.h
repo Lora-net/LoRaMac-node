@@ -21,6 +21,10 @@
 #ifndef __LMH_PACKAGE_H__
 #define __LMH_PACKAGE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdbool.h>
 #include "LmHandlerTypes.h"
@@ -142,5 +146,9 @@ typedef struct LmhPackage_s
     void ( *OnSysTimeUpdate )( void );
 #endif
 }LmhPackage_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __LMH_PACKAGE_H__

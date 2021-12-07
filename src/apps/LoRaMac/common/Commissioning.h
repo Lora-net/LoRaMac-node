@@ -19,6 +19,10 @@
 #ifndef __COMMISSIONING_H__
 #define __COMMISSIONING_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  ******************************************************************************
  ********************************** WARNING ***********************************
@@ -60,5 +64,9 @@
  * Current network ID
  */
 #define LORAWAN_NETWORK_ID                                 ( uint32_t )0
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __COMMISSIONING_H__
