@@ -716,7 +716,7 @@ static void LoRaMacClassBProcessBeacon( void )
     bool activateTimer = false;
     TimerTime_t beaconEventTime = 1;
     RxConfigParams_t beaconRxConfig;
-    TimerTime_t currentTime = Ctx.BeaconCtx.TimeStamp;
+    TimerTime_t beaconTimestamp = Ctx.BeaconCtx.TimeStamp;
 
     // Beacon state machine
     switch( Ctx.BeaconState )
@@ -742,10 +742,11 @@ static void LoRaMacClassBProcessBeacon( void )
 
                     if( Ctx.BeaconCtx.BeaconTimingDelay > 0 )
                     {
-                        if( SysTimeToMs( Ctx.BeaconCtx.NextBeaconRx ) > currentTime )
+                        uint32_t now = TimerGetCurrentTime( );
+                        if( SysTimeToMs( Ctx.BeaconCtx.NextBeaconRx ) > now )
                         {
                             // Calculate the time when we expect the next beacon
-                            beaconEventTime = TimerTempCompensation( SysTimeToMs( Ctx.BeaconCtx.NextBeaconRx ) - currentTime, Ctx.BeaconCtx.Temperature );
+                            beaconEventTime = TimerTempCompensation( SysTimeToMs( Ctx.BeaconCtx.NextBeaconRx ) - now, Ctx.BeaconCtx.Temperature );
 
                             if( ( int32_t ) beaconEventTime > beaconRxConfig.WindowOffset )
                             {
@@ -837,7 +838,7 @@ static void LoRaMacClassBProcessBeacon( void )
             Ctx.BeaconCtx.Ctrl.BeaconAcquired = 0;
 
             // Verify if the maximum beacon less period has been elapsed
-            if( ( currentTime - SysTimeToMs( Ctx.BeaconCtx.LastBeaconRx ) ) > CLASSB_MAX_BEACON_LESS_PERIOD )
+            if( ( beaconTimestamp - SysTimeToMs( Ctx.BeaconCtx.LastBeaconRx ) ) > CLASSB_MAX_BEACON_LESS_PERIOD )
             {
                 Ctx.BeaconState = BEACON_STATE_LOST;
             }
@@ -845,7 +846,7 @@ static void LoRaMacClassBProcessBeacon( void )
             {
                 // Handle beacon miss
                 beaconEventTime = UpdateBeaconState( LORAMAC_EVENT_INFO_STATUS_BEACON_LOST,
-                                                     Ctx.BeaconCtx.BeaconWindowMovement, currentTime );
+                                                     Ctx.BeaconCtx.BeaconWindowMovement, beaconTimestamp );
 
                 // Setup next state
                 Ctx.BeaconState = BEACON_STATE_IDLE;
@@ -861,7 +862,7 @@ static void LoRaMacClassBProcessBeacon( void )
 
             // Handle beacon reception
             beaconEventTime = UpdateBeaconState( LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED,
-                                                 0, currentTime );
+                                                 0, beaconTimestamp );
 
             // Setup the MLME confirm for the MLME_BEACON_ACQUISITION
             if( Ctx.LoRaMacClassBParams.LoRaMacFlags->Bits.MlmeReq == 1 )
@@ -882,15 +883,15 @@ static void LoRaMacClassBProcessBeacon( void )
             activateTimer = true;
             GetTemperatureLevel( &Ctx.LoRaMacClassBCallbacks, &Ctx.BeaconCtx );
             beaconEventTime = Ctx.BeaconCtx.NextBeaconRxAdjusted - Radio.GetWakeupTime( );
-            currentTime = TimerGetCurrentTime( );
+            uint32_t now = TimerGetCurrentTime( );
 
             // The goal is to calculate beaconRxConfig.WindowTimeout and beaconRxConfig.WindowOffset
             CalculateBeaconRxWindowConfig( &beaconRxConfig, Ctx.BeaconCtx.SymbolTimeout );
 
-            if( beaconEventTime > currentTime )
+            if( beaconEventTime > now )
             {
                 Ctx.BeaconState = BEACON_STATE_GUARD;
-                beaconEventTime -= currentTime;
+                beaconEventTime -= now;
                 beaconEventTime = TimerTempCompensation( beaconEventTime, Ctx.BeaconCtx.Temperature );
 
                 if( ( int32_t ) beaconEventTime > beaconRxConfig.WindowOffset )
