@@ -111,7 +111,7 @@ typedef struct LmHandlerParams_s
     /*!
      * Class B ping-slot periodicity.
      */
-    bool PingSlotPeriodicity;
+    uint8_t PingSlotPeriodicity;
 }LmHandlerParams_t;
 
 typedef struct LmHandlerCallbacks_s
