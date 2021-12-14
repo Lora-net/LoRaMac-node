@@ -1019,6 +1019,9 @@ static void ProcessRadioRxDone( void )
                 Nvm.MacGroup2.MacParams.ReceiveDelay1 *= 1000;
                 Nvm.MacGroup2.MacParams.ReceiveDelay2 = Nvm.MacGroup2.MacParams.ReceiveDelay1 + 1000;
 
+                // Reset NbTrans to default value
+                Nvm.MacGroup2.MacParams.ChannelsNbTrans = 1;
+
                 // Is Networkserver's LoRaWAN Version before 1.1.0 ?
                 if( macMsgJoinAccept.DLSettings.Bits.OptNeg == 0 )
                 {
