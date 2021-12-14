@@ -585,7 +585,7 @@ typedef struct sLoRaMacNvmDataGroup1
      * Counts the number if uplinks to know when the next Rejoin request type 0 is required.
      * ( If requested by the server through RejoinParamSetupReq MAC command )
      */
-    uint16_t Rejoin0UplinksCounter;
+    uint32_t Rejoin0UplinksCounter;
     /*!
      * Counter of Rejoin Request of retries.
      * ( If requested by the server through ForceRejoinReq MAC command )
@@ -695,7 +695,7 @@ typedef struct sLoRaMacNvmDataGroup2
      * ( If requested by the server through RejoinParamSetupReq MAC command )
      * When it's set to 0, Rejoin0UplinksCounter won't be incremented
      */
-    uint16_t Rejoin0UplinksLimit;
+    uint32_t Rejoin0UplinksLimit;
     /*!
      * The total number of times the device will retry the Rejoin Request.
      * ( If requested by the server through ForceRejoinReq MAC command )
@@ -722,7 +722,7 @@ typedef struct sLoRaMacNvmDataGroup2
      * Indicates if a Rejoin request was sent and no join-accept or any downlink
      * has been received yet.
      */
-    bool IsRejoinRequestPending;
+    bool IsRejoinAcceptPending;
     /*!
      * CRC32 value of the MacGroup2 data structure.
      */

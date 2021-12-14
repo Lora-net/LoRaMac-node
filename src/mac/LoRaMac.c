@@ -981,7 +981,7 @@ static void ProcessRadioRxDone( void )
             macMsgJoinAccept.BufSize = size;
 
             // Abort in case if the device isn't joined yet and no rejoin request is ongoing.
-            if( ( Nvm.MacGroup2.NetworkActivation != ACTIVATION_TYPE_NONE ) && ( Nvm.MacGroup2.IsRejoinRequestPending == false ) )
+            if( ( Nvm.MacGroup2.NetworkActivation != ACTIVATION_TYPE_NONE ) && ( Nvm.MacGroup2.IsRejoinAcceptPending == false ) )
             {
                 MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                 PrepareRxDoneAbort( );
@@ -1055,9 +1055,9 @@ static void ProcessRadioRxDone( void )
                 }
 
                 // Rejoin handling
-                if( Nvm.MacGroup2.IsRejoinRequestPending == true )
+                if( Nvm.MacGroup2.IsRejoinAcceptPending == true )
                 {
-                    Nvm.MacGroup2.IsRejoinRequestPending = false;
+                    Nvm.MacGroup2.IsRejoinAcceptPending = false;
 
                     // Stop in any case the ForceRejoinReqCycleTimer
                     TimerStop( &MacCtx.ForceRejoinReqCycleTimer );
@@ -1317,9 +1317,9 @@ static void ProcessRadioRxDone( void )
             }
 
             // Rejoin handling
-            if( Nvm.MacGroup2.IsRejoinRequestPending == true )
+            if( Nvm.MacGroup2.IsRejoinAcceptPending == true )
             {
-                Nvm.MacGroup2.IsRejoinRequestPending = false;
+                Nvm.MacGroup2.IsRejoinAcceptPending = false;
 
                 // Stop in any case the ForceRejoinReqCycleTimer
                 TimerStop( &MacCtx.ForceRejoinReqCycleTimer );
@@ -2679,7 +2679,7 @@ LoRaMacStatus_t SendReJoinReq( JoinReqIdentifier_t joinReqType )
     {
         case REJOIN_REQ_1:
         {
-            Nvm.MacGroup2.IsRejoinRequestPending = true;
+            Nvm.MacGroup2.IsRejoinAcceptPending = true;
 
             MacCtx.TxMsg.Type = LORAMAC_MSG_TYPE_RE_JOIN_1;
             MacCtx.TxMsg.Message.ReJoin1.Buffer = MacCtx.PktBuffer;
@@ -2712,7 +2712,7 @@ LoRaMacStatus_t SendReJoinReq( JoinReqIdentifier_t joinReqType )
                 MacCtx.TxMsg.Message.ReJoin0or2.ReJoinType = 2;
             }
 
-            Nvm.MacGroup2.IsRejoinRequestPending = true;
+            Nvm.MacGroup2.IsRejoinAcceptPending = true;
 
             MacCtx.TxMsg.Type = LORAMAC_MSG_TYPE_RE_JOIN_0_2;
             MacCtx.TxMsg.Message.ReJoin0or2.Buffer = MacCtx.PktBuffer;
