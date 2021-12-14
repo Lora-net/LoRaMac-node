@@ -914,7 +914,7 @@ static void ProcessRadioRxDone( void )
     MacCtx.McpsIndication.RxSlot = MacCtx.RxSlot;
     MacCtx.McpsIndication.Port = 0;
     MacCtx.McpsIndication.Multicast = 0;
-    MacCtx.McpsIndication.FramePending = 0;
+    MacCtx.McpsIndication.IsUplinkTxPending = 0;
     MacCtx.McpsIndication.Buffer = NULL;
     MacCtx.McpsIndication.BufferSize = 0;
     MacCtx.McpsIndication.RxData = false;
@@ -1203,7 +1203,6 @@ static void ProcessRadioRxDone( void )
 
             MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_OK;
             MacCtx.McpsIndication.Multicast = multicast;
-            MacCtx.McpsIndication.FramePending = macMsgData.FHDR.FCtrl.Bits.FPending;
             MacCtx.McpsIndication.Buffer = NULL;
             MacCtx.McpsIndication.BufferSize = 0;
             MacCtx.McpsIndication.DownLinkCounter = downLinkCounter;
@@ -1250,6 +1249,13 @@ static void ProcessRadioRxDone( void )
                     Nvm.MacGroup1.SrvAckRequested = false;
                     MacCtx.McpsIndication.McpsIndication = MCPS_UNCONFIRMED;
                 }
+            }
+
+            // Set the pending status
+            if( ( ( ( Nvm.MacGroup1.SrvAckRequested == true ) || ( macMsgData.FHDR.FCtrl.Bits.FPending > 0 ) ) && ( Nvm.MacGroup2.DeviceClass == CLASS_A ) ) ||
+                ( MacCtx.McpsIndication.ResponseTimeout > 0 ) )
+            {
+                MacCtx.McpsIndication.IsUplinkTxPending = 1;
             }
 
             RemoveMacCommands( MacCtx.McpsIndication.RxSlot, macMsgData.FHDR.FCtrl, MacCtx.McpsConfirm.McpsRequest );

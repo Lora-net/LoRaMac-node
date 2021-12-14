@@ -1003,7 +1003,7 @@ typedef struct sMcpsIndication
     /*!
      * Frame pending status
      */
-    uint8_t FramePending;
+    uint8_t IsUplinkTxPending;
     /*!
      * Pointer to the received data stream
      */
