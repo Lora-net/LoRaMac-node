@@ -295,9 +295,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_1
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {13, 42, 221, 164, 252, 157, 210, 23, 232, 227, 179, 142, 219, 72, 144, 32},
-        .AppSKey = {170, 158, 32, 196, 24, 238, 47, 9, 79, 58, 190, 108, 239, 136, 82, 103},
-        .DevAddr = (uint32_t)0x480003ce, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x67, 0x00, 0x87, 0x46, 0xC9, 0xF1, 0xDF, 0x70, 0x7C, 0xB4, 0x60, 0x17, 0xC7, 0xCE, 0xFA, 0xC3},
+        .AppSKey = {0xA0, 0x12, 0x67, 0x9D, 0x4A, 0x2B, 0x04, 0xD3, 0xCC, 0xE0, 0x11, 0x04, 0xA3, 0x5C, 0xF8, 0xC5},
+        .DevAddr = (uint32_t)0x480002C0, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -305,9 +305,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_2
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {169, 182, 255, 248, 153, 12, 22, 112, 58, 178, 247, 135, 179, 108, 174, 77},
-        .AppSKey = {203, 221, 65, 31, 14, 239, 32, 152, 23, 59, 243, 15, 227, 144, 161, 53},
-        .DevAddr = (uint32_t)0x4800029f, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x5C, 0x2A, 0xC2, 0x2A, 0xD1, 0xC4, 0x9F, 0x80, 0xB1, 0x39, 0x6D, 0xD7, 0x93, 0x7F, 0x3A, 0x2E},
+        .AppSKey = {0xF9, 0x2D, 0xDB, 0x58, 0x02, 0xEA, 0x29, 0xB6, 0x65, 0xC4, 0x9B, 0xFE, 0x7F, 0x6A, 0x89, 0x12},
+        .DevAddr = (uint32_t)0x480002C3, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -315,9 +315,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_3
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {248, 160, 127, 233, 95, 216, 65, 233, 92, 232, 117, 236, 6, 156, 223, 127},
-        .AppSKey = {58, 3, 43, 121, 12, 59, 100, 17, 187, 29, 172, 107, 169, 16, 160, 13},
-        .DevAddr = (uint32_t)0x480002ab, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x17, 0x4B, 0x77, 0x3B, 0x82, 0xA5, 0xAD, 0x2C, 0xE8, 0x4D, 0x09, 0x9A, 0x6E, 0x99, 0x0F, 0x24},
+        .AppSKey = {0xF9, 0xBE, 0x35, 0xF2, 0xA7, 0x0B, 0x2B, 0xE0, 0x31, 0xFC, 0x73, 0x3D, 0x82, 0xC0, 0x65, 0x25},
+        .DevAddr = (uint32_t)0x480002E2, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -325,9 +325,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_4
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {84, 247, 141, 194, 90, 234, 85, 103, 230, 146, 192, 149, 97, 144, 0, 49},
-        .AppSKey = {112, 55, 144, 149, 179, 62, 124, 82, 94, 146, 142, 237, 186, 70, 114, 46},
-        .DevAddr = (uint32_t)0x480002bb, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x30, 0x76, 0x6B, 0xE0, 0x89, 0xE0, 0xDF, 0xF8, 0x34, 0x9A, 0x3D, 0xB9, 0x2E, 0x36, 0x5B, 0xB3},
+        .AppSKey = {0x15, 0x4C, 0x3E, 0x19, 0x6B, 0xD9, 0x56, 0x3E, 0xA8, 0x1E, 0x91, 0x7E, 0x26, 0xE1, 0x31, 0x5A},
+        .DevAddr = (uint32_t)0x480002CC, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -335,9 +335,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_5
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {200, 102, 112, 26, 59, 82, 0, 132, 76, 161, 61, 51, 214, 72, 61, 114},
-        .AppSKey = {238, 233, 49, 120, 231, 126, 214, 15, 252, 136, 37, 167, 242, 251, 154, 42},
-        .DevAddr = (uint32_t)0x480002c6, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x2B, 0x92, 0x2D, 0x8F, 0x8E, 0x35, 0x17, 0xFD, 0xF3, 0xF7, 0x29, 0xDA, 0x92, 0x74, 0xC3, 0xC6},
+        .AppSKey = {0x29, 0x14, 0x4C, 0x86, 0x7F, 0xDD, 0x38, 0xA8, 0xDF, 0x3C, 0x11, 0x48, 0xF4, 0x83, 0x7E, 0x2B},
+        .DevAddr = (uint32_t)0x480002CD, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -345,9 +345,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_6
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {38, 177, 81, 254, 238, 189, 58, 238, 207, 201, 201, 152, 126, 118, 146, 234},
-        .AppSKey = {1, 213, 115, 42, 38, 205, 44, 14, 218, 61, 129, 33, 237, 232, 178, 10},
-        .DevAddr = (uint32_t)0x48000316, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x1E, 0xF1, 0xA4, 0x86, 0x7D, 0xA6, 0x80, 0x22, 0x8D, 0x1A, 0x79, 0xE9, 0xCE, 0x4C, 0xF8, 0xC6},
+        .AppSKey = {0x51, 0x4F, 0xBC, 0x73, 0x07, 0x7F, 0x0E, 0xA8, 0x62, 0xA5, 0x02, 0xF1, 0x75, 0xC3, 0x20, 0xE9},
+        .DevAddr = (uint32_t)0x480002D6, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -355,9 +355,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_7
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {93, 161, 218, 76, 68, 43, 209, 225, 185, 152, 33, 49, 82, 83, 139, 170},
-        .AppSKey = {87, 1, 173, 45, 25, 186, 63, 227, 20, 6, 23, 84, 109, 151, 39, 225},
-        .DevAddr = (uint32_t)0x48000320, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x0E, 0xA8, 0x34, 0x16, 0xE1, 0x7F, 0x7A, 0x55, 0xE1, 0xB4, 0x7B, 0xFF, 0x04, 0x20, 0x2E, 0xFA},
+        .AppSKey = {0xE5, 0x9C, 0xC9, 0xC8, 0xE6, 0xED, 0x79, 0x3D, 0x6B, 0x6B, 0xAE, 0x24, 0xA8, 0xE2, 0x97, 0x22},
+        .DevAddr = (uint32_t)0x480002E7, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -365,9 +365,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_8
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {51, 92, 24, 65, 102, 44, 108, 79, 54, 215, 22, 23, 5, 16, 240, 150},
-        .AppSKey = {43, 250, 232, 90, 140, 133, 54, 22, 28, 110, 200, 249, 52, 80, 115, 199},
-        .DevAddr = (uint32_t)0x4800032b, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x32, 0xC0, 0xF4, 0x1E, 0xA6, 0xF3, 0xAB, 0xE7, 0xA8, 0xFA, 0xD0, 0x55, 0xA0, 0xA8, 0x7B, 0x67},
+        .AppSKey = {0xC7, 0x04, 0x30, 0x71, 0x57, 0x00, 0xB2, 0x84, 0xD7, 0xFF, 0x77, 0x92, 0x94, 0x5C, 0xC0, 0xD5},
+        .DevAddr = (uint32_t)0x480002EE, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -375,9 +375,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_9
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {117, 134, 90, 171, 118, 59, 105, 23, 53, 100, 193, 154, 8, 11, 170, 24},
-        .AppSKey = {144, 41, 246, 122, 249, 82, 70, 79, 101, 24, 212, 54, 91, 179, 129, 240},
-        .DevAddr = (uint32_t)0x48000335, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x91, 0x84, 0xE3, 0x71, 0x35, 0xAE, 0x5C, 0x60, 0xCD, 0xC5, 0x48, 0xBE, 0x3C, 0xA8, 0xAA, 0xD0},
+        .AppSKey = {0xA0, 0xB5, 0xF6, 0x2F, 0x2C, 0x41, 0x58, 0x65, 0x1D, 0x7F, 0x2A, 0x76, 0x1D, 0x35, 0x4E, 0xFB},
+        .DevAddr = (uint32_t)0x480002E0, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -385,9 +385,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_10
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x30, 0x14, 0x25, 0xE1, 0xD5, 0x67, 0xBB, 0x5D, 0x4C, 0x14, 0xE2, 0x7D, 0xC8, 0x8C, 0x88, 0x93},
-        .AppSKey = {0x12, 0x61, 0xDF, 0x54, 0x19, 0xD6, 0x71, 0xF9, 0x5F, 0x8C, 0xC5, 0xBE, 0x9B, 0x5A, 0x80, 0xD9},
-        .DevAddr = (uint32_t)0x4800035B, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0xED, 0x35, 0xEF, 0x3A, 0x44, 0x47, 0x84, 0xD3, 0xF7, 0xA3, 0x38, 0xDD, 0x86, 0x88, 0x0C, 0x2B},
+        .AppSKey = {0x84, 0xD1, 0x5E, 0xD7, 0x92, 0xF9, 0x91, 0x5E, 0x3A, 0xD4, 0x81, 0x08, 0x68, 0x17, 0xF1, 0x1A},
+        .DevAddr = (uint32_t)0x480002E1, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,

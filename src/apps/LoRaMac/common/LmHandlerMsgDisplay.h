@@ -101,4 +101,8 @@ void DisplayClassUpdate( DeviceClass_t deviceClass );
  */
 void DisplayAppInfo( const char* appName, const Version_t* appVersion, const Version_t* gitHubVersion );
 
+
+void PrintHexBuffer( uint8_t *buffer, uint8_t size );
+
+
 #endif // __LMHANDLER_MSG_DISPLAY_H__

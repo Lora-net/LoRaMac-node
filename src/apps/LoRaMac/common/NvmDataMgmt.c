@@ -36,6 +36,8 @@
 #include "LoRaWAN_config_switcher.h"
 #include "secure-element.h"
 #include "print_utils.h"
+#include "stdio.h"
+#include "LmHandlerMsgDisplay.h"
 
 /*!
  * Enables/Disables the context storage management storage.
@@ -142,6 +144,18 @@ uint16_t NvmDataMgmtStore(void)
         current_keys.ReceiveDelay2 = nvm->MacGroup2.MacParams.ReceiveDelay2;
 
         uint16_t bytes_written = save_to_eeprom_with_CRC(&current_keys, registered_device);
+
+        printf("FNwkSIntKey_SNwkSIntKey_NwkSEncKey:");
+        PrintHexBuffer(nvm->SecureElement.KeyList[S_NWK_S_INT_KEY].KeyValue, 16);
+        printf("\n");
+
+        printf("AppSKey:");
+        PrintHexBuffer(nvm->SecureElement.KeyList[APP_S_KEY].KeyValue, 16);
+        printf("\n");
+
+        printf("DevAddr:");
+        PrintHexBuffer((uint8_t *)&nvm->MacGroup2.DevAddr, 4);
+        printf("\n");
 
         // Reset notification flags
         NvmNotifyFlags = LORAMAC_NVM_NOTIFY_FLAG_NONE;
