@@ -116,7 +116,7 @@ int8_t datarate_calculator(LoRaMacRegion_t LoRaMacRegion)
         0xB4, 0xDF, 0xCD, 0x17, 0x6E, 0x52, 0xE9, 0x3C, 0x27, 0x8C, 0x10, 0xFF, 0xE1, 0x0D, 0x45, 0xC6 \
     }
 
-#define HELIUM_FRAME_COUNT_START 40000
+#define HELIUM_FRAME_COUNT_START 70000
 #define TTN_FRAME_COUNT_START 0
 
 const network_keys_t network_key_list[] = {
