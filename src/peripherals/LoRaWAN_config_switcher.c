@@ -44,7 +44,7 @@ int8_t datarate_calculator(LoRaMacRegion_t LoRaMacRegion)
     switch (LoRaMacRegion)
     {
     case LORAMAC_REGION_EU868:
-        dr = DR_5;
+        dr = DR_4;
         break;
 
     case LORAMAC_REGION_US915:
@@ -52,11 +52,11 @@ int8_t datarate_calculator(LoRaMacRegion_t LoRaMacRegion)
         break;
 
     case LORAMAC_REGION_CN470:
-        dr = DR_5;
+        dr = DR_4;
         break;
 
     case LORAMAC_REGION_AS923:
-        dr = DR_5;
+        dr = DR_4;
         break;
 
     default:
