@@ -271,11 +271,11 @@ static void OnMacProcessNotify(void)
     IsMacProcessPending = 1;
 }
 
-void setup_next_tx_alarm()
+void setup_next_tx_alarm(uint32_t interval)
 {
 
     TimerStop(&TxTimer); /* Stop tx timer. Requirement before starting it back up again */
-    TimerSetValue(&TxTimer, read_tx_interval_in_eeprom());
+    TimerSetValue(&TxTimer, interval);
     TimerStart(&TxTimer); /* Restart tx interval timer */
 }
 
@@ -294,11 +294,11 @@ static void PrepareTxFrame(void)
     if (tx_count < n_tx_per_network)
     {
         sensor_read_and_send(&AppData, LmHandlerParams.Region);
-        setup_next_tx_alarm();
+        setup_next_tx_alarm(read_tx_interval_in_eeprom());
     }
     else
     {
-        IsTxFramePending = 1;
+        setup_next_tx_alarm(10);
     }
 }
 
