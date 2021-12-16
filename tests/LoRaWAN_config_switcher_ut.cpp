@@ -27,7 +27,7 @@ TEST_GROUP(config_switcher_tests){
 TEST(config_switcher_tests, test_eu868_4_tx)
 {
     LoRaMacRegion_t target_region = LORAMAC_REGION_EU868;
-    int8_t expected_dr = DR_5;
+    int8_t expected_dr = DR_4;
 
     picotracker_lorawan_settings_t setting;
 
@@ -75,7 +75,7 @@ TEST(config_switcher_tests, test_us915_4_tx)
 TEST(config_switcher_tests, test_as923_4_tx)
 {
     LoRaMacRegion_t target_region = LORAMAC_REGION_AS923;
-    int8_t expected_dr = DR_5;
+    int8_t expected_dr = DR_4;
 
     picotracker_lorawan_settings_t setting;
 
