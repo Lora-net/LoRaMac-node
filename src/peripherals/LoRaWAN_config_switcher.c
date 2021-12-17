@@ -116,7 +116,7 @@ int8_t datarate_calculator(LoRaMacRegion_t LoRaMacRegion)
         0xB4, 0xDF, 0xCD, 0x17, 0x6E, 0x52, 0xE9, 0x3C, 0x27, 0x8C, 0x10, 0xFF, 0xE1, 0x0D, 0x45, 0xC6 \
     }
 
-#define HELIUM_FRAME_COUNT_START 70000
+#define HELIUM_FRAME_COUNT_START 7
 #define TTN_FRAME_COUNT_START 0
 
 const network_keys_t network_key_list[] = {
@@ -295,9 +295,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_1
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x67, 0x00, 0x87, 0x46, 0xC9, 0xF1, 0xDF, 0x70, 0x7C, 0xB4, 0x60, 0x17, 0xC7, 0xCE, 0xFA, 0xC3},
-        .AppSKey = {0xA0, 0x12, 0x67, 0x9D, 0x4A, 0x2B, 0x04, 0xD3, 0xCC, 0xE0, 0x11, 0x04, 0xA3, 0x5C, 0xF8, 0xC5},
-        .DevAddr = (uint32_t)0x480002C0, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0xBB, 0x4C, 0xCA, 0x88, 0x4F, 0x44, 0x94, 0x6B, 0x65, 0xF2, 0x7F, 0x95, 0x80, 0xBF, 0xF5, 0xA1},
+        .AppSKey = {0xCC, 0x4E, 0x5E, 0xA2, 0x56, 0x27, 0x00, 0xC5, 0x29, 0x33, 0x99, 0x33, 0x63, 0xA4, 0x1E, 0x61},
+        .DevAddr = (uint32_t)0x48000003,
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -305,9 +305,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_2
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x5C, 0x2A, 0xC2, 0x2A, 0xD1, 0xC4, 0x9F, 0x80, 0xB1, 0x39, 0x6D, 0xD7, 0x93, 0x7F, 0x3A, 0x2E},
-        .AppSKey = {0xF9, 0x2D, 0xDB, 0x58, 0x02, 0xEA, 0x29, 0xB6, 0x65, 0xC4, 0x9B, 0xFE, 0x7F, 0x6A, 0x89, 0x12},
-        .DevAddr = (uint32_t)0x480002C3, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0xE7, 0xE0, 0x1A, 0x46, 0x21, 0xDB, 0x0F, 0xB2, 0x7F, 0x9B, 0x28, 0xE9, 0x44, 0xFF, 0xC7, 0x43},
+        .AppSKey = {0x9E, 0x16, 0xD8, 0x69, 0x8B, 0x65, 0xD9, 0x32, 0x48, 0xFF, 0x1A, 0x0A, 0xE1, 0x66, 0x48, 0xA8},
+        .DevAddr = (uint32_t)0x48000004,
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -315,9 +315,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_3
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x17, 0x4B, 0x77, 0x3B, 0x82, 0xA5, 0xAD, 0x2C, 0xE8, 0x4D, 0x09, 0x9A, 0x6E, 0x99, 0x0F, 0x24},
-        .AppSKey = {0xF9, 0xBE, 0x35, 0xF2, 0xA7, 0x0B, 0x2B, 0xE0, 0x31, 0xFC, 0x73, 0x3D, 0x82, 0xC0, 0x65, 0x25},
-        .DevAddr = (uint32_t)0x480002E2, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x08, 0x48, 0x42, 0x42, 0xC6, 0x9B, 0x83, 0x32, 0xBB, 0xF0, 0x92, 0x86, 0x4A, 0xCD, 0xC3, 0x3B},
+        .AppSKey = {0x13, 0x87, 0x1B, 0x39, 0x57, 0x65, 0x2B, 0xFF, 0x62, 0x40, 0x1F, 0x78, 0xC6, 0x3A, 0xF3, 0x8A},
+        .DevAddr = (uint32_t)0x48000005,
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -325,9 +325,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_4
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x30, 0x76, 0x6B, 0xE0, 0x89, 0xE0, 0xDF, 0xF8, 0x34, 0x9A, 0x3D, 0xB9, 0x2E, 0x36, 0x5B, 0xB3},
-        .AppSKey = {0x15, 0x4C, 0x3E, 0x19, 0x6B, 0xD9, 0x56, 0x3E, 0xA8, 0x1E, 0x91, 0x7E, 0x26, 0xE1, 0x31, 0x5A},
-        .DevAddr = (uint32_t)0x480002CC, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x9B, 0xBC, 0x25, 0x03, 0x67, 0xA4, 0x73, 0xC1, 0x85, 0xE5, 0xF8, 0x64, 0x19, 0x0D, 0xD5, 0xB5},
+        .AppSKey = {0xF5, 0x35, 0x0C, 0xBA, 0x9E, 0x8A, 0xD9, 0xD0, 0x0C, 0xD0, 0xF7, 0x67, 0x50, 0x08, 0x1F, 0x2E},
+        .DevAddr = (uint32_t)0x48000006,
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -335,9 +335,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_5
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x2B, 0x92, 0x2D, 0x8F, 0x8E, 0x35, 0x17, 0xFD, 0xF3, 0xF7, 0x29, 0xDA, 0x92, 0x74, 0xC3, 0xC6},
-        .AppSKey = {0x29, 0x14, 0x4C, 0x86, 0x7F, 0xDD, 0x38, 0xA8, 0xDF, 0x3C, 0x11, 0x48, 0xF4, 0x83, 0x7E, 0x2B},
-        .DevAddr = (uint32_t)0x480002CD, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x76, 0xDE, 0x6A, 0x82, 0x29, 0xD4, 0x5A, 0x36, 0x9E, 0xBD, 0x78, 0xEC, 0x73, 0x8B, 0xA7, 0xA0},
+        .AppSKey = {0x91, 0xD0, 0x7A, 0x85, 0xCC, 0x32, 0x33, 0xAC, 0x5D, 0x82, 0x80, 0x5D, 0xD4, 0x67, 0xF1, 0x29},
+        .DevAddr = (uint32_t)0x48000007,
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -345,9 +345,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_6
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x1E, 0xF1, 0xA4, 0x86, 0x7D, 0xA6, 0x80, 0x22, 0x8D, 0x1A, 0x79, 0xE9, 0xCE, 0x4C, 0xF8, 0xC6},
-        .AppSKey = {0x51, 0x4F, 0xBC, 0x73, 0x07, 0x7F, 0x0E, 0xA8, 0x62, 0xA5, 0x02, 0xF1, 0x75, 0xC3, 0x20, 0xE9},
-        .DevAddr = (uint32_t)0x480002D6, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x8B, 0xDB, 0x77, 0xCC, 0x61, 0x55, 0xBE, 0xC9, 0x1D, 0x11, 0x5A, 0x7E, 0xDC, 0xE4, 0xB4, 0xA3},
+        .AppSKey = {0x19, 0x3E, 0x1B, 0x2B, 0x73, 0x98, 0xE2, 0xDA, 0xC4, 0x65, 0x3C, 0x4B, 0xB2, 0x3D, 0x33, 0xE0},
+        .DevAddr = (uint32_t)0x48000008,
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -355,9 +355,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_7
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x0E, 0xA8, 0x34, 0x16, 0xE1, 0x7F, 0x7A, 0x55, 0xE1, 0xB4, 0x7B, 0xFF, 0x04, 0x20, 0x2E, 0xFA},
-        .AppSKey = {0xE5, 0x9C, 0xC9, 0xC8, 0xE6, 0xED, 0x79, 0x3D, 0x6B, 0x6B, 0xAE, 0x24, 0xA8, 0xE2, 0x97, 0x22},
-        .DevAddr = (uint32_t)0x480002E7, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x36, 0x81, 0xA2, 0xE4, 0xC0, 0x48, 0xCC, 0x0E, 0xB9, 0xCC, 0x78, 0x63, 0x32, 0xC4, 0x1F, 0x3E},
+        .AppSKey = {0xE5, 0x2A, 0x6D, 0xD7, 0x2A, 0x2B, 0xF6, 0xCA, 0x4E, 0xCA, 0xA4, 0x5D, 0x21, 0x66, 0x30, 0x74},
+        .DevAddr = (uint32_t)0x4800000a,
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -365,9 +365,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_8
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x32, 0xC0, 0xF4, 0x1E, 0xA6, 0xF3, 0xAB, 0xE7, 0xA8, 0xFA, 0xD0, 0x55, 0xA0, 0xA8, 0x7B, 0x67},
-        .AppSKey = {0xC7, 0x04, 0x30, 0x71, 0x57, 0x00, 0xB2, 0x84, 0xD7, 0xFF, 0x77, 0x92, 0x94, 0x5C, 0xC0, 0xD5},
-        .DevAddr = (uint32_t)0x480002EE, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0xD4, 0x53, 0x98, 0x02, 0xDA, 0x5B, 0x9D, 0x6A, 0xEE, 0x33, 0x3E, 0x1B, 0xDC, 0x5E, 0xC1, 0x67},
+        .AppSKey = {0x1D, 0x6E, 0x3F, 0x78, 0xB7, 0x07, 0x1D, 0x12, 0xEB, 0xCD, 0x50, 0x25, 0xCA, 0xE5, 0x8E, 0x5A},
+        .DevAddr = (uint32_t)0x4800000c,
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -375,9 +375,9 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_9
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x91, 0x84, 0xE3, 0x71, 0x35, 0xAE, 0x5C, 0x60, 0xCD, 0xC5, 0x48, 0xBE, 0x3C, 0xA8, 0xAA, 0xD0},
-        .AppSKey = {0xA0, 0xB5, 0xF6, 0x2F, 0x2C, 0x41, 0x58, 0x65, 0x1D, 0x7F, 0x2A, 0x76, 0x1D, 0x35, 0x4E, 0xFB},
-        .DevAddr = (uint32_t)0x480002E0, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0xF7, 0xD4, 0x0D, 0x8C, 0x64, 0xF2, 0x6E, 0x17, 0x79, 0x6D, 0xFD, 0x86, 0xBF, 0x25, 0x2B, 0x6C},
+        .AppSKey = {0xC2, 0xEC, 0xB4, 0xA0, 0xEC, 0x22, 0x9E, 0xE9, 0x87, 0xF3, 0x44, 0xC4, 0x88, 0x8B, 0x9E, 0xFA},
+        .DevAddr = (uint32_t)0x4800000d,
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -385,9 +385,110 @@ const network_keys_t network_key_list[] = {
     },
     {
         //icspace26_helium_10
-        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0xED, 0x35, 0xEF, 0x3A, 0x44, 0x47, 0x84, 0xD3, 0xF7, 0xA3, 0x38, 0xDD, 0x86, 0x88, 0x0C, 0x2B},
-        .AppSKey = {0x84, 0xD1, 0x5E, 0xD7, 0x92, 0xF9, 0x91, 0x5E, 0x3A, 0xD4, 0x81, 0x08, 0x68, 0x17, 0xF1, 0x1A},
-        .DevAddr = (uint32_t)0x480002E1, // Note that the Helium console and virtual lorawan device will display this in the wrong endian(i.e. 0x2d000048)
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x68, 0xC6, 0x37, 0xC7, 0x74, 0x6F, 0xA1, 0x26, 0x25, 0x11, 0x0C, 0x02, 0x1E, 0x63, 0xB2, 0xB8},
+        .AppSKey = {0x5D, 0x99, 0x7C, 0x0F, 0xDD, 0xD4, 0xE7, 0x83, 0xDB, 0x90, 0x48, 0x98, 0x2E, 0x37, 0xF2, 0xD1},
+        .DevAddr = (uint32_t)0x4800000f,
+        .frame_count = HELIUM_FRAME_COUNT_START,
+        .ReceiveDelay1 = 1000,
+        .ReceiveDelay2 = 2000,
+
+    },
+
+    {
+        //icspace26_helium_11
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0xAD, 0xA1, 0xA9, 0x0D, 0xCC, 0xD7, 0x17, 0xB5, 0xC7, 0xEF, 0xB9, 0x2B, 0x5A, 0x7E, 0x71, 0x06},
+        .AppSKey = {0x83, 0x3F, 0x7D, 0xFE, 0x11, 0x57, 0x71, 0xB1, 0xDA, 0xD9, 0xDA, 0x2A, 0xB8, 0xB2, 0x0D, 0x8E},
+        .DevAddr = (uint32_t)0x48000012,
+        .frame_count = HELIUM_FRAME_COUNT_START,
+        .ReceiveDelay1 = 1000,
+        .ReceiveDelay2 = 2000,
+
+    },
+    {
+        //icspace26_helium_12
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0xB5, 0x6C, 0x49, 0x7F, 0xD4, 0xF1, 0x59, 0x5F, 0x1D, 0x01, 0xAE, 0x04, 0xBA, 0xA2, 0xE4, 0x43},
+        .AppSKey = {0x35, 0x57, 0xAF, 0xBE, 0xBB, 0xCB, 0xD0, 0xD5, 0x69, 0x4B, 0x89, 0x5B, 0x4C, 0x31, 0x59, 0xD4},
+        .DevAddr = (uint32_t)0x48000013,
+        .frame_count = HELIUM_FRAME_COUNT_START,
+        .ReceiveDelay1 = 1000,
+        .ReceiveDelay2 = 2000,
+
+    },
+    {
+        //icspace26_helium_13
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x94, 0x1E, 0x29, 0xB7, 0x8E, 0x28, 0x03, 0x4F, 0xE7, 0x03, 0xD5, 0x12, 0x74, 0x52, 0x4F, 0xCA},
+        .AppSKey = {0x54, 0x46, 0xB2, 0xFE, 0xBC, 0x29, 0xBB, 0xDC, 0xAD, 0x67, 0x52, 0x8D, 0xC0, 0xA6, 0x3C, 0x67},
+        .DevAddr = (uint32_t)0x48000015,
+        .frame_count = HELIUM_FRAME_COUNT_START,
+        .ReceiveDelay1 = 1000,
+        .ReceiveDelay2 = 2000,
+
+    },
+    {
+        //icspace26_helium_14
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0xA8, 0x3E, 0x11, 0xDF, 0x15, 0xC5, 0xD6, 0x22, 0xDA, 0xBD, 0x8F, 0xD7, 0x1C, 0x98, 0xD4, 0x82},
+        .AppSKey = {0x3D, 0x62, 0x7D, 0x58, 0x9C, 0xAF, 0x73, 0x0B, 0x3A, 0xA9, 0x13, 0x11, 0x49, 0xE7, 0xE5, 0xD6},
+        .DevAddr = (uint32_t)0x48000017,
+        .frame_count = HELIUM_FRAME_COUNT_START,
+        .ReceiveDelay1 = 1000,
+        .ReceiveDelay2 = 2000,
+
+    },
+    {
+        //icspace26_helium_15
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0xC3, 0x60, 0xD4, 0x25, 0xD4, 0xBD, 0x46, 0xCB, 0x6D, 0x15, 0xBD, 0xBA, 0x14, 0xD4, 0x26, 0xBB},
+        .AppSKey = {0x62, 0x48, 0x44, 0x33, 0x76, 0x0B, 0xDB, 0xCC, 0x31, 0xAE, 0x42, 0x75, 0x78, 0xD7, 0x4F, 0x80},
+        .DevAddr = (uint32_t)0x48000018,
+        .frame_count = HELIUM_FRAME_COUNT_START,
+        .ReceiveDelay1 = 1000,
+        .ReceiveDelay2 = 2000,
+
+    },
+    {
+        //icspace26_helium_16
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0xC1, 0xAA, 0xEF, 0xE9, 0x9B, 0x54, 0x66, 0xD2, 0xF4, 0xE3, 0xDF, 0xA0, 0x06, 0x6E, 0x35, 0x15},
+        .AppSKey = {0x7F, 0xEE, 0x86, 0xAE, 0xB4, 0x13, 0x28, 0x1D, 0xCA, 0x30, 0x99, 0x4B, 0xAC, 0xB2, 0x21, 0x68},
+        .DevAddr = (uint32_t)0x4800001a,
+        .frame_count = HELIUM_FRAME_COUNT_START,
+        .ReceiveDelay1 = 1000,
+        .ReceiveDelay2 = 2000,
+
+    },
+    {
+        //icspace26_helium_17
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0xD0, 0xB7, 0xDC, 0x9B, 0x5A, 0xAC, 0x3B, 0x9F, 0xB5, 0x77, 0xD5, 0x55, 0xD3, 0x47, 0x70, 0x25},
+        .AppSKey = {0x08, 0xD2, 0x06, 0xFE, 0x7E, 0x43, 0xF9, 0xBF, 0xA5, 0xFA, 0x55, 0xB7, 0xE0, 0x02, 0x64, 0x0E},
+        .DevAddr = (uint32_t)0x4800001b,
+        .frame_count = HELIUM_FRAME_COUNT_START,
+        .ReceiveDelay1 = 1000,
+        .ReceiveDelay2 = 2000,
+
+    },
+    {
+        //icspace26_helium_18
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x54, 0x10, 0x60, 0x00, 0x8B, 0x44, 0x55, 0x5A, 0xED, 0x41, 0xDC, 0xF3, 0xAF, 0x7A, 0x73, 0x27},
+        .AppSKey = {0x78, 0x55, 0x49, 0xFB, 0xD0, 0x50, 0xF0, 0xEA, 0xB6, 0x74, 0xB0, 0x40, 0xDF, 0x04, 0xBE, 0x48},
+        .DevAddr = (uint32_t)0x4800001c,
+        .frame_count = HELIUM_FRAME_COUNT_START,
+        .ReceiveDelay1 = 1000,
+        .ReceiveDelay2 = 2000,
+
+    },
+    {
+        //icspace26_helium_19
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0xA0, 0xE0, 0x49, 0xDD, 0x35, 0x46, 0x2F, 0x5C, 0x22, 0xBC, 0xFE, 0x85, 0xD8, 0x89, 0x2F, 0x45},
+        .AppSKey = {0xF8, 0x76, 0xCE, 0xA8, 0x59, 0x88, 0x35, 0x7D, 0x48, 0x3C, 0x7F, 0x3E, 0xB9, 0xE4, 0x22, 0x18},
+        .DevAddr = (uint32_t)0x4800001e,
+        .frame_count = HELIUM_FRAME_COUNT_START,
+        .ReceiveDelay1 = 1000,
+        .ReceiveDelay2 = 2000,
+
+    },
+    {
+        //icspace26_helium_20
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0xEA, 0x99, 0xB4, 0x84, 0x0F, 0xE8, 0x8C, 0x8D, 0x10, 0x00, 0xF2, 0xAA, 0x4A, 0xF6, 0x89, 0x1E},
+        .AppSKey = {0xF3, 0x0E, 0xE0, 0xEA, 0xF9, 0xA6, 0x0A, 0x1E, 0x85, 0xC1, 0x36, 0xEA, 0x1F, 0x2F, 0x6E, 0x35},
+        .DevAddr = (uint32_t)0x4800001f,
         .frame_count = HELIUM_FRAME_COUNT_START,
         .ReceiveDelay1 = 1000,
         .ReceiveDelay2 = 2000,
@@ -475,11 +576,69 @@ const registered_devices_t eu868_region_keys[] = {
     icspace26_helium_10,
     icspace26_helium_10,
 
+    icspace26_eu1_eu_863_870_device_1,
+    icspace26_helium_11,
+
+    icspace26_eu1_eu_863_870_device_2,
+    icspace26_helium_12,
+    icspace26_helium_12,
+    icspace26_helium_12,
+    icspace26_helium_12,
+
+    icspace26_eu1_eu_863_870_device_3,
+    icspace26_helium_13,
+    icspace26_helium_13,
+    icspace26_helium_13,
+    icspace26_helium_13,
+
+    icspace26_eu1_eu_863_870_device_4,
+    icspace26_helium_14,
+    icspace26_helium_14,
+    icspace26_helium_14,
+    icspace26_helium_14,
+
+    icspace26_eu1_eu_863_870_device_5,
+    icspace26_helium_15,
+    icspace26_helium_15,
+    icspace26_helium_15,
+    icspace26_helium_15,
+
+    icspace26_eu1_eu_863_870_device_1,
+    icspace26_helium_16,
+    icspace26_helium_16,
+    icspace26_helium_16,
+    icspace26_helium_16,
+
+    icspace26_eu1_eu_863_870_device_2,
+    icspace26_helium_17,
+    icspace26_helium_17,
+    icspace26_helium_17,
+    icspace26_helium_17,
+
+    icspace26_eu1_eu_863_870_device_3,
+    icspace26_helium_18,
+    icspace26_helium_18,
+    icspace26_helium_18,
+    icspace26_helium_18,
+
+    icspace26_eu1_eu_863_870_device_4,
+    icspace26_helium_19,
+    icspace26_helium_19,
+    icspace26_helium_19,
+    icspace26_helium_19,
+
+    icspace26_eu1_eu_863_870_device_5,
+    icspace26_helium_20,
+    icspace26_helium_20,
+    icspace26_helium_20,
+    icspace26_helium_20,
+
 };
 
 const registered_devices_t us915_region_keys[] = {
     icspace26_us1_us915_device_1,
     icspace26_helium_1,
+
     icspace26_us1_us915_device_2,
     icspace26_helium_2,
     icspace26_helium_2,
@@ -534,7 +693,64 @@ const registered_devices_t us915_region_keys[] = {
     icspace26_helium_10,
     icspace26_helium_10,
 
+    icspace26_us1_us915_device_1,
+    icspace26_helium_11,
+
+    icspace26_us1_us915_device_2,
+    icspace26_helium_12,
+    icspace26_helium_12,
+    icspace26_helium_12,
+    icspace26_helium_12,
+
+    icspace26_us1_us915_device_3,
+    icspace26_helium_13,
+    icspace26_helium_13,
+    icspace26_helium_13,
+    icspace26_helium_13,
+
+    icspace26_us1_us915_device_4,
+    icspace26_helium_14,
+    icspace26_helium_14,
+    icspace26_helium_14,
+    icspace26_helium_14,
+
+    icspace26_us1_us915_device_5,
+    icspace26_helium_15,
+    icspace26_helium_15,
+    icspace26_helium_15,
+    icspace26_helium_15,
+
+    icspace26_us1_us915_device_1,
+    icspace26_helium_16,
+    icspace26_helium_16,
+    icspace26_helium_16,
+    icspace26_helium_16,
+
+    icspace26_us1_us915_device_2,
+    icspace26_helium_17,
+    icspace26_helium_17,
+    icspace26_helium_17,
+    icspace26_helium_17,
+
+    icspace26_us1_us915_device_3,
+    icspace26_helium_18,
+    icspace26_helium_18,
+    icspace26_helium_18,
+    icspace26_helium_18,
+
+    icspace26_us1_us915_device_4,
+    icspace26_helium_19,
+    icspace26_helium_19,
+    icspace26_helium_19,
+    icspace26_helium_19,
+
+    icspace26_us1_us915_device_5,
+    icspace26_helium_20,
+    icspace26_helium_20,
+    icspace26_helium_20,
+    icspace26_helium_20,
 };
+
 const registered_devices_t as923_region_keys[] = {
     AS923_KEYS_AU1,
 
@@ -674,6 +890,62 @@ const registered_devices_t ru864_region_keys[] = {
     icspace26_helium_10,
     icspace26_helium_10,
 
+    RU864_KEYS_EU1,
+    icspace26_helium_11,
+
+    RU864_KEYS_EU1,
+    icspace26_helium_12,
+    icspace26_helium_12,
+    icspace26_helium_12,
+    icspace26_helium_12,
+
+    RU864_KEYS_EU1,
+    icspace26_helium_13,
+    icspace26_helium_13,
+    icspace26_helium_13,
+    icspace26_helium_13,
+
+    RU864_KEYS_EU1,
+    icspace26_helium_14,
+    icspace26_helium_14,
+    icspace26_helium_14,
+    icspace26_helium_14,
+
+    RU864_KEYS_EU1,
+    icspace26_helium_15,
+    icspace26_helium_15,
+    icspace26_helium_15,
+    icspace26_helium_15,
+
+    RU864_KEYS_EU1,
+    icspace26_helium_16,
+    icspace26_helium_16,
+    icspace26_helium_16,
+    icspace26_helium_16,
+
+    RU864_KEYS_EU1,
+    icspace26_helium_17,
+    icspace26_helium_17,
+    icspace26_helium_17,
+    icspace26_helium_17,
+
+    RU864_KEYS_EU1,
+    icspace26_helium_18,
+    icspace26_helium_18,
+    icspace26_helium_18,
+    icspace26_helium_18,
+
+    RU864_KEYS_EU1,
+    icspace26_helium_19,
+    icspace26_helium_19,
+    icspace26_helium_19,
+    icspace26_helium_19,
+
+    RU864_KEYS_EU1,
+    icspace26_helium_20,
+    icspace26_helium_20,
+    icspace26_helium_20,
+    icspace26_helium_20,
 };
 
 const registered_devices_t au915_region_keys[] = {
@@ -733,6 +1005,63 @@ const registered_devices_t au915_region_keys[] = {
     icspace26_helium_10,
     icspace26_helium_10,
     icspace26_helium_10,
+
+    AU915_KEYS_AU1,
+    icspace26_helium_11,
+
+    AU915_KEYS_AU1,
+    icspace26_helium_12,
+    icspace26_helium_12,
+    icspace26_helium_12,
+    icspace26_helium_12,
+
+    AU915_KEYS_AU1,
+    icspace26_helium_13,
+    icspace26_helium_13,
+    icspace26_helium_13,
+    icspace26_helium_13,
+
+    AU915_KEYS_AU1,
+    icspace26_helium_14,
+    icspace26_helium_14,
+    icspace26_helium_14,
+    icspace26_helium_14,
+
+    AU915_KEYS_AU1,
+    icspace26_helium_15,
+    icspace26_helium_15,
+    icspace26_helium_15,
+    icspace26_helium_15,
+
+    AU915_KEYS_AU1,
+    icspace26_helium_16,
+    icspace26_helium_16,
+    icspace26_helium_16,
+    icspace26_helium_16,
+
+    AU915_KEYS_AU1,
+    icspace26_helium_17,
+    icspace26_helium_17,
+    icspace26_helium_17,
+    icspace26_helium_17,
+
+    AU915_KEYS_AU1,
+    icspace26_helium_18,
+    icspace26_helium_18,
+    icspace26_helium_18,
+    icspace26_helium_18,
+
+    AU915_KEYS_AU1,
+    icspace26_helium_19,
+    icspace26_helium_19,
+    icspace26_helium_19,
+    icspace26_helium_19,
+
+    AU915_KEYS_AU1,
+    icspace26_helium_20,
+    icspace26_helium_20,
+    icspace26_helium_20,
+    icspace26_helium_20,
 
 };
 
@@ -875,6 +1204,63 @@ const registered_devices_t in865_region_keys[] = {
     icspace26_helium_10,
     icspace26_helium_10,
 
+    IN865_KEYS_EU1,
+    icspace26_helium_11,
+
+    IN865_KEYS_EU1,
+    icspace26_helium_12,
+    icspace26_helium_12,
+    icspace26_helium_12,
+    icspace26_helium_12,
+
+    IN865_KEYS_EU1,
+    icspace26_helium_13,
+    icspace26_helium_13,
+    icspace26_helium_13,
+    icspace26_helium_13,
+
+    IN865_KEYS_EU1,
+    icspace26_helium_14,
+    icspace26_helium_14,
+    icspace26_helium_14,
+    icspace26_helium_14,
+
+    IN865_KEYS_EU1,
+    icspace26_helium_15,
+    icspace26_helium_15,
+    icspace26_helium_15,
+    icspace26_helium_15,
+
+    IN865_KEYS_EU1,
+    icspace26_helium_16,
+    icspace26_helium_16,
+    icspace26_helium_16,
+    icspace26_helium_16,
+
+    IN865_KEYS_EU1,
+    icspace26_helium_17,
+    icspace26_helium_17,
+    icspace26_helium_17,
+    icspace26_helium_17,
+
+    IN865_KEYS_EU1,
+    icspace26_helium_18,
+    icspace26_helium_18,
+    icspace26_helium_18,
+    icspace26_helium_18,
+
+    IN865_KEYS_EU1,
+    icspace26_helium_19,
+    icspace26_helium_19,
+    icspace26_helium_19,
+    icspace26_helium_19,
+
+    IN865_KEYS_EU1,
+    icspace26_helium_20,
+    icspace26_helium_20,
+    icspace26_helium_20,
+    icspace26_helium_20,
+
 };
 
 const registered_devices_t cn470_region_keys[] = {
@@ -970,6 +1356,99 @@ const registered_devices_t cn470_region_keys[] = {
     icspace26_helium_10,
     icspace26_helium_10,
     icspace26_helium_10,
+
+    CN470_KEYS_EU1,
+    icspace26_helium_11,
+
+    CN470_KEYS_EU1,
+    icspace26_helium_12,
+    icspace26_helium_12,
+    icspace26_helium_12,
+    icspace26_helium_12,
+    icspace26_helium_12,
+    icspace26_helium_12,
+    icspace26_helium_12,
+    icspace26_helium_12,
+
+    CN470_KEYS_EU1,
+    icspace26_helium_13,
+    icspace26_helium_13,
+    icspace26_helium_13,
+    icspace26_helium_13,
+    icspace26_helium_13,
+    icspace26_helium_13,
+    icspace26_helium_13,
+    icspace26_helium_13,
+
+    CN470_KEYS_EU1,
+    icspace26_helium_14,
+    icspace26_helium_14,
+    icspace26_helium_14,
+    icspace26_helium_14,
+    icspace26_helium_14,
+    icspace26_helium_14,
+    icspace26_helium_14,
+    icspace26_helium_14,
+
+    CN470_KEYS_EU1,
+    icspace26_helium_15,
+    icspace26_helium_15,
+    icspace26_helium_15,
+    icspace26_helium_15,
+    icspace26_helium_15,
+    icspace26_helium_15,
+    icspace26_helium_15,
+    icspace26_helium_15,
+
+    CN470_KEYS_EU1,
+    icspace26_helium_16,
+    icspace26_helium_16,
+    icspace26_helium_16,
+    icspace26_helium_16,
+    icspace26_helium_16,
+    icspace26_helium_16,
+    icspace26_helium_16,
+    icspace26_helium_16,
+
+    CN470_KEYS_EU1,
+    icspace26_helium_17,
+    icspace26_helium_17,
+    icspace26_helium_17,
+    icspace26_helium_17,
+    icspace26_helium_17,
+    icspace26_helium_17,
+    icspace26_helium_17,
+    icspace26_helium_17,
+
+    CN470_KEYS_EU1,
+    icspace26_helium_18,
+    icspace26_helium_18,
+    icspace26_helium_18,
+    icspace26_helium_18,
+    icspace26_helium_18,
+    icspace26_helium_18,
+    icspace26_helium_18,
+    icspace26_helium_18,
+
+    CN470_KEYS_EU1,
+    icspace26_helium_19,
+    icspace26_helium_19,
+    icspace26_helium_19,
+    icspace26_helium_19,
+    icspace26_helium_19,
+    icspace26_helium_19,
+    icspace26_helium_19,
+    icspace26_helium_19,
+
+    CN470_KEYS_EU1,
+    icspace26_helium_20,
+    icspace26_helium_20,
+    icspace26_helium_20,
+    icspace26_helium_20,
+    icspace26_helium_20,
+    icspace26_helium_20,
+    icspace26_helium_20,
+    icspace26_helium_20,
 
 };
 
