@@ -46,7 +46,9 @@ void OnNvmDataChange(LmHandlerNvmContextStates_t state, uint16_t size)
      */
     if (state == LORAMAC_HANDLER_NVM_STORE)
     {
+#if GPS_ENABLED
         setup_GPS();
+#endif
     }
 }
 
