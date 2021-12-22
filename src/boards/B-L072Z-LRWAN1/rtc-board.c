@@ -54,9 +54,8 @@
 #define USEC_NUMBER                                 1000000
 #define MSEC_NUMBER                                 ( USEC_NUMBER / 1000 )
 
-#define COMMON_FACTOR                               3
-#define CONV_NUMER                                  ( MSEC_NUMBER >> COMMON_FACTOR )
-#define CONV_DENOM                                  ( 1 << ( N_PREDIV_S - COMMON_FACTOR ) )
+#define CONV_NUMER                                  8
+#define CONV_DENOM                                  10
 
 /*!
  * \brief Days, Hours, Minutes and seconds
@@ -256,10 +255,8 @@ uint32_t RtcMs2Tick( uint32_t milliseconds )
  */
 uint32_t RtcTick2Ms( uint32_t tick )
 {
-    uint32_t seconds = tick >> N_PREDIV_S;
+    return ( uint32_t )( ( ( ( uint64_t )tick ) * CONV_NUMER ) / CONV_DENOM );
 
-    tick = tick & PREDIV_S;
-    return ( ( seconds * 1000 ) + ( ( tick * 1000 ) >> N_PREDIV_S ) );
 }
 
 /*!
