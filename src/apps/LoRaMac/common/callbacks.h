@@ -17,7 +17,7 @@
 #include "LmHandlerMsgDisplay.h"
 #include "playback.h"
 
-void print_board_info();
+void print_board_info(void);
 void fill_tx_buffer(LmHandlerAppData_t *AppData);
 int setup_board(void);
 void OnNvmDataChange(LmHandlerNvmContextStates_t state, uint16_t size);

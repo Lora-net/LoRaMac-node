@@ -85,17 +85,17 @@ extern "C"
 
     } registered_devices_t;
 
-    registered_devices_t get_current_network();
-    network_keys_t get_current_network_keys();
+    registered_devices_t get_current_network(void);
+    network_keys_t get_current_network_keys(void);
     picotracker_lorawan_settings_t get_lorawan_setting(LoRaMacRegion_t current_region);
-    void switch_to_next_registered_credentials();
+    void switch_to_next_registered_credentials(void);
 
     /**
      * @brief Initialise the config switcher. Must be run after the radio is setup, as it depends
      * on the radio for random number generator
      * 
      */
-    void init_LoRaWAN_config_switcher();
+    void init_LoRaWAN_config_switcher(void);
 
 #endif
 #ifdef __cplusplus

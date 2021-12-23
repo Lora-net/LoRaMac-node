@@ -104,7 +104,7 @@ static void SystemClockReConfig( void );
  * @brief Set lowest brownout level
  * 
  */
-void SetBrownoutLevel();
+void SetBrownoutLevel(void);
 
 
 /*!

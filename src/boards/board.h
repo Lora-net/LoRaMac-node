@@ -121,7 +121,7 @@ Version_t BoardGetVersion( void );
 int32_t HW_GetTemperatureLevel_int(void);
 
 
-void disable_serial_output();
+void disable_serial_output(void);
 
 
 #ifdef __cplusplus

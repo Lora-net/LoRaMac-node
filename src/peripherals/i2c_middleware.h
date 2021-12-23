@@ -55,7 +55,7 @@ extern "C"
 
 	/* Function prototypes for public (external) functions go here */
 
-	I2C_MIDDLEWARE_STATUS_t reinit_i2c();
+	I2C_MIDDLEWARE_STATUS_t reinit_i2c(void);
 
 #endif // I2C_MIDDLEWARE_H
 #ifdef __cplusplus

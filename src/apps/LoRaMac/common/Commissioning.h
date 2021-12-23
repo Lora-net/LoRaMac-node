@@ -40,7 +40,6 @@
  * When set to 1 the application uses the Over-the-Air activation procedure
  * When set to 0 the application uses the Personalization activation procedure
  */
-bool is_over_the_air_activation;
 
 /*!
  * When using ABP activation the MAC layer must know in advance to which server

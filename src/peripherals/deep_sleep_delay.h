@@ -19,4 +19,4 @@
  */
 void DeepSleepDelayMs( uint32_t ms );
 
-void DeepSleepDelayMsInit();
+void DeepSleepDelayMsInit(void);

@@ -11,7 +11,7 @@
 
 #include "LoRaMac.h"
 #include "LoRaWAN_config_switcher.h"
-void print_current_region();
+void print_current_region(void);
 void print_bytes(void *ptr, int size);
 
 const char *get_lorawan_region_string(LoRaMacRegion_t region);

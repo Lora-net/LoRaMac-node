@@ -21,10 +21,6 @@
 #include "ublox.h"
 #include "soft-se-hal.h"
 
-/*!
- * Specifies the state of the application LED
- */
-static bool AppLedStateOn = false;
 
 typedef struct
 {
@@ -194,7 +190,6 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
     case 1: // The application LED can be controlled on port 1 or 2
     case LORAWAN_APP_PORT:
     {
-        AppLedStateOn = appData->Buffer[0] & 0x01;
     }
     break;
 

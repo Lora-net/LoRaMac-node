@@ -33,7 +33,6 @@
 #include <stdio.h>
 
 static void eeprom_write_workaround(uint16_t offset);
-static bool NvmmUpdateWord(uint32_t *to_write_byte, uint16_t offset);
 static bool NvmmUpdateByte(uint8_t *to_write_byte, uint16_t offset);
 
 
@@ -88,26 +87,6 @@ bool NvmmUpdateByte(uint8_t *to_write_byte, uint16_t offset)
     }
 }
 
-bool NvmmUpdateWord(uint32_t *to_write_byte, uint16_t offset)
-{
-    uint32_t existing_byte;
-    EepromMcuReadBuffer(offset, (uint8_t*)&existing_byte, 4);
-
-    if (existing_byte != *to_write_byte)
-    {
-        /** 
-         * Write twice as workaround. For some reason, it does not
-         * write the first time.
-         */
-        EepromMcuWriteBufferWord(offset, (uint8_t *)to_write_byte, 4);
-        EepromMcuWriteBufferWord(offset, (uint8_t *)to_write_byte, 4);
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
 
 uint16_t NvmmRead( uint8_t* dest, uint16_t size, uint16_t offset )
 {

@@ -14,9 +14,8 @@
 #include "geofence.h"
 
 int8_t datarate_calculator(LoRaMacRegion_t LoRaMacRegion);
-network_keys_t get_next_network_keys_in_region(LoRaMacRegion_t region);
+network_keys_t get_next_network_keys_in_region(void);
 
-bool is_over_the_air_activation = false;
 uint32_t counter = 0;
 
 picotracker_lorawan_settings_t get_lorawan_setting(LoRaMacRegion_t current_region)
@@ -501,9 +500,7 @@ size_t network_key_list_size = sizeof(network_key_list);
 
 network_keys_t get_current_network_keys()
 {
-
-    LoRaMacRegion_t current_loramac_region = get_current_loramac_region();
-    return get_next_network_keys_in_region(current_loramac_region);
+    return get_next_network_keys_in_region();
 }
 
 /**
@@ -1505,10 +1502,10 @@ registered_devices_t get_current_network()
     return current_network;
 }
 
-network_keys_t get_next_network_keys_in_region(LoRaMacRegion_t region)
+network_keys_t get_next_network_keys_in_region()
 {
 
-    registered_devices_t device = get_current_network(region);
+    registered_devices_t device = get_current_network();
 
     return network_key_list[device];
 }

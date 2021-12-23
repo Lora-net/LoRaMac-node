@@ -175,15 +175,6 @@ static int8_t highResLongitudeHp;   // High precision component of longitude: De
 
 static uint16_t rtcmFrameCounter = 0; //Tracks the type of incoming byte inside RTCM frame
 
-//Survey-in specific controls
-static struct svinStructure
-{
-  bool active;
-  bool valid;
-  uint16_t observationTime;
-  float meanAccuracy;
-} svin;
-
 //Depending on the sentence type the processor will load characters into different arrays
 static enum SentenceTypes { NONE = 0,
                             NMEA,
@@ -1876,48 +1867,6 @@ bool disableSurveyMode(uint16_t maxWait)
   return (setSurveyMode(SVIN_MODE_DISABLE, 0, 0, maxWait));
 }
 
-//Reads survey in status and sets the global variables
-//for status, position valid, observation time, and mean 3D StdDev
-//Returns true if commands was successful
-bool getSurveyStatus(uint16_t maxWait)
-{
-  //Reset variables
-  svin.active = false;
-  svin.valid = false;
-  svin.observationTime = 0;
-  svin.meanAccuracy = 0;
-
-  packetCfg.cls = UBX_CLASS_NAV;
-  packetCfg.id = UBX_NAV_SVIN;
-  packetCfg.len = 0;
-  packetCfg.startingSpot = 0;
-
-  if ((sendCommand(&packetCfg, maxWait)) != SFE_UBLOX_STATUS_DATA_RECEIVED) // We are expecting data and an ACK
-    return (false);                                                         //If command send fails then bail
-
-  //We got a response, now parse the bits into the svin structure
-
-  //dur (Passed survey-in observation time) is U4 (uint32_t) seconds. We truncate to 16 bits
-  //(waiting more than 65535 seconds (18.2 hours) seems excessive!)
-  uint32_t tmpObsTime = extractLong(8);
-  if (tmpObsTime <= 0xFFFF)
-  {
-    svin.observationTime = (uint16_t)tmpObsTime;
-  }
-  else
-  {
-    svin.observationTime = 0xFFFF;
-  }
-
-  // meanAcc is U4 (uint32_t) in 0.1mm. We convert this to float.
-  uint32_t tempFloat = extractLong(28);
-  svin.meanAccuracy = ((float)tempFloat) / 10000.0; //Convert 0.1mm to m
-
-  svin.valid = payloadCfg[36];  //1 if survey-in position is valid, 0 otherwise
-  svin.active = payloadCfg[37]; //1 if survey-in in progress, 0 otherwise
-
-  return (true);
-}
 
 //Loads the payloadCfg array with the current protocol bits located the UBX-CFG-PRT register for a given port
 bool getPortSettings(uint8_t portID, uint16_t maxWait)

@@ -77,7 +77,7 @@ void save_data_to_nvm(void);
 void fill_to_send_structs(double *TEMPERATURE_Value, uint8_t *bitfields, gps_info_t *gps_info, uint16_t *no_load_solar_voltage, uint16_t *load_solar_voltage);
 void printDouble(double v, int decimalDigits);
 void print_time_pos_fix(time_pos_fix_t temp);
-void update_geofence_status();
+void update_geofence_status(void);
 void printBits(size_t const size, void const *const ptr);
 void print_human_readable_time(uint32_t unix_time);
 

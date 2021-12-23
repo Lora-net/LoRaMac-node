@@ -107,8 +107,8 @@ extern "C"
   uint16_t get_time_pos_index_older_than(uint32_t minutes_from_epoch);
   bool manage_incoming_instruction(uint8_t *instructions);
 
-  void retrieve_eeprom_stored_lorawan_region();
-  void set_eeprom_stored_lorwan_region();
+  void retrieve_eeprom_stored_lorawan_region(void);
+  void set_eeprom_stored_lorwan_region(void);
 
   typedef enum
   {
@@ -120,11 +120,11 @@ extern "C"
   } bit_location_t;
 
   void set_bits(bit_location_t bit_location);
-  void clear_bits();
-  sensor_t get_current_sensor_data();
+  void clear_bits(void);
+  sensor_t get_current_sensor_data(void);
   bool update_device_tx_interval_in_eeprom(uint32_t interval_ms);
-  uint32_t read_tx_interval_in_eeprom();
-  void read_playback_stats_from_eeprom();
+  uint32_t read_tx_interval_in_eeprom(void);
+  void read_playback_stats_from_eeprom(void);
 
 #ifdef __cplusplus
 }

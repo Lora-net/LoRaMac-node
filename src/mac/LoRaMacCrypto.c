@@ -789,7 +789,6 @@ static void UpdateFCntDown( FCntIdentifier_t fCntID, uint32_t currentDown )
     }
 }
 
-extern bool is_over_the_air_activation;
 
 /*!
  * Resets the frame counters

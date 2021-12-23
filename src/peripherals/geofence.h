@@ -64,10 +64,10 @@ extern "C"
 
 	void update_geofence_position(float latitude, float longitude);
 	void geofence_init(void);
-	LoRaMacRegion_t get_current_loramac_region();
-	as923_subbands_t get_as923_subband();
+	LoRaMacRegion_t get_current_loramac_region(void);
+	as923_subbands_t get_as923_subband(void);
 	void set_current_loramac_region(LoRaMacRegion_t region);
-	tx_permission_t get_current_tx_permission();
+	tx_permission_t get_current_tx_permission(void);
 
 #endif
 #ifdef __cplusplus
