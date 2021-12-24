@@ -42,7 +42,7 @@ extern "C"
 #define GPS_ENABLED 1    /* Enable Ublox GPS. Init the GPS as well. Allowed values: 0 disabled , 1(default) enabled */
 #define USE_LED 1        /* Enable LED blinky. Allowed values: 0 disabled , 1(default) enabled */
 
-#define USE_NVM_STORED_LORAWAN_REGION 0 /* Use LoRaWAN region stored in EEPROm. Allowed values: 0 disabled , 1(default) enabled. If not using EEPROM location, \
+#define USE_NVM_STORED_LORAWAN_REGION 1 /* Use LoRaWAN region stored in EEPROm. Allowed values: 0 disabled , 1(default) enabled. If not using EEPROM location, \
                                          * use EU868                                                                                                           \
                                          */
 
@@ -91,13 +91,13 @@ extern "C"
  * @brief Choose whether to go into Deep sleep or not
  * 
  */
-#define DEEP_SLEEP_ENABLE false
+#define DEEP_SLEEP_ENABLE true
 
 /**
  * @brief Choose weather to disable serial output to reduce peak currents
  * 
  */
-#define DISABLE_SERIAL_OUTPUT false
+#define DISABLE_SERIAL_OUTPUT true
 
 /**
  * @brief Number of past positions saved in EEPROM to printout for debugging
