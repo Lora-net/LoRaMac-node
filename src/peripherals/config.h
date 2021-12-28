@@ -72,7 +72,7 @@ extern "C"
 /* PLAYBACK RELATED DEFINES */
 /* ----------------------------------------------------------------------------------- */
 #define HOW_OFTEN_TO_SAVE_POS_TIM_TO_EEPROM 60U /* Save to eeprom every 60 minutes */
-#define DEFAULT_N_POSITIONS_TO_SEND 4U         /* Number of past positions to send in each transmission */
+#define DEFAULT_N_POSITIONS_TO_SEND 4U          /* Number of past positions to send in each transmission */
 #define MAX_N_POSITIONS_TO_SEND DEFAULT_N_POSITIONS_TO_SEND
 #define DEFAULT_N_POSITIONS_OFFSET 0U
 #define PLAYBACK_DAYS 30U /* How many days ago to send playback positions(default). Max 45 days*/
@@ -81,6 +81,11 @@ extern "C"
 /* ----------------------------------------------------------------------------------- */
 #define USE_WATCHDOG 1                /* Use watchdog. Allowed values: 0 disabled , 1(default) enabled */
 #define WATCH_DOG_KICK_INTERVAL 15000 /* How often to wakeup the MCU from deepsleep to kick the watchdog */
+
+/* TTN, Helium frame count settings. Set the frame count to start from for either network. */
+#define HELIUM_FRAME_COUNT_START 70
+#define TTN_FRAME_COUNT_START 0
+
 /**
  * @brief Choose whether to printout debug info for EEPROM
  * 
