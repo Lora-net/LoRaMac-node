@@ -9,6 +9,20 @@ This is the code repo for the picotracker LoRa. It is based off the Loramac-node
 
 The hardware designs remain the same as the ones in the old respository: https://github.com/ImperialSpaceSociety/picotracker-Lora
 
+# Programming the tracker
+
+## Setting option bytes on the tracker
+We do a one-time setting of option bytes on the STM32L0 microcontroller before programming. This is done to set the Brown Out Reset voltage to 1.7V - 1.8V. Without setting this, the microcontroller it can wake up at 1.5V, but if the voltage is unstable, there may be undefined behaviour. We allow the voltage to rise to 1.7 V-1.8V before allowing it to carry on.
+
+To set this up, we use STM32CubeProgrammer.
+1. Connect to device
+2. Switch to the `Option Bytes` tab
+3. Expand the `BOR Level` menu and change its value to `8`
+4. Click the `Apply` to program the setting to Flash.
+
+You are done and can go on to the next step of flashing the code.
+![image](https://user-images.githubusercontent.com/26815217/147603586-e67538e1-634d-40e4-b287-242396eebc1c.png)
+
 ## Uploading the code to the picotracker
 Install STM32CubeProgrammer software which you can download from here: https://www.st.com/en/development-tools/stm32cubeprog.html. There are versions for Windows and Linux.
 
@@ -18,7 +32,10 @@ Then connect the programmer to the tracker. Then hit the connect button as shown
 
 Hit the read button(see below) to verify that the connection is working. This should read out the memory of the tracker.![image](https://user-images.githubusercontent.com/26815217/134256899-17072a9c-32f3-4b58-9ee3-595b4cd913c1.png)
 
-Now switch to the `Erasing and Programming` tab as shown in the screen shot below. Then hit the browse button to open the hex file from your storage drive that you want flash to the tracker. Always ensure before programming that the right file has been selected.
+Now switch to the `Erasing and Programming` tab as shown in the screen shot below. In this step you will erase the EEPROM and Flash completely prior to programming. You will have to hit the select all check box and hit the `Erase Selected sectors` button. It will wipe everything out.
+![image](https://user-images.githubusercontent.com/26815217/147610385-1436f8f1-b170-434c-b5a3-b972afbc3a57.png)
+
+Then hit the browse button to open the hex file from your storage drive that you want flash to the tracker. Always ensure before programming that the right file has been selected.
 ![image](https://user-images.githubusercontent.com/26815217/134257391-f6bd190f-be0c-4ce4-8083-5bddb161cea9.png)
 
 Ensure the checkbox to `Verify Programming` checkbox is selected and then hit the `Start programming` button. It should flash the code into the tracker MCU. See image below for reference.
