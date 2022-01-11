@@ -1,7 +1,7 @@
 /*!
- * \file      loramac_radio.h
+ * \file  loramac_radio.h
  *
- * \brief     LoRaMac stack radio interface definition
+ * \brief LoRaMac stack radio interface definition
  *
  * The Clear BSD License
  * Copyright Semtech Corporation 2021. All rights reserved.

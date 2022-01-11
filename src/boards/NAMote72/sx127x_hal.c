@@ -1,7 +1,7 @@
 /*!
- * \file      sx127x_hal.c
+ * \file  sx127x_hal.c
  *
- * \brief     Implements the sx127x radio HAL functions
+ * \brief Implements the sx127x radio HAL functions
  *
  * The Clear BSD License
  * Copyright Semtech Corporation 2021. All rights reserved.

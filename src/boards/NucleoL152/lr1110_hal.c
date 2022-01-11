@@ -1,7 +1,7 @@
 /*!
- * \file      lr1110_hal.c
+ * \file  lr1110_hal.c
  *
- * \brief     Implements the lr1110 radio HAL functions
+ * \brief Implements the lr1110 radio HAL functions
  *
  * The Clear BSD License
  * Copyright Semtech Corporation 2021. All rights reserved.

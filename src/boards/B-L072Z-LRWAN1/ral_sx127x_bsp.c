@@ -1,7 +1,7 @@
 /*!
- * \file      ral_sx127x_bsp.c
+ * \file  ral_sx127x_bsp.c
  *
- * \brief     Implements the BSP (BoardSpecificPackage) HAL functions for SX127X
+ * \brief Implements the BSP (BoardSpecificPackage) HAL functions for SX127X
  *
  * The Clear BSD License
  * Copyright Semtech Corporation 2021. All rights reserved.

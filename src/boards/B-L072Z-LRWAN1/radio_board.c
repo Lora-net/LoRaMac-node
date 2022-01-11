@@ -1,7 +1,7 @@
 /*!
- * \file      radio_board.c
+ * \file  radio_board.c
  *
- * \brief     Radio board Hardware Abstraction Layer
+ * \brief Radio board Hardware Abstraction Layer
  *
  * The Clear BSD License
  * Copyright Semtech Corporation 2021. All rights reserved.

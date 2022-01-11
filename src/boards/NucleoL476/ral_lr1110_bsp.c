@@ -1,7 +1,7 @@
 /*!
- * \file      ral_lr1110_bsp.c
+ * \file  ral_lr1110_bsp.c
  *
- * \brief     Implements the BSP (BoardSpecificPackage) HAL functions for LR1110
+ * \brief Implements the BSP (BoardSpecificPackage) HAL functions for LR1110
  *
  * The Clear BSD License
  * Copyright Semtech Corporation 2021. All rights reserved.

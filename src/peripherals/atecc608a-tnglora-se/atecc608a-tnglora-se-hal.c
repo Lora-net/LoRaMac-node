@@ -1,17 +1,16 @@
-/**
- * @file      atecc608a-tnglora-se-hal.c
+/*!
+ * \file  atecc608a-tnglora-se-hal.c
  *
- * @brief     Secure Element hardware abstraction layer implementation
+ * \brief Secure Element hardware abstraction layer implementation
  *
- * @remark    Current implementation only supports LoRaWAN 1.0.x version
+ * \remark Current implementation only supports LoRaWAN 1.0.x version
  * 
- * @copyright Copyright (c) 2020 The Things Industries B.V.
- * 
- * Revised BSD License
- * Copyright The Things Industries B.V 2020. All rights reserved.
+ * The Clear BSD License
+ * Copyright The Things Industries B.V. (c)2021. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * modification, are permitted (subject to the limitations in the disclaimer
+ * below) provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -21,16 +20,18 @@
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE THINGS INDUSTRIES B.V BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY
+ * THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+ * NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE THINGS INDUSTRIES B.V BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 
 #include <string.h>
@@ -53,9 +54,9 @@ uint32_t ATECC608ASeHalGetRandomNumber( void )
     return rnd;
 }
 
-/** @brief This function delays for a number of microseconds.
+/*! \brief This function delays for a number of microseconds.
  *
- * @param[in] delay number of 0.001 milliseconds to delay
+ * \param[in] delay number of 0.001 milliseconds to delay
  */
 void atca_delay_us(uint32_t delay)
 {
@@ -63,9 +64,9 @@ void atca_delay_us(uint32_t delay)
     DelayMs(delay / 1000);
 }
 
-/** @brief This function delays for a number of tens of microseconds.
+/*! \brief This function delays for a number of tens of microseconds.
  *
- * @param[in] delay number of 0.01 milliseconds to delay
+ * \param[in] delay number of 0.01 milliseconds to delay
  */
 void atca_delay_10us(uint32_t delay)
 {
@@ -73,11 +74,11 @@ void atca_delay_10us(uint32_t delay)
     DelayMs(delay / 100);
 }
 
-/** @brief This function delays for a number of milliseconds.
+/*! \brief This function delays for a number of milliseconds.
  *
  *         You can override this function if you like to do
  *         something else in your system while delaying.
- * @param[in] delay number of milliseconds to delay
+ * \param[in] delay number of milliseconds to delay
  */
 void atca_delay_ms(uint32_t delay)
 {
@@ -85,12 +86,12 @@ void atca_delay_ms(uint32_t delay)
     DelayMs(delay);
 }
 
-/** @brief discover i2c buses available for this hardware 
+/*! \brief discover i2c buses available for this hardware 
  * this maintains a list of logical to physical bus mappings freeing the application 
  * of the a-priori knowledge 
- * @param[in] i2c_buses - an array of logical bus numbers 
- * @param[in] max_buses - maximum number of buses the app wants to attempt to discover 
- * @return ATCA_SUCCESS 
+ * \param[in] i2c_buses - an array of logical bus numbers 
+ * \param[in] max_buses - maximum number of buses the app wants to attempt to discover 
+ * \return ATCA_SUCCESS 
  */
 
 ATCA_STATUS hal_i2c_discover_buses(int i2c_buses[], int max_buses)
@@ -98,11 +99,11 @@ ATCA_STATUS hal_i2c_discover_buses(int i2c_buses[], int max_buses)
     return ATCA_SUCCESS;
 }
 
-/** @brief discover any CryptoAuth devices on a given logical bus number 
- * @param[in]  bus_num  logical bus number on which to look for CryptoAuth devices 
- * @param[out] cfg     pointer to head of an array of interface config structures which get filled in by this method 
- * @param[out] found   number of devices found on this bus 
- * @return ATCA_SUCCESS 
+/*! \brief discover any CryptoAuth devices on a given logical bus number 
+ * \param[in]  bus_num  logical bus number on which to look for CryptoAuth devices 
+ * \param[out] cfg     pointer to head of an array of interface config structures which get filled in by this method 
+ * \param[out] found   number of devices found on this bus 
+ * \return ATCA_SUCCESS 
  */
 
 ATCA_STATUS hal_i2c_discover_devices(int bus_num, ATCAIfaceCfg cfg[], int *found)
@@ -110,41 +111,41 @@ ATCA_STATUS hal_i2c_discover_devices(int bus_num, ATCAIfaceCfg cfg[], int *found
     return ATCA_SUCCESS;
 }
 
-/** @brief 
+/*! \brief 
     - this HAL implementation assumes you've included the ASF SERCOM I2C libraries in your project, otherwise, 
     the HAL layer will not compile because the ASF I2C drivers are a dependency * 
  */
 
-/** @brief hal_i2c_init manages requests to initialize a physical interface.  it manages use counts so when an interface 
+/*! \brief hal_i2c_init manages requests to initialize a physical interface.  it manages use counts so when an interface 
  * has released the physical layer, it will disable the interface for some other use. 
  * You can have multiple ATCAIFace instances using the same bus, and you can have multiple ATCAIFace instances on 
  * multiple i2c buses, so hal_i2c_init manages these things and ATCAIFace is abstracted from the physical details. 
  */
 
-/** @brief initialize an I2C interface using given config 
- * @param[in] hal - opaque ptr to HAL data 
- * @param[in] cfg - interface configuration 
- * @return ATCA_SUCCESS on success, otherwise an error code. 
+/*! \brief initialize an I2C interface using given config 
+ * \param[in] hal - opaque ptr to HAL data 
+ * \param[in] cfg - interface configuration 
+ * \return ATCA_SUCCESS on success, otherwise an error code. 
  */
 ATCA_STATUS hal_i2c_init(void *hal, ATCAIfaceCfg *cfg)
 {
     return ATCA_SUCCESS;
 }
 
-/** @brief HAL implementation of I2C post init 
- * @param[in] iface  instance 
- * @return ATCA_SUCCESS 
+/*! \brief HAL implementation of I2C post init 
+ * \param[in] iface  instance 
+ * \return ATCA_SUCCESS 
  */
 ATCA_STATUS hal_i2c_post_init(ATCAIface iface)
 {
     return ATCA_SUCCESS;
 }
 
-/** @brief HAL implementation of I2C send over ASF 
- * @param[in] iface     instance 
- * @param[in] txdata    pointer to space to bytes to send 
- * @param[in] txlength  number of bytes to send 
- * @return ATCA_SUCCESS on success, otherwise an error code. 
+/*! \brief HAL implementation of I2C send over ASF 
+ * \param[in] iface     instance 
+ * \param[in] txdata    pointer to space to bytes to send 
+ * \param[in] txlength  number of bytes to send 
+ * \return ATCA_SUCCESS on success, otherwise an error code. 
  */
 
 ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
@@ -162,12 +163,12 @@ ATCA_STATUS hal_i2c_send(ATCAIface iface, uint8_t *txdata, int txlength)
     }
 }
 
-/** @brief HAL implementation of I2C receive function for ASF I2C 
- * @param[in]    iface     Device to interact with. 
- * @param[out]   rxdata    Data received will be returned here. 
- * @param[inout] rxlength  As input, the size of the rxdata buffer. 
+/*! \brief HAL implementation of I2C receive function for ASF I2C 
+ * \param[in]    iface     Device to interact with. 
+ * \param[out]   rxdata    Data received will be returned here. 
+ * \param[inout] rxlength  As input, the size of the rxdata buffer. 
  *                         As output, the number of bytes received. 
- * @return ATCA_SUCCESS on success, otherwise an error code. 
+ * \return ATCA_SUCCESS on success, otherwise an error code. 
  */
 ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength)
 {
@@ -216,9 +217,9 @@ ATCA_STATUS hal_i2c_receive(ATCAIface iface, uint8_t *rxdata, uint16_t *rxlength
     return ATCA_SUCCESS;
 }
 
-/** @brief method to change the bus speec of I2C 
- * @param[in] iface  interface on which to change bus speed 
- * @param[in] speed  baud rate (typically 100000 or 400000) 
+/*! \brief method to change the bus speec of I2C 
+ * \param[in] iface  interface on which to change bus speed 
+ * \param[in] speed  baud rate (typically 100000 or 400000) 
  */
 
 void change_i2c_speed(ATCAIface iface, uint32_t speed)
@@ -226,9 +227,9 @@ void change_i2c_speed(ATCAIface iface, uint32_t speed)
     return;
 }
 
-/** @brief wake up CryptoAuth device using I2C bus 
- * @param[in] iface  interface to logical device to wakeup 
- * @return ATCA_SUCCESS on success, otherwise an error code. 
+/*! \brief wake up CryptoAuth device using I2C bus 
+ * \param[in] iface  interface to logical device to wakeup 
+ * \return ATCA_SUCCESS on success, otherwise an error code. 
  */
 
 ATCA_STATUS hal_i2c_wake(ATCAIface iface)
@@ -265,9 +266,9 @@ ATCA_STATUS hal_i2c_wake(ATCAIface iface)
     return ATCA_WAKE_FAILED;
 }
 
-/** @brief idle CryptoAuth device using I2C bus 
- * @param[in] iface  interface to logical device to idle 
- * @return ATCA_SUCCESS on success, otherwise an error code. 
+/*! \brief idle CryptoAuth device using I2C bus 
+ * \param[in] iface  interface to logical device to idle 
+ * \return ATCA_SUCCESS on success, otherwise an error code. 
  */
 
 ATCA_STATUS hal_i2c_idle(ATCAIface iface)
@@ -277,9 +278,9 @@ ATCA_STATUS hal_i2c_idle(ATCAIface iface)
     return ATCA_SUCCESS;
 }
 
-/** @brief sleep CryptoAuth device using I2C bus 
- * @param[in] iface  interface to logical device to sleep 
- * @return ATCA_SUCCESS on success, otherwise an error code. 
+/*! \brief sleep CryptoAuth device using I2C bus 
+ * \param[in] iface  interface to logical device to sleep 
+ * \return ATCA_SUCCESS on success, otherwise an error code. 
  */
 
 ATCA_STATUS hal_i2c_sleep(ATCAIface iface)
@@ -289,8 +290,8 @@ ATCA_STATUS hal_i2c_sleep(ATCAIface iface)
     return ATCA_SUCCESS;
 }
 
-/** @brief manages reference count on given bus and releases resource if no more refences exist 
- * @param[in] hal_data - opaque pointer to hal data structure - known only to the HAL implementation 
+/*! \brief manages reference count on given bus and releases resource if no more refences exist 
+ * \param[in] hal_data - opaque pointer to hal data structure - known only to the HAL implementation 
  * return ATCA_SUCCESS 
  */
 
