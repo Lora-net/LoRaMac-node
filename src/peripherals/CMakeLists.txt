@@ -59,6 +59,7 @@ else()
     if(${SECURE_ELEMENT} MATCHES LR1110_SE)
         if(${RADIO} MATCHES lr1110)
             target_include_directories( ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lr1110-se)
+            target_compile_definitions(${PROJECT_NAME} PUBLIC -DLR1110)
         endif()
     elseif((${SECURE_ELEMENT} MATCHES ATECC608A_TNGLORA_SE))
         target_include_directories( ${PROJECT_NAME} PUBLIC

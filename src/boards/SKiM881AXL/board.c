@@ -34,20 +34,20 @@
 #include "board-config.h"
 #include "lpm-board.h"
 #include "rtc-board.h"
-#include "sx1272-board.h"
+#include "radio_board.h"
 #include "board.h"
 
 /*!
  * Unique Devices IDs register set ( STM32L0xxx )
  */
-#define         ID1                                 ( 0x1FF80050 )
-#define         ID2                                 ( 0x1FF80054 )
-#define         ID3                                 ( 0x1FF80064 )
+#define ID1 ( 0x1FF80050 )
+#define ID2 ( 0x1FF80054 )
+#define ID3 ( 0x1FF80064 )
 
 /*!
  * LED GPIO pins objects
  */
-#if ( USE_POTENTIOMETER == 0 )
+#if( USE_POTENTIOMETER == 0 )
 Gpio_t Led1;
 #endif
 Gpio_t Led2;
@@ -57,8 +57,8 @@ Gpio_t Led4;
 /*
  * MCU objects
  */
-Adc_t Adc;
-I2c_t I2c;
+Adc_t  Adc;
+I2c_t  I2c;
 Uart_t Uart1;
 
 /*!
@@ -84,26 +84,25 @@ static bool McuInitialized = false;
 /*!
  * UART2 FIFO buffers size
  */
-#define UART1_FIFO_TX_SIZE                                1024
-#define UART1_FIFO_RX_SIZE                                1024
+#define UART1_FIFO_TX_SIZE 1024
+#define UART1_FIFO_RX_SIZE 1024
 
 uint8_t Uart1TxBuffer[UART1_FIFO_TX_SIZE];
 uint8_t Uart1RxBuffer[UART1_FIFO_RX_SIZE];
 
-void BoardCriticalSectionBegin( uint32_t *mask )
+void BoardCriticalSectionBegin( uint32_t* mask )
 {
     *mask = __get_PRIMASK( );
     __disable_irq( );
 }
 
-void BoardCriticalSectionEnd( uint32_t *mask )
+void BoardCriticalSectionEnd( uint32_t* mask )
 {
     __set_PRIMASK( *mask );
 }
 
 void BoardInitPeriph( void )
 {
-
 }
 
 void BoardInitMcu( void )
@@ -113,7 +112,7 @@ void BoardInitMcu( void )
         HAL_Init( );
 
         // LEDs
-#if ( USE_POTENTIOMETER == 0 )
+#if( USE_POTENTIOMETER == 0 )
         GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
 #endif
         GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
@@ -131,7 +130,7 @@ void BoardInitMcu( void )
         RtcInit( );
 
         // Switch LED 1, 2, 3, 4 OFF
-#if ( USE_POTENTIOMETER == 0 )
+#if( USE_POTENTIOMETER == 0 )
         GpioWrite( &Led1, 0 );
 #endif
         GpioWrite( &Led2, 0 );
@@ -152,14 +151,14 @@ void BoardInitMcu( void )
 
     AdcInit( &Adc, POTI );
 
-    SpiInit( &SX1272.Spi, SPI_2, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
-    SX1272IoInit( );
+    radio_context_t* radio_context = radio_board_get_radio_context_reference( );
+    SpiInit( &radio_context->spi, SPI_2, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+    radio_board_init_io( );
 
     if( McuInitialized == false )
     {
         McuInitialized = true;
-        SX1272IoDbgInit( );
-        SX1272IoTcxoInit( );
+        radio_board_init_dbg_io( );
     }
 }
 
@@ -167,7 +166,7 @@ void BoardResetMcu( void )
 {
     CRITICAL_SECTION_BEGIN( );
 
-    //Restart system
+    // Restart system
     NVIC_SystemReset( );
 }
 
@@ -175,25 +174,26 @@ void BoardDeInitMcu( void )
 {
     AdcDeInit( &Adc );
 
-    SpiDeInit( &SX1272.Spi );
-    SX1272IoDeInit( );
+    radio_context_t* radio_context = radio_board_get_radio_context_reference( );
+    SpiDeInit( &radio_context->spi );
+    radio_board_deinit_io( );
 }
 
 uint32_t BoardGetRandomSeed( void )
 {
-    return ( ( *( uint32_t* )ID1 ) ^ ( *( uint32_t* )ID2 ) ^ ( *( uint32_t* )ID3 ) );
+    return ( ( *( uint32_t* ) ID1 ) ^ ( *( uint32_t* ) ID2 ) ^ ( *( uint32_t* ) ID3 ) );
 }
 
-void BoardGetUniqueId( uint8_t *id )
+void BoardGetUniqueId( uint8_t* id )
 {
-    id[7] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID3 ) ) >> 24;
-    id[6] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID3 ) ) >> 16;
-    id[5] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID3 ) ) >> 8;
-    id[4] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID3 ) );
-    id[3] = ( ( *( uint32_t* )ID2 ) ) >> 24;
-    id[2] = ( ( *( uint32_t* )ID2 ) ) >> 16;
-    id[1] = ( ( *( uint32_t* )ID2 ) ) >> 8;
-    id[0] = ( ( *( uint32_t* )ID2 ) );
+    id[7] = ( ( *( uint32_t* ) ID1 ) + ( *( uint32_t* ) ID3 ) ) >> 24;
+    id[6] = ( ( *( uint32_t* ) ID1 ) + ( *( uint32_t* ) ID3 ) ) >> 16;
+    id[5] = ( ( *( uint32_t* ) ID1 ) + ( *( uint32_t* ) ID3 ) ) >> 8;
+    id[4] = ( ( *( uint32_t* ) ID1 ) + ( *( uint32_t* ) ID3 ) );
+    id[3] = ( ( *( uint32_t* ) ID2 ) ) >> 24;
+    id[2] = ( ( *( uint32_t* ) ID2 ) ) >> 16;
+    id[1] = ( ( *( uint32_t* ) ID2 ) ) >> 8;
+    id[0] = ( ( *( uint32_t* ) ID2 ) );
 }
 
 /*!
@@ -204,11 +204,11 @@ void BoardGetUniqueId( uint8_t *id )
 
 uint8_t BoardGetPotiLevel( void )
 {
-    uint8_t potiLevel = 0;
-    uint16_t vpoti = 0;
+    uint8_t  potiLevel = 0;
+    uint16_t vpoti     = 0;
 
     // Read the current potentiometer setting
-    vpoti = AdcReadChannel( &Adc , ADC_CHANNEL_3 );
+    vpoti = AdcReadChannel( &Adc, ADC_CHANNEL_3 );
 
     // check the limits
     if( vpoti >= POTI_MAX_LEVEL )
@@ -230,44 +230,44 @@ uint8_t BoardGetPotiLevel( void )
 /*!
  * Factory power supply
  */
-#define FACTORY_POWER_SUPPLY                        3300 // mV
+#define FACTORY_POWER_SUPPLY 3300  // mV
 
 /*!
  * VREF calibration value
  */
-#define VREFINT_CAL                                 ( *( uint16_t* )0x1FF80078 )
+#define VREFINT_CAL ( *( uint16_t* ) 0x1FF80078 )
 
 /*!
  * ADC maximum value
  */
-#define ADC_MAX_VALUE                               4095
+#define ADC_MAX_VALUE 4095
 
 /*!
  * VREF bandgap value
  */
-#define ADC_VREF_BANDGAP                            1224 // mV
+#define ADC_VREF_BANDGAP 1224  // mV
 
 /*!
  * Battery thresholds
  */
-#define BATTERY_MAX_LEVEL                           3000 // mV
-#define BATTERY_MIN_LEVEL                           2400 // mV
-#define BATTERY_SHUTDOWN_LEVEL                      2300 // mV
+#define BATTERY_MAX_LEVEL 3000       // mV
+#define BATTERY_MIN_LEVEL 2400       // mV
+#define BATTERY_SHUTDOWN_LEVEL 2300  // mV
 
 static uint16_t BatteryVoltage = BATTERY_MAX_LEVEL;
 
 uint16_t BoardBatteryMeasureVoltage( void )
 {
-    uint16_t vref = 0;
+    uint16_t vref           = 0;
     uint32_t batteryVoltage = 0;
 
     // Read the current Voltage
-    vref = AdcReadChannel( &Adc , ADC_CHANNEL_17 );
+    vref = AdcReadChannel( &Adc, ADC_CHANNEL_17 );
 
     // We don't use the VREF from calibValues here.
     // calculate the Voltage in millivolt
-    batteryVoltage = ( uint32_t )ADC_VREF_BANDGAP * ( uint32_t )ADC_MAX_VALUE;
-    batteryVoltage = batteryVoltage / ( uint32_t )vref;
+    batteryVoltage = ( uint32_t ) ADC_VREF_BANDGAP * ( uint32_t ) ADC_MAX_VALUE;
+    batteryVoltage = batteryVoltage / ( uint32_t ) vref;
 
     return batteryVoltage;
 }
@@ -295,13 +295,14 @@ uint8_t BoardGetBatteryLevel( void )
         }
         else if( ( BatteryVoltage > BATTERY_MIN_LEVEL ) && ( BatteryVoltage < BATTERY_MAX_LEVEL ) )
         {
-            batteryLevel = ( ( 253 * ( BatteryVoltage - BATTERY_MIN_LEVEL ) ) / ( BATTERY_MAX_LEVEL - BATTERY_MIN_LEVEL ) ) + 1;
+            batteryLevel =
+                ( ( 253 * ( BatteryVoltage - BATTERY_MIN_LEVEL ) ) / ( BATTERY_MAX_LEVEL - BATTERY_MIN_LEVEL ) ) + 1;
         }
         else if( ( BatteryVoltage > BATTERY_SHUTDOWN_LEVEL ) && ( BatteryVoltage <= BATTERY_MIN_LEVEL ) )
         {
             batteryLevel = 1;
         }
-        else //if( BatteryVoltage <= BATTERY_SHUTDOWN_LEVEL )
+        else  // if( BatteryVoltage <= BATTERY_SHUTDOWN_LEVEL )
         {
             batteryLevel = 255;
         }
@@ -318,8 +319,8 @@ static void BoardUnusedIoInit( void )
 
 void SystemClockConfig( void )
 {
-    RCC_OscInitTypeDef RCC_OscInitStruct;
-    RCC_ClkInitTypeDef RCC_ClkInitStruct;
+    RCC_OscInitTypeDef       RCC_OscInitStruct;
+    RCC_ClkInitTypeDef       RCC_ClkInitStruct;
     RCC_PeriphCLKInitTypeDef PeriphClkInit;
 
     __HAL_RCC_SYSCFG_CLK_ENABLE( );
@@ -339,9 +340,9 @@ void SystemClockConfig( void )
         assert_param( LMN_STATUS_ERROR );
     }
 
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK;
-    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.ClockType      = RCC_CLOCKTYPE_SYSCLK;
+    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
     if( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_1 ) != HAL_OK )
@@ -351,7 +352,7 @@ void SystemClockConfig( void )
 
     PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_RTC;
     PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
-    PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
+    PeriphClkInit.RTCClockSelection    = RCC_RTCCLKSOURCE_LSE;
     if( HAL_RCCEx_PeriphCLKConfig( &PeriphClkInit ) != HAL_OK )
     {
         assert_param( LMN_STATUS_ERROR );
@@ -387,7 +388,7 @@ void SystemClockReConfig( void )
     }
 
     // Select PLL as system clock source
-    __HAL_RCC_SYSCLK_CONFIG ( RCC_SYSCLKSOURCE_PLLCLK );
+    __HAL_RCC_SYSCLK_CONFIG( RCC_SYSCLKSOURCE_PLLCLK );
 
     // Wait till PLL is used as system clock source
     while( __HAL_RCC_GET_SYSCLK_SOURCE( ) != RCC_SYSCLKSOURCE_STATUS_PLLCLK )
@@ -407,11 +408,11 @@ uint8_t GetBoardPowerSource( void )
 }
 
 /**
-  * \brief Enters Low Power Stop Mode
-  *
-  * \note ARM exists the function when waking up
-  */
-void LpmEnterStopMode( void)
+ * \brief Enters Low Power Stop Mode
+ *
+ * \note ARM exists the function when waking up
+ */
+void LpmEnterStopMode( void )
 {
     CRITICAL_SECTION_BEGIN( );
 
@@ -454,16 +455,16 @@ void LpmExitStopMode( void )
  *
  * \note ARM exits the function when waking up
  */
-void LpmEnterSleepMode( void)
+void LpmEnterSleepMode( void )
 {
-    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+    HAL_PWR_EnterSLEEPMode( PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI );
 }
 
 void BoardLowPowerHandler( void )
 {
     __disable_irq( );
     /*!
-     * If an interrupt has occurred after __disable_irq( ), it is kept pending 
+     * If an interrupt has occurred after __disable_irq( ), it is kept pending
      * and cortex will not enter low power anyway
      */
 
@@ -472,26 +473,32 @@ void BoardLowPowerHandler( void )
     __enable_irq( );
 }
 
-#if !defined ( __CC_ARM )
+#if !defined( __CC_ARM )
 
 /*
  * Function to be used by stdout for printf etc
  */
-int _write( int fd, const void *buf, size_t count )
+int _write( int fd, const void* buf, size_t count )
 {
-    while( UartPutBuffer( &Uart1, ( uint8_t* )buf, ( uint16_t )count ) != 0 ){ };
+    while( UartPutBuffer( &Uart1, ( uint8_t* ) buf, ( uint16_t ) count ) != 0 )
+    {
+    };
     return count;
 }
 
 /*
  * Function to be used by stdin for scanf etc
  */
-int _read( int fd, const void *buf, size_t count )
+int _read( int fd, const void* buf, size_t count )
 {
     size_t bytesRead = 0;
-    while( UartGetBuffer( &Uart1, ( uint8_t* )buf, count, ( uint16_t* )&bytesRead ) != 0 ){ };
+    while( UartGetBuffer( &Uart1, ( uint8_t* ) buf, count, ( uint16_t* ) &bytesRead ) != 0 )
+    {
+    };
     // Echo back the character
-    while( UartPutBuffer( &Uart1, ( uint8_t* )buf, ( uint16_t )bytesRead ) != 0 ){ };
+    while( UartPutBuffer( &Uart1, ( uint8_t* ) buf, ( uint16_t ) bytesRead ) != 0 )
+    {
+    };
     return bytesRead;
 }
 
@@ -500,19 +507,22 @@ int _read( int fd, const void *buf, size_t count )
 #include <stdio.h>
 
 // Keil compiler
-int fputc( int c, FILE *stream )
+int fputc( int c, FILE* stream )
 {
-    while( UartPutChar( &Uart1, ( uint8_t )c ) != 0 );
+    while( UartPutChar( &Uart1, ( uint8_t ) c ) != 0 )
+        ;
     return c;
 }
 
-int fgetc( FILE *stream )
+int fgetc( FILE* stream )
 {
     uint8_t c = 0;
-    while( UartGetChar( &Uart1, &c ) != 0 );
+    while( UartGetChar( &Uart1, &c ) != 0 )
+        ;
     // Echo back the character
-    while( UartPutChar( &Uart1, c ) != 0 );
-    return ( int )c;
+    while( UartPutChar( &Uart1, c ) != 0 )
+        ;
+    return ( int ) c;
 }
 
 #endif
@@ -535,7 +545,7 @@ void assert_failed( uint8_t* file, uint32_t line )
     /* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %lu\n", file, line) */
 
-    printf( "Wrong parameters value: file %s on line %lu\n", ( const char* )file, line );
+    printf( "Wrong parameters value: file %s on line %lu\n", ( const char* ) file, line );
     /* Infinite loop */
     while( 1 )
     {

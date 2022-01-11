@@ -29,46 +29,60 @@ set_property(CACHE RADIO PROPERTY STRINGS ${RADIO_LIST})
 set_property(CACHE RADIO PROPERTY ADVANCED)
 
 #---------------------------------------------------------------------------------------
-# Target
+# Radio drivers
 #---------------------------------------------------------------------------------------
 
-foreach( R ${RADIO_LIST} )
-    if(${R} MATCHES ${RADIO} )
-        list(APPEND ${PROJECT_NAME}_SOURCES
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/radio.c
-        )
-        list(APPEND ${PROJECT_NAME}_SOURCES
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/${RADIO}_driver/src/lr1110_bootloader.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/${RADIO}_driver/src/lr1110_crypto_engine.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/${RADIO}_driver/src/lr1110_gnss.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/${RADIO}_driver/src/lr1110_radio.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/${RADIO}_driver/src/lr1110_regmem.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/${RADIO}_driver/src/lr1110_system.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/${RADIO}_driver/src/lr1110_wifi.c
-            )
-    else()
-        file(GLOB ${PROJECT_NAME}_SOURCES
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/*.c
-        )
-    endif()
-endforeach()
+if(${RADIO} STREQUAL lr1110)
+    list(APPEND ${PROJECT_NAME}_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/radio.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/smtc_ral/src/ral_lr1110.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_bootloader.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_crypto_engine.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_gnss.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_radio.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_regmem.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_system.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_wifi.c
+    )
+elseif(${RADIO} STREQUAL sx126x)
+    list(APPEND ${PROJECT_NAME}_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/radio.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/smtc_ral/src/ral_sx126x.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sx126x_driver/src/sx126x.c
+    )
+elseif(${RADIO} STREQUAL sx1272 OR ${RADIO} STREQUAL sx1276)
+    list(APPEND ${PROJECT_NAME}_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/radio.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/smtc_ral/src/ral_sx127x.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sx127x_driver/src/sx127x.c
+    )
+else()
+    message(FATAL_ERROR "Unsupported radio driver selected...")
+endif()
 
 add_library(${PROJECT_NAME} OBJECT EXCLUDE_FROM_ALL ${${PROJECT_NAME}_SOURCES})
 
 add_dependencies(${PROJECT_NAME} board)
 
-foreach( R ${RADIO_LIST} )
-    if(${R} MATCHES lr1110 )
-        list(APPEND ${PROJECT_NAME}_INCLUDES
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO})
-        list(APPEND ${PROJECT_NAME}_INCLUDES
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/${RADIO}_driver/src)
-    else()
-        list(APPEND ${PROJECT_NAME}_INCLUDES
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}
-        )
-    endif()
-endforeach()
+list(APPEND ${PROJECT_NAME}_INCLUDES
+    ${CMAKE_CURRENT_SOURCE_DIR}/smtc_ral/src
+)
+
+if(${RADIO} STREQUAL lr1110 )
+    list(APPEND ${PROJECT_NAME}_INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src
+    )
+elseif(${RADIO} STREQUAL sx126x)
+    list(APPEND ${PROJECT_NAME}_INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/sx126x_driver/src
+    )
+elseif(${RADIO} STREQUAL sx1272 OR ${RADIO} STREQUAL sx1276)
+    list(APPEND ${PROJECT_NAME}_INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/sx127x_driver/src
+    )
+else()
+    message(FATAL_ERROR "Unsupported radio driver selected...")
+endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -76,6 +90,22 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<TARGET_PROPERTY:board,INTERFACE_INCLUDE_DIRECTORIES>
     $<TARGET_PROPERTY:system,INTERFACE_INCLUDE_DIRECTORIES>
 )
+
+if(${RADIO} STREQUAL lr1110)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC -DLR1110 -DLR1110_DISABLE_WARNINGS)
+endif()
+
+if(${RADIO} STREQUAL sx126x)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC -DSX126X)
+endif()
+
+if(${RADIO} STREQUAL sx1272)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC -DSX127X -DSX1272)
+endif()
+
+if(${RADIO} STREQUAL sx1276)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC -DSX127X -DSX1276)
+endif()
 
 ## TEMPORALLY WORKAROUND to allow radio debugging.
 ## It will be removed with the introduction of a debug-board interface.

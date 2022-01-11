@@ -61,7 +61,7 @@ extern "C"
 #define RADIO_DIO_4                                 PA_5
 #define RADIO_DIO_5                                 PA_4
 
-#define RADIO_TCXO_POWER                            PA_12
+#define RADIO_TCXO_PWR_PIN                          PA_12
 
 #define RADIO_ANT_SWITCH_RX                         PA_1
 #define RADIO_ANT_SWITCH_TX_BOOST                   PC_1

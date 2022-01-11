@@ -52,7 +52,7 @@ extern "C"
  */
 
 #define RADIO_RESET                                 GPIO( GPIO_PORTB, 15 )
-#define TCXO_PWR_PIN                                GPIO( GPIO_PORTA, 9 )
+#define RADIO_TCXO_PWR_PIN                          GPIO( GPIO_PORTA, 9 )
 #define RF_SWITCH_PIN                               GPIO( GPIO_PORTA, 13 )
 
 #define RADIO_MOSI                                  GPIO( GPIO_PORTB, 30 )

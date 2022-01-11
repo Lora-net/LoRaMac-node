@@ -6,7 +6,7 @@
         // path:
         //     Windows : No default path. Specify the path where the
         //               toolchain is installed. i.e:
-        //               "C:/PROGRA~2/GNUTOO~1/92019-~1".
+        //               "C:/Program Files (x86)/GNU Arm Embedded Toolchain/10 2020-q4-major".
         //     Linux   : /usr
         //     OSX     : /usr/local
         // It is required to uncomment and to fill the following line.
@@ -83,6 +83,8 @@
 
         // Default channel plan for region CN470. Possible selections:
         // CHANNEL_PLAN_20MHZ_TYPE_A, CHANNEL_PLAN_20MHZ_TYPE_B, CHANNEL_PLAN_26MHZ_TYPE_A, CHANNEL_PLAN_26MHZ_TYPE_B
-        "REGION_CN470_DEFAULT_CHANNEL_PLAN":"CHANNEL_PLAN_20MHZ_TYPE_A"
+        "REGION_CN470_DEFAULT_CHANNEL_PLAN":"CHANNEL_PLAN_20MHZ_TYPE_A",
+        // Enables radio debug pins
+        "USE_RADIO_DEBUG":"OFF",
     }
 }

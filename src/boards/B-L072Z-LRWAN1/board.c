@@ -32,15 +32,15 @@
 #include "board-config.h"
 #include "lpm-board.h"
 #include "rtc-board.h"
-#include "sx1276-board.h"
+#include "radio_board.h"
 #include "board.h"
 
 /*!
  * Unique Devices IDs register set ( STM32L0xxx )
  */
-#define         ID1                                 ( 0x1FF80050 )
-#define         ID2                                 ( 0x1FF80054 )
-#define         ID3                                 ( 0x1FF80064 )
+#define ID1 ( 0x1FF80050 )
+#define ID2 ( 0x1FF80054 )
+#define ID3 ( 0x1FF80064 )
 
 /*!
  * LED GPIO pins objects
@@ -83,26 +83,25 @@ static bool UsbIsConnected = false;
 /*!
  * UART2 FIFO buffers size
  */
-#define UART2_FIFO_TX_SIZE                                1024
-#define UART2_FIFO_RX_SIZE                                1024
+#define UART2_FIFO_TX_SIZE 1024
+#define UART2_FIFO_RX_SIZE 1024
 
 uint8_t Uart2TxBuffer[UART2_FIFO_TX_SIZE];
 uint8_t Uart2RxBuffer[UART2_FIFO_RX_SIZE];
 
-void BoardCriticalSectionBegin( uint32_t *mask )
+void BoardCriticalSectionBegin( uint32_t* mask )
 {
     *mask = __get_PRIMASK( );
     __disable_irq( );
 }
 
-void BoardCriticalSectionEnd( uint32_t *mask )
+void BoardCriticalSectionEnd( uint32_t* mask )
 {
     __set_PRIMASK( *mask );
 }
 
 void BoardInitPeriph( void )
 {
-
 }
 
 void BoardInitMcu( void )
@@ -146,14 +145,14 @@ void BoardInitMcu( void )
         SystemClockReConfig( );
     }
 
-    SpiInit( &SX1276.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
-    SX1276IoInit( );
+    radio_context_t* radio_context = radio_board_get_radio_context_reference( );
+    SpiInit( &radio_context->spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+    radio_board_init_io( );
 
     if( McuInitialized == false )
     {
         McuInitialized = true;
-        SX1276IoDbgInit( );
-        SX1276IoTcxoInit( );
+        radio_board_init_dbg_io( );
     }
 }
 
@@ -161,31 +160,32 @@ void BoardResetMcu( void )
 {
     CRITICAL_SECTION_BEGIN( );
 
-    //Restart system
+    // Restart system
     NVIC_SystemReset( );
 }
 
 void BoardDeInitMcu( void )
 {
-    SpiDeInit( &SX1276.Spi );
-    SX1276IoDeInit( );
+    radio_context_t* radio_context = radio_board_get_radio_context_reference( );
+    SpiDeInit( &radio_context->spi );
+    radio_board_deinit_io( );
 }
 
 uint32_t BoardGetRandomSeed( void )
 {
-    return ( ( *( uint32_t* )ID1 ) ^ ( *( uint32_t* )ID2 ) ^ ( *( uint32_t* )ID3 ) );
+    return ( ( *( uint32_t* ) ID1 ) ^ ( *( uint32_t* ) ID2 ) ^ ( *( uint32_t* ) ID3 ) );
 }
 
-void BoardGetUniqueId( uint8_t *id )
+void BoardGetUniqueId( uint8_t* id )
 {
-    id[7] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID3 ) ) >> 24;
-    id[6] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID3 ) ) >> 16;
-    id[5] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID3 ) ) >> 8;
-    id[4] = ( ( *( uint32_t* )ID1 )+ ( *( uint32_t* )ID3 ) );
-    id[3] = ( ( *( uint32_t* )ID2 ) ) >> 24;
-    id[2] = ( ( *( uint32_t* )ID2 ) ) >> 16;
-    id[1] = ( ( *( uint32_t* )ID2 ) ) >> 8;
-    id[0] = ( ( *( uint32_t* )ID2 ) );
+    id[7] = ( ( *( uint32_t* ) ID1 ) + ( *( uint32_t* ) ID3 ) ) >> 24;
+    id[6] = ( ( *( uint32_t* ) ID1 ) + ( *( uint32_t* ) ID3 ) ) >> 16;
+    id[5] = ( ( *( uint32_t* ) ID1 ) + ( *( uint32_t* ) ID3 ) ) >> 8;
+    id[4] = ( ( *( uint32_t* ) ID1 ) + ( *( uint32_t* ) ID3 ) );
+    id[3] = ( ( *( uint32_t* ) ID2 ) ) >> 24;
+    id[2] = ( ( *( uint32_t* ) ID2 ) ) >> 16;
+    id[1] = ( ( *( uint32_t* ) ID2 ) ) >> 8;
+    id[0] = ( ( *( uint32_t* ) ID2 ) );
 }
 
 uint16_t BoardBatteryMeasureVoltage( void )
@@ -212,18 +212,18 @@ static void BoardUnusedIoInit( void )
 
 void SystemClockConfig( void )
 {
-    RCC_OscInitTypeDef RCC_OscInitStruct;
-    RCC_ClkInitTypeDef RCC_ClkInitStruct;
+    RCC_OscInitTypeDef       RCC_OscInitStruct;
+    RCC_ClkInitTypeDef       RCC_ClkInitStruct;
     RCC_PeriphCLKInitTypeDef PeriphClkInit;
 
     __HAL_RCC_PWR_CLK_ENABLE( );
 
     __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE1 );
 
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_LSE;
-    RCC_OscInitStruct.HSEState = RCC_HSE_OFF;
-    RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-    RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.HSEState            = RCC_HSE_OFF;
+    RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
+    RCC_OscInitStruct.LSEState            = RCC_LSE_ON;
     RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSI;
@@ -234,9 +234,10 @@ void SystemClockConfig( void )
         assert_param( LMN_STATUS_ERROR );
     }
 
-    RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.ClockType =
+        ( RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 );
+    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
     if( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_1 ) != HAL_OK )
@@ -245,7 +246,7 @@ void SystemClockConfig( void )
     }
 
     PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-    PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
+    PeriphClkInit.RTCClockSelection    = RCC_RTCCLKSOURCE_LSE;
     if( HAL_RCCEx_PeriphCLKConfig( &PeriphClkInit ) != HAL_OK )
     {
         assert_param( LMN_STATUS_ERROR );
@@ -281,7 +282,7 @@ void SystemClockReConfig( void )
     }
 
     // Select PLL as system clock source
-    __HAL_RCC_SYSCLK_CONFIG ( RCC_SYSCLKSOURCE_PLLCLK );
+    __HAL_RCC_SYSCLK_CONFIG( RCC_SYSCLKSOURCE_PLLCLK );
 
     // Wait till PLL is used as system clock source
     while( __HAL_RCC_GET_SYSCLK_SOURCE( ) != RCC_SYSCLKSOURCE_STATUS_PLLCLK )
@@ -308,11 +309,11 @@ uint8_t GetBoardPowerSource( void )
 }
 
 /**
-  * \brief Enters Low Power Stop Mode
-  *
-  * \note ARM exists the function when waking up
-  */
-void LpmEnterStopMode( void)
+ * \brief Enters Low Power Stop Mode
+ *
+ * \note ARM exists the function when waking up
+ */
+void LpmEnterStopMode( void )
 {
     CRITICAL_SECTION_BEGIN( );
 
@@ -355,16 +356,16 @@ void LpmExitStopMode( void )
  *
  * \note ARM exits the function when waking up
  */
-void LpmEnterSleepMode( void)
+void LpmEnterSleepMode( void )
 {
-    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+    HAL_PWR_EnterSLEEPMode( PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI );
 }
 
 void BoardLowPowerHandler( void )
 {
     __disable_irq( );
     /*!
-     * If an interrupt has occurred after __disable_irq( ), it is kept pending 
+     * If an interrupt has occurred after __disable_irq( ), it is kept pending
      * and cortex will not enter low power anyway
      */
 
@@ -373,26 +374,32 @@ void BoardLowPowerHandler( void )
     __enable_irq( );
 }
 
-#if !defined ( __CC_ARM )
+#if !defined( __CC_ARM )
 
 /*
  * Function to be used by stdout for printf etc
  */
-int _write( int fd, const void *buf, size_t count )
+int _write( int fd, const void* buf, size_t count )
 {
-    while( UartPutBuffer( &Uart2, ( uint8_t* )buf, ( uint16_t )count ) != 0 ){ };
+    while( UartPutBuffer( &Uart2, ( uint8_t* ) buf, ( uint16_t ) count ) != 0 )
+    {
+    };
     return count;
 }
 
 /*
  * Function to be used by stdin for scanf etc
  */
-int _read( int fd, const void *buf, size_t count )
+int _read( int fd, const void* buf, size_t count )
 {
     size_t bytesRead = 0;
-    while( UartGetBuffer( &Uart2, ( uint8_t* )buf, count, ( uint16_t* )&bytesRead ) != 0 ){ };
+    while( UartGetBuffer( &Uart2, ( uint8_t* ) buf, count, ( uint16_t* ) &bytesRead ) != 0 )
+    {
+    };
     // Echo back the character
-    while( UartPutBuffer( &Uart2, ( uint8_t* )buf, ( uint16_t )bytesRead ) != 0 ){ };
+    while( UartPutBuffer( &Uart2, ( uint8_t* ) buf, ( uint16_t ) bytesRead ) != 0 )
+    {
+    };
     return bytesRead;
 }
 
@@ -401,19 +408,22 @@ int _read( int fd, const void *buf, size_t count )
 #include <stdio.h>
 
 // Keil compiler
-int fputc( int c, FILE *stream )
+int fputc( int c, FILE* stream )
 {
-    while( UartPutChar( &Uart2, ( uint8_t )c ) != 0 );
+    while( UartPutChar( &Uart2, ( uint8_t ) c ) != 0 )
+        ;
     return c;
 }
 
-int fgetc( FILE *stream )
+int fgetc( FILE* stream )
 {
     uint8_t c = 0;
-    while( UartGetChar( &Uart2, &c ) != 0 );
+    while( UartGetChar( &Uart2, &c ) != 0 )
+        ;
     // Echo back the character
-    while( UartPutChar( &Uart2, c ) != 0 );
-    return ( int )c;
+    while( UartPutChar( &Uart2, c ) != 0 )
+        ;
+    return ( int ) c;
 }
 
 #endif
@@ -436,7 +446,7 @@ void assert_failed( uint8_t* file, uint32_t line )
     /* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %lu\n", file, line) */
 
-    printf( "Wrong parameters value: file %s on line %lu\n", ( const char* )file, line );
+    printf( "Wrong parameters value: file %s on line %lu\n", ( const char* ) file, line );
     /* Infinite loop */
     while( 1 )
     {

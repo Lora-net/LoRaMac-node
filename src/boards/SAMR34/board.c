@@ -40,7 +40,7 @@
 #include "timer.h"
 #include "gps.h"
 #include "rtc-board.h"
-#include "sx1276-board.h"
+#include "radio_board.h"
 #include "board.h"
 
 /*
@@ -48,20 +48,20 @@
  */
 Gpio_t Led1;
 Uart_t Uart1;
-I2c_t I2c;
+I2c_t  I2c;
 
 /*!
  * Flag to indicate if the MCU is Initialized
  */
 static bool McuInitialized = false;
 
-void BoardCriticalSectionBegin( uint32_t *mask )
+void BoardCriticalSectionBegin( uint32_t* mask )
 {
     *mask = __get_PRIMASK( );
     __disable_irq( );
 }
 
-void BoardCriticalSectionEnd( uint32_t *mask )
+void BoardCriticalSectionEnd( uint32_t* mask )
 {
     __set_PRIMASK( *mask );
 }
@@ -84,26 +84,29 @@ void BoardInitMcu( void )
     UartInit( &Uart1, UART_1, UART_TX, UART_RX );
     UartConfig( &Uart1, RX_TX, 921600, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
 
-    SpiInit( &SX1276.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
-    SX1276IoInit( );
+    radio_context_t* radio_context = radio_board_get_radio_context_reference( );
+    SpiInit( &radio_context->spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+    radio_board_init_io( );
+
     I2cInit( &I2c, I2C_1, I2C_SCL, I2C_SDA );
 
     McuInitialized = true;
-    SX1276IoDbgInit( );
-    SX1276IoTcxoInit( );
+    radio_board_init_dbg_io( );
 }
 
 void BoardResetMcu( void )
 {
     CRITICAL_SECTION_BEGIN( );
 
-    //Restart system
+    // Restart system
     NVIC_SystemReset( );
 }
 
 void BoardDeInitMcu( void )
 {
-    SpiDeInit( &SX1276.Spi );
+    radio_context_t* radio_context = radio_board_get_radio_context_reference( );
+    SpiDeInit( &radio_context->spi );
+    radio_board_deinit_io( );
 }
 
 uint32_t BoardGetRandomSeed( void )
@@ -111,14 +114,14 @@ uint32_t BoardGetRandomSeed( void )
     return 0;
 }
 
-void BoardGetUniqueId( uint8_t *id )
+void BoardGetUniqueId( uint8_t* id )
 {
     // We don't have an ID, so use the one from Commissioning.h
 }
 
 uint8_t BoardGetBatteryLevel( void )
 {
-    return 0; //  Battery level [0: node is connected to an external power source ...
+    return 0;  //  Battery level [0: node is connected to an external power source ...
 }
 
 uint8_t GetBoardPowerSource( void )
@@ -130,7 +133,7 @@ void BoardLowPowerHandler( void )
 {
     __disable_irq( );
     /*!
-     * If an interrupt has occurred after __disable_irq( ), it is kept pending 
+     * If an interrupt has occurred after __disable_irq( ), it is kept pending
      * and cortex will not enter low power anyway
      */
 
@@ -139,26 +142,32 @@ void BoardLowPowerHandler( void )
     __enable_irq( );
 }
 
-#if !defined ( __CC_ARM )
+#if !defined( __CC_ARM )
 
 /*
  * Function to be used by stdout for printf etc
  */
-int _write( int fd, const void *buf, size_t count )
+int _write( int fd, const void* buf, size_t count )
 {
-    while( UartPutBuffer( &Uart1, ( uint8_t* )buf, ( uint16_t )count ) != 0 ){ };
+    while( UartPutBuffer( &Uart1, ( uint8_t* ) buf, ( uint16_t ) count ) != 0 )
+    {
+    };
     return count;
 }
 
 /*
  * Function to be used by stdin for scanf etc
  */
-int _read( int fd, const void *buf, size_t count )
+int _read( int fd, const void* buf, size_t count )
 {
     size_t bytesRead = 0;
-    while( UartGetBuffer( &Uart1, ( uint8_t* )buf, count, ( uint16_t* )&bytesRead ) != 0 ){ };
+    while( UartGetBuffer( &Uart1, ( uint8_t* ) buf, count, ( uint16_t* ) &bytesRead ) != 0 )
+    {
+    };
     // Echo back the character
-    while( UartPutBuffer( &Uart1, ( uint8_t* )buf, ( uint16_t )bytesRead ) != 0 ){ };
+    while( UartPutBuffer( &Uart1, ( uint8_t* ) buf, ( uint16_t ) bytesRead ) != 0 )
+    {
+    };
     return bytesRead;
 }
 
@@ -167,19 +176,22 @@ int _read( int fd, const void *buf, size_t count )
 #include <stdio.h>
 
 // Keil compiler
-int fputc( int c, FILE *stream )
+int fputc( int c, FILE* stream )
 {
-    while( UartPutChar( &Uart1, ( uint8_t )c ) != 0 );
+    while( UartPutChar( &Uart1, ( uint8_t ) c ) != 0 )
+        ;
     return c;
 }
 
-int fgetc( FILE *stream )
+int fgetc( FILE* stream )
 {
     uint8_t c = 0;
-    while( UartGetChar( &Uart1, &c ) != 0 );
+    while( UartGetChar( &Uart1, &c ) != 0 )
+        ;
     // Echo back the character
-    while( UartPutChar( &Uart1, c ) != 0 );
-    return ( int )c;
+    while( UartPutChar( &Uart1, c ) != 0 )
+        ;
+    return ( int ) c;
 }
 
 #endif
@@ -202,7 +214,7 @@ void assert_failed( uint8_t* file, uint32_t line )
     /* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %u\n", file, line) */
 
-    printf( "Wrong parameters value: file %s on line %u\n", ( const char* )file, line );
+    printf( "Wrong parameters value: file %s on line %u\n", ( const char* ) file, line );
     /* Infinite loop */
     while( 1 )
     {
