@@ -151,7 +151,7 @@ extern "C"
  * EU868        | SF7  - BW125
  * IN865        | SF7  - BW125
  * KR920        | SF7  - BW125
- * US915        | RFU
+ * US915        | LR-FHSS CR1/3: 1.523 MHz BW
  * RU864        | SF7  - BW125
  */
 #define DR_5                                        5
@@ -167,7 +167,7 @@ extern "C"
  * EU868        | SF7  - BW250
  * IN865        | SF7  - BW250
  * KR920        | RFU
- * US915        | RFU
+ * US915        | LR-FHSS CR2/3: 1.523 MHz BW
  * RU864        | SF7  - BW250
  */
 #define DR_6                                        6
@@ -176,7 +176,7 @@ extern "C"
  * Region       | SF
  * ------------ | :-----:
  * AS923        | FSK
- * AU915        | RFU
+ * AU915        | LR-FHSS CR1/3: 1.523 MHz BW
  * CN470        | SF12 - BW125
  * CN779        | FSK
  * EU433        | FSK
@@ -196,7 +196,7 @@ extern "C"
  * CN470        | RFU
  * CN779        | RFU
  * EU433        | RFU
- * EU868        | RFU
+ * EU868        | LR-FHSS  CR1/3: 137 kHz BW
  * IN865        | RFU
  * KR920        | RFU
  * US915        | SF12 - BW500
@@ -212,7 +212,7 @@ extern "C"
  * CN470        | RFU
  * CN779        | RFU
  * EU433        | RFU
- * EU868        | RFU
+ * EU868        | LR-FHSS CR2/3: 137 kHz BW
  * IN865        | RFU
  * KR920        | RFU
  * US915        | SF11 - BW500
@@ -228,7 +228,7 @@ extern "C"
  * CN470        | RFU
  * CN779        | RFU
  * EU433        | RFU
- * EU868        | RFU
+ * EU868        | LR-FHSS CR1/3: 336 kHz BW
  * IN865        | RFU
  * KR920        | RFU
  * US915        | SF10 - BW500
@@ -244,7 +244,7 @@ extern "C"
  * CN470        | RFU
  * CN779        | RFU
  * EU433        | RFU
- * EU868        | RFU
+ * EU868        | LR-FHSS CR2/3:  336 kHz BW
  * IN865        | RFU
  * KR920        | RFU
  * US915        | SF9  - BW500
@@ -1189,7 +1189,7 @@ typedef union uDrRange
     /*!
      * Byte-access to the bits
      */
-    int8_t Value;
+    uint8_t Value;
     /*!
      * Structure to store the minimum and the maximum datarate
      */
@@ -1202,7 +1202,7 @@ typedef union uDrRange
          *
          * The allowed ranges are region specific. Please refer to \ref DR_0 to \ref DR_15 for details.
          */
-        int8_t Min : 4;
+        uint8_t Min : 4;
         /*!
          * Maximum data rate
          *
@@ -1210,7 +1210,7 @@ typedef union uDrRange
          *
          * The allowed ranges are region specific. Please refer to \ref DR_0 to \ref DR_15 for details.
          */
-        int8_t Max : 4;
+        uint8_t Max : 4;
     }Fields;
 }DrRange_t;
 

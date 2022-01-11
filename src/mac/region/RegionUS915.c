@@ -46,6 +46,73 @@ static RegionNvmDataGroup1_t* RegionNvmGroup1;
 static RegionNvmDataGroup2_t* RegionNvmGroup2;
 static Band_t* RegionBands;
 
+#if ( LORAMAC_LR_FHSS_IS_ON == 1 )
+static void lr_fhss_dr_to_cr_bw( uint8_t dr, lr_fhss_v1_cr_t* cr, lr_fhss_v1_bw_t* bw )
+{
+    switch( dr )
+    {
+    case DR_5:
+        *cr = LR_FHSS_V1_CR_1_3;
+        *bw = LR_FHSS_V1_BW_1523438_HZ;
+        break;
+    case DR_6:
+        *cr = LR_FHSS_V1_CR_2_3;
+        *bw = LR_FHSS_V1_BW_1523438_HZ;
+        break;
+    default:
+        // Panic
+        while( 1 )
+            ;
+    }
+}
+
+static uint8_t lr_fhss_get_header_count( lr_fhss_v1_cr_t cr )
+{
+    if( cr == LR_FHSS_V1_CR_1_3 )
+    {
+        return 3;
+    }
+    else if( cr == LR_FHSS_V1_CR_2_3 )
+    {
+        return 2;
+    }
+    else
+    {
+        // Panic
+        while( 1 )
+            ;
+        return 0;
+    }
+}
+
+static int8_t GetNextLowerTxDr( RegionCommonGetNextLowerTxDrParams_t *params )
+{
+    int8_t drLocal = params->CurrentDr;
+
+    if( params->CurrentDr == params->MinDr )
+    {
+        return params->MinDr;
+    }
+    else
+    {
+        do
+        {
+            if( drLocal == DR_5 )
+            { // LR-FHSS min datarate go to minimum LoRa data rate for the region
+                drLocal = params->MinDr;
+            }
+            else
+            {
+                drLocal = ( drLocal - 1 );
+            }
+        } while( ( drLocal != params->MinDr ) &&
+                 ( RegionCommonChanVerifyDr( params->NbChannels, params->ChannelsMask, drLocal, params->MinDr, params->MaxDr, params->Channels  ) == false ) );
+
+        return drLocal;
+    }
+}
+#endif
+
 static int8_t LimitTxPower( int8_t txPower, int8_t maxBandTxPower, int8_t datarate, uint16_t* channelsMask )
 {
     int8_t txPowerResult = txPower;
@@ -90,16 +157,40 @@ static TimerTime_t GetTimeOnAir( int8_t datarate, uint16_t pktLen )
     int8_t phyDr = DataratesUS915[datarate];
     uint32_t bandwidth = RegionCommonGetBandwidth( datarate, BandwidthsUS915 );
 
-    loramac_radio_lora_time_on_air_params_t lora_params = {
-        .sf = ( ral_lora_sf_t ) phyDr,
-        .bw = ( ral_lora_bw_t ) bandwidth,
-        .cr = RAL_LORA_CR_4_5,
-        .preamble_len_in_symb = 8,
-        .is_pkt_len_fixed = false,
-        .pld_len_in_bytes = ( uint8_t ) pktLen,
-        .is_crc_on = true,
-    };
-    return loramac_radio_lora_get_time_on_air_in_ms( &lora_params );
+#if ( LORAMAC_LR_FHSS_IS_ON == 1 )
+    if( ( datarate > DR_4 ) && ( datarate < DR_7 ) )
+    {  // LR-FHSS
+        lr_fhss_v1_cr_t                    lr_fhss_cr;
+        lr_fhss_v1_bw_t                    lr_fhss_bw;
+        loramac_radio_lr_fhss_time_on_air_params_t params;
+
+        lr_fhss_dr_to_cr_bw( datarate, &lr_fhss_cr, &lr_fhss_bw );
+
+        params.lr_fhss_params.device_offset                  = 0;
+        params.lr_fhss_params.lr_fhss_params.sync_word       = REGION_COMMON_LR_FHSS_SYNC_WORD;
+        params.lr_fhss_params.lr_fhss_params.modulation_type = LR_FHSS_V1_MODULATION_TYPE_GMSK_488;
+        params.lr_fhss_params.lr_fhss_params.cr              = lr_fhss_cr;
+        params.lr_fhss_params.lr_fhss_params.grid            = LR_FHSS_V1_GRID_25391_HZ;
+        params.lr_fhss_params.lr_fhss_params.bw              = lr_fhss_bw;
+        params.lr_fhss_params.lr_fhss_params.enable_hopping  = true;
+        params.lr_fhss_params.lr_fhss_params.header_count    = lr_fhss_get_header_count( lr_fhss_cr );
+
+        return loramac_radio_lr_fhss_get_time_on_air_in_ms( &params );
+    }
+    else
+#endif
+    {
+        loramac_radio_lora_time_on_air_params_t lora_params = {
+            .sf = ( ral_lora_sf_t ) phyDr,
+            .bw = ( ral_lora_bw_t ) bandwidth,
+            .cr = RAL_LORA_CR_4_5,
+            .preamble_len_in_symb = 8,
+            .is_pkt_len_fixed = false,
+            .pld_len_in_bytes = ( uint8_t ) pktLen,
+            .is_crc_on = true,
+        };
+        return loramac_radio_lora_get_time_on_air_in_ms( &lora_params );
+    }
 }
 
 PhyParam_t RegionUS915GetPhyParam( GetPhyParams_t* getPhy )
@@ -134,7 +225,11 @@ PhyParam_t RegionUS915GetPhyParam( GetPhyParams_t* getPhy )
                 .ChannelsMask = RegionNvmGroup2->ChannelsMask,
                 .Channels = RegionNvmGroup2->Channels,
             };
+#if ( LORAMAC_LR_FHSS_IS_ON == 1 )
+            phyParam.Value = GetNextLowerTxDr( &nextLowerTxDrParams );
+#else
             phyParam.Value = RegionCommonGetNextLowerTxDr( &nextLowerTxDrParams );
+#endif
             break;
         }
         case PHY_MAX_TX_POWER:
@@ -355,6 +450,7 @@ void RegionUS915InitDefaults( InitDefaultsParams_t* params )
                 RegionNvmGroup2->Channels[i].DrRange.Value = ( DR_3 << 4 ) | DR_0;
                 RegionNvmGroup2->Channels[i].Band = 0;
             }
+#if ( LORAMAC_LR_FHSS_IS_ON == 0 )
             for( uint8_t i = US915_MAX_NB_CHANNELS - 8; i < US915_MAX_NB_CHANNELS; i++ )
             {
                 // 500 kHz channels
@@ -362,8 +458,16 @@ void RegionUS915InitDefaults( InitDefaultsParams_t* params )
                 RegionNvmGroup2->Channels[i].DrRange.Value = ( DR_4 << 4 ) | DR_4;
                 RegionNvmGroup2->Channels[i].Band = 0;
             }
-
-            // Default ChannelsMask
+#else
+            for( uint8_t i = US915_MAX_NB_CHANNELS - 8; i < US915_MAX_NB_CHANNELS; i++ )
+            {
+                // 500 kHz channels
+                RegionNvmGroup2->Channels[i].Frequency = 903000000 + ( i - ( US915_MAX_NB_CHANNELS - 8 ) ) * 1600000;
+                RegionNvmGroup2->Channels[i].DrRange.Value = ( DR_6 << 4 ) | DR_4;
+                RegionNvmGroup2->Channels[i].Band = 0;
+            }
+#endif
+            // Initialize channels default mask
             RegionNvmGroup2->ChannelsDefaultMask[0] = 0xFFFF;
             RegionNvmGroup2->ChannelsDefaultMask[1] = 0xFFFF;
             RegionNvmGroup2->ChannelsDefaultMask[2] = 0xFFFF;
@@ -508,7 +612,18 @@ void RegionUS915ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
     rxConfigParams->Datarate = MIN( datarate, US915_RX_MAX_DATARATE );
     rxConfigParams->Bandwidth = RegionCommonGetBandwidth( rxConfigParams->Datarate, BandwidthsUS915 );
 
-    tSymbolInUs = RegionCommonComputeSymbolTimeLoRa( DataratesUS915[rxConfigParams->Datarate], BandwidthsUS915[rxConfigParams->Datarate] );
+#if ( LORAMAC_LR_FHSS_IS_ON == 1 )
+    if( ( rxConfigParams->Datarate > DR_4 ) && ( rxConfigParams->Datarate < DR_7 ) )
+    {  // LR-FHSS  is not supported for downlinks
+        // Panic
+        while( 1 )
+            ;
+    }
+    else
+#endif
+    {
+        tSymbolInUs = RegionCommonComputeSymbolTimeLoRa( DataratesUS915[rxConfigParams->Datarate], BandwidthsUS915[rxConfigParams->Datarate] );
+    }
 
     RegionCommonComputeRxWindowParameters( tSymbolInUs, minRxSymbols, rxError, loramac_radio_get_wakeup_time_in_ms( ), &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
 }
@@ -523,6 +638,14 @@ bool RegionUS915RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
     {
         return false;
     }
+
+#if ( LORAMAC_LR_FHSS_IS_ON == 1 )
+    // LR-FHSS is not supported for downlinks
+    if( ( dr > DR_4 ) && ( dr < DR_7 ) )
+    {
+        return false;
+    }
+#endif
 
     if( rxConfig->RxSlot == RX_SLOT_WIN_1 )
     {
@@ -564,21 +687,48 @@ bool RegionUS915TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
     phyTxPower = RegionCommonComputeTxPower( txPowerLimited, US915_DEFAULT_MAX_ERP, 0 );
 
     // Radio configuration
-    loramac_radio_lora_cfg_params_t lora_params = {
-        .rf_freq_in_hz = RegionNvmGroup2->Channels[txConfig->Channel].Frequency,
-        .tx_rf_pwr_in_dbm = phyTxPower,
-        .sf = ( ral_lora_sf_t ) phyDr,
-        .bw = ( ral_lora_bw_t ) bandwidth,
-        .cr = RAL_LORA_CR_4_5,
-        .preamble_len_in_symb = 8,
-        .is_pkt_len_fixed = false,
-        .pld_len_in_bytes = ( uint8_t ) txConfig->PktLen,
-        .is_crc_on = true,
-        .invert_iq_is_on = false,
-        .tx_timeout_in_ms= 4000,
-    };
-    loramac_radio_lora_set_cfg( &lora_params );
+#if ( LORAMAC_LR_FHSS_IS_ON == 1 )
+    if( ( txConfig->Datarate > DR_4 ) && ( txConfig->Datarate < DR_7 ) )
+    {  // LR-FHSS
+        uint32_t                           rf_freq_in_hz = RegionNvmGroup2->Channels[txConfig->Channel].Frequency;
+        lr_fhss_v1_cr_t                    lr_fhss_cr;
+        lr_fhss_v1_bw_t                    lr_fhss_bw;
+        loramac_radio_lr_fhss_cfg_params_t cfg_params;
 
+        lr_fhss_dr_to_cr_bw( txConfig->Datarate, &lr_fhss_cr, &lr_fhss_bw );
+
+        cfg_params.tx_rf_pwr_in_dbm                              = phyTxPower;
+        cfg_params.lr_fhss_params.center_frequency_in_hz         = rf_freq_in_hz;
+        cfg_params.lr_fhss_params.device_offset                  = 0;
+        cfg_params.lr_fhss_params.lr_fhss_params.sync_word       = REGION_COMMON_LR_FHSS_SYNC_WORD;
+        cfg_params.lr_fhss_params.lr_fhss_params.modulation_type = LR_FHSS_V1_MODULATION_TYPE_GMSK_488;
+        cfg_params.lr_fhss_params.lr_fhss_params.cr              = lr_fhss_cr;
+        cfg_params.lr_fhss_params.lr_fhss_params.grid            = LR_FHSS_V1_GRID_25391_HZ;
+        cfg_params.lr_fhss_params.lr_fhss_params.bw              = lr_fhss_bw;
+        cfg_params.lr_fhss_params.lr_fhss_params.enable_hopping  = true;
+        cfg_params.lr_fhss_params.lr_fhss_params.header_count    = lr_fhss_get_header_count( lr_fhss_cr );
+        cfg_params.tx_timeout_in_ms                              = 4000;
+
+        loramac_radio_lr_fhss_set_cfg( &cfg_params );
+    }
+    else
+#endif
+    {
+        loramac_radio_lora_cfg_params_t lora_params = {
+            .rf_freq_in_hz = RegionNvmGroup2->Channels[txConfig->Channel].Frequency,
+            .tx_rf_pwr_in_dbm = phyTxPower,
+            .sf = ( ral_lora_sf_t ) phyDr,
+            .bw = ( ral_lora_bw_t ) bandwidth,
+            .cr = RAL_LORA_CR_4_5,
+            .preamble_len_in_symb = 8,
+            .is_pkt_len_fixed = false,
+            .pld_len_in_bytes = ( uint8_t ) txConfig->PktLen,
+            .is_crc_on = true,
+            .invert_iq_is_on = false,
+            .tx_timeout_in_ms= 4000,
+        };
+        loramac_radio_lora_set_cfg( &lora_params );
+    }
     // Update time-on-air
     *txTimeOnAir = GetTimeOnAir( txConfig->Datarate, txConfig->PktLen );
 
@@ -762,8 +912,13 @@ uint8_t RegionUS915RxParamSetupReq( RxParamSetupReqParams_t* rxParamSetupReq )
     {
         status &= 0xFD; // Datarate KO
     }
+#if ( LORAMAC_LR_FHSS_IS_ON == 0 )
     if( ( RegionCommonValueInRange( rxParamSetupReq->Datarate, DR_5, DR_7 ) == true ) ||
         ( rxParamSetupReq->Datarate > DR_13 ) )
+#else
+    if( ( rxParamSetupReq->Datarate == DR_7 ) ||
+        ( rxParamSetupReq->Datarate > DR_13 ) )
+#endif
     {
         status &= 0xFD; // Datarate KO
     }
@@ -859,11 +1014,11 @@ LoRaMacStatus_t RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_
     identifyChannelsParam.DutyCycleEnabled = nextChanParams->DutyCycleEnabled;
     identifyChannelsParam.MaxBands = US915_MAX_NB_BANDS;
 
-    identifyChannelsParam.CountNbOfEnabledChannelsParam = &countChannelsParams;
-
     identifyChannelsParam.ElapsedTimeSinceStartUp = nextChanParams->ElapsedTimeSinceStartUp;
     identifyChannelsParam.LastTxIsJoinRequest = nextChanParams->LastTxIsJoinRequest;
     identifyChannelsParam.ExpectedTimeOnAir = GetTimeOnAir( nextChanParams->Datarate, nextChanParams->PktLen );
+
+    identifyChannelsParam.CountNbOfEnabledChannelsParam = &countChannelsParams;
 
     status = RegionCommonIdentifyChannels( &identifyChannelsParam, aggregatedTimeOff, enabledChannels,
                                            &nbEnabledChannels, &nbRestrictedChannels, time );
@@ -891,7 +1046,7 @@ LoRaMacStatus_t RegionUS915NextChannel( NextChanParams_t* nextChanParams, uint8_
                     return LORAMAC_STATUS_PARAMETER_INVALID;
                 }
             }
-            // 500kHz Channels (64 - 71) DR4
+            // 500kHz Channels (64 - 71) DR4 or LR-FHSS
             else
             {
                 // Choose the next available channel

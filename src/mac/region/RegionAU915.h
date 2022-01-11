@@ -232,6 +232,7 @@ static const uint32_t BandwidthsAU915[] = { 125000, 125000, 125000, 125000, 1250
 /*!
  * Up/Down link data rates offset definition
  */
+#if ( LORAMAC_LR_FHSS_IS_ON == 0 )
 static const int8_t DatarateOffsetsAU915[7][6] =
 {
     { DR_8 , DR_8 , DR_8 , DR_8 , DR_8 , DR_8  }, // DR_0
@@ -242,18 +243,39 @@ static const int8_t DatarateOffsetsAU915[7][6] =
     { DR_13, DR_12, DR_11, DR_10, DR_9 , DR_8  }, // DR_5
     { DR_13, DR_13, DR_12, DR_11, DR_10, DR_9  }, // DR_6
 };
+#else
+static const int8_t DatarateOffsetsAU915[8][6] =
+{
+    { DR_8 , DR_8 , DR_8 , DR_8 , DR_8 , DR_8  }, // DR_0
+    { DR_9 , DR_8 , DR_8 , DR_8 , DR_8 , DR_8  }, // DR_1
+    { DR_10, DR_9 , DR_8 , DR_8 , DR_8 , DR_8  }, // DR_2
+    { DR_11, DR_10, DR_9 , DR_8 , DR_8 , DR_8  }, // DR_3
+    { DR_12, DR_11, DR_10, DR_9 , DR_8 , DR_8  }, // DR_4
+    { DR_13, DR_12, DR_11, DR_10, DR_9 , DR_8  }, // DR_5
+    { DR_13, DR_13, DR_12, DR_11, DR_10, DR_9  }, // DR_6
+    { DR_9 , DR_8 , DR_8 , DR_8 , DR_8 , DR_8  }, // DR_7
+};
+#endif
 
 /*!
  * Maximum payload with respect to the datarate index.
  * The table is valid for the dwell time configuration of 0 for uplinks.
  */
+#if ( LORAMAC_LR_FHSS_IS_ON == 0 )
 static const uint8_t MaxPayloadOfDatarateDwell0AU915[] = { 51, 51, 51, 115, 242, 242, 242, 0, 53, 129, 242, 242, 242, 242 };
+#else
+static const uint8_t MaxPayloadOfDatarateDwell0AU915[] = { 51, 51, 51, 115, 242, 242, 242, 50, 53, 129, 242, 242, 242, 242 };
+#endif
 
 /*!
  * Maximum payload with respect to the datarate index.
  * The table is valid for the dwell time configuration of 1 for uplinks.
  */
+#if ( LORAMAC_LR_FHSS_IS_ON == 0 )
 static const uint8_t MaxPayloadOfDatarateDwell1AU915[] = { 0, 0, 11, 53, 125, 242, 242, 0, 53, 129, 242, 242, 242, 242 };
+#else
+static const uint8_t MaxPayloadOfDatarateDwell1AU915[] = { 0, 0, 11, 53, 125, 242, 242, 50, 53, 129, 242, 242, 242, 242 };
+#endif
 
 /*!
  * \brief The function gets a value of a specific phy attribute.

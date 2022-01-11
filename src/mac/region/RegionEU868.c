@@ -27,7 +27,7 @@
  * \author    Gregory Cristian ( Semtech )
  *
  * \author    Daniel Jaeckle ( STACKFORCE )
-*/
+ */
 #include "loramac_radio.h"
 #include "RegionCommon.h"
 #include "RegionEU868.h"
@@ -43,7 +43,82 @@ static RegionNvmDataGroup2_t* RegionNvmGroup2;
 static Band_t* RegionBands;
 
 // Static functions
-static bool VerifyRfFreq( uint32_t freq, uint8_t *band )
+#if ( LORAMAC_LR_FHSS_IS_ON == 1 )
+static void lr_fhss_dr_to_cr_bw( uint8_t dr, lr_fhss_v1_cr_t* cr, lr_fhss_v1_bw_t* bw )
+{
+    switch( dr )
+    {
+    case DR_8:
+        *cr = LR_FHSS_V1_CR_1_3;
+        *bw = LR_FHSS_V1_BW_136719_HZ;
+        break;
+    case DR_9:
+        *cr = LR_FHSS_V1_CR_2_3;
+        *bw = LR_FHSS_V1_BW_136719_HZ;
+        break;
+    case DR_10:
+        *cr = LR_FHSS_V1_CR_1_3;
+        *bw = LR_FHSS_V1_BW_335938_HZ;
+        break;
+    case DR_11:
+        *cr = LR_FHSS_V1_CR_2_3;
+        *bw = LR_FHSS_V1_BW_335938_HZ;
+        break;
+    default:
+        // Panic
+        while( 1 )
+            ;
+    }
+}
+
+static uint8_t lr_fhss_get_header_count( lr_fhss_v1_cr_t cr )
+{
+    if( cr == LR_FHSS_V1_CR_1_3 )
+    {
+        return 3;
+    }
+    else if( cr == LR_FHSS_V1_CR_2_3 )
+    {
+        return 2;
+    }
+    else
+    {
+        // Panic
+        while( 1 )
+            ;
+        return 0;
+    }
+}
+
+static int8_t GetNextLowerTxDr( RegionCommonGetNextLowerTxDrParams_t *params )
+{
+    int8_t drLocal = params->CurrentDr;
+
+    if( params->CurrentDr == params->MinDr )
+    {
+        return params->MinDr;
+    }
+    else
+    {
+        do
+        {
+            if( ( drLocal == DR_8 ) || ( drLocal == DR_10 ) )
+            { // LR-FHSS min datarate go to minimum LoRa data rate for the region
+                drLocal = params->MinDr;
+            }
+            else
+            {
+                drLocal = ( drLocal - 1 );
+            }
+        } while( ( drLocal != params->MinDr ) &&
+                 ( RegionCommonChanVerifyDr( params->NbChannels, params->ChannelsMask, drLocal, params->MinDr, params->MaxDr, params->Channels  ) == false ) );
+
+        return drLocal;
+    }
+}
+#endif
+
+static bool VerifyRfFreq( uint32_t freq, uint8_t* band )
 {
     // Check frequency bands
     if( ( freq >= 863000000 ) && ( freq < 865000000 ) )
@@ -83,7 +158,30 @@ static TimerTime_t GetTimeOnAir( int8_t datarate, uint16_t pktLen )
     uint32_t bandwidth = RegionCommonGetBandwidth( datarate, BandwidthsEU868 );
     TimerTime_t timeOnAir = 0;
 
+#if ( LORAMAC_LR_FHSS_IS_ON == 1 )
+    if( ( datarate > DR_7 ) && ( datarate < DR_12 ) )
+    {  // LR-FHSS
+        lr_fhss_v1_cr_t                    lr_fhss_cr;
+        lr_fhss_v1_bw_t                    lr_fhss_bw;
+        loramac_radio_lr_fhss_time_on_air_params_t params;
+
+        lr_fhss_dr_to_cr_bw( datarate, &lr_fhss_cr, &lr_fhss_bw );
+
+        params.lr_fhss_params.device_offset                  = 0;
+        params.lr_fhss_params.lr_fhss_params.sync_word       = REGION_COMMON_LR_FHSS_SYNC_WORD;
+        params.lr_fhss_params.lr_fhss_params.modulation_type = LR_FHSS_V1_MODULATION_TYPE_GMSK_488;
+        params.lr_fhss_params.lr_fhss_params.cr              = lr_fhss_cr;
+        params.lr_fhss_params.lr_fhss_params.grid            = LR_FHSS_V1_GRID_3906_HZ;
+        params.lr_fhss_params.lr_fhss_params.bw              = lr_fhss_bw;
+        params.lr_fhss_params.lr_fhss_params.enable_hopping  = true;
+        params.lr_fhss_params.lr_fhss_params.header_count    = lr_fhss_get_header_count( lr_fhss_cr );
+
+        timeOnAir = loramac_radio_lr_fhss_get_time_on_air_in_ms( &params );
+    }
+    else if( datarate == DR_7 )
+#else
     if( datarate == DR_7 )
+#endif
     {
         loramac_radio_gfsk_time_on_air_params_t gfsk_params = {
             .br_in_bps =  ( uint32_t )phyDr * 1000,
@@ -144,7 +242,11 @@ PhyParam_t RegionEU868GetPhyParam( GetPhyParams_t* getPhy )
                 .ChannelsMask = RegionNvmGroup2->ChannelsMask,
                 .Channels = RegionNvmGroup2->Channels,
             };
+#if ( LORAMAC_LR_FHSS_IS_ON == 1 )
+            phyParam.Value = GetNextLowerTxDr( &nextLowerTxDrParams );
+#else
             phyParam.Value = RegionCommonGetNextLowerTxDr( &nextLowerTxDrParams );
+#endif
             break;
         }
         case PHY_MAX_TX_POWER:
@@ -500,7 +602,17 @@ void RegionEU868ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
     rxConfigParams->Datarate = MIN( datarate, EU868_RX_MAX_DATARATE );
     rxConfigParams->Bandwidth = RegionCommonGetBandwidth( rxConfigParams->Datarate, BandwidthsEU868 );
 
+#if ( LORAMAC_LR_FHSS_IS_ON == 1 )
+    if( ( rxConfigParams->Datarate > DR_7 ) && ( rxConfigParams->Datarate < DR_12 ) )
+    {  // LR-FHSS  is not supported for downlinks
+        // Panic
+        while( 1 )
+            ;
+    }
+    else if( rxConfigParams->Datarate == DR_7 )
+#else
     if( rxConfigParams->Datarate == DR_7 )
+#endif
     { // FSK
         tSymbolInUs = RegionCommonComputeSymbolTimeFsk( DataratesEU868[rxConfigParams->Datarate] );
     }
@@ -522,6 +634,14 @@ bool RegionEU868RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
     {
         return false;
     }
+
+#if ( LORAMAC_LR_FHSS_IS_ON == 1 )
+    // LR-FHSS is not supported for downlinks
+    if( dr > DR_7 )
+    {
+        return false;
+    }
+#endif
 
     if( rxConfig->RxSlot == RX_SLOT_WIN_1 )
     {
@@ -587,7 +707,34 @@ bool RegionEU868TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
     phyTxPower = RegionCommonComputeTxPower( txPowerLimited, txConfig->MaxEirp, txConfig->AntennaGain );
 
     // Radio configuration
+#if ( LORAMAC_LR_FHSS_IS_ON == 1 )
+    if( ( txConfig->Datarate > DR_7 ) && ( txConfig->Datarate < DR_12 ) )
+    {  // LR-FHSS
+        uint32_t                           rf_freq_in_hz = RegionNvmGroup2->Channels[txConfig->Channel].Frequency;
+        lr_fhss_v1_cr_t                    lr_fhss_cr;
+        lr_fhss_v1_bw_t                    lr_fhss_bw;
+        loramac_radio_lr_fhss_cfg_params_t cfg_params;
+
+        lr_fhss_dr_to_cr_bw( txConfig->Datarate, &lr_fhss_cr, &lr_fhss_bw );
+
+        cfg_params.tx_rf_pwr_in_dbm                              = phyTxPower;
+        cfg_params.lr_fhss_params.center_frequency_in_hz         = rf_freq_in_hz;
+        cfg_params.lr_fhss_params.device_offset                  = 0;
+        cfg_params.lr_fhss_params.lr_fhss_params.sync_word       = REGION_COMMON_LR_FHSS_SYNC_WORD;
+        cfg_params.lr_fhss_params.lr_fhss_params.modulation_type = LR_FHSS_V1_MODULATION_TYPE_GMSK_488;
+        cfg_params.lr_fhss_params.lr_fhss_params.cr              = lr_fhss_cr;
+        cfg_params.lr_fhss_params.lr_fhss_params.grid            = LR_FHSS_V1_GRID_3906_HZ;
+        cfg_params.lr_fhss_params.lr_fhss_params.bw              = lr_fhss_bw;
+        cfg_params.lr_fhss_params.lr_fhss_params.enable_hopping  = true;
+        cfg_params.lr_fhss_params.lr_fhss_params.header_count    = lr_fhss_get_header_count( lr_fhss_cr );
+        cfg_params.tx_timeout_in_ms                              = 4000;
+
+        loramac_radio_lr_fhss_set_cfg( &cfg_params );
+    }
+    else if( txConfig->Datarate == DR_7 )
+#else
     if( txConfig->Datarate == DR_7 )
+#endif
     {
         loramac_radio_gfsk_cfg_params_t gfsk_params = {
             .rf_freq_in_hz = RegionNvmGroup2->Channels[txConfig->Channel].Frequency,
@@ -621,7 +768,6 @@ bool RegionEU868TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
         };
         loramac_radio_lora_set_cfg( &lora_params );
     }
-
     // Update time-on-air
     *txTimeOnAir = GetTimeOnAir( txConfig->Datarate, txConfig->PktLen );
 
@@ -983,7 +1129,11 @@ bool RegionEU868ChannelsRemove( ChannelRemoveParams_t* channelRemove  )
 
 uint8_t RegionEU868ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset )
 {
+#if ( LORAMAC_LR_FHSS_IS_ON == 1 )
+    int8_t datarate = DatarateOffsetsEU868[dr][drOffset];
+#else
     int8_t datarate = dr - drOffset;
+#endif
 
     if( datarate < 0 )
     {

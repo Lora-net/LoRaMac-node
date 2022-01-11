@@ -41,6 +41,7 @@
 #include "delay.h"
 #include "radio_board.h"
 #if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
+#include "sx126x_lr_fhss.h"
 #include "ral_sx126x.h"
 #elif defined( LR1110MB1XXS )
 #include "ral_lr1110.h"
@@ -91,6 +92,13 @@
 static radio_context_t radio_context_reference;
 
 #if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
+
+#if( LORAMAC_LR_FHSS_IS_ON == 1 )
+/*!
+ * LR-FHSS state storage
+ */
+static sx126x_lr_fhss_state_t sx126x_lr_fhss_state;
+#endif
 
 #elif defined( LR1110MB1XXS )
 
@@ -151,6 +159,17 @@ radio_context_t* radio_board_get_radio_context_reference( void )
 {
     return &radio_context_reference;
 }
+
+#if( LORAMAC_LR_FHSS_IS_ON == 1 )
+void* radio_board_get_lr_fhss_state_reference( void )
+{
+#if defined( SX126X )
+    return ( void* ) &sx126x_lr_fhss_state;
+#else
+    return NULL;
+#endif
+}
+#endif
 
 #if defined( SX1272MB2DAS ) || defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
 sx127x_t* radio_board_get_sx127x_context_reference( void )

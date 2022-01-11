@@ -171,7 +171,9 @@ loramac_radio_status_t loramac_radio_init( const loramac_radio_irq_t* irq_callba
     radio_context->radio_params.rx_timeout_in_ms    = 0;
     radio_context->radio_params.is_rx_continuous    = false;
     radio_context->radio_params.is_irq_fired        = false;
-
+#if( LORAMAC_LR_FHSS_IS_ON == 1 )
+    radio_context->radio_params.lr_fhss.is_lr_fhss_on = false;
+#endif
     // Initialize timeout timers
     TimerInit( &tx_timeout_timer, tx_timeout_irq );
     TimerInit( &rx_timeout_timer, rx_timeout_irq );
@@ -285,22 +287,76 @@ loramac_radio_status_t loramac_radio_lora_set_cfg( const loramac_radio_lora_cfg_
     return ( loramac_radio_status_t ) radio_lora_setup( ral_context, &mod_params, &pkt_params, &extra_params );
 }
 
+loramac_radio_status_t loramac_radio_lr_fhss_set_cfg( const loramac_radio_lr_fhss_cfg_params_t* cfg_params )
+{
+    ral_status_t status = RAL_STATUS_UNSUPPORTED_FEATURE;
+#if( LORAMAC_LR_FHSS_IS_ON == 1 )
+    ral_t*           ral_context   = radio_board_get_ral_context_reference( );
+    radio_context_t* radio_context = radio_board_get_radio_context_reference( );
+    uint32_t hop_sequence_count    = ral_lr_fhss_get_hop_sequence_count( ral_context, &cfg_params->lr_fhss_params );
+
+    radio_context->radio_params.rf_freq_in_hz    = cfg_params->lr_fhss_params.center_frequency_in_hz;
+    radio_context->radio_params.tx_rf_pwr_in_dbm = cfg_params->tx_rf_pwr_in_dbm;
+
+    radio_context->radio_params.lr_fhss.lr_fhss_params  = cfg_params->lr_fhss_params;
+    radio_context->radio_params.lr_fhss.hop_sequence_id = randr( 0, hop_sequence_count );
+
+    radio_context->radio_params.tx_timeout_in_ms = cfg_params->tx_timeout_in_ms;
+
+    status = ral_set_standby( ral_context, RAL_STANDBY_CFG_RC );
+    if( status != RAL_STATUS_OK )
+    {
+        return ( loramac_radio_status_t ) status;
+    }
+    radio_board_set_operating_mode( RADIO_BOARD_OP_MODE_STDBY );
+    status = ral_lr_fhss_init( ral_context, &cfg_params->lr_fhss_params );
+    if( status != RAL_STATUS_OK )
+    {
+        return ( loramac_radio_status_t ) status;
+    }
+    radio_context->radio_params.lr_fhss.is_lr_fhss_on = true;
+#endif
+    return ( loramac_radio_status_t ) status;
+}
+
 loramac_radio_status_t loramac_radio_transmit( const uint8_t* buffer, const uint16_t size_in_bytes )
 {
     ral_status_t     status        = RAL_STATUS_ERROR;
     ral_t*           ral_context   = radio_board_get_ral_context_reference( );
     radio_context_t* radio_context = radio_board_get_radio_context_reference( );
+#if( LORAMAC_LR_FHSS_IS_ON == 1 )
+    ral_lr_fhss_memory_state_t lr_fhss_state = radio_board_get_lr_fhss_state_reference( );
 
-    status = ral_set_pkt_payload( ral_context, buffer, size_in_bytes );
-    if( status != RAL_STATUS_OK )
+    if( radio_context->radio_params.lr_fhss.is_lr_fhss_on == true )
     {
-        return ( loramac_radio_status_t ) status;
+        status =
+            ral_lr_fhss_build_frame( ral_context, &radio_context->radio_params.lr_fhss.lr_fhss_params, lr_fhss_state,
+                                     radio_context->radio_params.lr_fhss.hop_sequence_id, buffer, size_in_bytes );
+        if( status != RAL_STATUS_OK )
+        {
+            return ( loramac_radio_status_t ) status;
+        }
+        // RAL_IRQ_TX_DONE, RAL_IRQ_LR_FHSS_HOP
+        status = ral_set_dio_irq_params( ral_context, RAL_IRQ_TX_DONE | RAL_IRQ_LR_FHSS_HOP );
+        if( status != RAL_STATUS_OK )
+        {
+            return ( loramac_radio_status_t ) status;
+        }
     }
-    // RAL_IRQ_TX_DONE
-    status = ral_set_dio_irq_params( ral_context, RAL_IRQ_TX_DONE );
-    if( status != RAL_STATUS_OK )
+    else
+#endif
     {
-        return ( loramac_radio_status_t ) status;
+        status = ral_set_pkt_payload( ral_context, buffer, size_in_bytes );
+        if( status != RAL_STATUS_OK )
+        {
+            return ( loramac_radio_status_t ) status;
+        }
+        // RAL_IRQ_TX_DONE
+        status = ral_set_dio_irq_params( ral_context, RAL_IRQ_TX_DONE );
+        if( status != RAL_STATUS_OK )
+        {
+            return ( loramac_radio_status_t ) status;
+        }
     }
     radio_board_set_ant_switch( true );
     status = ral_set_tx_cfg( ral_context, radio_context->radio_params.tx_rf_pwr_in_dbm,
@@ -362,6 +418,12 @@ loramac_radio_status_t loramac_radio_set_rx( const uint32_t timeout_in_ms )
     ral_t*           ral_context   = radio_board_get_ral_context_reference( );
     radio_context_t* radio_context = radio_board_get_radio_context_reference( );
 
+#if( LORAMAC_LR_FHSS_IS_ON == 1 )
+    if( radio_context->radio_params.lr_fhss.is_lr_fhss_on == true )
+    {
+        return LORAMAC_RADIO_STATUS_ERROR;
+    }
+#endif
     radio_board_start_radio_tcxo( );
     radio_board_set_ant_switch( false );
     // RAL_IRQ_RX_DONE | RAL_IRQ_RX_TIMEOUT, RAL_IRQ_RX_CRC_ERROR
@@ -400,6 +462,10 @@ loramac_radio_status_t loramac_radio_set_tx_cw( const loramac_radio_tx_cw_cfg_pa
     ral_t*           ral_context   = radio_board_get_ral_context_reference( );
     radio_context_t* radio_context = radio_board_get_radio_context_reference( );
     uint32_t         timeout       = ( uint32_t ) cfg_params->timeout_in_s * 1000;
+
+#if( LORAMAC_LR_FHSS_IS_ON == 1 )
+    radio_context->radio_params.lr_fhss.is_lr_fhss_on = false;
+#endif
 
     radio_board_start_radio_tcxo( );
     radio_board_set_ant_switch( true );
@@ -539,6 +605,29 @@ uint32_t loramac_radio_lora_get_time_on_air_in_ms( const loramac_radio_lora_time
     return ral_get_lora_time_on_air_in_ms( ral_context, &pkt_params, &mod_params );
 }
 
+uint32_t loramac_radio_lr_fhss_get_time_on_air_in_ms( const loramac_radio_lr_fhss_time_on_air_params_t* params )
+{
+#if( LORAMAC_LR_FHSS_IS_ON == 1 )
+    ral_status_t status            = RAL_STATUS_ERROR;
+    ral_t*       ral_context       = radio_board_get_ral_context_reference( );
+    uint32_t     time_on_air_in_ms = 0;
+    status = ral_lr_fhss_get_time_on_air_in_ms( ral_context, &params->lr_fhss_params, params->pld_len_in_bytes,
+                                                &time_on_air_in_ms );
+    if( status != RAL_STATUS_OK )
+    {
+        // Panic
+        while( 1 )
+            ;
+    }
+    return time_on_air_in_ms;
+#else
+    // Panic
+    while( 1 )
+        ;
+    return 0;  // Never reached. Avoids compiler warning
+#endif
+}
+
 uint32_t loramac_radio_get_wakeup_time_in_ms( void )
 {
     // Adds a 3 ms safety margin to the provided wakeup time
@@ -574,11 +663,14 @@ loramac_radio_status_t loramac_radio_get_random_number( uint32_t* random_number 
 
 loramac_radio_status_t loramac_radio_irq_process( void )
 {
-    ral_status_t                 status        = RAL_STATUS_ERROR;
-    ral_t*                       ral_context   = radio_board_get_ral_context_reference( );
-    radio_context_t*             radio_context = radio_board_get_radio_context_reference( );
-    ral_irq_t                    irq_flags     = RAL_IRQ_NONE;
-    radio_board_operating_mode_t op_mode       = radio_board_get_operating_mode( );
+    ral_status_t     status        = RAL_STATUS_ERROR;
+    ral_t*           ral_context   = radio_board_get_ral_context_reference( );
+    radio_context_t* radio_context = radio_board_get_radio_context_reference( );
+#if( LORAMAC_LR_FHSS_IS_ON == 1 )
+    ral_lr_fhss_memory_state_t lr_fhss_state = radio_board_get_lr_fhss_state_reference( );
+#endif
+    ral_irq_t                    irq_flags = RAL_IRQ_NONE;
+    radio_board_operating_mode_t op_mode   = radio_board_get_operating_mode( );
 
     // Check if there is an interrupt pending
     if( radio_context->radio_params.is_irq_fired == false )
@@ -627,6 +719,17 @@ loramac_radio_status_t loramac_radio_irq_process( void )
     if( ( irq_flags & RAL_IRQ_TX_DONE ) == RAL_IRQ_TX_DONE )
     {
         TimerStop( &tx_timeout_timer );
+#if( LORAMAC_LR_FHSS_IS_ON == 1 )
+        if( radio_context->radio_params.lr_fhss.is_lr_fhss_on == true )
+        {
+            status = ral_lr_fhss_handle_tx_done( ral_context, &radio_context->radio_params.lr_fhss.lr_fhss_params,
+                                                 lr_fhss_state );
+            if( status != RAL_STATUS_OK )
+            {
+                return ( loramac_radio_status_t ) status;
+            }
+        }
+#endif
         if( ( radio_irq_callbacks != NULL ) && ( radio_irq_callbacks->loramac_radio_irq_tx_done != NULL ) )
         {
             radio_irq_callbacks->loramac_radio_irq_tx_done( );
@@ -713,6 +816,17 @@ loramac_radio_status_t loramac_radio_irq_process( void )
             }
         }
     }
+#if( LORAMAC_LR_FHSS_IS_ON == 1 )
+    if( ( irq_flags & RAL_IRQ_LR_FHSS_HOP ) == RAL_IRQ_LR_FHSS_HOP )
+    {
+        status =
+            ral_lr_fhss_handle_hop( ral_context, &radio_context->radio_params.lr_fhss.lr_fhss_params, lr_fhss_state );
+        if( status != RAL_STATUS_OK )
+        {
+            return ( loramac_radio_status_t ) status;
+        }
+    }
+#endif
     return ( loramac_radio_status_t ) status;
 }
 
@@ -755,6 +869,10 @@ static ral_status_t radio_gfsk_setup( const ral_t* context, const ral_gfsk_mod_p
 {
     ral_status_t     status        = RAL_STATUS_ERROR;
     radio_context_t* radio_context = radio_board_get_radio_context_reference( );
+
+#if( LORAMAC_LR_FHSS_IS_ON == 1 )
+    radio_context->radio_params.lr_fhss.is_lr_fhss_on = false;
+#endif
 
     status = ral_set_standby( context, RAL_STANDBY_CFG_RC );
     if( status != RAL_STATUS_OK )
@@ -836,6 +954,10 @@ static ral_status_t radio_lora_setup( const ral_t* context, const ral_lora_mod_p
 {
     ral_status_t     status        = RAL_STATUS_ERROR;
     radio_context_t* radio_context = radio_board_get_radio_context_reference( );
+
+#if( LORAMAC_LR_FHSS_IS_ON == 1 )
+    radio_context->radio_params.lr_fhss.is_lr_fhss_on = false;
+#endif
 
     status = ral_set_standby( context, RAL_STANDBY_CFG_RC );
     if( status != RAL_STATUS_OK )

@@ -57,7 +57,11 @@ extern "C"
 /*!
  * Maximal datarate that can be used by the node
  */
+#if ( LORAMAC_LR_FHSS_IS_ON == 0 )
 #define US915_TX_MAX_DATARATE                       DR_4
+#else
+#define US915_TX_MAX_DATARATE                       DR_6
+#endif
 
 /*!
  * Minimal datarate that can be used by the node
@@ -221,6 +225,7 @@ static const uint32_t BandwidthsUS915[] = { 125000, 125000, 125000, 125000, 5000
 /*!
  * Up/Down link data rates offset definition
  */
+#if ( LORAMAC_LR_FHSS_IS_ON == 0 )
 static const int8_t DatarateOffsetsUS915[5][4] =
 {
     { DR_10, DR_9 , DR_8 , DR_8  }, // DR_0
@@ -229,11 +234,27 @@ static const int8_t DatarateOffsetsUS915[5][4] =
     { DR_13, DR_12, DR_11, DR_10 }, // DR_3
     { DR_13, DR_13, DR_12, DR_11 }, // DR_4
 };
+#else
+static const int8_t DatarateOffsetsUS915[7][4] =
+{
+    { DR_10, DR_9 , DR_8 , DR_8  }, // DR_0
+    { DR_11, DR_10, DR_9 , DR_8  }, // DR_1
+    { DR_12, DR_11, DR_10, DR_9  }, // DR_2
+    { DR_13, DR_12, DR_11, DR_10 }, // DR_3
+    { DR_13, DR_13, DR_12, DR_11 }, // DR_4
+    { DR_10, DR_9 , DR_8 , DR_8  }, // DR_5
+    { DR_11, DR_10, DR_9 , DR_8  }, // DR_6
+};
+#endif
 
 /*!
  * Maximum payload with respect to the datarate index.
  */
+#if ( LORAMAC_LR_FHSS_IS_ON == 0 )
 static const uint8_t MaxPayloadOfDatarateUS915[] = { 11, 53, 125, 242, 242, 0, 0, 0, 53, 129, 242, 242, 242, 242, 0, 0 };
+#else
+static const uint8_t MaxPayloadOfDatarateUS915[] = { 11, 53, 125, 242, 242, 50, 125, 0, 53, 129, 242, 242, 242, 242, 0, 0 };
+#endif
 
 /*!
  * \brief The function gets a value of a specific phy attribute.

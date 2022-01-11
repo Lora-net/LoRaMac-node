@@ -113,6 +113,16 @@ typedef struct loramac_radio_lora_cfg_params_s
 } loramac_radio_lora_cfg_params_t;
 
 /*!
+ * Radio LR-FHSS configuration parameters
+ */
+typedef struct loramac_radio_lr_fhss_cfg_params_s
+{
+    int8_t               tx_rf_pwr_in_dbm;  //!< Radio RF output power
+    ral_lr_fhss_params_t lr_fhss_params;    //!< LR-FHSS parameters
+    uint32_t             tx_timeout_in_ms;  //!< Radio tx timeout
+} loramac_radio_lr_fhss_cfg_params_t;
+
+/*!
  * Radio is channel free configuration parameters
  */
 typedef struct loramac_radio_channel_free_cfg_params_s
@@ -150,6 +160,15 @@ typedef struct loramac_radio_lora_time_on_air_params_s
     uint8_t       pld_len_in_bytes;      //!< LoRa payload length in bytes
     bool          is_crc_on;             //!< LoRa CRC activation
 } loramac_radio_lora_time_on_air_params_t;
+
+/*!
+ * Radio LoRa time on air configuration parameters
+ */
+typedef struct loramac_radio_lr_fhss_time_on_air_params_s
+{
+    ral_lr_fhss_params_t lr_fhss_params;    //!< LR-FHSS parameters
+    uint8_t              pld_len_in_bytes;  //!< LoRa payload length in bytes
+} loramac_radio_lr_fhss_time_on_air_params_t;
 
 /*!
  * Radio Tx continuous wave configuration parameters
@@ -241,6 +260,15 @@ loramac_radio_status_t loramac_radio_gfsk_set_cfg( const loramac_radio_gfsk_cfg_
 loramac_radio_status_t loramac_radio_lora_set_cfg( const loramac_radio_lora_cfg_params_t* cfg_params );
 
 /*!
+ * \brief Configure the radio LR-FHSS modem parameters
+ *
+ * \param [in] cfg_params LR-FHSS modem configuration parameters
+ *
+ * \returns Operation status
+ */
+loramac_radio_status_t loramac_radio_lr_fhss_set_cfg( const loramac_radio_lr_fhss_cfg_params_t* cfg_params );
+
+/*!
  * \brief Transmit the buffer of size in bytes.
  *
  * \remark Prepares the packet to be sent and sets the radio in transmission
@@ -321,6 +349,15 @@ uint32_t loramac_radio_gfsk_get_time_on_air_in_ms( const loramac_radio_gfsk_time
  * \returns Time-on-air value in ms for LoRa packet
  */
 uint32_t loramac_radio_lora_get_time_on_air_in_ms( const loramac_radio_lora_time_on_air_params_t* params );
+
+/*!
+ * \brief Get the time on air in millisecond for LR-FHSS packet
+ *
+ * \param [in] params Pointer to LR-FHSS time on air parameters
+ *
+ * \returns Time-on-air value in ms for LR-FHSS packet
+ */
+uint32_t loramac_radio_lr_fhss_get_time_on_air_in_ms( const loramac_radio_lr_fhss_time_on_air_params_t* params );
 
 /*!
  * \brief Get the time required for the board plus radio to get out of sleep.

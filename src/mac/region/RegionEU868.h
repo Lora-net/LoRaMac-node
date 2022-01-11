@@ -67,7 +67,11 @@ extern "C"
 /*!
  * Maximal datarate that can be used by the node
  */
+#if ( LORAMAC_LR_FHSS_IS_ON == 0 )
 #define EU868_TX_MAX_DATARATE                       DR_7
+#else
+#define EU868_TX_MAX_DATARATE                       DR_11
+#endif
 
 /*!
  * Minimal datarate that can be used by the node
@@ -266,10 +270,35 @@ static const uint8_t DataratesEU868[]  = { 12, 11, 10,  9,  8,  7,  7, 50 };
  */
 static const uint32_t BandwidthsEU868[] = { 125000, 125000, 125000, 125000, 125000, 125000, 250000, 0 };
 
+#if ( LORAMAC_LR_FHSS_IS_ON == 1 )
+/*!
+ * Up/Down link data rates offset definition
+ */
+static const int8_t DatarateOffsetsEU868[12][6] =
+{
+    { DR_0 , DR_0 , DR_0 , DR_0 , DR_0 , DR_0  }, // DR_0
+    { DR_1 , DR_0 , DR_0 , DR_0 , DR_0 , DR_0  }, // DR_1
+    { DR_2 , DR_1 , DR_0 , DR_0 , DR_0 , DR_0  }, // DR_2
+    { DR_3 , DR_2 , DR_1 , DR_0 , DR_0 , DR_0  }, // DR_3
+    { DR_4 , DR_3 , DR_2 , DR_1 , DR_0 , DR_0  }, // DR_4
+    { DR_5 , DR_4 , DR_3 , DR_2 , DR_1 , DR_0  }, // DR_5
+    { DR_6 , DR_5 , DR_4 , DR_3 , DR_2 , DR_1  }, // DR_6
+    { DR_7 , DR_6 , DR_5 , DR_4 , DR_3 , DR_2  }, // DR_7
+    { DR_1 , DR_0 , DR_0 , DR_0 , DR_0 , DR_0  }, // DR_8
+    { DR_2 , DR_1 , DR_0 , DR_0 , DR_0 , DR_0  }, // DR_9
+    { DR_1 , DR_0 , DR_0 , DR_0 , DR_0 , DR_0  }, // DR_10
+    { DR_2 , DR_1 , DR_0 , DR_0 , DR_0 , DR_0  }, // DR_11
+};
+#endif
+
 /*!
  * Maximum payload with respect to the datarate index.
  */
+#if ( LORAMAC_LR_FHSS_IS_ON == 0 )
 static const uint8_t MaxPayloadOfDatarateEU868[] = { 51, 51, 51, 115, 242, 242, 242, 242 };
+#else
+static const uint8_t MaxPayloadOfDatarateEU868[] = { 51, 51, 51, 115, 242, 242, 242, 242, 50, 115, 50, 115 };
+#endif
 
 /*!
  * \brief The function gets a value of a specific phy attribute.

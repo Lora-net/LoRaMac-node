@@ -98,6 +98,14 @@ typedef struct radio_params_s
     uint8_t  max_payload_length;
     uint32_t tx_timeout_in_ms;
     uint32_t rx_timeout_in_ms;
+#if( LORAMAC_LR_FHSS_IS_ON == 1 )
+    struct
+    {
+        bool                 is_lr_fhss_on;
+        uint16_t             hop_sequence_id;
+        ral_lr_fhss_params_t lr_fhss_params;
+    } lr_fhss;
+#endif
     uint8_t buffer[255];
 } radio_params_t;
 
@@ -154,6 +162,15 @@ typedef void ( *radio_board_dio_irq_handler )( void* context );
  * \returns Pointer to the radio board context variable
  */
 radio_context_t* radio_board_get_radio_context_reference( void );
+
+#if( LORAMAC_LR_FHSS_IS_ON == 1 )
+/*!
+ * \brief Get pointer to the LR-FHSS state structure
+ *
+ * \returns Pointer to the LR-FHSS state structure
+ */
+void* radio_board_get_lr_fhss_state_reference( void );
+#endif
 
 #if defined( SX127X )
 /*!

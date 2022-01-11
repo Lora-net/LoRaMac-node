@@ -45,6 +45,8 @@ set(REGION_CN470_DEFAULT_CHANNEL_PLAN_LIST CHANNEL_PLAN_20MHZ_TYPE_A CHANNEL_PLA
 set(REGION_CN470_DEFAULT_CHANNEL_PLAN CHANNEL_PLAN_20MHZ_TYPE_A CACHE STRING "Default channel plan for CN470 is CHANNEL_PLAN_20MHZ_TYPE_A")
 set_property(CACHE REGION_CN470_DEFAULT_CHANNEL_PLAN PROPERTY STRINGS ${REGION_CN470_DEFAULT_CHANNEL_PLAN_LIST})
 
+# Allow Enabling/disabling LR-FHSS modulation support
+option(LORAMAC_LR_FHSS_IS_ON "LR-FHSS modulation support" OFF)
 
 #---------------------------------------------------------------------------------------
 # Target
@@ -114,6 +116,9 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<BOOL:${CLASSB_ENABLED}>:L
 if(${SECURE_ELEMENT} MATCHES SOFT_SE)
     target_compile_definitions(${PROJECT_NAME} PRIVATE -DSOFT_SE)
 endif()
+
+# Add define if LR-FHSS modulation is supported
+target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<BOOL:${LORAMAC_LR_FHSS_IS_ON}>:LORAMAC_LR_FHSS_IS_ON>)
 
 add_dependencies(${PROJECT_NAME} board)
 

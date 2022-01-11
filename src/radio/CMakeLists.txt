@@ -32,6 +32,11 @@ set_property(CACHE RADIO PROPERTY ADVANCED)
 # Radio drivers
 #---------------------------------------------------------------------------------------
 
+# Check if selected radio supports LR-FHSS modulation
+if((${LORAMAC_LR_FHSS_IS_ON} STREQUAL ON) AND (${RADIO} STREQUAL sx1272 OR ${RADIO} STREQUAL sx1276))
+    message(FATAL_ERROR "\nSX127x radios do not suppport LR-FHSS modulation.\nPlease set LORAMAC_LR_FHSS_IS_ON option to \"OFF\" state.")
+endif()
+
 list(APPEND ${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/loramac_radio.c
 )
@@ -41,7 +46,10 @@ if(${RADIO} STREQUAL lr1110)
         ${CMAKE_CURRENT_SOURCE_DIR}/smtc_ral/src/ral_lr1110.c
         ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_bootloader.c
         ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_crypto_engine.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_driver_version.c
         ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_gnss.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_lr_fhss.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_radio_timings.c
         ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_radio.c
         ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_regmem.c
         ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_system.c
@@ -50,6 +58,8 @@ if(${RADIO} STREQUAL lr1110)
 elseif(${RADIO} STREQUAL sx126x)
     list(APPEND ${PROJECT_NAME}_SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/smtc_ral/src/ral_sx126x.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sx126x_driver/src/lr_fhss_mac.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sx126x_driver/src/sx126x_lr_fhss.c
         ${CMAKE_CURRENT_SOURCE_DIR}/sx126x_driver/src/sx126x.c
     )
 elseif(${RADIO} STREQUAL sx1272 OR ${RADIO} STREQUAL sx1276)
@@ -108,11 +118,11 @@ if(${RADIO} STREQUAL sx1276)
     target_compile_definitions(${PROJECT_NAME} PUBLIC -DSX127X -DSX1276)
 endif()
 
-## TEMPORALLY WORKAROUND to allow radio debugging.
-## It will be removed with the introduction of a debug-board interface.
+# Add define if LR-FHSS modulation is supported
+target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<BOOL:${LORAMAC_LR_FHSS_IS_ON}>:LORAMAC_LR_FHSS_IS_ON>)
+
 option(USE_RADIO_DEBUG "Enable Radio Debug GPIO's" OFF)
 target_compile_definitions(${PROJECT_NAME} PUBLIC  $<$<BOOL:${USE_RADIO_DEBUG}>:USE_RADIO_DEBUG>)
 target_include_directories(${PROJECT_NAME} PUBLIC $<TARGET_PROPERTY:${BOARD},INTERFACE_INCLUDE_DIRECTORIES>)
-##
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 11)
