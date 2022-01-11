@@ -186,7 +186,11 @@ extern "C"
 /*!
  * Bandwith of the beacon channel
  */
+#if defined( USE_LORAMAC_RADIO )
+#define AU915_BEACON_CHANNEL_BW                     RAL_LORA_BW_500_KHZ
+#else
 #define AU915_BEACON_CHANNEL_BW                     2
+#endif
 
 /*!
  * Ping slot channel datarate

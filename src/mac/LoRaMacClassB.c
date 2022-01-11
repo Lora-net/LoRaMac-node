@@ -26,7 +26,11 @@ Maintainer: Miguel Luis ( Semtech ), Gregory Cristian ( Semtech ) and Daniel Jae
 #include "LoRaMacClassBConfig.h"
 #include "LoRaMacCrypto.h"
 #include "LoRaMacConfirmQueue.h"
+#ifdef USE_LORAMAC_RADIO
+#include "loramac_radio.h"
+#else
 #include "radio.h"
+#endif
 #include "region/Region.h"
 
 #ifdef LORAMAC_CLASSB_ENABLED
@@ -363,7 +367,11 @@ static bool CalcNextSlotTime( uint16_t slotOffset, uint16_t pingPeriod, uint16_t
         {
             // Calculate the relative ping slot time
             slotTime -= currentTime;
+#ifdef USE_LORAMAC_RADIO
+            slotTime -= loramac_radio_get_wakeup_time_in_ms( );
+#else
             slotTime -= Radio.GetWakeupTime( );
+#endif
             slotTime = TimerTempCompensation( slotTime, Ctx.BeaconCtx.Temperature );
             *timeOffset = slotTime;
             return true;
@@ -727,7 +735,11 @@ static void LoRaMacClassBProcessBeacon( void )
 
             if( Ctx.BeaconCtx.Ctrl.AcquisitionPending == 1 )
             {
+#ifdef USE_LORAMAC_RADIO
+                loramac_radio_set_sleep( );
+#else
                 Radio.Sleep();
+#endif
                 Ctx.BeaconState = BEACON_STATE_LOST;
             }
             else
@@ -794,7 +806,11 @@ static void LoRaMacClassBProcessBeacon( void )
 
             if( Ctx.BeaconCtx.Ctrl.AcquisitionPending == 1 )
             {
+#ifdef USE_LORAMAC_RADIO
+                loramac_radio_set_sleep( );
+#else
                 Radio.Sleep();
+#endif
                 Ctx.BeaconState = BEACON_STATE_LOST;
             }
             else
@@ -882,7 +898,11 @@ static void LoRaMacClassBProcessBeacon( void )
         {
             activateTimer = true;
             GetTemperatureLevel( &Ctx.LoRaMacClassBCallbacks, &Ctx.BeaconCtx );
+#ifdef USE_LORAMAC_RADIO
+            beaconEventTime = Ctx.BeaconCtx.NextBeaconRxAdjusted - loramac_radio_get_wakeup_time_in_ms( );
+#else
             beaconEventTime = Ctx.BeaconCtx.NextBeaconRxAdjusted - Radio.GetWakeupTime( );
+#endif
             uint32_t now = TimerGetCurrentTime( );
 
             // The goal is to calculate beaconRxConfig.WindowTimeout and beaconRxConfig.WindowOffset
@@ -1051,7 +1071,11 @@ static void LoRaMacClassBProcessPingSlot( void )
                 if( Ctx.MulticastSlotState == PINGSLOT_STATE_RX )
                 {
                     // Close multicast slot window, if necessary. Multicast slots have priority
+#ifdef USE_LORAMAC_RADIO
+                    loramac_radio_set_standby( );
+#else
                     Radio.Standby( );
+#endif
                     Ctx.MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
                     TimerSetValue( &Ctx.MulticastSlotTimer, CLASSB_PING_SLOT_WINDOW );
                     TimerStart( &Ctx.MulticastSlotTimer );
@@ -1070,11 +1094,19 @@ static void LoRaMacClassBProcessPingSlot( void )
 
                 if( pingSlotRxConfig.RxContinuous == false )
                 {
+#ifdef USE_LORAMAC_RADIO
+                    loramac_radio_set_rx( Ctx.LoRaMacClassBParams.LoRaMacParams->MaxRxWindow );
+#else
                     Radio.Rx( Ctx.LoRaMacClassBParams.LoRaMacParams->MaxRxWindow );
+#endif
                 }
                 else
                 {
+#ifdef USE_LORAMAC_RADIO
+                    loramac_radio_set_rx( RAL_RX_TIMEOUT_CONTINUOUS_MODE );
+#else
                     Radio.Rx( 0 ); // Continuous mode
+#endif
                 }
             }
             else
@@ -1230,7 +1262,11 @@ static void LoRaMacClassBProcessMulticastSlot( void )
                 if( Ctx.PingSlotState == PINGSLOT_STATE_RX )
                 {
                     // Close ping slot window, if necessary. Multicast slots have priority
+#ifdef USE_LORAMAC_RADIO
+                    loramac_radio_set_standby( );
+#else
                     Radio.Standby( );
+#endif
                     Ctx.PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
                     TimerSetValue( &Ctx.PingSlotTimer, CLASSB_PING_SLOT_WINDOW );
                     TimerStart( &Ctx.PingSlotTimer );
@@ -1249,11 +1285,19 @@ static void LoRaMacClassBProcessMulticastSlot( void )
 
                 if( multicastSlotRxConfig.RxContinuous == false )
                 {
+#ifdef USE_LORAMAC_RADIO
+                    loramac_radio_set_rx( Ctx.LoRaMacClassBParams.LoRaMacParams->MaxRxWindow );
+#else
                     Radio.Rx( Ctx.LoRaMacClassBParams.LoRaMacParams->MaxRxWindow );
+#endif
                 }
                 else
                 {
+#ifdef USE_LORAMAC_RADIO
+                    loramac_radio_set_rx( RAL_RX_TIMEOUT_CONTINUOUS_MODE );
+#else
                     Radio.Rx( 0 ); // Continuous mode
+#endif
                 }
             }
             else
@@ -1341,7 +1385,7 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
             if( beaconProcessed == true )
             {
                 uint32_t spreadingFactor = 0;
-                uint32_t bandwith = 0;
+                uint32_t bandwidth = 0;
 
                 getPhy.Attribute = PHY_BEACON_CHANNEL_DR;
                 phyParam = RegionGetPhyParam( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &getPhy );
@@ -1353,9 +1397,22 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
 
                 getPhy.Attribute = PHY_BW_FROM_DR;
                 phyParam = RegionGetPhyParam( *Ctx.LoRaMacClassBParams.LoRaMacRegion, &getPhy );
-                bandwith = phyParam.Value;
+                bandwidth = phyParam.Value;
 
-                TimerTime_t time = Radio.TimeOnAir( MODEM_LORA, bandwith, spreadingFactor, 1, 10, true, size, false );
+#ifdef USE_LORAMAC_RADIO
+                loramac_radio_lora_time_on_air_params_t lora_params = {
+                    .sf = ( ral_lora_sf_t ) spreadingFactor,
+                    .bw = ( ral_lora_bw_t ) bandwidth,
+                    .cr = RAL_LORA_CR_4_5,
+                    .preamble_len_in_symb = 10,
+                    .is_pkt_len_fixed = true,
+                    .pld_len_in_bytes = ( uint8_t )size,
+                    .is_crc_on = false,
+                };
+                TimerTime_t time = loramac_radio_lora_get_time_on_air_in_ms( &lora_params );
+#else
+                TimerTime_t time = Radio.TimeOnAir( MODEM_LORA, bandwidth, spreadingFactor, 1, 10, true, size, false );
+#endif
                 SysTime_t timeOnAir;
                 timeOnAir.Seconds = time / 1000;
                 timeOnAir.SubSeconds = time - timeOnAir.Seconds * 1000;

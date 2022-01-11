@@ -44,7 +44,11 @@
 #include "LoRaMacCommands.h"
 #include "LoRaMacAdr.h"
 #include "LoRaMacSerializer.h"
+#ifdef USE_LORAMAC_RADIO
+#include "loramac_radio.h"
+#else
 #include "radio.h"
+#endif
 
 #include "LoRaMac.h"
 
@@ -156,7 +160,11 @@ typedef struct sLoRaMacCtx
     /*
     * Radio events function pointer
     */
+#ifdef USE_LORAMAC_RADIO
+    loramac_radio_irq_t RadioEvents;
+#else
     RadioEvents_t RadioEvents;
+#endif
     /*
     * LoRaMac duty cycle delayed Tx timer
     */
@@ -328,7 +336,11 @@ static void PrepareRxDoneAbort( void );
 /*!
  * \brief Function to be executed on Radio Rx Done event
  */
+#ifdef USE_LORAMAC_RADIO
+static void OnRadioRxDone( loramac_radio_irq_rx_done_params_t* params );
+#else
 static void OnRadioRxDone( uint8_t* payload, uint16_t size, int16_t rssi, int8_t snr );
+#endif
 
 /*!
  * \brief Function executed on Radio Tx Timeout event
@@ -762,6 +774,15 @@ static void OnRadioTxDone( void )
     }
 }
 
+#ifdef USE_LORAMAC_RADIO
+static void OnRadioRxDone( loramac_radio_irq_rx_done_params_t* params )
+{
+    RxDoneParams.LastRxDone = TimerGetCurrentTime( );
+    RxDoneParams.Payload = params->buffer;
+    RxDoneParams.Size = params->size_in_bytes;
+    RxDoneParams.Rssi = params->rssi_in_dbm;
+    RxDoneParams.Snr = params->snr_in_db;
+#else
 static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
 {
     RxDoneParams.LastRxDone = TimerGetCurrentTime( );
@@ -769,7 +790,7 @@ static void OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t
     RxDoneParams.Size = size;
     RxDoneParams.Rssi = rssi;
     RxDoneParams.Snr = snr;
-
+#endif
     LoRaMacRadioEvents.Events.RxDone = 1;
     LoRaMacRadioEvents.Events.RxProcessPending = 1;
 
@@ -829,7 +850,11 @@ static void ProcessRadioTxDone( void )
 
     if( Nvm.MacGroup2.DeviceClass != CLASS_C )
     {
+#ifdef USE_LORAMAC_RADIO
+        loramac_radio_set_sleep( );
+#else
         Radio.Sleep( );
+#endif
     }
     // Setup timers
     TimerSetValue( &MacCtx.RxWindowTimer1, MacCtx.RxWindow1Delay );
@@ -925,7 +950,11 @@ static void ProcessRadioRxDone( void )
     MacCtx.McpsIndication.DeviceTimeAnsReceived = false;
     MacCtx.McpsIndication.ResponseTimeout = 0;
 
+#ifdef USE_LORAMAC_RADIO
+    loramac_radio_set_sleep( );
+#else
     Radio.Sleep( );
+#endif
 
     if( MacCtx.McpsIndication.RxSlot == RX_SLOT_WIN_1 )
     {
@@ -1396,7 +1425,11 @@ static void ProcessRadioTxTimeout( void )
 {
     if( Nvm.MacGroup2.DeviceClass != CLASS_C )
     {
+#ifdef USE_LORAMAC_RADIO
+        loramac_radio_set_sleep( );
+#else
         Radio.Sleep( );
+#endif
     }
     UpdateRxSlotIdleState( );
 
@@ -1415,7 +1448,11 @@ static void HandleRadioRxErrorTimeout( LoRaMacEventInfoStatus_t rx1EventInfoStat
 
     if( Nvm.MacGroup2.DeviceClass != CLASS_C )
     {
+#ifdef USE_LORAMAC_RADIO
+        loramac_radio_set_sleep( );
+#else
         Radio.Sleep( );
+#endif
     }
 
     if( LoRaMacClassBIsBeaconExpected( ) == true )
@@ -1791,6 +1828,10 @@ void LoRaMacProcess( void )
 {
     uint8_t noTx = false;
 
+#ifdef USE_LORAMAC_RADIO
+    loramac_radio_irq_process( );
+#endif
+
     LoRaMacHandleIrqEvents( );
     LoRaMacClassBProcess( );
 
@@ -2001,7 +2042,11 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
                 // Set the NodeAckRequested indicator to default
                 MacCtx.NodeAckRequested = false;
                 // Set the radio into sleep mode in case we are still in RX mode
+#ifdef USE_LORAMAC_RADIO
+                loramac_radio_set_sleep( );
+#else
                 Radio.Sleep( );
+#endif
 
                 OpenContinuousRxCWindow( );
 
@@ -2031,7 +2076,11 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
                 Nvm.MacGroup2.DeviceClass = deviceClass;
 
                 // Set the radio into sleep to setup a defined state
+#ifdef USE_LORAMAC_RADIO
+                loramac_radio_set_sleep( );
+#else
                 Radio.Sleep( );
+#endif
 
                 status = LORAMAC_STATUS_OK;
 
@@ -3142,11 +3191,19 @@ static void RxWindowSetup( TimerEvent_t* rxTimer, RxConfigParams_t* rxConfig )
     TimerStop( rxTimer );
 
     // Ensure the radio is Idle
+#ifdef USE_LORAMAC_RADIO
+    loramac_radio_set_standby( );
+#else
     Radio.Standby( );
+#endif
 
     if( RegionRxConfig( Nvm.MacGroup2.Region, rxConfig, ( int8_t* )&MacCtx.McpsIndication.RxDatarate ) == true )
     {
+#ifdef USE_LORAMAC_RADIO
+        loramac_radio_set_rx( Nvm.MacGroup2.MacParams.MaxRxWindow );
+#else
         Radio.Rx( Nvm.MacGroup2.MacParams.MaxRxWindow );
+#endif
         MacCtx.RxSlot = rxConfig->RxSlot;
     }
 }
@@ -3169,7 +3226,11 @@ static void OpenContinuousRxCWindow( void )
     // Thus, there is no need to set the radio in standby mode.
     if( RegionRxConfig( Nvm.MacGroup2.Region, &MacCtx.RxWindowCConfig, ( int8_t* )&MacCtx.McpsIndication.RxDatarate ) == true )
     {
+#ifdef USE_LORAMAC_RADIO
+        loramac_radio_set_rx( RAL_RX_TIMEOUT_CONTINUOUS_MODE );
+#else
         Radio.Rx( 0 ); // Continuous mode
+#endif
         MacCtx.RxSlot = MacCtx.RxWindowCConfig.RxSlot;
     }
 }
@@ -3337,14 +3398,27 @@ LoRaMacStatus_t SendFrameOnChannel( uint8_t channel )
     MacCtx.ResponseTimeoutStartTime = 0;
 
     // Send now
+#ifdef USE_LORAMAC_RADIO
+    loramac_radio_transmit( MacCtx.PktBuffer, MacCtx.PktBufferLen );
+#else
     Radio.Send( MacCtx.PktBuffer, MacCtx.PktBufferLen );
+#endif
 
     return LORAMAC_STATUS_OK;
 }
 
 LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout, uint32_t frequency, uint8_t power )
 {
+#ifdef USE_LORAMAC_RADIO
+    loramac_radio_tx_cw_cfg_params_t params = {
+        .rf_freq_in_hz    = frequency,
+        .tx_rf_pwr_in_dbm = ( int8_t ) power,
+        .timeout_in_s     = timeout,
+    };
+    loramac_radio_set_tx_cw( &params );
+#else
     Radio.SetTxContinuousWave( frequency, power, timeout );
+#endif
 
     MacCtx.MacState |= LORAMAC_TX_RUNNING;
 
@@ -3774,12 +3848,23 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     LoRaMacRadioEvents.Value = 0;
 
     // Initialize Radio driver
+#ifdef USE_LORAMAC_RADIO
+    MacCtx.RadioEvents.loramac_radio_irq_tx_done = OnRadioTxDone;
+    MacCtx.RadioEvents.loramac_radio_irq_rx_done = OnRadioRxDone;
+    MacCtx.RadioEvents.loramac_radio_irq_rx_error = OnRadioRxError;
+    MacCtx.RadioEvents.loramac_radio_irq_tx_timeout = OnRadioTxTimeout;
+    MacCtx.RadioEvents.loramac_radio_irq_rx_timeout = OnRadioRxTimeout;
+
+    loramac_radio_init( &MacCtx.RadioEvents );
+#else
     MacCtx.RadioEvents.TxDone = OnRadioTxDone;
     MacCtx.RadioEvents.RxDone = OnRadioRxDone;
     MacCtx.RadioEvents.RxError = OnRadioRxError;
     MacCtx.RadioEvents.TxTimeout = OnRadioTxTimeout;
     MacCtx.RadioEvents.RxTimeout = OnRadioRxTimeout;
+
     Radio.Init( &MacCtx.RadioEvents );
+#endif
 
     // Initialize the Secure Element driver
     if( SecureElementInit( &Nvm.SecureElement ) != SECURE_ELEMENT_SUCCESS )
@@ -3806,10 +3891,19 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     }
 
     // Random seed initialization
+#ifdef USE_LORAMAC_RADIO
+    uint32_t seed = 0;
+
+    loramac_radio_get_random_number( &seed );
+    loramac_radio_set_network_type( Nvm.MacGroup2.PublicNetwork );
+    loramac_radio_set_sleep( );
+    srand1( seed );
+#else
     srand1( Radio.Random( ) );
 
     Radio.SetPublicNetwork( Nvm.MacGroup2.PublicNetwork );
     Radio.Sleep( );
+#endif
 
     LoRaMacEnableRequests( LORAMAC_REQUEST_HANDLING_ON );
 
@@ -4507,7 +4601,11 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
         case MIB_PUBLIC_NETWORK:
         {
             Nvm.MacGroup2.PublicNetwork = mibSet->Param.EnablePublicNetwork;
+#ifdef USE_LORAMAC_RADIO
+            loramac_radio_set_network_type( Nvm.MacGroup2.PublicNetwork );
+#else
             Radio.SetPublicNetwork( Nvm.MacGroup2.PublicNetwork );
+#endif
             break;
         }
         case MIB_RX2_CHANNEL:
@@ -4555,7 +4653,11 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
                     // in class c mode and joined. We cannot setup an RX window in case of any other
                     // class type.
                     // Set the radio into sleep mode in case we are still in RX mode
+#ifdef USE_LORAMAC_RADIO
+                    loramac_radio_set_sleep( );
+#else
                     Radio.Sleep( );
+#endif
 
                     OpenContinuousRxCWindow( );
                 }
@@ -5405,8 +5507,11 @@ LoRaMacStatus_t LoRaMacDeInitialization( void )
         ResetMacParameters( );
 
         // Switch off Radio
+#ifdef USE_LORAMAC_RADIO
+        loramac_radio_set_sleep( );
+#else
         Radio.Sleep( );
-
+#endif
         // Return success
         return LORAMAC_STATUS_OK;
     }

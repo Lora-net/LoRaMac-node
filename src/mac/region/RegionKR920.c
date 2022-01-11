@@ -28,7 +28,11 @@
  *
  * \author    Daniel Jaeckle ( STACKFORCE )
 */
+#ifdef USE_LORAMAC_RADIO
+#include "loramac_radio.h"
+#else
 #include "radio.h"
+#endif
 #include "RegionCommon.h"
 #include "RegionKR920.h"
 
@@ -63,12 +67,13 @@ static bool VerifyRfFreq( uint32_t freq )
 {
     uint32_t tmpFreq = freq;
 
+#ifndef USE_LORAMAC_RADIO
     // Check radio driver support
     if( Radio.CheckRfFrequency( tmpFreq ) == false )
     {
         return false;
     }
-
+#endif
     // Verify if the frequency is valid. The frequency must be in a specified
     // range and can be set to specific values.
     if( ( tmpFreq >= 920900000 ) && ( tmpFreq <=923300000 ) )
@@ -88,7 +93,20 @@ static TimerTime_t GetTimeOnAir( int8_t datarate, uint16_t pktLen )
     int8_t phyDr = DataratesKR920[datarate];
     uint32_t bandwidth = RegionCommonGetBandwidth( datarate, BandwidthsKR920 );
 
+#ifdef USE_LORAMAC_RADIO
+    loramac_radio_lora_time_on_air_params_t lora_params = {
+        .sf = ( ral_lora_sf_t ) phyDr,
+        .bw = ( ral_lora_bw_t ) bandwidth,
+        .cr = RAL_LORA_CR_4_5,
+        .preamble_len_in_symb = 8,
+        .is_pkt_len_fixed = false,
+        .pld_len_in_bytes = ( uint8_t ) pktLen,
+        .is_crc_on = true,
+    };
+    return loramac_radio_lora_get_time_on_air_in_ms( &lora_params );
+#else
     return Radio.TimeOnAir( MODEM_LORA, bandwidth, phyDr, 1, 8, false, pktLen, true );
+#endif
 }
 
 PhyParam_t RegionKR920GetPhyParam( GetPhyParams_t* getPhy )
@@ -479,7 +497,11 @@ void RegionKR920ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
 
     tSymbolInUs = RegionCommonComputeSymbolTimeLoRa( DataratesKR920[rxConfigParams->Datarate], BandwidthsKR920[rxConfigParams->Datarate] );
 
+#ifdef USE_LORAMAC_RADIO
+    RegionCommonComputeRxWindowParameters( tSymbolInUs, minRxSymbols, rxError, loramac_radio_get_wakeup_time_in_ms( ), &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
+#else
     RegionCommonComputeRxWindowParameters( tSymbolInUs, minRxSymbols, rxError, Radio.GetWakeupTime( ), &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
+#endif
 }
 
 bool RegionKR920RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
@@ -488,7 +510,11 @@ bool RegionKR920RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
     int8_t phyDr = 0;
     uint32_t frequency = rxConfig->Frequency;
 
+#ifdef USE_LORAMAC_RADIO
+    if( loramac_radio_is_radio_idle( ) != true )
+#else
     if( Radio.GetStatus( ) != RF_IDLE )
+#endif
     {
         return false;
     }
@@ -508,9 +534,26 @@ bool RegionKR920RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
     phyDr = DataratesKR920[dr];
 
     // Radio configuration
+#ifdef USE_LORAMAC_RADIO
+    loramac_radio_lora_cfg_params_t lora_params = {
+        .rf_freq_in_hz = frequency,
+        .sf = ( ral_lora_sf_t ) phyDr,
+        .bw = ( ral_lora_bw_t ) rxConfig->Bandwidth,
+        .cr = RAL_LORA_CR_4_5,
+        .preamble_len_in_symb = 8,
+        .is_pkt_len_fixed = false,
+        .pld_len_in_bytes = ( uint8_t )( MaxPayloadOfDatarateKR920[dr] + LORAMAC_FRAME_PAYLOAD_OVERHEAD_SIZE ),
+        .is_crc_on = false,
+        .invert_iq_is_on = true,
+        .rx_sync_timeout_in_symb = rxConfig->WindowTimeout,
+        .is_rx_continuous = rxConfig->RxContinuous,
+    };
+    loramac_radio_lora_set_cfg( &lora_params );
+#else
     Radio.SetChannel( frequency );
     Radio.SetMaxPayloadLength( MODEM_LORA, MaxPayloadOfDatarateKR920[dr] + LORAMAC_FRAME_PAYLOAD_OVERHEAD_SIZE );
     Radio.SetRxConfig( MODEM_LORA, rxConfig->Bandwidth, phyDr, 1, 0, 8, rxConfig->WindowTimeout, false, 0, false, 0, 0, true, rxConfig->RxContinuous );
+#endif
 
     *datarate = (uint8_t) dr;
     return true;
@@ -532,9 +575,26 @@ bool RegionKR920TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
     phyTxPower = RegionCommonComputeTxPower( txPowerLimited, maxEIRP, txConfig->AntennaGain );
 
     // Radio configuration
+#ifdef USE_LORAMAC_RADIO
+    loramac_radio_lora_cfg_params_t lora_params = {
+        .rf_freq_in_hz = RegionNvmGroup2->Channels[txConfig->Channel].Frequency,
+        .tx_rf_pwr_in_dbm = phyTxPower,
+        .sf = ( ral_lora_sf_t ) phyDr,
+        .bw = ( ral_lora_bw_t ) bandwidth,
+        .cr = RAL_LORA_CR_4_5,
+        .preamble_len_in_symb = 8,
+        .is_pkt_len_fixed = false,
+        .pld_len_in_bytes = ( uint8_t ) txConfig->PktLen,
+        .is_crc_on = true,
+        .invert_iq_is_on = false,
+        .tx_timeout_in_ms= 4000,
+    };
+    loramac_radio_lora_set_cfg( &lora_params );
+#else
     Radio.SetChannel( RegionNvmGroup2->Channels[txConfig->Channel].Frequency );
     Radio.SetMaxPayloadLength( MODEM_LORA, txConfig->PktLen );
     Radio.SetTxConfig( MODEM_LORA, phyTxPower, 0, bandwidth, phyDr, 1, 8, false, true, 0, 0, false, 4000 );
+#endif
 
     // Update time-on-air
     *txTimeOnAir = GetTimeOnAir( txConfig->Datarate, txConfig->PktLen );
@@ -815,12 +875,29 @@ LoRaMacStatus_t RegionKR920NextChannel( NextChanParams_t* nextChanParams, uint8_
 
             // Perform carrier sense for KR920_CARRIER_SENSE_TIME
             // If the channel is free, we can stop the LBT mechanism
+#ifdef USE_LORAMAC_RADIO
+            loramac_radio_channel_free_cfg_params_t channel_free_params = {
+                .rf_freq_in_hz = RegionNvmGroup2->Channels[channelNext].Frequency,
+                .rx_bw_in_hz = KR920_LBT_RX_BANDWIDTH,
+                .rssi_threshold_in_dbm = KR920_RSSI_FREE_TH,
+                .max_carrier_sense_time_ms = KR920_CARRIER_SENSE_TIME,
+            };
+            bool is_channel_free = false;
+            loramac_radio_is_channel_free( &channel_free_params, &is_channel_free );
+            if( is_channel_free == true )
+            {
+                // Free channel found
+                *channel = channelNext;
+                return LORAMAC_STATUS_OK;
+            }
+#else
             if( Radio.IsChannelFree( RegionNvmGroup2->Channels[channelNext].Frequency, KR920_LBT_RX_BANDWIDTH, KR920_RSSI_FREE_TH, KR920_CARRIER_SENSE_TIME ) == true )
             {
                 // Free channel found
                 *channel = channelNext;
                 return LORAMAC_STATUS_OK;
             }
+#endif
         }
         // Even if one or more channels are available according to the channel plan, no free channel
         // was found during the LBT procedure.

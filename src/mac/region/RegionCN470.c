@@ -28,7 +28,11 @@
  *
  * \author    Daniel Jaeckle ( STACKFORCE )
 */
+#ifdef USE_LORAMAC_RADIO
+#include "loramac_radio.h"
+#else
 #include "radio.h"
+#endif
 #include "RegionCommon.h"
 #include "RegionCN470.h"
 #include "RegionCN470A20.h"
@@ -274,12 +278,13 @@ static RegionCN470ChannelPlan_t IdentifyChannelPlan( uint8_t joinChannel )
 
 static bool VerifyRfFreq( uint32_t frequency )
 {
+#ifndef USE_LORAMAC_RADIO
     // Check radio driver support
     if( Radio.CheckRfFrequency( frequency ) == false )
     {
         return false;
     }
-
+#endif
     return ChannelPlanCtx.VerifyRfFreq( frequency );
 }
 
@@ -288,7 +293,20 @@ static TimerTime_t GetTimeOnAir( int8_t datarate, uint16_t pktLen )
     int8_t phyDr = DataratesCN470[datarate];
     uint32_t bandwidth = RegionCommonGetBandwidth( datarate, BandwidthsCN470 );
 
+#ifdef USE_LORAMAC_RADIO
+    loramac_radio_lora_time_on_air_params_t lora_params = {
+        .sf = ( ral_lora_sf_t ) phyDr,
+        .bw = ( ral_lora_bw_t ) bandwidth,
+        .cr = RAL_LORA_CR_4_5,
+        .preamble_len_in_symb = 8,
+        .is_pkt_len_fixed = false,
+        .pld_len_in_bytes = ( uint8_t ) pktLen,
+        .is_crc_on = true,
+    };
+    return loramac_radio_lora_get_time_on_air_in_ms( &lora_params );
+#else
     return Radio.TimeOnAir( MODEM_LORA, bandwidth, phyDr, 1, 8, false, pktLen, true );
+#endif
 }
 
 PhyParam_t RegionCN470GetPhyParam( GetPhyParams_t* getPhy )
@@ -712,7 +730,11 @@ void RegionCN470ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
 
     tSymbolInUs = RegionCommonComputeSymbolTimeLoRa( DataratesCN470[rxConfigParams->Datarate], BandwidthsCN470[rxConfigParams->Datarate] );
 
+#ifdef USE_LORAMAC_RADIO
+    RegionCommonComputeRxWindowParameters( tSymbolInUs, minRxSymbols, rxError, loramac_radio_get_wakeup_time_in_ms( ), &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
+#else
     RegionCommonComputeRxWindowParameters( tSymbolInUs, minRxSymbols, rxError, Radio.GetWakeupTime( ), &rxConfigParams->WindowTimeout, &rxConfigParams->WindowOffset );
+#endif
 }
 
 bool RegionCN470RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
@@ -721,7 +743,11 @@ bool RegionCN470RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
     int8_t phyDr = 0;
     uint32_t frequency = rxConfig->Frequency;
 
+#ifdef USE_LORAMAC_RADIO
+    if( loramac_radio_is_radio_idle( ) != true )
+#else
     if( Radio.GetStatus( ) != RF_IDLE )
+#endif
     {
         return false;
     }
@@ -753,9 +779,26 @@ bool RegionCN470RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
     phyDr = DataratesCN470[dr];
 
     // Radio configuration
+#ifdef USE_LORAMAC_RADIO
+    loramac_radio_lora_cfg_params_t lora_params = {
+        .rf_freq_in_hz = frequency,
+        .sf = ( ral_lora_sf_t ) phyDr,
+        .bw = ( ral_lora_bw_t ) rxConfig->Bandwidth,
+        .cr = RAL_LORA_CR_4_5,
+        .preamble_len_in_symb = 8,
+        .is_pkt_len_fixed = false,
+        .pld_len_in_bytes = ( uint8_t )( MaxPayloadOfDatarateCN470[dr] + LORAMAC_FRAME_PAYLOAD_OVERHEAD_SIZE ),
+        .is_crc_on = false,
+        .invert_iq_is_on = true,
+        .rx_sync_timeout_in_symb = rxConfig->WindowTimeout,
+        .is_rx_continuous = rxConfig->RxContinuous,
+    };
+    loramac_radio_lora_set_cfg( &lora_params );
+#else
     Radio.SetChannel( frequency );
     Radio.SetMaxPayloadLength( MODEM_LORA, MaxPayloadOfDatarateCN470[dr] + LORAMAC_FRAME_PAYLOAD_OVERHEAD_SIZE );
     Radio.SetRxConfig( MODEM_LORA, rxConfig->Bandwidth, phyDr, 1, 0, 8, rxConfig->WindowTimeout, false, 0, false, 0, 0, true, rxConfig->RxContinuous );
+#endif
 
     *datarate = (uint8_t) dr;
     return true;
@@ -772,6 +815,42 @@ bool RegionCN470TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
     phyTxPower = RegionCommonComputeTxPower( txPowerLimited, txConfig->MaxEirp, txConfig->AntennaGain );
 
     // Radio configuration
+#ifdef USE_LORAMAC_RADIO
+    if( txConfig->Datarate == DR_7 )
+    {
+        loramac_radio_gfsk_cfg_params_t gfsk_params = {
+            .rf_freq_in_hz = RegionNvmGroup2->Channels[txConfig->Channel].Frequency,
+            .tx_rf_pwr_in_dbm = phyTxPower,
+            .br_in_bps =  ( uint32_t )phyDr * 1000,
+            .fdev_in_hz = 25000,
+            .bw_dsb_in_hz = 50000,
+            .preamble_len_in_bits = 40,
+            .sync_word_len_in_bits = 24,
+            .is_pkt_len_fixed = false,
+            .pld_len_in_bytes = ( uint8_t ) txConfig->PktLen,
+            .is_crc_on = true,
+            .tx_timeout_in_ms= 4000,
+        };
+        loramac_radio_gfsk_set_cfg( &gfsk_params );
+    }
+    else
+    {
+        loramac_radio_lora_cfg_params_t lora_params = {
+            .rf_freq_in_hz = RegionNvmGroup2->Channels[txConfig->Channel].Frequency,
+            .tx_rf_pwr_in_dbm = phyTxPower,
+            .sf = ( ral_lora_sf_t ) phyDr,
+            .bw = ( ral_lora_bw_t ) bandwidth,
+            .cr = RAL_LORA_CR_4_5,
+            .preamble_len_in_symb = 8,
+            .is_pkt_len_fixed = false,
+            .pld_len_in_bytes = ( uint8_t ) txConfig->PktLen,
+            .is_crc_on = true,
+            .invert_iq_is_on = false,
+            .tx_timeout_in_ms= 4000,
+        };
+        loramac_radio_lora_set_cfg( &lora_params );
+    }
+#else
     Radio.SetChannel( RegionNvmGroup2->Channels[txConfig->Channel].Frequency );
     if( txConfig->Datarate == DR_7 )
     {
@@ -783,12 +862,12 @@ bool RegionCN470TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
         Radio.SetMaxPayloadLength( MODEM_LORA, txConfig->PktLen );
         Radio.SetTxConfig( MODEM_LORA, phyTxPower, 0, bandwidth, phyDr, 1, 8, false, true, 0, 0, false, 4000 );
     }
+#endif
 
     // Update time-on-air
     *txTimeOnAir = GetTimeOnAir( txConfig->Datarate, txConfig->PktLen );
 
     *txPower = txPowerLimited;
-
     return true;
 }
 

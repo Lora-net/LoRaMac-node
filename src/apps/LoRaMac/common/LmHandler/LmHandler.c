@@ -29,7 +29,11 @@
 #include "timer.h"
 #include "Commissioning.h"
 #include "NvmDataMgmt.h"
+#ifdef USE_LORAMAC_RADIO
+#include "loramac_radio.h"
+#else
 #include "radio.h"
+#endif
 #include "LmHandler.h"
 #include "LmhPackage.h"
 #include "LmhpCompliance.h"
@@ -352,10 +356,12 @@ void LmHandlerProcess( void )
     uint16_t size = 0;
 
     // Process Radio IRQ
+#ifndef USE_LORAMAC_RADIO
     if( Radio.IrqProcess != NULL )
     {
         Radio.IrqProcess( );
     }
+#endif
 
     // Processes the LoRaMac events
     LoRaMacProcess( );
