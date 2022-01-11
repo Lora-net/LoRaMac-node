@@ -42,25 +42,15 @@
 #include "atca_status.h"
 #include "i2c-board.h" 
 #include "delay.h"
-
-#ifdef USE_LORAMAC_RADIO
 #include "loramac_radio.h"
-#else
-#include "radio.h"
-#endif
-
 #include "atecc608a-tnglora-se-hal.h"
 
 uint32_t ATECC608ASeHalGetRandomNumber( void )
 {
-#ifdef USE_LORAMAC_RADIO
     uint32_t rnd = 0;
 
     loramac_radio_get_random_number( &rnd );
     return rnd;
-#else
-    return Radio.Random( );
-#endif
 }
 
 /** @brief This function delays for a number of microseconds.

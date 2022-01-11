@@ -29,11 +29,7 @@
  * \author    Daniel Jaeckle ( STACKFORCE )
  */
 #include <math.h>
-#ifdef USE_LORAMAC_RADIO
 #include "loramac_radio.h"
-#else
-#include "radio.h"
-#endif
 #include "utilities.h"
 #include "RegionCommon.h"
 #include "systime.h"
@@ -532,15 +528,7 @@ void RegionCommonRxBeaconSetup( RegionCommonRxBeaconSetupParams_t* rxBeaconSetup
     uint8_t datarate;
 
     // Set the radio into sleep mode
-#ifdef USE_LORAMAC_RADIO
     loramac_radio_set_sleep( );
-#else
-    Radio.Sleep( );
-
-    // Setup frequency and payload length
-    Radio.SetChannel( rxBeaconSetupParams->Frequency );
-    Radio.SetMaxPayloadLength( MODEM_LORA, rxBeaconSetupParams->BeaconSize );
-#endif
     // Check the RX continuous mode
     if( rxBeaconSetupParams->RxTime != 0 )
     {
@@ -551,28 +539,21 @@ void RegionCommonRxBeaconSetup( RegionCommonRxBeaconSetupParams_t* rxBeaconSetup
     datarate = rxBeaconSetupParams->Datarates[rxBeaconSetupParams->BeaconDatarate];
 
     // Setup radio
-#ifdef USE_LORAMAC_RADIO
-        loramac_radio_lora_cfg_params_t lora_params = {
-            .rf_freq_in_hz = rxBeaconSetupParams->Frequency,
-            .sf = ( ral_lora_sf_t ) datarate,
-            .bw = ( ral_lora_bw_t ) rxBeaconSetupParams->BeaconChannelBW,
-            .cr = RAL_LORA_CR_4_5,
-            .preamble_len_in_symb = 10,
-            .is_pkt_len_fixed = true,
-            .pld_len_in_bytes = rxBeaconSetupParams->BeaconSize,
-            .is_crc_on = false,
-            .invert_iq_is_on = false,
-            .rx_sync_timeout_in_symb = rxBeaconSetupParams->SymbolTimeout,
-            .is_rx_continuous = rxContinuous,
-        };
-        loramac_radio_lora_set_cfg( &lora_params );
-        loramac_radio_set_rx( rxBeaconSetupParams->RxTime );
-#else
-    Radio.SetRxConfig( MODEM_LORA, rxBeaconSetupParams->BeaconChannelBW, datarate,
-                       1, 0, 10, rxBeaconSetupParams->SymbolTimeout, true, rxBeaconSetupParams->BeaconSize, false, 0, 0, false, rxContinuous );
-
-    Radio.Rx( rxBeaconSetupParams->RxTime );
-#endif
+    loramac_radio_lora_cfg_params_t lora_params = {
+        .rf_freq_in_hz = rxBeaconSetupParams->Frequency,
+        .sf = ( ral_lora_sf_t ) datarate,
+        .bw = ( ral_lora_bw_t ) rxBeaconSetupParams->BeaconChannelBW,
+        .cr = RAL_LORA_CR_4_5,
+        .preamble_len_in_symb = 10,
+        .is_pkt_len_fixed = true,
+        .pld_len_in_bytes = rxBeaconSetupParams->BeaconSize,
+        .is_crc_on = false,
+        .invert_iq_is_on = false,
+        .rx_sync_timeout_in_symb = rxBeaconSetupParams->SymbolTimeout,
+        .is_rx_continuous = rxContinuous,
+    };
+    loramac_radio_lora_set_cfg( &lora_params );
+    loramac_radio_set_rx( rxBeaconSetupParams->RxTime );
 }
 
 void RegionCommonCountNbOfEnabledChannels( RegionCommonCountNbOfEnabledChannelsParams_t* countNbOfEnabledChannelsParams,
@@ -690,7 +671,6 @@ int8_t RegionCommonLimitTxPower( int8_t txPower, int8_t maxBandTxPower )
 
 uint32_t RegionCommonGetBandwidth( uint32_t drIndex, const uint32_t* bandwidths )
 {
-#ifdef USE_LORAMAC_RADIO
     switch( bandwidths[drIndex] )
     {
         default:
@@ -701,16 +681,4 @@ uint32_t RegionCommonGetBandwidth( uint32_t drIndex, const uint32_t* bandwidths 
         case 500000:
             return RAL_LORA_BW_500_KHZ;
     }
-#else
-    switch( bandwidths[drIndex] )
-    {
-        default:
-        case 125000:
-            return 0;
-        case 250000:
-            return 1;
-        case 500000:
-            return 2;
-    }
-#endif
 }

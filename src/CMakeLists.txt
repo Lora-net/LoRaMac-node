@@ -51,8 +51,6 @@ option(USE_DEBUGGER "Use Debugger" ON)
 # Switch for Class B support of LoRaMac.
 option(CLASSB_ENABLED "Class B support of LoRaMac" OFF)
 
-option(USE_LORAMAC_RADIO "Usen new LoRaMac radio intefrace" OFF)
-
 #---------------------------------------------------------------------------------------
 # Target Boards
 #---------------------------------------------------------------------------------------

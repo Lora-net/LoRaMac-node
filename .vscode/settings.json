@@ -86,9 +86,6 @@
         "REGION_CN470_DEFAULT_CHANNEL_PLAN":"CHANNEL_PLAN_20MHZ_TYPE_A",
 
         // Enables radio debug pins
-        "USE_RADIO_DEBUG":"OFF",
-
-        // Enables new LoRaMac radio interface
-        "USE_LORAMAC_RADIO":"ON"
+        "USE_RADIO_DEBUG":"OFF"
     }
 }

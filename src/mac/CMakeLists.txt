@@ -115,8 +115,6 @@ if(${SECURE_ELEMENT} MATCHES SOFT_SE)
     target_compile_definitions(${PROJECT_NAME} PRIVATE -DSOFT_SE)
 endif()
 
-target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<BOOL:${USE_LORAMAC_RADIO}>:USE_LORAMAC_RADIO>)
-
 add_dependencies(${PROJECT_NAME} board)
 
 target_include_directories( ${PROJECT_NAME} PUBLIC

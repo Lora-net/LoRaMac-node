@@ -24,12 +24,7 @@
  *
  */
 #include "board.h"
-#ifdef USE_LORAMAC_RADIO
 #include "loramac_radio.h"
-#else
-#include "radio.h"
-#endif
-
 #include "lr1110-se-hal.h"
 
 void LR1110SeHalGetUniqueId( uint8_t *id )
@@ -39,12 +34,8 @@ void LR1110SeHalGetUniqueId( uint8_t *id )
 
 uint32_t LR1110SeHalGetRandomNumber( void )
 {
-#ifdef USE_LORAMAC_RADIO
     uint32_t rnd = 0;
 
     loramac_radio_get_random_number( &rnd );
     return rnd;
-#else
-    return Radio.Random( );
-#endif
 }

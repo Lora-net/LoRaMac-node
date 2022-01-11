@@ -32,15 +32,9 @@ set_property(CACHE RADIO PROPERTY ADVANCED)
 # Radio drivers
 #---------------------------------------------------------------------------------------
 
-if(${USE_LORAMAC_RADIO} STREQUAL ON)
 list(APPEND ${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/loramac_radio.c
 )
-else()
-list(APPEND ${PROJECT_NAME}_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/radio.c
-)
-endif()
 
 if(${RADIO} STREQUAL lr1110)
     list(APPEND ${PROJECT_NAME}_SOURCES
@@ -120,7 +114,5 @@ option(USE_RADIO_DEBUG "Enable Radio Debug GPIO's" OFF)
 target_compile_definitions(${PROJECT_NAME} PUBLIC  $<$<BOOL:${USE_RADIO_DEBUG}>:USE_RADIO_DEBUG>)
 target_include_directories(${PROJECT_NAME} PUBLIC $<TARGET_PROPERTY:${BOARD},INTERFACE_INCLUDE_DIRECTORIES>)
 ##
-
-target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<BOOL:${USE_LORAMAC_RADIO}>:USE_LORAMAC_RADIO>)
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 11)
