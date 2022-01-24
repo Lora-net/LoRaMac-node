@@ -119,13 +119,6 @@ extern "C"
  */
 #define REGION_COMMON_CLASS_B_C_RESP_TIMEOUT            8000
 
-#if ( LORAMAC_LR_FHSS_IS_ON == 1 )
-/*!
- * LoRaWAN LR-FHSS sync word definition
- */
-#define REGION_COMMON_LR_FHSS_SYNC_WORD                 ( uint8_t[] ){ 0x2C, 0x0F, 0x79, 0x95 }
-#endif
-
 typedef struct sRegionCommonLinkAdrParams
 {
     /*!

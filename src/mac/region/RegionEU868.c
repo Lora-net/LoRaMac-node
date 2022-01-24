@@ -39,6 +39,13 @@
 // Definitions
 #define CHANNELS_MASK_SIZE              1
 
+#if ( LORAMAC_LR_FHSS_IS_ON == 1 )
+/*!
+ * LoRaWAN LR-FHSS sync word definition
+ */
+static const uint8_t* lr_fhss_sync_word = ( uint8_t[] ){ 0x2C, 0x0F, 0x79, 0x95 };
+#endif
+
 /*
  * Non-volatile module context.
  */
@@ -172,7 +179,7 @@ static TimerTime_t GetTimeOnAir( int8_t datarate, uint16_t pktLen )
         lr_fhss_dr_to_cr_bw( datarate, &lr_fhss_cr, &lr_fhss_bw );
 
         params.lr_fhss_params.device_offset                  = 0;
-        params.lr_fhss_params.lr_fhss_params.sync_word       = REGION_COMMON_LR_FHSS_SYNC_WORD;
+        params.lr_fhss_params.lr_fhss_params.sync_word       = lr_fhss_sync_word;
         params.lr_fhss_params.lr_fhss_params.modulation_type = LR_FHSS_V1_MODULATION_TYPE_GMSK_488;
         params.lr_fhss_params.lr_fhss_params.cr              = lr_fhss_cr;
         params.lr_fhss_params.lr_fhss_params.grid            = LR_FHSS_V1_GRID_3906_HZ;
@@ -724,7 +731,7 @@ bool RegionEU868TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
         cfg_params.tx_rf_pwr_in_dbm                              = phyTxPower;
         cfg_params.lr_fhss_params.center_frequency_in_hz         = rf_freq_in_hz;
         cfg_params.lr_fhss_params.device_offset                  = 0;
-        cfg_params.lr_fhss_params.lr_fhss_params.sync_word       = REGION_COMMON_LR_FHSS_SYNC_WORD;
+        cfg_params.lr_fhss_params.lr_fhss_params.sync_word       = lr_fhss_sync_word;
         cfg_params.lr_fhss_params.lr_fhss_params.modulation_type = LR_FHSS_V1_MODULATION_TYPE_GMSK_488;
         cfg_params.lr_fhss_params.lr_fhss_params.cr              = lr_fhss_cr;
         cfg_params.lr_fhss_params.lr_fhss_params.grid            = LR_FHSS_V1_GRID_3906_HZ;
