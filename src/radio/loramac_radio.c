@@ -880,14 +880,14 @@ static ral_status_t radio_gfsk_setup( const ral_t* context, const ral_gfsk_mod_p
         return status;
     }
     radio_board_set_operating_mode( RADIO_BOARD_OP_MODE_STDBY );
-    // Note: For SX127x radios this API returns unsupported feature.
-    status = ral_stop_timer_on_preamble( context, false );
-    if( ( status != RAL_STATUS_OK ) && ( status != RAL_STATUS_UNSUPPORTED_FEATURE ) )
+    status = ral_set_pkt_type( context, RAL_PKT_TYPE_GFSK );
+    if( status != RAL_STATUS_OK )
     {
         return status;
     }
-    status = ral_set_pkt_type( context, RAL_PKT_TYPE_GFSK );
-    if( status != RAL_STATUS_OK )
+    // Note: For SX127x radios this API returns unsupported feature.
+    status = ral_stop_timer_on_preamble( context, false );
+    if( ( status != RAL_STATUS_OK ) && ( status != RAL_STATUS_UNSUPPORTED_FEATURE ) )
     {
         return status;
     }
@@ -965,6 +965,11 @@ static ral_status_t radio_lora_setup( const ral_t* context, const ral_lora_mod_p
         return status;
     }
     radio_board_set_operating_mode( RADIO_BOARD_OP_MODE_STDBY );
+    status = ral_set_pkt_type( context, RAL_PKT_TYPE_LORA );
+    if( status != RAL_STATUS_OK )
+    {
+        return status;
+    }
     // Note: For SX127x radios this API returns unsupported feature.
     status = ral_stop_timer_on_preamble( context, false );
     if( ( status != RAL_STATUS_OK ) && ( status != RAL_STATUS_UNSUPPORTED_FEATURE ) )
@@ -972,11 +977,6 @@ static ral_status_t radio_lora_setup( const ral_t* context, const ral_lora_mod_p
         return status;
     }
     status = ral_set_lora_symb_nb_timeout( context, extra_params->rx_sync_timeout_in_symb );
-    if( status != RAL_STATUS_OK )
-    {
-        return status;
-    }
-    status = ral_set_pkt_type( context, RAL_PKT_TYPE_LORA );
     if( status != RAL_STATUS_OK )
     {
         return status;
