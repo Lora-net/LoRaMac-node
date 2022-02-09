@@ -46,8 +46,6 @@ extern "C"
                                          * use EU868                                                                                                           \
                                          */
 
-  extern uint32_t APP_TX_DUTYCYCLE; /* Set the interval between each transmission(in milliseconds) */
-
   /* GPS RELATED DEFINES */
   /* ----------------------------------------------------------------------------------- */
 
@@ -120,7 +118,7 @@ extern "C"
  * @brief Define how quickly to return to searching for a GPS fix after transmitting
  * 
  */
-#define TX_INTERVAL_GPS_FIX_OK 10000 /* When fix was aquired, then sleep for this period (in milliseconds) before searching again */
+#define TX_INTERVAL_GPS_FIX_OK 2500 /* When fix was aquired, then sleep for this period (in milliseconds) before searching again */
 
   /**
    * @brief Lorawan defaults, normally will not be changed 

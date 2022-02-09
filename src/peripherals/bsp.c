@@ -703,7 +703,7 @@ uint32_t read_tx_interval_in_eeprom()
 {
 
 	tx_interval_eeprom_t tx_interval_with_crc;
-	uint16_t bytes_read = NvmmRead((uint8_t *)&tx_interval_with_crc, sizeof(tx_interval_eeprom_t), TX_INTERVAL_EEPROM_ADDRESS);
+	NvmmRead((uint8_t *)&tx_interval_with_crc, sizeof(tx_interval_eeprom_t), TX_INTERVAL_EEPROM_ADDRESS);
 
 	if (is_crc_correct(sizeof(tx_interval_with_crc), &tx_interval_with_crc) == false)
 	{
