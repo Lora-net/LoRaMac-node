@@ -49,7 +49,7 @@ extern "C"
   /* GPS RELATED DEFINES */
   /* ----------------------------------------------------------------------------------- */
 
-#define GPS_SEARCH_TIMEOUT 120000
+#define GPS_SEARCH_TIMEOUT 180000
 #define GPS_WAKEUP_TIMEOUT 1000
 
 /* GEOFENCE RELATED DEFINES */
