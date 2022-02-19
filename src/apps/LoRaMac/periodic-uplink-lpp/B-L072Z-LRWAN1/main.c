@@ -294,7 +294,7 @@ static void PrepareTxFrame(void)
     if (tx_count < n_tx_per_network)
     {
         sensor_read_and_send(&AppData, LmHandlerParams.Region);
-        setup_next_tx_alarm(read_tx_interval_in_eeprom());
+        setup_next_tx_alarm(read_tx_interval_in_eeprom(TX_INTERVAL_EEPROM_ADDRESS, TX_INTERVAL_GPS_FIX_OK));
     }
     else
     {

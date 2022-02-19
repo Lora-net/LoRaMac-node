@@ -75,7 +75,10 @@ extern "C"
 #define LORAMAC_REGION_EEPROM_ADDR (TX_INTERVAL_EEPROM_ADDRESS + TX_INTERVAL_EEPROM_LEN)
 #define LORAMAC_REGION_EEPROM_LEN (4)
 
-#define RESET_COUNTER_ADDR (LORAMAC_REGION_EEPROM_ADDR + LORAMAC_REGION_EEPROM_LEN)
+#define GPS_SEARCH_TIME_ADDR (LORAMAC_REGION_EEPROM_ADDR + LORAMAC_REGION_EEPROM_LEN)
+#define GPS_SEARCH_TIME_EEPROM_LEN (4 + 4)
+
+#define RESET_COUNTER_ADDR (GPS_SEARCH_TIME_ADDR + GPS_SEARCH_TIME_EEPROM_LEN)
 #define RESET_COUNTER_LEN (2)
 
 #define CURRENT_PLAYBACK_INDEX_IN_EEPROM_ADDR (RESET_COUNTER_ADDR + RESET_COUNTER_LEN)
@@ -123,8 +126,8 @@ extern "C"
   void set_bits(bit_location_t bit_location);
   void clear_bits(void);
   sensor_t get_current_sensor_data(void);
-  bool update_device_tx_interval_in_eeprom(uint32_t interval_ms);
-  uint32_t read_tx_interval_in_eeprom(void);
+  bool update_device_tx_interval_in_eeprom(uint32_t interval_ms, uint32_t address);
+  uint32_t read_tx_interval_in_eeprom(uint32_t address, uint32_t default_value);
   void read_playback_stats_from_eeprom(void);
 
 #ifdef __cplusplus

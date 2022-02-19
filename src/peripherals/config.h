@@ -49,7 +49,7 @@ extern "C"
   /* GPS RELATED DEFINES */
   /* ----------------------------------------------------------------------------------- */
 
-#define GPS_LOCATION_FIX_TIMEOUT 120000
+#define GPS_SEARCH_TIMEOUT 120000
 #define GPS_WAKEUP_TIMEOUT 1000
 
 /* GEOFENCE RELATED DEFINES */
@@ -66,6 +66,7 @@ extern "C"
 #define DOWNLINK_CONFIG_PORT 18
 #define CHANGE_KEYS_PORT 19
 #define CHANGE_TX_INTERVAL_PORT 20
+#define CHANGE_GPS_SEARCH_TIME_PORT 21
 #define WIPE_EEPROM_PORT 62
 
 /* PLAYBACK RELATED DEFINES */

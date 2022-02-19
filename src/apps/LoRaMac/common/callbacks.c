@@ -253,7 +253,7 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 
         memcpy(&target_tx_interval, appData->Buffer, appData->BufferSize); // copy the bytes to the struct
 
-        bool eeprom_changed = update_device_tx_interval_in_eeprom(target_tx_interval);
+        bool eeprom_changed = update_device_tx_interval_in_eeprom(target_tx_interval, TX_INTERVAL_EEPROM_ADDRESS);
 
         /* Send down telemetry to indicate that bytes have changed in EEPROM */
         if (eeprom_changed == true)
@@ -264,6 +264,21 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
         {
             set_bits(TX_INTERVAL_NOT_CHANGED);
         }
+    }
+    break;
+
+    case CHANGE_GPS_SEARCH_TIME_PORT: // Change the transmit interval
+    {
+
+        printf("Received data to GPS search time:  ");
+        print_bytes(appData->Buffer, appData->BufferSize);
+
+        uint32_t target_tx_interval;
+
+        memcpy(&target_tx_interval, appData->Buffer, appData->BufferSize); // copy the bytes to the struct
+
+        bool eeprom_changed = update_device_tx_interval_in_eeprom(target_tx_interval, GPS_SEARCH_TIME_ADDR);
+
     }
     break;
 

@@ -100,7 +100,9 @@ void BSP_sensor_Read(void)
 #endif
 
 #if GPS_ENABLED
-	get_location_fix(GPS_LOCATION_FIX_TIMEOUT);
+
+	uint32_t time_out = read_tx_interval_in_eeprom(GPS_SEARCH_TIME_ADDR, GPS_SEARCH_TIMEOUT);
+	get_location_fix(time_out);
 	gps_info_latest = get_latest_gps_info();
 	IWDG_reset();
 #endif
@@ -681,33 +683,35 @@ void retrieve_eeprom_stored_lorawan_region()
  * @return true if succesfully updated
  * @return false if not successful in update
  */
-bool update_device_tx_interval_in_eeprom(uint32_t interval_ms)
+bool update_device_tx_interval_in_eeprom(uint32_t interval_ms, uint32_t address)
 {
 
 	tx_interval_eeprom_t tx_interval_with_crc = {.tx_interval = interval_ms};
 	tx_interval_with_crc.Crc32 = Crc32((uint8_t *)&tx_interval_with_crc, sizeof(tx_interval_eeprom_t) - sizeof(tx_interval_with_crc.Crc32));
 
 	// Now write current keys for this network(including frame count) to EEPROM into the right place in the EEPROM
-	uint16_t bytes_changed = NvmmUpdate((uint8_t *)&tx_interval_with_crc, sizeof(tx_interval_eeprom_t), TX_INTERVAL_EEPROM_ADDRESS);
+	uint16_t bytes_changed = NvmmUpdate((uint8_t *)&tx_interval_with_crc, sizeof(tx_interval_eeprom_t), address);
 
 	return bytes_changed == 0 ? false : true;
 }
 
 /**
  * @brief Read the eeprom tx interval stored in EEPROM. Read only if value crc matches. Otherwise,
- * return a default value
+ * return the default value
  * 
- * @return uint32_t 
+ * @param address Address in eeprom where value is stored
+ * @param default_value default value if there is nothing in EEPROM
+ * @return uint32_t the value in eeprom(or default if it was not in EEPROM)
  */
-uint32_t read_tx_interval_in_eeprom()
+uint32_t read_tx_interval_in_eeprom(uint32_t address, uint32_t default_value)
 {
 
 	tx_interval_eeprom_t tx_interval_with_crc;
-	NvmmRead((uint8_t *)&tx_interval_with_crc, sizeof(tx_interval_eeprom_t), TX_INTERVAL_EEPROM_ADDRESS);
+	NvmmRead((uint8_t *)&tx_interval_with_crc, sizeof(tx_interval_eeprom_t), address);
 
 	if (is_crc_correct(sizeof(tx_interval_with_crc), &tx_interval_with_crc) == false)
 	{
-		tx_interval_with_crc.tx_interval = TX_INTERVAL_GPS_FIX_OK;
+		tx_interval_with_crc.tx_interval = default_value;
 	}
 
 	return tx_interval_with_crc.tx_interval;
