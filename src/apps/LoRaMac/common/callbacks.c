@@ -20,7 +20,8 @@
 #include "string.h"
 #include "ublox.h"
 #include "soft-se-hal.h"
-
+#include "nvmm.h"
+#include "struct.h"
 
 typedef struct
 {
@@ -193,7 +194,7 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
     }
     break;
 
-    case DOWNLINK_CONFIG_PORT:
+    case DOWNLINK_CONFIG_PORT: // Poll specific range of past position fixes by date range.
     {
 
         printf("Received data to poll date range: ");
@@ -211,7 +212,7 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
     }
     break;
 
-    case CHANGE_KEYS_PORT:
+    case CHANGE_KEYS_PORT: // Send up a set of LoRaWAN keys, and which keys to change in EEPROM
     {
 
         printf("Received data to CHANGE_KEYS:  ");
@@ -227,7 +228,22 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
     }
     break;
 
-    case CHANGE_TX_INTERVAL_PORT:
+    case WIPE_EEPROM_PORT: // send any data to the WIPE_EEPROM_PORT and it will wipe out the EEPROM
+    {
+
+        printf("Received data to WIPE EEPROM:  ");
+        print_bytes(appData->Buffer, appData->BufferSize);
+
+        uint32_t start = extractLong_from_buff(0, appData->Buffer);
+        uint32_t end = extractLong_from_buff(4, appData->Buffer);
+        EEPROM_Wipe(start, end);
+
+        /* Send down telemetry to indicate that bytes have changed in EEPROM */
+        set_bits(EEPROM_WIPED);
+    }
+    break;
+
+    case CHANGE_TX_INTERVAL_PORT: // Change the transmit interval
     {
 
         printf("Received data to CHANGE TX INTERVAL:  ");

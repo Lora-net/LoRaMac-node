@@ -117,6 +117,7 @@ extern "C"
     PLAYBACK_ACK,
     TX_INTERVAL_CHANGED,
     TX_INTERVAL_NOT_CHANGED,
+    EEPROM_WIPED,
   } bit_location_t;
 
   void set_bits(bit_location_t bit_location);

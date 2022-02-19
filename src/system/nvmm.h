@@ -101,10 +101,14 @@ bool NvmmReset( uint16_t size, uint16_t offset );
 
 
 /**
- * @brief Completely wipe out the whole EEPROM. Set them all to zeros.
+ * @brief Set all values in range of EEPROM address to zero
  * 
+ * @param start Location to start wiping(inclusive)
+ * @param end Locatoin to end wiping(inclusive)
+ * @return true 
+ * @return false 
  */
-bool EEPROM_Wipe( void );
+bool EEPROM_Wipe(uint32_t start, uint32_t end);
 
 /**
  * @brief Printout the contents of the EEPROM

@@ -22,6 +22,7 @@ extern uint8_t proper_compressed_nvm_eeprom_image[];
 extern uint8_t new_nvm_struct[];
 extern uint8_t EEPROM_dump_with_34_stored_pos_fixes[];
 extern uint8_t past_saved_data[];
-
+extern uint8_t empty_eeprom[];
+extern uint8_t full_eeprom[];
 
 #endif /* NVM_IMAGES */

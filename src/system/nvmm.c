@@ -167,27 +167,39 @@ bool NvmmReset( uint16_t size, uint16_t offset )
     return false;
 }
 
-#define EEPROM_SIZE 0x17FFUL
 
-bool EEPROM_Wipe(void)
+/**
+ * @brief Fast wipe the eeprom completely, by setting 4 bytes at a time to zero.
+ * 
+ * @return true 
+ * @return false 
+ */
+bool EEPROM_Wipe(uint32_t start, uint32_t end)
 {
 
-    uint32_t eeprom_size = EEPROM_SIZE;
-    uint8_t reset_value = 0;
+    uint32_t reset_value = 0;
 
-    while (eeprom_size--)
+    printf("Wiping EEPROM....\n");
+
+    for (uint16_t address = start; address <= end - 4 /* ensure no overflow of eeprom */; address += 4)
     {
-
-        if (EepromMcuWriteBuffer(eeprom_size, &reset_value, sizeof(reset_value)) != LMN_STATUS_OK)
+        if (EepromMcuWriteBufferWord(address, (uint8_t *)&reset_value, sizeof(reset_value)) != LMN_STATUS_OK)
         {
             return false;
         }
+    }
+
+    if (EepromMcuWriteBufferWord(end - 4, (uint8_t *)&reset_value, sizeof(reset_value)) != LMN_STATUS_OK)
+    {
+        return false;
     }
 
     return true;
 }
 
 #define DATA_EEPROM_BASE ((uint32_t)0x08080000U)
+#define EEPROM_SIZE 0x17FFUL
+
 bool EEPROM_Dump(void)
 {
     print_bytes((uint8_t *)(DATA_EEPROM_BASE), EEPROM_SIZE);

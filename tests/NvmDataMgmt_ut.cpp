@@ -26,6 +26,7 @@ extern "C"
 }
 #include <string.h> // For memcmp()
 #include "nvm_images.hpp"
+#include "eeprom-board-mock.hpp"
 
 void set_correct_notify_flags();
 
@@ -78,6 +79,38 @@ TEST(NvmDataMgmt, test_eeprom_read_write)
 {
     int res = eeprom_read_write_test();
     CHECK_EQUAL(0, res);
+}
+
+
+/**
+ * @brief Tests whether eeprom wipe works. It must not write outside of the EEPROM buffer addresses
+ * 
+ */
+
+#define EEPROM_SIZE 0x17FFUL
+
+/**
+ * @brief Test to see if every single byte in the EEPROM is wiped when the EEPROM_Wipe()
+ * command is called
+ * 
+ */
+TEST(NvmDataMgmt, test_eeprom_wipe)
+{
+    uint8_t current_eeprom[EEPROM_SIZE];
+
+    // Set EEPROM to 0xFFs
+    fake_eeprom_set_target_image(full_eeprom);
+
+    // Check if it is indeed set to 0xFFs
+    EepromMcuReadBuffer(0, current_eeprom, EEPROM_SIZE);
+    MEMCMP_EQUAL(full_eeprom, current_eeprom, EEPROM_SIZE);
+
+    // Now run the wipe command
+    EEPROM_Wipe(0, EEPROM_SIZE);
+
+    // Now check if all the EEPROM has been set to 0x00
+    EepromMcuReadBuffer(0, current_eeprom, EEPROM_SIZE);
+    MEMCMP_EQUAL(empty_eeprom, current_eeprom, EEPROM_SIZE);
 }
 
 /**

@@ -346,7 +346,7 @@ TEST(uplink_commands, test_set_tx_interval_success)
     /**
      * @brief Wipe out eeprom to simulate CRC error
      */
-    EEPROM_Wipe();
+    EEPROM_Wipe(0, EEPROM_SIZE);
 
     /**
      * @brief Now that CRC is wrong, it should read the default value of tx interval
