@@ -78,9 +78,6 @@ extern "C"
         icspace26_helium_15,
         icspace26_helium_16,
         icspace26_helium_17,
-        icspace26_helium_18,
-        icspace26_helium_19,
-        icspace26_helium_20,
         NUMBER_OF_REGISTERED_DEVICES, // this should be the last in the enum
 
     } registered_devices_t;
