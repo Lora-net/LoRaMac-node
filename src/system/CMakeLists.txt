@@ -35,12 +35,6 @@ file(GLOB ${PROJECT_NAME}_SOURCES
 
     # Crypto
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/*.c"
-
-    # Compression Library
-    "${CMAKE_CURRENT_SOURCE_DIR}/lz4.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/lz4frame.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/lz4hc.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/xxhash.c"
 )
 
 add_library(${PROJECT_NAME} OBJECT EXCLUDE_FROM_ALL ${${PROJECT_NAME}_SOURCES})
