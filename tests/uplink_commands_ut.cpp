@@ -351,5 +351,5 @@ TEST(uplink_commands, test_set_tx_interval_success)
     /**
      * @brief Now that CRC is wrong, it should read the default value of tx interval
      */
-    CHECK_EQUAL(10000, read_tx_interval_in_eeprom(TX_INTERVAL_EEPROM_ADDRESS, TX_INTERVAL_GPS_FIX_OK));
+    CHECK_EQUAL(2500, read_tx_interval_in_eeprom(TX_INTERVAL_EEPROM_ADDRESS, TX_INTERVAL_GPS_FIX_OK));
 }

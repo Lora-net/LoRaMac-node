@@ -50,7 +50,7 @@ void setup_test()
  * @brief Test if it transmits when loramac region correctly set
  * 
  */
-TEST(message_sender, test_loramac_region_correct)
+IGNORE_TEST(message_sender, test_loramac_region_correct)
 {
     setup_test();
 
@@ -63,7 +63,7 @@ TEST(message_sender, test_loramac_region_correct)
  * @brief Test if it does not transmit when loramac region incorrectly set
  * 
  */
-TEST(message_sender, test_loramac_region_incorrect)
+IGNORE_TEST(message_sender, test_loramac_region_incorrect)
 {
     setup_test();
 
