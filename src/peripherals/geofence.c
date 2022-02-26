@@ -67,6 +67,7 @@ typedef enum polygon_t
 	US902928_ANTARTICA_polygon,
 	AS920923_ISRAEL_polygon,
 	US902928_MALDIVES_polygon,
+	EU863870_UKRAINE_polygon,
 	OUTSIDE_polygon
 } Polygon_t;
 
@@ -746,6 +747,56 @@ static const float US902928_MALDIVES_F[12] = {
 
 };
 
+static const float EU863870_UKRAINE_F[46] = {
+	23.56070,
+	51.52340,
+	23.97834,
+	50.47996,
+	22.64805,
+	49.41855,
+	22.08500,
+	48.38807,
+	23.64357,
+	47.88226,
+	25.86950,
+	47.65782,
+	27.02386,
+	48.34201,
+	28.96878,
+	47.91685,
+	29.96649,
+	46.55168,
+	28.42077,
+	45.83573,
+	28.16426,
+	45.12345,
+	29.87945,
+	44.82005,
+	33.17472,
+	44.28231,
+	35.65836,
+	44.40044,
+	38.35721,
+	47.12221,
+	40.08039,
+	48.01017,
+	40.53634,
+	49.33751,
+	37.51446,
+	50.40560,
+	33.90839,
+	52.44803,
+	30.86254,
+	52.20354,
+	30.04237,
+	51.63258,
+	25.01649,
+	52.03999,
+	23.56070,
+	51.52340,
+
+};
+
 /* ==================================================================== */
 /* ========================== private data ============================ */
 /* ==================================================================== */
@@ -854,6 +905,11 @@ Polygon_t get_polygon(float latitude, float longitude)
 	else if (pointInPolygonF(20, US902928_NAMERICA_F, latitude, longitude) == 1)
 	{
 		return US902928_NAMERICA_polygon;
+	}
+
+	else if (pointInPolygonF(22, EU863870_UKRAINE_F, latitude, longitude) == 1)
+	{
+		return EU863870_UKRAINE_polygon;
 	}
 
 	else if (pointInPolygonF(6, AS923925_BRUNEI_F, latitude, longitude) == 1)
@@ -1052,6 +1108,11 @@ static void set_current_loramac_region_from_polygon(Polygon_t current_poly)
 		current_geofence_status.tx_permission = TX_OK;
 		current_geofence_status.current_loramac_region = LORAMAC_REGION_US915;
 		break;
+	case EU863870_UKRAINE_polygon:
+		current_geofence_status.tx_permission = TX_NOT_OK;
+		current_geofence_status.current_loramac_region = LORAMAC_REGION_EU868;
+		break;
+
 	case OUTSIDE_polygon:
 		current_geofence_status.tx_permission = TX_NOT_OK;
 		current_geofence_status.current_loramac_region = LORAMAC_REGION_EU868;

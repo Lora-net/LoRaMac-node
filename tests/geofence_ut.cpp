@@ -493,3 +493,11 @@ TEST(test_get_current_lorawan_region, North_Korea)
     CHECK_EQUAL(LORAMAC_REGION_EU868, region);
     CHECK_EQUAL(TX_NOT_OK, get_current_tx_permission());
 }
+
+TEST(test_get_current_lorawan_region, Ukraine)
+{
+    update_geofence_position(50.4501, 30.5234);
+    LoRaMacRegion_t region = get_current_loramac_region();
+    CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_NOT_OK, get_current_tx_permission());
+}
