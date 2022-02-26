@@ -22,6 +22,7 @@
 #include "NvmDataMgmt.h"
 #include "cli.h"
 #include "nvmm.h"
+#include "bsp.h"
 
 void CliProcess( Uart_t* uart )
 {
@@ -41,7 +42,7 @@ void CliProcess( Uart_t* uart )
                 printf( "Wiping EEPROM. It will take a few seconds....\n" );
 
                 // Wipe out the EEPROM fully
-                if( EEPROM_Wipe( ) == true )
+                if (EEPROM_Wipe(0, EEPROM_SIZE) == true)
                 {
                     printf( "\n\nEEPROM wipe succeed\n" );
                 }
