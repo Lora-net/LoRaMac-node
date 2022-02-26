@@ -102,35 +102,36 @@ gps_status_t setup_GPS()
 
 	DeepSleepDelayMs(GPS_WAKEUP_TIMEOUT); // Wait for things to be setup
 
-	/* Set the I2C port to output UBX only (turn off NMEA noise) */
-	if (setI2COutput(COM_TYPE_UBX, defaultMaxWait) == false) //Set the I2C port to output UBX only (turn off NMEA noise)
-	{
-		printf("***!!! Warning: setI2COutput failed !!!***\n");
-		reinit_i2c();
-	}
-	else
-	{
-		printf("set setI2COutput carried out successfully!\n");
-	}
+	/* Check if we are in airbourne mode. check if dynamic mode is correct. If its not, then setup the GPS */
+	uint8_t newDynamicModel = getDynamicModel(defaultMaxWait);
 
-	if (setDynamicModel(DYN_MODEL_AIRBORNE1g, defaultMaxWait) == false) // Set the dynamic model to DYN_MODEL_AIRBORNE1g
+	switch (newDynamicModel)
 	{
-		printf("***!!! Warning: setDynamicModel failed !!!***\n");
-		reinit_i2c();
-	}
-	else
-	{
-		printf("Dynamic platform model changed successfully!\n");
-	}
+	case DYN_MODEL_AIRBORNE1g:
+		printf("The current dynamic model correct and is: %d\n", newDynamicModel);
+		break;
 
-	if (set_powersave_config(defaultMaxWait) == false)
-	{
-		printf("***!!! Warning: set_powersave_config failed !!!***\n");
+	case 255:
+		printf("***!!! Warning: getDynamicModel failed !!!***\n");
 		reinit_i2c();
-	}
-	else
-	{
-		printf("set_powersave_config carried out successfully!\n");
+		break;
+
+	default:
+		printf("The current dynamic model is INCORRECT. The current dynamic model is: %d\n", newDynamicModel);
+
+		// Limit i2c output to UBX, set dyanmic model and send power save config.
+		bool success = setI2COutput(COM_TYPE_UBX, defaultMaxWait) && setDynamicModel(DYN_MODEL_AIRBORNE1g, defaultMaxWait) && set_powersave_config(defaultMaxWait);
+
+		if (success)
+		{
+			printf("GPS setup successfully\n");
+		}
+		else
+		{
+			printf("***GPS setup failed***\n");
+			reinit_i2c();
+		}
+		break;
 	}
 
 	return GPS_SUCCESS;
