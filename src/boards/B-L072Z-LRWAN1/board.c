@@ -171,8 +171,8 @@ void BoardInitMcu( void )
 #endif
 
         // LEDs
-        GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
         GpioInit( &Gps_int, GPS_INT, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 1 );
+        GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
 
         // Load enable for sensors, GPS
         GpioInit( &Load_enable, LOAD_ENABLE, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
