@@ -253,7 +253,7 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 
         memcpy(&target_tx_interval, appData->Buffer, appData->BufferSize); // copy the bytes to the struct
 
-        bool eeprom_changed = update_device_tx_interval_in_eeprom(target_tx_interval, TX_INTERVAL_EEPROM_ADDRESS);
+        bool eeprom_changed = update_device_tx_interval_in_eeprom(TX_INTERVAL_EEPROM_ADDRESS, target_tx_interval);
 
         /* Send down telemetry to indicate that bytes have changed in EEPROM */
         if (eeprom_changed == true)
@@ -277,7 +277,7 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 
         memcpy(&target_tx_interval, appData->Buffer, appData->BufferSize); // copy the bytes to the struct
 
-        update_device_tx_interval_in_eeprom(target_tx_interval, GPS_SEARCH_TIME_ADDR);
+        update_device_tx_interval_in_eeprom(GPS_SEARCH_TIME_ADDR, target_tx_interval);
     }
     break;
 

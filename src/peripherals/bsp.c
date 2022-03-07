@@ -683,7 +683,7 @@ void retrieve_eeprom_stored_lorawan_region()
  * @return true if succesfully updated
  * @return false if not successful in update
  */
-bool update_device_tx_interval_in_eeprom(uint32_t interval_ms, uint32_t address)
+bool update_device_tx_interval_in_eeprom(uint32_t address, uint32_t interval_ms)
 {
 
 	tx_interval_eeprom_t tx_interval_with_crc = {.tx_interval = interval_ms};
