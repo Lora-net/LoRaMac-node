@@ -52,6 +52,7 @@ typedef enum
  *
  * \param [IN]:    addr
  * \param [IN]:    data
+ *
  * \retval status [LMN_STATUS_OK, LMN_STATUS_ERROR]
  */
 LmnStatus_t MPL3115Write( uint8_t addr, uint8_t data );
@@ -62,6 +63,7 @@ LmnStatus_t MPL3115Write( uint8_t addr, uint8_t data );
  * \param [IN]: addr
  * \param [IN]: data
  * \param [IN]: size
+ *
  * \retval status [LMN_STATUS_OK, LMN_STATUS_ERROR]
  */
 LmnStatus_t MPL3115WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size );
@@ -71,6 +73,7 @@ LmnStatus_t MPL3115WriteBuffer( uint8_t addr, uint8_t *data, uint8_t size );
  *
  * \param [IN]: addr
  * \param [OUT]: data
+ *
  * \retval status [LMN_STATUS_OK, LMN_STATUS_ERROR]
  */
 LmnStatus_t MPL3115Read( uint8_t addr, uint8_t *data );
@@ -81,6 +84,7 @@ LmnStatus_t MPL3115Read( uint8_t addr, uint8_t *data );
  * \param [IN]: addr
  * \param [OUT]: data
  * \param [IN]: size
+ *
  * \retval status [LMN_STATUS_OK, LMN_STATUS_ERROR]
  */
 LmnStatus_t MPL3115ReadBuffer( uint8_t addr, uint8_t *data, uint8_t size );
@@ -186,7 +190,7 @@ void MPL3115SetDeviceAddr( uint8_t addr )
     I2cDeviceAddr = addr;
 }
 
-LmnStatus_t MPL3115GetDeviceAddr( void )
+uint8_t MPL3115GetDeviceAddr( void )
 {
     return I2cDeviceAddr;
 }
@@ -336,7 +340,7 @@ float MPL3115ReadTemperature( void )
 
     if( msb > 0x7F )
     {
-        val = ~( ( msb << 8 ) + lsb ) + 1;      // 2’s complement
+        val = ~( ( msb << 8 ) + lsb ) + 1;      // 2's complement
         msb = val >> 8;
         lsb = val & 0x00F0;
         negSign = true;

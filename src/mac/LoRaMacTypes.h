@@ -807,35 +807,42 @@ typedef enum eAddressIdentifier
 /*
  * Multicast Rx window parameters
  */
-typedef union uMcRxParams
+typedef struct sMcRxParams
 {
-    struct
+    /*!
+     * Multicats channel LoRaWAN class B or C
+     */
+    DeviceClass_t Class;
+    union
     {
-        /*!
-            * Reception frequency of the ping slot windows
-            */
-        uint32_t Frequency;
-        /*!
-            * Datarate of the ping slot
-            */
-        int8_t Datarate;
-        /*!
-            * This parameter is necessary for class B operation. It defines the
-            * periodicity of the multicast downlink slots
-            */
-        uint16_t Periodicity;
-    }ClassB;
-    struct
-    {
-        /*!
-        * Reception frequency of the ping slot windows
-        */
-        uint32_t Frequency;
-        /*!
-        * Datarate of the ping slot
-        */
-        int8_t Datarate;
-    }ClassC;
+        struct
+        {
+            /*!
+             * Reception frequency of the ping slot windows
+             */
+            uint32_t Frequency;
+            /*!
+             * Datarate of the ping slot
+             */
+            int8_t Datarate;
+            /*!
+             * This parameter is necessary for class B operation. It defines the
+             * periodicity of the multicast downlink slots
+             */
+            uint16_t Periodicity;
+        }ClassB;
+        struct
+        {
+            /*!
+             * Reception frequency of the ping slot windows
+             */
+            uint32_t Frequency;
+            /*!
+             * Datarate of the ping slot
+             */
+            int8_t Datarate;
+        }ClassC;
+    }Params;
 }McRxParams_t;
 
 /*!
@@ -848,10 +855,6 @@ typedef struct sMcChannelParams
      * Indicates which set of keys are to be used. \ref uMcKeys
      */
     bool IsRemotelySetup;
-    /*!
-     * Multicats channel LoRaWAN class B or C
-     */
-    DeviceClass_t Class;
     /*!
      * True if the entry is active
      */

@@ -37,6 +37,10 @@
 #ifndef __NVMDATAMGMT_H__
 #define __NVMDATAMGMT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \brief NVM Management event.
  *
@@ -67,5 +71,9 @@ uint16_t NvmDataMgmtRestore(void );
 bool NvmDataMgmtFactoryReset( void );
 
 /* \} */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __NVMDATAMGMT_H__

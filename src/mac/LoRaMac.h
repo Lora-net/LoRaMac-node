@@ -493,10 +493,6 @@ typedef union eLoRaMacFlags_t
          */
         uint8_t MlmeInd                 : 1;
         /*!
-         * MLME-Ind to schedule an uplink pending
-         */
-        uint8_t MlmeSchedUplinkInd      : 1;
-        /*!
          * MAC cycle done
          */
         uint8_t MacDone                 : 1;
@@ -589,7 +585,7 @@ typedef struct sLoRaMacNvmDataGroup1
      * Counts the number if uplinks to know when the next Rejoin request type 0 is required.
      * ( If requested by the server through RejoinParamSetupReq MAC command )
      */
-    uint16_t Rejoin0UplinksCounter;
+    uint32_t Rejoin0UplinksCounter;
     /*!
      * Counter of Rejoin Request of retries.
      * ( If requested by the server through ForceRejoinReq MAC command )
@@ -699,7 +695,7 @@ typedef struct sLoRaMacNvmDataGroup2
      * ( If requested by the server through RejoinParamSetupReq MAC command )
      * When it's set to 0, Rejoin0UplinksCounter won't be incremented
      */
-    uint16_t Rejoin0UplinksLimit;
+    uint32_t Rejoin0UplinksLimit;
     /*!
      * The total number of times the device will retry the Rejoin Request.
      * ( If requested by the server through ForceRejoinReq MAC command )
@@ -726,7 +722,7 @@ typedef struct sLoRaMacNvmDataGroup2
      * Indicates if a Rejoin request was sent and no join-accept or any downlink
      * has been received yet.
      */
-    bool IsRejoinRequestPending;
+    bool IsRejoinAcceptPending;
     /*!
      * CRC32 value of the MacGroup2 data structure.
      */
@@ -1007,7 +1003,7 @@ typedef struct sMcpsIndication
     /*!
      * Frame pending status
      */
-    uint8_t FramePending;
+    uint8_t IsUplinkTxPending;
     /*!
      * Pointer to the received data stream
      */
@@ -1069,7 +1065,6 @@ typedef struct sMcpsIndication
  * \ref MLME_REJOIN_1           | YES     | NO         | NO       | YES
  * \ref MLME_LINK_CHECK         | YES     | NO         | NO       | YES
  * \ref MLME_TXCW               | YES     | NO         | NO       | YES
- * \ref MLME_SCHEDULE_UPLINK    | NO      | YES        | NO       | NO
  * \ref MLME_DERIVE_MC_KE_KEY   | YES     | NO         | NO       | YES
  * \ref MLME_DERIVE_MC_KEY_PAIR | YES     | NO         | NO       | YES
  * \ref MLME_REVERT_JOIN        | NO      | YES        | NO       | NO
@@ -1119,11 +1114,6 @@ typedef enum eMlme
      * LoRaWAN end-device certification
      */
     MLME_TXCW,
-    /*!
-     * Indicates that the application shall perform an uplink as
-     * soon as possible.
-     */
-    MLME_SCHEDULE_UPLINK,
     /*!
      * Derives the McKEKey from the AppKey or NwkKey.
      */

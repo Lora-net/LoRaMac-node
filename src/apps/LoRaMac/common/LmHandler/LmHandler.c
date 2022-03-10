@@ -187,13 +187,6 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm );
 static void MlmeIndication( MlmeIndication_t *mlmeIndication );
 
 /*!
- * Requests network server time update
- *
- * \retval status Returns \ref LORAMAC_HANDLER_SET if joined else \ref LORAMAC_HANDLER_RESET
- */
-static LmHandlerErrorStatus_t LmHandlerDeviceTimeReq( void );
-
-/*!
  * Starts the beacon search
  *
  * \retval status Returns \ref LORAMAC_HANDLER_SET if joined else \ref LORAMAC_HANDLER_RESET
@@ -517,7 +510,7 @@ LmHandlerErrorStatus_t LmHandlerSend( LmHandlerAppData_t *appData, LmHandlerMsgT
     }
 }
 
-static LmHandlerErrorStatus_t LmHandlerDeviceTimeReq( void )
+LmHandlerErrorStatus_t LmHandlerDeviceTimeReq( void )
 {
     LoRaMacStatus_t status;
     MlmeReq_t mlmeReq;
@@ -752,8 +745,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
     // Call packages RxProcess function
     LmHandlerPackagesNotify( PACKAGE_MCPS_INDICATION, mcpsIndication );
 
-    if( ( ( mcpsIndication->FramePending == true ) && ( LmHandlerGetCurrentClass( ) == CLASS_A ) ) ||
-        ( mcpsIndication->ResponseTimeout > 0 ) )
+    if( mcpsIndication->IsUplinkTxPending != 0 )
     {
         // The server signals that it has pending data to be sent.
         // We schedule an uplink as soon as possible to flush the server.
@@ -862,12 +854,6 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
 
     switch( mlmeIndication->MlmeIndication )
     {
-    case MLME_SCHEDULE_UPLINK:
-        {
-            // The MAC layer signals that we shall provide an uplink as soon as possible
-            IsUplinkTxPending = true;
-        }
-        break;
     case MLME_BEACON_LOST:
         {
             MibRequestConfirm_t mibReq;

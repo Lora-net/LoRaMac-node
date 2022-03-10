@@ -11,6 +11,45 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 
 ## [Unreleased]
 
+## [4.6.0] - 2022-01-11
+
+### General
+
+- Release based on "LoRaWAN specification 1.0.4" and "LoRaWAN specification 1.1.0 + FCntDwn ERRATA" with "LoRaWAN Regional Parameters 2-1.0.1"
+- GitHub reported issues corrections.
+
+### Known limitations
+
+- SAMR34 platform does not implement NVM storage functionality. This is a requirement for LoRaWAN versions greater or equal to 1.0.4.
+  No work on this subject is forseen by the maintainers. Implementation proposals are welcome.
+
+### Added
+
+- Added NbTrans default value reset under JoinAccept processing
+- Added missing Class B certification commands
+- Added missing `classBParams.NetworkActivation` variable initialization
+- Added Class B remote multicast setup support
+- Added data rate validation to the join accept message handling
+- Added channel id limits verification to DlChannelReq handling
+
+### Changed
+
+- Changed `LmHandlerDeviceTimeReq` API to be publicly accessible
+- Changed improved the way `USE_LRWAN_1_1_X_CRYPTO` pre-processing directive is used
+- Changed improved the way `JoinNonce` is checked
+
+### Fixed
+
+- Fixed first beacon acquisition after receiving a `DeviceTimeAns`.
+- Fixed `LmHandlerParams_t` `PingSlotPeriodicity` field type from `bool` to `uint8_t`
+- Fixed i2c.h to include "utilities.h".
+- Fixed VSCode `periodic-uplink-lpp` project default LoRaWAN class selection
+- Fixed SX127x FSK transmission when radio current operating mode is RX.
+
+### Removed
+
+- Removed no more needed `MLME_SCHEDULE_UPLINK` notification
+
 ## [4.5.2] - 2021-05-28
 
 ### General
@@ -20,7 +59,7 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 
 ### Known limitations
 
-- SAMR34 platform does not support NVM storage. This is a requirement for LoRaWAN versions greater or equal to 1.0.4.
+- SAMR34 platform does not implement NVM storage functionality. This is a requirement for LoRaWAN versions greater or equal to 1.0.4.
   No work on this subject is forseen by the maintainers. Implementation proposals are welcome.
 
 ### Added

@@ -58,8 +58,11 @@ typedef struct ComplianceTestState_s
     uint8_t             DataBufferSize;
     uint8_t*            DataBuffer;
     uint16_t            RxAppCnt;
+    bool                IsBeaconRxStatusIndOn;
     ClassBStatus_t      ClassBStatus;
     bool                IsResetCmdPending;
+    bool                IsClassReqCmdPending;
+    DeviceClass_t       NewClass;
 } ComplianceTestState_t;
 
 typedef enum ComplianceMoteCmd_e
@@ -67,8 +70,8 @@ typedef enum ComplianceMoteCmd_e
     COMPLIANCE_PKG_VERSION_ANS      = 0x00,
     COMPLIANCE_ECHO_PAYLOAD_ANS     = 0x08,
     COMPLIANCE_RX_APP_CNT_ANS       = 0x09,
-    COMPLIANCE_BEACON_RX_STATUS_IND = 0x40,
-    COMPLIANCE_BEACON_CNT_ANS       = 0x41,
+    COMPLIANCE_BEACON_RX_STATUS_IND = 0x41,
+    COMPLIANCE_BEACON_CNT_ANS       = 0x42,
     COMPLIANCE_DUT_VERSION_ANS      = 0x7F,
 } ComplianceMoteCmd_t;
 
@@ -88,8 +91,9 @@ typedef enum ComplianceSrvCmd_e
     COMPLIANCE_LINK_CHECK_REQ               = 0x20,
     COMPLIANCE_DEVICE_TIME_REQ              = 0x21,
     COMPLIANCE_PING_SLOT_INFO_REQ           = 0x22,
-    COMPLIANCE_BEACON_CNT_REQ               = 0x41,
-    COMPLIANCE_BEACON_CNT_RESET_REQ         = 0x42,
+    COMPLIANCE_BEACON_RX_STATUS_IND_CTRL    = 0x40,
+    COMPLIANCE_BEACON_CNT_REQ               = 0x42,
+    COMPLIANCE_BEACON_CNT_RESET_REQ         = 0x43,
     COMPLIANCE_TX_CW_REQ                    = 0x7D,
     COMPLIANCE_DUT_FPORT_224_DISABLE_REQ    = 0x7E,
     COMPLIANCE_DUT_VERSION_REQ              = 0x7F,
@@ -99,16 +103,19 @@ typedef enum ComplianceSrvCmd_e
  * Holds the compliance test current context
  */
 static ComplianceTestState_t ComplianceTestState = {
-    .Initialized        = false,
-    .IsTxPending        = false,
-    .TxPendingTimestamp = 0,
-    .IsTxConfirmed      = LORAMAC_HANDLER_UNCONFIRMED_MSG,
-    .DataBufferMaxSize  = 0,
-    .DataBufferSize     = 0,
-    .DataBuffer         = NULL,
-    .RxAppCnt           = 0,
-    .ClassBStatus       = { 0 },
-    .IsResetCmdPending  = false,
+    .Initialized           = false,
+    .IsTxPending           = false,
+    .TxPendingTimestamp    = 0,
+    .IsTxConfirmed         = LORAMAC_HANDLER_UNCONFIRMED_MSG,
+    .DataBufferMaxSize     = 0,
+    .DataBufferSize        = 0,
+    .DataBuffer            = NULL,
+    .RxAppCnt              = 0,
+    .ClassBStatus          = { 0 },
+    .IsBeaconRxStatusIndOn = false,
+    .IsResetCmdPending     = false,
+    .IsClassReqCmdPending  = false,
+    .NewClass              = CLASS_A,
 };
 
 /*!
@@ -178,8 +185,10 @@ static void LmhpComplianceOnMlmeIndication( MlmeIndication_t* mlmeIndication );
 
 /*!
  * Helper function to send the BeaconRxStatusInd message
+ *
+ * \param [IN] isBeaconRxStatusIndOn Indicates if the beacon status info is sent or not
  */
-static void SendBeaconRxStatusInd( void );
+static void SendBeaconRxStatusInd( bool isBeaconRxStatusIndOn );
 
 LmhPackage_t CompliancePackage = {
     .Port                    = COMPLIANCE_PORT,
@@ -220,7 +229,9 @@ static void LmhpComplianceInit( void* params, uint8_t* dataBuffer, uint8_t dataB
     ComplianceTestState.RxAppCnt = 0;
     ClassBStatusReset( );
     ComplianceTestState.IsTxPending = false;
+    ComplianceTestState.IsBeaconRxStatusIndOn = false;
     ComplianceTestState.IsResetCmdPending = false;
+    ComplianceTestState.IsClassReqCmdPending = false;
 }
 
 static bool LmhpComplianceIsInitialized( void )
@@ -262,6 +273,15 @@ static void LmhpComplianceProcess( void )
             }
         }
     }
+    else
+    { // If no Tx is pending process other commands
+        if( ComplianceTestState.IsClassReqCmdPending == true )
+        {
+            ComplianceTestState.IsClassReqCmdPending = false;
+            LmHandlerRequestClass( ComplianceTestState.NewClass );
+        }
+    }
+
     if( ComplianceTestState.IsResetCmdPending == true )
     {
         ComplianceTestState.IsResetCmdPending = false;
@@ -302,190 +322,192 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
 
     switch( mcpsIndication->Buffer[cmdIndex++] )
     {
-        case COMPLIANCE_PKG_VERSION_REQ:
-        {
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = COMPLIANCE_PKG_VERSION_ANS;
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = COMPLIANCE_ID;
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = COMPLIANCE_VERSION;
-            break;
-        }
-        case COMPLIANCE_DUT_RESET_REQ:
-        {
-            ComplianceTestState.IsResetCmdPending = true;
-            break;
-        }
-        case COMPLIANCE_DUT_JOIN_REQ:
-        {
-            CompliancePackage.OnJoinRequest( true );
-            break;
-        }
-        case COMPLIANCE_SWITCH_CLASS_REQ:
-        {
-            MibRequestConfirm_t mibReq;
-            mibReq.Type = MIB_DEVICE_CLASS;
-            // CLASS_A = 0, CLASS_B = 1, CLASS_C = 2
-            mibReq.Param.Class = ( DeviceClass_t ) mcpsIndication->Buffer[cmdIndex++];
+    case COMPLIANCE_PKG_VERSION_REQ:
+    {
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = COMPLIANCE_PKG_VERSION_ANS;
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = COMPLIANCE_ID;
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = COMPLIANCE_VERSION;
+        break;
+    }
+    case COMPLIANCE_DUT_RESET_REQ:
+    {
+        ComplianceTestState.IsResetCmdPending = true;
+        break;
+    }
+    case COMPLIANCE_DUT_JOIN_REQ:
+    {
+        CompliancePackage.OnJoinRequest( true );
+        break;
+    }
+    case COMPLIANCE_SWITCH_CLASS_REQ:
+    {
+        // CLASS_A = 0, CLASS_B = 1, CLASS_C = 2
+        ComplianceTestState.NewClass = ( DeviceClass_t ) mcpsIndication->Buffer[cmdIndex++];
+        ComplianceTestState.IsClassReqCmdPending = true;
+        break;
+    }
+    case COMPLIANCE_ADR_BIT_CHANGE_REQ:
+    {
+        MibRequestConfirm_t mibReq;
+        mibReq.Type            = MIB_ADR;
+        mibReq.Param.AdrEnable = mcpsIndication->Buffer[cmdIndex++];
 
-            LoRaMacMibSetRequestConfirm( &mibReq );
-            break;
-        }
-        case COMPLIANCE_ADR_BIT_CHANGE_REQ:
-        {
-            MibRequestConfirm_t mibReq;
-            mibReq.Type            = MIB_ADR;
-            mibReq.Param.AdrEnable = mcpsIndication->Buffer[cmdIndex++];
+        LoRaMacMibSetRequestConfirm( &mibReq );
+        break;
+    }
+    case COMPLIANCE_REGIONAL_DUTY_CYCLE_CTRL_REQ:
+    {
+        LoRaMacTestSetDutyCycleOn( mcpsIndication->Buffer[cmdIndex++] );
+        break;
+    }
+    case COMPLIANCE_TX_PERIODICITY_CHANGE_REQ:
+    {
+        // Periodicity in milli-seconds
+        uint32_t periodicity[] = { 0, 5000, 10000, 20000, 30000, 40000, 50000, 60000, 120000, 240000, 480000 };
+        uint8_t  index         = mcpsIndication->Buffer[cmdIndex++];
 
-            LoRaMacMibSetRequestConfirm( &mibReq );
-            break;
-        }
-        case COMPLIANCE_REGIONAL_DUTY_CYCLE_CTRL_REQ:
+        if( index < ( sizeof( periodicity ) / sizeof( uint32_t ) ) )
         {
-            LoRaMacTestSetDutyCycleOn( mcpsIndication->Buffer[cmdIndex++] );
-            break;
-        }
-        case COMPLIANCE_TX_PERIODICITY_CHANGE_REQ:
-        {
-            // Periodicity in milli-seconds
-            uint32_t periodicity[] = { 0, 5000, 10000, 20000, 30000, 40000, 50000, 60000, 120000, 240000, 480000 };
-            uint8_t  index         = mcpsIndication->Buffer[cmdIndex++];
-
-            if( index < ( sizeof( periodicity ) / sizeof( uint32_t ) ) )
+            if( ComplianceParams->OnTxPeriodicityChanged != NULL )
             {
-                if( ComplianceParams->OnTxPeriodicityChanged != NULL )
-                {
-                    ComplianceParams->OnTxPeriodicityChanged( periodicity[index] );
-                }
+                ComplianceParams->OnTxPeriodicityChanged( periodicity[index] );
             }
-            break;
         }
-        case COMPLIANCE_TX_FRAMES_CTRL_REQ:
-        {
-            uint8_t frameType = mcpsIndication->Buffer[cmdIndex++];
+        break;
+    }
+    case COMPLIANCE_TX_FRAMES_CTRL_REQ:
+    {
+        uint8_t frameType = mcpsIndication->Buffer[cmdIndex++];
 
-            if( ( frameType == 1 ) || ( frameType == 2 ) )
-            {
-                ComplianceTestState.IsTxConfirmed = ( frameType != 1 ) ? LORAMAC_HANDLER_CONFIRMED_MSG : LORAMAC_HANDLER_UNCONFIRMED_MSG;
+        if( ( frameType == 1 ) || ( frameType == 2 ) )
+        {
+            ComplianceTestState.IsTxConfirmed = ( frameType != 1 ) ? LORAMAC_HANDLER_CONFIRMED_MSG : LORAMAC_HANDLER_UNCONFIRMED_MSG;
 
-                ComplianceParams->OnTxFrameCtrlChanged( ComplianceTestState.IsTxConfirmed );
-            }
-            break;
+            ComplianceParams->OnTxFrameCtrlChanged( ComplianceTestState.IsTxConfirmed );
         }
-        case COMPLIANCE_ECHO_PAYLOAD_REQ:
-        {
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = COMPLIANCE_ECHO_PAYLOAD_ANS;
+        break;
+    }
+    case COMPLIANCE_ECHO_PAYLOAD_REQ:
+    {
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = COMPLIANCE_ECHO_PAYLOAD_ANS;
 
-            for( uint8_t i = 1; i < MIN( mcpsIndication->BufferSize, ComplianceTestState.DataBufferMaxSize );
-                 i++ )
-            {
-                ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = mcpsIndication->Buffer[cmdIndex++] + 1;
-            }
-            break;
-        }
-        case COMPLIANCE_RX_APP_CNT_REQ:
+        for( uint8_t i = 1; i < MIN( mcpsIndication->BufferSize, ComplianceTestState.DataBufferMaxSize );
+             i++ )
         {
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = COMPLIANCE_RX_APP_CNT_ANS;
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = ComplianceTestState.RxAppCnt;
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = ComplianceTestState.RxAppCnt >> 8;
-            break;
+            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = mcpsIndication->Buffer[cmdIndex++] + 1;
         }
-        case COMPLIANCE_RX_APP_CNT_RESET_REQ:
+        break;
+    }
+    case COMPLIANCE_RX_APP_CNT_REQ:
+    {
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = COMPLIANCE_RX_APP_CNT_ANS;
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = ComplianceTestState.RxAppCnt;
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = ComplianceTestState.RxAppCnt >> 8;
+        break;
+    }
+    case COMPLIANCE_RX_APP_CNT_RESET_REQ:
+    {
+        ComplianceTestState.RxAppCnt = 0;
+        break;
+    }
+    case COMPLIANCE_LINK_CHECK_REQ:
+    {
+        MlmeReq_t mlmeReq;
+        mlmeReq.Type = MLME_LINK_CHECK;
+
+        CompliancePackage.OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq,
+                                            mlmeReq.ReqReturn.DutyCycleWaitTime );
+        break;
+    }
+    case COMPLIANCE_DEVICE_TIME_REQ:
+    {
+        CompliancePackage.OnDeviceTimeRequest( );
+        break;
+    }
+    case COMPLIANCE_PING_SLOT_INFO_REQ:
+    {
+        ComplianceTestState.ClassBStatus.PingSlotPeriodicity = mcpsIndication->Buffer[cmdIndex++];
+        ComplianceParams->OnPingSlotPeriodicityChanged( ComplianceTestState.ClassBStatus.PingSlotPeriodicity );
+        break;
+    }
+    case COMPLIANCE_BEACON_RX_STATUS_IND_CTRL:
+    {
+        ComplianceTestState.IsBeaconRxStatusIndOn = ( bool ) mcpsIndication->Buffer[cmdIndex++];
+        break;
+    }
+    case COMPLIANCE_BEACON_CNT_REQ:
+    {
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = COMPLIANCE_BEACON_CNT_ANS;
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = ComplianceTestState.ClassBStatus.BeaconCnt;
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = ComplianceTestState.ClassBStatus.BeaconCnt >> 8;
+        break;
+    }
+    case COMPLIANCE_BEACON_CNT_RESET_REQ:
+    {
+        ComplianceTestState.ClassBStatus.BeaconCnt = 0;
+        break;
+    }
+    case COMPLIANCE_TX_CW_REQ:
+    {
+        MlmeReq_t mlmeReq;
+        if( mcpsIndication->BufferSize == 7 )
         {
-            ComplianceTestState.RxAppCnt = 0;
-            break;
-        }
-        case COMPLIANCE_LINK_CHECK_REQ:
-        {
-            MlmeReq_t mlmeReq;
-            mlmeReq.Type = MLME_LINK_CHECK;
+            mlmeReq.Type = MLME_TXCW;
+            mlmeReq.Req.TxCw.Timeout =
+                ( uint16_t )( mcpsIndication->Buffer[cmdIndex] | ( mcpsIndication->Buffer[cmdIndex + 1] << 8 ) );
+            cmdIndex += 2;
+            mlmeReq.Req.TxCw.Frequency =
+                ( uint32_t )( mcpsIndication->Buffer[cmdIndex] | ( mcpsIndication->Buffer[cmdIndex + 1] << 8 ) |
+                               ( mcpsIndication->Buffer[cmdIndex + 2] << 16 ) ) *
+                100;
+            cmdIndex += 3;
+            mlmeReq.Req.TxCw.Power = mcpsIndication->Buffer[cmdIndex++];
 
             CompliancePackage.OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq,
                                                 mlmeReq.ReqReturn.DutyCycleWaitTime );
-            break;
         }
-        case COMPLIANCE_DEVICE_TIME_REQ:
-        {
-            CompliancePackage.OnDeviceTimeRequest( );
-            break;
-        }
-        case COMPLIANCE_PING_SLOT_INFO_REQ:
-        {
-            ComplianceTestState.ClassBStatus.PingSlotPeriodicity = mcpsIndication->Buffer[cmdIndex++];
-            ComplianceParams->OnPingSlotPeriodicityChanged( ComplianceTestState.ClassBStatus.PingSlotPeriodicity );
-            break;
-        }
-        case COMPLIANCE_BEACON_CNT_REQ:
-        {
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = COMPLIANCE_BEACON_CNT_ANS;
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = ComplianceTestState.ClassBStatus.BeaconCnt;
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = ComplianceTestState.ClassBStatus.BeaconCnt >> 8;
-            break;
-        }
-        case COMPLIANCE_BEACON_CNT_RESET_REQ:
-        {
-            ComplianceTestState.ClassBStatus.BeaconCnt = 0;
-            break;
-        }
-        case COMPLIANCE_TX_CW_REQ:
-        {
-            MlmeReq_t mlmeReq;
-            if( mcpsIndication->BufferSize == 7 )
-            {
-                mlmeReq.Type = MLME_TXCW;
-                mlmeReq.Req.TxCw.Timeout =
-                    ( uint16_t )( mcpsIndication->Buffer[cmdIndex] | ( mcpsIndication->Buffer[cmdIndex + 1] << 8 ) );
-                cmdIndex += 2;
-                mlmeReq.Req.TxCw.Frequency =
-                    ( uint32_t )( mcpsIndication->Buffer[cmdIndex] | ( mcpsIndication->Buffer[cmdIndex + 1] << 8 ) |
-                                  ( mcpsIndication->Buffer[cmdIndex + 2] << 16 ) ) *
-                    100;
-                cmdIndex += 3;
-                mlmeReq.Req.TxCw.Power = mcpsIndication->Buffer[cmdIndex++];
+        break;
+    }
+    case COMPLIANCE_DUT_FPORT_224_DISABLE_REQ:
+    {
+        mibReq.Type = MIB_IS_CERT_FPORT_ON;
+        mibReq.Param.IsCertPortOn = false;
+        LoRaMacMibSetRequestConfirm( &mibReq );
 
-                CompliancePackage.OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq,
-                                                    mlmeReq.ReqReturn.DutyCycleWaitTime );
-            }
-            break;
-        }
-        case COMPLIANCE_DUT_FPORT_224_DISABLE_REQ:
-        {
-            mibReq.Type = MIB_IS_CERT_FPORT_ON;
-            mibReq.Param.IsCertPortOn = false;
-            LoRaMacMibSetRequestConfirm( &mibReq );
+        ComplianceTestState.IsResetCmdPending = true;
+        break;
+    }
+    case COMPLIANCE_DUT_VERSION_REQ:
+    {
+        Version_t           lrwanVersion;
+        Version_t           lrwanRpVersion;
+        MibRequestConfirm_t mibReq;
 
-            ComplianceTestState.IsResetCmdPending = true;
-            break;
-        }
-        case COMPLIANCE_DUT_VERSION_REQ:
-        {
-            Version_t           lrwanVersion;
-            Version_t           lrwanRpVersion;
-            MibRequestConfirm_t mibReq;
+        mibReq.Type = MIB_LORAWAN_VERSION;
 
-            mibReq.Type = MIB_LORAWAN_VERSION;
+        LoRaMacMibGetRequestConfirm( &mibReq );
+        lrwanVersion   = mibReq.Param.LrWanVersion.LoRaWan;
+        lrwanRpVersion = mibReq.Param.LrWanVersion.LoRaWanRegion;
 
-            LoRaMacMibGetRequestConfirm( &mibReq );
-            lrwanVersion   = mibReq.Param.LrWanVersion.LoRaWan;
-            lrwanRpVersion = mibReq.Param.LrWanVersion.LoRaWanRegion;
-
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = COMPLIANCE_DUT_VERSION_ANS;
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = ComplianceParams->FwVersion.Fields.Major;
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = ComplianceParams->FwVersion.Fields.Minor;
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = ComplianceParams->FwVersion.Fields.Patch;
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = ComplianceParams->FwVersion.Fields.Revision;
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = lrwanVersion.Fields.Major;
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = lrwanVersion.Fields.Minor;
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = lrwanVersion.Fields.Patch;
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = lrwanVersion.Fields.Revision;
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = lrwanRpVersion.Fields.Major;
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = lrwanRpVersion.Fields.Minor;
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = lrwanRpVersion.Fields.Patch;
-            ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = lrwanRpVersion.Fields.Revision;
-            break;
-        }
-        default:
-        {
-            break;
-        }
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = COMPLIANCE_DUT_VERSION_ANS;
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = ComplianceParams->FwVersion.Fields.Major;
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = ComplianceParams->FwVersion.Fields.Minor;
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = ComplianceParams->FwVersion.Fields.Patch;
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = ComplianceParams->FwVersion.Fields.Revision;
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = lrwanVersion.Fields.Major;
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = lrwanVersion.Fields.Minor;
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = lrwanVersion.Fields.Patch;
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = lrwanVersion.Fields.Revision;
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = lrwanRpVersion.Fields.Major;
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = lrwanRpVersion.Fields.Minor;
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = lrwanRpVersion.Fields.Patch;
+        ComplianceTestState.DataBuffer[ComplianceTestState.DataBufferSize++] = lrwanRpVersion.Fields.Revision;
+        break;
+    }
+    default:
+    {
+        break;
+    }
     }
 
     if( ComplianceTestState.DataBufferSize != 0 )
@@ -503,22 +525,21 @@ static void LmhpComplianceOnMlmeConfirm( MlmeConfirm_t *mlmeConfirm )
 {
     switch( mlmeConfirm->MlmeRequest )
     {
-        case MLME_BEACON_ACQUISITION:
+    case MLME_BEACON_ACQUISITION:
+    {
+        if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
         {
-            if( mlmeConfirm->Status == LORAMAC_EVENT_INFO_STATUS_OK )
-            {
-                ClassBStatusReset( );
-                ComplianceTestState.ClassBStatus.IsBeaconRxOn = true;
-            }
-            else
-            {
-                ComplianceTestState.ClassBStatus.IsBeaconRxOn = false;
-            }
-            SendBeaconRxStatusInd( );
-            break;
+            ClassBStatusReset( );
+            ComplianceTestState.ClassBStatus.IsBeaconRxOn = true;
         }
-        default:
-            break;
+        else
+        {
+            ComplianceTestState.ClassBStatus.IsBeaconRxOn = false;
+        }
+        break;
+    }
+    default:
+        break;
     }
 }
 
@@ -531,34 +552,38 @@ static void LmhpComplianceOnMlmeIndication( MlmeIndication_t* mlmeIndication )
 
     switch( mlmeIndication->MlmeIndication )
     {
-        case MLME_BEACON_LOST:
+    case MLME_BEACON_LOST:
+    {
+        ClassBStatusReset( );
+        SendBeaconRxStatusInd( ComplianceTestState.IsBeaconRxStatusIndOn );
+        break;
+    }
+    case MLME_BEACON:
+    {
+        if( mlmeIndication->Status == LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED )
         {
-            ClassBStatusReset( );
-            SendBeaconRxStatusInd( );
-            break;
-        }
-        case MLME_BEACON:
-        {
-            if( mlmeIndication->Status == LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED )
+            // As we received a beacon ensure that IsBeaconRxOn is set to true
+            if( ComplianceTestState.ClassBStatus.IsBeaconRxOn == false )
             {
-                // As we received a beacon ensure that IsBeaconRxOn is set to true
-                if( ComplianceTestState.ClassBStatus.IsBeaconRxOn == false )
-                {
-                    ComplianceTestState.ClassBStatus.IsBeaconRxOn = true;
-                }
-                ComplianceTestState.ClassBStatus.BeaconCnt++;
+                ComplianceTestState.ClassBStatus.IsBeaconRxOn = true;
             }
-            ComplianceTestState.ClassBStatus.Info = mlmeIndication->BeaconInfo;
-            SendBeaconRxStatusInd( );
-            break;
+            ComplianceTestState.ClassBStatus.BeaconCnt++;
         }
-        default:
-            break;
+        ComplianceTestState.ClassBStatus.Info = mlmeIndication->BeaconInfo;
+        SendBeaconRxStatusInd( ComplianceTestState.IsBeaconRxStatusIndOn );
+        break;
+    }
+    default:
+        break;
     }
 }
 
-static void SendBeaconRxStatusInd( void )
+static void SendBeaconRxStatusInd( bool isBeaconRxStatusIndOn )
 {
+    if( isBeaconRxStatusIndOn == false )
+    {
+        return;
+    }
     uint32_t frequency = ComplianceTestState.ClassBStatus.Info.Frequency / 100;
 
     ComplianceTestState.DataBufferSize = 0;

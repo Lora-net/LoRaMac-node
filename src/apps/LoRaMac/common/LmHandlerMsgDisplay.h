@@ -22,6 +22,10 @@
 #ifndef __LMHANDLER_MSG_DISPLAY_H__
 #define __LMHANDLER_MSG_DISPLAY_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "utilities.h"
 #include "LmHandler.h"
 
@@ -100,5 +104,9 @@ void DisplayClassUpdate( DeviceClass_t deviceClass );
  * \brief Displays application information
  */
 void DisplayAppInfo( const char* appName, const Version_t* appVersion, const Version_t* gitHubVersion );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __LMHANDLER_MSG_DISPLAY_H__

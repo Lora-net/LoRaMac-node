@@ -481,32 +481,6 @@ LoRaMacCommandStatus_t LoRaMacCommandsSerializeCmds( size_t availableSize, size_
     return LORAMAC_COMMANDS_SUCCESS;
 }
 
-LoRaMacCommandStatus_t LoRaMacCommandsStickyCmdsPending( bool* cmdsPending )
-{
-    if( cmdsPending == NULL )
-    {
-        return LORAMAC_COMMANDS_ERROR_NPE;
-    }
-    MacCommand_t* curElement;
-    curElement = CommandsCtx.MacCommandList.First;
-
-    *cmdsPending = false;
-
-    // Loop through all elements
-    while( curElement != NULL )
-    {
-        if( curElement->IsSticky == true )
-        {
-            // Found one sticky MAC command
-            *cmdsPending = true;
-            return LORAMAC_COMMANDS_SUCCESS;
-        }
-        curElement = curElement->Next;
-    }
-
-    return LORAMAC_COMMANDS_SUCCESS;
-}
-
 uint8_t LoRaMacCommandsGetCmdSize( uint8_t cid )
 {
     uint8_t cidSize = 0;

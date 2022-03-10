@@ -156,7 +156,7 @@ typedef struct FragSessionData_s
 {
     FragGroupData_t FragGroupData;
     FragDecoderStatus_t FragDecoderStatus;
-    int32_t FragDecoderPorcessStatus;
+    int32_t FragDecoderProcessStatus;
 }FragSessionData_t;
 
 FragSessionData_t FragSessionData[FRAGMENTATION_MAX_SESSIONS];
@@ -385,7 +385,7 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
                 {
                     // The FragSessionSetup is accepted
                     fragSessionData.FragGroupData.IsActive = true;
-                    fragSessionData.FragDecoderPorcessStatus = FRAG_SESSION_ONGOING;
+                    fragSessionData.FragDecoderProcessStatus = FRAG_SESSION_ONGOING;
                     FragSessionData[fragSessionData.FragGroupData.FragSession.Fields.FragIndex] = fragSessionData;
 #if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
                     FragDecoderInit( fragSessionData.FragGroupData.FragNb,
@@ -455,9 +455,9 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
                     //}
                 }
 
-                if( FragSessionData[fragIndex].FragDecoderPorcessStatus == FRAG_SESSION_ONGOING )
+                if( FragSessionData[fragIndex].FragDecoderProcessStatus == FRAG_SESSION_ONGOING )
                 {
-                    FragSessionData[fragIndex].FragDecoderPorcessStatus = FragDecoderProcess( fragCounter, &mcpsIndication->Buffer[cmdIndex] );
+                    FragSessionData[fragIndex].FragDecoderProcessStatus = FragDecoderProcess( fragCounter, &mcpsIndication->Buffer[cmdIndex] );
                     FragSessionData[fragIndex].FragDecoderStatus = FragDecoderGetStatus( );
                     if( LmhpFragmentationParams->OnProgress != NULL )
                     {
@@ -469,17 +469,17 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
                 }
                 else
                 {
-                    if( FragSessionData[fragIndex].FragDecoderPorcessStatus >= 0 )
+                    if( FragSessionData[fragIndex].FragDecoderProcessStatus >= 0 )
                     {
                         // Fragmentation successfully done
-                        FragSessionData[fragIndex].FragDecoderPorcessStatus = FRAG_SESSION_NOT_STARTED;
+                        FragSessionData[fragIndex].FragDecoderProcessStatus = FRAG_SESSION_NOT_STARTED;
                         if( LmhpFragmentationParams->OnDone != NULL )
                         {
 #if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
-                            LmhpFragmentationParams->OnDone( FragSessionData[fragIndex].FragDecoderPorcessStatus,
+                            LmhpFragmentationParams->OnDone( FragSessionData[fragIndex].FragDecoderProcessStatus,
                                                             ( FragSessionData[fragIndex].FragGroupData.FragNb * FragSessionData[fragIndex].FragGroupData.FragSize ) - FragSessionData[fragIndex].FragGroupData.Padding );
 #else
-                            LmhpFragmentationParams->OnDone( FragSessionData[fragIndex].FragDecoderPorcessStatus,
+                            LmhpFragmentationParams->OnDone( FragSessionData[fragIndex].FragDecoderProcessStatus,
                                                             LmhpFragmentationParams->Buffer,
                                                             ( FragSessionData[fragIndex].FragGroupData.FragNb * FragSessionData[fragIndex].FragGroupData.FragSize ) - FragSessionData[fragIndex].FragGroupData.Padding );
 #endif
