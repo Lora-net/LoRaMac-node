@@ -367,7 +367,7 @@ void read_geofence_settings_in_eeprom()
 	// Use eeprom stored values only if CRC is correct. Else assume the default settings
 	if (is_crc_correct(sizeof(geofence_settings_t), (void *)&geofence_settings))
 	{
-		geofence_init_with_settings(geofence_settings);
+		geofence_init_with_settings(geofence_settings.values);
 	}
 }
 

@@ -1178,7 +1178,7 @@ tx_permission_t get_current_tx_permission()
 	return current_geofence_status.tx_permission;
 }
 
-void geofence_init_with_settings(geofence_settings_t settings)
+void geofence_init_with_settings(bool *settings)
 {
-	memcpy(tx_permissions_for_regions, settings.values, n_polygons * sizeof(bool));
+	memcpy(tx_permissions_for_regions, settings, n_polygons * sizeof(bool));
 }

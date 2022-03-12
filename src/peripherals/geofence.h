@@ -70,7 +70,7 @@ extern "C"
 	/* Function prototypes for public (external) functions go here */
 
 	void update_geofence_position(float latitude, float longitude);
-	void geofence_init_with_settings(geofence_settings_t settings);
+	void geofence_init_with_settings(bool *settings);
 	LoRaMacRegion_t get_current_loramac_region(void);
 	as923_subbands_t get_as923_subband(void);
 	void set_current_loramac_region(LoRaMacRegion_t region);

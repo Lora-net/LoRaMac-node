@@ -564,7 +564,7 @@ TEST(test_update_geofence_settings, check_enable_later_Ukraine)
                    true, false},
         .Crc32 = 100, // dummy CRC
     };
-    geofence_init_with_settings(enabled_ukraine);
+    geofence_init_with_settings(enabled_ukraine.values);
 
     update_geofence_position(50.4501, 30.5234); // Ukraine
     CHECK_EQUAL(TX_OK, get_current_tx_permission());
@@ -587,7 +587,7 @@ TEST(test_update_geofence_settings, check_disable_later_Philipines)
                    false, false},
         .Crc32 = 100, // dummy CRC
     };
-    geofence_init_with_settings(disabled_phillipines);
+    geofence_init_with_settings(disabled_phillipines.values);
 
     update_geofence_position(14.426168, 120.662100); // Manila
     CHECK_EQUAL(TX_NOT_OK, get_current_tx_permission());
