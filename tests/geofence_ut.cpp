@@ -7,6 +7,7 @@ extern "C"
 #include "geofence.h"
 #include "RegionAS923.h"
 #include "bsp.h"
+#include "eeprom_settings_manager.h"
 }
 
 TEST_GROUP(test_get_current_lorawan_region){

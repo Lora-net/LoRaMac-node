@@ -20,6 +20,7 @@ extern "C"
 #include "callbacks.h"
 #include "nvmm.h"
 #include "geofence.h"
+#include "eeprom_settings_manager.h"
 }
 
 #include "nvm_images.hpp"

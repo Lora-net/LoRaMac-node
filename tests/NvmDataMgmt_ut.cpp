@@ -23,6 +23,7 @@ extern "C"
 #include "geofence.h"
 #include "eeprom-board.h"
 #include "LoRaWAN_config_switcher.h"
+#include "eeprom_settings_manager.h"
 }
 #include <string.h> // For memcmp()
 #include "nvm_images.hpp"

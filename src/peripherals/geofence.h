@@ -42,7 +42,6 @@ extern "C"
 
 	/* Definition of public (external) data types go here */
 
-#define N_POLYGONS 23
 	typedef enum
 	{
 		TX_OK = 0,
@@ -56,12 +55,6 @@ extern "C"
 		tx_permission_t tx_permission;
 
 	} geofence_status_t;
-
-	typedef struct
-	{
-		bool values[N_POLYGONS];
-		uint32_t Crc32;
-	} geofence_settings_t;
 
 	/* ==================================================================== */
 	/* ======================= public functions =========================== */

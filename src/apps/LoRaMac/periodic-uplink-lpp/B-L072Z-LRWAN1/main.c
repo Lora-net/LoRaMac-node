@@ -37,7 +37,7 @@
 
 #include "callbacks.h"
 #include "message_sender.h"
-
+#include "eeprom_settings_manager.h"
 #include "nvmm.h"
 
 /*!

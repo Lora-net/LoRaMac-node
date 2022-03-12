@@ -115,6 +115,7 @@ set(FILES_UNDER_TEST
     ${PROJECT_SOURCE_DIR}/src/peripherals/position_time_encoder.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/LoRaWAN_config_switcher.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/linear_congruential_generator.c
+    ${PROJECT_SOURCE_DIR}/src/peripherals/eeprom_settings_manager.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/periodic-uplink-lpp/B-L072Z-LRWAN1/main.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandlerMsgDisplay.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandler/LmHandler.c

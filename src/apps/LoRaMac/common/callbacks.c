@@ -22,6 +22,7 @@
 #include "soft-se-hal.h"
 #include "nvmm.h"
 #include "struct.h"
+#include "eeprom_settings_manager.h"
 
 typedef struct
 {

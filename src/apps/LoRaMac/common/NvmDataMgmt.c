@@ -38,6 +38,7 @@
 #include "print_utils.h"
 #include "stdio.h"
 #include "LmHandlerMsgDisplay.h"
+#include "eeprom_settings_manager.h"
 
 /*!
  * Enables/Disables the context storage management storage.
@@ -60,52 +61,12 @@ bool context_management_enabled = true;
         printf(__VA_ARGS__);  \
     } while (0)
 
-uint16_t read_current_keys(network_keys_t *current_keys, registered_devices_t registered_device);
-uint16_t save_to_eeprom_with_CRC(network_keys_t *current_keys, registered_devices_t registered_device);
 
 static uint16_t NvmNotifyFlags = 0;
 
 void NvmDataMgmtEvent(uint16_t notifyFlags)
 {
     NvmNotifyFlags = notifyFlags;
-}
-
-/**
- * @brief reads the keys from EEPROM. if eeprom keys are corrupted, 
- * 
- * @param current_keys Pointer to the structure to fill with keys
- * @param registered_device the registered device
- * @return uint16_t number of bytes read
- */
-uint16_t read_current_keys(network_keys_t *current_keys, registered_devices_t registered_device)
-{
-    uint16_t bytes_read = NvmmRead((uint8_t *)current_keys, sizeof(network_keys_t), registered_device * sizeof(network_keys_t));
-
-    // check if NVM crc matches for fcount
-    // if crc fails, frame count = 0
-    // else, use the EEPROM stored frame count
-    if (is_crc_correct(sizeof(*current_keys), current_keys) == false)
-    {
-        *current_keys = get_current_network_keys();
-    }
-
-    return bytes_read;
-}
-
-/**
- * @brief 
- * 
- * @param current_keys 
- * @param registered_device 
- * @return uint16_t 
- */
-uint16_t save_to_eeprom_with_CRC(network_keys_t *current_keys, registered_devices_t registered_device)
-{
-    // now update CRC before writing to EEPROM
-    current_keys->Crc32 = Crc32((uint8_t *)current_keys, sizeof(*current_keys) - sizeof(current_keys->Crc32));
-
-    // Now write current keys for this network(including frame count) to EEPROM into the right place in the EEPROM
-    return update_device_credentials_to_eeprom(*current_keys, registered_device);
 }
 
 uint16_t NvmDataMgmtStore(void)
@@ -218,17 +179,3 @@ uint16_t NvmDataMgmtRestore(void)
     return 0;
 }
 
-/**
- * @brief Write passed in keys to EEPROM, in the location allocated for the registered_device
- * 
- * @param keys keys to write
- * @param registered_device which key to write
- * @return bool returns if eeprom values changed
- */
-bool update_device_credentials_to_eeprom(network_keys_t keys, registered_devices_t registered_device)
-{
-    // Now write current keys for this network(including frame count) to EEPROM into the right place in the EEPROM
-    uint16_t bytes_changed = NvmmUpdate((uint8_t *)&keys, sizeof(network_keys_t), registered_device * sizeof(network_keys_t));
-
-    return bytes_changed == 0 ? false : true;
-}

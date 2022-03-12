@@ -11,6 +11,7 @@ extern "C"
 #include "geofence.h"
 #include "LoRaMac.h"
 #include <math.h> /* fmod */
+#include "eeprom_settings_manager.h"
 }
 
 void sensor_read_and_printout(uint32_t number_of_readings);

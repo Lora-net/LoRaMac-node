@@ -57,12 +57,6 @@ extern "C"
     uint32_t Crc32;
   } eeprom_playback_stats_t;
 
-  typedef struct
-  {
-    uint32_t tx_interval;
-    uint32_t Crc32;
-  } tx_interval_eeprom_t;
-
 #define RESITOR_DIVIDER_PROD ((100000.0 + 100000.0) / 100000.0)
 #define RESITOR_DIVIDER (float)(RESITOR_DIVIDER_PROD)
 
@@ -113,8 +107,6 @@ extern "C"
   uint16_t get_time_pos_index_older_than(uint32_t minutes_from_epoch);
   bool manage_incoming_instruction(uint8_t *instructions);
 
-  void retrieve_eeprom_stored_lorawan_region(void);
-  void set_eeprom_stored_lorwan_region(void);
 
   typedef enum
   {
@@ -129,11 +121,7 @@ extern "C"
   void set_bits(bit_location_t bit_location);
   void clear_bits(void);
   sensor_t get_current_sensor_data(void);
-  bool update_device_tx_interval_in_eeprom(uint32_t address, uint32_t interval_ms);
-  uint32_t read_tx_interval_in_eeprom(uint32_t address, uint32_t default_value);
   void read_playback_stats_from_eeprom(void);
-  bool update_geofence_settings_in_eeprom(uint8_t *settings, uint16_t size);
-  void read_geofence_settings_in_eeprom();
 
 #ifdef __cplusplus
 }

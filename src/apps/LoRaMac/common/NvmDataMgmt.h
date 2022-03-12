@@ -67,14 +67,6 @@ uint16_t NvmDataMgmtRestore(void );
  * \retval Returns true, if successful.
  */
 bool NvmDataMgmtFactoryReset( void );
-/**
- * @brief Write passed in keys to EEPROM, in the location allocated for the registered_device
- * 
- * @param keys keys to write
- * @param registered_device which key to write
- * @return bool returns if eeprom values changed
- */
-bool update_device_credentials_to_eeprom(network_keys_t keys, registered_devices_t registered_device);
 
 /* \} */
 

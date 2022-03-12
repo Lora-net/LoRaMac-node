@@ -34,6 +34,7 @@
 #include "gpio.h"
 #include "position_time_encoder.h"
 #include "string.h"
+#include "eeprom_settings_manager.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -175,16 +176,7 @@ void update_geofence_status()
 	IWDG_reset();
 }
 
-/**
- * @brief Update the eeprom stored lorwan region
- * 
- */
-void set_eeprom_stored_lorwan_region()
-{
-	LoRaMacRegion_t current_region = get_current_loramac_region();
 
-	NvmmUpdate((void *)&current_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
-}
 
 /**
  * \brief Fill the structs that will be used for generating the packet that will be sent down over
@@ -358,18 +350,6 @@ bool manage_incoming_instruction(uint8_t *instructions)
 	return success;
 }
 
-void read_geofence_settings_in_eeprom()
-{
-	// read settings stored in EEPROM
-	geofence_settings_t geofence_settings;
-	NvmmRead((uint8_t *)&geofence_settings, TX_PERMISSIONS_LEN, TX_PERMISSIONS_ADDR);
-
-	// Use eeprom stored values only if CRC is correct. Else assume the default settings
-	if (is_crc_correct(sizeof(geofence_settings_t), (void *)&geofence_settings))
-	{
-		geofence_init_with_settings(geofence_settings.values);
-	}
-}
 
 /**
  * \brief Intialise all the sensors and playback
@@ -671,81 +651,3 @@ int mod(int a, int b)
 	return r < 0 ? r + b : r;
 }
 
-/**
- * @brief Get the eeprom stored lorwan region
- * 
- */
-void retrieve_eeprom_stored_lorawan_region()
-{
-#if USE_NVM_STORED_LORAWAN_REGION
-
-	LoRaMacRegion_t eeprom_region;
-	NvmmRead((void *)&eeprom_region, sizeof(LoRaMacRegion_t), LORAMAC_REGION_EEPROM_ADDR);
-
-	/**
-	 * @brief Reject invalid regions from a corrupt EEPROM 
-	 */
-	if (eeprom_region <= LORAMAC_REGION_RU864)
-	{
-		set_current_loramac_region(eeprom_region);
-	}
-
-#endif
-}
-
-bool update_geofence_settings_in_eeprom(uint8_t *settings_bytes, uint16_t size)
-{
-	geofence_settings_t settings = {0};
-
-	// copy over bytes to settings struct
-	memcpy(settings.values, settings_bytes, size);
-
-	// set CRC32 for the struct
-	settings.Crc32 = Crc32((uint8_t *)&settings, sizeof(geofence_settings_t) - sizeof(uint32_t));
-
-	// write geofence settings to EEPROM
-	uint16_t bytes_changed = NvmmUpdate((uint8_t *)&settings, TX_PERMISSIONS_LEN, TX_PERMISSIONS_ADDR);
-
-	return bytes_changed == 0 ? false : true;
-}
-
-/**
- * @brief Update tx interval in EEPROM
- * 
- * @param interval_ms interval in milliseconds
- * @return true if succesfully updated
- * @return false if not successful in update
- */
-bool update_device_tx_interval_in_eeprom(uint32_t address, uint32_t interval_ms)
-{
-
-	tx_interval_eeprom_t tx_interval_with_crc = {.tx_interval = interval_ms};
-	tx_interval_with_crc.Crc32 = Crc32((uint8_t *)&tx_interval_with_crc, sizeof(tx_interval_eeprom_t) - sizeof(tx_interval_with_crc.Crc32));
-
-	// Now write current keys for this network(including frame count) to EEPROM into the right place in the EEPROM
-	uint16_t bytes_changed = NvmmUpdate((uint8_t *)&tx_interval_with_crc, sizeof(tx_interval_eeprom_t), address);
-
-	return bytes_changed == 0 ? false : true;
-}
-
-/**
- * @brief Read the eeprom tx interval stored in EEPROM. Read only if value crc matches. Otherwise,
- * return the default value
- * 
- * @param address Address in eeprom where value is stored
- * @param default_value default value if there is nothing in EEPROM
- * @return uint32_t the value in eeprom(or default if it was not in EEPROM)
- */
-uint32_t read_tx_interval_in_eeprom(uint32_t address, uint32_t default_value)
-{
-
-	tx_interval_eeprom_t tx_interval_with_crc;
-	NvmmRead((uint8_t *)&tx_interval_with_crc, sizeof(tx_interval_eeprom_t), address);
-
-	if (is_crc_correct(sizeof(tx_interval_with_crc), &tx_interval_with_crc) == false)
-	{
-		tx_interval_with_crc.tx_interval = default_value;
-	}
-
-	return tx_interval_with_crc.tx_interval;
-}
