@@ -70,19 +70,22 @@ extern "C"
 #define NVM_PlAYBACK_EEPROM_ADDR_START (SIZE_OF_NETWORK_KEYS_T * NUMBER_OF_REGISTERED_DEVICES + 5) /* Amount of space allocated for saving keys. Add 5 bytes leeway */
 
 #define TX_INTERVAL_EEPROM_ADDRESS (NVM_PlAYBACK_EEPROM_ADDR_START)
-#define TX_INTERVAL_EEPROM_LEN (4 + 4)
+#define TX_INTERVAL_EEPROM_LEN (4 + 4)  // includes CRC32
 
 #define LORAMAC_REGION_EEPROM_ADDR (TX_INTERVAL_EEPROM_ADDRESS + TX_INTERVAL_EEPROM_LEN)
 #define LORAMAC_REGION_EEPROM_LEN (4)
 
 #define GPS_SEARCH_TIME_ADDR (LORAMAC_REGION_EEPROM_ADDR + LORAMAC_REGION_EEPROM_LEN)
-#define GPS_SEARCH_TIME_EEPROM_LEN (4 + 4)
+#define GPS_SEARCH_TIME_EEPROM_LEN (4 + 4) // includes CRC32
 
 #define RESET_COUNTER_ADDR (GPS_SEARCH_TIME_ADDR + GPS_SEARCH_TIME_EEPROM_LEN)
 #define RESET_COUNTER_LEN (2)
 
-#define CURRENT_PLAYBACK_INDEX_IN_EEPROM_ADDR (RESET_COUNTER_ADDR + RESET_COUNTER_LEN)
-#define CURRENT_PLAYBACK_INDEX_IN_EEPROM_LEN (2 + 2 + 4)
+#define TX_PERMISSIONS_ADDR (RESET_COUNTER_ADDR + RESET_COUNTER_LEN)
+#define TX_PERMISSIONS_LEN (23 + 4 + 1) // includes CRC32 and 1 byte padding for the struct
+
+#define CURRENT_PLAYBACK_INDEX_IN_EEPROM_ADDR (TX_PERMISSIONS_ADDR + TX_PERMISSIONS_LEN)
+#define CURRENT_PLAYBACK_INDEX_IN_EEPROM_LEN (2 + 2 + 4) // includes CRC32
 
 #define PLAYBACK_EEPROM_ADDR_START (CURRENT_PLAYBACK_INDEX_IN_EEPROM_ADDR + CURRENT_PLAYBACK_INDEX_IN_EEPROM_LEN)
 #define PLAYBACK_EEPROM_PACKET_SIZE (9)
@@ -129,6 +132,8 @@ extern "C"
   bool update_device_tx_interval_in_eeprom(uint32_t address, uint32_t interval_ms);
   uint32_t read_tx_interval_in_eeprom(uint32_t address, uint32_t default_value);
   void read_playback_stats_from_eeprom(void);
+  bool update_geofence_settings_in_eeprom(uint8_t *settings, uint16_t size);
+  void read_geofence_settings_in_eeprom();
 
 #ifdef __cplusplus
 }

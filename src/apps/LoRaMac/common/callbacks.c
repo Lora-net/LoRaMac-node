@@ -281,6 +281,17 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
     }
     break;
 
+    case CHANGE_GEOFENCE_SETTINGS: // Change which countries we can tx on or not.
+    {
+
+        printf("Received data to change Geofence settings:  ");
+        print_bytes(appData->Buffer, appData->BufferSize);
+
+
+        update_geofence_settings_in_eeprom(appData->Buffer, appData->BufferSize);
+    }
+    break;
+
     default:
         break;
     }

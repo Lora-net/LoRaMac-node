@@ -6,13 +6,17 @@ extern "C"
 #include "LoRaMac.h"
 #include "geofence.h"
 #include "RegionAS923.h"
+#include "bsp.h"
 }
 
 TEST_GROUP(test_get_current_lorawan_region){
-    void setup(){}
+    void setup(){
+        read_geofence_settings_in_eeprom();
+}
 
-    void teardown(){
-        mock().clear();
+void teardown()
+{
+    mock().clear();
 }
 }
 ;
@@ -499,5 +503,92 @@ TEST(test_get_current_lorawan_region, Ukraine)
     update_geofence_position(50.4501, 30.5234);
     LoRaMacRegion_t region = get_current_loramac_region();
     CHECK_EQUAL(LORAMAC_REGION_EU868, region);
+    CHECK_EQUAL(TX_NOT_OK, get_current_tx_permission());
+}
+
+TEST_GROUP(test_update_geofence_settings){
+    void setup(){
+        read_geofence_settings_in_eeprom();
+}
+
+void teardown()
+{
+    mock().clear();
+}
+}
+;
+
+/**
+ * @brief Ensure the #define N_POLYGONS is the same as the enum n_polygons
+ * 
+ */
+TEST(test_update_geofence_settings, MUST_PASS_ensure_n_polygons_is_correct)
+{
+    CHECK_EQUAL(N_POLYGONS, get_n_polygons());
+}
+
+/**
+ * @brief Test by default if it disables tx over Ukraine.
+ * 
+ */
+TEST(test_update_geofence_settings, check_defaults_mask_tx_disabled_location)
+{
+    update_geofence_position(50.4501, 30.5234); // Ukraine
+    CHECK_EQUAL(TX_NOT_OK, get_current_tx_permission());
+}
+
+/**
+ * @brief Test by default if it enables tx over America.
+ * 
+ */
+TEST(test_update_geofence_settings, check_defaults_mask_tx_enabled_location)
+{
+    update_geofence_position(47.79101618, -121.94824219); // America
+    CHECK_EQUAL(TX_OK, get_current_tx_permission());
+}
+
+/**
+ * @brief Test after enabling tx over a region(Ukraine)
+ * whether it is allowed again. 
+ */
+TEST(test_update_geofence_settings, check_enable_later_Ukraine)
+{
+    geofence_settings_t enabled_ukraine = {
+        .values = {true, true, true,
+                   true, true, true,
+                   true, true, true,
+                   true, true, true,
+                   true, true, true,
+                   true, true, true,
+                   true, true, true,
+                   true, false},
+        .Crc32 = 100, // dummy CRC
+    };
+    geofence_init_with_settings(enabled_ukraine);
+
+    update_geofence_position(50.4501, 30.5234); // Ukraine
+    CHECK_EQUAL(TX_OK, get_current_tx_permission());
+}
+
+/**
+ * @brief Test after disable tx over a region(Phillipines)
+ * whether it is allowed again. 
+ */
+TEST(test_update_geofence_settings, check_disable_later_Philipines)
+{
+    geofence_settings_t disabled_phillipines = {
+        .values = {false, true, true,
+                   true, true, true,
+                   true, true, true,
+                   true, true, true,
+                   true, true, true,
+                   true, true, true,
+                   true, true, true,
+                   false, false},
+        .Crc32 = 100, // dummy CRC
+    };
+    geofence_init_with_settings(disabled_phillipines);
+
+    update_geofence_position(14.426168, 120.662100); // Manila
     CHECK_EQUAL(TX_NOT_OK, get_current_tx_permission());
 }

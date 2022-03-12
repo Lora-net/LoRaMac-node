@@ -33,6 +33,7 @@
 #include "struct.h"
 #include "gpio.h"
 #include "position_time_encoder.h"
+#include "string.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -357,6 +358,19 @@ bool manage_incoming_instruction(uint8_t *instructions)
 	return success;
 }
 
+void read_geofence_settings_in_eeprom()
+{
+	// read settings stored in EEPROM
+	geofence_settings_t geofence_settings;
+	NvmmRead((uint8_t *)&geofence_settings, TX_PERMISSIONS_LEN, TX_PERMISSIONS_ADDR);
+
+	// Use eeprom stored values only if CRC is correct. Else assume the default settings
+	if (is_crc_correct(sizeof(geofence_settings_t), (void *)&geofence_settings))
+	{
+		geofence_init_with_settings(geofence_settings);
+	}
+}
+
 /**
  * \brief Intialise all the sensors and playback
  * 
@@ -369,6 +383,9 @@ void BSP_sensor_Init(void)
 	IWDG_reset();
 
 	update_reset_counts_in_ram_nvm();
+
+	// Initialise the geofence permissions mask
+	read_geofence_settings_in_eeprom();
 
 	playback_hw_init();
 
@@ -674,6 +691,22 @@ void retrieve_eeprom_stored_lorawan_region()
 	}
 
 #endif
+}
+
+bool update_geofence_settings_in_eeprom(uint8_t *settings_bytes, uint16_t size)
+{
+	geofence_settings_t settings = {0};
+
+	// copy over bytes to settings struct
+	memcpy(settings.values, settings_bytes, size);
+
+	// set CRC32 for the struct
+	settings.Crc32 = Crc32((uint8_t *)&settings, sizeof(geofence_settings_t) - sizeof(uint32_t));
+
+	// write geofence settings to EEPROM
+	uint16_t bytes_changed = NvmmUpdate((uint8_t *)&settings, TX_PERMISSIONS_LEN, TX_PERMISSIONS_ADDR);
+
+	return bytes_changed == 0 ? false : true;
 }
 
 /**

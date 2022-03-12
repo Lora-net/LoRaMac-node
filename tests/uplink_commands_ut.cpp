@@ -19,12 +19,17 @@ extern "C"
 #include "eeprom-board.h"
 #include "callbacks.h"
 #include "nvmm.h"
+#include "geofence.h"
 }
 
 #include "nvm_images.hpp"
 #include "string.h"
 
 void set_correct_notify_flags();
+
+LmHandlerRxParams_t LmHandlerRxParams = {
+    .Status = LORAMAC_EVENT_INFO_STATUS_OK,
+};
 
 TEST_GROUP(uplink_commands){
     void setup(){}
@@ -92,10 +97,6 @@ TEST(uplink_commands, test_eeprom_keys_set_correctly)
         .Buffer = simulated_downlink_from_ground,
     };
 
-    LmHandlerRxParams_t LmHandlerRxParams = {
-        .Status = LORAMAC_EVENT_INFO_STATUS_OK,
-    };
-
     /**
      * @brief Handle the downlink from ground
      */
@@ -157,10 +158,6 @@ TEST(uplink_commands, test_eeprom_changed_ack)
         .Buffer = simulated_downlink_from_ground,
     };
 
-    LmHandlerRxParams_t LmHandlerRxParams = {
-        .Status = LORAMAC_EVENT_INFO_STATUS_OK,
-    };
-
     /**
      * @brief Handle the downlink from ground
      */
@@ -203,10 +200,6 @@ TEST(uplink_commands, test_get_time_range_of_past_positions_nak)
         .Port = 18,
         .BufferSize = length_of_uplink,
         .Buffer = simulated_downlink_from_ground,
-    };
-
-    LmHandlerRxParams_t LmHandlerRxParams = {
-        .Status = LORAMAC_EVENT_INFO_STATUS_OK,
     };
 
     /**
@@ -269,10 +262,6 @@ TEST(uplink_commands, test_get_time_range_of_past_positions_ack)
         .Buffer = simulated_downlink_from_ground,
     };
 
-    LmHandlerRxParams_t LmHandlerRxParams = {
-        .Status = LORAMAC_EVENT_INFO_STATUS_OK,
-    };
-
     /**
      * @brief Handle the downlink from ground
      */
@@ -319,10 +308,6 @@ TEST(uplink_commands, test_set_tx_interval_success)
         .Buffer = simulated_downlink_from_ground,
     };
 
-    LmHandlerRxParams_t LmHandlerRxParams = {
-        .Status = LORAMAC_EVENT_INFO_STATUS_OK,
-    };
-
     /**
      * @brief Handle the downlink from ground
      */
@@ -341,15 +326,52 @@ TEST(uplink_commands, test_set_tx_interval_success)
     /**
      * @brief Check if EEPROM stored value has correctly been
      */
-    CHECK_EQUAL(target_interval, read_tx_interval_in_eeprom(TX_INTERVAL_EEPROM_ADDRESS,TX_INTERVAL_GPS_FIX_OK));
+    CHECK_EQUAL(target_interval, read_tx_interval_in_eeprom(TX_INTERVAL_EEPROM_ADDRESS, TX_INTERVAL_GPS_FIX_OK));
+}
+
+/**
+ * @brief Verify that the Geofence mask can be changed in EEPROM
+ * 
+ */
+TEST(uplink_commands, verify_geofence_mask_is_changed_correctly)
+{
 
     /**
-     * @brief Wipe out eeprom to simulate CRC error
+     * @brief Simulate a downlink from ground containing a message to enable
+     * transmissions over Ukraine
+     * 
      */
-    EEPROM_Wipe(0, EEPROM_SIZE);
+    uint8_t length_of_uplink = N_POLYGONS * sizeof(bool);
+    uint8_t simulated_downlink_from_ground[length_of_uplink];
+
+    bool instructions[N_POLYGONS] = {
+        true, true, true, true, true, true,
+        true, true, true, true, true, true,
+        true, true, true, true, true, true,
+        true, true, true, true, false};
 
     /**
-     * @brief Now that CRC is wrong, it should read the default value of tx interval
+     * @brief Set the simulated downlink
+     * 
      */
-    CHECK_EQUAL(2500, read_tx_interval_in_eeprom(TX_INTERVAL_EEPROM_ADDRESS, TX_INTERVAL_GPS_FIX_OK));
+    memcpy(simulated_downlink_from_ground, instructions, length_of_uplink);
+
+    /**
+     * @brief Fill the required structs for the downlink processor
+     */
+    LmHandlerAppData_t appData = {
+        .Port = 22,
+        .BufferSize = length_of_uplink,
+        .Buffer = simulated_downlink_from_ground,
+    };
+
+    /**
+     * @brief Handle the downlink from ground
+     */
+    OnRxData(&appData, &LmHandlerRxParams);
+
+    read_geofence_settings_in_eeprom();
+
+    update_geofence_position(50.4501, 30.5234); // Ukraine
+    CHECK_EQUAL(TX_OK, get_current_tx_permission());
 }

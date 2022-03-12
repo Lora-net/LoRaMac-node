@@ -16,10 +16,14 @@ extern "C"
 void sensor_read_and_printout(uint32_t number_of_readings);
 
 TEST_GROUP(bsp_ut){
-    void setup(){}
+    void setup(){
 
-    void teardown(){
-        mock().clear();
+        EEPROM_Wipe(0, EEPROM_SIZE);
+}
+
+void teardown()
+{
+    mock().clear();
 }
 }
 ;
@@ -136,7 +140,7 @@ TEST(bsp_ut, MUST_PASS_check_eeprom_range)
 
     /* WARNING! Ensure this value is less than DATA_EEPROM_BANK2_END. Or else, it will overflow EEPROM */
     uint32_t EEPROM_ADDR_END = PLAYBACK_EEPROM_ADDR_START + PLAYBACK_EEPROM_SIZE;
-    CHECK_EQUAL(5905, EEPROM_ADDR_END);
+    CHECK_EQUAL(5933, EEPROM_ADDR_END);
     CHECK_TRUE(EEPROM_ADDR_END < (EEPROM_SIZE - PLAYBACK_EEPROM_PACKET_SIZE * 2)); // ensure there is leeway a the end of the eeprom area to allow a wield overflow read. Its a bug in getting position index 0.
 }
 
@@ -156,6 +160,15 @@ TEST(bsp_ut, MUST_PASS_check_tx_interval_eeprom_size)
 TEST(bsp_ut, MUST_PASS_check_eeprom_playback_stats_t_size)
 {
     CHECK_EQUAL(CURRENT_PLAYBACK_INDEX_IN_EEPROM_LEN, sizeof(eeprom_playback_stats_t));
+}
+
+/**
+ * @brief Ensure enough space is allocated for the Geofence allow/disallow tx mask
+ * 
+ */
+TEST(bsp_ut, MUST_PASS_check_allow_disallow_geofence_settings_size)
+{
+    CHECK_EQUAL(TX_PERMISSIONS_LEN, sizeof(geofence_settings_t));
 }
 
 /**
@@ -252,4 +265,34 @@ TEST(bsp_ut, test_set_eeprom_loramac_region_success)
     set_eeprom_stored_lorwan_region();
 
     CHECK_EQUAL(LORAMAC_REGION_US915, get_current_loramac_region());
+}
+
+TEST(bsp_ut, test_read_write_eeprom_success)
+{
+
+    uint32_t value = 1202;
+    // Write value to EEPROM
+    update_device_tx_interval_in_eeprom(value, TX_INTERVAL_EEPROM_ADDRESS);
+
+    // Check if its correctly read.
+    CHECK_EQUAL(value, read_tx_interval_in_eeprom(TX_INTERVAL_EEPROM_ADDRESS, TX_INTERVAL_GPS_FIX_OK));
+}
+
+TEST(bsp_ut, test_read_write_eeprom_corruption)
+{
+
+    uint32_t value = 987324;
+
+    // Write value to EEPROM
+    update_device_tx_interval_in_eeprom(value, GPS_SEARCH_TIME_ADDR);
+
+    /**
+     * @brief Wipe out eeprom to simulate CRC error
+     */
+    EEPROM_Wipe(0, EEPROM_SIZE);
+
+    /**
+     * @brief Now that CRC is wrong, it should read the default value of tx interval
+     */
+    CHECK_EQUAL(TX_INTERVAL_GPS_FIX_OK, read_tx_interval_in_eeprom(GPS_SEARCH_TIME_ADDR, TX_INTERVAL_GPS_FIX_OK));
 }

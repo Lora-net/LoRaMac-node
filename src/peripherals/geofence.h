@@ -42,6 +42,7 @@ extern "C"
 
 	/* Definition of public (external) data types go here */
 
+#define N_POLYGONS 23
 	typedef enum
 	{
 		TX_OK = 0,
@@ -56,6 +57,12 @@ extern "C"
 
 	} geofence_status_t;
 
+	typedef struct
+	{
+		bool values[N_POLYGONS];
+		uint32_t Crc32;
+	} geofence_settings_t;
+
 	/* ==================================================================== */
 	/* ======================= public functions =========================== */
 	/* ==================================================================== */
@@ -63,11 +70,15 @@ extern "C"
 	/* Function prototypes for public (external) functions go here */
 
 	void update_geofence_position(float latitude, float longitude);
-	void geofence_init(void);
+	void geofence_init_with_settings(geofence_settings_t settings);
 	LoRaMacRegion_t get_current_loramac_region(void);
 	as923_subbands_t get_as923_subband(void);
 	void set_current_loramac_region(LoRaMacRegion_t region);
 	tx_permission_t get_current_tx_permission(void);
+
+#ifdef UNITTESTING_LORA
+	uint32_t get_n_polygons();
+#endif
 
 #endif
 #ifdef __cplusplus
