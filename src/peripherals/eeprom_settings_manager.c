@@ -185,7 +185,7 @@ uint16_t read_current_keys(network_keys_t *current_keys, registered_devices_t re
  * @param registered_device 
  * @return uint16_t 
  */
-uint16_t save_to_eeprom_with_CRC(network_keys_t *current_keys, registered_devices_t registered_device)
+uint16_t save_lorawan_keys_to_eeprom_with_CRC(network_keys_t *current_keys, registered_devices_t registered_device)
 {
 	// now update CRC before writing to EEPROM
 	current_keys->Crc32 = Crc32((uint8_t *)current_keys, sizeof(*current_keys) - sizeof(current_keys->Crc32));

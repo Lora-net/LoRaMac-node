@@ -104,7 +104,7 @@ uint16_t NvmDataMgmtStore(void)
         current_keys.ReceiveDelay1 = nvm->MacGroup2.MacParams.ReceiveDelay1;
         current_keys.ReceiveDelay2 = nvm->MacGroup2.MacParams.ReceiveDelay2;
 
-        uint16_t bytes_written = save_to_eeprom_with_CRC(&current_keys, registered_device);
+        uint16_t bytes_written = save_lorawan_keys_to_eeprom_with_CRC(&current_keys, registered_device);
 
         printf("FNwkSIntKey_SNwkSIntKey_NwkSEncKey:");
         PrintHexBuffer(nvm->SecureElement.KeyList[S_NWK_S_INT_KEY].KeyValue, 16);
@@ -159,7 +159,7 @@ uint16_t NvmDataMgmtRestore(void)
          * 
          */
         current_keys.frame_count += 1;
-        save_to_eeprom_with_CRC(&current_keys, registered_device);
+        save_lorawan_keys_to_eeprom_with_CRC(&current_keys, registered_device);
 
         /* Now update the mac state. We set the frame count, dev_addr, rx1 delay and rx2 delay
          * and  FNwkSIntKey,SNwkSIntKey, NwkSEncKey, AppSKey. The rest we leave as default for

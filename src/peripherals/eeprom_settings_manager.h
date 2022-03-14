@@ -42,7 +42,7 @@ extern "C"
     void set_eeprom_stored_lorwan_region(void);
     bool update_device_credentials_to_eeprom(network_keys_t keys, registered_devices_t registered_device);
     uint16_t read_current_keys(network_keys_t *current_keys, registered_devices_t registered_device);
-    uint16_t save_to_eeprom_with_CRC(network_keys_t *current_keys, registered_devices_t registered_device);
+    uint16_t save_lorawan_keys_to_eeprom_with_CRC(network_keys_t *current_keys, registered_devices_t registered_device);
 
 #ifdef __cplusplus
 }
