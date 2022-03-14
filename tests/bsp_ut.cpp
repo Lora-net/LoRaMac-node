@@ -273,7 +273,7 @@ TEST(bsp_ut, test_read_write_eeprom_success)
 
     uint32_t value = 1202;
     // Write value to EEPROM
-    update_device_tx_interval_in_eeprom(value, TX_INTERVAL_EEPROM_ADDRESS);
+    update_device_tx_interval_in_eeprom(TX_INTERVAL_EEPROM_ADDRESS, value);
 
     // Check if its correctly read.
     CHECK_EQUAL(value, read_tx_interval_in_eeprom(TX_INTERVAL_EEPROM_ADDRESS, TX_INTERVAL_GPS_FIX_OK));
@@ -285,7 +285,7 @@ TEST(bsp_ut, test_read_write_eeprom_corruption)
     uint32_t value = 987324;
 
     // Write value to EEPROM
-    update_device_tx_interval_in_eeprom(value, GPS_SEARCH_TIME_ADDR);
+    update_device_tx_interval_in_eeprom(GPS_SEARCH_TIME_ADDR, value);
 
     /**
      * @brief Wipe out eeprom to simulate CRC error
