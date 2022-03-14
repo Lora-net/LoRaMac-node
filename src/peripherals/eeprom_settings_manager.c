@@ -57,7 +57,14 @@ bool update_geofence_settings_in_eeprom(uint8_t *settings_bytes, uint16_t size)
 	return bytes_changed == 0 ? false : true;
 }
 
-void read_geofence_settings_in_eeprom()
+/**
+ * @brief Reads and initialised the geofence module with the tx enable/disable settings
+ * from EEPROM. Fills passed buffer with the settings. Ensure buffer passed is 
+ * of size N_POLYGONS * sizeof(bool)
+ * 
+ * @param values Pointer to buffer that will be filled with the bool enable/disable setting
+ */
+void read_geofence_settings_in_eeprom(bool *values)
 {
 	// read settings stored in EEPROM
 	geofence_settings_t geofence_settings;
@@ -66,8 +73,20 @@ void read_geofence_settings_in_eeprom()
 	// Use eeprom stored values only if CRC is correct. Else assume the default settings
 	if (is_crc_correct(sizeof(geofence_settings_t), (void *)&geofence_settings))
 	{
-		geofence_init_with_settings(geofence_settings.values);
+		memcpy(values, geofence_settings.values, N_POLYGONS * sizeof(bool));
 	}
+	else
+	{
+
+		bool default_geofence_settings[N_POLYGONS] = {true, true, true, true, true, true,
+													  true, true, true, true, true, true,
+													  true, true, true, true, true, true,
+													  true, true, true, false, false};
+
+		memcpy(values, default_geofence_settings, N_POLYGONS * sizeof(bool));
+	}
+
+	geofence_init_with_settings(values);
 }
 
 /**

@@ -12,7 +12,9 @@ extern "C"
 
 TEST_GROUP(test_get_current_lorawan_region){
     void setup(){
-        read_geofence_settings_in_eeprom();
+        bool values[N_POLYGONS];
+
+read_geofence_settings_in_eeprom(values);
 }
 
 void teardown()
@@ -509,7 +511,8 @@ TEST(test_get_current_lorawan_region, Ukraine)
 
 TEST_GROUP(test_update_geofence_settings){
     void setup(){
-        read_geofence_settings_in_eeprom();
+        bool values[N_POLYGONS];
+read_geofence_settings_in_eeprom(values);
 }
 
 void teardown()

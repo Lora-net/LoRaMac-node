@@ -37,7 +37,7 @@ extern "C"
     bool update_device_tx_interval_in_eeprom(uint32_t address, uint32_t interval_ms);
     uint32_t read_tx_interval_in_eeprom(uint32_t address, uint32_t default_value);
     bool update_geofence_settings_in_eeprom(uint8_t *settings, uint16_t size);
-    void read_geofence_settings_in_eeprom(void);
+    void read_geofence_settings_in_eeprom(bool *values);
     void retrieve_eeprom_stored_lorawan_region(void);
     void set_eeprom_stored_lorwan_region(void);
     bool update_device_credentials_to_eeprom(network_keys_t keys, registered_devices_t registered_device);

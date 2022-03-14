@@ -79,32 +79,7 @@ typedef enum polygon_t
  * By default, transmissions are disabled over the UKRAINE and 
  * and region outside of the geofence regions.
  */
-bool tx_permissions_for_regions[n_polygons] =
-	{
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		true,
-		false,
-		false,
-};
+bool tx_permissions_for_regions[n_polygons];
 
 geofence_status_t current_geofence_status =
 	{

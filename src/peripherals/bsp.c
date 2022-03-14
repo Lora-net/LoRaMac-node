@@ -365,7 +365,8 @@ void BSP_sensor_Init(void)
 	update_reset_counts_in_ram_nvm();
 
 	// Initialise the geofence permissions mask
-	read_geofence_settings_in_eeprom();
+	bool values[N_POLYGONS];
+	read_geofence_settings_in_eeprom(values);
 
 	playback_hw_init();
 

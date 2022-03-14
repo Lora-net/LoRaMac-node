@@ -371,7 +371,8 @@ TEST(uplink_commands, verify_geofence_mask_is_changed_correctly)
      */
     OnRxData(&appData, &LmHandlerRxParams);
 
-    read_geofence_settings_in_eeprom();
+    bool values[N_POLYGONS];
+    read_geofence_settings_in_eeprom(values);
 
     update_geofence_position(50.4501, 30.5234); // Ukraine
     CHECK_EQUAL(TX_OK, get_current_tx_permission());
