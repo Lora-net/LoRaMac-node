@@ -169,29 +169,44 @@ bool NvmmReset( uint16_t size, uint16_t offset )
 
 
 /**
- * @brief Fast wipe the eeprom completely, by setting 4 bytes at a time to zero.
+ * @brief  Fast wipe the eeprom in the range specified by the start and end parameter,
+ * both inclusive.
  * 
+ * @param start First byte location to wipe
+ * @param end Last byte location to wipe
  * @return true 
  * @return false 
  */
 bool EEPROM_Wipe(uint32_t start, uint32_t end)
 {
-
-    uint32_t reset_value = 0;
+    uint8_t zero_buffer[4] = {0};
 
     printf("Wiping EEPROM....\n");
 
-    for (uint16_t address = start; address <= end - 4 /* ensure no overflow of eeprom */; address += 4)
+    uint32_t size = end - start + 1;
+    if (size < 4)
     {
-        if (EepromMcuWriteBufferWord(address, (uint8_t *)&reset_value, sizeof(reset_value)) != LMN_STATUS_OK)
+        // Write 1 byte at a time
+        if (EepromMcuWriteBuffer(start, zero_buffer, size) != LMN_STATUS_OK)
         {
             return false;
         }
     }
-
-    if (EepromMcuWriteBufferWord(end - 4, (uint8_t *)&reset_value, sizeof(reset_value)) != LMN_STATUS_OK)
+    else
     {
-        return false;
+        // Write 4 bytes at a time
+        for (uint16_t address = start; address < end - 4; address += 4)
+        {
+            if (EepromMcuWriteBufferWord(address, zero_buffer, sizeof(zero_buffer)) != LMN_STATUS_OK)
+            {
+                return false;
+            }
+        }
+
+        if (EepromMcuWriteBufferWord(end - 3, zero_buffer, sizeof(zero_buffer)) != LMN_STATUS_OK)
+        {
+            return false;
+        }
     }
 
     return true;

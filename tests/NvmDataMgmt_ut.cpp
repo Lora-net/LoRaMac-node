@@ -82,7 +82,6 @@ TEST(NvmDataMgmt, test_eeprom_read_write)
     CHECK_EQUAL(0, res);
 }
 
-
 /**
  * @brief Tests whether eeprom wipe works. It must not write outside of the EEPROM buffer addresses
  * 
@@ -112,6 +111,95 @@ TEST(NvmDataMgmt, test_eeprom_wipe)
     // Now check if all the EEPROM has been set to 0x00
     EepromMcuReadBuffer(0, current_eeprom, EEPROM_SIZE);
     MEMCMP_EQUAL(empty_eeprom, current_eeprom, EEPROM_SIZE);
+}
+
+/**
+ * @brief Ensure the wiper function can wipe a single byte
+ * 
+ */
+TEST(NvmDataMgmt, test_eeprom_wipe_single_byte)
+{
+    uint32_t n_bytes_to_read = 10;
+    uint8_t current_eeprom[n_bytes_to_read];
+    uint8_t expected_eeprom[n_bytes_to_read] = {0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0xff, 0xff, 0xff, 0xff};
+
+    // Set EEPROM to 0xFFs
+    fake_eeprom_set_target_image(full_eeprom);
+
+    // Now run the wipe command
+    EEPROM_Wipe(5, 5);
+
+    // Now check if specified range of eeprom has been set to 0x00
+    EepromMcuReadBuffer(0, current_eeprom, n_bytes_to_read);
+
+    MEMCMP_EQUAL(expected_eeprom, current_eeprom, n_bytes_to_read);
+}
+
+/**
+ * @brief Ensure the wiper function can wipe a chunk smaller than 4 bytes long
+ * 
+ */
+TEST(NvmDataMgmt, test_eeprom_wipe_less_than_4_bytes)
+{
+    uint32_t n_bytes_to_read = 10;
+    uint8_t current_eeprom[n_bytes_to_read];
+    uint8_t expected_eeprom[n_bytes_to_read] = {0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff};
+
+    // Set EEPROM to 0xFFs
+    fake_eeprom_set_target_image(full_eeprom);
+
+    // Now run the wipe command
+    EEPROM_Wipe(3, 5);
+
+    // Now check if specified range of eeprom has been set to 0x00
+    EepromMcuReadBuffer(0, current_eeprom, n_bytes_to_read);
+
+    MEMCMP_EQUAL(expected_eeprom, current_eeprom, n_bytes_to_read);
+}
+
+/**
+ * @brief Ensure the wiper function can wipe exactly 4 bytes
+ * 
+ */
+TEST(NvmDataMgmt, test_eeprom_wipe_exactly_4_bytes)
+{
+    uint32_t n_bytes_to_read = 10;
+    uint8_t current_eeprom[n_bytes_to_read];
+    uint8_t expected_eeprom[n_bytes_to_read] = {0xff, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff};
+
+    // Set EEPROM to 0xFFs
+    fake_eeprom_set_target_image(full_eeprom);
+
+    // Now run the wipe command
+    EEPROM_Wipe(1, 4);
+
+    // Now check if specified range of eeprom has been set to 0x00
+    EepromMcuReadBuffer(0, current_eeprom, n_bytes_to_read);
+
+    MEMCMP_EQUAL(expected_eeprom, current_eeprom, n_bytes_to_read);
+}
+
+
+/**
+ * @brief Ensure the wiper function can wipe a chunk larger than 4 bytes long
+ * 
+ */
+TEST(NvmDataMgmt, test_eeprom_wipe_larger_than_4_bytes)
+{
+    uint32_t n_bytes_to_read = 10;
+    uint8_t current_eeprom[n_bytes_to_read];
+    uint8_t expected_eeprom[n_bytes_to_read] = {0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff};
+
+    // Set EEPROM to 0xFFs
+    fake_eeprom_set_target_image(full_eeprom);
+
+    // Now run the wipe command
+    EEPROM_Wipe(2, 8);
+
+    // Now check if specified range of eeprom has been set to 0x00
+    EepromMcuReadBuffer(0, current_eeprom, n_bytes_to_read);
+
+    MEMCMP_EQUAL(expected_eeprom, current_eeprom, n_bytes_to_read);
 }
 
 /**
@@ -205,7 +293,6 @@ TEST(NvmDataMgmt, test_storing_of_fcount_and_keys)
 
     // Use the first device setting
 
-
     // now store as if a few transmissions have been done
     nvm->Crypto.FCntList.FCntUp += 1;
     nvm->MacGroup2.MacParams.ReceiveDelay1 = 5000;
@@ -215,7 +302,7 @@ TEST(NvmDataMgmt, test_storing_of_fcount_and_keys)
     NvmDataMgmtStore();
 
     nvm->Crypto.FCntList.FCntUp += 1;
-    
+
     set_correct_notify_flags();
     NvmDataMgmtStore();
 
@@ -243,8 +330,6 @@ TEST(NvmDataMgmt, test_storing_of_fcount_and_keys)
     MEMCMP_EQUAL(expected_eeprom_2nd_device, current_eeprom, sizeof(network_keys_t));
     CHECK_EQUAL(icspace26_helium_1, registered_device);
     CHECK_EQUAL(936, eeprom_location);
-
-    
 }
 
 /**
@@ -305,5 +390,4 @@ TEST(NvmDataMgmt, test_return_value_of_update_device_credentials_to_eeprom)
     ret = update_device_credentials_to_eeprom(keys, registered_device);
 
     CHECK_FALSE(ret);
-
 }
