@@ -189,19 +189,13 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 
     switch (appData->Port)
     {
-    case 1: // The application LED can be controlled on port 1 or 2
-    case LORAWAN_APP_PORT:
-    {
-    }
-    break;
 
     case DOWNLINK_CONFIG_PORT: // Poll specific range of past position fixes by date range.
     {
 
         printf("Received data to poll date range: ");
         print_bytes(appData->Buffer, appData->BufferSize);
-        bool ret = manage_incoming_instruction(appData->Buffer);
-
+        manage_incoming_instruction(appData->Buffer);
     }
     break;
 
@@ -210,9 +204,8 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 
         printf("Received data to CHANGE_KEYS:  ");
         print_bytes(appData->Buffer, appData->BufferSize);
-        memcpy(&uplink_key_setter_message, appData->Buffer, appData->BufferSize);                                                               // copy the bytes to the struct
-        bool eeprom_changed = update_device_credentials_to_eeprom(uplink_key_setter_message.keys, uplink_key_setter_message.registered_device); // update keys in EEPROM. make it return success
-
+        memcpy(&uplink_key_setter_message, appData->Buffer, appData->BufferSize);                                         // copy the bytes to the struct
+        update_device_credentials_to_eeprom(uplink_key_setter_message.keys, uplink_key_setter_message.registered_device); // update keys in EEPROM. make it return success
     }
     break;
 
@@ -238,8 +231,7 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 
         memcpy(&target_tx_interval, appData->Buffer, appData->BufferSize); // copy the bytes to the struct
 
-        bool eeprom_changed = update_device_tx_interval_in_eeprom(TX_INTERVAL_EEPROM_ADDRESS, target_tx_interval);
-
+        update_device_tx_interval_in_eeprom(TX_INTERVAL_EEPROM_ADDRESS, target_tx_interval);
     }
     break;
 
