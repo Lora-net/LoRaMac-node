@@ -144,24 +144,6 @@ sensor_t get_current_sensor_data()
 	return sensor_data;
 }
 
-void set_bits(bit_location_t bit_location)
-{
-	/**
-	 * Ensure it does not write outside the 
-	 * memory allocated for bitfields
-	 */
-
-	uint8_t max_bits = sizeof(sensor_data.status_bitfields) * 8;
-	if (bit_location < max_bits)
-	{
-		sensor_data.status_bitfields |= 1UL << bit_location;
-	}
-}
-
-void clear_bits()
-{
-	sensor_data.status_bitfields = 0;
-}
 
 void update_geofence_status()
 {
@@ -291,8 +273,6 @@ void pretty_print_sensor_values(double *TEMPERATURE_Value, uint8_t *bitfields, g
 	printf("Temperature degrees C: ");
 	printDouble(*TEMPERATURE_Value, 3);
 	printf("\r\n");
-	printf("Bitfields: ");
-	printBits(sizeof(uint8_t), bitfields);
 	printf("\r\n");
 	printf("Longitude: ");
 	printDouble(gps_info->GPS_UBX_longitude_Float, 6);

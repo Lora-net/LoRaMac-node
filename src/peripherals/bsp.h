@@ -108,18 +108,6 @@ extern "C"
   bool manage_incoming_instruction(uint8_t *instructions);
 
 
-  typedef enum
-  {
-    PLAYBACK_NAK,
-    EEPROM_CHANGED_BITS,
-    PLAYBACK_ACK,
-    TX_INTERVAL_CHANGED,
-    TX_INTERVAL_NOT_CHANGED,
-    EEPROM_WIPED,
-  } bit_location_t;
-
-  void set_bits(bit_location_t bit_location);
-  void clear_bits(void);
   sensor_t get_current_sensor_data(void);
   void read_playback_stats_from_eeprom(void);
 

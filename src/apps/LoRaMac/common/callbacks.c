@@ -202,14 +202,6 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
         print_bytes(appData->Buffer, appData->BufferSize);
         bool ret = manage_incoming_instruction(appData->Buffer);
 
-        if (ret == true)
-        {
-            set_bits(PLAYBACK_ACK);
-        }
-        else
-        {
-            set_bits(PLAYBACK_NAK);
-        }
     }
     break;
 
@@ -221,11 +213,6 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
         memcpy(&uplink_key_setter_message, appData->Buffer, appData->BufferSize);                                                               // copy the bytes to the struct
         bool eeprom_changed = update_device_credentials_to_eeprom(uplink_key_setter_message.keys, uplink_key_setter_message.registered_device); // update keys in EEPROM. make it return success
 
-        /* Send down telemetry to indicate that bytes have changed in EEPROM */
-        if (eeprom_changed == true)
-        {
-            set_bits(EEPROM_CHANGED_BITS);
-        }
     }
     break;
 
@@ -238,9 +225,6 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
         uint32_t start = extractLong_from_buff(0, appData->Buffer);
         uint32_t end = extractLong_from_buff(4, appData->Buffer);
         EEPROM_Wipe(start, end);
-
-        /* Send down telemetry to indicate that bytes have changed in EEPROM */
-        set_bits(EEPROM_WIPED);
     }
     break;
 
@@ -256,15 +240,6 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 
         bool eeprom_changed = update_device_tx_interval_in_eeprom(TX_INTERVAL_EEPROM_ADDRESS, target_tx_interval);
 
-        /* Send down telemetry to indicate that bytes have changed in EEPROM */
-        if (eeprom_changed == true)
-        {
-            set_bits(TX_INTERVAL_CHANGED);
-        }
-        else
-        {
-            set_bits(TX_INTERVAL_NOT_CHANGED);
-        }
     }
     break;
 

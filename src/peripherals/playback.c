@@ -244,9 +244,6 @@ PicoTrackerAppData_t prepare_tx_buffer()
 
 	tx_str_buffer_len = SENSOR_DEBUG_BYTES_LEN + POSITION_BYTES_LEN + (POSITION_BYTES_LEN + MINUTES_SINCE_EPOCH_BYTES_LEN) * current_playback_key_info.n_positions_to_send;
 
-	// Clear error flags in preparation for the next transmission
-	clear_bits();
-
 	PicoTrackerAppData_t data = {.Buffer = tx_str_buffer, .BufferSize = tx_str_buffer_len};
 
 	return data;
