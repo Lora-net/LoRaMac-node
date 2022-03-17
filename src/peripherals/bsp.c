@@ -144,6 +144,13 @@ sensor_t get_current_sensor_data()
 	return sensor_data;
 }
 
+/**
+ * @brief Set the bitfields showing the crc of settings
+ */
+void settings_crc_set()
+{
+	sensor_data.status_bitfields = get_settings_crc();
+}
 
 void update_geofence_status()
 {
@@ -273,6 +280,8 @@ void pretty_print_sensor_values(double *TEMPERATURE_Value, uint8_t *bitfields, g
 	printf("Temperature degrees C: ");
 	printDouble(*TEMPERATURE_Value, 3);
 	printf("\r\n");
+	printf("Settings CRC: ");
+	printf("%d", *bitfields);
 	printf("\r\n");
 	printf("Longitude: ");
 	printDouble(gps_info->GPS_UBX_longitude_Float, 6);

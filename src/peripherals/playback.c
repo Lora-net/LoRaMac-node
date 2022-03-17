@@ -236,6 +236,9 @@ void fill_tx_buffer_with_past_data(uint16_t start_point, uint8_t *buffer)
  */
 PicoTrackerAppData_t prepare_tx_buffer()
 {
+	// Fill the bitfields field in the message with a crc8 checksum of all stored EEPROM settings.
+	settings_crc_set();
+
 	fill_tx_buffer_with_sensor_debug_data(0, tx_str_buffer);
 
 	fill_tx_buffer_with_location(SENSOR_DEBUG_BYTES_LEN, tx_str_buffer, current_pos_ptr->latitude_encoded, current_pos_ptr->longitude_encoded, current_pos_ptr->altitude_encoded);

@@ -108,6 +108,7 @@ extern "C"
   bool manage_incoming_instruction(uint8_t *instructions);
 
 
+  void settings_crc_set();
   sensor_t get_current_sensor_data(void);
   void read_playback_stats_from_eeprom(void);
 

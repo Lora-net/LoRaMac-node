@@ -78,6 +78,7 @@ set(UNIT_TESTS
     uplink_commands_ut.cpp
     message_sender_ut.cpp
     position_time_encoder_ut.cpp
+    test_eeprom_settings_manager.cpp
 )
 
 # Mocks

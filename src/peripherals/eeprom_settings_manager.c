@@ -193,3 +193,36 @@ uint16_t save_lorawan_keys_to_eeprom_with_CRC(network_keys_t *current_keys, regi
 	// Now write current keys for this network(including frame count) to EEPROM into the right place in the EEPROM
 	return update_device_credentials_to_eeprom(*current_keys, registered_device);
 }
+
+/**
+ * @brief Get CRC8 of settings stored in EEPROM
+ * 
+ * @return uint8_t 
+ */
+uint8_t get_settings_crc()
+{
+	uint8_t crc = 0;
+
+	// CRC of GPS search time
+	uint32_t gps_search_time = read_tx_interval_in_eeprom(GPS_SEARCH_TIME_ADDR, GPS_SEARCH_TIMEOUT);
+	crc = Crc8Update(crc, (uint8_t *)&gps_search_time, sizeof(gps_search_time));
+
+	// CRC of Tx interval
+	uint32_t tx_interval = read_tx_interval_in_eeprom(TX_INTERVAL_EEPROM_ADDRESS, TX_INTERVAL_GPS_FIX_OK);
+	crc = Crc8Update(crc, (uint8_t *)&tx_interval, sizeof(tx_interval));
+
+	// CRC of network keys, only the DevAddr. No need for the other lorawan keys.
+	network_keys_t keys;
+	for (uint32_t key_index = 0; key_index < NUMBER_OF_REGISTERED_DEVICES; key_index++)
+	{
+		read_current_keys(&keys, key_index);
+		crc = Crc8Update(crc, (uint8_t *)&keys.DevAddr, sizeof(keys.DevAddr));
+	}
+
+	// CRC of tx enable/disable settings for different regions.
+	bool values[N_POLYGONS];
+	read_geofence_settings_in_eeprom(values);
+	crc = Crc8Update(crc, (uint8_t *)values, sizeof(values));
+
+	return crc;
+}

@@ -126,56 +126,6 @@ TEST(uplink_commands, test_eeprom_keys_set_correctly)
 }
 
 /**
- * @brief Test whether the tracker correctly sets the telemetry flag to indicate
- * eeprom values have changed. It should send set eeprom changed true flag, as the 
- * eeprom was all set to zero prior to setting these bytes
- */
-TEST(uplink_commands, test_eeprom_changed_ack)
-{
-    /**
-     * @brief Simulate a downlink from ground, requesting a change for the icspace26_us1_us915_device_1
-     * keys
-     * 
-     */
-    uint8_t simulated_downlink_from_ground[SIZE_OF_NETWORK_KEYS_T + 1] =
-        {
-            0x47, 0x18, 0xA9, 0x3A, 0x91, 0x7E, 0xB6, 0x1A, 0xFD, 0xB3, 0x78, 0x6E, 0xA0, 0x4E, 0xC3, 0xEE, // FNwkSIntKey_SNwkSIntKey_NwkSEncKey
-            0xD3, 0xAB, 0xC3, 0x3C, 0x12, 0xD9, 0x75, 0xF2, 0x78, 0x5F, 0xFA, 0x46, 0xAF, 0x75, 0x95, 0xE2, // AppSKey
-            0x99, 0x4E, 0x0C, 0x26,                                                                         // DevAddr for Things Network
-            0x03, 0x00, 0x00, 0x00,                                                                         // frame_count of 3
-            0xE8, 0x03, 0x00, 0x00,                                                                         // ReceiveDelay1
-            0xD0, 0x07, 0x00, 0x00,                                                                         // ReceiveDelay2
-            0xD4, 0x09, 0x3E, 0x2F,                                                                         // Crc32
-            LOCATION,                                                                                       // device
-
-        };
-
-    /**
-     * @brief Fill the required structs for the downlink processor
-     */
-    LmHandlerAppData_t appData = {
-        .Port = 19,
-        .BufferSize = SIZE_OF_NETWORK_KEYS_T + 1,
-        .Buffer = simulated_downlink_from_ground,
-    };
-
-    /**
-     * @brief Handle the downlink from ground
-     */
-    OnRxData(&appData, &LmHandlerRxParams);
-
-    /**
-     * Now verify if the bitfield flags have been set
-     */
-
-    sensor_t current_sensor_data = get_current_sensor_data();
-
-    /* Get bitfield flags and check if correctly set */
-    /* Expect eeprom changed flag to be set: 0b00000010 = 0x02 */
-    CHECK_EQUAL(0x2, current_sensor_data.status_bitfields);
-}
-
-/**
  * @brief Test if an uplink to poll a specific time range of past position can return the
  * ack if the date range is available in EEPROM. We expect it to nack here because the
  * simulated EEPROM has no past data in it.
@@ -319,10 +269,6 @@ TEST(uplink_commands, test_set_tx_interval_success)
      */
 
     sensor_t current_sensor_data = get_current_sensor_data();
-
-    /* Get bitfield flags and check if correctly set */
-    /* Expect eeprom changed flag to be set: 0b00001000 = 0x08 */
-    CHECK_EQUAL(0b00001000, current_sensor_data.status_bitfields);
 
     /**
      * @brief Check if EEPROM stored value has correctly been
