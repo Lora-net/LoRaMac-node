@@ -150,6 +150,17 @@ int8_t Nibble2HexChar( uint8_t a );
 uint32_t Crc32( uint8_t *buffer, uint16_t length );
 
 /*!
+ * \brief Updates the value of the crc value.
+ *
+ * \param [IN] crcInit  Previous or initial crc value.
+ * \param [IN] buffer   Data buffer used to compute the CRC
+ * \param [IN] length   Data buffer length
+ *
+ * \retval crc          The computed buffer of length CRC
+ */
+uint8_t Crc8Update(uint8_t crcInit, uint8_t *addr, uint16_t len);
+
+/*!
  * \brief Computes the initial value of the CCITT 32 bits CRC. This function
  *        can be used with functions \ref Crc32Update and \ref Crc32Finalize.
  *
