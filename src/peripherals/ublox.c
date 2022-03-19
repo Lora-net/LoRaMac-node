@@ -97,9 +97,6 @@ uint16_t get_load_solar_voltage()
  */
 gps_status_t setup_GPS()
 {
-	GpioWrite(&Gps_int, 0); /* Create Edge on GPS extint0 pin to wake gps incase it was in backup state */
-	GpioWrite(&Gps_int, 1); /* Force GPS to stay in active mode by setting extint0 pin high */
-
 	DeepSleepDelayMs(GPS_WAKEUP_TIMEOUT); // Wait for things to be setup
 
 	/* Check if we are in airbourne mode. check if dynamic mode is correct. If its not, then setup the GPS */
@@ -120,7 +117,7 @@ gps_status_t setup_GPS()
 		printf("The current dynamic model is INCORRECT. The current dynamic model is: %d\n", newDynamicModel);
 
 		// Limit i2c output to UBX, set dyanmic model and send power save config.
-		bool success = setI2COutput(COM_TYPE_UBX, defaultMaxWait) && setDynamicModel(DYN_MODEL_AIRBORNE1g, defaultMaxWait) && set_powersave_config(defaultMaxWait);
+		bool success = setI2COutput(COM_TYPE_UBX, defaultMaxWait) && setDynamicModel(DYN_MODEL_AIRBORNE1g, defaultMaxWait);
 
 		if (success)
 		{
@@ -221,7 +218,6 @@ gps_status_t get_location_fix(uint32_t timeout)
 			gps_info.GPS_UBX_longitude_Float = (float)getLongitude(defaultMaxWait) / 10000000;
 			gps_info.GPSaltitude_mm = getAltitude(defaultMaxWait);
 			gps_info.unix_time = (uint32_t)t_of_day;
-			GpioWrite(&Gps_int, 0); /* force it to sleep*/
 
 			gps_info.latest_gps_status = GPS_SUCCESS;
 			return GPS_SUCCESS;
@@ -233,7 +229,6 @@ gps_status_t get_location_fix(uint32_t timeout)
 	 * and put it to sleep.
 	 */
 	setup_GPS();
-	GpioWrite(&Gps_int, 0); /* force it to sleep*/
 
 	gps_info.latest_gps_status = GPS_FAILURE;
 	return GPS_FAILURE;
