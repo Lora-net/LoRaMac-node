@@ -2911,8 +2911,8 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
                 MacCtx.MacState |= LORAMAC_TX_DELAYED;
                 TimerSetValue( &MacCtx.TxDelayedTimer, MacCtx.DutyCycleWaitTime );
                 TimerStart( &MacCtx.TxDelayedTimer );
+                return LORAMAC_STATUS_OK;
             }
-            return LORAMAC_STATUS_OK;
         }
         else
         {// State where the MAC cannot send a frame
