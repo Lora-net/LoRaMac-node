@@ -2551,6 +2551,12 @@ typedef struct sLoRaMacPrimitives
      */
     void ( *MacMcpsConfirm )( McpsConfirm_t* McpsConfirm );
     /*!
+     * \brief   MCPS-Retransmit primitive
+     *
+     * \param   [OUT] MCPS-Retransmit parameters
+     */
+    void ( *MacMcpsRetransmit )( void );
+    /*!
      * \brief   MCPS-Indication primitive
      *
      * \param   [OUT] MCPS-Indication parameters
