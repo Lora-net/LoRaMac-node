@@ -117,7 +117,7 @@ gps_status_t setup_GPS()
 		printf("The current dynamic model is INCORRECT. The current dynamic model is: %d\n", newDynamicModel);
 
 		// Limit i2c output to UBX, set dyanmic model and send power save config.
-		bool success = setI2COutput(COM_TYPE_UBX, defaultMaxWait) && setDynamicModel(DYN_MODEL_AIRBORNE1g, defaultMaxWait);
+		bool success = setDynamicModel(DYN_MODEL_AIRBORNE1g, defaultMaxWait);
 
 		if (success)
 		{
