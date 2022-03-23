@@ -83,6 +83,18 @@ extern "C"
 #include "secure-element-nvm.h"
 #include "LoRaMacClassBNvm.h"
 
+#ifndef LORAMAC_VERSION
+/*!
+ * LoRaWAN version definition.
+ */
+#define LORAMAC_VERSION                             0x01010100
+#endif
+
+/*!
+ * LoRaWAN fallback version definition.
+ */
+#define LORAMAC_FALLBACK_VERSION                    0x01000400
+
 /*!
  * Maximum number of times the MAC layer tries to get an acknowledge.
  */
