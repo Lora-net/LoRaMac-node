@@ -83,12 +83,10 @@ extern "C"
 #include "secure-element-nvm.h"
 #include "LoRaMacClassBNvm.h"
 
-#ifndef LORAMAC_VERSION
 /*!
  * LoRaWAN version definition.
  */
 #define LORAMAC_VERSION                             0x01010100
-#endif
 
 /*!
  * LoRaWAN fallback version definition.
