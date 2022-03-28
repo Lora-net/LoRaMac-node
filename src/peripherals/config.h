@@ -84,7 +84,7 @@ extern "C"
 #define WATCH_DOG_KICK_INTERVAL 15000 /* How often to wakeup the MCU from deepsleep to kick the watchdog */
 
 /* TTN, Helium frame count settings. Set the frame count to start from for either network. */
-#define HELIUM_FRAME_COUNT_START 130
+#define HELIUM_FRAME_COUNT_START 700
 #define TTN_FRAME_COUNT_START 0
 
 /**
