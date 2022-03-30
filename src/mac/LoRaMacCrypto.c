@@ -207,25 +207,23 @@ static LoRaMacCryptoStatus_t FOptsEncrypt( uint16_t size, uint32_t address, uint
         {
             case FCNT_UP:
             {
-                aBlock[4] = 0x01;
+                aBlock[5] = 0x00;
                 break;
             }
             case N_FCNT_DOWN:
             {
-                aBlock[4] = 0x01;
+                aBlock[5] = 0x01;
                 break;
             }
             case A_FCNT_DOWN:
             {
-                aBlock[4] = 0x02;
+                aBlock[5] = 0x01;
                 break;
             }
             default:
                 return LORAMAC_CRYPTO_FAIL_PARAM;
         }
     }
-
-    aBlock[5] = dir;
 
     aBlock[6] = address & 0xFF;
     aBlock[7] = ( address >> 8 ) & 0xFF;
@@ -237,11 +235,6 @@ static LoRaMacCryptoStatus_t FOptsEncrypt( uint16_t size, uint32_t address, uint
     aBlock[12] = ( frameCounter >> 16 ) & 0xFF;
     aBlock[13] = ( frameCounter >> 24 ) & 0xFF;
 
-    if( CryptoNvm->LrWanVersion.Value > 0x01010000 )
-    {
-        // Introduced in LoRaWAN 1.1.1 specification
-        aBlock[15] = 0x01;
-    }
 
     if( size > 0 )
     {
