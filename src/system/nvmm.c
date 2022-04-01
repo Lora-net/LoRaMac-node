@@ -183,30 +183,25 @@ bool EEPROM_Wipe(uint32_t start, uint32_t end)
 
     printf("Wiping EEPROM....\n");
 
-    uint32_t size = end - start + 1;
-    if (size < 4)
+    // Write 4 bytes at a time
+    uint16_t address;
+
+    for (address = start; address < end - 4; address += 4)
     {
-        // Write 1 byte at a time
-        if (EepromMcuWriteBuffer(start, zero_buffer, size) != LMN_STATUS_OK)
+        if (EepromMcuWriteBufferWord(address, zero_buffer, sizeof(zero_buffer)) != LMN_STATUS_OK)
         {
             return false;
         }
     }
-    else
-    {
-        // Write 4 bytes at a time
-        for (uint16_t address = start; address < end - 4; address += 4)
-        {
-            if (EepromMcuWriteBufferWord(address, zero_buffer, sizeof(zero_buffer)) != LMN_STATUS_OK)
-            {
-                return false;
-            }
-        }
 
-        if (EepromMcuWriteBufferWord(end - 3, zero_buffer, sizeof(zero_buffer)) != LMN_STATUS_OK)
+    while (address <= end)
+    {
+        if (EepromMcuWriteBuffer(address, &zero_buffer[0], sizeof(zero_buffer[0])) != LMN_STATUS_OK)
         {
             return false;
         }
+
+        address++;
     }
 
     return true;

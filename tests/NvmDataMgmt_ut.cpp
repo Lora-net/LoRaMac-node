@@ -202,6 +202,29 @@ TEST(NvmDataMgmt, test_eeprom_wipe_larger_than_4_bytes)
     MEMCMP_EQUAL(expected_eeprom, current_eeprom, n_bytes_to_read);
 }
 
+
+/**
+ * @brief Ensure the wiper function can wipe a chunk much_larger than 4 bytes long
+ * 
+ */
+TEST(NvmDataMgmt, test_eeprom_wipe_much_larger_than_4_bytes)
+{
+    uint32_t n_bytes_to_read = 14;
+    uint8_t current_eeprom[n_bytes_to_read];
+    uint8_t expected_eeprom[n_bytes_to_read] = {0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff};
+
+    // Set EEPROM to 0xFFs
+    fake_eeprom_set_target_image(full_eeprom);
+
+    // Now run the wipe command
+    EEPROM_Wipe(2, 10);
+
+    // Now check if specified range of eeprom has been set to 0x00
+    EepromMcuReadBuffer(0, current_eeprom, n_bytes_to_read);
+
+    MEMCMP_EQUAL(expected_eeprom, current_eeprom, n_bytes_to_read);
+}
+
 /**
  * @brief Verify that struct sizes are the same between the ARM compiler
  * that compiles for the target and the test machine(e.g. x86). They have to
