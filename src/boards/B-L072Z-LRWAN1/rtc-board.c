@@ -245,6 +245,7 @@ uint32_t RtcGetMinimumTimeout( void )
  */
 uint32_t RtcMs2Tick( uint32_t milliseconds )
 {
+    milliseconds = milliseconds * 37000 / 32768;
     return ( uint32_t )( ( ( ( uint64_t )milliseconds ) * CONV_DENOM ) / CONV_NUMER );
 }
 
@@ -259,7 +260,9 @@ uint32_t RtcTick2Ms( uint32_t tick )
     uint32_t seconds = tick >> N_PREDIV_S;
 
     tick = tick & PREDIV_S;
-    return ( ( seconds * 1000 ) + ( ( tick * 1000 ) >> N_PREDIV_S ) );
+
+    uint32_t unscaled_ms = ( ( seconds * 1000 ) + ( ( tick * 1000 ) >> N_PREDIV_S ) );
+    return unscaled_ms * 32768 / 37000;
 }
 
 /*!

@@ -259,7 +259,7 @@ static void init_loramac(picotracker_lorawan_settings_t settings)
     }
 
     // Set system maximum tolerated rx error in milliseconds
-    LmHandlerSetSystemMaxRxError(20);
+    LmHandlerSetSystemMaxRxError(500);
 
     // The LoRa-Alliance Compliance protocol package should always be
     // initialized and activated.
