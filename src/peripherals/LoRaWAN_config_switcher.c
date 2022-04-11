@@ -461,7 +461,36 @@ const network_keys_t network_key_list[] = {
         .ReceiveDelay2 = 2000,
 
     },
+    {
+        //icspace26_helium_18
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0x54, 0x10, 0x60, 0x00, 0x8B, 0x44, 0x55, 0x5A, 0xED, 0x41, 0xDC, 0xF3, 0xAF, 0x7A, 0x73, 0x27},
+        .AppSKey = {0x78, 0x55, 0x49, 0xFB, 0xD0, 0x50, 0xF0, 0xEA, 0xB6, 0x74, 0xB0, 0x40, 0xDF, 0x04, 0xBE, 0x48},
+        .DevAddr = (uint32_t)0x4800001c,
+        .frame_count = HELIUM_FRAME_COUNT_START,
+        .ReceiveDelay1 = 1000,
+        .ReceiveDelay2 = 2000,
 
+    },
+    {
+        //icspace26_helium_19
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0xA0, 0xE0, 0x49, 0xDD, 0x35, 0x46, 0x2F, 0x5C, 0x22, 0xBC, 0xFE, 0x85, 0xD8, 0x89, 0x2F, 0x45},
+        .AppSKey = {0xF8, 0x76, 0xCE, 0xA8, 0x59, 0x88, 0x35, 0x7D, 0x48, 0x3C, 0x7F, 0x3E, 0xB9, 0xE4, 0x22, 0x18},
+        .DevAddr = (uint32_t)0x4800001e,
+        .frame_count = HELIUM_FRAME_COUNT_START,
+        .ReceiveDelay1 = 1000,
+        .ReceiveDelay2 = 2000,
+
+    },
+    {
+        //icspace26_helium_20
+        .FNwkSIntKey_SNwkSIntKey_NwkSEncKey = {0xEA, 0x99, 0xB4, 0x84, 0x0F, 0xE8, 0x8C, 0x8D, 0x10, 0x00, 0xF2, 0xAA, 0x4A, 0xF6, 0x89, 0x1E},
+        .AppSKey = {0xF3, 0x0E, 0xE0, 0xEA, 0xF9, 0xA6, 0x0A, 0x1E, 0x85, 0xC1, 0x36, 0xEA, 0x1F, 0x2F, 0x6E, 0x35},
+        .DevAddr = (uint32_t)0x4800001f,
+        .frame_count = HELIUM_FRAME_COUNT_START,
+        .ReceiveDelay1 = 1000,
+        .ReceiveDelay2 = 2000,
+
+    },
 };
 
 size_t network_key_list_size = sizeof(network_key_list);
@@ -490,6 +519,10 @@ const registered_devices_t eu868_region_keys[] = {
     icspace26_helium_2,
     icspace26_eu1_eu_863_870_device_3,
     icspace26_helium_3,
+    icspace26_eu1_eu_863_870_device_4,
+    icspace26_helium_18,
+    icspace26_eu1_eu_863_870_device_5,
+    icspace26_helium_19,
 };
 
 const registered_devices_t us915_region_keys[] = {
@@ -499,6 +532,10 @@ const registered_devices_t us915_region_keys[] = {
     icspace26_helium_5,
     icspace26_us1_us915_device_3,
     icspace26_helium_6,
+    icspace26_us1_us915_device_4,
+    icspace26_helium_20,
+    icspace26_us1_us915_device_5,
+    icspace26_helium_10,
 };
 
 const registered_devices_t as923_region_keys[] = {
@@ -509,8 +546,7 @@ const registered_devices_t as923_region_keys[] = {
     AS923_KEYS_AU1,
     icspace26_helium_9,
     AS923_KEYS_EU1,
-    icspace26_helium_10,
-}; // In japan, start with helium network first, then go through ttn end node registered on EU cluster then AU cluster
+};
 
 const registered_devices_t ru864_region_keys[] = {
     RU864_KEYS_EU1,
