@@ -23,7 +23,7 @@
 #include <systime.h>
 #include <string.h>
 #include "iwdg.h"
-#include "deep_sleep_delay.h"
+#include "delay.h"
 
 #include "SparkFun_Ublox_Arduino_Library.h"
 
@@ -99,7 +99,7 @@ gps_status_t setup_GPS()
 {
 	IWDG_reset();
 
-	DeepSleepDelayMs(GPS_WAKEUP_TIMEOUT); // Wait for things to be setup
+	DelayMs(GPS_WAKEUP_TIMEOUT); // Wait for things to be setup
 
 	/* Check if we are in airbourne mode. check if dynamic mode is correct. If its not, then setup the GPS */
 	uint8_t newDynamicModel = getDynamicModel(defaultMaxWait);
@@ -227,7 +227,7 @@ gps_status_t get_location_fix(uint32_t timeout)
 			return GPS_SUCCESS;
 		}
 		IWDG_reset();
-		DeepSleepDelayMs(2000);
+		DelayMs(2000);
 		IWDG_reset();
 	}
 
@@ -244,7 +244,7 @@ gps_status_t get_location_fix(uint32_t timeout)
 static gps_status_t display_still_searching()
 {
 	GpioWrite(&Led1, 1);
-	DeepSleepDelayMs(100);
+	DelayMs(100);
 	GpioWrite(&Led1, 0);
 
 	return GPS_SUCCESS;
@@ -258,9 +258,9 @@ static gps_status_t display_fix_found()
 		IWDG_reset();
 
 		GpioWrite(&Led1, 1);
-		DeepSleepDelayMs(50);
+		DelayMs(50);
 		GpioWrite(&Led1, 0);
-		DeepSleepDelayMs(50);
+		DelayMs(50);
 	}
 
 	return GPS_SUCCESS;
