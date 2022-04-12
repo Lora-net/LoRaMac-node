@@ -38,6 +38,7 @@
 #include "bsp.h"
 #include "config.h"
 #include "deep_sleep_delay.h"
+#include "delay.h"
 #include "iwdg.h"
 #include "string.h"
 
@@ -198,9 +199,9 @@ void BoardInitMcu( void )
         for (uint8_t i = 0; i < 5; i++)
         {
             GpioWrite( &Led1, 1 );
-            DeepSleepDelayMs(50);
+            DelayMs(50);
             GpioWrite( &Led1, 0 );
-            DeepSleepDelayMs(50);
+            DelayMs(50);
         }
 
         AdcInit( &Adc, PA_5 );
