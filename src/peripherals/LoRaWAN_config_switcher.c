@@ -495,9 +495,14 @@ const network_keys_t network_key_list[] = {
 
 size_t network_key_list_size = sizeof(network_key_list);
 
-network_keys_t get_current_network_keys()
+network_keys_t get_network_keys(registered_devices_t registered_device)
 {
-    return get_next_network_keys_in_region();
+    network_keys_t keys;
+    if (registered_device < NUMBER_OF_REGISTERED_DEVICES)
+    {
+        keys = network_key_list[registered_device];
+    }
+    return keys;
 }
 
 /**

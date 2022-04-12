@@ -34,12 +34,14 @@ TEST_GROUP(test_eeprom_settings_manager){
 TEST(test_eeprom_settings_manager, test_eeprom_changed_crc)
 {
     // Initialy, we should have a blank EEPROM
-    CHECK_EQUAL(197, get_settings_crc());
+    uint8_t before = get_settings_crc();
 
     update_device_tx_interval_in_eeprom(TX_INTERVAL_EEPROM_ADDRESS, 324);
 
     /* Get the crc8 and check if set correctly */
-    CHECK_EQUAL(23, get_settings_crc());
+    uint8_t after = get_settings_crc();
+
+    CHECK_TRUE(before != after);
 }
 
 /**
@@ -49,7 +51,7 @@ TEST(test_eeprom_settings_manager, test_eeprom_changed_crc)
 TEST(test_eeprom_settings_manager, test_eeprom_unchanged_crc)
 {
     // Initialy, we should have a blank EEPROM, so will return CRC of default values
-    CHECK_EQUAL(197, get_settings_crc());
+    uint8_t before_crc = get_settings_crc();
 
     // Geofence settings are still default values
     bool geofence_settings[N_POLYGONS] = {true, true, true, true, true,
@@ -61,7 +63,8 @@ TEST(test_eeprom_settings_manager, test_eeprom_unchanged_crc)
     update_geofence_settings_in_eeprom((uint8_t *)geofence_settings, sizeof(geofence_settings));
 
     /* Get the crc8 and confirm that it has the same CRC */
-    CHECK_EQUAL(197, get_settings_crc());
+    uint8_t after_crc = get_settings_crc();
+    CHECK_EQUAL(before_crc, after_crc);
 }
 
 /**
@@ -73,9 +76,22 @@ TEST(test_eeprom_settings_manager, test_if_crc_remains_unchanged_after_identical
 
     update_device_tx_interval_in_eeprom(TX_INTERVAL_EEPROM_ADDRESS, 429);
     /* Get the crc8 and check if set correctly */
-    CHECK_EQUAL(157, get_settings_crc());
+    uint8_t before_crc = get_settings_crc();
 
     update_device_tx_interval_in_eeprom(TX_INTERVAL_EEPROM_ADDRESS, 429);
     /* Get the crc8 and check if set correctly */
-    CHECK_EQUAL(157, get_settings_crc());
+    uint8_t after_crc = get_settings_crc();
+
+    CHECK_EQUAL(before_crc, after_crc);
+}
+
+/**
+ * @brief Check getting current keys
+ * 
+ */
+TEST(test_eeprom_settings_manager, test_get_current_keys)
+{
+    network_keys_t keys;
+    read_current_keys(&keys, icspace26_helium_17);
+    CHECK_EQUAL(1207959579, keys.DevAddr);
 }

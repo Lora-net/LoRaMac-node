@@ -52,7 +52,7 @@ TEST(lorawan_credentials, test_cycling_through_us_settings)
      * @brief Now get the current network keys and check correctness
      * 
      */
-    network_keys = get_current_network_keys();
+    network_keys = get_network_keys(get_current_network());
     CHECK_EQUAL(ttn_nam1_dev_addr, network_keys.DevAddr);
 
 
@@ -71,7 +71,7 @@ TEST(lorawan_credentials, test_cycling_through_us_settings)
      * @brief Check if we are back to the first network key
      * 
      */
-    network_keys = get_current_network_keys();
+    network_keys = get_network_keys(get_current_network());
     CHECK_EQUAL(ttn_nam1_dev_addr, network_keys.DevAddr);
 }
 

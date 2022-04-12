@@ -172,7 +172,7 @@ uint16_t read_current_keys(network_keys_t *current_keys, registered_devices_t re
 	// else, use the EEPROM stored frame count
 	if (is_crc_correct(sizeof(*current_keys), current_keys) == false)
 	{
-		*current_keys = get_current_network_keys();
+		*current_keys = get_network_keys(registered_device);
 	}
 
 	return bytes_read;
