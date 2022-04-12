@@ -26,16 +26,16 @@
 /* USER CODE END 0 */
 
 /* Reset time is:
-	 * Prescaler = 64
-	 * Reload = 4000
+	 * Prescaler = 128
+	 * Reload = 2500
 	 * T_reset = Prescaler * Reload / 32000
-	 * In this case, comes to 8.00 seconds
+	 * In this case, comes to 10.00 seconds
 	 */
 IWDG_HandleTypeDef hiwdg = {
     .Instance = IWDG,
-    .Init.Prescaler = IWDG_PRESCALER_64,
-    .Init.Reload = 4000,
-    .Init.Window = 4000,
+    .Init.Prescaler = IWDG_PRESCALER_128,
+    .Init.Reload = 2500,
+    .Init.Window = 2500,
 };
 
 /* IWDG init function */
