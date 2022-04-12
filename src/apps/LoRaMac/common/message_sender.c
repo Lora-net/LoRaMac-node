@@ -14,6 +14,7 @@
 #include "geofence.h"
 #include "print_utils.h"
 #include "callbacks.h"
+#include "iwdg.h"
 
 bool can_tx(LoRaMacRegion_t current_stack_region);
 
@@ -29,6 +30,7 @@ bool sensor_read_and_send(LmHandlerAppData_t *AppData, LoRaMacRegion_t current_s
 	 */
 
     BSP_sensor_Read(); /* reading sensors and GPS. This could take up to 3 minutes */
+    IWDG_reset();
 
     /**
      * @brief Check if our LoRaWAN stack has been setup in the right region params AND
@@ -37,9 +39,14 @@ bool sensor_read_and_send(LmHandlerAppData_t *AppData, LoRaMacRegion_t current_s
      */
     if (can_tx(current_stack_region) == true)
     {
+        IWDG_reset();
+
         print_current_region();
         fill_tx_buffer(AppData);
         LmHandlerSend(AppData, LORAWAN_DEFAULT_CONFIRMED_MSG_STATE);
+
+        IWDG_reset();
+
         ret = true;
     }
 

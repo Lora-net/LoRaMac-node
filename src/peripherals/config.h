@@ -81,7 +81,6 @@ extern "C"
 /* WATCHDOG RELATED DEFINES */
 /* ----------------------------------------------------------------------------------- */
 #define USE_WATCHDOG 1                /* Use watchdog. Allowed values: 0 disabled , 1(default) enabled */
-#define WATCH_DOG_KICK_INTERVAL 15000 /* How often to wakeup the MCU from deepsleep to kick the watchdog */
 
 /* TTN, Helium frame count settings. Set the frame count to start from for either network. */
 #define HELIUM_FRAME_COUNT_START 731

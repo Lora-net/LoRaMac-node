@@ -167,9 +167,7 @@ void BoardInitMcu( void )
     {
         HAL_Init( );
         
-#if (USE_WATCHDOG)
-        IWDG_Init();
-#endif
+
 
         // LEDs
         GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );

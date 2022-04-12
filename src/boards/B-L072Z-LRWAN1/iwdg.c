@@ -25,21 +25,22 @@
 
 /* USER CODE END 0 */
 
-IWDG_HandleTypeDef hiwdg;
+/* Reset time is:
+	 * Prescaler = 64
+	 * Reload = 4000
+	 * T_reset = Prescaler * Reload / 32000
+	 * In this case, comes to 8.00 seconds
+	 */
+IWDG_HandleTypeDef hiwdg = {
+    .Instance = IWDG,
+    .Init.Prescaler = IWDG_PRESCALER_64,
+    .Init.Reload = 4000,
+    .Init.Window = 4000,
+};
 
 /* IWDG init function */
 void IWDG_Init(void)
 {
-  /* Reset time is:
-	 * Prescaler = 256
-	 * Reload = 4095
-	 * T_reset = Prescaler * Reload / 32000
-	 * In this case, comes to 32.76 seconds
-	 */
-  hiwdg.Instance = IWDG;
-  hiwdg.Init.Prescaler = IWDG_PRESCALER_256;
-  hiwdg.Init.Reload = 4095;
-  hiwdg.Init.Window = 4095;
   if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
   {
     return; // not much to do here

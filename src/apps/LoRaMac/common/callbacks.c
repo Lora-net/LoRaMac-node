@@ -34,6 +34,8 @@ uplink_key_setter_message_t uplink_key_setter_message;
 
 void OnNvmDataChange(LmHandlerNvmContextStates_t state, uint16_t size)
 {
+    IWDG_reset();
+
     DisplayNvmDataChange(state, size);
 
     /**
@@ -80,6 +82,8 @@ void OnJoinRequest(LmHandlerJoinParams_t *params)
 
 void OnTxData(LmHandlerTxParams_t *params)
 {
+    IWDG_reset();
+
     DisplayTxUpdate(params);
 }
 
@@ -185,6 +189,8 @@ int setup_board()
 
 void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 {
+    IWDG_reset();
+
     DisplayRxUpdate(appData, params);
 
     switch (appData->Port)
@@ -217,7 +223,10 @@ void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 
         uint32_t start = extractLong_from_buff(0, appData->Buffer);
         uint32_t end = extractLong_from_buff(4, appData->Buffer);
+
+        IWDG_reset();
         EEPROM_Wipe(start, end);
+        IWDG_reset();
     }
     break;
 

@@ -97,6 +97,8 @@ uint16_t get_load_solar_voltage()
  */
 gps_status_t setup_GPS()
 {
+	IWDG_reset();
+
 	DeepSleepDelayMs(GPS_WAKEUP_TIMEOUT); // Wait for things to be setup
 
 	/* Check if we are in airbourne mode. check if dynamic mode is correct. If its not, then setup the GPS */
@@ -130,6 +132,8 @@ gps_status_t setup_GPS()
 		}
 		break;
 	}
+
+	IWDG_reset();
 
 	return GPS_SUCCESS;
 }
@@ -222,7 +226,9 @@ gps_status_t get_location_fix(uint32_t timeout)
 			gps_info.latest_gps_status = GPS_SUCCESS;
 			return GPS_SUCCESS;
 		}
+		IWDG_reset();
 		DeepSleepDelayMs(2000);
+		IWDG_reset();
 	}
 
 	/* If fix taking too long,resend all the settings,
@@ -249,6 +255,8 @@ static gps_status_t display_fix_found()
 {
 	for (uint8_t i = 0; i < 20; i++)
 	{
+		IWDG_reset();
+
 		GpioWrite(&Led1, 1);
 		DeepSleepDelayMs(50);
 		GpioWrite(&Led1, 0);

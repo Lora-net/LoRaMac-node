@@ -155,6 +155,9 @@ int main(void)
 int run_app(void)
 #endif
 {
+#if (USE_WATCHDOG)
+    IWDG_Init();
+#endif
 
     setup_board();
 
@@ -273,7 +276,7 @@ static void OnMacProcessNotify(void)
 
 void setup_next_tx_alarm(uint32_t interval)
 {
-
+    IWDG_reset();
     TimerStop(&TxTimer); /* Stop tx timer. Requirement before starting it back up again */
     TimerSetValue(&TxTimer, interval);
     TimerStart(&TxTimer); /* Restart tx interval timer */
@@ -284,6 +287,8 @@ void setup_next_tx_alarm(uint32_t interval)
  */
 static void PrepareTxFrame(void)
 {
+    IWDG_reset();
+
     if (LmHandlerIsBusy() == true)
     {
         return;
@@ -343,6 +348,7 @@ static void UplinkProcess(void)
  */
 static void OnTxTimerEvent(void *context)
 {
+    IWDG_reset();
     TimerStop(&TxTimer);
 
     IsTxFramePending = 1;
