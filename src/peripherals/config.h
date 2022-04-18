@@ -102,7 +102,7 @@ extern "C"
  * @brief Choose weather to disable serial output to reduce peak currents
  * 
  */
-#define DISABLE_SERIAL_OUTPUT true
+#define DISABLE_SERIAL_OUTPUT false
 
 /**
  * @brief Number of past positions saved in EEPROM to printout for debugging
