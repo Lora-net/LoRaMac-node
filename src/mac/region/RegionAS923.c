@@ -356,7 +356,8 @@ PhyParam_t RegionAS923GetPhyParam( GetPhyParams_t* getPhy )
 void RegionAS923SetBandTxDone( SetBandTxDoneParams_t* txDone )
 {
     RegionCommonSetBandTxDone( &RegionBands[RegionNvmGroup2->Channels[txDone->Channel].Band],
-                               txDone->LastTxAirTime, txDone->Joined, txDone->ElapsedTimeSinceStartUp );
+                               txDone->LastTxAirTime, txDone->JoinDutyCycleEnabled, txDone->Joined,
+                               txDone->ElapsedTimeSinceStartUp );
 }
 
 void RegionAS923InitDefaults( InitDefaultsParams_t* params )
@@ -890,6 +891,7 @@ LoRaMacStatus_t RegionAS923NextChannel( NextChanParams_t* nextChanParams, uint8_
 
     // Search how many channels are enabled
     countChannelsParams.Joined = nextChanParams->Joined;
+    countChannelsParams.JoinDutyCycleEnabled = nextChanParams->JoinDutyCycleEnabled;
     countChannelsParams.Datarate = nextChanParams->Datarate;
     countChannelsParams.ChannelsMask = RegionNvmGroup2->ChannelsMask;
     countChannelsParams.Channels = RegionNvmGroup2->Channels;

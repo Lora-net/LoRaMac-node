@@ -244,6 +244,10 @@ typedef struct sRegionCommonRxBeaconSetupParams
 typedef struct sRegionCommonCountNbOfEnabledChannelsParams
 {
     /*!
+     * Set to true if Join duty cycling is enabled
+     */
+    bool JoinDutyCycleEnabled;
+    /*!
      * Set to true, if the device is joined.
      */
     bool Joined;
@@ -420,15 +424,19 @@ void RegionCommonChanMaskCopy( uint16_t* channelsMaskDest, uint16_t* channelsMas
  *
  * \param [IN] lastTxAirTime The time on air of the last TX frame.
  *
+ * \param [IN] joinDutyCycleEnabled Set to true if join duty cycling is enabled.
+ *
  * \param [IN] joined Set to true if the device has joined.
  *
  * \param [IN] elapsedTimeSinceStartup Elapsed time since initialization.
  */
-void RegionCommonSetBandTxDone( Band_t* band, TimerTime_t lastTxAirTime, bool joined, SysTime_t elapsedTimeSinceStartup );
+void RegionCommonSetBandTxDone( Band_t* band, TimerTime_t lastTxAirTime, bool joinDutyCycleEnabled, bool joined, SysTime_t elapsedTimeSinceStartup );
 
 /*!
  * \brief Updates the time-offs of the bands.
  *        This is a generic function and valid for all regions.
+ *
+ * \param [IN] joinDutyCycleEnabled Set to true if join duty cycling is enabled
  *
  * \param [IN] joined Set to true, if the node has joined the network
  *
@@ -446,7 +454,7 @@ void RegionCommonSetBandTxDone( Band_t* band, TimerTime_t lastTxAirTime, bool jo
  *
  * \retval Returns the time which must be waited to perform the next uplink.
  */
-TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, Band_t* bands,
+TimerTime_t RegionCommonUpdateBandTimeOff( bool joinDutyCycleEnabled, bool joined, Band_t* bands,
                                            uint8_t nbBands, bool dutyCycleEnabled,
                                            bool lastTxIsJoinRequest, SysTime_t elapsedTimeSinceStartup,
                                            TimerTime_t expectedTimeOnAir );

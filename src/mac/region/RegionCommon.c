@@ -72,11 +72,11 @@
         ( ( N ) / ( D ) )                                                      \
     )
 
-static uint16_t GetDutyCycle( Band_t* band, bool joined, SysTime_t elapsedTimeSinceStartup )
+static uint16_t GetDutyCycle( Band_t* band, bool joinDutyCycleEnabled, bool joined, SysTime_t elapsedTimeSinceStartup )
 {
     uint16_t dutyCycle = band->DCycle;
 
-    if( joined == false )
+    if( joinDutyCycleEnabled && ( joined == false ) )
     {
         uint16_t joinDutyCycle = BACKOFF_DC_24_HOURS;
 
@@ -105,8 +105,8 @@ static uint16_t GetDutyCycle( Band_t* band, bool joined, SysTime_t elapsedTimeSi
     return dutyCycle;
 }
 
-static uint16_t SetMaxTimeCredits( Band_t* band, bool joined, SysTime_t elapsedTimeSinceStartup,
-                                   bool dutyCycleEnabled, bool lastTxIsJoinRequest )
+static uint16_t SetMaxTimeCredits( Band_t* band, bool joinDutyCycleEnabled, bool joined,
+                                   SysTime_t elapsedTimeSinceStartup, bool dutyCycleEnabled, bool lastTxIsJoinRequest )
 {
     uint16_t dutyCycle = band->DCycle;
     TimerTime_t maxCredits = DUTY_CYCLE_TIME_PERIOD;
@@ -115,9 +115,9 @@ static uint16_t SetMaxTimeCredits( Band_t* band, bool joined, SysTime_t elapsedT
 
     // Get the band duty cycle. If not joined, the function either returns the join duty cycle
     // or the band duty cycle, whichever is more restrictive.
-    dutyCycle = GetDutyCycle( band, joined, elapsedTimeSinceStartup );
+    dutyCycle = GetDutyCycle( band, joinDutyCycleEnabled, joined, elapsedTimeSinceStartup );
 
-    if( joined == false )
+    if( joinDutyCycleEnabled && ( joined == false ))
     {
         if( dutyCycle == BACKOFF_DC_1_HOUR )
         {
@@ -176,14 +176,14 @@ static uint16_t SetMaxTimeCredits( Band_t* band, bool joined, SysTime_t elapsedT
     return dutyCycle;
 }
 
-static uint16_t UpdateTimeCredits( Band_t* band, bool joined, bool dutyCycleEnabled,
+static uint16_t UpdateTimeCredits( Band_t* band, bool joinDutyCycleEnabled, bool joined, bool dutyCycleEnabled,
                                    bool lastTxIsJoinRequest, SysTime_t elapsedTimeSinceStartup,
                                    TimerTime_t currentTime )
 {
-    uint16_t dutyCycle = SetMaxTimeCredits( band, joined, elapsedTimeSinceStartup,
+    uint16_t dutyCycle = SetMaxTimeCredits( band, joinDutyCycleEnabled, joined, elapsedTimeSinceStartup,
                                             dutyCycleEnabled, lastTxIsJoinRequest );
 
-    if( joined == true )
+    if(( joinDutyCycleEnabled == false ) || joined == true )
     {
         // Apply a sliding window for the duty cycle with collection and speding
         // credits.
@@ -293,11 +293,13 @@ void RegionCommonChanMaskCopy( uint16_t* channelsMaskDest, uint16_t* channelsMas
     }
 }
 
-void RegionCommonSetBandTxDone( Band_t* band, TimerTime_t lastTxAirTime, bool joined, SysTime_t elapsedTimeSinceStartup )
+void RegionCommonSetBandTxDone( Band_t* band, TimerTime_t lastTxAirTime, bool joinDutyCycleEnabled, bool joined,
+                                SysTime_t elapsedTimeSinceStartup )
 {
-    // Get the band duty cycle. If not joined, the function either returns the join duty cycle
-    // or the band duty cycle, whichever is more restrictive.
-    uint16_t dutyCycle = GetDutyCycle( band, joined, elapsedTimeSinceStartup );
+    // Get the band duty cycle. If join duty cycling is enabled and not joined,
+    // the function either returns the join duty cycle or the band duty cycle,
+    // whichever is more restrictive.
+    uint16_t dutyCycle = GetDutyCycle( band, joinDutyCycleEnabled, joined, elapsedTimeSinceStartup );
 
     // Reduce with transmission time
     if( band->TimeCredits > ( lastTxAirTime * dutyCycle ) )
@@ -311,7 +313,7 @@ void RegionCommonSetBandTxDone( Band_t* band, TimerTime_t lastTxAirTime, bool jo
     }
 }
 
-TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, Band_t* bands,
+TimerTime_t RegionCommonUpdateBandTimeOff( bool joinDutyCycleEnabled, bool joined, Band_t* bands,
                                            uint8_t nbBands, bool dutyCycleEnabled,
                                            bool lastTxIsJoinRequest, SysTime_t elapsedTimeSinceStartup,
                                            TimerTime_t expectedTimeOnAir )
@@ -325,7 +327,7 @@ TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, Band_t* bands,
     for( uint8_t i = 0; i < nbBands; i++ )
     {
         // Synchronization of bands and credits
-        dutyCycle = UpdateTimeCredits( &bands[i], joined, dutyCycleEnabled,
+        dutyCycle = UpdateTimeCredits( &bands[i], joinDutyCycleEnabled, joined, dutyCycleEnabled,
                                        lastTxIsJoinRequest, elapsedTimeSinceStartup,
                                        currentTime );
 
@@ -337,7 +339,7 @@ TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, Band_t* bands,
         // when the duty cycle is off, or the TimeCredits of the band
         // is higher than the credit costs for the transmission.
         if( ( bands[i].TimeCredits > creditCosts ) ||
-            ( ( dutyCycleEnabled == false ) && ( joined == true ) ) )
+            ( ( dutyCycleEnabled == false ) && ( ( joinDutyCycleEnabled == false ) || ( joined == true ) ) ) )
         {
             bands[i].ReadyForTransmission = true;
             // This band is a potential candidate for an
@@ -364,8 +366,9 @@ TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, Band_t* bands,
                 validBands++;
             }
 
-            // Apply a special calculation if the device is not joined.
-            if( joined == false )
+            // Apply a special calculation if join duty cycling is enabled and
+            // the device is not joined.
+            if( ( joinDutyCycleEnabled == true ) && ( joined == false ) )
             {
                 SysTime_t backoffTimeRange = {
                     .Seconds    = 0,
@@ -610,7 +613,8 @@ LoRaMacStatus_t RegionCommonIdentifyChannels( RegionCommonIdentifyChannelsParam_
         *aggregatedTimeOff = 0;
 
         // Update bands Time OFF
-        *nextTxDelay = RegionCommonUpdateBandTimeOff( identifyChannelsParam->CountNbOfEnabledChannelsParam->Joined,
+        *nextTxDelay = RegionCommonUpdateBandTimeOff( identifyChannelsParam->CountNbOfEnabledChannelsParam->JoinDutyCycleEnabled,
+                                                      identifyChannelsParam->CountNbOfEnabledChannelsParam->Joined,
                                                       identifyChannelsParam->CountNbOfEnabledChannelsParam->Bands,
                                                       identifyChannelsParam->MaxBands,
                                                       identifyChannelsParam->DutyCycleEnabled,

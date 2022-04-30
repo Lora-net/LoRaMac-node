@@ -450,6 +450,10 @@ typedef struct sSetBandTxDoneParams
      */
     uint8_t Channel;
     /*!
+     * JoinDutyCycleEnabled Set to true to enable Join duty cycling
+     */
+    bool JoinDutyCycleEnabled;
+    /*!
      * Joined Set to true, if the node has joined the network
      */
     bool Joined;
@@ -790,6 +794,10 @@ typedef struct sNextChanParams
      * Set to true, if the duty cycle is enabled, otherwise false.
      */
     bool DutyCycleEnabled;
+    /*!
+     * Set to true, if the Join duty cycle is enabled, otherwise false.
+     */
+    bool JoinDutyCycleEnabled;
     /*!
      * Elapsed time since the start of the node.
      */
