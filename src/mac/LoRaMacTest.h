@@ -51,6 +51,16 @@ extern "C"
  */
 void LoRaMacTestSetDutyCycleOn( bool enable );
 
+/*!
+ * \brief   Enables or disables the Join duty cycle
+ *
+ * \details This is a test function. It shall be used for testing purposes only.
+ *          Changing this attribute may lead to a non-conformance LoRaMac operation.
+ *
+ * \param   [IN] enable - Enabled or disables the Join duty cycle
+ */
+void LoRaMacTestSetJoinDutyCycleOn( bool enable );
+
 /*! \} defgroup LORAMACTEST */
 
 #ifdef __cplusplus

@@ -669,6 +669,10 @@ typedef struct sLoRaMacNvmDataGroup2
     * Enables/Disables duty cycle management (Test only)
     */
     bool DutyCycleOn;
+    /*!
+     * Enables/disables Join duty cycle management (Test only)
+     */
+    bool JoinDutyCycleOn;
     /*
      * Set to true, if the datarate was increased
      * with a link adr request.
