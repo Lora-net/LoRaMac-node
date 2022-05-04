@@ -29,7 +29,7 @@ extern "C"
 #endif
 
 #include "fifo.h"
-#include "gpio.h"
+#include "gpio_sys.h"
 
 /*!
  * UART peripheral ID

@@ -38,7 +38,7 @@ set(SECURE_ELEMENT SOFT_SE CACHE STRING "Default secure element is SOFT_SE")
 set_property(CACHE SECURE_ELEMENT PROPERTY STRINGS ${SECURE_ELEMENT_LIST})
 
 # Allow switching of Applications
-set(APPLICATION_LIST LoRaMac ping-pong rx-sensi tx-cw )
+set(APPLICATION_LIST LoRaMac ping-pong rx-sensi tx-cw hello-world)
 set(APPLICATION LoRaMac CACHE STRING "Default Application is LoRaMac")
 set_property(CACHE APPLICATION PROPERTY STRINGS ${APPLICATION_LIST})
 
@@ -183,6 +183,17 @@ elseif(BOARD STREQUAL B-L072Z-LRWAN1)
 
     # Configure radio
     set(RADIO sx1276 CACHE INTERNAL "Radio sx1276 selected")
+
+
+elseif(BOARD STREQUAL MSP430FR5994)
+    # Configure toolchain for MSP430FR5994
+
+    # Build platform specific board implementation
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/MSP430FR5994)
+
+    # Configure radio
+    set(RADIO sx1272 CACHE INTERNAL "Radio sx1272 selected")
+
 endif()
 
 #---------------------------------------------------------------------------------------
@@ -218,5 +229,9 @@ elseif(APPLICATION STREQUAL rx-sensi)
 elseif(APPLICATION STREQUAL tx-cw)
 
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/apps/tx-cw)
+
+elseif(APPLICATION STREQUAL hello-world)
+
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/apps/hello-world)
 
 endif()

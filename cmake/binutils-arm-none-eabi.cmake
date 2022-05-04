@@ -48,3 +48,4 @@ endfunction()
 function(create_bin_output TARGET)
     add_custom_target(${TARGET}.bin ALL DEPENDS ${TARGET} COMMAND ${CMAKE_OBJCOPY} -Obinary ${TARGET} ${TARGET}.bin)
 endfunction()
+

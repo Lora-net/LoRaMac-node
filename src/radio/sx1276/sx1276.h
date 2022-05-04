@@ -30,7 +30,7 @@ extern "C"
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "gpio.h"
+#include "gpio_sys.h"
 #include "spi.h"
 #include "radio.h"
 #include "sx1276Regs-Fsk.h"

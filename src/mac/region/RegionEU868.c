@@ -485,7 +485,7 @@ void RegionEU868ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
     uint32_t tSymbolInUs = 0;
 
     // Get the datarate, perform a boundary check
-    rxConfigParams->Datarate = MIN( datarate, EU868_RX_MAX_DATARATE );
+    rxConfigParams->Datarate = MINIMUM( datarate, EU868_RX_MAX_DATARATE );
     rxConfigParams->Bandwidth = RegionCommonGetBandwidth( rxConfigParams->Datarate, BandwidthsEU868 );
 
     if( rxConfigParams->Datarate == DR_7 )

@@ -502,7 +502,7 @@ void RegionUS915ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
     uint32_t tSymbolInUs = 0;
 
     // Get the datarate, perform a boundary check
-    rxConfigParams->Datarate = MIN( datarate, US915_RX_MAX_DATARATE );
+    rxConfigParams->Datarate = MINIMUM( datarate, US915_RX_MAX_DATARATE );
     rxConfigParams->Bandwidth = RegionCommonGetBandwidth( rxConfigParams->Datarate, BandwidthsUS915 );
 
     tSymbolInUs = RegionCommonComputeSymbolTimeLoRa( DataratesUS915[rxConfigParams->Datarate], BandwidthsUS915[rxConfigParams->Datarate] );

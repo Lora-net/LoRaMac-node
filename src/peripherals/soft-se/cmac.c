@@ -75,7 +75,7 @@ void AES_CMAC_Update( AES_CMAC_CTX* ctx, const uint8_t* data, uint32_t len )
 
     if( ctx->M_n > 0 )
     {
-        mlen = MIN( 16 - ctx->M_n, len );
+        mlen = MINIMUM( 16 - ctx->M_n, len );
         memcpy1( ctx->M_last + ctx->M_n, data, mlen );
         ctx->M_n += mlen;
         if( ctx->M_n < 16 || len == mlen )

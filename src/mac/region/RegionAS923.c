@@ -552,7 +552,7 @@ void RegionAS923ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
     uint32_t tSymbolInUs = 0;
 
     // Get the datarate, perform a boundary check
-    rxConfigParams->Datarate = MIN( datarate, AS923_RX_MAX_DATARATE );
+    rxConfigParams->Datarate = MINIMUM( datarate, AS923_RX_MAX_DATARATE );
     rxConfigParams->Bandwidth = RegionCommonGetBandwidth( rxConfigParams->Datarate, BandwidthsAS923 );
 
     if( rxConfigParams->Datarate == DR_7 )

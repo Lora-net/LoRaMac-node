@@ -468,7 +468,7 @@ void RegionIN865ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
     uint32_t tSymbolInUs = 0;
 
     // Get the datarate, perform a boundary check
-    rxConfigParams->Datarate = MIN( datarate, IN865_RX_MAX_DATARATE );
+    rxConfigParams->Datarate = MINIMUM( datarate, IN865_RX_MAX_DATARATE );
     rxConfigParams->Bandwidth = RegionCommonGetBandwidth( rxConfigParams->Datarate, BandwidthsIN865 );
 
     if( rxConfigParams->Datarate == DR_7 )

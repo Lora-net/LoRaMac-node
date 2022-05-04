@@ -27,7 +27,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
-#include "gpio.h"
+#include "gpio_sys.h"
 #include "spi.h"
 #include "radio.h"
 #include "lr1110_hal.h"

@@ -28,7 +28,7 @@ extern "C"
 {
 #endif
 
-#include "gpio.h"
+#include "gpio_sys.h"
 
 /*!
  * \brief Initializes the given GPIO object

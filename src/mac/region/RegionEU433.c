@@ -454,7 +454,7 @@ void RegionEU433ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
     uint32_t tSymbolInUs = 0;
 
     // Get the datarate, perform a boundary check
-    rxConfigParams->Datarate = MIN( datarate, EU433_RX_MAX_DATARATE );
+    rxConfigParams->Datarate = MINIMUM( datarate, EU433_RX_MAX_DATARATE );
     rxConfigParams->Bandwidth = RegionCommonGetBandwidth( rxConfigParams->Datarate, BandwidthsEU433 );
 
     if( rxConfigParams->Datarate == DR_7 )

@@ -28,7 +28,7 @@ extern "C"
 {
 #endif
 
-#include "gpio.h"
+#include "gpio_sys.h"
 
 /*!
  * SPI peripheral ID

@@ -357,7 +357,7 @@ TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, Band_t* bands,
                 // We calculate the minTimeToWait among the bands which are not
                 // ready for transmission and which are potentially available
                 // for a transmission in the future.
-                minTimeToWait = MIN( minTimeToWait, ( creditCosts - bands[i].TimeCredits ) );
+                minTimeToWait = MINIMUM( minTimeToWait, ( creditCosts - bands[i].TimeCredits ) );
                 // This band is a potential candidate for an
                 // upcoming transmission (even if its time credits are not enough
                 // at the moment), so increase the counter.

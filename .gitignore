@@ -2,6 +2,8 @@ lst/
 obj/
 bin/
 build/
+build_hello_world/
+build_msp430/
 tmp/
 *.bin
 .kdev4

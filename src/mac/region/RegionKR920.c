@@ -474,7 +474,7 @@ void RegionKR920ComputeRxWindowParameters( int8_t datarate, uint8_t minRxSymbols
     uint32_t tSymbolInUs = 0;
 
     // Get the datarate, perform a boundary check
-    rxConfigParams->Datarate = MIN( datarate, KR920_RX_MAX_DATARATE );
+    rxConfigParams->Datarate = MINIMUM( datarate, KR920_RX_MAX_DATARATE );
     rxConfigParams->Bandwidth = RegionCommonGetBandwidth( rxConfigParams->Datarate, BandwidthsKR920 );
 
     tSymbolInUs = RegionCommonComputeSymbolTimeLoRa( DataratesKR920[rxConfigParams->Datarate], BandwidthsKR920[rxConfigParams->Datarate] );
@@ -527,7 +527,7 @@ bool RegionKR920TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
 
     // Take the minimum between the maxEIRP and txConfig->MaxEirp.
     // The value of txConfig->MaxEirp could have changed during runtime, e.g. due to a MAC command.
-    maxEIRP = MIN( txConfig->MaxEirp, maxEIRP );
+    maxEIRP = MINIMUM( txConfig->MaxEirp, maxEIRP );
 
     // Calculate physical TX power
     phyTxPower = RegionCommonComputeTxPower( txPowerLimited, maxEIRP, txConfig->AntennaGain );
