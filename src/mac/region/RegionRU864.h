@@ -50,7 +50,7 @@ extern "C"
 /*!
  * LoRaMac maximum number of channels
  */
-#define RU864_MAX_NB_CHANNELS                       8
+#define RU864_MAX_NB_CHANNELS                       16
 
 /*!
  * Number of default channels

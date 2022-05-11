@@ -87,6 +87,16 @@ extern "C"
 #include "LoRaMacClassBNvm.h"
 
 /*!
+ * LoRaWAN version definition.
+ */
+#define LORAMAC_VERSION                             0x01010100
+
+/*!
+ * LoRaWAN fallback version definition.
+ */
+#define LORAMAC_FALLBACK_VERSION                    0x01000400
+
+/*!
  * Maximum number of times the MAC layer tries to get an acknowledge.
  */
 #define MAX_ACK_RETRIES                             8

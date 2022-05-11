@@ -64,13 +64,9 @@ typedef enum eRegionCN470ChannelPlan
     #define REGION_NVM_MAX_NB_CHANNELS                 96
 #elif defined( REGION_US915 ) || defined( REGION_AU915 )
     #define REGION_NVM_MAX_NB_CHANNELS                 72
-#elif defined( REGION_AS923 ) || defined( REGION_CN779 ) || \
-      defined( REGION_EU433 ) || defined( REGION_EU868 ) || \
-      defined( REGION_IN865 ) || defined( REGION_KR920 )
-    #define REGION_NVM_MAX_NB_CHANNELS                 16
 #else
-    // Region_RU864
-    #define REGION_NVM_MAX_NB_CHANNELS                 8
+    // All others
+    #define REGION_NVM_MAX_NB_CHANNELS                 16
 #endif
 
 // Selection of REGION_NVM_MAX_NB_BANDS
