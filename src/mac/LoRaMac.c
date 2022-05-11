@@ -3402,7 +3402,7 @@ LoRaMacStatus_t RestoreNvmData( LoRaMacNvmData_t* nvm )
         // The public/private network flag may change upon reloading MacGroup2
         // from NVM and we thus need to synchronize the radio. The same function
         // is invoked in LoRaMacInitialization.
-        Radio.SetPublicNetwork( Nvm.MacGroup2.PublicNetwork );
+        loramac_radio_set_network_type( Nvm.MacGroup2.PublicNetwork );
     }
 
     // Secure Element
