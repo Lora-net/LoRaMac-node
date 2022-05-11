@@ -72,7 +72,7 @@ extern "C"
 /*!
  * Initial value of the frame counters
  */
-#define FCNT_DOWN_INITAL_VALUE          0xFFFFFFFF
+#define FCNT_DOWN_INITIAL_VALUE          0xFFFFFFFF
 
 /*!
  * LoRaMac Crypto Status

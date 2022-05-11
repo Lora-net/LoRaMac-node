@@ -4862,7 +4862,7 @@ LoRaMacStatus_t LoRaMacMcChannelSetup( McChannelParams_t *channel )
     }
 
     // Reset multicast channel downlink counter to initial value.
-    *Nvm.MacGroup2.MulticastChannelList[channel->GroupID].DownLinkCounter = FCNT_DOWN_INITAL_VALUE;
+    *Nvm.MacGroup2.MulticastChannelList[channel->GroupID].DownLinkCounter = FCNT_DOWN_INITIAL_VALUE;
     return LORAMAC_STATUS_OK;
 }
 
