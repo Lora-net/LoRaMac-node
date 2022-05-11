@@ -64,10 +64,16 @@ extern "C"
 #define CHANNEL_PLAN_GROUP_AS923_3                  3
 
 /*!
+ * Channel plan group AS923-4
+ * AS923_FREQ_OFFSET = -5.90MHz
+ */
+#define CHANNEL_PLAN_GROUP_AS923_4                  4
+
+/*!
  * Channel plan group AS923-1 for Japan
  * AS923_FREQ_OFFSET = 0
  */
-#define CHANNEL_PLAN_GROUP_AS923_1_JP               4
+#define CHANNEL_PLAN_GROUP_AS923_1_JP               5
 
 /*!
  * LoRaMac maximum number of channels
