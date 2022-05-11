@@ -5373,6 +5373,8 @@ void LoRaMacTestSetDutyCycleOn( bool enable )
     if( RegionVerify( Nvm.MacGroup2.Region, &verify, PHY_DUTY_CYCLE ) == true )
     {
         Nvm.MacGroup2.DutyCycleOn = enable;
+        // Handle NVM potential changes
+        MacCtx.MacFlags.Bits.NvmHandle = 1;
     }
 }
 
