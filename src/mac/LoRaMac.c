@@ -3406,13 +3406,22 @@ LoRaMacStatus_t RestoreNvmData( LoRaMacNvmData_t* nvm )
                  sizeof( Nvm.SecureElement ) );
     }
 
-    // Region
+    // RegionGroup1
     crc = Crc32( ( uint8_t* ) &nvm->RegionGroup1, sizeof( nvm->RegionGroup1 ) -
                                             sizeof( nvm->RegionGroup1.Crc32 ) );
     if( crc == nvm->RegionGroup1.Crc32 )
     {
         memcpy1( ( uint8_t* ) &Nvm.RegionGroup1,( uint8_t* ) &nvm->RegionGroup1,
                  sizeof( Nvm.RegionGroup1 ) );
+    }
+
+    // RegionGroup2
+    crc = Crc32( ( uint8_t* ) &nvm->RegionGroup2, sizeof( nvm->RegionGroup2 ) -
+                                            sizeof( nvm->RegionGroup2.Crc32 ) );
+    if( crc == nvm->RegionGroup2.Crc32 )
+    {
+        memcpy1( ( uint8_t* ) &Nvm.RegionGroup2,( uint8_t* ) &nvm->RegionGroup2,
+                 sizeof( Nvm.RegionGroup2 ) );
     }
 
     crc = Crc32( ( uint8_t* ) &nvm->ClassB, sizeof( nvm->ClassB ) -
