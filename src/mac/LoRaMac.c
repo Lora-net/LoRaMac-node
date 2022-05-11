@@ -3398,6 +3398,11 @@ LoRaMacStatus_t RestoreNvmData( LoRaMacNvmData_t* nvm )
         MacCtx.RxWindowCConfig.DownlinkDwellTime = Nvm.MacGroup2.MacParams.DownlinkDwellTime;
         MacCtx.RxWindowCConfig.RxContinuous = true;
         MacCtx.RxWindowCConfig.RxSlot = RX_SLOT_WIN_CLASS_C;
+
+        // The public/private network flag may change upon reloading MacGroup2
+        // from NVM and we thus need to synchronize the radio. The same function
+        // is invoked in LoRaMacInitialization.
+        Radio.SetPublicNetwork( Nvm.MacGroup2.PublicNetwork );
     }
 
     // Secure Element
@@ -3409,13 +3414,22 @@ LoRaMacStatus_t RestoreNvmData( LoRaMacNvmData_t* nvm )
                  sizeof( Nvm.SecureElement ) );
     }
 
-    // Region
+    // RegionGroup1
     crc = Crc32( ( uint8_t* ) &nvm->RegionGroup1, sizeof( nvm->RegionGroup1 ) -
                                             sizeof( nvm->RegionGroup1.Crc32 ) );
     if( crc == nvm->RegionGroup1.Crc32 )
     {
         memcpy1( ( uint8_t* ) &Nvm.RegionGroup1,( uint8_t* ) &nvm->RegionGroup1,
                  sizeof( Nvm.RegionGroup1 ) );
+    }
+
+    // RegionGroup2
+    crc = Crc32( ( uint8_t* ) &nvm->RegionGroup2, sizeof( nvm->RegionGroup2 ) -
+                                            sizeof( nvm->RegionGroup2.Crc32 ) );
+    if( crc == nvm->RegionGroup2.Crc32 )
+    {
+        memcpy1( ( uint8_t* ) &Nvm.RegionGroup2,( uint8_t* ) &nvm->RegionGroup2,
+                 sizeof( Nvm.RegionGroup2 ) );
     }
 
     crc = Crc32( ( uint8_t* ) &nvm->ClassB, sizeof( nvm->ClassB ) -
@@ -4872,7 +4886,7 @@ LoRaMacStatus_t LoRaMacMcChannelSetup( McChannelParams_t *channel )
     }
 
     // Reset multicast channel downlink counter to initial value.
-    *Nvm.MacGroup2.MulticastChannelList[channel->GroupID].DownLinkCounter = FCNT_DOWN_INITAL_VALUE;
+    *Nvm.MacGroup2.MulticastChannelList[channel->GroupID].DownLinkCounter = FCNT_DOWN_INITIAL_VALUE;
     return LORAMAC_STATUS_OK;
 }
 
@@ -5383,6 +5397,8 @@ void LoRaMacTestSetDutyCycleOn( bool enable )
     if( RegionVerify( Nvm.MacGroup2.Region, &verify, PHY_DUTY_CYCLE ) == true )
     {
         Nvm.MacGroup2.DutyCycleOn = enable;
+        // Handle NVM potential changes
+        MacCtx.MacFlags.Bits.NvmHandle = 1;
     }
 }
 

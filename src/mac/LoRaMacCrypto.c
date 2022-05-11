@@ -737,7 +737,7 @@ static bool CheckFCntDown( FCntIdentifier_t fCntID, uint32_t currentDown )
     }
     if( ( currentDown > lastDown ) ||
         // For LoRaWAN 1.0.X only. Allow downlink frames of 0
-        ( lastDown == FCNT_DOWN_INITAL_VALUE ) )
+        ( lastDown == FCNT_DOWN_INITIAL_VALUE ) )
     {
         return true;
     }
@@ -799,14 +799,14 @@ static void UpdateFCntDown( FCntIdentifier_t fCntID, uint32_t currentDown )
 static void ResetFCnts( void )
 {
     CryptoNvm->FCntList.FCntUp = 0;
-    CryptoNvm->FCntList.NFCntDown = FCNT_DOWN_INITAL_VALUE;
-    CryptoNvm->FCntList.AFCntDown = FCNT_DOWN_INITAL_VALUE;
-    CryptoNvm->FCntList.FCntDown = FCNT_DOWN_INITAL_VALUE;
+    CryptoNvm->FCntList.NFCntDown = FCNT_DOWN_INITIAL_VALUE;
+    CryptoNvm->FCntList.AFCntDown = FCNT_DOWN_INITIAL_VALUE;
+    CryptoNvm->FCntList.FCntDown = FCNT_DOWN_INITIAL_VALUE;
     CryptoNvm->LastDownFCnt = CryptoNvm->FCntList.FCntDown;
 
     for( int32_t i = 0; i < LORAMAC_MAX_MC_CTX; i++ )
     {
-        CryptoNvm->FCntList.McFCntDown[i] = FCNT_DOWN_INITAL_VALUE;
+        CryptoNvm->FCntList.McFCntDown[i] = FCNT_DOWN_INITIAL_VALUE;
     }
 }
 
@@ -892,7 +892,7 @@ LoRaMacCryptoStatus_t LoRaMacCryptoGetFCntDown( FCntIdentifier_t fCntID, uint32_
     }
 
     // For LoRaWAN 1.0.X only, allow downlink frames of 0
-    if( lastDown == FCNT_DOWN_INITAL_VALUE )
+    if( lastDown == FCNT_DOWN_INITIAL_VALUE )
     {
         *currentDown = frameFcnt;
     }
@@ -1279,9 +1279,9 @@ LoRaMacCryptoStatus_t LoRaMacCryptoHandleJoinAccept( JoinReqIdentifier_t joinReq
     RJcount0 = 0;
 #endif
     CryptoNvm->FCntList.FCntUp = 0;
-    CryptoNvm->FCntList.FCntDown = FCNT_DOWN_INITAL_VALUE;
-    CryptoNvm->FCntList.NFCntDown = FCNT_DOWN_INITAL_VALUE;
-    CryptoNvm->FCntList.AFCntDown = FCNT_DOWN_INITAL_VALUE;
+    CryptoNvm->FCntList.FCntDown = FCNT_DOWN_INITIAL_VALUE;
+    CryptoNvm->FCntList.NFCntDown = FCNT_DOWN_INITIAL_VALUE;
+    CryptoNvm->FCntList.AFCntDown = FCNT_DOWN_INITIAL_VALUE;
 
     return LORAMAC_CRYPTO_SUCCESS;
 }
