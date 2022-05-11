@@ -516,7 +516,7 @@ bool RegionEU433RxConfig( RxConfigParams_t* rxConfig, int8_t* datarate )
         loramac_radio_gfsk_cfg_params_t gfsk_params = {
             .rf_freq_in_hz = frequency,
             .br_in_bps =  ( uint32_t )phyDr * 1000,
-            .bw_dsb_in_hz = 50000,
+            .bw_dsb_in_hz = 100000,
             .preamble_len_in_bits = 40,
             .sync_word_len_in_bits = 24,
             .is_pkt_len_fixed = false,
@@ -567,7 +567,7 @@ bool RegionEU433TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
             .tx_rf_pwr_in_dbm = phyTxPower,
             .br_in_bps =  ( uint32_t )phyDr * 1000,
             .fdev_in_hz = 25000,
-            .bw_dsb_in_hz = 50000,
+            .bw_dsb_in_hz = 100000,
             .preamble_len_in_bits = 40,
             .sync_word_len_in_bits = 24,
             .is_pkt_len_fixed = false,

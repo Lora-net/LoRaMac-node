@@ -797,7 +797,7 @@ bool RegionCN470TxConfig( TxConfigParams_t* txConfig, int8_t* txPower, TimerTime
             .tx_rf_pwr_in_dbm = phyTxPower,
             .br_in_bps =  ( uint32_t )phyDr * 1000,
             .fdev_in_hz = 25000,
-            .bw_dsb_in_hz = 50000,
+            .bw_dsb_in_hz = 100000,
             .preamble_len_in_bits = 40,
             .sync_word_len_in_bits = 24,
             .is_pkt_len_fixed = false,
