@@ -2842,6 +2842,22 @@ static LoRaMacStatus_t SerializeTxFrame( void )
             }
             MacCtx.PktBufferLen = MacCtx.TxMsg.Message.JoinReq.BufSize;
             break;
+        case LORAMAC_MSG_TYPE_RE_JOIN_0_2:
+            serializeStatus = LoRaMacSerializerReJoinType0or2( &MacCtx.TxMsg.Message.ReJoin0or2 );
+            if( LORAMAC_SERIALIZER_SUCCESS != serializeStatus )
+            {
+                return LORAMAC_STATUS_CRYPTO_ERROR;
+            }
+            MacCtx.PktBufferLen = MacCtx.TxMsg.Message.ReJoin0or2.BufSize;
+            break;
+        case LORAMAC_MSG_TYPE_RE_JOIN_1:
+            serializeStatus = LoRaMacSerializerReJoinType1( &MacCtx.TxMsg.Message.ReJoin1 );
+            if( LORAMAC_SERIALIZER_SUCCESS != serializeStatus )
+            {
+                return LORAMAC_STATUS_CRYPTO_ERROR;
+            }
+            MacCtx.PktBufferLen = MacCtx.TxMsg.Message.ReJoin1.BufSize;
+            break;
         case LORAMAC_MSG_TYPE_DATA:
             serializeStatus = LoRaMacSerializerData( &MacCtx.TxMsg.Message.Data );
             if( LORAMAC_SERIALIZER_SUCCESS != serializeStatus )
