@@ -2018,6 +2018,9 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
         {
             if( deviceClass == CLASS_A )
             {
+                // Reset RxSlot to NONE
+                MacCtx.RxSlot = RX_SLOT_NONE;
+
                 Nvm.MacGroup2.DeviceClass = deviceClass;
 
                 // Set the radio into sleep to setup a defined state
