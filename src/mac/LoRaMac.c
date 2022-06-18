@@ -3838,6 +3838,10 @@ LoRaMacStatus_t LoRaMacStop( void )
 {
     if( LoRaMacIsBusy( ) == false )
     {
+        if( Nvm.MacGroup2.DeviceClass == CLASS_C )
+        {
+            Radio.Sleep( );
+        }
         MacCtx.MacState = LORAMAC_STOPPED;
         return LORAMAC_STATUS_OK;
     }
