@@ -1955,6 +1955,8 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
             {
                 // Revert back RxC parameters
                 Nvm.MacGroup2.MacParams.RxCChannel = Nvm.MacGroup2.MacParams.Rx2Channel;
+
+                status = LORAMAC_STATUS_OK;
             }
             if( deviceClass == CLASS_B )
             {
@@ -2904,18 +2906,22 @@ static LoRaMacStatus_t ScheduleTx( bool allowDelayedTx )
 
     if( status != LORAMAC_STATUS_OK )
     {
-        if( ( status == LORAMAC_STATUS_DUTYCYCLE_RESTRICTED ) &&
-            ( allowDelayedTx == true ) )
+        if( status == LORAMAC_STATUS_DUTYCYCLE_RESTRICTED )
         {
-            // Allow delayed transmissions. We have to allow it in case
-            // the MAC must retransmit a frame with the frame repetitions
             if( MacCtx.DutyCycleWaitTime != 0 )
-            {// Send later - prepare timer
-                MacCtx.MacState |= LORAMAC_TX_DELAYED;
-                TimerSetValue( &MacCtx.TxDelayedTimer, MacCtx.DutyCycleWaitTime );
-                TimerStart( &MacCtx.TxDelayedTimer );
+            {
+                if( allowDelayedTx == true )
+                {
+                    // Allow delayed transmissions. We have to allow it in case
+                    // the MAC must retransmit a frame with the frame repetitions
+                    MacCtx.MacState |= LORAMAC_TX_DELAYED;
+                    TimerSetValue( &MacCtx.TxDelayedTimer, MacCtx.DutyCycleWaitTime );
+                    TimerStart( &MacCtx.TxDelayedTimer );
+                    return LORAMAC_STATUS_OK;
+                }
+                // Need to delay, but allowDelayedTx does not allow it
+                return status;
             }
-            return LORAMAC_STATUS_OK;
         }
         else
         {// State where the MAC cannot send a frame
