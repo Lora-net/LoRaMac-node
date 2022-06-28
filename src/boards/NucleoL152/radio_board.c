@@ -43,8 +43,8 @@
 #if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
 #include "sx126x_lr_fhss.h"
 #include "ral_sx126x.h"
-#elif defined( LR1110MB1XXS )
-#include "ral_lr1110.h"
+#elif defined( LR1110MB1XXS ) || defined( LR1120MB1XXS )
+#include "ral_lr11xx.h"
 #elif defined( SX1272MB2DAS ) || defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
 #include "ral_sx127x.h"
 #else
@@ -58,7 +58,7 @@
 
 #if defined( SX1261MBXBAS ) || defined( SX1262MBXDAS )
 #define RADIO_SHIELD_HAS_TCXO 0
-#elif defined( SX1262MBXCAS ) || defined( LR1110MB1XXS )
+#elif defined( SX1262MBXCAS ) || defined( LR1110MB1XXS ) || defined( LR1120MB1XXS )
 #define RADIO_SHIELD_HAS_TCXO 1
 #elif defined( SX1272MB2DAS ) || defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
 #define RADIO_SHIELD_HAS_TCXO 0
@@ -100,7 +100,7 @@ static radio_context_t radio_context_reference;
 static sx126x_lr_fhss_state_t sx126x_lr_fhss_state;
 #endif
 
-#elif defined( LR1110MB1XXS )
+#elif defined( LR1110MB1XXS ) || defined( LR1120MB1XXS )
 
 #elif defined( SX1272MB2DAS ) || defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
 /*!
@@ -121,8 +121,8 @@ static sx127x_t sx127x_context_reference = {
  */
 #if defined( SX126X )
 static ral_t ral_context_reference = RAL_SX126X_INSTANTIATE( &radio_context_reference );
-#elif defined( LR1110 )
-static ral_t ral_context_reference = RAL_LR1110_INSTANTIATE( &radio_context_reference );
+#elif defined( LR11XX )
+static ral_t ral_context_reference = RAL_LR11XX_INSTANTIATE( &radio_context_reference );
 #elif defined( SX127X )
 static ral_t ral_context_reference = RAL_SX127X_INSTANTIATE( &sx127x_context_reference );
 #endif
@@ -137,7 +137,7 @@ Gpio_t ant_power;
  * Device selection GPIO pins objects
  */
 Gpio_t device_sel;
-#elif defined( LR1110MB1XXS )
+#elif defined( LR1110MB1XXS ) || defined( LR1120MB1XXS )
 #elif defined( SX1272MB2DAS ) || defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
 /*!
  * Antenna switch GPIO pins objects
@@ -187,8 +187,8 @@ ral_status_t radio_board_init( const ral_t* ral_context, radio_board_dio_irq_han
 {
 #if defined( SX126X )
     return ral_sx126x_bsp_init( ral_context, dio_irq );
-#elif defined( LR1110 )
-    return ral_lr1110_bsp_init( ral_context, dio_irq );
+#elif defined( LR11XX )
+    return ral_lr11xx_bsp_init( ral_context, dio_irq );
 #elif defined( SX127X )
     return ral_sx127x_bsp_init( ral_context, dio_irq );
 #endif
@@ -204,7 +204,7 @@ void radio_board_init_io( void )
     GpioInit( &radio_context->busy, RADIO_BUSY, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &radio_context->dio_1, RADIO_DIO_1, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &device_sel, RADIO_DEVICE_SEL, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-#elif defined( LR1110MB1XXS )
+#elif defined( LR1110MB1XXS ) || defined( LR1120MB1XXS )
     GpioInit( &radio_context->reset, RADIO_RESET, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
     GpioInit( &radio_context->spi.Nss, RADIO_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
     GpioInit( &radio_context->busy, RADIO_BUSY, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
@@ -227,7 +227,7 @@ void radio_board_deinit_io( void )
     GpioInit( &radio_context->spi.Nss, RADIO_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
     GpioInit( &radio_context->busy, RADIO_BUSY, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
     GpioInit( &radio_context->dio_1, RADIO_DIO_1, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-#elif defined( LR1110MB1XXS )
+#elif defined( LR1110MB1XXS ) || defined( LR1120MB1XXS )
     GpioInit( &radio_context->reset, RADIO_RESET, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
     GpioInit( &radio_context->spi.Nss, RADIO_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
     GpioInit( &radio_context->busy, RADIO_BUSY, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
@@ -253,7 +253,8 @@ void radio_board_init_dbg_io( void )
 
 void radio_board_set_ant_switch( bool is_tx_on )
 {
-#if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS ) || defined( LR1110MB1XXS )
+#if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS ) || defined( LR1110MB1XXS ) || \
+    defined( LR1120MB1XXS )
     // Antenna switch is controlled by the radio on this board design. Nothing to do.
 #elif defined( SX1272MB2DAS ) || defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
     GpioWrite( &ant_sw, ( is_tx_on == true ) ? 1 : 0 );
@@ -264,7 +265,7 @@ void radio_board_start_radio_tcxo( void )
 {
 #if defined( SX1261MBXBAS ) || defined( SX1262MBXDAS )
     // No TCXO component available on this board design. Nothing to do.
-#elif defined( SX1262MBXCAS ) || defined( LR1110MB1XXS )
+#elif defined( SX1262MBXCAS ) || defined( LR1110MB1XXS ) || defined( LR1120MB1XXS )
     // TCXO is controlled by the radio on this board design. Nothing to do.
 #elif defined( SX1272MB2DAS ) || defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
     // No TCXO component available on this board design. Nothing to do.
@@ -275,7 +276,7 @@ void radio_board_stop_radio_tcxo( void )
 {
 #if defined( SX1261MBXBAS ) || defined( SX1262MBXDAS )
     // No TCXO component available on this board design. Nothing to do.
-#elif defined( SX1262MBXCAS ) || defined( LR1110MB1XXS )
+#elif defined( SX1262MBXCAS ) || defined( LR1110MB1XXS ) || defined( LR1120MB1XXS )
     // TCXO is controlled by the radio on this board design. Nothing to do.
 #elif defined( SX1272MB2DAS ) || defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
     // No TCXO component available on this board design. Nothing to do.
@@ -288,7 +289,7 @@ uint32_t radio_board_get_tcxo_wakeup_time_in_ms( void )
     // No TCXO component available on this board design.
     // return 0 ms delay
     return 0;
-#elif defined( SX1262MBXCAS ) || defined( LR1110MB1XXS )
+#elif defined( SX1262MBXCAS ) || defined( LR1110MB1XXS ) || defined( LR1120MB1XXS )
     // TCXO component available on this board design has RADIO_BOARD_TCXO_WAKEUP_TIME ms wake up time.
     // return RADIO_BOARD_TCXO_WAKEUP_TIME ms delay
     return RADIO_BOARD_TCXO_WAKEUP_TIME;

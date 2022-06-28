@@ -54,14 +54,14 @@
 
         // MBED Radio shield selection. (Applies only to Nucleo platforms)
         // The following shields are supported:
-        // SX1272MB2DAS, SX1276MB1LAS, SX1276MB1MAS, SX1261MBXBAS(Default), SX1262MBXCAS, SX1262MBXDAS, LR1110MB1XXS.
+        // SX1272MB2DAS, SX1276MB1LAS, SX1276MB1MAS, SX1261MBXBAS(Default), SX1262MBXCAS, SX1262MBXDAS, LR1110MB1XXS, LR1120MB1XXS.
         "MBED_RADIO_SHIELD":"SX1261MBXBAS",
 
         // Enable/Disable LR-FHSS modulation support for LoRaMac application
         "LORAMAC_LR_FHSS_IS_ON": "OFF",
 
         // Secure element type selection the following are supported
-        // SOFT_SE(Default), LR1110_SE, ATECC608A_TNGLORA_SE
+        // SOFT_SE(Default), LR11XX_SE, ATECC608A_TNGLORA_SE
         "SECURE_ELEMENT":"SOFT_SE",
 
         // Secure element is pre-provisioned

@@ -1,7 +1,7 @@
 /*!
- * \file  lr1110-se.c
+ * \file  lr11xx-se.c
  *
- * \brief LR1110 Secure Element hardware implementation
+ * \brief LR11XX Secure Element hardware implementation
  *
  * The Clear BSD License
  * Copyright Semtech Corporation 2021. All rights reserved.
@@ -35,13 +35,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "radio_board.h"
-#include "lr1110_system.h"
-#include "lr1110_crypto_engine.h"
+#include "lr11xx_system.h"
+#include "lr11xx_crypto_engine.h"
 
 #include "secure-element.h"
 #include "secure-element-nvm.h"
 #include "se-identity.h"
-#include "lr1110-se-hal.h"
+#include "lr11xx-se-hal.h"
 
 /*!
  * Number of supported crypto keys
@@ -66,22 +66,22 @@
 static SecureElementNvmData_t* SeNvm;
 
 /*!
- * LR1110 radio context
+ * LR11XX radio context
  */
 radio_context_t* radio_context;
 
 /*!
- * Converts key ids from SecureElement to LR1110
+ * Converts key ids from SecureElement to LR11XX
  *
  * \param [IN] key_id SecureElement key id to be converted
  *
- * \retval key_id Converted LR1110 key id
+ * \retval key_id Converted LR11XX key id
  */
-static lr1110_crypto_keys_idx_t convert_key_id_from_se_to_lr1110( KeyIdentifier_t key_id );
+static lr11xx_crypto_keys_idx_t convert_key_id_from_se_to_lr11xx( KeyIdentifier_t key_id );
 
 SecureElementStatus_t SecureElementInit( SecureElementNvmData_t* nvm )
 {
-    lr1110_crypto_status_t status    = LR1110_CRYPTO_STATUS_ERROR;
+    lr11xx_crypto_status_t status    = LR11XX_CRYPTO_STATUS_ERROR;
     SecureElementNvmData_t seNvmInit = {
         /*!
          * end-device IEEE EUI (big endian)
@@ -113,17 +113,17 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmData_t* nvm )
 
     radio_context = radio_board_get_radio_context_reference( );
 
-    lr1110_crypto_restore_from_flash( radio_context, &status );
+    lr11xx_crypto_restore_from_flash( radio_context, &status );
 
 #if defined( SECURE_ELEMENT_PRE_PROVISIONED )
-    // Read LR1110 pre-provisioned identity
-    lr1110_system_read_uid( radio_context, SeNvm->DevEui );
-    lr1110_system_read_join_eui( radio_context, SeNvm->JoinEui );
-    lr1110_system_read_pin( radio_context, SeNvm->Pin );
+    // Read LR11XX pre-provisioned identity
+    lr11xx_system_read_uid( radio_context, SeNvm->DevEui );
+    lr11xx_system_read_join_eui( radio_context, SeNvm->JoinEui );
+    lr11xx_system_read_pin( radio_context, SeNvm->Pin );
 #else
 #if( STATIC_DEVICE_EUI == 0 )
     // Get a DevEUI from MCU unique ID
-    LR1110SeHalGetUniqueId( SeNvm->DevEui );
+    LR11XXSeHalGetUniqueId( SeNvm->DevEui );
 #endif
 #endif
 
@@ -142,23 +142,23 @@ SecureElementStatus_t SecureElementSetKey( KeyIdentifier_t keyID, uint8_t* key )
     if( ( keyID == MC_KEY_0 ) || ( keyID == MC_KEY_1 ) || ( keyID == MC_KEY_2 ) || ( keyID == MC_KEY_3 ) )
     {  // Decrypt the key if its a Mckey
 
-        lr1110_crypto_derive_key( radio_context, ( lr1110_crypto_status_t* ) &status,
-                                  convert_key_id_from_se_to_lr1110( MC_KE_KEY ),
-                                  convert_key_id_from_se_to_lr1110( keyID ), key );
+        lr11xx_crypto_derive_key( radio_context, ( lr11xx_crypto_status_t* ) &status,
+                                  convert_key_id_from_se_to_lr11xx( MC_KE_KEY ),
+                                  convert_key_id_from_se_to_lr11xx( keyID ), key );
 
         if( status == SECURE_ELEMENT_SUCCESS )
         {
-            lr1110_crypto_store_to_flash( radio_context, ( lr1110_crypto_status_t* ) &status );
+            lr11xx_crypto_store_to_flash( radio_context, ( lr11xx_crypto_status_t* ) &status );
         }
         return status;
     }
     else
     {
-        lr1110_crypto_set_key( radio_context, ( lr1110_crypto_status_t* ) &status,
-                               convert_key_id_from_se_to_lr1110( keyID ), key );
+        lr11xx_crypto_set_key( radio_context, ( lr11xx_crypto_status_t* ) &status,
+                               convert_key_id_from_se_to_lr11xx( keyID ), key );
         if( status == SECURE_ELEMENT_SUCCESS )
         {
-            lr1110_crypto_store_to_flash( radio_context, ( lr1110_crypto_status_t* ) &status );
+            lr11xx_crypto_store_to_flash( radio_context, ( lr11xx_crypto_status_t* ) &status );
         }
         return status;
     }
@@ -183,8 +183,8 @@ SecureElementStatus_t SecureElementComputeAesCmac( uint8_t* micBxBuffer, uint8_t
         localbuffer = micBuff;
     }
 
-    lr1110_crypto_compute_aes_cmac( radio_context, ( lr1110_crypto_status_t* ) &status,
-                                    convert_key_id_from_se_to_lr1110( keyID ), localbuffer, localSize,
+    lr11xx_crypto_compute_aes_cmac( radio_context, ( lr11xx_crypto_status_t* ) &status,
+                                    convert_key_id_from_se_to_lr11xx( keyID ), localbuffer, localSize,
                                     ( uint8_t* ) cmac );
     return status;
 }
@@ -199,8 +199,8 @@ SecureElementStatus_t SecureElementVerifyAesCmac( uint8_t* buffer, uint16_t size
         return SECURE_ELEMENT_ERROR_NPE;
     }
 
-    lr1110_crypto_verify_aes_cmac( radio_context, ( lr1110_crypto_status_t* ) &status,
-                                   convert_key_id_from_se_to_lr1110( keyID ), buffer, size,
+    lr11xx_crypto_verify_aes_cmac( radio_context, ( lr11xx_crypto_status_t* ) &status,
+                                   convert_key_id_from_se_to_lr11xx( keyID ), buffer, size,
                                    ( uint8_t* ) &expectedCmac );
     return status;
 }
@@ -215,8 +215,8 @@ SecureElementStatus_t SecureElementAesEncrypt( uint8_t* buffer, uint16_t size, K
         return SECURE_ELEMENT_ERROR_NPE;
     }
 
-    lr1110_crypto_aes_encrypt_01( radio_context, ( lr1110_crypto_status_t* ) &status,
-                                  convert_key_id_from_se_to_lr1110( keyID ), buffer, size, encBuffer );
+    lr11xx_crypto_aes_encrypt_01( radio_context, ( lr11xx_crypto_status_t* ) &status,
+                                  convert_key_id_from_se_to_lr11xx( keyID ), buffer, size, encBuffer );
     return status;
 }
 
@@ -230,11 +230,11 @@ SecureElementStatus_t SecureElementDeriveAndStoreKey( uint8_t* input, KeyIdentif
         return SECURE_ELEMENT_ERROR_NPE;
     }
 
-    lr1110_crypto_derive_key( radio_context, ( lr1110_crypto_status_t* ) &status,
-                              convert_key_id_from_se_to_lr1110( rootKeyID ),
-                              convert_key_id_from_se_to_lr1110( targetKeyID ), input );
+    lr11xx_crypto_derive_key( radio_context, ( lr11xx_crypto_status_t* ) &status,
+                              convert_key_id_from_se_to_lr11xx( rootKeyID ),
+                              convert_key_id_from_se_to_lr11xx( targetKeyID ), input );
 
-    lr1110_crypto_store_to_flash( radio_context, ( lr1110_crypto_status_t* ) &status );
+    lr11xx_crypto_store_to_flash( radio_context, ( lr11xx_crypto_status_t* ) &status );
     return status;
 }
 
@@ -273,9 +273,9 @@ SecureElementStatus_t SecureElementProcessJoinAccept( JoinReqIdentifier_t joinRe
 
     //   cmac = aes128_cmac(NwkKey, MHDR |  JoinNonce | NetID | DevAddr | DLSettings | RxDelay | CFList |
     //   CFListType)
-    lr1110_crypto_process_join_accept(
-        radio_context, ( lr1110_crypto_status_t* ) &status, convert_key_id_from_se_to_lr1110( encKeyID ),
-        convert_key_id_from_se_to_lr1110( NWK_KEY ), ( lr1110_crypto_lorawan_version_t ) 0, micHeader10,
+    lr11xx_crypto_process_join_accept(
+        radio_context, ( lr11xx_crypto_status_t* ) &status, convert_key_id_from_se_to_lr11xx( encKeyID ),
+        convert_key_id_from_se_to_lr11xx( NWK_KEY ), ( lr11xx_crypto_lorawan_version_t ) 0, micHeader10,
         encJoinAccept + 1, encJoinAcceptSize - 1, decJoinAccept + 1 );
 
     if( status == SECURE_ELEMENT_SUCCESS )
@@ -305,9 +305,9 @@ SecureElementStatus_t SecureElementProcessJoinAccept( JoinReqIdentifier_t joinRe
 
     micHeader11[bufItr++] = 0x20;
 
-    lr1110_crypto_process_join_accept(
-        radio_context, ( lr1110_crypto_status_t* ) &status, convert_key_id_from_se_to_lr1110( encKeyID ),
-        convert_key_id_from_se_to_lr1110( J_S_INT_KEY ), ( lr1110_crypto_lorawan_version_t ) 1, micHeader11,
+    lr11xx_crypto_process_join_accept(
+        radio_context, ( lr11xx_crypto_status_t* ) &status, convert_key_id_from_se_to_lr11xx( encKeyID ),
+        convert_key_id_from_se_to_lr11xx( J_S_INT_KEY ), ( lr11xx_crypto_lorawan_version_t ) 1, micHeader11,
         encJoinAccept + 1, encJoinAcceptSize - 1, decJoinAccept + 1 );
 
     if( status == SECURE_ELEMENT_SUCCESS )
@@ -330,7 +330,7 @@ SecureElementStatus_t SecureElementRandomNumber( uint32_t* randomNum )
     {
         return SECURE_ELEMENT_ERROR_NPE;
     }
-    *randomNum = LR1110SeHalGetRandomNumber( );
+    *randomNum = LR11XXSeHalGetRandomNumber( );
     return SECURE_ELEMENT_SUCCESS;
 }
 
@@ -380,83 +380,83 @@ uint8_t* SecureElementGetPin( void )
     return SeNvm->Pin;
 }
 
-static lr1110_crypto_keys_idx_t convert_key_id_from_se_to_lr1110( KeyIdentifier_t key_id )
+static lr11xx_crypto_keys_idx_t convert_key_id_from_se_to_lr11xx( KeyIdentifier_t key_id )
 {
-    lr1110_crypto_keys_idx_t id = LR1110_CRYPTO_KEYS_IDX_GP0;
+    lr11xx_crypto_keys_idx_t id = LR11XX_CRYPTO_KEYS_IDX_GP0;
 
     switch( key_id )
     {
     case APP_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_APP_KEY;
+        id = LR11XX_CRYPTO_KEYS_IDX_APP_KEY;
         break;
     case NWK_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_NWK_KEY;
+        id = LR11XX_CRYPTO_KEYS_IDX_NWK_KEY;
         break;
     case J_S_INT_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_J_S_INT_KEY;
+        id = LR11XX_CRYPTO_KEYS_IDX_J_S_INT_KEY;
         break;
     case J_S_ENC_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_J_S_ENC_KEY;
+        id = LR11XX_CRYPTO_KEYS_IDX_J_S_ENC_KEY;
         break;
     case F_NWK_S_INT_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_F_NWK_S_INT_KEY;
+        id = LR11XX_CRYPTO_KEYS_IDX_F_NWK_S_INT_KEY;
         break;
     case S_NWK_S_INT_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_S_NWK_S_INT_KEY;
+        id = LR11XX_CRYPTO_KEYS_IDX_S_NWK_S_INT_KEY;
         break;
     case NWK_S_ENC_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_NWK_S_ENC_KEY;
+        id = LR11XX_CRYPTO_KEYS_IDX_NWK_S_ENC_KEY;
         break;
     case APP_S_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_APP_S_KEY;
+        id = LR11XX_CRYPTO_KEYS_IDX_APP_S_KEY;
         break;
     case MC_ROOT_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_GP_KE_KEY_5;
+        id = LR11XX_CRYPTO_KEYS_IDX_GP_KE_KEY_5;
         break;
     case MC_KE_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_GP_KE_KEY_4;
+        id = LR11XX_CRYPTO_KEYS_IDX_GP_KE_KEY_4;
         break;
     case MC_KEY_0:
-        id = LR1110_CRYPTO_KEYS_IDX_GP_KE_KEY_0;
+        id = LR11XX_CRYPTO_KEYS_IDX_GP_KE_KEY_0;
         break;
     case MC_APP_S_KEY_0:
-        id = LR1110_CRYPTO_KEYS_IDX_MC_APP_S_KEY_0;
+        id = LR11XX_CRYPTO_KEYS_IDX_MC_APP_S_KEY_0;
         break;
     case MC_NWK_S_KEY_0:
-        id = LR1110_CRYPTO_KEYS_IDX_MC_NWK_S_KEY_0;
+        id = LR11XX_CRYPTO_KEYS_IDX_MC_NWK_S_KEY_0;
         break;
     case MC_KEY_1:
-        id = LR1110_CRYPTO_KEYS_IDX_GP_KE_KEY_1;
+        id = LR11XX_CRYPTO_KEYS_IDX_GP_KE_KEY_1;
         break;
     case MC_APP_S_KEY_1:
-        id = LR1110_CRYPTO_KEYS_IDX_MC_APP_S_KEY_1;
+        id = LR11XX_CRYPTO_KEYS_IDX_MC_APP_S_KEY_1;
         break;
     case MC_NWK_S_KEY_1:
-        id = LR1110_CRYPTO_KEYS_IDX_MC_NWK_S_KEY_1;
+        id = LR11XX_CRYPTO_KEYS_IDX_MC_NWK_S_KEY_1;
         break;
     case MC_KEY_2:
-        id = LR1110_CRYPTO_KEYS_IDX_GP_KE_KEY_2;
+        id = LR11XX_CRYPTO_KEYS_IDX_GP_KE_KEY_2;
         break;
     case MC_APP_S_KEY_2:
-        id = LR1110_CRYPTO_KEYS_IDX_MC_APP_S_KEY_2;
+        id = LR11XX_CRYPTO_KEYS_IDX_MC_APP_S_KEY_2;
         break;
     case MC_NWK_S_KEY_2:
-        id = LR1110_CRYPTO_KEYS_IDX_MC_NWK_S_KEY_2;
+        id = LR11XX_CRYPTO_KEYS_IDX_MC_NWK_S_KEY_2;
         break;
     case MC_KEY_3:
-        id = LR1110_CRYPTO_KEYS_IDX_GP_KE_KEY_3;
+        id = LR11XX_CRYPTO_KEYS_IDX_GP_KE_KEY_3;
         break;
     case MC_APP_S_KEY_3:
-        id = LR1110_CRYPTO_KEYS_IDX_MC_APP_S_KEY_3;
+        id = LR11XX_CRYPTO_KEYS_IDX_MC_APP_S_KEY_3;
         break;
     case MC_NWK_S_KEY_3:
-        id = LR1110_CRYPTO_KEYS_IDX_MC_NWK_S_KEY_3;
+        id = LR11XX_CRYPTO_KEYS_IDX_MC_NWK_S_KEY_3;
         break;
     case SLOT_RAND_ZERO_KEY:
-        id = LR1110_CRYPTO_KEYS_IDX_GP0;
+        id = LR11XX_CRYPTO_KEYS_IDX_GP0;
         break;
     default:
-        id = LR1110_CRYPTO_KEYS_IDX_GP1;
+        id = LR11XX_CRYPTO_KEYS_IDX_GP1;
         break;
     }
     return id;

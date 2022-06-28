@@ -143,11 +143,11 @@ typedef enum ral_lora_bw_e
     RAL_LORA_BW_041_KHZ,   // All except SX128X and SX1272
     RAL_LORA_BW_062_KHZ,   // All except SX128X and SX1272
     RAL_LORA_BW_125_KHZ,   // All except SX128X
-    RAL_LORA_BW_200_KHZ,   // SX128X only
+    RAL_LORA_BW_200_KHZ,   // LR112X and SX128X only
     RAL_LORA_BW_250_KHZ,   // All except SX128X
-    RAL_LORA_BW_400_KHZ,   // SX128X only
+    RAL_LORA_BW_400_KHZ,   // LR112X and SX128X only
     RAL_LORA_BW_500_KHZ,   // All except SX128X
-    RAL_LORA_BW_800_KHZ,   // SX128X only
+    RAL_LORA_BW_800_KHZ,   // LR112X and SX128X only
     RAL_LORA_BW_1600_KHZ,  // SX128X only
 } ral_lora_bw_t;
 
@@ -242,17 +242,14 @@ enum ral_rx_status_gfsk_e
 };
 
 /*!
- * \brief GFSK Header Type configurations
+ * @brief GFSK Header Type configurations
  *
- * This parameter indicates whether or not the payload length is sent and read
- * over the air.
+ * This parameter indicates whether or not the payload length is sent and read over the air.
  *
- * If the payload length is known beforehand by both transmitter and receiver,
- * therefore there is no need to send it over the air. Otherwise, setting this
- * parameter to LR1110_RADIO_GFSK_PKT_VAR_LEN will make the modem to
- * automatically prepand a byte containing the payload length to the the payload
- * on transmitter side. On receiver side, this first byte is read to set the
- * payload length to read.
+ * If the payload length is known beforehand by both transmitter and receiver, therefore there is no need to send it
+ * over the air and the parameter can be set to RAL_GFSK_PKT_FIX_LEN. Otherwise, setting this parameter to
+ * RAL_GFSK_PKT_VAR_LEN will make the modem to automatically prepend a byte containing the payload length to the payload
+ * on transmitter side. On receiver side, this first byte is read to set the payload length to read.
  *
  * This configuration is only available for GFSK packet types.
  */
@@ -405,7 +402,7 @@ typedef struct ral_lr_fhss_params_s
  * This memory is to be allocated by the caller. It is used by the radio driver to store internal
  * LR-FHSS state. This is not needed by all radio drivers, but in order to support all transceivers,
  * this should point to a block of at least RAL_LR_FHSS_STATE_MAXSIZE bytes of RAM. If you are only
- * targeting LR1110, for instance, you may use NULL.
+ * targeting LR11XX, for instance, you may use NULL.
  */
 typedef void* ral_lr_fhss_memory_state_t;
 

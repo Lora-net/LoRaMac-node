@@ -40,7 +40,7 @@ cmake_minimum_required(VERSION 3.6)
 #---------------------------------------------------------------------------------------
 
 # Allow switching of radios
-set(RADIO_LIST sx1272 sx1276 sx126x lr1110)
+set(RADIO_LIST sx1272 sx1276 sx126x lr11xx)
 set(RADIO sx1272 CACHE STRING "Default radio is sx1272")
 set_property(CACHE RADIO PROPERTY STRINGS ${RADIO_LIST})
 set_property(CACHE RADIO PROPERTY ADVANCED)
@@ -58,19 +58,19 @@ list(APPEND ${PROJECT_NAME}_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/loramac_radio.c
 )
 
-if(${RADIO} STREQUAL lr1110)
+if(${RADIO} STREQUAL lr11xx)
     list(APPEND ${PROJECT_NAME}_SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/smtc_ral/src/ral_lr1110.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_bootloader.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_crypto_engine.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_driver_version.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_gnss.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_lr_fhss.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_radio_timings.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_radio.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_regmem.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_system.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src/lr1110_wifi.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/smtc_ral/src/ral_lr11xx.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr11xx_driver/src/lr11xx_bootloader.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr11xx_driver/src/lr11xx_crypto_engine.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr11xx_driver/src/lr11xx_driver_version.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr11xx_driver/src/lr11xx_gnss.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr11xx_driver/src/lr11xx_lr_fhss.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr11xx_driver/src/lr11xx_radio_timings.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr11xx_driver/src/lr11xx_radio.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr11xx_driver/src/lr11xx_regmem.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr11xx_driver/src/lr11xx_system.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr11xx_driver/src/lr11xx_wifi.c
     )
 elseif(${RADIO} STREQUAL sx126x)
     list(APPEND ${PROJECT_NAME}_SOURCES
@@ -96,9 +96,9 @@ list(APPEND ${PROJECT_NAME}_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/smtc_ral/src
 )
 
-if(${RADIO} STREQUAL lr1110 )
+if(${RADIO} STREQUAL lr11xx )
     list(APPEND ${PROJECT_NAME}_INCLUDES
-        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110_driver/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr11xx_driver/src
     )
 elseif(${RADIO} STREQUAL sx126x)
     list(APPEND ${PROJECT_NAME}_INCLUDES
@@ -119,8 +119,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<TARGET_PROPERTY:system,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
-if(${RADIO} STREQUAL lr1110)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC -DLR1110 -DLR1110_DISABLE_WARNINGS)
+if(${RADIO} STREQUAL lr11xx)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC -DLR11XX -DLR11XX_DISABLE_WARNINGS)
 endif()
 
 if(${RADIO} STREQUAL sx126x)

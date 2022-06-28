@@ -1,7 +1,7 @@
 /**
- * @file      ral_lr1110_bsp.h
+ * @file      ral_lr11xx_bsp.h
  *
- * @brief     Board Support Package for the LR1110-specific RAL.
+ * @brief     Board Support Package for the LR11XX-specific RAL.
  *
  * The Clear BSD License
  * Copyright Semtech Corporation 2021. All rights reserved.
@@ -32,8 +32,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RAL_LR1110_BSP_H__
-#define RAL_LR1110_BSP_H__
+#ifndef RAL_LR11XX_BSP_H__
+#define RAL_LR11XX_BSP_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,8 +46,8 @@ extern "C" {
 
 #include <stdint.h>
 #include "ral_defs.h"
-#include "lr1110_radio_types.h"
-#include "lr1110_system_types.h"
+#include "lr11xx_radio_types.h"
+#include "lr11xx_system_types.h"
 
 /*
  * -----------------------------------------------------------------------------
@@ -64,19 +64,19 @@ extern "C" {
  * --- PUBLIC TYPES ------------------------------------------------------------
  */
 
-typedef struct ral_lr1110_bsp_tx_cfg_input_params_s
+typedef struct ral_lr11xx_bsp_tx_cfg_input_params_s
 {
     int8_t   system_output_pwr_in_dbm;
     uint32_t freq_in_hz;
-} ral_lr1110_bsp_tx_cfg_input_params_t;
+} ral_lr11xx_bsp_tx_cfg_input_params_t;
 
-typedef struct ral_lr1110_bsp_tx_cfg_output_params_s
+typedef struct ral_lr11xx_bsp_tx_cfg_output_params_s
 {
-    lr1110_radio_pa_cfg_t    pa_cfg;
-    lr1110_radio_ramp_time_t pa_ramp_time;
+    lr11xx_radio_pa_cfg_t    pa_cfg;
+    lr11xx_radio_ramp_time_t pa_ramp_time;
     int8_t                   chip_output_pwr_in_dbm_configured;
     int8_t                   chip_output_pwr_in_dbm_expected;
-} ral_lr1110_bsp_tx_cfg_output_params_t;
+} ral_lr11xx_bsp_tx_cfg_output_params_t;
 
 /*
  * -----------------------------------------------------------------------------
@@ -89,7 +89,7 @@ typedef struct ral_lr1110_bsp_tx_cfg_output_params_s
  * @param [in] context Chip implementation context
  * @param [out] rf_switch_cfg RF switch configuration to be applied to the chip
  */
-void ral_lr1110_bsp_get_rf_switch_cfg( const void* context, lr1110_system_rfswitch_cfg_t* rf_switch_cfg );
+void ral_lr11xx_bsp_get_rf_switch_cfg( const void* context, lr11xx_system_rfswitch_cfg_t* rf_switch_cfg );
 
 /**
  * Get the Tx-related configuration (power amplifier configuration, output power and ramp time) to be applied to the
@@ -99,8 +99,8 @@ void ral_lr1110_bsp_get_rf_switch_cfg( const void* context, lr1110_system_rfswit
  * @param [in] input_params Parameters used to compute the chip configuration
  * @param [out] output_params Parameters to be configured in the chip
  */
-void ral_lr1110_bsp_get_tx_cfg( const void* context, const ral_lr1110_bsp_tx_cfg_input_params_t* input_params,
-                                ral_lr1110_bsp_tx_cfg_output_params_t* output_params );
+void ral_lr11xx_bsp_get_tx_cfg( const void* context, const ral_lr11xx_bsp_tx_cfg_input_params_t* input_params,
+                                ral_lr11xx_bsp_tx_cfg_output_params_t* output_params );
 
 /**
  * Get the regulator mode
@@ -108,7 +108,7 @@ void ral_lr1110_bsp_get_tx_cfg( const void* context, const ral_lr1110_bsp_tx_cfg
  * @param [in] context Chip implementation context
  * @param [out] reg_mode System regulator mode
  */
-void ral_lr1110_bsp_get_reg_mode( const void* context, lr1110_system_reg_mode_t* reg_mode );
+void ral_lr11xx_bsp_get_reg_mode( const void* context, lr11xx_system_reg_mode_t* reg_mode );
 
 /**
  * Get the XOSC configuration
@@ -120,8 +120,8 @@ void ral_lr1110_bsp_get_reg_mode( const void* context, lr1110_system_reg_mode_t*
  * @param [out] supply_voltage TCXO supply voltage parameter
  * @param [out] startup_time_in_tick TCXO setup time in clock tick
  */
-void ral_lr1110_bsp_get_xosc_cfg( const void* context, bool* tcxo_is_radio_controlled,
-                                  lr1110_system_tcxo_supply_voltage_t* supply_voltage, uint32_t* startup_time_in_tick );
+void ral_lr11xx_bsp_get_xosc_cfg( const void* context, bool* tcxo_is_radio_controlled,
+                                  lr11xx_system_tcxo_supply_voltage_t* supply_voltage, uint32_t* startup_time_in_tick );
 
 /**
  * Get the CRC on SPI state
@@ -129,12 +129,22 @@ void ral_lr1110_bsp_get_xosc_cfg( const void* context, bool* tcxo_is_radio_contr
  * @param [in] context Chip implementation context
  * @param [out] crc_is_activated Let the caller know if the CRC is activated
  */
-void ral_lr1110_bsp_get_crc_state( const void* context, bool* crc_is_activated );
+void ral_lr11xx_bsp_get_crc_state( const void* context, bool* crc_is_activated );
+
+/**
+ * Get the RSSI calibration table
+ *
+ * @param [in] context Chip implementation context
+ * @param [in] freq_in_hz RF frequency in Hertz
+ * @param [out] rssi_calibration_table Pointer to a structure holding the RSSI calibration table
+ */
+void ral_lr11xx_bsp_get_rssi_calibration_table( const void* context, const uint32_t freq_in_hz,
+                                                lr11xx_radio_rssi_calibration_table_t* rssi_calibration_table );
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  // RAL_LR1110_BSP_H__
+#endif  // RAL_LR11XX_BSP_H__
 
 /* --- EOF ------------------------------------------------------------------ */

@@ -1,5 +1,5 @@
 /*!
- * \file  soft-se-hal.h
+ * \file  lr11xx-se-hal.c
  *
  * \brief Secure Element hardware abstraction layer implementation
  *
@@ -34,14 +34,14 @@
  */
 #include "board.h"
 #include "loramac_radio.h"
-#include "lr1110-se-hal.h"
+#include "lr11xx-se-hal.h"
 
-void LR1110SeHalGetUniqueId( uint8_t *id )
+void LR11XXSeHalGetUniqueId( uint8_t *id )
 {
     BoardGetUniqueId( id );
 }
 
-uint32_t LR1110SeHalGetRandomNumber( void )
+uint32_t LR11XXSeHalGetRandomNumber( void )
 {
     uint32_t rnd = 0;
 

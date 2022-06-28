@@ -15,6 +15,10 @@ The following mbed shields may be used with NucleoLxxx platforms:
 * [LR1110MB1DJS]()
 * [LR1110MB1GIS]()
 * [LR1110MB1GJS]()
+* [LR1120MB1DIS]()
+* [LR1120MB1DJS]()
+* [LR1120MB1GIS]()
+* [LR1120MB1GJS]()
 
 Development kit:
 
@@ -31,6 +35,11 @@ _**Note**_: The MBX abbreviation used by the shield name variables(i.e: SX1261MB
   * LR1110DVK1TBKS uses a LR1110MB1DIS or LR1110MB1DJS shield
   * LR1110DVK1TCKS uses a LR1110MB1DIS or LR1110MB1DJS shield
   * LR1110DVK1TGKS uses a LR1110MB1GJS or LR1110MB1GJS shield
+
+* [LR1120DVK1TXKS]()
+  * LR1120DVK1TBKS uses a LR1120MB1DIS or LR1120MB1DJS shield
+  * LR1120DVK1TCKS uses a LR1120MB1DIS or LR1120MB1DJS shield
+  * LR1120DVK1TGKS uses a LR1120MB1GJS or LR1120MB1GJS shield
 
 # Discovery kit platform support documents
 

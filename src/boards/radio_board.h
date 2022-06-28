@@ -50,8 +50,8 @@ extern "C" {
 #include "ral.h"
 #if defined( SX126X )
 #include "ral_sx126x_bsp.h"
-#elif defined( LR1110 )
-#include "ral_lr1110_bsp.h"
+#elif defined( LR11XX )
+#include "ral_lr11xx_bsp.h"
 #elif defined( SX127X )
 #include "ral_sx127x_bsp.h"
 #else
@@ -130,7 +130,7 @@ typedef struct radio_context_s
 {
     Spi_t  spi;
     Gpio_t reset;
-#if defined( SX126X ) || defined( LR1110 )
+#if defined( SX126X ) || defined( LR11XX )
     Gpio_t busy;
     Gpio_t dio_1;
 #elif defined( SX127X )
@@ -281,8 +281,8 @@ uint32_t radio_board_get_dio_1_pin_state( void );
  */
 #if defined( SX126X )
 ral_status_t ral_sx126x_bsp_init( const ral_t* ral_context, radio_board_dio_irq_handler dio_irq );
-#elif defined( LR1110 )
-ral_status_t ral_lr1110_bsp_init( const ral_t* ral_context, radio_board_dio_irq_handler dio_irq );
+#elif defined( LR11XX )
+ral_status_t ral_lr11xx_bsp_init( const ral_t* ral_context, radio_board_dio_irq_handler dio_irq );
 #elif defined( SX127X )
 ral_status_t ral_sx127x_bsp_init( const ral_t* ral_context, radio_board_dio_irq_handler dio_irq );
 #endif

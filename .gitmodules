@@ -1,9 +1,9 @@
-[submodule "src/radio/lr1110_driver"]
-	path = src/radio/lr1110_driver
-	url = https://github.com/Lora-net/lr1110_driver.git
 [submodule "src/peripherals/atecc608a-tnglora-se/cryptoauthlib"]
 	path = src/peripherals/atecc608a-tnglora-se/cryptoauthlib
 	url = https://github.com/MicrochipTech/cryptoauthlib
 [submodule "src/radio/sx126x_driver"]
 	path = src/radio/sx126x_driver
 	url = https://github.com/Lora-net/sx126x_driver
+[submodule "src/radio/lr11xx_driver"]
+	path = src/radio/lr11xx_driver
+	url = https://github.com/Lora-net/SWDR001.git

@@ -1,7 +1,7 @@
 /*!
- * \file  lr1110_hal.c
+ * \file  lr11xx_hal.c
  *
- * \brief Implements the lr1110 radio HAL functions
+ * \brief Implements the lr11xx radio HAL functions
  *
  * The Clear BSD License
  * Copyright Semtech Corporation 2021. All rights reserved.
@@ -42,7 +42,7 @@
 #include "board.h"
 #include "delay.h"
 #include "radio_board.h"
-#include "lr1110_hal.h"
+#include "lr11xx_hal.h"
 
 /*
  * -----------------------------------------------------------------------------
@@ -72,26 +72,26 @@
 /*!
  * \brief Wait until radio busy pin returns to 0
  */
-static lr1110_hal_status_t lr1110_hal_wait_on_busy( const void* context );
+static lr11xx_hal_status_t lr11xx_hal_wait_on_busy( const void* context );
 
 /*
  * -----------------------------------------------------------------------------
  * --- PUBLIC FUNCTIONS DEFINITION ---------------------------------------------
  */
 
-lr1110_hal_status_t lr1110_hal_write( const void* context, const uint8_t* command, const uint16_t command_length,
+lr11xx_hal_status_t lr11xx_hal_write( const void* context, const uint8_t* command, const uint16_t command_length,
                                       const uint8_t* data, const uint16_t data_length )
 
 {
     radio_context_t* radio_context = ( radio_context_t* ) context;
 
-#if defined( USE_LR1110_CRC_OVER_SPI )
+#if defined( USE_LR11XX_CRC_OVER_SPI )
     // First compute crc
-    uint8_t cmd_crc = lr1110_hal_compute_crc( 0xFF, command, command_length );
-    cmd_crc         = lr1110_hal_compute_crc( cmd_crc, data, data_length );
+    uint8_t cmd_crc = lr11xx_hal_compute_crc( 0xFF, command, command_length );
+    cmd_crc         = lr11xx_hal_compute_crc( cmd_crc, data, data_length );
 #endif
 
-    if( lr1110_hal_wakeup( radio_context ) == LR1110_HAL_STATUS_OK )
+    if( lr11xx_hal_wakeup( radio_context ) == LR11XX_HAL_STATUS_OK )
     {
         GpioWrite( &radio_context->spi.Nss, 0 );
         for( uint16_t i = 0; i < command_length; i++ )
@@ -102,43 +102,43 @@ lr1110_hal_status_t lr1110_hal_write( const void* context, const uint8_t* comman
         {
             SpiInOut( &radio_context->spi, data[i] );
         }
-#if defined( USE_LR1110_CRC_OVER_SPI )
+#if defined( USE_LR11XX_CRC_OVER_SPI )
         // Add crc byte at the end of the transaction
         SpiInOut( &radio_context->spi, cmd_crc );
 #endif
         GpioWrite( &radio_context->spi.Nss, 1 );
 
-        // 0x011B - LR1110_SYSTEM_SET_SLEEP_OC
+        // 0x011B - LR11XX_SYSTEM_SET_SLEEP_OC
         if( ( ( command[0] << 8 ) | command[1] ) != 0x011B )
         {
-            return lr1110_hal_wait_on_busy( radio_context );
+            return lr11xx_hal_wait_on_busy( radio_context );
         }
         else
         {
-            return LR1110_HAL_STATUS_OK;
+            return LR11XX_HAL_STATUS_OK;
         }
     }
-    return LR1110_HAL_STATUS_ERROR;
+    return LR11XX_HAL_STATUS_ERROR;
 }
 
-lr1110_hal_status_t lr1110_hal_read( const void* context, const uint8_t* command, const uint16_t command_length,
+lr11xx_hal_status_t lr11xx_hal_read( const void* context, const uint8_t* command, const uint16_t command_length,
                                      uint8_t* data, const uint16_t data_length )
 {
     radio_context_t* radio_context = ( radio_context_t* ) context;
 
-#if defined( USE_LR1110_CRC_OVER_SPI )
+#if defined( USE_LR11XX_CRC_OVER_SPI )
     // First compute crc
-    uint8_t cmd_crc = lr1110_hal_compute_crc( 0xFF, command, command_length );
+    uint8_t cmd_crc = lr11xx_hal_compute_crc( 0xFF, command, command_length );
 #endif
 
-    if( lr1110_hal_wakeup( radio_context ) == LR1110_HAL_STATUS_OK )
+    if( lr11xx_hal_wakeup( radio_context ) == LR11XX_HAL_STATUS_OK )
     {
         GpioWrite( &radio_context->spi.Nss, 0 );
         for( uint16_t i = 0; i < command_length; i++ )
         {
             SpiInOut( &radio_context->spi, command[i] );
         }
-#if defined( USE_LR1110_CRC_OVER_SPI )
+#if defined( USE_LR11XX_CRC_OVER_SPI )
         // Add crc byte at the end of the transaction
         SpiInOut( &radio_context->spi, cmd_crc );
 #endif
@@ -146,12 +146,12 @@ lr1110_hal_status_t lr1110_hal_read( const void* context, const uint8_t* command
 
         if( data_length > 0 )
         {
-            lr1110_hal_wait_on_busy( radio_context );
+            lr11xx_hal_wait_on_busy( radio_context );
 
             // Send dummy byte
             GpioWrite( &radio_context->spi.Nss, 0 );
 
-#if defined( USE_LR1110_CRC_OVER_SPI )
+#if defined( USE_LR11XX_CRC_OVER_SPI )
             // save dummy for crc calculation
             const uint8_t dummy = SpiInOut( &radio_context->spi, 0 );
 #else
@@ -162,36 +162,36 @@ lr1110_hal_status_t lr1110_hal_read( const void* context, const uint8_t* command
             {
                 data[i] = SpiInOut( &radio_context->spi, 0 );
             }
-#if defined( USE_LR1110_CRC_OVER_SPI )
-            // read crc sent by lr1110 at the end of the transaction
+#if defined( USE_LR11XX_CRC_OVER_SPI )
+            // read crc sent by lr11xx at the end of the transaction
             const uint8_t rx_crc = SpiInOut( &radio_context->spi, 0 );
 #endif
             GpioWrite( &radio_context->spi.Nss, 1 );
 
-#if defined( USE_LR1110_CRC_OVER_SPI )
+#if defined( USE_LR11XX_CRC_OVER_SPI )
             // check crc value
-            uint8_t computed_crc = lr1110_hal_compute_crc( 0xFF, &dummy, 1 );
-            computed_crc         = lr1110_hal_compute_crc( computed_crc, data, data_length );
+            uint8_t computed_crc = lr11xx_hal_compute_crc( 0xFF, &dummy, 1 );
+            computed_crc         = lr11xx_hal_compute_crc( computed_crc, data, data_length );
             if( rx_crc != computed_crc )
             {
-                return LR1110_HAL_STATUS_ERROR;
+                return LR11XX_HAL_STATUS_ERROR;
             }
 #endif
-            return lr1110_hal_wait_on_busy( radio_context );
+            return lr11xx_hal_wait_on_busy( radio_context );
         }
     }
-    return LR1110_HAL_STATUS_ERROR;
+    return LR11XX_HAL_STATUS_ERROR;
 }
 
-lr1110_hal_status_t lr1110_hal_direct_read( const void* context, uint8_t* data, const uint16_t data_length )
+lr11xx_hal_status_t lr11xx_hal_direct_read( const void* context, uint8_t* data, const uint16_t data_length )
 {
     radio_context_t* radio_context = ( radio_context_t* ) context;
-#if defined( USE_LR1110_CRC_OVER_SPI )
+#if defined( USE_LR11XX_CRC_OVER_SPI )
     // First compute crc if needed
-    uint8_t cmd_crc = lr1110_hal_compute_crc( 0xFF, command, data_length );
+    uint8_t cmd_crc = lr11xx_hal_compute_crc( 0xFF, command, data_length );
 #endif
 
-    if( lr1110_hal_wakeup( radio_context ) == LR1110_HAL_STATUS_OK )
+    if( lr11xx_hal_wakeup( radio_context ) == LR11XX_HAL_STATUS_OK )
     {
         GpioWrite( &radio_context->spi.Nss, 0 );
 
@@ -199,26 +199,26 @@ lr1110_hal_status_t lr1110_hal_direct_read( const void* context, uint8_t* data, 
         {
             data[i] = SpiInOut( &radio_context->spi, 0 );
         }
-#if defined( USE_LR1110_CRC_OVER_SPI )
-        // read crc sent by lr1110 while sending command crc
+#if defined( USE_LR11XX_CRC_OVER_SPI )
+        // read crc sent by lr11xx while sending command crc
         const uint8_t rx_crc = SpiInOut( &radio_context->spi, cmd_crc );
 #endif
         GpioWrite( &radio_context->spi.Nss, 1 );
 
-#if defined( USE_LR1110_CRC_OVER_SPI )
+#if defined( USE_LR11XX_CRC_OVER_SPI )
         // check crc value
-        uint8_t computed_crc = lr1110_hal_compute_crc( 0xFF, data, data_length );
+        uint8_t computed_crc = lr11xx_hal_compute_crc( 0xFF, data, data_length );
         if( rx_crc != computed_crc )
         {
-            return LR1110_HAL_STATUS_ERROR;
+            return LR11XX_HAL_STATUS_ERROR;
         }
 #endif
-        return LR1110_HAL_STATUS_OK;
+        return LR11XX_HAL_STATUS_OK;
     }
-    return LR1110_HAL_STATUS_ERROR;
+    return LR11XX_HAL_STATUS_ERROR;
 }
 
-lr1110_hal_status_t lr1110_hal_reset( const void* context )
+lr11xx_hal_status_t lr11xx_hal_reset( const void* context )
 {
     radio_context_t* radio_context = ( radio_context_t* ) context;
 
@@ -228,10 +228,10 @@ lr1110_hal_status_t lr1110_hal_reset( const void* context )
     DelayMs( 1 );
     GpioWrite( &radio_context->reset, 1 );
 
-    return LR1110_HAL_STATUS_OK;
+    return LR11XX_HAL_STATUS_OK;
 }
 
-lr1110_hal_status_t lr1110_hal_wakeup( const void* context )
+lr11xx_hal_status_t lr11xx_hal_wakeup( const void* context )
 {
     radio_context_t* radio_context = ( radio_context_t* ) context;
 
@@ -247,7 +247,7 @@ lr1110_hal_status_t lr1110_hal_wakeup( const void* context )
     }
 
     // Wait on busy pin for 100 ms
-    return lr1110_hal_wait_on_busy( radio_context );
+    return lr11xx_hal_wait_on_busy( radio_context );
 }
 
 /*
@@ -255,7 +255,7 @@ lr1110_hal_status_t lr1110_hal_wakeup( const void* context )
  * --- PRIVATE FUNCTIONS DEFINITION --------------------------------------------
  */
 
-static lr1110_hal_status_t lr1110_hal_wait_on_busy( const void* context )
+static lr11xx_hal_status_t lr11xx_hal_wait_on_busy( const void* context )
 {
     radio_context_t* radio_context = ( radio_context_t* ) context;
 
@@ -263,7 +263,7 @@ static lr1110_hal_status_t lr1110_hal_wait_on_busy( const void* context )
     {
         ;
     }
-    return LR1110_HAL_STATUS_OK;
+    return LR11XX_HAL_STATUS_OK;
 }
 
 /* --- EOF ------------------------------------------------------------------ */

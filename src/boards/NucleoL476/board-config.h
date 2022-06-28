@@ -76,7 +76,7 @@ extern "C"
 #define RADIO_DBG_PIN_TX                            PB_6
 #define RADIO_DBG_PIN_RX                            PC_7
 
-#elif defined( LR1110MB1XXS )
+#elif defined( LR1110MB1XXS ) || defined( LR1120MB1XXS )
 
 #define RADIO_NSS                                   PA_8
 #define RADIO_BUSY                                  PB_3

@@ -26,7 +26,7 @@ This project has 2 active branches in place.
 | [master](https://github.com/Lora-net/LoRaMac-node/tree/master) | [1.0.4](https://resources.lora-alliance.org/technical-specifications/ts001-1-0-4-lorawan-l2-1-0-4-specification) / [1.1.0](https://resources.lora-alliance.org/technical-specifications/lorawan-specification-v1-1) + [FCntDwn ERRATA](https://resources.lora-alliance.org/technical-specifications/fopts-encryption-usage-of-fcntdwn-errata-on-the-lorawan-l2-1-1-specification) | [2-1.0.3](https://resources.lora-alliance.org/technical-specifications/rp2-1-0-3-lorawan-regional-parameters) | [M 4.7.0](https://github.com/Lora-net/LoRaMac-node/milestone/10) | A/B/C |  LoRaWAN L2 1.0.4 / 1.1.0 |
 | [v5.0.0-branch](https://github.com/Lora-net/LoRaMac-node/tree/v5.0.0-branch) | [1.0.4](https://resources.lora-alliance.org/technical-specifications/ts001-1-0-4-lorawan-l2-1-0-4-specification) / [1.1.0](https://resources.lora-alliance.org/technical-specifications/lorawan-specification-v1-1) + [FCntDwn ERRATA](https://resources.lora-alliance.org/technical-specifications/fopts-encryption-usage-of-fcntdwn-errata-on-the-lorawan-l2-1-1-specification) | [2-1.0.3](https://resources.lora-alliance.org/technical-specifications/rp2-1-0-3-lorawan-regional-parameters) | [M 5.0.0](https://github.com/Lora-net/LoRaMac-node/milestone/11) | A/B/C |  LoRaWAN L2 1.0.4 / 1.1.0 - Adds support for LR-FHSS modulation |
 
-This project fully implements ClassA, ClassB and ClassC end-device classes and it also provides SX1272/73, SX1276/77/78/79, SX1261/2 and LR1110 radio drivers.
+This project fully implements ClassA, ClassB and ClassC end-device classes and it also provides SX1272/73, SX1276/77/78/79, SX1261/2, and LR1110/20 radio drivers.
 
 For each currently supported platform example applications are provided.
 
@@ -85,12 +85,12 @@ $ git submodule update --init
 
 ### Secure-element commissioning
 
-This project currently supports 3 different secure-elements `soft-se`, `lr1110-se`
+This project currently supports 3 different secure-elements `soft-se`, `lr11xx-se`
 and `atecc608a-tnglora-se` implementations.
 
 In order to personalize the MCU binary file with LoRaWAN EUIs or/and AES128 keys
 one must follow the instructions provided by [soft-se](####soft-se),
- [lr1110-se](####lr1110-se) and [atecc608a-tnglora-se](####atecc608a-tnglora-se) chapters
+ [lr11xx-se](####lr11xx-se) and [atecc608a-tnglora-se](####atecc608a-tnglora-se) chapters
 
 #### soft-se
 
@@ -100,17 +100,17 @@ In order to update the end-device identity (`DevEUI`, `JoinEUI` and `AES128 keys
 
 **Note:** In previous versions of this project this was done inside `Commissioning.h` files located under each provided example directory.
 
-#### lr1110-se
+#### lr11xx-se
 
-*lr1110-se* abstraction implementation handles all the required exchanges with the LR1110 radio crypto-engine.
+*lr11xx-se* abstraction implementation handles all the required exchanges with the LR1110 or LR1120 radio crypto-engine.
 
-All LR1110 radio chips are pre-provisioned out of factory in order to be used with [LoRa Cloud Device Join Service](https://www.loracloud.com/documentation/join_service).  
+All LR11XX radio chips are pre-provisioned out of factory in order to be used with [LoRa Cloud Device Join Service](https://www.loracloud.com/documentation/join_service).  
 
 In case other Join Servers are to be used the `DevEUI`, `Pin`, `JoinEUI` and `AES128 keys` can be updated by following the instructions provided on chapter "13. LR1110 Provisioning" of the [LR1110 User Manual](https://semtech.my.salesforce.com/sfc/p/#E0000000JelG/a/2R000000Q2PM/KGm1YHDoHhtaicNYHCIAnh0CbG3yodEuWWJ2WrFRafM).
 
-When the compile option `SECURE_ELEMENT_PRE_PROVISIONED` is set to `ON` the *lr1110-se* will use the factory provisioned data (`DevEUI`, `JoinEUI` and `AES128 keys`).  
-When the compile option `SECURE_ELEMENT_PRE_PROVISIONED` is set to `OFF` the *lr1110-se* has to be provisioned by following one of the methods described on chapter "13. LR1110 Provisioning" of the [LR1110 User Manual](https://semtech.my.salesforce.com/sfc/p/#E0000000JelG/a/2R000000Q2PM/KGm1YHDoHhtaicNYHCIAnh0CbG3yodEuWWJ2WrFRafM).
-The `DevEUI`, `Pin` and `JoinEUI` can be changed by editing the `se-identity.h` file located in `./src/peripherals/lr1110-se/` directory.
+When the compile option `SECURE_ELEMENT_PRE_PROVISIONED` is set to `ON` the *lr11xx-se* will use the factory provisioned data (`DevEUI`, `JoinEUI` and `AES128 keys`).  
+When the compile option `SECURE_ELEMENT_PRE_PROVISIONED` is set to `OFF` the *lr11xx-se* has to be provisioned by following one of the methods described on chapter "13. LR1110 Provisioning" of the [LR1110 User Manual](https://semtech.my.salesforce.com/sfc/p/#E0000000JelG/a/2R000000Q2PM/KGm1YHDoHhtaicNYHCIAnh0CbG3yodEuWWJ2WrFRafM).
+The `DevEUI`, `Pin` and `JoinEUI` can be changed by editing the `se-identity.h` file located in `./src/peripherals/lr11xx-se/` directory.
 
 #### atecc608a-tnglora-se
 
@@ -146,7 +146,7 @@ $ cmake -DCMAKE_BUILD_TYPE=Release \
         -DREGION_RU864="OFF" \
         -DBOARD="NucleoL476" \
         -DMBED_RADIO_SHIELD="LR1110MB1XXS" \
-        -DSECURE_ELEMENT="LR1110_SE" \
+        -DSECURE_ELEMENT="LR11XX_SE" \
         -DSECURE_ELEMENT_PRE_PROVISIONED="ON" \
         -DUSE_RADIO_DEBUG="ON" ..
 $ make
@@ -197,7 +197,7 @@ $ make
         // path:
         //     Windows : No default path. Specify the path where the
         //               toolchain is installed. i.e:
-        //               "C:/PROGRA~2/GNUTOO~1/92019-~1".
+        //               "C:/Program Files (x86)/GNU Arm Embedded Toolchain/10 2020-q4-major".
         //     Linux   : /usr
         //     OSX     : /usr/local
         // It is required to uncomment and to fill the following line.
@@ -221,6 +221,11 @@ $ make
         // periodic-uplink-lpp, fuota-test-01.
         "SUB_PROJECT":"periodic-uplink-lpp",
 
+        // Select the default LoRaWAN class for periodic-uplink-lpp sub-project
+        // In case `CLASS_B` or `CLASS_C` is selected the example will try to
+        // switch to the given class as soon as possible
+        "LORAWAN_DEFAULT_CLASS":"CLASS_A",
+
         // Switch for Class B support of LoRaMac:
         "CLASSB_ENABLED":"ON",
 
@@ -240,12 +245,15 @@ $ make
 
         // MBED Radio shield selection. (Applies only to Nucleo platforms)
         // The following shields are supported:
-        // SX1272MB2DAS, SX1276MB1LAS, SX1276MB1MAS, SX1261MBXBAS(Default), SX1262MBXCAS, SX1262MBXDAS, LR1110MB1XXS.
+        // SX1272MB2DAS, SX1276MB1LAS, SX1276MB1MAS, SX1261MBXBAS(Default), SX1262MBXCAS, SX1262MBXDAS, LR1110MB1XXS, LR1120MB1XXS.
         "MBED_RADIO_SHIELD":"LR1110MB1XXS",
 
+        // Enable/Disable LR-FHSS modulation support for LoRaMac application
+        "LORAMAC_LR_FHSS_IS_ON": "OFF",
+
         // Secure element type selection the following are supported
-        // SOFT_SE(Default), LR1110_SE, ATECC608A_TNGLORA_SE
-        "SECURE_ELEMENT":"LR1110_SE",
+        // SOFT_SE(Default), LR11XX_SE, ATECC608A_TNGLORA_SE
+        "SECURE_ELEMENT":"LR11XX_SE",
 
         // Secure element is pre-provisioned
         "SECURE_ELEMENT_PRE_PROVISIONED":"ON",
@@ -257,11 +265,22 @@ $ make
         "REGION_CN779":"OFF",
         "REGION_EU433":"OFF",
         "REGION_AU915":"OFF",
-        "REGION_AS923":"OFF",
         "REGION_CN470":"OFF",
+        "REGION_AS923":"OFF",
         "REGION_KR920":"OFF",
         "REGION_IN865":"OFF",
         "REGION_RU864":"OFF",
+
+        // Default channel plan for region AS923. Possible selections:
+        // CHANNEL_PLAN_GROUP_AS923_1, CHANNEL_PLAN_GROUP_AS923_2, CHANNEL_PLAN_GROUP_AS923_3,
+        // CHANNEL_PLAN_GROUP_AS923_4, CHANNEL_PLAN_GROUP_AS923_1_JP
+        "REGION_AS923_DEFAULT_CHANNEL_PLAN":"CHANNEL_PLAN_GROUP_AS923_1",
+
+        // Default channel plan for region CN470. Possible selections:
+        // CHANNEL_PLAN_20MHZ_TYPE_A, CHANNEL_PLAN_20MHZ_TYPE_B, CHANNEL_PLAN_26MHZ_TYPE_A, CHANNEL_PLAN_26MHZ_TYPE_B
+        "REGION_CN470_DEFAULT_CHANNEL_PLAN":"CHANNEL_PLAN_20MHZ_TYPE_A",
+
+        // Enables radio debug pins
         "USE_RADIO_DEBUG":"ON"
     }
 }
@@ -298,7 +317,7 @@ $ make
         // path:
         //     Windows : No default path. Specify the path where the
         //               toolchain is installed. i.e:
-        //               "C:/PROGRA~2/GNUTOO~1/92019-~1".
+        //               "C:/Program Files (x86)/GNU Arm Embedded Toolchain/10 2020-q4-major".
         //     Linux   : /usr
         //     OSX     : /usr/local
         // It is required to uncomment and to fill the following line.
@@ -322,6 +341,11 @@ $ make
         // periodic-uplink-lpp, fuota-test-01.
         "SUB_PROJECT":"periodic-uplink-lpp",
 
+        // Select the default LoRaWAN class for periodic-uplink-lpp sub-project
+        // In case `CLASS_B` or `CLASS_C` is selected the example will try to
+        // switch to the given class as soon as possible
+        "LORAWAN_DEFAULT_CLASS":"CLASS_A",
+
         // Switch for Class B support of LoRaMac:
         "CLASSB_ENABLED":"ON",
 
@@ -341,11 +365,14 @@ $ make
 
         // MBED Radio shield selection. (Applies only to Nucleo platforms)
         // The following shields are supported:
-        // SX1272MB2DAS, SX1276MB1LAS, SX1276MB1MAS, SX1261MBXBAS(Default), SX1262MBXCAS, SX1262MBXDAS, LR1110MB1XXS.
-        "MBED_RADIO_SHIELD":"SX1261MBXBAS",
+        // SX1272MB2DAS, SX1276MB1LAS, SX1276MB1MAS, SX1261MBXBAS(Default), SX1262MBXCAS, SX1262MBXDAS, LR1110MB1XXS, LR1120MB1XXS.
+        "MBED_RADIO_SHIELD":"LR1110MB1XXS",
+
+        // Enable/Disable LR-FHSS modulation support for LoRaMac application
+        "LORAMAC_LR_FHSS_IS_ON": "OFF",
 
         // Secure element type selection the following are supported
-        // SOFT_SE(Default), LR1110_SE, ATECC608A_TNGLORA_SE
+        // SOFT_SE(Default), LR11XX_SE, ATECC608A_TNGLORA_SE
         "SECURE_ELEMENT":"SOFT_SE",
 
         // Secure element is pre-provisioned
@@ -358,11 +385,22 @@ $ make
         "REGION_CN779":"OFF",
         "REGION_EU433":"OFF",
         "REGION_AU915":"OFF",
-        "REGION_AS923":"OFF",
         "REGION_CN470":"OFF",
+        "REGION_AS923":"OFF",
         "REGION_KR920":"OFF",
         "REGION_IN865":"OFF",
         "REGION_RU864":"OFF",
+
+        // Default channel plan for region AS923. Possible selections:
+        // CHANNEL_PLAN_GROUP_AS923_1, CHANNEL_PLAN_GROUP_AS923_2, CHANNEL_PLAN_GROUP_AS923_3,
+        // CHANNEL_PLAN_GROUP_AS923_4, CHANNEL_PLAN_GROUP_AS923_1_JP
+        "REGION_AS923_DEFAULT_CHANNEL_PLAN":"CHANNEL_PLAN_GROUP_AS923_1",
+
+        // Default channel plan for region CN470. Possible selections:
+        // CHANNEL_PLAN_20MHZ_TYPE_A, CHANNEL_PLAN_20MHZ_TYPE_B, CHANNEL_PLAN_26MHZ_TYPE_A, CHANNEL_PLAN_26MHZ_TYPE_B
+        "REGION_CN470_DEFAULT_CHANNEL_PLAN":"CHANNEL_PLAN_20MHZ_TYPE_A",
+
+        // Enables radio debug pins
         "USE_RADIO_DEBUG":"ON"
     }
 }

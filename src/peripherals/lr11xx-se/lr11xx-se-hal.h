@@ -1,5 +1,5 @@
 /*!
- * \file  lr1110-se-hal.h
+ * \file  lr11xx-se-hal.h
  *
  * \brief Secure Element hardware abstraction layer
  *
@@ -32,8 +32,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __LR1110_SE_HAL_H__
-#define __LR1110_SE_HAL_H__
+#ifndef __LR11XX_SE_HAL_H__
+#define __LR11XX_SE_HAL_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,7 +47,7 @@ extern "C" {
  *
  * \param [IN] id Pointer to an array that will contain the Unique ID
  */
-void LR1110SeHalGetUniqueId( uint8_t *id );
+void LR11XXSeHalGetUniqueId( uint8_t *id );
 
 /*!
  * \brief Get a random number
@@ -56,10 +56,10 @@ void LR1110SeHalGetUniqueId( uint8_t *id );
  *         generator
  * \retval number 32 bit random value
  */
-uint32_t LR1110SeHalGetRandomNumber( void );
+uint32_t LR11XXSeHalGetRandomNumber( void );
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  //  __LR1110_SE_HAL_H__
+#endif  //  __LR11XX_SE_HAL_H__
