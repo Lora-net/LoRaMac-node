@@ -99,7 +99,6 @@ set(MOCKS
     gpio_mock.c
 )
 
-set(LZ4_LIB_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src/system/)
 
 
 # CLI sources
