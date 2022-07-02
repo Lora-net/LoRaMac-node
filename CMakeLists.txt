@@ -20,36 +20,29 @@ cmake_minimum_required(VERSION 3.6)
 
 
 if(UNIT_TESTING) 
-message(STATUS ">>> Compiling for Unittesting")
+    message(STATUS ">>> Compiling for Unittesting")
+    project(cpputest_example)
+    include(CTest)
+    
+    # Use reference https://stackoverflow.com/a/52257586
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-project(cpputest_example)
-
-include(CTest)
-
-# Use reference https://stackoverflow.com/a/52257586
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
-include(CodeCoverage)
-APPEND_COVERAGE_COMPILER_FLAGS()
-
-SETUP_TARGET_FOR_COVERAGE_LCOV(
-        NAME coverage_my                 
-        EXECUTABLE ctest -j ${n_cores} # Executable in PROJECT_BINARY_DIR
-        DEPENDENCIES
-        picotracker_lora_tests
-        EXCLUDE "build/_deps*" "/usr/include/c++/*"     # Patterns to exclude (can be relative
-        )
-
-
-add_subdirectory(mocking)
-add_subdirectory(tests)
-
-
+    include(CodeCoverage)
+    APPEND_COVERAGE_COMPILER_FLAGS()
+    SETUP_TARGET_FOR_COVERAGE_LCOV(
+            NAME coverage_my                 
+            EXECUTABLE ctest -j ${n_cores} # Executable in PROJECT_BINARY_DIR
+            DEPENDENCIES
+            picotracker_lora_tests
+            EXCLUDE "build/_deps*" "/usr/include/c++/*"     # Patterns to exclude (can be relative
+            )
+    add_subdirectory(mocking)
+    add_subdirectory(tests)
 else()
-message(STATUS ">>> Compiling for target")
+    message(STATUS ">>> Compiling for target")
 
-# stuff that should happen not on Linux 
+    # stuff that should happen not on Linux 
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 endif()
