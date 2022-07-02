@@ -7,6 +7,11 @@ extern "C"
 #include "bsp.h"
 }
 
+/* IWDG init function */
+void IWDG_Init(void)
+{
+    
+}
 
 void IWDG_reset()
 {
