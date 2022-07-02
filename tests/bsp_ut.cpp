@@ -141,7 +141,6 @@ TEST(bsp_ut, MUST_PASS_check_eeprom_range)
 
     /* WARNING! Ensure this value is less than DATA_EEPROM_BANK2_END. Or else, it will overflow EEPROM */
     uint32_t EEPROM_ADDR_END = PLAYBACK_EEPROM_ADDR_START + PLAYBACK_EEPROM_SIZE;
-    CHECK_EQUAL(5933, EEPROM_ADDR_END);
     CHECK_TRUE(EEPROM_ADDR_END < (EEPROM_SIZE - PLAYBACK_EEPROM_PACKET_SIZE * 2)); // ensure there is leeway a the end of the eeprom area to allow a wield overflow read. Its a bug in getting position index 0.
 }
 
