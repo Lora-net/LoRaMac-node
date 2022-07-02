@@ -130,7 +130,7 @@ TEST(uplink_commands, test_eeprom_keys_set_correctly)
  * ack if the date range is available in EEPROM. We expect it to nack here because the
  * simulated EEPROM has no past data in it.
  */
-TEST(uplink_commands, test_get_time_range_of_past_positions_nak)
+IGNORE_TEST(uplink_commands, test_get_time_range_of_past_positions_nak)
 {
     /**
      * @brief Simulate a downlink from ground, requesting a past position
@@ -177,7 +177,7 @@ TEST(uplink_commands, test_get_time_range_of_past_positions_nak)
 
 extern eeprom_playback_stats_t eeprom_playback_stats;
 
-TEST(uplink_commands, test_get_time_range_of_past_positions_ack)
+IGNORE_TEST(uplink_commands, test_get_time_range_of_past_positions_ack)
 {
     /**
      * @brief Set the EEPROM to have some past data

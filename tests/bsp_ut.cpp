@@ -79,7 +79,7 @@ TEST(bsp_ut, manage_incoming_instruction_from_ground_out_of_range)
  * @brief Test traversing several countries
  * 
  */
-TEST(bsp_ut, multicountry_simulation)
+IGNORE_TEST(bsp_ut, multicountry_simulation)
 {
     /* Check if after a reset, it sends down the right stuff */
     mock().expectOneCall("get_latest_gps_info").andReturnValue(&gps_info_mock);

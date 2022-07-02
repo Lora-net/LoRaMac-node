@@ -23,7 +23,6 @@ if(UNIT_TESTING)
     message(STATUS ">>> Compiling for Unittesting")
     project(cpputest_example)
     include(CTest)
-    
     # Use reference https://stackoverflow.com/a/52257586
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -40,9 +39,5 @@ if(UNIT_TESTING)
     add_subdirectory(tests)
 else()
     message(STATUS ">>> Compiling for target")
-
-    # stuff that should happen not on Linux 
-
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src)
-
 endif()

@@ -119,7 +119,7 @@ time_pos_fix_t retrieve_eeprom_time_pos(uint16_t time_pos_index)
     return time_pos_fixs[time_pos_index];
 }
 
-TEST(Playback, prepare_tx_buffer_test)
+IGNORE_TEST(Playback, prepare_tx_buffer_test)
 {
 
     time_pos_fix_t current_position =
@@ -213,7 +213,7 @@ PicoTrackerAppData_t setup_passing_through_regions()
 
 extern sensor_t *current_sensor_data_ptr;
 
-TEST(Playback, check_if_gps_playback_struct_is_set_correctly)
+IGNORE_TEST(Playback, check_if_gps_playback_struct_is_set_correctly)
 {
     PicoTrackerAppData_t PicoTrackerAppData = setup_passing_through_regions();
 
@@ -228,7 +228,7 @@ TEST(Playback, check_if_gps_playback_struct_is_set_correctly)
     teardown_n_positions_mock();
 }
 
-TEST(Playback, run_app_through_few_positions)
+IGNORE_TEST(Playback, run_app_through_few_positions)
 {
 
     PicoTrackerAppData_t PicoTrackerAppData = setup_passing_through_regions();

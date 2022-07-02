@@ -35,7 +35,7 @@ TEST_GROUP(lorawan_credentials){
  * @brief Test cycling through network keys over the US
  * 
  */
-TEST(lorawan_credentials, test_cycling_through_us_settings)
+IGNORE_TEST(lorawan_credentials, test_cycling_through_us_settings)
 {
     /**
      * @brief Set the current loramac region(US)

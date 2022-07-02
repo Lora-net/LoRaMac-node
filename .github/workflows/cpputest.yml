@@ -1,0 +1,26 @@
+name: CppUTest run
+
+on:
+  push:
+    branches: ["icspace-dev"]
+  pull_request:
+    branches: ["icspace-dev"]
+
+env:
+  BUILD_TYPE: Debug
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: dependencies install
+        run: sudo apt-get install lcov gcovr gcc-multilib g++-multilib
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNIT_TESTING=true -DCOVERAGE="ON" -DC++11="ON" -DLONGLONG="ON"
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      - name: Test
+        working-directory: ${{github.workspace}}/build/tests
+        run: ./picotracker_lora_tests -p

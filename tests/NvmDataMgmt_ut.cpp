@@ -296,7 +296,7 @@ void set_correct_notify_flags()
     NvmDataMgmtEvent(notifyFlags);
 }
 
-TEST(NvmDataMgmt, test_storing_of_fcount_and_keys)
+IGNORE_TEST(NvmDataMgmt, test_storing_of_fcount_and_keys)
 {
     /**
      * @brief Simulate in the US
