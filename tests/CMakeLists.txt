@@ -188,4 +188,4 @@ target_compile_options(picotracker_lora_tests PRIVATE -m32)
 target_link_options(picotracker_lora_tests PRIVATE -m32)
 
 # Add tests
-add_test(picotracker_lora_tests picotracker_lora_tests)
+add_test(picotracker_lora_tests picotracker_lora_tests -p) # Pass option to run CppUTests all on different threads
