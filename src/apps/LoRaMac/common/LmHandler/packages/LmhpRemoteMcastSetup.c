@@ -47,8 +47,40 @@
         {                                            \
             printf( __VA_ARGS__ );                   \
         }while( 0 )
+
+    #define DBG_SESSION( id, isRxParamsSetup )                                                         \
+        do                                                                                             \
+        {                                                                                              \
+            DBG( "ID          : %d\n", McSessionData[id].McGroupData.IdHeader.Fields.McGroupId );      \
+            DBG( "McAddr      : %08lX\n", McSessionData[id].McGroupData.McAddr );                      \
+            DBG( "McKey       : %02X", McSessionData[id].McGroupData.McKeyEncrypted[0] );              \
+            for( int i = 1; i < 16; i++ )                                                              \
+            {                                                                                          \
+                DBG( "-%02X",  McSessionData[id].McGroupData.McKeyEncrypted[i] );                      \
+            }                                                                                          \
+            DBG( "\n" );                                                                               \
+            DBG( "McFCountMin : %lu\n",  McSessionData[id].McGroupData.McFCountMin );                  \
+            DBG( "McFCountMax : %lu\n",  McSessionData[id].McGroupData.McFCountMax );                  \
+            if( isRxParamsSetup == true )                                                              \
+            {                                                                                          \
+                DBG( "SessionTime : %lu\n",  McSessionData[id].SessionTime );                          \
+                DBG( "SessionTimeT: %d\n",  McSessionData[id].SessionTimeout );                        \
+                if( McSessionData[id].RxParams.Class == CLASS_B )                                      \
+                {                                                                                      \
+                    DBG( "Rx Freq     : %lu\n", McSessionData[id].RxParams.Params.ClassB.Frequency );  \
+                    DBG( "Rx DR       : DR_%d\n", McSessionData[id].RxParams.Params.ClassB.Datarate ); \
+                    DBG( "Periodicity : %u\n", McSessionData[id].RxParams.Params.ClassB.Periodicity ); \
+                }                                                                                      \
+                else                                                                                   \
+                {                                                                                      \
+                    DBG( "Rx Freq     : %lu\n", McSessionData[id].RxParams.Params.ClassC.Frequency );  \
+                    DBG( "Rx DR       : DR_%d\n", McSessionData[id].RxParams.Params.ClassC.Datarate ); \
+                }                                                                                      \
+            }                                                                                          \
+        } while ( 0 )
 #else
     #define DBG( ... )
+    #define DBG_SESSION( id, isRxParamsSetup )
 #endif
 
 /*!
@@ -293,56 +325,63 @@ static void LmhpRemoteMcastSetupOnMcpsIndication( McpsIndication_t *mcpsIndicati
             }
             case REMOTE_MCAST_SETUP_MC_GROUP_STATUS_REQ:
             {
-                // TODO implement command prosessing and handling
+                // TODO implement command processing and handling
                 break;
             }
             case REMOTE_MCAST_SETUP_MC_GROUP_SETUP_REQ:
             {
+                uint8_t idError = 0x01; // One bit value
                 uint8_t id = mcpsIndication->Buffer[cmdIndex++];
+
                 McSessionData[id].McGroupData.IdHeader.Value = id;
 
-                McSessionData[id].McGroupData.McAddr =  ( mcpsIndication->Buffer[cmdIndex++] << 0  ) & 0x000000FF;
-                McSessionData[id].McGroupData.McAddr += ( mcpsIndication->Buffer[cmdIndex++] << 8  ) & 0x0000FF00;
-                McSessionData[id].McGroupData.McAddr += ( mcpsIndication->Buffer[cmdIndex++] << 16 ) & 0x00FF0000;
-                McSessionData[id].McGroupData.McAddr += ( mcpsIndication->Buffer[cmdIndex++] << 24 ) & 0xFF000000;
-
-                for( int8_t i = 0; i < 16; i++ )
+                if( id < LORAMAC_MAX_MC_CTX )
                 {
-                    McSessionData[id].McGroupData.McKeyEncrypted[i] = mcpsIndication->Buffer[cmdIndex++];
-                }
+                    McSessionData[id].McGroupData.McAddr =  ( mcpsIndication->Buffer[cmdIndex++] << 0  ) & 0x000000FF;
+                    McSessionData[id].McGroupData.McAddr += ( mcpsIndication->Buffer[cmdIndex++] << 8  ) & 0x0000FF00;
+                    McSessionData[id].McGroupData.McAddr += ( mcpsIndication->Buffer[cmdIndex++] << 16 ) & 0x00FF0000;
+                    McSessionData[id].McGroupData.McAddr += ( mcpsIndication->Buffer[cmdIndex++] << 24 ) & 0xFF000000;
 
-                McSessionData[id].McGroupData.McFCountMin =  ( mcpsIndication->Buffer[cmdIndex++] << 0  ) & 0x000000FF;
-                McSessionData[id].McGroupData.McFCountMin += ( mcpsIndication->Buffer[cmdIndex++] << 8  ) & 0x0000FF00;
-                McSessionData[id].McGroupData.McFCountMin += ( mcpsIndication->Buffer[cmdIndex++] << 16 ) & 0x00FF0000;
-                McSessionData[id].McGroupData.McFCountMin += ( mcpsIndication->Buffer[cmdIndex++] << 24 ) & 0xFF000000;
-
-                McSessionData[id].McGroupData.McFCountMax =  ( mcpsIndication->Buffer[cmdIndex++] << 0  ) & 0x000000FF;
-                McSessionData[id].McGroupData.McFCountMax += ( mcpsIndication->Buffer[cmdIndex++] << 8  ) & 0x0000FF00;
-                McSessionData[id].McGroupData.McFCountMax += ( mcpsIndication->Buffer[cmdIndex++] << 16 ) & 0x00FF0000;
-                McSessionData[id].McGroupData.McFCountMax += ( mcpsIndication->Buffer[cmdIndex++] << 24 ) & 0xFF000000;
-
-                McChannelParams_t channel = 
-                {
-                    .IsRemotelySetup = true,
-                    .IsEnabled = true,
-                    .GroupID = ( AddressIdentifier_t )McSessionData[id].McGroupData.IdHeader.Fields.McGroupId,
-                    .Address = McSessionData[id].McGroupData.McAddr,
-                    .McKeys.McKeyE = McSessionData[id].McGroupData.McKeyEncrypted,
-                    .FCountMin = McSessionData[id].McGroupData.McFCountMin,
-                    .FCountMax = McSessionData[id].McGroupData.McFCountMax,
-                    .RxParams.Params.ClassC = // Field not used for multicast channel setup. Must be initialized to something
+                    for( int8_t i = 0; i < 16; i++ )
                     {
-                        .Frequency = 0,
-                        .Datarate = 0
+                        McSessionData[id].McGroupData.McKeyEncrypted[i] = mcpsIndication->Buffer[cmdIndex++];
                     }
-                };
-                uint8_t idError = 0x01; // One bit value
-                if( LoRaMacMcChannelSetup( &channel ) == LORAMAC_STATUS_OK )
-                {
-                    idError = 0x00;
+
+                    McSessionData[id].McGroupData.McFCountMin =  ( mcpsIndication->Buffer[cmdIndex++] << 0  ) & 0x000000FF;
+                    McSessionData[id].McGroupData.McFCountMin += ( mcpsIndication->Buffer[cmdIndex++] << 8  ) & 0x0000FF00;
+                    McSessionData[id].McGroupData.McFCountMin += ( mcpsIndication->Buffer[cmdIndex++] << 16 ) & 0x00FF0000;
+                    McSessionData[id].McGroupData.McFCountMin += ( mcpsIndication->Buffer[cmdIndex++] << 24 ) & 0xFF000000;
+
+                    McSessionData[id].McGroupData.McFCountMax =  ( mcpsIndication->Buffer[cmdIndex++] << 0  ) & 0x000000FF;
+                    McSessionData[id].McGroupData.McFCountMax += ( mcpsIndication->Buffer[cmdIndex++] << 8  ) & 0x0000FF00;
+                    McSessionData[id].McGroupData.McFCountMax += ( mcpsIndication->Buffer[cmdIndex++] << 16 ) & 0x00FF0000;
+                    McSessionData[id].McGroupData.McFCountMax += ( mcpsIndication->Buffer[cmdIndex++] << 24 ) & 0xFF000000;
+
+                    McChannelParams_t channel = 
+                    {
+                        .IsRemotelySetup = true,
+                        .IsEnabled = true,
+                        .GroupID = ( AddressIdentifier_t )McSessionData[id].McGroupData.IdHeader.Fields.McGroupId,
+                        .Address = McSessionData[id].McGroupData.McAddr,
+                        .McKeys.McKeyE = McSessionData[id].McGroupData.McKeyEncrypted,
+                        .FCountMin = McSessionData[id].McGroupData.McFCountMin,
+                        .FCountMax = McSessionData[id].McGroupData.McFCountMax,
+                        .RxParams.Params.ClassC = // Field not used for multicast channel setup. Must be initialized to something
+                        {
+                            .Frequency = 0,
+                            .Datarate = 0
+                        }
+                    };
+                    
+                    if( LoRaMacMcChannelSetup( &channel ) == LORAMAC_STATUS_OK )
+                    {
+                        idError = 0x00;
+
+                    }
                 }
                 LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = REMOTE_MCAST_SETUP_MC_GROUP_SETUP_ANS;
                 LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = ( idError << 2 ) | McSessionData[id].McGroupData.IdHeader.Fields.McGroupId;
+                DBG_SESSION( id, false );
                 break;
             }
             case REMOTE_MCAST_SETUP_MC_GROUP_DELETE_REQ:
@@ -363,109 +402,135 @@ static void LmhpRemoteMcastSetupOnMcpsIndication( McpsIndication_t *mcpsIndicati
             }
             case REMOTE_MCAST_SETUP_MC_GROUP_CLASS_C_SESSION_REQ:
             {
+                bool isTimerSet = false;
+                int32_t timeToSessionStart = 0;
                 uint8_t status = 0x00;
                 uint8_t id = mcpsIndication->Buffer[cmdIndex++] & 0x03;
 
-                McSessionData[id].RxParams.Class = CLASS_C;
-
-                McSessionData[id].SessionTime =  ( mcpsIndication->Buffer[cmdIndex++] << 0  ) & 0x000000FF;
-                McSessionData[id].SessionTime += ( mcpsIndication->Buffer[cmdIndex++] << 8  ) & 0x0000FF00;
-                McSessionData[id].SessionTime += ( mcpsIndication->Buffer[cmdIndex++] << 16 ) & 0x00FF0000;
-                McSessionData[id].SessionTime += ( mcpsIndication->Buffer[cmdIndex++] << 24 ) & 0xFF000000;
-
-                // Add Unix to Gps epoch offset. The system time is based on Unix time.
-                McSessionData[id].SessionTime += UNIX_GPS_EPOCH_OFFSET;
-
-                McSessionData[id].SessionTimeout =  mcpsIndication->Buffer[cmdIndex++] & 0x0F;
-
-                McSessionData[id].RxParams.Params.ClassC.Frequency =  ( mcpsIndication->Buffer[cmdIndex++] << 0  ) & 0x000000FF;
-                McSessionData[id].RxParams.Params.ClassC.Frequency |= ( mcpsIndication->Buffer[cmdIndex++] << 8  ) & 0x0000FF00;
-                McSessionData[id].RxParams.Params.ClassC.Frequency |= ( mcpsIndication->Buffer[cmdIndex++] << 16 ) & 0x00FF0000;
-                McSessionData[id].RxParams.Params.ClassC.Frequency *= 100;
-                McSessionData[id].RxParams.Params.ClassC.Datarate = mcpsIndication->Buffer[cmdIndex++];
-
-                LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = REMOTE_MCAST_SETUP_MC_GROUP_CLASS_C_SESSION_ANS;
-                if( LoRaMacMcChannelSetupRxParams( ( AddressIdentifier_t )id, &McSessionData[id].RxParams, &status ) == LORAMAC_STATUS_OK )
+                if( id < LORAMAC_MAX_MC_CTX )
                 {
-                    SysTime_t curTime = { .Seconds = 0, .SubSeconds = 0 };
-                    curTime = SysTimeGet( );
+                    McSessionData[id].RxParams.Class = CLASS_C;
 
-                    int32_t timeToSessionStart = McSessionData[id].SessionTime - curTime.Seconds;
-                    if( timeToSessionStart > 0 )
+                    McSessionData[id].SessionTime =  ( mcpsIndication->Buffer[cmdIndex++] << 0  ) & 0x000000FF;
+                    McSessionData[id].SessionTime += ( mcpsIndication->Buffer[cmdIndex++] << 8  ) & 0x0000FF00;
+                    McSessionData[id].SessionTime += ( mcpsIndication->Buffer[cmdIndex++] << 16 ) & 0x00FF0000;
+                    McSessionData[id].SessionTime += ( mcpsIndication->Buffer[cmdIndex++] << 24 ) & 0xFF000000;
+
+                    // Add Unix to Gps epoch offset. The system time is based on Unix time.
+                    McSessionData[id].SessionTime += UNIX_GPS_EPOCH_OFFSET;
+
+                    McSessionData[id].SessionTimeout =  mcpsIndication->Buffer[cmdIndex++] & 0x0F;
+
+                    McSessionData[id].RxParams.Params.ClassC.Frequency =  ( mcpsIndication->Buffer[cmdIndex++] << 0  ) & 0x000000FF;
+                    McSessionData[id].RxParams.Params.ClassC.Frequency |= ( mcpsIndication->Buffer[cmdIndex++] << 8  ) & 0x0000FF00;
+                    McSessionData[id].RxParams.Params.ClassC.Frequency |= ( mcpsIndication->Buffer[cmdIndex++] << 16 ) & 0x00FF0000;
+                    McSessionData[id].RxParams.Params.ClassC.Frequency *= 100;
+                    McSessionData[id].RxParams.Params.ClassC.Datarate = mcpsIndication->Buffer[cmdIndex++];
+
+                    if( LoRaMacMcChannelSetupRxParams( ( AddressIdentifier_t )id, &McSessionData[id].RxParams, &status ) == LORAMAC_STATUS_OK )
                     {
-                        // Start session start timer
-                        TimerSetValue( &SessionStartTimer, timeToSessionStart * 1000 );
-                        TimerStart( &SessionStartTimer );
+                        SysTime_t curTime = { .Seconds = 0, .SubSeconds = 0 };
+                        curTime = SysTimeGet( );
 
-                        DBG( "Time2SessionStart: %ld ms\n", timeToSessionStart * 1000 );
+                        timeToSessionStart = McSessionData[id].SessionTime - curTime.Seconds;
+                        if( timeToSessionStart > 0 )
+                        {
+                            // Start session start timer
+                            TimerSetValue( &SessionStartTimer, timeToSessionStart * 1000 );
+                            TimerStart( &SessionStartTimer );
 
-                        LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = status;
-                        LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = ( timeToSessionStart >> 0  ) & 0xFF;
-                        LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = ( timeToSessionStart >> 8  ) & 0xFF;
-                        LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = ( timeToSessionStart >> 16 ) & 0xFF;
-                        break;
-                    }
-                    else
-                    {
-                        // Session start time before current device time
-                        status |= 0x10;
+                            isTimerSet = true;
+
+                            DBG( "Time2SessionStart: %ld ms\n", timeToSessionStart * 1000 );
+                        }
+                        else
+                        {
+                            // Session start time before current device time
+                            status |= 0x10; // McGroupUndefined bit set
+                        }
                     }
                 }
+                else
+                {
+                    status |= 0x10; // McGroupUndefined bit set
+                }
+
+                LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = REMOTE_MCAST_SETUP_MC_GROUP_CLASS_C_SESSION_ANS;
                 LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = status;
+                if( isTimerSet == true )
+                {
+                    LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = ( timeToSessionStart >> 0  ) & 0xFF;
+                    LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = ( timeToSessionStart >> 8  ) & 0xFF;
+                    LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = ( timeToSessionStart >> 16 ) & 0xFF;
+                }
+                DBG_SESSION( id, true );
                 break;
             }
             case REMOTE_MCAST_SETUP_MC_GROUP_CLASS_B_SESSION_REQ:
             {
+                bool isTimerSet = false;
+                int32_t timeToSessionStart = 0;
                 uint8_t status = 0x00;
                 uint8_t id = mcpsIndication->Buffer[cmdIndex++] & 0x03;
 
-                McSessionData[id].RxParams.Class = CLASS_B;
-
-                McSessionData[id].SessionTime =  ( mcpsIndication->Buffer[cmdIndex++] << 0  ) & 0x000000FF;
-                McSessionData[id].SessionTime += ( mcpsIndication->Buffer[cmdIndex++] << 8  ) & 0x0000FF00;
-                McSessionData[id].SessionTime += ( mcpsIndication->Buffer[cmdIndex++] << 16 ) & 0x00FF0000;
-                McSessionData[id].SessionTime += ( mcpsIndication->Buffer[cmdIndex++] << 24 ) & 0xFF000000;
-
-                // Add Unix to Gps epoch offset. The system time is based on Unix time.
-                McSessionData[id].SessionTime += UNIX_GPS_EPOCH_OFFSET;
-
-                McSessionData[id].RxParams.Params.ClassB.Periodicity = ( mcpsIndication->Buffer[cmdIndex] >> 4 ) & 0x07;
-                McSessionData[id].SessionTimeout =  mcpsIndication->Buffer[cmdIndex++] & 0x0F;
-
-                McSessionData[id].RxParams.Params.ClassB.Frequency =  ( mcpsIndication->Buffer[cmdIndex++] << 0  ) & 0x000000FF;
-                McSessionData[id].RxParams.Params.ClassB.Frequency |= ( mcpsIndication->Buffer[cmdIndex++] << 8  ) & 0x0000FF00;
-                McSessionData[id].RxParams.Params.ClassB.Frequency |= ( mcpsIndication->Buffer[cmdIndex++] << 16 ) & 0x00FF0000;
-                McSessionData[id].RxParams.Params.ClassB.Frequency *= 100;
-                McSessionData[id].RxParams.Params.ClassB.Datarate = mcpsIndication->Buffer[cmdIndex++];
-
-                LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = REMOTE_MCAST_SETUP_MC_GROUP_CLASS_B_SESSION_ANS;
-                if( LoRaMacMcChannelSetupRxParams( ( AddressIdentifier_t )id, &McSessionData[id].RxParams, &status ) == LORAMAC_STATUS_OK )
+                if( id < LORAMAC_MAX_MC_CTX )
                 {
-                    SysTime_t curTime = { .Seconds = 0, .SubSeconds = 0 };
-                    curTime = SysTimeGet( );
+                    McSessionData[id].RxParams.Class = CLASS_B;
 
-                    int32_t timeToSessionStart = McSessionData[id].SessionTime - curTime.Seconds;
-                    if( timeToSessionStart > 0 )
+                    McSessionData[id].SessionTime =  ( mcpsIndication->Buffer[cmdIndex++] << 0  ) & 0x000000FF;
+                    McSessionData[id].SessionTime += ( mcpsIndication->Buffer[cmdIndex++] << 8  ) & 0x0000FF00;
+                    McSessionData[id].SessionTime += ( mcpsIndication->Buffer[cmdIndex++] << 16 ) & 0x00FF0000;
+                    McSessionData[id].SessionTime += ( mcpsIndication->Buffer[cmdIndex++] << 24 ) & 0xFF000000;
+
+                    // Add Unix to Gps epoch offset. The system time is based on Unix time.
+                    McSessionData[id].SessionTime += UNIX_GPS_EPOCH_OFFSET;
+
+                    McSessionData[id].RxParams.Params.ClassB.Periodicity = ( mcpsIndication->Buffer[cmdIndex] >> 4 ) & 0x07;
+                    McSessionData[id].SessionTimeout =  mcpsIndication->Buffer[cmdIndex++] & 0x0F;
+
+                    McSessionData[id].RxParams.Params.ClassB.Frequency =  ( mcpsIndication->Buffer[cmdIndex++] << 0  ) & 0x000000FF;
+                    McSessionData[id].RxParams.Params.ClassB.Frequency |= ( mcpsIndication->Buffer[cmdIndex++] << 8  ) & 0x0000FF00;
+                    McSessionData[id].RxParams.Params.ClassB.Frequency |= ( mcpsIndication->Buffer[cmdIndex++] << 16 ) & 0x00FF0000;
+                    McSessionData[id].RxParams.Params.ClassB.Frequency *= 100;
+                    McSessionData[id].RxParams.Params.ClassB.Datarate = mcpsIndication->Buffer[cmdIndex++];
+
+                    if( LoRaMacMcChannelSetupRxParams( ( AddressIdentifier_t )id, &McSessionData[id].RxParams, &status ) == LORAMAC_STATUS_OK )
                     {
-                        // Start session start timer
-                        TimerSetValue( &SessionStartTimer, timeToSessionStart * 1000 );
-                        TimerStart( &SessionStartTimer );
+                        SysTime_t curTime = { .Seconds = 0, .SubSeconds = 0 };
+                        curTime = SysTimeGet( );
 
-                        DBG( "Time2SessionStart: %ld ms\n", timeToSessionStart * 1000 );
+                        timeToSessionStart = McSessionData[id].SessionTime - curTime.Seconds;
+                        if( timeToSessionStart > 0 )
+                        {
+                            // Start session start timer
+                            TimerSetValue( &SessionStartTimer, timeToSessionStart * 1000 );
+                            TimerStart( &SessionStartTimer );
 
-                        LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = status;
-                        LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = ( timeToSessionStart >> 0  ) & 0xFF;
-                        LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = ( timeToSessionStart >> 8  ) & 0xFF;
-                        LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = ( timeToSessionStart >> 16 ) & 0xFF;
-                        break;
-                    }
-                    else
-                    {
-                        // Session start time before current device time
-                        status |= 0x10;
+                            isTimerSet = true;
+
+                            DBG( "Time2SessionStart: %ld ms\n", timeToSessionStart * 1000 );
+                        }
+                        else
+                        {
+                            // Session start time before current device time
+                            status |= 0x10; // McGroupUndefined bit set
+                        }
                     }
                 }
+                else
+                {
+                    status |= 0x10; // McGroupUndefined bit set
+                }
+
+                LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = REMOTE_MCAST_SETUP_MC_GROUP_CLASS_B_SESSION_ANS;
                 LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = status;
+                if( isTimerSet == true )
+                {
+                    LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = ( timeToSessionStart >> 0  ) & 0xFF;
+                    LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = ( timeToSessionStart >> 8  ) & 0xFF;
+                    LmhpRemoteMcastSetupState.DataBuffer[dataBufferIndex++] = ( timeToSessionStart >> 16 ) & 0xFF;
+                }
+                DBG_SESSION( id, true );
                 break;
             }
             default:
@@ -485,30 +550,6 @@ static void LmhpRemoteMcastSetupOnMcpsIndication( McpsIndication_t *mcpsIndicati
             .Port = REMOTE_MCAST_SETUP_PORT
         };
         LmHandlerSend( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
-
-        DBG( "ID          : %d\n", McSessionData[0].McGroupData.IdHeader.Fields.McGroupId );
-        DBG( "McAddr      : %08lX\n", McSessionData[0].McGroupData.McAddr );
-        DBG( "McKey       : %02X", McSessionData[0].McGroupData.McKeyEncrypted[0] );
-        for( int i = 1; i < 16; i++ )
-        {
-            DBG( "-%02X",  McSessionData[0].McGroupData.McKeyEncrypted[i] );
-        }
-        DBG( "\n" );
-        DBG( "McFCountMin : %lu\n",  McSessionData[0].McGroupData.McFCountMin );
-        DBG( "McFCountMax : %lu\n",  McSessionData[0].McGroupData.McFCountMax );
-        DBG( "SessionTime : %lu\n",  McSessionData[0].SessionTime );
-        DBG( "SessionTimeT: %d\n",  McSessionData[0].SessionTimeout );
-        if( McSessionData[0].RxParams.Class == CLASS_B )
-        {
-            DBG( "Rx Freq     : %lu\n", McSessionData[0].RxParams.Params.ClassB.Frequency );
-            DBG( "Rx DR       : DR_%d\n", McSessionData[0].RxParams.Params.ClassB.Datarate );
-            DBG( "Periodicity : %u\n", McSessionData[0].RxParams.Params.ClassB.Periodicity );
-        }
-        else
-        {
-            DBG( "Rx Freq     : %lu\n", McSessionData[0].RxParams.Params.ClassC.Frequency );
-            DBG( "Rx DR       : DR_%d\n", McSessionData[0].RxParams.Params.ClassC.Datarate );
-        }
     }
 }
 
