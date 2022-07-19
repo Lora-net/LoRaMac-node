@@ -1,0 +1,58 @@
+{
+    "version": 5,
+    "configurePresets": [
+        {
+            "name": "common_configs",
+            "displayName": "common_configs",
+            "description": "Default Configurations for LoRaMAC node",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "APPLICATION": "LoRaMac",
+                "SUB_PROJECT": "periodic-uplink-lpp",
+                "CLASSB_ENABLED": "ON",
+                "ACTIVE_REGION": "LORAMAC_REGION_EU868",
+                "MODULATION": "LORA",
+                "BOARD": "B-L072Z-LRWAN1",
+                "MBED_RADIO_SHIELD": "SX1261MBXBAS",
+                "SECURE_ELEMENT": "SOFT_SE",
+                "SECURE_ELEMENT_PRE_PROVISIONED": "ON",
+                "REGION_EU868": "ON",
+                "REGION_US915": "ON",
+                "REGION_CN779": "OFF",
+                "REGION_EU433": "OFF",
+                "REGION_AU915": "ON",
+                "REGION_CN470": "ON",
+                "REGION_AS923": "ON",
+                "REGION_KR920": "ON",
+                "REGION_IN865": "ON",
+                "REGION_RU864": "ON",
+                "REGION_AS923_DEFAULT_CHANNEL_PLAN": "CHANNEL_PLAN_GROUP_AS923_1_JP"
+            }
+        },
+        {
+            "name": "unittesting_configs",
+            "description": "Configurations for unittesting",
+            "displayName": "unittesting_configs",
+            "inherits": [
+                "common_configs"
+            ],
+            "cacheVariables": {
+                "UNIT_TESTING": true
+            }
+        },
+        {
+            "name": "on_target_configs",
+            "description": "Configurations for building for target: STM32L072",
+            "displayName": "on_target_configs",
+            "inherits": [
+                "common_configs"
+            ],
+            "cacheVariables": {
+                "UNIT_TESTING": false,
+                "CMAKE_TOOLCHAIN_FILE": "cmake/toolchain-arm-none-eabi.cmake"
+            }
+        }
+    ]
+}

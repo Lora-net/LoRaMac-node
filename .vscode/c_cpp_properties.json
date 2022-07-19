@@ -2,7 +2,7 @@
     "configurations": [
         {
             "name": "ARM",
-            "compileCommands": "${workspaceRoot}/build/compile_commands.json",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
             "intelliSenseMode": "clang-x64",
             "browse": {
                 "path": [
