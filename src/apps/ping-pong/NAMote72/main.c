@@ -31,343 +31,543 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+
+/*
+ * -----------------------------------------------------------------------------
+ * --- DEPENDENCIES ------------------------------------------------------------
+ */
 #include <string.h>
-#include "board-config.h"
+#include <stdio.h>
 #include "board.h"
-#include "gpio.h"
 #include "delay.h"
-#include "timer.h"
-#include "radio.h"
+#include "../../mac/loramac_radio.h"
 
+/*
+ * -----------------------------------------------------------------------------
+ * --- PRIVATE MACROS-----------------------------------------------------------
+ */
+
+/*
+ * -----------------------------------------------------------------------------
+ * --- PRIVATE TYPES -----------------------------------------------------------
+ */
+
+/*!
+ * \brief Application states definition
+ */
+typedef enum app_states_e
+{
+    APP_STATE_LOW_POWER,
+    APP_STATE_RX,
+    APP_STATE_RX_TIMEOUT,
+    APP_STATE_RX_ERROR,
+    APP_STATE_TX,
+    APP_STATE_TX_TIMEOUT,
+} app_states_t;
+
+/*!
+ * \brief Application context definition
+ */
+typedef struct app_context_s
+{
+    app_states_t state;
+    bool         is_master;
+    uint16_t     buffer_size_in_bytes;
+    uint8_t*     buffer;
+} app_context_t;
+
+/*
+ * -----------------------------------------------------------------------------
+ * --- PRIVATE CONSTANTS -------------------------------------------------------
+ */
+
+// clang-format off
+/*!
+ * \brief RF frequency
+ */
 #if defined( REGION_AS923 )
-
-#define RF_FREQUENCY                                923000000 // Hz
-
+#define RF_FREQ_IN_HZ                               923000000
 #elif defined( REGION_AU915 )
-
-#define RF_FREQUENCY                                915000000 // Hz
-
+#define RF_FREQ_IN_HZ                               915000000
+#elif defined( REGION_CN470 )
+#define RF_FREQ_IN_HZ                               470000000
 #elif defined( REGION_CN779 )
-
-#define RF_FREQUENCY                                779000000 // Hz
-
+#define RF_FREQ_IN_HZ                               779000000
+#elif defined( REGION_EU433 )
+#define RF_FREQ_IN_HZ                               433000000
 #elif defined( REGION_EU868 )
-
-#define RF_FREQUENCY                                868000000 // Hz
-
+#define RF_FREQ_IN_HZ                               868000000
 #elif defined( REGION_KR920 )
-
-#define RF_FREQUENCY                                920000000 // Hz
-
+#define RF_FREQ_IN_HZ                               920000000
 #elif defined( REGION_IN865 )
-
-#define RF_FREQUENCY                                865000000 // Hz
-
+#define RF_FREQ_IN_HZ                               865000000
 #elif defined( REGION_US915 )
-
-#define RF_FREQUENCY                                915000000 // Hz
-
+#define RF_FREQ_IN_HZ                               915000000
 #elif defined( REGION_RU864 )
-
-#define RF_FREQUENCY                                864000000 // Hz
-
+#define RF_FREQ_IN_HZ                               864000000
 #else
-    #error "Please define a frequency band in the compiler options."
+#error "Please select a region under compiler options."
 #endif
 
-#define TX_OUTPUT_POWER                             14        // dBm
+/*!
+ * \brief RF transmission output power
+ */
+#define TX_RF_PWR_IN_DBM                            14
 
 #if defined( USE_MODEM_LORA )
 
-#define LORA_BANDWIDTH                              0         // [0: 125 kHz,
-                                                              //  1: 250 kHz,
-                                                              //  2: 500 kHz,
-                                                              //  3: Reserved]
-#define LORA_SPREADING_FACTOR                       7         // [SF7..SF12]
-#define LORA_CODINGRATE                             1         // [1: 4/5,
-                                                              //  2: 4/6,
-                                                              //  3: 4/7,
-                                                              //  4: 4/8]
-#define LORA_PREAMBLE_LENGTH                        8         // Same for Tx and Rx
-#define LORA_SYMBOL_TIMEOUT                         5         // Symbols
-#define LORA_FIX_LENGTH_PAYLOAD_ON                  false
-#define LORA_IQ_INVERSION_ON                        false
+/*!
+ * \brief LoRa modulation spreading factor
+ */
+#define LORA_SF                                     RAL_LORA_SF7
+
+/*!
+ * \brief LoRa modulation bandwidth
+ */
+#define LORA_BW                                     RAL_LORA_BW_125_KHZ
+
+/*!
+ * \brief LoRa modulation coding rate
+ */
+#define LORA_CR                                     RAL_LORA_CR_4_5
+
+/*!
+ * \brief LoRa preamble length
+ */
+#define LORA_PREAMBLE_LEN_IN_SYMB                   8
+
+/*!
+ * \brief LoRa is packet length fixed or variable
+ */
+#define LORA_IS_PKT_LEN_FIXED                       false
+
+/*!
+ * \brief LoRa is packet crc on or off
+ */
+#define LORA_IS_CRC_ON                              true
+
+/*!
+ * \brief LoRa is IQ inversion on or off
+ */
+#define LORA_IS_INVERT_IQ_ON                        false
+
+/*!
+ * \brief LoRa rx synchronization timeout
+ */
+#define LORA_RX_SYNC_TIMEOUT_IN_SYMB                6
+
+/*!
+ * \brief LoRa tx timeout
+ */
+#define LORA_TX_TIMEOUT_IN_MS                       4000
 
 #elif defined( USE_MODEM_FSK )
 
-#define FSK_FDEV                                    25000     // Hz
-#define FSK_DATARATE                                50000     // bps
-#define FSK_BANDWIDTH                               50000     // Hz
-#define FSK_AFC_BANDWIDTH                           83333     // Hz
-#define FSK_PREAMBLE_LENGTH                         5         // Same for Tx and Rx
-#define FSK_FIX_LENGTH_PAYLOAD_ON                   false
+/*!
+ * \brief GFSK bitrate
+ */
+#define GFSK_BR_IN_BPS                              50000
+
+/*!
+ * \brief GFSK frequency deviation
+ */
+#define GFSK_FDEV_IN_HZ                             25000
+
+/*!
+ * \brief GFSK bandwidth double sided
+ */
+#define GFSK_BW_DSB_IN_HZ                           100000
+
+/*!
+ * \brief GFSK preable length
+ */
+#define GFSK_PREABLE_LEN_IN_BITS                    40
+
+/*!
+ * \brief GFSK sync word length
+ */
+#define GFSK_SYNC_WORD_LEN_IN_BITS                  24
+
+/*!
+ * \brief GFSK is packet length fixed or variable
+ */
+#define GFSK_IS_PKT_LEN_FIXED                       false
+
+/*!
+ * \brief GFSK is packet crc on or off
+ */
+#define GFSK_IS_CRC_ON                              true
+
+/*!
+ * \brief GFSK rx synchronization timeout
+ */
+#define GFSK_RX_SYNC_TIMEOUT_IN_SYMB                6
+
+/*!
+ * \brief GFSK tx timeout
+ */
+#define GFSK_TX_TIMEOUT_IN_MS                       4000
 
 #else
-    #error "Please define a modem in the compiler options."
+#error "Please select a modem under compiler options."
 #endif
 
-typedef enum
-{
-    LOWPOWER,
-    RX,
-    RX_TIMEOUT,
-    RX_ERROR,
-    TX,
-    TX_TIMEOUT,
-}States_t;
-
-#define RX_TIMEOUT_VALUE                            1000
-#define BUFFER_SIZE                                 64 // Define the payload size here
-
-const uint8_t PingMsg[] = "PING";
-const uint8_t PongMsg[] = "PONG";
-
-uint16_t BufferSize = BUFFER_SIZE;
-uint8_t Buffer[BUFFER_SIZE];
-
-States_t State = LOWPOWER;
-
-int8_t RssiValue = 0;
-int8_t SnrValue = 0;
+/*!
+ * \brief Maximum application data buffer size
+ *
+ * \remark Please do not change this value
+ */
+#define PING_PONG_APP_DATA_MAX_SIZE                 255
 
 /*!
- * Radio events function pointer
+ * \brief Application payload length
+ *
+ * \remark Please change this value in order to test different payload lengths
  */
-static RadioEvents_t RadioEvents;
+#define APP_PLD_LEN_IN_BYTES                        64
+// clang-format on
 
 /*!
- * LED GPIO pins objects
+ * \brief Ping message string
  */
-extern Gpio_t Led1;
-extern Gpio_t Led2;
+const uint8_t app_ping_msg[] = "PING";
 
 /*!
- * \brief Function to be executed on Radio Tx Done event
+ * \brief Pong message string
  */
-void OnTxDone( void );
+const uint8_t app_pong_msg[] = "PONG";
+
+/*
+ * -----------------------------------------------------------------------------
+ * --- PRIVATE VARIABLES -------------------------------------------------------
+ */
 
 /*!
- * \brief Function to be executed on Radio Rx Done event
+ * \brief Application data buffer
  */
-void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr );
+static uint8_t app_data_buffer[PING_PONG_APP_DATA_MAX_SIZE];
 
 /*!
- * \brief Function executed on Radio Tx Timeout event
+ * \brief Application context
  */
-void OnTxTimeout( void );
+static app_context_t app_context = {
+    .state                = APP_STATE_LOW_POWER,
+    .is_master            = true,
+    .buffer_size_in_bytes = APP_PLD_LEN_IN_BYTES,
+    .buffer               = app_data_buffer,
+};
 
 /*!
- * \brief Function executed on Radio Rx Timeout event
+ * \brief Radio interrupt callbacks
  */
-void OnRxTimeout( void );
+static loramac_radio_irq_t radio_irq_callbacks;
+
+/*
+ * -----------------------------------------------------------------------------
+ * --- PRIVATE FUNCTIONS DECLARATION -------------------------------------------
+ */
 
 /*!
- * \brief Function executed on Radio Rx Error event
+ * \brief Tx done interrupt callback
  */
-void OnRxError( void );
+static void irq_tx_done( void );
 
-/**
- * Main application entry point.
+/*!
+ * \brief Rx done interrupt callback
+ *
+ * \param [out] params  Pointer to the received parameters
+ */
+static void irq_rx_done( loramac_radio_irq_rx_done_params_t* params );
+
+/*!
+ * \brief Rx error interrupt callback
+ */
+static void irq_rx_error( void );
+
+/*!
+ * \brief Tx timeout interrupt callback
+ */
+static void irq_tx_timeout( void );
+
+/*!
+ * \brief Rx timeout interrupt callback
+ */
+static void irq_rx_timeout( void );
+
+/*!
+ * \brief Print the provided buffer in HEX
+ *
+ * \param [in] buffer Buffer to be printed
+ * \param [in] size   Buffer size to be printed
+ */
+static void print_hex_buffer( uint8_t* buffer, uint8_t size );
+
+/*!
+ * \brief Build message to be transmitted
+ *
+ * \param [in]  is_ping_msg   Indicate if it is a PING or PONG message
+ * \param [out] buffer        Buffer to be filled
+ * \param [in]  size_in_bytes Buffer size to be filled
+ */
+static void app_build_message( bool is_ping_msg, uint8_t* buffer, uint8_t size_in_bytes );
+
+/*
+ * -----------------------------------------------------------------------------
+ * --- PUBLIC FUNCTIONS DEFINITION ---------------------------------------------
+ */
+
+/*!
+ * \brief Main application entry point.
  */
 int main( void )
 {
-    bool isMaster = true;
-    uint8_t i;
-
     // Target board initialization
     BoardInitMcu( );
     BoardInitPeriph( );
 
     // Radio initialization
-    RadioEvents.TxDone = OnTxDone;
-    RadioEvents.RxDone = OnRxDone;
-    RadioEvents.TxTimeout = OnTxTimeout;
-    RadioEvents.RxTimeout = OnRxTimeout;
-    RadioEvents.RxError = OnRxError;
+    radio_irq_callbacks.loramac_radio_irq_tx_done    = irq_tx_done;
+    radio_irq_callbacks.loramac_radio_irq_rx_done    = irq_rx_done;
+    radio_irq_callbacks.loramac_radio_irq_rx_error   = irq_rx_error;
+    radio_irq_callbacks.loramac_radio_irq_tx_timeout = irq_tx_timeout;
+    radio_irq_callbacks.loramac_radio_irq_rx_timeout = irq_rx_timeout;
 
-    Radio.Init( &RadioEvents );
-
-    Radio.SetChannel( RF_FREQUENCY );
+    loramac_radio_init( &radio_irq_callbacks );
 
 #if defined( USE_MODEM_LORA )
-
-    Radio.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
-                                   LORA_SPREADING_FACTOR, LORA_CODINGRATE,
-                                   LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
-                                   true, 0, 0, LORA_IQ_INVERSION_ON, 3000 );
-
-    Radio.SetRxConfig( MODEM_LORA, LORA_BANDWIDTH, LORA_SPREADING_FACTOR,
-                                   LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGTH,
-                                   LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
-                                   0, true, 0, 0, LORA_IQ_INVERSION_ON, true );
-
-    Radio.SetMaxPayloadLength( MODEM_LORA, BUFFER_SIZE );
-
+    loramac_radio_lora_cfg_params_t lora_params = {
+        .rf_freq_in_hz           = RF_FREQ_IN_HZ,
+        .tx_rf_pwr_in_dbm        = TX_RF_PWR_IN_DBM,
+        .sf                      = LORA_SF,
+        .bw                      = LORA_BW,
+        .cr                      = LORA_CR,
+        .preamble_len_in_symb    = LORA_PREAMBLE_LEN_IN_SYMB,
+        .is_pkt_len_fixed        = LORA_IS_PKT_LEN_FIXED,
+        .pld_len_in_bytes        = APP_PLD_LEN_IN_BYTES,
+        .is_crc_on               = LORA_IS_CRC_ON,
+        .invert_iq_is_on         = LORA_IS_INVERT_IQ_ON,
+        .rx_sync_timeout_in_symb = LORA_RX_SYNC_TIMEOUT_IN_SYMB,
+        .is_rx_continuous        = true,
+        .tx_timeout_in_ms        = LORA_TX_TIMEOUT_IN_MS,
+    };
+    loramac_radio_lora_set_cfg( &lora_params );
 #elif defined( USE_MODEM_FSK )
-
-    Radio.SetTxConfig( MODEM_FSK, TX_OUTPUT_POWER, FSK_FDEV, 0,
-                                  FSK_DATARATE, 0,
-                                  FSK_PREAMBLE_LENGTH, FSK_FIX_LENGTH_PAYLOAD_ON,
-                                  true, 0, 0, 0, 3000 );
-
-    Radio.SetRxConfig( MODEM_FSK, FSK_BANDWIDTH, FSK_DATARATE,
-                                  0, FSK_AFC_BANDWIDTH, FSK_PREAMBLE_LENGTH,
-                                  0, FSK_FIX_LENGTH_PAYLOAD_ON, 0, true,
-                                  0, 0,false, true );
-
-    Radio.SetMaxPayloadLength( MODEM_FSK, BUFFER_SIZE );
-
-#else
-    #error "Please define a frequency band in the compiler options."
+    loramac_radio_gfsk_cfg_params_t gfsk_params = {
+        .rf_freq_in_hz           = RF_FREQ_IN_HZ,
+        .tx_rf_pwr_in_dbm        = TX_RF_PWR_IN_DBM,
+        .br_in_bps               = GFSK_BR_IN_BPS,
+        .fdev_in_hz              = GFSK_FDEV_IN_HZ,
+        .bw_dsb_in_hz            = GFSK_BW_DSB_IN_HZ,
+        .preamble_len_in_bits    = GFSK_PREABLE_LEN_IN_BITS,
+        .sync_word_len_in_bits   = GFSK_SYNC_WORD_LEN_IN_BITS,
+        .is_pkt_len_fixed        = GFSK_IS_PKT_LEN_FIXED,
+        .pld_len_in_bytes        = APP_PLD_LEN_IN_BYTES,
+        .is_crc_on               = GFSK_IS_CRC_ON,
+        .rx_sync_timeout_in_symb = GFSK_RX_SYNC_TIMEOUT_IN_SYMB,
+        .is_rx_continuous        = true,
+        .tx_timeout_in_ms        = GFSK_TX_TIMEOUT_IN_MS,
+    };
+    loramac_radio_gfsk_set_cfg( &gfsk_params );
 #endif
 
-    Radio.Rx( RX_TIMEOUT_VALUE );
+    loramac_radio_set_rx( RAL_RX_TIMEOUT_CONTINUOUS_MODE );
 
     while( 1 )
     {
-        switch( State )
+        switch( app_context.state )
         {
-        case RX:
-            if( isMaster == true )
+        case APP_STATE_RX:
+            if( app_context.is_master == true )
             {
-                if( BufferSize > 0 )
+                if( app_context.buffer_size_in_bytes > 0 )
                 {
-                    if( strncmp( ( const char* )Buffer, ( const char* )PongMsg, 4 ) == 0 )
+                    if( strncmp( ( const char* ) app_context.buffer, ( const char* ) app_pong_msg, 4 ) == 0 )
                     {
-                        // Indicates on a LED that the received frame is a PONG
-                        GpioWrite( &Led1, GpioRead( &Led1 ) ^ 1 );
-
+                        printf( "[APP] pong message received\n" );
                         // Send the next PING frame
-                        Buffer[0] = 'P';
-                        Buffer[1] = 'I';
-                        Buffer[2] = 'N';
-                        Buffer[3] = 'G';
-                        // We fill the buffer with numbers for the payload
-                        for( i = 4; i < BufferSize; i++ )
-                        {
-                            Buffer[i] = i - 4;
-                        }
+                        app_build_message( true, app_context.buffer, app_context.buffer_size_in_bytes );
                         DelayMs( 1 );
-                        Radio.Send( Buffer, BufferSize );
+                        printf( "[APP] ping message transmission\n" );
+                        loramac_radio_transmit( app_context.buffer, app_context.buffer_size_in_bytes );
                     }
-                    else if( strncmp( ( const char* )Buffer, ( const char* )PingMsg, 4 ) == 0 )
-                    { // A master already exists then become a slave
-                        isMaster = false;
-                        GpioWrite( &Led2, 1 ); // Set LED off
-                        Radio.Rx( RX_TIMEOUT_VALUE );
+                    else if( strncmp( ( const char* ) app_context.buffer, ( const char* ) app_ping_msg, 4 ) == 0 )
+                    {  // A master already exists then become a slave
+                        app_context.is_master = false;
+                        printf( "[APP] ping-pong slave mode\n" );
+                        loramac_radio_set_rx( RAL_RX_TIMEOUT_CONTINUOUS_MODE );
                     }
-                    else // valid reception but neither a PING or a PONG message
-                    {    // Set device as master ans start again
-                        isMaster = true;
-                        Radio.Rx( RX_TIMEOUT_VALUE );
+                    else  // valid reception but neither a PING or a PONG message
+                    {     // Set device as master ans start again
+                        app_context.is_master = true;
+                        printf( "[APP] ping-pong master mode\n" );
+                        loramac_radio_set_rx( RAL_RX_TIMEOUT_CONTINUOUS_MODE );
                     }
                 }
             }
             else
             {
-                if( BufferSize > 0 )
+                if( app_context.buffer_size_in_bytes > 0 )
                 {
-                    if( strncmp( ( const char* )Buffer, ( const char* )PingMsg, 4 ) == 0 )
+                    if( strncmp( ( const char* ) app_context.buffer, ( const char* ) app_ping_msg, 4 ) == 0 )
                     {
-                        // Indicates on a LED that the received frame is a PING
-                        GpioWrite( &Led1, GpioRead( &Led1 ) ^ 1 );
-
+                        printf( "[APP] ping message received\n" );
                         // Send the reply to the PONG string
-                        Buffer[0] = 'P';
-                        Buffer[1] = 'O';
-                        Buffer[2] = 'N';
-                        Buffer[3] = 'G';
-                        // We fill the buffer with numbers for the payload
-                        for( i = 4; i < BufferSize; i++ )
-                        {
-                            Buffer[i] = i - 4;
-                        }
+                        app_build_message( false, app_context.buffer, app_context.buffer_size_in_bytes );
                         DelayMs( 1 );
-                        Radio.Send( Buffer, BufferSize );
+                        printf( "[APP] pong message transmission\n" );
+                        loramac_radio_transmit( app_context.buffer, app_context.buffer_size_in_bytes );
                     }
-                    else // valid reception but not a PING as expected
-                    {    // Set device as master and start again
-                        isMaster = true;
-                        Radio.Rx( RX_TIMEOUT_VALUE );
+                    else  // valid reception but not a PING as expected
+                    {     // Set device as master and start again
+                        app_context.is_master = true;
+                        printf( "[APP] ping-pong master mode\n" );
+                        loramac_radio_set_rx( RAL_RX_TIMEOUT_CONTINUOUS_MODE );
                     }
                 }
             }
-            State = LOWPOWER;
+            app_context.state = APP_STATE_LOW_POWER;
             break;
-        case TX:
-            // Indicates on a LED that we have sent a PING [Master]
-            // Indicates on a LED that we have sent a PONG [Slave]
-            GpioWrite( &Led2, GpioRead( &Led2 ) ^ 1 );
-            Radio.Rx( RX_TIMEOUT_VALUE );
-            State = LOWPOWER;
+        case APP_STATE_TX:
+            loramac_radio_set_rx( RAL_RX_TIMEOUT_CONTINUOUS_MODE );
+            if( app_context.is_master == true )
+            {
+                printf( "[APP] ping message transmitted\n" );
+            }
+            else
+            {
+                printf( "[APP] pong message transmitted\n" );
+            }
+            app_context.state = APP_STATE_LOW_POWER;
             break;
-        case RX_TIMEOUT:
-        case RX_ERROR:
-            if( isMaster == true )
+        case APP_STATE_RX_TIMEOUT:
+        case APP_STATE_RX_ERROR:
+            if( app_context.is_master == true )
             {
                 // Send the next PING frame
-                Buffer[0] = 'P';
-                Buffer[1] = 'I';
-                Buffer[2] = 'N';
-                Buffer[3] = 'G';
-                for( i = 4; i < BufferSize; i++ )
-                {
-                    Buffer[i] = i - 4;
-                }
+                app_build_message( true, app_context.buffer, app_context.buffer_size_in_bytes );
                 DelayMs( 1 );
-                Radio.Send( Buffer, BufferSize );
+                printf( "[APP] ping message transmission\n" );
+                loramac_radio_transmit( app_context.buffer, app_context.buffer_size_in_bytes );
             }
             else
             {
-                Radio.Rx( RX_TIMEOUT_VALUE );
+                loramac_radio_set_rx( RAL_RX_TIMEOUT_CONTINUOUS_MODE );
             }
-            State = LOWPOWER;
+            app_context.state = APP_STATE_LOW_POWER;
             break;
-        case TX_TIMEOUT:
-            Radio.Rx( RX_TIMEOUT_VALUE );
-            State = LOWPOWER;
+        case APP_STATE_TX_TIMEOUT:
+            loramac_radio_set_rx( RAL_RX_TIMEOUT_CONTINUOUS_MODE );
+            app_context.state = APP_STATE_LOW_POWER;
             break;
-        case LOWPOWER:
+        case APP_STATE_LOW_POWER:
         default:
             // Set low power
             break;
         }
-
         BoardLowPowerHandler( );
-
+        // Process Radio IRQ
+        loramac_radio_irq_process( );
     }
 }
 
-void OnTxDone( void )
+/*
+ * -----------------------------------------------------------------------------
+ * --- PRIVATE FUNCTIONS DEFINITION --------------------------------------------
+ */
+
+static void irq_tx_done( void )
 {
-    Radio.Sleep( );
-    State = TX;
+    loramac_radio_set_sleep( );
+    app_context.state = APP_STATE_TX;
 }
 
-void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
+static void irq_rx_done( loramac_radio_irq_rx_done_params_t* params )
 {
-    Radio.Sleep( );
-    BufferSize = size;
-    memcpy( Buffer, payload, BufferSize );
-    RssiValue = rssi;
-    SnrValue = snr;
-    State = RX;
+    loramac_radio_set_sleep( );
+
+    memcpy( app_context.buffer, params->buffer, params->size_in_bytes );
+
+    app_context.buffer_size_in_bytes = params->size_in_bytes;
+
+#if defined( USE_MODEM_LORA )
+    printf( "[IRQ] rx done rssi: %4d dBm, snr: %4d dB\n", params->rssi_in_dbm, params->snr_in_db );
+#elif defined( USE_MODEM_FSK )
+    printf( "[IRQ] rx done rssi: %4d dBm\n", params->rssi_in_dbm );
+#endif
+    if( app_context.buffer[1] == 'I' )
+    {
+        printf( "P I N G " );
+        print_hex_buffer( app_context.buffer + 4, params->size_in_bytes );
+    }
+    else if( app_context.buffer[1] == 'O' )
+    {
+        printf( "P O N G " );
+        print_hex_buffer( app_context.buffer + 4, params->size_in_bytes );
+    }
+    else
+    {
+        print_hex_buffer( app_context.buffer, params->size_in_bytes );
+    }
+    app_context.state = APP_STATE_RX;
 }
 
-void OnTxTimeout( void )
+static void irq_rx_error( void )
 {
-    Radio.Sleep( );
-    State = TX_TIMEOUT;
+    loramac_radio_set_sleep( );
+    app_context.state = APP_STATE_RX_ERROR;
 }
 
-void OnRxTimeout( void )
+static void irq_tx_timeout( void )
 {
-    Radio.Sleep( );
-    State = RX_TIMEOUT;
+    loramac_radio_set_sleep( );
+    app_context.state = APP_STATE_TX_TIMEOUT;
 }
 
-void OnRxError( void )
+static void irq_rx_timeout( void )
 {
-    Radio.Sleep( );
-    State = RX_ERROR;
+    loramac_radio_set_sleep( );
+    app_context.state = APP_STATE_RX_TIMEOUT;
 }
+
+static void print_hex_buffer( uint8_t* buffer, uint8_t size )
+{
+    uint8_t newline = 0;
+
+    for( uint8_t i = 0; i < size; i++ )
+    {
+        if( newline != 0 )
+        {
+            printf( "\n" );
+            newline = 0;
+        }
+        printf( "%02X ", buffer[i] );
+        if( ( ( i + 1 ) % 16 ) == 0 )
+        {
+            newline = 1;
+        }
+    }
+    printf( "\n" );
+}
+
+static void app_build_message( bool is_ping_msg, uint8_t* buffer, uint8_t size_in_bytes )
+{
+    uint8_t app_msg_size;
+
+    if( is_ping_msg == true )
+    {
+        app_msg_size = sizeof( app_ping_msg );
+        memcpy( buffer, app_ping_msg, app_msg_size );
+    }
+    else
+    {
+        app_msg_size = sizeof( app_pong_msg );
+        memcpy( buffer, app_pong_msg, app_msg_size );
+    }
+    // Fill remaining buffer bytes
+    for( uint8_t i = app_msg_size; i < size_in_bytes; i++ )
+    {
+        buffer[i] = i - app_msg_size;
+    }
+}
+
+/* --- EOF ------------------------------------------------------------------ */

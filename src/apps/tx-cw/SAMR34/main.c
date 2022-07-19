@@ -31,101 +31,187 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "board.h"
-#include "gpio.h"
-#include "timer.h"
-#include "radio.h"
 
+/*
+ * -----------------------------------------------------------------------------
+ * --- DEPENDENCIES ------------------------------------------------------------
+ */
+#include "board.h"
+#include "timer.h"
+#include "../../mac/loramac_radio.h"
+
+/*
+ * -----------------------------------------------------------------------------
+ * --- PRIVATE MACROS-----------------------------------------------------------
+ */
+
+/*
+ * -----------------------------------------------------------------------------
+ * --- PRIVATE TYPES -----------------------------------------------------------
+ */
+
+/*
+ * -----------------------------------------------------------------------------
+ * --- PRIVATE CONSTANTS -------------------------------------------------------
+ */
+
+// clang-format off
 #if defined( REGION_AS923 )
 
-#define RF_FREQUENCY                                923000000 // Hz
-#define TX_OUTPUT_POWER                             14        // 14 dBm
+/*!
+ * \brief RF frequency
+ */
+#define RF_FREQ_IN_HZ                               923000000
+
+/*!
+ * \brief RF transmission output power
+ */
+#define TX_RF_PWR_IN_DBM                            14
 
 #elif defined( REGION_AU915 )
 
-#define RF_FREQUENCY                                915000000 // Hz
-#define TX_OUTPUT_POWER                             14        // 14 dBm
+/*!
+ * \brief RF frequency
+ */
+#define RF_FREQ_IN_HZ                               915000000
+
+/*!
+ * \brief RF transmission output power
+ */
+#define TX_RF_PWR_IN_DBM                            14
 
 #elif defined( REGION_CN470 )
 
-#define RF_FREQUENCY                                470000000 // Hz
-#define TX_OUTPUT_POWER                             20        // 20 dBm
+/*!
+ * \brief RF frequency
+ */
+#define RF_FREQ_IN_HZ                               470000000
+
+/*!
+ * \brief RF transmission output power
+ */
+#define TX_RF_PWR_IN_DBM                            20
 
 #elif defined( REGION_CN779 )
 
-#define RF_FREQUENCY                                779000000 // Hz
-#define TX_OUTPUT_POWER                             14        // 14 dBm
+/*!
+ * \brief RF frequency
+ */
+#define RF_FREQ_IN_HZ                               779000000
+
+/*!
+ * \brief RF transmission output power
+ */
+#define TX_RF_PWR_IN_DBM                            14
 
 #elif defined( REGION_EU433 )
 
-#define RF_FREQUENCY                                433000000 // Hz
-#define TX_OUTPUT_POWER                             20        // 20 dBm
+/*!
+ * \brief RF frequency
+ */
+#define RF_FREQ_IN_HZ                               433000000
+
+/*!
+ * \brief RF transmission output power
+ */
+#define TX_RF_PWR_IN_DBM                            20
 
 #elif defined( REGION_EU868 )
 
-#define RF_FREQUENCY                                868000000 // Hz
-#define TX_OUTPUT_POWER                             14        // 14 dBm
+/*!
+ * \brief RF frequency
+ */
+#define RF_FREQ_IN_HZ                               868000000
+
+/*!
+ * \brief RF transmission output power
+ */
+#define TX_RF_PWR_IN_DBM                            14
 
 #elif defined( REGION_KR920 )
 
-#define RF_FREQUENCY                                920000000 // Hz
-#define TX_OUTPUT_POWER                             14        // 14 dBm
+/*!
+ * \brief RF frequency
+ */
+#define RF_FREQ_IN_HZ                               920000000
+
+/*!
+ * \brief RF transmission output power
+ */
+#define TX_RF_PWR_IN_DBM                            14
 
 #elif defined( REGION_IN865 )
 
-#define RF_FREQUENCY                                865000000 // Hz
-#define TX_OUTPUT_POWER                             14        // 14 dBm
+/*!
+ * \brief RF frequency
+ */
+#define RF_FREQ_IN_HZ                               865000000
+
+/*!
+ * \brief RF transmission output power
+ */
+#define TX_RF_PWR_IN_DBM                            14
 
 #elif defined( REGION_US915 )
 
-#define RF_FREQUENCY                                915000000 // Hz
-#define TX_OUTPUT_POWER                             14        // 14 dBm
+/*!
+ * \brief RF frequency
+ */
+#define RF_FREQ_IN_HZ                               915000000
+
+/*!
+ * \brief RF transmission output power
+ */
+#define TX_RF_PWR_IN_DBM                            14
 
 #elif defined( REGION_RU864 )
 
-#define RF_FREQUENCY                                864000000 // Hz
-#define TX_OUTPUT_POWER                             14        // 14 dBm
+/*!
+ * \brief RF frequency
+ */
+#define RF_FREQ_IN_HZ                               864000000
+
+/*!
+ * \brief RF transmission output power
+ */
+#define TX_RF_PWR_IN_DBM                            14
 
 #else
-
-    #error "Please define a frequency band in the compiler options."
-
+#error "Please select a region under compiler options."
 #endif
-#define TX_TIMEOUT                                  65535     // seconds (MAX value)
-
-static TimerEvent_t Led1Timer;
-volatile bool Led1TimerEvent = false;
 
 /*!
- * Radio events function pointer
+ * \brief Tx timeout
  */
-static RadioEvents_t RadioEvents;
+#define TX_TIMEOUT_IN_MS                                  10        // seconds (MAX value)
+// clang-format on
+
+/*
+ * -----------------------------------------------------------------------------
+ * --- PRIVATE VARIABLES -------------------------------------------------------
+ */
 
 /*!
- * LED GPIO pins objects
+ * \brief Radio interrupt callbacks
  */
-extern Gpio_t Led1;
+static loramac_radio_irq_t radio_irq_callbacks;
 
 /*!
- * \brief Function executed on Led 1 Timeout event
+ * \brief Tx timeout interrupt callback
  */
-void OnLed1TimerEvent( void* context )
-{
-    Led1TimerEvent = true;
-}
-
-
-/*!
- * \brief Function executed on Radio Tx Timeout event
- */
-void OnRadioTxTimeout( void )
+static void irq_tx_timeout( void )
 {
     // Restarts continuous wave transmission when timeout expires
-    Radio.SetTxContinuousWave( RF_FREQUENCY, TX_OUTPUT_POWER, TX_TIMEOUT );
+    loramac_radio_tx_cw_cfg_params_t cfg_params = {
+        .rf_freq_in_hz    = RF_FREQ_IN_HZ,
+        .tx_rf_pwr_in_dbm = TX_RF_PWR_IN_DBM,
+        .timeout_in_s     = TX_TIMEOUT_IN_MS,
+    };
+    loramac_radio_set_tx_cw( &cfg_params );
 }
 
-/**
- * Main application entry point.
+/*!
+ * \brief Main application entry point.
  */
 int main( void )
 {
@@ -133,33 +219,25 @@ int main( void )
     BoardInitMcu( );
     BoardInitPeriph( );
 
-    TimerInit( &Led1Timer, OnLed1TimerEvent );
-    TimerSetValue( &Led1Timer, 90 );
-
-    // Switch LED 1 ON
-    GpioWrite( &Led1, 0 );
-    TimerStart( &Led1Timer );
-
     // Radio initialization
-    RadioEvents.TxTimeout = OnRadioTxTimeout;
-    Radio.Init( &RadioEvents );
+    radio_irq_callbacks.loramac_radio_irq_tx_timeout = irq_tx_timeout;
 
-    Radio.SetTxContinuousWave( RF_FREQUENCY, TX_OUTPUT_POWER, TX_TIMEOUT );
+    loramac_radio_init( &radio_irq_callbacks );
+
+    loramac_radio_tx_cw_cfg_params_t cfg_params = {
+        .rf_freq_in_hz    = RF_FREQ_IN_HZ,
+        .tx_rf_pwr_in_dbm = TX_RF_PWR_IN_DBM,
+        .timeout_in_s     = TX_TIMEOUT_IN_MS,
+    };
+    loramac_radio_set_tx_cw( &cfg_params );
 
     // Blink LEDs just to show some activity
     while( 1 )
     {
         // Tick the RTC to execute callback in context of the main loop (in stead of the IRQ)
         TimerProcess( );
-
-        if( Led1TimerEvent == true )
-        {
-            Led1TimerEvent = false;
-
-            // Switch LED 1 OFF
-            GpioWrite( &Led1, 1 );
-        }
-
-
+        BoardLowPowerHandler( );
+        // Process Radio IRQ
+        loramac_radio_irq_process( );
     }
 }
