@@ -682,15 +682,12 @@ static LoRaMacCryptoStatus_t GetLastFcntDown( FCntIdentifier_t fCntID, uint32_t*
     {
         case N_FCNT_DOWN:
             *lastDown = CryptoNvm->FCntList.NFCntDown;
-            CryptoNvm->LastDownFCnt = CryptoNvm->FCntList.NFCntDown;
             break;
         case A_FCNT_DOWN:
             *lastDown = CryptoNvm->FCntList.AFCntDown;
-            CryptoNvm->LastDownFCnt = CryptoNvm->FCntList.AFCntDown;
             break;
         case FCNT_DOWN:
             *lastDown = CryptoNvm->FCntList.FCntDown;
-            CryptoNvm->LastDownFCnt = CryptoNvm->FCntList.FCntDown;
             break;
 #if ( LORAMAC_MAX_MC_CTX > 0 )
         case MC_FCNT_DOWN_0:
@@ -759,12 +756,15 @@ static void UpdateFCntDown( FCntIdentifier_t fCntID, uint32_t currentDown )
     {
         case N_FCNT_DOWN:
             CryptoNvm->FCntList.NFCntDown = currentDown;
+            CryptoNvm->LastDownFCnt = currentDown;
             break;
         case A_FCNT_DOWN:
             CryptoNvm->FCntList.AFCntDown = currentDown;
+            CryptoNvm->LastDownFCnt = currentDown;
             break;
         case FCNT_DOWN:
             CryptoNvm->FCntList.FCntDown = currentDown;
+            CryptoNvm->LastDownFCnt = currentDown;
             break;
 #if ( LORAMAC_MAX_MC_CTX > 0 )
         case MC_FCNT_DOWN_0:
