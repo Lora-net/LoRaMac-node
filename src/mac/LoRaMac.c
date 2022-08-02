@@ -4120,6 +4120,11 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t* mibGet )
             mibGet->Param.AdrAckLimit = MacCtx.AdrAckLimit;
             break;
         }
+        case MIB_ADR_ACK_DELAY:
+        {
+            mibGet->Param.AdrAckDelay = MacCtx.AdrAckDelay;
+            break;
+        }
         default:
         {
             status = LoRaMacClassBMibGetRequestConfirm( mibGet );
@@ -4794,6 +4799,11 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
         case MIB_ADR_ACK_LIMIT:
         {
             MacCtx.AdrAckLimit = mibSet->Param.AdrAckLimit;
+            break;
+        }
+        case MIB_ADR_ACK_DELAY:
+        {
+            MacCtx.AdrAckDelay = mibSet->Param.AdrAckDelay;
             break;
         }
         default:
