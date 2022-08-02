@@ -1437,6 +1437,7 @@ typedef struct sMlmeIndication
  * \ref MIB_REJOIN_0_CYCLE                       | YES | YES
  * \ref MIB_REJOIN_1_CYCLE                       | YES | YES
  * \ref MIB_REJOIN_2_CYCLE                       | YES | NO
+ * \ref MIB_ADR_ACK_LIMIT                        | YES | YES
  *
  * The following table provides links to the function implementations of the
  * related MIB primitives:
@@ -1869,6 +1870,10 @@ typedef enum eMib
       * LoRaWAN certification FPort handling state (ON/OFF)
       */
      MIB_IS_CERT_FPORT_ON,
+     /*!
+      * ADR ack limit value
+      */
+     MIB_ADR_ACK_LIMIT,
 }Mib_t;
 
 /*!
@@ -2315,6 +2320,12 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_IS_CERT_FPORT_ON
      */
     bool IsCertPortOn;
+    /*!
+     * ADR ack limit value
+     *
+     * Related MIB type: \ref MIB_ADR_ACK_LIMIT
+     */
+    uint16_t AdrAckLimit;
 }MibParam_t;
 
 /*!
