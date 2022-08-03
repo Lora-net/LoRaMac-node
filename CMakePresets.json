@@ -1,11 +1,15 @@
 {
-    "version": 5,
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 23,
+        "patch": 0
+    },
     "configurePresets": [
         {
             "name": "common_configs",
             "displayName": "common_configs",
             "description": "Default Configurations for LoRaMAC node",
-            "generator": "Ninja",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
@@ -53,6 +57,20 @@
                 "UNIT_TESTING": false,
                 "CMAKE_TOOLCHAIN_FILE": "cmake/toolchain-arm-none-eabi.cmake"
             }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "unittest_build",
+            "description": "Build the unittest",
+            "displayName": "unittest_build",
+            "configurePreset": "unittesting_configs"
+        },
+        {
+            "name": "target_build",
+            "description": "Build for the STM32l0 target",
+            "displayName": "target_build",
+            "configurePreset": "on_target_configs"
         }
     ]
 }

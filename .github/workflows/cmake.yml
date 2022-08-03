@@ -21,11 +21,8 @@ jobs:
         run: sudo apt-get -y install gcc-arm-none-eabi
 
       - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNIT_TESTING=false -DCMAKE_TOOLCHAIN_FILE="cmake/toolchain-arm-none-eabi.cmake" -DAPPLICATION="LoRaMac" -DSUB_PROJECT="periodic-uplink-lpp" -DCLASSB_ENABLED="ON" -DACTIVE_REGION="LORAMAC_REGION_EU868" -DMODULATION="LORA" -DBOARD="B-L072Z-LRWAN1" -DMBED_RADIO_SHIELD="SX1261MBXBAS"       -DSECURE_ELEMENT="SOFT_SE"   -DSECURE_ELEMENT_PRE_PROVISIONED="ON"   -DREGION_EU868="ON"      -DREGION_US915="ON"          -DREGION_CN779="OFF"           -DREGION_EU433="OFF"         -DREGION_AU915="ON"      -DREGION_CN470="ON"     -DREGION_AS923="ON"      -DREGION_KR920="ON"        -DREGION_IN865="ON"       -DREGION_RU864="ON"      -DREGION_AS923_DEFAULT_CHANNEL_PLAN="CHANNEL_PLAN_GROUP_AS923_1_JP"
+        run: cmake --preset on_target_configs
 
       - name: Build
-        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        run: cmake --build --preset target_build
 
-      - name: Test
-        working-directory: ${{github.workspace}}/build
-        run: ctest -C ${{env.BUILD_TYPE}}
