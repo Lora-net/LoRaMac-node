@@ -4118,6 +4118,16 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t* mibGet )
             mibGet->Param.AdrAckDelay = Nvm.MacGroup2.MacParams.AdrAckDelay;
             break;
         }
+        case MIB_ADR_ACK_DEFAULT_LIMIT:
+        {
+            mibGet->Param.AdrAckLimit = Nvm.MacGroup2.MacParamsDefaults.AdrAckLimit;
+            break;
+        }
+        case MIB_ADR_ACK_DEFAULT_DELAY:
+        {
+            mibGet->Param.AdrAckDelay = Nvm.MacGroup2.MacParamsDefaults.AdrAckDelay;
+            break;
+        }
         default:
         {
             status = LoRaMacClassBMibGetRequestConfirm( mibGet );
@@ -4797,6 +4807,16 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
         case MIB_ADR_ACK_DELAY:
         {
             Nvm.MacGroup2.MacParams.AdrAckDelay = mibSet->Param.AdrAckDelay;
+            break;
+        }
+        case MIB_ADR_ACK_DEFAULT_LIMIT:
+        {
+            Nvm.MacGroup2.MacParamsDefaults.AdrAckLimit = mibSet->Param.AdrAckLimit;
+            break;
+        }
+        case MIB_ADR_ACK_DEFAULT_DELAY:
+        {
+            Nvm.MacGroup2.MacParamsDefaults.AdrAckDelay = mibSet->Param.AdrAckDelay;
             break;
         }
         default:

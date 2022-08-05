@@ -1449,6 +1449,8 @@ typedef struct sMlmeIndication
  * \ref MIB_REJOIN_2_CYCLE                       | YES | NO
  * \ref MIB_ADR_ACK_LIMIT                        | YES | YES
  * \ref MIB_ADR_ACK_DELAY                        | YES | YES
+ * \ref MIB_ADR_ACK_DEFAULT_LIMIT                | YES | YES
+ * \ref MIB_ADR_ACK_DEFAULT_DELAY                | YES | YES
  *
  * The following table provides links to the function implementations of the
  * related MIB primitives:
@@ -1889,6 +1891,14 @@ typedef enum eMib
       * ADR ack delay value
       */
      MIB_ADR_ACK_DELAY,
+     /*!
+      * ADR ack default limit value
+      */
+     MIB_ADR_ACK_DEFAULT_LIMIT,
+     /*!
+      * ADR ack default delay value
+      */
+     MIB_ADR_ACK_DEFAULT_DELAY,
 }Mib_t;
 
 /*!
@@ -2338,13 +2348,13 @@ typedef union uMibParam
     /*!
      * ADR ack limit value
      *
-     * Related MIB type: \ref MIB_ADR_ACK_LIMIT
+     * Related MIB types: \ref MIB_ADR_ACK_LIMIT, MIB_ADR_ACK_DEFAULT_LIMIT
      */
     uint16_t AdrAckLimit;
     /*!
      * ADR ack delay value
      *
-     * Related MIB type: \ref MIB_ADR_ACK_DELAY
+     * Related MIB types: \ref MIB_ADR_ACK_DELAY, MIB_ADR_ACK_DEFAULT_DELAY
      */
     uint16_t AdrAckDelay;
 }MibParam_t;
