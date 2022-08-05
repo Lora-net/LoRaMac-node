@@ -168,15 +168,6 @@ typedef struct sLoRaMacCtx
     RxConfigParams_t RxWindow2Config;
     RxConfigParams_t RxWindowCConfig;
     /*
-     * Limit of uplinks without any donwlink response before the ADRACKReq bit will be set.
-     */
-    uint16_t AdrAckLimit;
-    /*
-     * Limit of uplinks without any donwlink response after a the first frame with set ADRACKReq bit
-     * before the trying to regain the connectivity.
-     */
-    uint16_t AdrAckDelay;
-    /*
     * Acknowledge timeout timer. Used for packet retransmissions.
     */
     TimerEvent_t RetransmitTimeoutTimer;
@@ -2380,10 +2371,10 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 macIndex++;
 
                 // ADR_ACK_ DELAY = 2^Delay_exp
-                MacCtx.AdrAckDelay = 0x01 << delayExp;
+                Nvm.MacGroup2.MacParams.AdrAckDelay = 0x01 << delayExp;
 
                 // ADR_ACK_LIMIT = 2^Limit_exp
-                MacCtx.AdrAckLimit = 0x01 << limitExp;
+                Nvm.MacGroup2.MacParams.AdrAckLimit = 0x01 << limitExp;
 
                 LoRaMacCommandsAddCmd( MOTE_MAC_ADR_PARAM_SETUP_ANS, macCmdPayload, 0 );
                 break;
@@ -2622,8 +2613,8 @@ LoRaMacStatus_t Send( LoRaMacHeader_t* macHdr, uint8_t fPort, void* fBuffer, uin
     adrNext.UpdateChanMask = true;
     adrNext.AdrEnabled = fCtrl.Bits.Adr;
     adrNext.AdrAckCounter = Nvm.MacGroup1.AdrAckCounter;
-    adrNext.AdrAckLimit = MacCtx.AdrAckLimit;
-    adrNext.AdrAckDelay = MacCtx.AdrAckDelay;
+    adrNext.AdrAckLimit = Nvm.MacGroup2.MacParams.AdrAckLimit;
+    adrNext.AdrAckDelay = Nvm.MacGroup2.MacParams.AdrAckDelay;
     adrNext.Datarate = Nvm.MacGroup1.ChannelsDatarate;
     adrNext.TxPower = Nvm.MacGroup1.ChannelsTxPower;
     adrNext.NbTrans = Nvm.MacGroup2.MacParams.ChannelsNbTrans;
@@ -3572,7 +3563,7 @@ static bool StopRetransmission( void )
              * If the device has not received a RekeyConf within
              * the first ADR_ACK_LIMIT uplinks it SHALL revert to the Join state.
              */
-            if( Nvm.MacGroup1.RekeyIndUplinksCounter == MacCtx.AdrAckLimit )
+            if( Nvm.MacGroup1.RekeyIndUplinksCounter == Nvm.MacGroup2.MacParams.AdrAckLimit )
             {
                 Nvm.MacGroup2.NetworkActivation = ACTIVATION_TYPE_NONE;
                 MacCtx.MacFlags.Bits.MlmeInd = 1;
@@ -3729,11 +3720,11 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
 
     getPhy.Attribute = PHY_DEF_ADR_ACK_LIMIT;
     phyParam = RegionGetPhyParam( Nvm.MacGroup2.Region, &getPhy );
-    MacCtx.AdrAckLimit = phyParam.Value;
+    Nvm.MacGroup2.MacParamsDefaults.AdrAckLimit = phyParam.Value;
 
     getPhy.Attribute = PHY_DEF_ADR_ACK_DELAY;
     phyParam = RegionGetPhyParam( Nvm.MacGroup2.Region, &getPhy );
-    MacCtx.AdrAckDelay = phyParam.Value;
+    Nvm.MacGroup2.MacParamsDefaults.AdrAckDelay = phyParam.Value;
 
     // Init parameters which are not set in function ResetMacParameters
     Nvm.MacGroup2.MacParamsDefaults.ChannelsNbTrans = 1;
@@ -3748,6 +3739,8 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     Nvm.MacGroup2.MacParams.JoinAcceptDelay1 = Nvm.MacGroup2.MacParamsDefaults.JoinAcceptDelay1;
     Nvm.MacGroup2.MacParams.JoinAcceptDelay2 = Nvm.MacGroup2.MacParamsDefaults.JoinAcceptDelay2;
     Nvm.MacGroup2.MacParams.ChannelsNbTrans = Nvm.MacGroup2.MacParamsDefaults.ChannelsNbTrans;
+    Nvm.MacGroup2.MacParams.AdrAckLimit = Nvm.MacGroup2.MacParamsDefaults.AdrAckLimit;
+    Nvm.MacGroup2.MacParams.AdrAckDelay = Nvm.MacGroup2.MacParamsDefaults.AdrAckDelay;
 
     // FPort 224 is enabled by default.
     Nvm.MacGroup2.IsCertPortOn = true;
@@ -3862,8 +3855,8 @@ LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo )
     adrNext.UpdateChanMask = false;
     adrNext.AdrEnabled = Nvm.MacGroup2.AdrCtrlOn;
     adrNext.AdrAckCounter = Nvm.MacGroup1.AdrAckCounter;
-    adrNext.AdrAckLimit = MacCtx.AdrAckLimit;
-    adrNext.AdrAckDelay = MacCtx.AdrAckDelay;
+    adrNext.AdrAckLimit = Nvm.MacGroup2.MacParams.AdrAckLimit;
+    adrNext.AdrAckDelay = Nvm.MacGroup2.MacParams.AdrAckDelay;
     adrNext.Datarate = Nvm.MacGroup1.ChannelsDatarate;
     adrNext.TxPower = Nvm.MacGroup1.ChannelsTxPower;
     adrNext.NbTrans = MacCtx.ChannelsNbTransCounter;
@@ -4117,12 +4110,12 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t* mibGet )
         }
         case MIB_ADR_ACK_LIMIT:
         {
-            mibGet->Param.AdrAckLimit = MacCtx.AdrAckLimit;
+            mibGet->Param.AdrAckLimit = Nvm.MacGroup2.MacParams.AdrAckLimit;
             break;
         }
         case MIB_ADR_ACK_DELAY:
         {
-            mibGet->Param.AdrAckDelay = MacCtx.AdrAckDelay;
+            mibGet->Param.AdrAckDelay = Nvm.MacGroup2.MacParams.AdrAckDelay;
             break;
         }
         default:
@@ -4798,12 +4791,12 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
         }
         case MIB_ADR_ACK_LIMIT:
         {
-            MacCtx.AdrAckLimit = mibSet->Param.AdrAckLimit;
+            Nvm.MacGroup2.MacParams.AdrAckLimit = mibSet->Param.AdrAckLimit;
             break;
         }
         case MIB_ADR_ACK_DELAY:
         {
-            MacCtx.AdrAckDelay = mibSet->Param.AdrAckDelay;
+            Nvm.MacGroup2.MacParams.AdrAckDelay = mibSet->Param.AdrAckDelay;
             break;
         }
         default:

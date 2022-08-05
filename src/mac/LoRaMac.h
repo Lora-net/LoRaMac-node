@@ -312,6 +312,16 @@ typedef struct sLoRaMacParams
      * Antenna gain of the node
      */
     float AntennaGain;
+    /*!
+     * Limit of uplinks without any donwlink response before the ADRACKReq bit
+     * will be set.
+     */
+    uint16_t AdrAckLimit;
+    /*!
+     * Limit of uplinks without any donwlink response after a the first frame
+     * with set ADRACKReq bit before the trying to regain the connectivity.
+     */
+    uint16_t AdrAckDelay;
 }LoRaMacParams_t;
 
 /*!
