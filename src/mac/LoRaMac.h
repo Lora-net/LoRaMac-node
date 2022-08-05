@@ -1437,6 +1437,8 @@ typedef struct sMlmeIndication
  * \ref MIB_REJOIN_0_CYCLE                       | YES | YES
  * \ref MIB_REJOIN_1_CYCLE                       | YES | YES
  * \ref MIB_REJOIN_2_CYCLE                       | YES | NO
+ * \ref MIB_RSSI_FREE_THRESHOLD                  | YES | YES
+ * \ref MIB_CARRIER_SENSE_TIME                   | YES | YES
  *
  * The following table provides links to the function implementations of the
  * related MIB primitives:
@@ -1869,6 +1871,14 @@ typedef enum eMib
       * LoRaWAN certification FPort handling state (ON/OFF)
       */
      MIB_IS_CERT_FPORT_ON,
+     /*!
+      * RSSI free channel threshold value (KR920 and AS923 only)
+      */
+     MIB_RSSI_FREE_THRESHOLD,
+     /*!
+      * Carrier sense time value (KR920 and AS923 only)
+      */
+     MIB_CARRIER_SENSE_TIME
 }Mib_t;
 
 /*!
@@ -2315,6 +2325,18 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_IS_CERT_FPORT_ON
      */
     bool IsCertPortOn;
+    /*!
+     * RSSI free channel threshold (KR920 and AS923 only)
+     *
+     * Related MIB type: \ref MIB_RSSI_FREE_THRESHOLD
+     */
+    int16_t RssiFreeThreshold;
+    /*!
+     * Carrier sense time (KR920 and AS923 only)
+     *
+     * Related MIB type: \ref MIB_CARRIER_SENSE_TIME
+     */
+    uint32_t CarrierSenseTime;
 }MibParam_t;
 
 /*!
