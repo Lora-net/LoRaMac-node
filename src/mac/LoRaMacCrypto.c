@@ -789,6 +789,7 @@ static void UpdateFCntDown( FCntIdentifier_t fCntID, uint32_t currentDown )
     }
 }
 
+
 /*!
  * Resets the frame counters
  */

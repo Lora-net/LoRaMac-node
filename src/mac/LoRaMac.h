@@ -660,16 +660,6 @@ typedef struct sLoRaMacNvmDataGroup2
 typedef struct sLoRaMacNvmData
 {
     /*!
-     * Parameters related to the crypto layer. Change with every TX/RX
-     * procedure.
-     */
-    LoRaMacCryptoNvmData_t Crypto;
-    /*!
-     * Parameters related to the MAC which change with high probability after
-     * every TX/RX procedure.
-     */
-    LoRaMacNvmDataGroup1_t MacGroup1;
-    /*!
      * Parameters related to the MAC which do not change very likely with every
      * TX/RX procedure.
      */
@@ -678,11 +668,7 @@ typedef struct sLoRaMacNvmData
      * Parameters related to the secure-element.
      */
     SecureElementNvmData_t SecureElement;
-    /*!
-     * Parameters related to the regional implementation which change with high
-     * probability after every TX/RX procedure.
-     */
-    RegionNvmDataGroup1_t RegionGroup1;
+
     /*!
      * Parameters related to the regional implementation which do not change
      * very likely with every TX/RX procedure.
@@ -692,6 +678,24 @@ typedef struct sLoRaMacNvmData
      * Parameters related to class b.
      */
     LoRaMacClassBNvmData_t ClassB;
+
+    /*!
+     * Parameters related to the crypto layer. Change with every TX/RX
+     * procedure.
+     */
+    LoRaMacCryptoNvmData_t Crypto;
+    /*!
+     * Parameters related to the MAC which change with high probability after
+     * every TX/RX procedure.
+     */
+    LoRaMacNvmDataGroup1_t MacGroup1;
+
+    /*!
+     * Parameters related to the regional implementation which change with high
+     * probability after every TX/RX procedure.
+     */
+    RegionNvmDataGroup1_t RegionGroup1;
+
 }LoRaMacNvmData_t;
 
 /*!
