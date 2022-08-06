@@ -10,7 +10,6 @@
             "name": "common_configs",
             "displayName": "common_configs",
             "description": "Default Configurations for LoRaMAC node",
-            "binaryDir": "${sourceDir}/out/build/${presetName}",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "APPLICATION": "LoRaMac",
@@ -39,6 +38,7 @@
             "name": "unittesting_configs",
             "description": "Configurations for unittesting",
             "displayName": "unittesting_configs",
+            "binaryDir": "${sourceDir}/build/tests",
             "inherits": [
                 "common_configs"
             ],
@@ -50,6 +50,7 @@
             "name": "on_target_configs",
             "description": "Configurations for building for target: STM32L072",
             "displayName": "on_target_configs",
+            "binaryDir": "${sourceDir}/build",
             "inherits": [
                 "common_configs"
             ],

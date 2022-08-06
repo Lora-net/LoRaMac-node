@@ -1,5 +1,5 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-    "cpputestExplorer.testExecutable": "${workspaceFolder}/build/tests/picotracker_lora_tests",
-    "cpputestExplorer.testExecutablePath": "${workspaceFolder}/build/tests"
+    "cpputestExplorer.testExecutable": "${workspaceFolder}/build/tests/tests/picotracker_lora_tests",
+    "cpputestExplorer.testExecutablePath": "${workspaceFolder}/build/tests/tests"
 }
