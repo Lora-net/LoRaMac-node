@@ -3048,6 +3048,8 @@ static void ResetMacParameters( void )
     Nvm.MacGroup2.MacParams.DownlinkDwellTime = Nvm.MacGroup2.MacParamsDefaults.DownlinkDwellTime;
     Nvm.MacGroup2.MacParams.MaxEirp = Nvm.MacGroup2.MacParamsDefaults.MaxEirp;
     Nvm.MacGroup2.MacParams.AntennaGain = Nvm.MacGroup2.MacParamsDefaults.AntennaGain;
+    Nvm.MacGroup2.MacParams.AdrAckLimit = Nvm.MacGroup2.MacParamsDefaults.AdrAckLimit;
+    Nvm.MacGroup2.MacParams.AdrAckDelay = Nvm.MacGroup2.MacParamsDefaults.AdrAckDelay;
 
     MacCtx.NodeAckRequested = false;
     Nvm.MacGroup1.SrvAckRequested = false;
@@ -3739,8 +3741,6 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
     Nvm.MacGroup2.MacParams.JoinAcceptDelay1 = Nvm.MacGroup2.MacParamsDefaults.JoinAcceptDelay1;
     Nvm.MacGroup2.MacParams.JoinAcceptDelay2 = Nvm.MacGroup2.MacParamsDefaults.JoinAcceptDelay2;
     Nvm.MacGroup2.MacParams.ChannelsNbTrans = Nvm.MacGroup2.MacParamsDefaults.ChannelsNbTrans;
-    Nvm.MacGroup2.MacParams.AdrAckLimit = Nvm.MacGroup2.MacParamsDefaults.AdrAckLimit;
-    Nvm.MacGroup2.MacParams.AdrAckDelay = Nvm.MacGroup2.MacParamsDefaults.AdrAckDelay;
 
     // FPort 224 is enabled by default.
     Nvm.MacGroup2.IsCertPortOn = true;
