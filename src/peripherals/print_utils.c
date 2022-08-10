@@ -171,7 +171,36 @@ void print_registered_device(registered_devices_t registered_device)
     case icspace26_helium_10:
         printf("icspace26_helium_10");
         break;
-
+    case icspace26_helium_11:
+        printf("icspace26_helium_11");
+        break;
+    case icspace26_helium_12:
+        printf("icspace26_helium_12");
+        break;
+    case icspace26_helium_13:
+        printf("icspace26_helium_13");
+        break;
+    case icspace26_helium_14:
+        printf("icspace26_helium_14");
+        break;
+    case icspace26_helium_15:
+        printf("icspace26_helium_15");
+        break;
+    case icspace26_helium_16:
+        printf("icspace26_helium_16");
+        break;
+    case icspace26_helium_17:
+        printf("icspace26_helium_17");
+        break;
+    case icspace26_helium_18:
+        printf("icspace26_helium_18");
+        break;
+    case icspace26_helium_19:
+        printf("icspace26_helium_19");
+        break;
+    case icspace26_helium_20:
+        printf("icspace26_helium_20");
+        break;
     default:
 
         printf("unknown device registration");
