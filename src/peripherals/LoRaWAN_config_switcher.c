@@ -15,7 +15,6 @@
 #include "geofence.h"
 
 int8_t datarate_calculator(LoRaMacRegion_t LoRaMacRegion);
-network_keys_t get_next_network_keys_in_region(void);
 
 uint32_t counter = 0;
 
@@ -635,10 +634,3 @@ registered_devices_t get_current_network()
     return current_network;
 }
 
-network_keys_t get_next_network_keys_in_region()
-{
-
-    registered_devices_t device = get_current_network();
-
-    return network_key_list[device];
-}
