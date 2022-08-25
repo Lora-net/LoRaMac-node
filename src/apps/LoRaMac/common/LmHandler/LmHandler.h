@@ -106,11 +106,6 @@ typedef struct LmHandlerParams_s
      * Application data buffer pointer
      */
     uint8_t *DataBuffer;
-    /**
-     * Select whether to use OTAA or ABP
-     * 
-     */
-    bool is_over_the_air_activation;
 }LmHandlerParams_t;
 
 typedef struct LmHandlerCallbacks_s

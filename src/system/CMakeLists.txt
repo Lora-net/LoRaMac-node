@@ -23,17 +23,7 @@ cmake_minimum_required(VERSION 3.6)
 #---------------------------------------------------------------------------------------
 
 file(GLOB ${PROJECT_NAME}_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/adc.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/delay.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/fifo.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/gpio.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/i2c.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/nvmm.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/systime.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/timer.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/uart.c"
-
-    # Crypto
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/crypto/*.c"
 )
 

@@ -34,20 +34,10 @@
 #include "print_utils.h"
 #include "NvmDataMgmt.h"
 #include "RegionAS923.h"
-
 #include "callbacks.h"
 #include "message_sender.h"
 #include "eeprom_settings_manager.h"
 #include "nvmm.h"
-
-/*!
- *
- */
-typedef enum
-{
-    LORAMAC_HANDLER_TX_ON_TIMER,
-    LORAMAC_HANDLER_TX_ON_EVENT,
-} LmHandlerTxEvents_t;
 
 /*!
  * User application data
@@ -58,72 +48,63 @@ static uint8_t AppDataBuffer[LORAWAN_APP_DATA_BUFFER_MAX_SIZE];
  * User application data structure
  */
 static LmHandlerAppData_t AppData =
-    {
-        .Buffer = AppDataBuffer,
-        .BufferSize = 0,
-        .Port = 0};
+{
+    .Buffer = AppDataBuffer,
+    .BufferSize = 0,
+    .Port = 0
+};
 
 /*!
  * Timer to handle the application data transmission duty cycle
  */
 static TimerEvent_t TxTimer;
 
-typedef enum
-{
-    geofence_reinit_pending,
-    no_issue_carry_on,
-} loop_status_t;
-
-static void OnMacProcessNotify(void);
-static void StartTxProcess(LmHandlerTxEvents_t txEvent);
-static void UplinkProcess(void);
-static void init_loramac(picotracker_lorawan_settings_t settings);
+static void OnMacProcessNotify( void );
+static void timer_init( void );
+static void UplinkProcess( void );
+static void transmit_n_times_on_this_credential( void );
+static void setup_next_tx_alarm( uint32_t interval );
 
 /*!
  * Function executed on TxTimer event
  */
-static void OnTxTimerEvent(void *context);
-
-loop_status_t run_loop_once(void);
-void run_main_loop(void);
-void do_n_transmissions(uint32_t n_transmissions_todo);
+static void OnTxTimerEvent( void* context );
 
 static LmHandlerCallbacks_t LmHandlerCallbacks =
-    {
-        .GetBatteryLevel = BoardGetBatteryLevel,
-        .GetTemperature = NULL,
-        .GetRandomSeed = BoardGetRandomSeed,
-        .OnMacProcess = OnMacProcessNotify,
-        .OnNvmDataChange = OnNvmDataChange,
-        .OnNetworkParametersChange = OnNetworkParametersChange,
-        .OnMacMcpsRequest = OnMacMcpsRequest,
-        .OnMacMlmeRequest = OnMacMlmeRequest,
-        .OnJoinRequest = OnJoinRequest,
-        .OnTxData = OnTxData,
-        .OnRxData = OnRxData,
-        .OnClassChange = OnClassChange,
-        .OnBeaconStatusChange = OnBeaconStatusChange,
-        .OnSysTimeUpdate = OnSysTimeUpdate,
+{
+    .GetBatteryLevel = BoardGetBatteryLevel,
+    .GetTemperature = NULL,
+    .GetRandomSeed = BoardGetRandomSeed,
+    .OnMacProcess = OnMacProcessNotify,
+    .OnNvmDataChange = OnNvmDataChange,
+    .OnNetworkParametersChange = OnNetworkParametersChange,
+    .OnMacMcpsRequest = OnMacMcpsRequest,
+    .OnMacMlmeRequest = OnMacMlmeRequest,
+    .OnJoinRequest = OnJoinRequest,
+    .OnTxData = OnTxData,
+    .OnRxData = OnRxData,
+    .OnClassChange= OnClassChange,
+    .OnBeaconStatusChange = OnBeaconStatusChange,
+    .OnSysTimeUpdate = OnSysTimeUpdate,
 };
 
 static LmHandlerParams_t LmHandlerParams =
-    {
-        .Region = ACTIVE_REGION,
-        .AdrEnable = LORAWAN_ADR_STATE,
-        .TxDatarate = LORAWAN_DEFAULT_DATARATE,
-        .PublicNetworkEnable = LORAWAN_PUBLIC_NETWORK,
-        .DutyCycleEnabled = LORAWAN_DUTYCYCLE_ON,
-        .DataBufferMaxSize = LORAWAN_APP_DATA_BUFFER_MAX_SIZE,
-        .DataBuffer = AppDataBuffer,
-        .is_over_the_air_activation = false,
+{
+    .Region = ACTIVE_REGION,
+    .AdrEnable = LORAWAN_ADR_STATE,
+    .TxDatarate = LORAWAN_DEFAULT_DATARATE,
+    .PublicNetworkEnable = LORAWAN_PUBLIC_NETWORK,
+    .DutyCycleEnabled = LORAWAN_DUTYCYCLE_ON,
+    .DataBufferMaxSize = LORAWAN_APP_DATA_BUFFER_MAX_SIZE,
+    .DataBuffer = AppDataBuffer
 };
 
 static LmhpComplianceParams_t LmhpComplianceParams =
-    {
-        .AdrEnabled = LORAWAN_ADR_STATE,
-        .DutyCycleEnabled = LORAWAN_DUTYCYCLE_ON,
-        .StopPeripherals = NULL,
-        .StartPeripherals = NULL,
+{
+    .AdrEnabled = LORAWAN_ADR_STATE,
+    .DutyCycleEnabled = LORAWAN_DUTYCYCLE_ON,
+    .StopPeripherals = NULL,
+    .StartPeripherals = NULL,
 };
 
 /*!
@@ -132,6 +113,7 @@ static LmhpComplianceParams_t LmhpComplianceParams =
  * \warning If variable is equal to 0 then the MCU can be set in low power mode
  */
 static volatile uint8_t IsMacProcessPending = 0;
+
 static volatile uint8_t IsTxFramePending = 0;
 
 /*!
@@ -139,217 +121,166 @@ static volatile uint8_t IsTxFramePending = 0;
  */
 extern Uart_t Uart1;
 
-#ifdef UNITTESTING_LORA
-extern TimerTime_t current_time;
-#endif
 
-uint32_t tx_count = 0;
-uint32_t n_tx_per_network = 1;
+uint32_t tx_count_on_this_credential = 0;
 
 /*!
  * Main application entry point.
  */
-#ifndef UNITTESTING_LORA
-int main(void)
-#else
-int run_app(void)
-#endif
+int main( void )
 {
-#if (USE_WATCHDOG)
-    IWDG_Init();
+#if( USE_WATCHDOG )
+    IWDG_Init( );
 #endif
 
-    setup_board();
+    setup_board( );
 
 #if PRINT_EEPROM_DEBUG
-    printf("Dumping EEPROM:\n");
-    EEPROM_Dump();
-    printf("\n");
+    printf( "Dumping EEPROM:\n" );
+    EEPROM_Dump( );
+    printf( "\n" );
 #endif
 
-    run_main_loop();
-}
+    /* Initialise timer */
+    timer_init( );
 
-void run_main_loop()
-{
-    /* Start up periodic timer for sending uplinks */
-    StartTxProcess(LORAMAC_HANDLER_TX_ON_TIMER);
+    /* Transmit immediately (10 milliseconds later) */
+    setup_next_tx_alarm( 10 );
 
-    while (1)
+    while( 1 )
     {
-        do_n_transmissions(N_TRANMISSIONS_PER_NETWORK + 1); // do 2 transmissions on the same network
+        switch_to_next_registered_credentials( ); // Switch to the next set of
+                                                  // credentials
+        transmit_n_times_on_this_credential( );   // do 2 transmissions on the
+                                                  // same credential
     }
 }
 
-void do_n_transmissions(uint32_t n_transmissions_todo)
+static void transmit_n_times_on_this_credential( void )
 {
-    n_tx_per_network = n_transmissions_todo;
+    print_current_region( );
 
-    switch_to_next_registered_credentials(); // Credentials have been set. So now tell it that next time credentials are called for, use the next set.
-
-    print_current_region();
-    picotracker_lorawan_settings_t settings = get_lorawan_setting(get_current_loramac_region());
-
-    init_loramac(settings);
-
-    LmHandlerJoin();
-
-    IWDG_reset();
-
-    tx_count = 0;
-    while (1)
-    {
-        run_loop_once();
-
-        if (tx_count > n_transmissions_todo)
-        {
-            break;
-        }
-    }
-}
-
-loop_status_t run_loop_once()
-{
-#ifdef UNITTESTING_LORA
-    current_time += 1; /* simulate 1 millisecond per loop */
-
-    TimerIrqHandler();
-#endif
-
-    // Process characters sent over the command line interface
-    CliProcess(&Uart1);
-
-    // Processes the LoRaMac events
-    LmHandlerProcess();
-
-    // Process application uplinks management
-    UplinkProcess();
-
-    CRITICAL_SECTION_BEGIN();
-    if (IsMacProcessPending == 1)
-    {
-        // Clear flag and prevent MCU to go into low power modes.
-        IsMacProcessPending = 0;
-    }
-    else
-    {
-        // The MCU wakes up through events
-        BoardLowPowerHandler();
-    }
-    CRITICAL_SECTION_END();
-
-    return no_issue_carry_on;
-}
-
-static void init_loramac(picotracker_lorawan_settings_t settings)
-{
+    /* Configure the subband settings for AS923 BEFORE initing it. Only needed
+     * to be done for AS923 - does not do anything for other regions */
+    as923_subbands_t current_subband = get_as923_subband( );
+    set_as923_region_specific_frequencies( current_subband );
 
     /* Set region and datarate */
-
-    /* Configure the subband settings for AS923 BEFORE initing it */
-    set_as923_region_specific_frequencies(get_as923_subband());
-
-    LmHandlerParams.Region = get_current_loramac_region();
+    LoRaMacRegion_t current_loramac_region = get_current_loramac_region( );
+    picotracker_lorawan_settings_t settings = get_lorawan_setting( current_loramac_region );
+    LmHandlerParams.Region = current_loramac_region;
     LmHandlerParams.TxDatarate = settings.datarate;
 
-    if (LmHandlerInit(&LmHandlerCallbacks, &LmHandlerParams) != LORAMAC_HANDLER_SUCCESS)
+    if ( LmHandlerInit( &LmHandlerCallbacks, &LmHandlerParams ) != LORAMAC_HANDLER_SUCCESS )
     {
-        printf("LoRaMac wasn't properly initialized\n");
+        printf( "LoRaMac wasn't properly initialized\n" );
         // Fatal error, endless loop.
-        while (1)
+        while ( 1 )
         {
         }
     }
 
     // Set system maximum tolerated rx error in milliseconds
-    LmHandlerSetSystemMaxRxError(500);
+    LmHandlerSetSystemMaxRxError( 500 );
 
     // The LoRa-Alliance Compliance protocol package should always be
     // initialized and activated.
-    LmHandlerPackageRegister(PACKAGE_ID_COMPLIANCE, &LmhpComplianceParams);
+    LmHandlerPackageRegister( PACKAGE_ID_COMPLIANCE, &LmhpComplianceParams );
+
+    LmHandlerJoin( );
+
+    IWDG_reset( );
+
+    tx_count_on_this_credential = 0; // reset tx count for this network back to 0.
+
+    while( tx_count_on_this_credential < N_TRANMISSIONS_PER_CREDENTIAL )
+    {
+        // Process characters sent over the command line interface
+        CliProcess( &Uart1 );
+
+        // Processes the LoRaMac events
+        LmHandlerProcess( );
+
+        // Process application uplinks management
+        UplinkProcess( );
+
+        CRITICAL_SECTION_BEGIN( );
+        if( IsMacProcessPending == 1 )
+        {
+            // Clear flag and prevent MCU to go into low power modes.
+            IsMacProcessPending = 0;
+        }
+        else
+        {
+            // The MCU wakes up through events
+            BoardLowPowerHandler( );
+        }
+        CRITICAL_SECTION_END( );
+    }
 }
 
-static void OnMacProcessNotify(void)
+static void OnMacProcessNotify( void )
 {
     IsMacProcessPending = 1;
-}
-
-void setup_next_tx_alarm(uint32_t interval)
-{
-    IWDG_reset();
-    TimerStop(&TxTimer); /* Stop tx timer. Requirement before starting it back up again */
-    TimerSetValue(&TxTimer, interval);
-    TimerStart(&TxTimer); /* Restart tx interval timer */
 }
 
 /*!
  * Prepares the payload of the frame and transmits it.
  */
-static void PrepareTxFrame(void)
+static void PrepareTxFrame( void )
 {
-    IWDG_reset();
+    IWDG_reset( );
 
-    if (LmHandlerIsBusy() == true)
+    if( LmHandlerIsBusy( ) == true )
     {
         return;
     }
 
-    tx_count++;
-
-    if (tx_count < n_tx_per_network)
-    {
-        sensor_read_and_send(&AppData, LmHandlerParams.Region);
-        setup_next_tx_alarm(read_tx_interval_in_eeprom(TX_INTERVAL_EEPROM_ADDRESS, TX_INTERVAL_GPS_FIX_OK));
-    }
-    else
-    {
-        setup_next_tx_alarm(10);
-    }
+    tx_count_on_this_credential ++;
+    sensor_read_and_send( &AppData, LmHandlerParams.Region );
+    uint32_t interval = read_tx_interval_in_eeprom( TX_INTERVAL_EEPROM_ADDRESS,
+                                                    TX_INTERVAL_GPS_FIX_OK );
+    setup_next_tx_alarm( interval );
 }
 
-static void StartTxProcess(LmHandlerTxEvents_t txEvent)
-{
-    switch (txEvent)
-    {
-    default:
-        // Intentional fall through
-    case LORAMAC_HANDLER_TX_ON_TIMER:
-    {
-        // Schedule 1st packet transmission
-        TimerInit(&TxTimer, OnTxTimerEvent);
-        TimerStop(&TxTimer);
-        IsTxFramePending = 1;
-    }
-    break;
-    case LORAMAC_HANDLER_TX_ON_EVENT:
-    {
-    }
-    break;
-    }
-}
-
-static void UplinkProcess(void)
+static void UplinkProcess( void )
 {
     uint8_t isPending = 0;
-    CRITICAL_SECTION_BEGIN();
+    CRITICAL_SECTION_BEGIN( );
     isPending = IsTxFramePending;
     IsTxFramePending = 0;
-    CRITICAL_SECTION_END();
-    if (isPending == 1)
+    CRITICAL_SECTION_END( );
+    if( isPending == 1 )
     {
-        IWDG_reset();
-        PrepareTxFrame();
-        IWDG_reset();
+        IWDG_reset( );
+        PrepareTxFrame( );
+        IWDG_reset( );
     }
 }
 
 /*!
  * Function executed on TxTimer event
  */
-static void OnTxTimerEvent(void *context)
+static void OnTxTimerEvent( void* context )
 {
-    IWDG_reset();
-    TimerStop(&TxTimer);
+    IWDG_reset( );
+    TimerStop( &TxTimer ); // stop the timer now - it will be restarted after a
+                           // tranmission has been completed.
 
     IsTxFramePending = 1;
+}
+
+static void setup_next_tx_alarm( uint32_t interval )
+{
+    IWDG_reset( );
+    TimerStop( &TxTimer ); /* Stop tx timer. Requirement before starting it back
+                              up again */
+    TimerSetValue( &TxTimer, interval );
+    TimerStart( &TxTimer ); /* Restart tx interval timer */
+}
+
+static void timer_init( )
+{
+    TimerInit( &TxTimer, OnTxTimerEvent );
+    TimerStop( &TxTimer );
 }

@@ -44,7 +44,6 @@ void setup_test()
 {
     mock().expectNCalls(12, "get_latest_gps_info").andReturnValue(&gps_info_mock_message);
     BSP_sensor_Init();
-    do_n_transmissions(2);
 }
 /**
  * @brief Test if it transmits when loramac region correctly set

@@ -37,13 +37,19 @@
 #include "LmhpRemoteMcastSetup.h"
 #include "LmhpFragmentation.h"
 
+#ifndef ACTIVE_REGION
 
+#warning "No active region defined, LORAMAC_REGION_EU868 will be used as default."
+
+#define ACTIVE_REGION LORAMAC_REGION_EU868
+
+#endif
 
 #include "LoRaMacTest.h"
 
-CommissioningParams_t CommissioningParams =
+static CommissioningParams_t CommissioningParams =
 {
-    .IsOtaaActivation = false,
+    .IsOtaaActivation = OVER_THE_AIR_ACTIVATION,
     .DevEui = { 0 },  // Automatically filed from secure-element
     .JoinEui = { 0 }, // Automatically filed from secure-element
     .SePin = { 0 },   // Automatically filed from secure-element
@@ -303,31 +309,27 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
         LoRaMacMibGetRequestConfirm( &mibReq );
         memcpy1( CommissioningParams.SePin, mibReq.Param.SePin, 4 );
 
-        CommissioningParams.IsOtaaActivation = LmHandlerParams->is_over_the_air_activation;
+#if( OVER_THE_AIR_ACTIVATION == 0 )
+        // Tell the MAC layer which network server version are we connecting too.
+        mibReq.Type = MIB_ABP_LORAWAN_VERSION;
+        mibReq.Param.AbpLrWanVersion.Value = ABP_ACTIVATION_LRWAN_VERSION;
+        LoRaMacMibSetRequestConfirm( &mibReq );
 
-
-        if( LmHandlerParams->is_over_the_air_activation == false )
-        {
-            // Tell the MAC layer which network server version are we connecting too.
-            mibReq.Type = MIB_ABP_LORAWAN_VERSION;
-            mibReq.Param.AbpLrWanVersion.Value = ABP_ACTIVATION_LRWAN_VERSION;
-            LoRaMacMibSetRequestConfirm( &mibReq );
-
-            mibReq.Type = MIB_NET_ID;
-            mibReq.Param.NetID = LORAWAN_NETWORK_ID;
-            LoRaMacMibSetRequestConfirm( &mibReq );
+        mibReq.Type = MIB_NET_ID;
+        mibReq.Param.NetID = LORAWAN_NETWORK_ID;
+        LoRaMacMibSetRequestConfirm( &mibReq );
 
 #if( STATIC_DEVICE_ADDRESS != 1 )
-            // Random seed initialization
-            srand1( LmHandlerCallbacks->GetRandomSeed( ) );
-            // Choose a random device address
-            CommissioningParams.DevAddr = randr( 0, 0x01FFFFFF );
+        // Random seed initialization
+        srand1( LmHandlerCallbacks->GetRandomSeed( ) );
+        // Choose a random device address
+        CommissioningParams.DevAddr = randr( 0, 0x01FFFFFF );
 #endif
 
-            mibReq.Type = MIB_DEV_ADDR;
-            mibReq.Param.DevAddr = CommissioningParams.DevAddr;
-            LoRaMacMibSetRequestConfirm( &mibReq );
-        }   
+        mibReq.Type = MIB_DEV_ADDR;
+        mibReq.Param.DevAddr = CommissioningParams.DevAddr;
+        LoRaMacMibSetRequestConfirm( &mibReq );
+#endif // #if( OVER_THE_AIR_ACTIVATION == 0 )
     }
     mibReq.Type = MIB_PUBLIC_NETWORK;
     mibReq.Param.EnablePublicNetwork = LmHandlerParams->PublicNetworkEnable;

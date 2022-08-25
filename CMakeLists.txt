@@ -35,7 +35,6 @@ if(UNIT_TESTING)
             picotracker_lora_tests
             EXCLUDE "build/_deps*" "/usr/include/c++/*"     # Patterns to exclude (can be relative
             )
-    add_subdirectory(mocking)
     add_subdirectory(tests)
 else()
     message(STATUS ">>> Compiling for target")

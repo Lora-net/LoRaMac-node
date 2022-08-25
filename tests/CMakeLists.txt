@@ -106,7 +106,6 @@ set(MOCKS
 
 # Put in compile files(all logic so no hardware connection)    
 set(FILES_UNDER_TEST 
-    ${PROJECT_SOURCE_DIR}/src/peripherals/config.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/geofence.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/playback.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/bsp.c
@@ -116,7 +115,6 @@ set(FILES_UNDER_TEST
     ${PROJECT_SOURCE_DIR}/src/peripherals/LoRaWAN_config_switcher.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/linear_congruential_generator.c
     ${PROJECT_SOURCE_DIR}/src/peripherals/eeprom_settings_manager.c
-    ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/periodic-uplink-lpp/B-L072Z-LRWAN1/main.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandlerMsgDisplay.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandler/LmHandler.c
     ${PROJECT_SOURCE_DIR}/src/system/delay.c

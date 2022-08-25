@@ -20,11 +20,7 @@ extern "C"
 
 #include "LmHandler.h"
 
-#ifdef UNITTESTING_LORA
-    int run_app(void);
-    void do_n_transmissions(uint32_t n_transmissions_todo);
 
-#endif
 
 #ifdef __cplusplus
 }

@@ -9,8 +9,6 @@ extern "C"
 
 #include "stdint.h"
 
-extern bool context_management_enabled;
-
 void run_stout_test(void);
 
 TEST_GROUP(config_switcher_tests){
@@ -33,19 +31,15 @@ TEST(config_switcher_tests, test_eu868_4_tx)
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(true, context_management_enabled);
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(true, context_management_enabled);
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(true, context_management_enabled);
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(true, context_management_enabled);
 }
 
 TEST(config_switcher_tests, test_us915_4_tx)
@@ -57,19 +51,15 @@ TEST(config_switcher_tests, test_us915_4_tx)
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(true, context_management_enabled);
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(true, context_management_enabled);
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(true, context_management_enabled);
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(true, context_management_enabled);
 }
 
 TEST(config_switcher_tests, test_as923_4_tx)
@@ -81,17 +71,13 @@ TEST(config_switcher_tests, test_as923_4_tx)
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(true, context_management_enabled);
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(true, context_management_enabled);
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(true, context_management_enabled);
 
     setting = get_lorawan_setting(target_region);
     CHECK_EQUAL(expected_dr, setting.datarate);
-    CHECK_EQUAL(true, context_management_enabled);
 }

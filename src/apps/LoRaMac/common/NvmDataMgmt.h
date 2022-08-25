@@ -37,8 +37,6 @@
 #ifndef __NVMDATAMGMT_H__
 #define __NVMDATAMGMT_H__
 
-#include "LoRaWAN_config_switcher.h"
-
 /*!
  * \brief NVM Management event.
  *

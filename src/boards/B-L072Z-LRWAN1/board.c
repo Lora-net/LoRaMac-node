@@ -166,8 +166,6 @@ void BoardInitMcu( void )
     if( McuInitialized == false )
     {
         HAL_Init( );
-        
-
 
         // LEDs
         GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
@@ -230,7 +228,6 @@ void BoardInitMcu( void )
     }
 }
 
-
 void BoardResetMcu( void )
 {
     CRITICAL_SECTION_BEGIN( );
@@ -267,7 +264,7 @@ uint16_t BoardBatteryMeasureVoltage( void )
     return 0;
 }
 
-uint32_t BoardGetBatteryVoltage(void)
+uint32_t BoardGetBatteryVoltage( void )
 {
     uint16_t nVrefIntLevel = AdcReadChannel(&Adc, ADC_CHANNEL_VREFINT);
     return __LL_ADC_CALC_VREFANALOG_VOLTAGE(nVrefIntLevel, LL_ADC_RESOLUTION_12B);
@@ -284,8 +281,6 @@ int32_t HW_GetTemperatureLevel_int(void)
     uint32_t Vdd_mV = BoardGetBatteryVoltage();
     return __LL_ADC_CALC_TEMPERATURE(Vdd_mV, temp_sensor_adc_value, LL_ADC_RESOLUTION_12B);
 }
-
-
 
 uint8_t BoardGetBatteryLevel( void )
 {

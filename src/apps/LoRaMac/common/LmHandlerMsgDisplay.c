@@ -254,6 +254,7 @@ void DisplayJoinRequestUpdate( LmHandlerJoinParams_t *params )
             printf( "DATA RATE   : DR_%d\n\n", params->Datarate );
         }
     }
+#if ( OVER_THE_AIR_ACTIVATION == 0 )
     else
     {
         printf( "###### ===========   JOINED     ============ ######\n" );
@@ -261,6 +262,7 @@ void DisplayJoinRequestUpdate( LmHandlerJoinParams_t *params )
         printf( "DevAddr     : %08lX\n", params->CommissioningParams->DevAddr );
         printf( "\n\n" );
     }
+#endif
 }
 
 void DisplayTxUpdate( LmHandlerTxParams_t *params )
