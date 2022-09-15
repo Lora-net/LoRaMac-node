@@ -2018,6 +2018,9 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
         {
             if( deviceClass == CLASS_A )
             {
+                // Reset RxSlot to NONE
+                MacCtx.RxSlot = RX_SLOT_NONE;
+
                 Nvm.MacGroup2.DeviceClass = deviceClass;
 
                 // Set the radio into sleep to setup a defined state
@@ -3827,6 +3830,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
 LoRaMacStatus_t LoRaMacStart( void )
 {
     MacCtx.MacState = LORAMAC_IDLE;
+    UpdateRxSlotIdleState();
     return LORAMAC_STATUS_OK;
 }
 
@@ -3834,6 +3838,10 @@ LoRaMacStatus_t LoRaMacStop( void )
 {
     if( LoRaMacIsBusy( ) == false )
     {
+        if( Nvm.MacGroup2.DeviceClass == CLASS_C )
+        {
+            Radio.Sleep( );
+        }
         MacCtx.MacState = LORAMAC_STOPPED;
         return LORAMAC_STATUS_OK;
     }
