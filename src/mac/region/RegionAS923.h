@@ -257,16 +257,6 @@ extern "C"
 #define AS923_JOIN_CHANNELS                         ( uint16_t )( LC( 1 ) | LC( 2 ) )
 
 /*!
- * RSSI threshold for a free channel [dBm]
- */
-#define AS923_RSSI_FREE_TH                          -80
-
-/*!
- * Specifies the time the node performs a carrier sense
- */
-#define AS923_CARRIER_SENSE_TIME                    5
-
-/*!
  * Data rates table definition
  */
 static const uint8_t DataratesAS923[]  = { 12, 11, 10,  9,  8,  7, 7, 50 };
