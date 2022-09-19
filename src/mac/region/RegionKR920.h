@@ -231,16 +231,6 @@ extern "C"
 #define KR920_JOIN_CHANNELS                         ( uint16_t )( LC( 1 ) | LC( 2 ) | LC( 3 ) )
 
 /*!
- * RSSI threshold for a free channel [dBm]
- */
-#define KR920_RSSI_FREE_TH                          -65
-
-/*!
- * Specifies the time the node performs a carrier sense
- */
-#define KR920_CARRIER_SENSE_TIME                    6
-
-/*!
  * Data rates table definition
  */
 static const uint8_t DataratesKR920[]  = { 12, 11, 10,  9,  8,  7 };

@@ -1451,6 +1451,8 @@ typedef struct sMlmeIndication
  * \ref MIB_ADR_ACK_DELAY                        | YES | YES
  * \ref MIB_ADR_ACK_DEFAULT_LIMIT                | YES | YES
  * \ref MIB_ADR_ACK_DEFAULT_DELAY                | YES | YES
+ * \ref MIB_RSSI_FREE_THRESHOLD                  | YES | YES
+ * \ref MIB_CARRIER_SENSE_TIME                   | YES | YES
  *
  * The following table provides links to the function implementations of the
  * related MIB primitives:
@@ -1899,6 +1901,14 @@ typedef enum eMib
       * ADR ack default delay value
       */
      MIB_ADR_ACK_DEFAULT_DELAY,
+     /*!
+      * RSSI free channel threshold value (KR920 and AS923 only)
+      */
+     MIB_RSSI_FREE_THRESHOLD,
+     /*!
+      * Carrier sense time value (KR920 and AS923 only)
+      */
+     MIB_CARRIER_SENSE_TIME
 }Mib_t;
 
 /*!
@@ -2357,6 +2367,18 @@ typedef union uMibParam
      * Related MIB types: \ref MIB_ADR_ACK_DELAY, MIB_ADR_ACK_DEFAULT_DELAY
      */
     uint16_t AdrAckDelay;
+    /*!
+     * RSSI free channel threshold (KR920 and AS923 only)
+     *
+     * Related MIB type: \ref MIB_RSSI_FREE_THRESHOLD
+     */
+    int16_t RssiFreeThreshold;
+    /*!
+     * Carrier sense time (KR920 and AS923 only)
+     *
+     * Related MIB type: \ref MIB_CARRIER_SENSE_TIME
+     */
+    uint32_t CarrierSenseTime;
 }MibParam_t;
 
 /*!

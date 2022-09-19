@@ -2009,6 +2009,9 @@ static LoRaMacStatus_t SwitchClass( DeviceClass_t deviceClass )
         {
             if( deviceClass == CLASS_A )
             {
+                // Reset RxSlot to NONE
+                MacCtx.RxSlot = RX_SLOT_NONE;
+
                 Nvm.MacGroup2.DeviceClass = deviceClass;
 
                 // Set the radio into sleep to setup a defined state
@@ -3820,6 +3823,7 @@ LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t* primitives, LoRaMacC
 LoRaMacStatus_t LoRaMacStart( void )
 {
     MacCtx.MacState = LORAMAC_IDLE;
+    UpdateRxSlotIdleState();
     return LORAMAC_STATUS_OK;
 }
 
@@ -3827,6 +3831,10 @@ LoRaMacStatus_t LoRaMacStop( void )
 {
     if( LoRaMacIsBusy( ) == false )
     {
+        if( Nvm.MacGroup2.DeviceClass == CLASS_C )
+        {
+            Radio.Sleep( );
+        }
         MacCtx.MacState = LORAMAC_STOPPED;
         return LORAMAC_STATUS_OK;
     }
@@ -4126,6 +4134,38 @@ LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t* mibGet )
         case MIB_ADR_ACK_DEFAULT_DELAY:
         {
             mibGet->Param.AdrAckDelay = Nvm.MacGroup2.MacParamsDefaults.AdrAckDelay;
+            break;
+        }
+        case MIB_RSSI_FREE_THRESHOLD:
+        {
+#if defined(REGION_KR920) || defined(REGION_AS923)
+            if( Nvm.MacGroup2.Region != LORAMAC_REGION_AS923 && Nvm.MacGroup2.Region != LORAMAC_REGION_KR920 )
+            {
+                status = LORAMAC_STATUS_ERROR;
+            }
+            else
+            {
+                mibGet->Param.RssiFreeThreshold = Nvm.RegionGroup2.RssiFreeThreshold;
+            }
+#else
+            status = LORAMAC_STATUS_ERROR;
+#endif
+            break;
+        }
+        case MIB_CARRIER_SENSE_TIME:
+        {
+#if defined(REGION_KR920) || defined(REGION_AS923)
+            if( Nvm.MacGroup2.Region != LORAMAC_REGION_AS923 && Nvm.MacGroup2.Region != LORAMAC_REGION_KR920 )
+            {
+                status = LORAMAC_STATUS_ERROR;
+            }
+            else
+            {
+                mibGet->Param.CarrierSenseTime = Nvm.RegionGroup2.CarrierSenseTime;
+            }
+#else
+            status = LORAMAC_STATUS_ERROR;
+#endif
             break;
         }
         default:
@@ -4819,6 +4859,38 @@ LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t* mibSet )
             Nvm.MacGroup2.MacParamsDefaults.AdrAckDelay = mibSet->Param.AdrAckDelay;
             break;
         }
+        case MIB_RSSI_FREE_THRESHOLD:
+        {
+#if defined(REGION_KR920) || defined(REGION_AS923)
+            if( Nvm.MacGroup2.Region != LORAMAC_REGION_AS923 && Nvm.MacGroup2.Region != LORAMAC_REGION_KR920 )
+            {
+                status = LORAMAC_STATUS_ERROR;
+            }
+            else
+            {
+                Nvm.RegionGroup2.RssiFreeThreshold = mibSet->Param.RssiFreeThreshold;
+            }
+#else
+            status = LORAMAC_STATUS_ERROR;
+#endif
+            break;
+        }
+        case MIB_CARRIER_SENSE_TIME:
+        {
+#if defined(REGION_KR920) || defined(REGION_AS923)
+            if( Nvm.MacGroup2.Region != LORAMAC_REGION_AS923 && Nvm.MacGroup2.Region != LORAMAC_REGION_KR920 )
+            {
+                status = LORAMAC_STATUS_ERROR;
+            }
+            else
+            {
+                Nvm.RegionGroup2.CarrierSenseTime = mibSet->Param.CarrierSenseTime;
+            }
+#else
+            status = LORAMAC_STATUS_ERROR;
+#endif
+            break;
+        }
         default:
         {
             status = LoRaMacMibClassBSetRequestConfirm( mibSet );
@@ -4886,6 +4958,7 @@ LoRaMacStatus_t LoRaMacMcChannelSetup( McChannelParams_t *channel )
     }
 
     Nvm.MacGroup2.MulticastChannelList[channel->GroupID].ChannelParams = *channel;
+    MacCtx.MacFlags.Bits.NvmHandle = 1;
 
     if( channel->IsRemotelySetup == true )
     {
@@ -4938,6 +5011,7 @@ LoRaMacStatus_t LoRaMacMcChannelDelete( AddressIdentifier_t groupID )
     memset1( ( uint8_t* )&channel, 0, sizeof( McChannelParams_t ) );
 
     Nvm.MacGroup2.MulticastChannelList[groupID].ChannelParams = channel;
+    MacCtx.MacFlags.Bits.NvmHandle = 1;
     return LORAMAC_STATUS_OK;
 }
 
@@ -5009,6 +5083,7 @@ LoRaMacStatus_t LoRaMacMcChannelSetupRxParams( AddressIdentifier_t groupID, McRx
     {
         // Apply parameters
         Nvm.MacGroup2.MulticastChannelList[groupID].ChannelParams.RxParams = *rxParams;
+        MacCtx.MacFlags.Bits.NvmHandle = 1;
     }
     else
     {
