@@ -312,6 +312,16 @@ typedef struct sLoRaMacParams
      * Antenna gain of the node
      */
     float AntennaGain;
+    /*!
+     * Limit of uplinks without any donwlink response before the ADRACKReq bit
+     * will be set.
+     */
+    uint16_t AdrAckLimit;
+    /*!
+     * Limit of uplinks without any donwlink response after a the first frame
+     * with set ADRACKReq bit before the trying to regain the connectivity.
+     */
+    uint16_t AdrAckDelay;
 }LoRaMacParams_t;
 
 /*!
@@ -1437,6 +1447,10 @@ typedef struct sMlmeIndication
  * \ref MIB_REJOIN_0_CYCLE                       | YES | YES
  * \ref MIB_REJOIN_1_CYCLE                       | YES | YES
  * \ref MIB_REJOIN_2_CYCLE                       | YES | NO
+ * \ref MIB_ADR_ACK_LIMIT                        | YES | YES
+ * \ref MIB_ADR_ACK_DELAY                        | YES | YES
+ * \ref MIB_ADR_ACK_DEFAULT_LIMIT                | YES | YES
+ * \ref MIB_ADR_ACK_DEFAULT_DELAY                | YES | YES
  * \ref MIB_RSSI_FREE_THRESHOLD                  | YES | YES
  * \ref MIB_CARRIER_SENSE_TIME                   | YES | YES
  *
@@ -1871,6 +1885,22 @@ typedef enum eMib
       * LoRaWAN certification FPort handling state (ON/OFF)
       */
      MIB_IS_CERT_FPORT_ON,
+     /*!
+      * ADR ack limit value
+      */
+     MIB_ADR_ACK_LIMIT,
+     /*!
+      * ADR ack delay value
+      */
+     MIB_ADR_ACK_DELAY,
+     /*!
+      * ADR ack default limit value
+      */
+     MIB_ADR_ACK_DEFAULT_LIMIT,
+     /*!
+      * ADR ack default delay value
+      */
+     MIB_ADR_ACK_DEFAULT_DELAY,
      /*!
       * RSSI free channel threshold value (KR920 and AS923 only)
       */
@@ -2325,6 +2355,18 @@ typedef union uMibParam
      * Related MIB type: \ref MIB_IS_CERT_FPORT_ON
      */
     bool IsCertPortOn;
+    /*!
+     * ADR ack limit value
+     *
+     * Related MIB types: \ref MIB_ADR_ACK_LIMIT, MIB_ADR_ACK_DEFAULT_LIMIT
+     */
+    uint16_t AdrAckLimit;
+    /*!
+     * ADR ack delay value
+     *
+     * Related MIB types: \ref MIB_ADR_ACK_DELAY, MIB_ADR_ACK_DEFAULT_DELAY
+     */
+    uint16_t AdrAckDelay;
     /*!
      * RSSI free channel threshold (KR920 and AS923 only)
      *
