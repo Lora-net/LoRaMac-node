@@ -808,11 +808,15 @@ static void ProcessRadioTxDone( void )
     {
         Radio.Sleep( );
     }
+
     // Setup timers
-    TimerSetValue( &MacCtx.RxWindowTimer1, MacCtx.RxWindow1Delay );
+    CRITICAL_SECTION_BEGIN( );
+    uint32_t offset = TimerGetCurrentTime( ) - TxDoneParams.CurTime;
+    TimerSetValue( &MacCtx.RxWindowTimer1, MacCtx.RxWindow1Delay - offset );
     TimerStart( &MacCtx.RxWindowTimer1 );
-    TimerSetValue( &MacCtx.RxWindowTimer2, MacCtx.RxWindow2Delay );
+    TimerSetValue( &MacCtx.RxWindowTimer2, MacCtx.RxWindow2Delay - offset );
     TimerStart( &MacCtx.RxWindowTimer2 );
+    CRITICAL_SECTION_END( );
 
     if( MacCtx.NodeAckRequested == true )
     {
