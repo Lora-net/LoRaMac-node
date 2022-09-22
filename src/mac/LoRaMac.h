@@ -735,14 +735,22 @@ typedef struct sLoRaMacNvmDataGroup2
      */
     uint32_t Rejoin1CycleInSec;
     /*!
-     * Time in seconds between cyclic transmission of Type 2 Rejoin requests.
-     */
-    uint32_t Rejoin2CycleInSec;
-    /*!
      * Indicates if a Rejoin request was sent and no join-accept or any downlink
      * has been received yet.
      */
     bool IsRejoinAcceptPending;
+    /*!
+     * Indicates if a reqjoin request 0 is in the queue to send.
+     */
+    bool IsRejoin0RequestQueued;
+    /*!
+     * Indicates if a reqjoin request 1 is in the queue to send.
+     */
+    bool IsRejoin1RequestQueued;
+    /*!
+     * Indicates if a reqjoin request 2 is in the queue to send.
+     */
+    bool IsRejoin2RequestQueued;
     /*!
      * CRC32 value of the MacGroup2 data structure.
      */
@@ -1122,6 +1130,12 @@ typedef enum eMlme
      * LoRaWAN Specification V1.1.0, chapter 6.2.4.2
      */
     MLME_REJOIN_1,
+    /*!
+     * Initiates sending a ReJoin-request type 2
+     *
+     * LoRaWAN Specification V1.1.0, chapter 6.2.4.2
+     */
+    MLME_REJOIN_2,
     /*!
      * LinkCheckReq - Connectivity validation
      *
@@ -1819,10 +1833,6 @@ typedef enum eMib
      * Time between periodic transmission of a Type 1 Rejoin request.
      */
     MIB_REJOIN_1_CYCLE,
-    /*!
-     * Time between periodic transmission of a Type 2 Rejoin request.
-     */
-    MIB_REJOIN_2_CYCLE,
     /*!
      * Beacon interval in ms
      */
