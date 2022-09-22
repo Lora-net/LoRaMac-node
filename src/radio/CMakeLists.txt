@@ -29,46 +29,62 @@ set_property(CACHE RADIO PROPERTY STRINGS ${RADIO_LIST})
 set_property(CACHE RADIO PROPERTY ADVANCED)
 
 #---------------------------------------------------------------------------------------
-# Target
+# Radio drivers
 #---------------------------------------------------------------------------------------
 
-foreach( R ${RADIO_LIST} )
-    if(${R} MATCHES ${RADIO} )
-        list(APPEND ${PROJECT_NAME}_SOURCES
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/radio.c
-        )
-        list(APPEND ${PROJECT_NAME}_SOURCES
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/${RADIO}_driver/src/lr1110_bootloader.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/${RADIO}_driver/src/lr1110_crypto_engine.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/${RADIO}_driver/src/lr1110_gnss.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/${RADIO}_driver/src/lr1110_radio.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/${RADIO}_driver/src/lr1110_regmem.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/${RADIO}_driver/src/lr1110_system.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/${RADIO}_driver/src/lr1110_wifi.c
-            )
-    else()
-        file(GLOB ${PROJECT_NAME}_SOURCES
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/*.c
-        )
-    endif()
-endforeach()
+if(${RADIO} STREQUAL lr1110)
+    list(APPEND ${PROJECT_NAME}_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110/radio.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110/lr1110_driver/src/lr1110_bootloader.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110/lr1110_driver/src/lr1110_crypto_engine.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110/lr1110_driver/src/lr1110_driver_version.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110/lr1110_driver/src/lr1110_gnss.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110/lr1110_driver/src/lr1110_radio.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110/lr1110_driver/src/lr1110_regmem.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110/lr1110_driver/src/lr1110_system.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110/lr1110_driver/src/lr1110_wifi.c
+    )
+elseif(${RADIO} STREQUAL sx126x)
+    list(APPEND ${PROJECT_NAME}_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/sx126x/radio.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/sx126x/sx126x.c
+    )
+elseif(${RADIO} STREQUAL sx1272)
+    list(APPEND ${PROJECT_NAME}_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/sx1272/sx1272.c
+    )
+elseif(${RADIO} STREQUAL sx1276)
+    list(APPEND ${PROJECT_NAME}_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/sx1276/sx1276.c
+    )
+else()
+    message(FATAL_ERROR "Unsupported radio driver selected...")
+endif()
 
 add_library(${PROJECT_NAME} OBJECT EXCLUDE_FROM_ALL ${${PROJECT_NAME}_SOURCES})
 
 add_dependencies(${PROJECT_NAME} board)
 
-foreach( R ${RADIO_LIST} )
-    if(${R} MATCHES lr1110 )
-        list(APPEND ${PROJECT_NAME}_INCLUDES
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO})
-        list(APPEND ${PROJECT_NAME}_INCLUDES
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}/${RADIO}_driver/src)
-    else()
-        list(APPEND ${PROJECT_NAME}_INCLUDES
-            ${CMAKE_CURRENT_SOURCE_DIR}/${RADIO}
-        )
-    endif()
-endforeach()
+if(${RADIO} STREQUAL lr1110 )
+    list(APPEND ${PROJECT_NAME}_INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110
+        ${CMAKE_CURRENT_SOURCE_DIR}/lr1110/lr1110_driver/src
+    )
+elseif(${RADIO} STREQUAL sx126x)
+    list(APPEND ${PROJECT_NAME}_INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/sx126x
+    )
+elseif(${RADIO} STREQUAL sx1272)
+    list(APPEND ${PROJECT_NAME}_INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/sx1272
+    )
+elseif(${RADIO} STREQUAL sx1276)
+    list(APPEND ${PROJECT_NAME}_INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/sx1276
+    )
+else()
+    message(FATAL_ERROR "Unsupported radio driver selected...")
+endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -77,11 +93,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<TARGET_PROPERTY:system,INTERFACE_INCLUDE_DIRECTORIES>
 )
 
-## TEMPORALLY WORKAROUND to allow radio debugging.
-## It will be removed with the introduction of a debug-board interface.
 option(USE_RADIO_DEBUG "Enable Radio Debug GPIO's" OFF)
 target_compile_definitions(${PROJECT_NAME} PUBLIC  $<$<BOOL:${USE_RADIO_DEBUG}>:USE_RADIO_DEBUG>)
 target_include_directories(${PROJECT_NAME} PUBLIC $<TARGET_PROPERTY:${BOARD},INTERFACE_INCLUDE_DIRECTORIES>)
-##
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 11)
