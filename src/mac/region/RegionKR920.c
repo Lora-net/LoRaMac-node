@@ -41,6 +41,16 @@
  */
 #define KR920_LBT_RX_BANDWIDTH            200000
 
+/*!
+ * RSSI threshold for a free channel [dBm]
+ */
+#define KR920_RSSI_FREE_TH                          -65
+
+/*!
+ * Specifies the time the node performs a carrier sense
+ */
+#define KR920_CARRIER_SENSE_TIME                    6
+
 /*
  * Non-volatile module context.
  */
@@ -330,6 +340,9 @@ void RegionKR920InitDefaults( InitDefaultsParams_t* params )
 
             // Update the channels mask
             RegionCommonChanMaskCopy( RegionNvmGroup2->ChannelsMask, RegionNvmGroup2->ChannelsDefaultMask, CHANNELS_MASK_SIZE );
+
+            RegionNvmGroup2->RssiFreeThreshold = KR920_RSSI_FREE_TH;
+            RegionNvmGroup2->CarrierSenseTime = KR920_CARRIER_SENSE_TIME;
             break;
         }
         case INIT_TYPE_RESET_TO_DEFAULT_CHANNELS:
@@ -818,7 +831,7 @@ LoRaMacStatus_t RegionKR920NextChannel( NextChanParams_t* nextChanParams, uint8_
 
             // Perform carrier sense for KR920_CARRIER_SENSE_TIME
             // If the channel is free, we can stop the LBT mechanism
-            if( Radio.IsChannelFree( RegionNvmGroup2->Channels[channelNext].Frequency, KR920_LBT_RX_BANDWIDTH, KR920_RSSI_FREE_TH, KR920_CARRIER_SENSE_TIME ) == true )
+            if( Radio.IsChannelFree( RegionNvmGroup2->Channels[channelNext].Frequency, KR920_LBT_RX_BANDWIDTH, RegionNvmGroup2->RssiFreeThreshold, RegionNvmGroup2->CarrierSenseTime ) == true )
             {
                 // Free channel found
                 *channel = channelNext;

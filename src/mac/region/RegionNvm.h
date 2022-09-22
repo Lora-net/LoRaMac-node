@@ -141,6 +141,18 @@ typedef struct sRegionNvmDataGroup2
      */
     bool IsOtaaDevice;
 #endif
+#if defined( REGION_KR920 ) || defined( REGION_AS923 )
+    /*!
+    * RSSI threshold for a free channel [dBm]
+    */
+    int16_t RssiFreeThreshold;
+
+    /*!
+    * Specifies the time the node performs a carrier sense
+    */
+    uint32_t CarrierSenseTime;
+#endif
+
     /*!
      * CRC32 value of the Region data structure.
      */

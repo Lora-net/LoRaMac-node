@@ -96,6 +96,11 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmData_t* nvm )
 
     lr1110_crypto_restore_from_flash( &LR1110, &status );
 
+    if( status != LR1110_CRYPTO_STATUS_SUCCESS )
+    {
+        return ( SecureElementStatus_t ) status;
+    }
+
 #if defined( SECURE_ELEMENT_PRE_PROVISIONED )
     // Read LR1110 pre-provisioned identity
     lr1110_system_read_uid( &LR1110, SeNvm->DevEui );
@@ -107,6 +112,10 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmData_t* nvm )
     LR1110SeHalGetUniqueId( SeNvm->DevEui );
 #endif
 #endif
+
+    const lr1110_crypto_key_t zero_key = { 0 };
+    lr1110_crypto_set_key( &LR1110, &status,
+                          convert_key_id_from_se_to_lr1110( SLOT_RAND_ZERO_KEY ), zero_key );
 
     return ( SecureElementStatus_t ) status;
 }
@@ -198,9 +207,16 @@ SecureElementStatus_t SecureElementAesEncrypt( uint8_t* buffer, uint16_t size, K
         return SECURE_ELEMENT_ERROR_NPE;
     }
 
-    lr1110_crypto_aes_encrypt_01( &LR1110, ( lr1110_crypto_status_t* ) &status,
-                                  convert_key_id_from_se_to_lr1110( keyID ), buffer, size, encBuffer );
-
+    if( keyID < SLOT_RAND_ZERO_KEY )
+    {
+        lr1110_crypto_aes_encrypt_01( &LR1110, ( lr1110_crypto_status_t* ) &status,
+                                    convert_key_id_from_se_to_lr1110( keyID ), buffer, size, encBuffer );
+    }
+    else
+    {
+        lr1110_crypto_aes_encrypt( &LR1110, ( lr1110_crypto_status_t* ) &status,
+                                    convert_key_id_from_se_to_lr1110( keyID ), buffer, size, encBuffer );
+    }
     return status;
 }
 

@@ -589,7 +589,7 @@ static void FragGetParityMatrixRow( int32_t n, int32_t m, uint8_t *matrixRow )
     }
 
     x = 1 + ( 1001 * n );
-    for( uint16_t i = 0; i < ( ( m >> 3 ) + 1 ); i++ )
+    for( int32_t i = 0; i < ( ( m >> 3 ) + 1 ); i++ )
     {
         matrixRow[i] = 0;
     }

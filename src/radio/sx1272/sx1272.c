@@ -901,8 +901,6 @@ void SX1272SetRx( uint32_t timeout )
         break;
     }
 
-    memset( RxTxBuffer, 0, ( size_t )RX_TX_BUFFER_SIZE );
-
     SX1272.Settings.State = RF_RX_RUNNING;
     if( timeout != 0 )
     {
