@@ -45,6 +45,16 @@
  */
 #define KR920_LBT_RX_BANDWIDTH            200000
 
+/*!
+ * RSSI threshold for a free channel [dBm]
+ */
+#define KR920_RSSI_FREE_TH                          -65
+
+/*!
+ * Specifies the time the node performs a carrier sense
+ */
+#define KR920_CARRIER_SENSE_TIME                    6
+
 /*
  * Non-volatile module context.
  */
@@ -337,6 +347,9 @@ void RegionKR920InitDefaults( InitDefaultsParams_t* params )
 
             // Update the channels mask
             RegionCommonChanMaskCopy( RegionNvmGroup2->ChannelsMask, RegionNvmGroup2->ChannelsDefaultMask, CHANNELS_MASK_SIZE );
+
+            RegionNvmGroup2->RssiFreeThreshold = KR920_RSSI_FREE_TH;
+            RegionNvmGroup2->CarrierSenseTime = KR920_CARRIER_SENSE_TIME;
             break;
         }
         case INIT_TYPE_RESET_TO_DEFAULT_CHANNELS:
@@ -847,8 +860,8 @@ LoRaMacStatus_t RegionKR920NextChannel( NextChanParams_t* nextChanParams, uint8_
             loramac_radio_channel_free_cfg_params_t channel_free_params = {
                 .rf_freq_in_hz = RegionNvmGroup2->Channels[channelNext].Frequency,
                 .rx_bw_in_hz = KR920_LBT_RX_BANDWIDTH,
-                .rssi_threshold_in_dbm = KR920_RSSI_FREE_TH,
-                .max_carrier_sense_time_ms = KR920_CARRIER_SENSE_TIME,
+                .rssi_threshold_in_dbm = RegionNvmGroup2->RssiFreeThreshold,
+                .max_carrier_sense_time_ms = RegionNvmGroup2->CarrierSenseTime,
             };
             bool is_channel_free = false;
             loramac_radio_is_channel_free( &channel_free_params, &is_channel_free );

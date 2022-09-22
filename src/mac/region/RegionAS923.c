@@ -39,6 +39,16 @@
 // Definitions
 #define CHANNELS_MASK_SIZE                1
 
+/*!
+ * RSSI threshold for a free channel [dBm]
+ */
+#define AS923_RSSI_FREE_TH                          -80
+
+/*!
+ * Specifies the time the node performs a carrier sense
+ */
+#define AS923_CARRIER_SENSE_TIME                    5
+
 #ifndef REGION_AS923_DEFAULT_CHANNEL_PLAN
 #define REGION_AS923_DEFAULT_CHANNEL_PLAN CHANNEL_PLAN_GROUP_AS923_1
 #endif
@@ -420,6 +430,11 @@ void RegionAS923InitDefaults( InitDefaultsParams_t* params )
 
             // Update the channels mask
             RegionCommonChanMaskCopy( RegionNvmGroup2->ChannelsMask, RegionNvmGroup2->ChannelsDefaultMask, CHANNELS_MASK_SIZE );
+
+#if ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_1_JP )
+            RegionNvmGroup2->RssiFreeThreshold = AS923_RSSI_FREE_TH;
+            RegionNvmGroup2->CarrierSenseTime = AS923_CARRIER_SENSE_TIME;
+#endif
             break;
         }
         case INIT_TYPE_RESET_TO_DEFAULT_CHANNELS:
@@ -988,8 +1003,8 @@ LoRaMacStatus_t RegionAS923NextChannel( NextChanParams_t* nextChanParams, uint8_
             loramac_radio_channel_free_cfg_params_t channel_free_params = {
                 .rf_freq_in_hz = RegionNvmGroup2->Channels[channelNext].Frequency,
                 .rx_bw_in_hz = AS923_LBT_RX_BANDWIDTH,
-                .rssi_threshold_in_dbm = AS923_RSSI_FREE_TH,
-                .max_carrier_sense_time_ms = AS923_CARRIER_SENSE_TIME,
+                .rssi_threshold_in_dbm = RegionNvmGroup2->RssiFreeThreshold,
+                .max_carrier_sense_time_ms = RegionNvmGroup2->CarrierSenseTime,
             };
             bool is_channel_free = false;
             loramac_radio_is_channel_free( &channel_free_params, &is_channel_free );

@@ -69,14 +69,6 @@ option(LORAMAC_LR_FHSS_IS_ON "LR-FHSS modulation support" OFF)
 # Target
 #---------------------------------------------------------------------------------------
 set( MAC_BUILD_SOURCES
-     ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionAS923.c
-     ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionCN779.c
-     ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionEU433.c
-     ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionEU868.c
-     ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionIN865.c
-     ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionRU864.c
-     ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionKR920.c
-     ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionBaseUS.c
      ${CMAKE_CURRENT_SOURCE_DIR}/region/RegionCommon.c
      ${CMAKE_CURRENT_SOURCE_DIR}/region/Region.c
      ${CMAKE_CURRENT_SOURCE_DIR}/LoRaMac.c
@@ -88,10 +80,10 @@ set( MAC_BUILD_SOURCES
      ${CMAKE_CURRENT_SOURCE_DIR}/LoRaMacParser.c
      ${CMAKE_CURRENT_SOURCE_DIR}/LoRaMacSerializer.c )
 
-if(REGION_US915 STREQUAL ON)
+if(REGION_AS923 STREQUAL ON)
 set( MAC_BUILD_SOURCES
-     ${MAC_BUILD_SOURCES}
-     "${CMAKE_CURRENT_SOURCE_DIR}/region/RegionUS915.c" )
+    ${MAC_BUILD_SOURCES}
+    "${CMAKE_CURRENT_SOURCE_DIR}/region/RegionAS923.c" )
 endif()
 
 if(REGION_AU915 STREQUAL ON)
@@ -108,6 +100,49 @@ set( MAC_BUILD_SOURCES
      "${CMAKE_CURRENT_SOURCE_DIR}/region/RegionCN470B20.c"
      "${CMAKE_CURRENT_SOURCE_DIR}/region/RegionCN470A26.c"
      "${CMAKE_CURRENT_SOURCE_DIR}/region/RegionCN470B26.c" )
+endif()
+
+if(REGION_CN779 STREQUAL ON)
+set( MAC_BUILD_SOURCES
+    ${MAC_BUILD_SOURCES}
+    "${CMAKE_CURRENT_SOURCE_DIR}/region/RegionCN779.c" )
+endif()
+
+if(REGION_EU433 STREQUAL ON)
+set( MAC_BUILD_SOURCES
+    ${MAC_BUILD_SOURCES}
+    "${CMAKE_CURRENT_SOURCE_DIR}/region/RegionEU433.c" )
+endif()
+
+if(REGION_EU868 STREQUAL ON)
+set( MAC_BUILD_SOURCES
+    ${MAC_BUILD_SOURCES}
+    "${CMAKE_CURRENT_SOURCE_DIR}/region/RegionEU868.c" )
+endif()
+
+if(REGION_IN865 STREQUAL ON)
+set( MAC_BUILD_SOURCES
+    ${MAC_BUILD_SOURCES}
+    "${CMAKE_CURRENT_SOURCE_DIR}/region/RegionIN865.c" )
+endif()
+
+if(REGION_KR920 STREQUAL ON)
+set( MAC_BUILD_SOURCES
+    ${MAC_BUILD_SOURCES}
+    "${CMAKE_CURRENT_SOURCE_DIR}/region/RegionKR920.c" )
+endif()
+
+if(REGION_RU864 STREQUAL ON)
+set( MAC_BUILD_SOURCES
+    ${MAC_BUILD_SOURCES}
+    "${CMAKE_CURRENT_SOURCE_DIR}/region/RegionRU864.c" )
+endif()
+
+if(REGION_US915 STREQUAL ON)
+set( MAC_BUILD_SOURCES
+     ${MAC_BUILD_SOURCES}
+     "${CMAKE_CURRENT_SOURCE_DIR}/region/RegionBaseUS.c"
+     "${CMAKE_CURRENT_SOURCE_DIR}/region/RegionUS915.c" )
 endif()
 
 add_library(${PROJECT_NAME} OBJECT EXCLUDE_FROM_ALL ${MAC_BUILD_SOURCES})
