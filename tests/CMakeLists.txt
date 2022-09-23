@@ -87,7 +87,6 @@ set(MOCKS
     cli-mock.c
     board-mock.c
     sx1276-mock.c
-    timer-mock.cpp
     bsp_mock.cpp
     eeprom-board-mock.cpp
     # loramac-mock.cpp
@@ -97,6 +96,8 @@ set(MOCKS
     gps_mock_utils.cpp
     delay-board-mock.c
     gpio_mock.c
+    rtc-board-mock.c
+    mocks/rtc_mock.c
 )
 
 
@@ -118,6 +119,7 @@ set(FILES_UNDER_TEST
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandlerMsgDisplay.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/LmHandler/LmHandler.c
     ${PROJECT_SOURCE_DIR}/src/system/delay.c
+    ${PROJECT_SOURCE_DIR}/src/system/timer.c
     ${PROJECT_SOURCE_DIR}/src/apps/LoRaMac/common/callbacks.c
 
    

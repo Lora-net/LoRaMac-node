@@ -39,6 +39,10 @@
 #include "eeprom_settings_manager.h"
 #include "nvmm.h"
 
+#ifdef UNITTESTING_LORA
+#include "rtc_mock.h"
+#endif
+
 /*!
  * User application data
  */
@@ -195,6 +199,10 @@ static void transmit_n_times_on_this_credential( void )
 
     while( tx_count_on_this_credential < N_TRANMISSIONS_PER_CREDENTIAL )
     {
+#ifdef UNITTESTING_LORA
+        /* simulate 1 millisecond per loop */
+        bump_rtc_tick( );
+#endif
         // Process characters sent over the command line interface
         CliProcess( &Uart1 );
 
