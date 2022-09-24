@@ -17,10 +17,12 @@ jobs:
       - uses: actions/checkout@v2
       - name: dependencies install
         run: sudo apt-get install lcov gcovr gcc-multilib g++-multilib
+
       - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DUNIT_TESTING=true -DCOVERAGE="ON" -DC++11="ON" -DLONGLONG="ON"
+        run: cmake --preset unittesting_configs
+
       - name: Build
-        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        run: cmake --build --preset=unittest_build
+
       - name: Test
-        working-directory: ${{github.workspace}}/build
-        run: ctest -C ${{env.BUILD_TYPE}} --rerun-failed --output-on-failure
+        run: ctest --preset=unittest --rerun-failed --output-on-failure
