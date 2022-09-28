@@ -337,7 +337,7 @@ int32_t FragDecoderProcess( uint16_t fragCounter, uint8_t *rawData )
         // Update the FragDecoder.FragNbMissingIndex with the loosing frame
         FragFindMissingFrags( fragCounter );
 
-        if( FragDecoder.Status.FragNbLost == 0 && fragCounter == FragDecoder.FragNb)
+        if( ( FragDecoder.Status.FragNbLost == 0 ) && ( fragCounter == FragDecoder.FragNb ) )
         { 
             // the case : all the M(FragNb) first rows have been transmitted with no error
             return FragDecoder.Status.FragNbLost;
