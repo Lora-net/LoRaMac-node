@@ -962,7 +962,7 @@ static void ProcessRadioRxDone( void )
             macMsgJoinAccept.Buffer = payload;
             macMsgJoinAccept.BufSize = size;
 
-            // Abort in case if the device isn't joined yet and no rejoin request is ongoing.
+            // Abort in case if the device is already joined and no rejoin request is ongoing.
             if( ( Nvm.MacGroup2.NetworkActivation != ACTIVATION_TYPE_NONE ) && ( Nvm.MacGroup2.IsRejoinAcceptPending == false ) )
             {
                 MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;

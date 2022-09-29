@@ -336,7 +336,7 @@ TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, Band_t* bands,
         // Check if the band is ready for transmission. Its ready,
         // when the duty cycle is off, or the TimeCredits of the band
         // is higher than the credit costs for the transmission.
-        if( ( bands[i].TimeCredits > creditCosts ) ||
+        if( ( bands[i].TimeCredits >= creditCosts ) ||
             ( ( dutyCycleEnabled == false ) && ( joined == true ) ) )
         {
             bands[i].ReadyForTransmission = true;
@@ -350,7 +350,7 @@ TimerTime_t RegionCommonUpdateBandTimeOff( bool joined, Band_t* bands,
             // for the next transmission.
             bands[i].ReadyForTransmission = false;
 
-            if( bands[i].MaxTimeCredits > creditCosts )
+            if( bands[i].MaxTimeCredits >= creditCosts )
             {
                 // The band can only be taken into account, if the maximum credits
                 // of the band are higher than the credit costs.
