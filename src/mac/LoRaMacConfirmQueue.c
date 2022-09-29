@@ -283,6 +283,8 @@ void LoRaMacConfirmQueueHandleCb( MlmeConfirm_t* mlmeConfirm )
     bool readyToHandle = false;
     MlmeConfirmQueue_t mlmeConfirmToStore;
 
+    memset1( ( uint8_t* ) &mlmeConfirmToStore, 0, sizeof( MlmeConfirmQueue_t ) );
+
     for( uint8_t i = 0; i < nbElements; i++ )
     {
         mlmeConfirm->MlmeRequest = ConfirmQueueCtx.BufferStart->Request;
