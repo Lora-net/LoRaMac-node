@@ -938,6 +938,14 @@ static void ProcessRadioRxDone( void )
         }
     }
 
+    // Abort on empty radio frames
+    if( size == 0 )
+    {
+        MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+        PrepareRxDoneAbort( );
+        return;
+    }
+
     macHdr.Value = payload[pktHeaderLen++];
 
     // Accept frames of LoRaWAN Major Version 1 only
