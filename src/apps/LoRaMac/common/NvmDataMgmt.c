@@ -186,9 +186,12 @@ uint16_t NvmDataMgmtRestore( void )
     offset += sizeof( SecureElementNvmData_t );
 
     // Region group 1
-    if( NvmmCrc32Check( sizeof( RegionNvmDataGroup1_t ), offset ) == false )
+    if( sizeof( RegionNvmDataGroup1_t ) > sizeof( uint32_t ) )
     {
-        return 0;
+        if( NvmmCrc32Check( sizeof( RegionNvmDataGroup1_t ), offset ) == false )
+        {
+            return 0;
+        }
     }
     offset += sizeof( RegionNvmDataGroup1_t );
 
