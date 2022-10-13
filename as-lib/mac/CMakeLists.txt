@@ -5,6 +5,9 @@ project(loramac${LORAMAC_SUFFIX} C)
 message(STATUS ${PROJECT_NAME})
 
 if (NOT TARGET ${PROJECT_NAME})
+
+    set(LORAMAC_REGION_LIST EU868 US915 CN779 EU433 AU915 AS923 CN470 KR920 IN865 RU864)
+
     add_library(${PROJECT_NAME} STATIC)
     target_sources(
             ${PROJECT_NAME}
@@ -32,10 +35,6 @@ if (NOT TARGET ${PROJECT_NAME})
             ${LORAMAC_SOURCE_DIR}/mac/secure-element-nvm.h
             ${LORAMAC_SOURCE_DIR}/mac/region/Region.h
             ${LORAMAC_SOURCE_DIR}/mac/region/RegionCommon.h
-            $<$<BOOL:REGION_EU868>:${LORAMAC_SOURCE_DIR}/mac/region/RegionEU868.h>
-            $<$<BOOL:REGION_AS923>:${LORAMAC_SOURCE_DIR}/mac/region/RegionAS923.h>
-            $<$<BOOL:REGION_AU915>:${LORAMAC_SOURCE_DIR}/mac/region/RegionAU915.h>
-            $<$<BOOL:REGION_US915>:${LORAMAC_SOURCE_DIR}/mac/region/RegionUS915.h>
             $<$<OR:$<BOOL:REGION_AU915>,$<BOOL:REGION_US915>>:${LORAMAC_SOURCE_DIR}/mac/region/RegionBaseUS.h>
 
             PRIVATE
@@ -51,21 +50,33 @@ if (NOT TARGET ${PROJECT_NAME})
             ${LORAMAC_SOURCE_DIR}/mac/LoRaMacSerializer.c
             ${LORAMAC_SOURCE_DIR}/mac/region/Region.c
             ${LORAMAC_SOURCE_DIR}/mac/region/RegionCommon.c
-            $<$<BOOL:REGION_EU868>:${LORAMAC_SOURCE_DIR}/mac/region/RegionEU868.c>
-            $<$<BOOL:REGION_AS923>:${LORAMAC_SOURCE_DIR}/mac/region/RegionAS923.c>
-            $<$<BOOL:REGION_AU915>:${LORAMAC_SOURCE_DIR}/mac/region/RegionAU915.c>
-            $<$<BOOL:REGION_US915>:${LORAMAC_SOURCE_DIR}/mac/region/RegionUS915.c>
-
-            $<$<OR:$<BOOL:REGION_AU915>,$<BOOL:REGION_US915>>:${LORAMAC_SOURCE_DIR}/mac/region/RegionBaseUS.c>
+            $<$<OR:$<BOOL:${REGION_AU915}>,$<BOOL:${REGION_US915}>>:${LORAMAC_SOURCE_DIR}/mac/region/RegionBaseUS.c>
     )
+
+    foreach(REGION ${LORAMAC_REGION_LIST})
+        if (${REGION_${REGION}})
+
+            target_sources(
+                    ${PROJECT_NAME}
+                    PUBLIC
+                    ${LORAMAC_SOURCE_DIR}/mac/region/Region${REGION}.h
+
+                    PRIVATE
+                    ${LORAMAC_SOURCE_DIR}/mac/region/Region${REGION}.c
+            )
+
+            target_compile_definitions(
+                    ${PROJECT_NAME}
+                    PUBLIC
+                    $<$<BOOL:${REGION_${REGION}}>:REGION_${REGION}>
+            )
+
+        endif()
+    endforeach()
 
     target_compile_definitions(
             ${PROJECT_NAME}
             PUBLIC
-            $<$<BOOL:REGION_EU868>:REGION_EU868>
-            $<$<BOOL:REGION_AS923>:REGION_AS923>
-            $<$<BOOL:REGION_AU915>:REGION_AU915>
-            $<$<BOOL:REGION_US915>:REGION_US915>
             ACTIVE_REGION                               # TODO: remove from lmHandler.c?
     )
 
