@@ -44,6 +44,6 @@ if (NOT TARGET ${PROJECT_NAME})
     target_link_libraries(
             ${PROJECT_NAME}
             PUBLIC
-            loramac-boards
+            loramac-board
     )
 endif()
