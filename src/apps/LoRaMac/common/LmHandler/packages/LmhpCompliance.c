@@ -415,8 +415,11 @@ static void LmhpComplianceOnMcpsIndication( McpsIndication_t* mcpsIndication )
         MlmeReq_t mlmeReq;
         mlmeReq.Type = MLME_LINK_CHECK;
 
-        CompliancePackage.OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq,
-                                            mlmeReq.ReqReturn.DutyCycleWaitTime );
+        LoRaMacStatus_t status = LoRaMacMlmeRequest( &mlmeReq );
+        if( CompliancePackage.OnMacMlmeRequest != NULL )
+        {
+            CompliancePackage.OnMacMlmeRequest( status, &mlmeReq, mlmeReq.ReqReturn.DutyCycleWaitTime );
+        }
         break;
     }
     case COMPLIANCE_DEVICE_TIME_REQ:
