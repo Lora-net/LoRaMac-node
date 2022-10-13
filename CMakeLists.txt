@@ -18,4 +18,10 @@
 project(loramac-node)
 cmake_minimum_required(VERSION 3.6)
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src)
+option(LORAMAC_AS_LIB "If enabled, will configure LoRaMac-node to be built as a static library, otherwise will build example projects" OFF)
+
+if (LORAMAC_AS_LIB)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/as-lib)
+else()
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src)
+endif()
