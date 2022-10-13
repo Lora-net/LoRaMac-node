@@ -77,6 +77,10 @@ struct sMacCommand
      * Indicates if it's a sticky MAC command
      */
     bool IsSticky;
+    /*!
+     * The command requires an explicit confirmation
+     */
+    bool IsConfirmationRequired;
 };
 
 /*!
