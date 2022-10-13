@@ -428,6 +428,14 @@ static void GetTemperatureLevel( LoRaMacClassBCallback_t *callbacks, BeaconConte
     }
 }
 
+static void OnClassBMacProcessNotify( void )
+{
+    if( Ctx.LoRaMacClassBCallbacks.MacProcessNotify != NULL )
+    {
+        Ctx.LoRaMacClassBCallbacks.MacProcessNotify( );
+    }
+}
+
 static void InitClassB( void )
 {
     GetPhyParams_t getPhy;
@@ -718,10 +726,7 @@ void LoRaMacClassBBeaconTimerEvent( void* context )
     TimerStop( &Ctx.BeaconTimer );
     LoRaMacClassBEvents.Events.Beacon = 1;
 
-    if( Ctx.LoRaMacClassBCallbacks.MacProcessNotify != NULL )
-    {
-        Ctx.LoRaMacClassBCallbacks.MacProcessNotify( );
-    }
+    OnClassBMacProcessNotify( );
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -981,10 +986,7 @@ void LoRaMacClassBPingSlotTimerEvent( void* context )
 #ifdef LORAMAC_CLASSB_ENABLED
     LoRaMacClassBEvents.Events.PingSlot = 1;
 
-    if( Ctx.LoRaMacClassBCallbacks.MacProcessNotify != NULL )
-    {
-        Ctx.LoRaMacClassBCallbacks.MacProcessNotify( );
-    }
+    OnClassBMacProcessNotify( );
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -1115,10 +1117,7 @@ void LoRaMacClassBMulticastSlotTimerEvent( void* context )
 #ifdef LORAMAC_CLASSB_ENABLED
     LoRaMacClassBEvents.Events.MulticastSlot = 1;
 
-    if( Ctx.LoRaMacClassBCallbacks.MacProcessNotify != NULL )
-    {
-        Ctx.LoRaMacClassBCallbacks.MacProcessNotify( );
-    }
+    OnClassBMacProcessNotify( );
 #endif // LORAMAC_CLASSB_ENABLED
 }
 

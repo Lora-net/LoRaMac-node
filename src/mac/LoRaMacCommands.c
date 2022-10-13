@@ -282,7 +282,7 @@ static bool LinkedListRemove( MacCommandsList_t* list, MacCommand_t* element )
 /*
  * \brief Determines if a MAC command is sticky or not
  *
- * \param[IN]   cid                - MAC command identifier
+ * \param[IN]   cid            - MAC command identifier
  *
  * \retval                     - Status of the operation
  */
@@ -298,6 +298,26 @@ static bool IsSticky( uint8_t cid )
         case MOTE_MAC_RX_TIMING_SETUP_ANS:
         case MOTE_MAC_TX_PARAM_SETUP_ANS:
         case MOTE_MAC_PING_SLOT_CHANNEL_ANS:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/*
+ * \brief Determines if a MAC command requires an explicit confirmation
+ *
+ * \param[IN]   cid            - MAC command identifier
+ *
+ * \retval                     - Status of the operation
+ */
+static bool IsConfirmationRequired( uint8_t cid )
+{
+    switch( cid )
+    {
+        case MOTE_MAC_RESET_IND:
+        case MOTE_MAC_REKEY_IND:
+        case MOTE_MAC_DEVICE_MODE_IND:
             return true;
         default:
             return false;
@@ -341,6 +361,7 @@ LoRaMacCommandStatus_t LoRaMacCommandsAddCmd( uint8_t cid, uint8_t* payload, siz
     newCmd->PayloadSize = payloadSize;
     memcpy1( ( uint8_t* )newCmd->Payload, payload, payloadSize );
     newCmd->IsSticky = IsSticky( cid );
+    newCmd->IsConfirmationRequired = IsConfirmationRequired( cid );
 
     CommandsCtx.SerializedCmdsSize += ( CID_FIELD_SIZE + payloadSize );
 
@@ -433,7 +454,8 @@ LoRaMacCommandStatus_t LoRaMacCommandsRemoveStickyAnsCmds( void )
     while( curElement != NULL )
     {
         nexElement = curElement->Next;
-        if( IsSticky( curElement->CID ) == true )
+        if( ( IsSticky( curElement->CID ) == true ) &&
+            ( IsConfirmationRequired( curElement->CID ) == false ) )
         {
             LoRaMacCommandsRemoveCmd( curElement );
         }

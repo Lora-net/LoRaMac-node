@@ -50,14 +50,6 @@
 #include "LmhpRemoteMcastSetup.h"
 #include "LmhpFragmentation.h"
 
-#ifndef ACTIVE_REGION
-
-#warning "No active region defined, LORAMAC_REGION_EU868 will be used as default."
-
-#define ACTIVE_REGION LORAMAC_REGION_EU868
-
-#endif
-
 #include "LoRaMacTest.h"
 
 static CommissioningParams_t CommissioningParams =
@@ -200,6 +192,32 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm );
 static void MlmeIndication( MlmeIndication_t *mlmeIndication );
 
 /*!
+ * Calls the OnClassChange callback to indicate the new active device class
+ *
+ * \param [in] deviceClass Active device class
+ */
+static void OnClassChangeNotify( DeviceClass_t deviceClass )
+{
+    if( LmHandlerCallbacks->OnClassChange != NULL )
+    {
+        LmHandlerCallbacks->OnClassChange( deviceClass );
+    }
+}
+
+/*!
+ * Calls the OnBeaconStatusChange callback to indicate current beacon status
+ *
+ * \param [in] params Current beacon parameters
+ */
+static void OnBeaconStatusChangeNotify( LoRaMacHandlerBeaconParams_t *params )
+{
+    if( LmHandlerCallbacks->OnBeaconStatusChange != NULL )
+    {
+        LmHandlerCallbacks->OnBeaconStatusChange( params );
+    }
+}
+
+/*!
  * Starts the beacon search
  *
  * \retval status Returns \ref LORAMAC_HANDLER_SET if joined else \ref LORAMAC_HANDLER_RESET
@@ -265,7 +283,7 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
     nbNvmData = NvmDataMgmtRestore( );
 
     // Try to restore from NVM and query the mac if possible.
-    if( nbNvmData > 0 )
+    if( ( LmHandlerCallbacks->OnNvmDataChange != NULL ) && ( nbNvmData > 0 ) )
     {
         LmHandlerCallbacks->OnNvmDataChange( LORAMAC_HANDLER_NVM_RESTORE, nbNvmData );
     }
@@ -291,8 +309,12 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
         LoRaMacMibSetRequestConfirm( &mibReq );
 
 #if( STATIC_DEVICE_ADDRESS != 1 )
+        // TODO: Remove STATIC_DEVICE_ADDRESS = 0. Up to the application to decide what to do
         // Random seed initialization
-        srand1( LmHandlerCallbacks->GetRandomSeed( ) );
+        if( LmHandlerCallbacks->GetRandomSeed != NULL )
+        {
+            srand1( LmHandlerCallbacks->GetRandomSeed( ) );
+        }
         // Choose a random device address
         CommissioningParams.DevAddr = randr( 0, 0x01FFFFFF );
 #endif
@@ -333,7 +355,10 @@ LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks,
     {
         if( mibReq.Param.NetworkActivation == ACTIVATION_TYPE_NONE )
         {
-            LmHandlerCallbacks->OnNetworkParametersChange( &CommissioningParams );
+            if( LmHandlerCallbacks->OnNetworkParametersChange != NULL )
+            {
+                LmHandlerCallbacks->OnNetworkParametersChange( &CommissioningParams );
+            }
         }
     }
     return LORAMAC_HANDLER_SUCCESS;
@@ -372,7 +397,10 @@ void LmHandlerProcess( void )
 
     if( size > 0 )
     {
-        LmHandlerCallbacks->OnNvmDataChange( LORAMAC_HANDLER_NVM_STORE, size );
+        if( LmHandlerCallbacks->OnNvmDataChange != NULL )
+        {
+            LmHandlerCallbacks->OnNvmDataChange( LORAMAC_HANDLER_NVM_STORE, size );
+        }
     }
 
     // Call all packages process functions
@@ -435,7 +463,11 @@ static void LmHandlerJoinRequest( bool isOtaa )
         CommissioningParams.IsOtaaActivation = false;
     }
     // Starts the join procedure
-    LmHandlerCallbacks->OnMacMlmeRequest( LoRaMacMlmeRequest( &mlmeReq ), &mlmeReq, mlmeReq.ReqReturn.DutyCycleWaitTime );
+    LoRaMacStatus_t status = LoRaMacMlmeRequest( &mlmeReq );
+    if( LmHandlerCallbacks->OnMacMlmeRequest != NULL )
+    {
+        LmHandlerCallbacks->OnMacMlmeRequest( status, &mlmeReq, mlmeReq.ReqReturn.DutyCycleWaitTime );
+    }
     DutyCycleWaitTime = mlmeReq.ReqReturn.DutyCycleWaitTime;
 }
 
@@ -503,7 +535,10 @@ LmHandlerErrorStatus_t LmHandlerSend( LmHandlerAppData_t *appData, LmHandlerMsgT
     TxParams.Datarate = LmHandlerParams->TxDatarate;
 
     status = LoRaMacMcpsRequest( &mcpsReq );
-    LmHandlerCallbacks->OnMacMcpsRequest( status, &mcpsReq, mcpsReq.ReqReturn.DutyCycleWaitTime );
+    if( LmHandlerCallbacks->OnMacMcpsRequest != NULL )
+    {
+        LmHandlerCallbacks->OnMacMcpsRequest( status, &mcpsReq, mcpsReq.ReqReturn.DutyCycleWaitTime );
+    }
     DutyCycleWaitTime = mcpsReq.ReqReturn.DutyCycleWaitTime;
 
     if( status == LORAMAC_STATUS_OK )
@@ -525,7 +560,10 @@ LmHandlerErrorStatus_t LmHandlerDeviceTimeReq( void )
     mlmeReq.Type = MLME_DEVICE_TIME;
 
     status = LoRaMacMlmeRequest( &mlmeReq );
-    LmHandlerCallbacks->OnMacMlmeRequest( status, &mlmeReq, mlmeReq.ReqReturn.DutyCycleWaitTime );
+    if( LmHandlerCallbacks->OnMacMlmeRequest != NULL )
+    {
+        LmHandlerCallbacks->OnMacMlmeRequest( status, &mlmeReq, mlmeReq.ReqReturn.DutyCycleWaitTime );
+    }
     DutyCycleWaitTime = mlmeReq.ReqReturn.DutyCycleWaitTime;
 
     if( status == LORAMAC_STATUS_OK )
@@ -546,7 +584,10 @@ static LmHandlerErrorStatus_t LmHandlerBeaconReq( void )
     mlmeReq.Type = MLME_BEACON_ACQUISITION;
 
     status = LoRaMacMlmeRequest( &mlmeReq );
-    LmHandlerCallbacks->OnMacMlmeRequest( status, &mlmeReq, mlmeReq.ReqReturn.DutyCycleWaitTime );
+    if( LmHandlerCallbacks->OnMacMlmeRequest != NULL )
+    {
+        LmHandlerCallbacks->OnMacMlmeRequest( status, &mlmeReq, mlmeReq.ReqReturn.DutyCycleWaitTime );
+    }
     DutyCycleWaitTime = mlmeReq.ReqReturn.DutyCycleWaitTime;
 
     if( status == LORAMAC_STATUS_OK )
@@ -569,7 +610,10 @@ LmHandlerErrorStatus_t LmHandlerPingSlotReq( uint8_t periodicity )
     mlmeReq.Req.PingSlotInfo.PingSlot.Fields.RFU = 0;
 
     status = LoRaMacMlmeRequest( &mlmeReq );
-    LmHandlerCallbacks->OnMacMlmeRequest( status, &mlmeReq, mlmeReq.ReqReturn.DutyCycleWaitTime );
+    if( LmHandlerCallbacks->OnMacMlmeRequest != NULL )
+    {
+        LmHandlerCallbacks->OnMacMlmeRequest( status, &mlmeReq, mlmeReq.ReqReturn.DutyCycleWaitTime );
+    }
     DutyCycleWaitTime = mlmeReq.ReqReturn.DutyCycleWaitTime;
 
     if( status == LORAMAC_STATUS_OK )
@@ -612,7 +656,7 @@ LmHandlerErrorStatus_t LmHandlerRequestClass( DeviceClass_t newClass )
                     if( LoRaMacMibSetRequestConfirm( &mibReq ) == LORAMAC_STATUS_OK )
                     {
                         // Switch is instantaneous
-                        LmHandlerCallbacks->OnClassChange( CLASS_A );
+                        OnClassChangeNotify( CLASS_A );
                     }
                     else
                     {
@@ -642,7 +686,7 @@ LmHandlerErrorStatus_t LmHandlerRequestClass( DeviceClass_t newClass )
                 mibReq.Param.Class = CLASS_C;
                 if( LoRaMacMibSetRequestConfirm( &mibReq ) == LORAMAC_STATUS_OK )
                 {
-                    LmHandlerCallbacks->OnClassChange( CLASS_C );
+                    OnClassChangeNotify( CLASS_C );
                 }
                 else
                 {
@@ -711,7 +755,10 @@ static void McpsConfirm( McpsConfirm_t *mcpsConfirm )
     TxParams.Channel = mcpsConfirm->Channel;
     TxParams.AckReceived = mcpsConfirm->AckReceived;
 
-    LmHandlerCallbacks->OnTxData( &TxParams );
+    if( LmHandlerCallbacks->OnTxData != NULL )
+    {
+        LmHandlerCallbacks->OnTxData( &TxParams );
+    }
 
     LmHandlerPackagesNotify( PACKAGE_MCPS_CONFIRM, mcpsConfirm );
 }
@@ -738,16 +785,22 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
     appData.BufferSize = mcpsIndication->BufferSize;
     appData.Buffer = mcpsIndication->Buffer;
 
-    LmHandlerCallbacks->OnRxData( &appData, &RxParams );
+    if( LmHandlerCallbacks->OnRxData != NULL )
+    {
+        LmHandlerCallbacks->OnRxData( &appData, &RxParams );
+    }
 
     if( mcpsIndication->DeviceTimeAnsReceived == true )
     {
+        if( LmHandlerCallbacks->OnSysTimeUpdate != NULL )
+        {
 #if( LMH_SYS_TIME_UPDATE_NEW_API == 1 )
-        // Provide fix values. DeviceTimeAns is accurate
-        LmHandlerCallbacks->OnSysTimeUpdate( true, 0 );
+            // Provide fix values. DeviceTimeAns is accurate
+            LmHandlerCallbacks->OnSysTimeUpdate( true, 0 );
 #else
-        LmHandlerCallbacks->OnSysTimeUpdate( );
+            LmHandlerCallbacks->OnSysTimeUpdate( );
 #endif
+        }
     }
     // Call packages RxProcess function
     LmHandlerPackagesNotify( PACKAGE_MCPS_INDICATION, mcpsIndication );
@@ -764,7 +817,10 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
 {
     TxParams.IsMcpsConfirm = 0;
     TxParams.Status = mlmeConfirm->Status;
-    LmHandlerCallbacks->OnTxData( &TxParams );
+    if( LmHandlerCallbacks->OnTxData != NULL )
+    {
+        LmHandlerCallbacks->OnTxData( &TxParams );
+    }
 
     LmHandlerPackagesNotify( PACKAGE_MLME_CONFIRM, mlmeConfirm );
 
@@ -789,7 +845,10 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                 JoinParams.Status = LORAMAC_HANDLER_ERROR;
             }
             // Notify upper layer
-            LmHandlerCallbacks->OnJoinRequest( &JoinParams );
+            if( LmHandlerCallbacks->OnJoinRequest != NULL )
+            {
+                LmHandlerCallbacks->OnJoinRequest( &JoinParams );
+            }
         }
         break;
     case MLME_LINK_CHECK:
@@ -833,7 +892,7 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
                 mibReq.Param.Class = CLASS_B;
                 LoRaMacMibSetRequestConfirm( &mibReq );
                 // Notify upper layer
-                LmHandlerCallbacks->OnClassChange( CLASS_B );
+                OnClassChangeNotify( CLASS_B );
                 IsClassBSwitchPending = false;
             }
             else
@@ -853,7 +912,10 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
     RxParams.Status = mlmeIndication->Status;
     if( RxParams.Status != LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED )
     {
-        LmHandlerCallbacks->OnRxData( NULL, &RxParams );
+        if( LmHandlerCallbacks->OnRxData != NULL )
+        {
+            LmHandlerCallbacks->OnRxData( NULL, &RxParams );
+        }
     }
 
     // Call packages RxProcess function
@@ -874,8 +936,8 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
             BeaconParams.Info.GwSpecific.InfoDesc = 0;
             memset1( BeaconParams.Info.GwSpecific.Info, 0, 6 );
 
-            LmHandlerCallbacks->OnClassChange( CLASS_A );
-            LmHandlerCallbacks->OnBeaconStatusChange( &BeaconParams );
+            OnClassChangeNotify( CLASS_A );
+            OnBeaconStatusChangeNotify( &BeaconParams );
 
             LmHandlerDeviceTimeReq( );
         }
@@ -887,14 +949,14 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication )
             BeaconParams.State = LORAMAC_HANDLER_BEACON_RX;
             BeaconParams.Info = mlmeIndication->BeaconInfo;
 
-            LmHandlerCallbacks->OnBeaconStatusChange( &BeaconParams );
+            OnBeaconStatusChangeNotify( &BeaconParams );
         }
         else
         {
             BeaconParams.State = LORAMAC_HANDLER_BEACON_NRX;
             BeaconParams.Info = mlmeIndication->BeaconInfo;
 
-            LmHandlerCallbacks->OnBeaconStatusChange( &BeaconParams );
+            OnBeaconStatusChangeNotify( &BeaconParams );
         }
         break;
     }

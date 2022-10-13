@@ -618,6 +618,11 @@ static uint32_t IncreaseAdrAckCounter( uint32_t counter );
 static bool StopRetransmission( void );
 
 /*!
+ * \brief Calls the MacProcessNotify callback to indicate that a LoRaMacProcess call is pending
+ */
+static void OnMacProcessNotify( void );
+
+/*!
  * \brief Calls the callback to indicate that a context changed
  */
 static void CallNvmDataChangeCallback( uint16_t notifyFlags );
@@ -735,10 +740,7 @@ static void OnRadioTxDone( void )
 
     LoRaMacRadioEvents.Events.TxDone = 1;
 
-    if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
-    {
-        MacCtx.MacCallbacks->MacProcessNotify( );
-    }
+    OnMacProcessNotify( );
 }
 
 static void OnRadioRxDone( loramac_radio_irq_rx_done_params_t* params )
@@ -751,40 +753,28 @@ static void OnRadioRxDone( loramac_radio_irq_rx_done_params_t* params )
     LoRaMacRadioEvents.Events.RxDone = 1;
     LoRaMacRadioEvents.Events.RxProcessPending = 1;
 
-    if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
-    {
-        MacCtx.MacCallbacks->MacProcessNotify( );
-    }
+    OnMacProcessNotify( );
 }
 
 static void OnRadioTxTimeout( void )
 {
     LoRaMacRadioEvents.Events.TxTimeout = 1;
 
-    if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
-    {
-        MacCtx.MacCallbacks->MacProcessNotify( );
-    }
+    OnMacProcessNotify( );
 }
 
 static void OnRadioRxError( void )
 {
     LoRaMacRadioEvents.Events.RxError = 1;
 
-    if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
-    {
-        MacCtx.MacCallbacks->MacProcessNotify( );
-    }
+    OnMacProcessNotify( );
 }
 
 static void OnRadioRxTimeout( void )
 {
     LoRaMacRadioEvents.Events.RxTimeout = 1;
 
-    if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
-    {
-        MacCtx.MacCallbacks->MacProcessNotify( );
-    }
+    OnMacProcessNotify( );
 }
 
 static void UpdateRxSlotIdleState( void )
@@ -1954,10 +1944,7 @@ static void OnRetransmitTimeoutTimerEvent( void* context )
     {
         MacCtx.RetransmitTimeoutRetry = true;
     }
-    if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
-    {
-        MacCtx.MacCallbacks->MacProcessNotify( );
-    }
+    OnMacProcessNotify( );
 }
 
 static LoRaMacCryptoStatus_t GetFCntDown( AddressIdentifier_t addrID, FType_t fType, LoRaMacMessageData_t* macMsg, Version_t lrWanVersion,
@@ -3698,14 +3685,22 @@ static bool StopRetransmission( void )
     return true;
 }
 
+static void OnMacProcessNotify( void )
+{
+    if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
+    {
+        MacCtx.MacCallbacks->MacProcessNotify( );
+    }
+}
+
 static void CallNvmDataChangeCallback( uint16_t notifyFlags )
 {
-    if( ( MacCtx.MacCallbacks != NULL ) &&
-        ( MacCtx.MacCallbacks->NvmDataChange  != NULL ) )
+    if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->NvmDataChange != NULL ) )
     {
         MacCtx.MacCallbacks->NvmDataChange ( notifyFlags );
     }
 }
+
 static uint8_t IsRequestPending( void )
 {
     if( ( MacCtx.MacFlags.Bits.MlmeReq == 1 ) ||
@@ -5279,7 +5274,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
                 Nvm.MacGroup2.NetworkActivation = mlmeRequest->Req.Join.NetworkActivation;
                 queueElement.Status = LORAMAC_EVENT_INFO_STATUS_OK;
                 queueElement.ReadyToHandle = true;
-                MacCtx.MacCallbacks->MacProcessNotify( );
+                OnMacProcessNotify( );
                 MacCtx.MacFlags.Bits.MacDone = 1;
                 status = LORAMAC_STATUS_OK;
             }
@@ -5561,10 +5556,7 @@ static void OnRejoin0CycleTimerEvent( void* context )
     TimerStop( &MacCtx.Rejoin0CycleTimer );
     ConvertRejoinCycleTime( Nvm.MacGroup2.Rejoin0CycleInSec, &MacCtx.Rejoin0CycleTime );
 
-    if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
-    {
-        MacCtx.MacCallbacks->MacProcessNotify( );
-    }
+    OnMacProcessNotify( );
 
     Nvm.MacGroup2.IsRejoin0RequestQueued = true;
 
@@ -5577,10 +5569,7 @@ static void OnRejoin1CycleTimerEvent( void* context )
     TimerStop( &MacCtx.Rejoin1CycleTimer );
     ConvertRejoinCycleTime( Nvm.MacGroup2.Rejoin1CycleInSec, &MacCtx.Rejoin1CycleTime );
 
-    if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
-    {
-        MacCtx.MacCallbacks->MacProcessNotify( );
-    }
+    OnMacProcessNotify( );
 
     Nvm.MacGroup2.IsRejoin1RequestQueued = true;
 
@@ -5611,10 +5600,7 @@ static void OnForceRejoinReqCycleTimerEvent( void* context )
         TimerStart( &MacCtx.ForceRejoinReqCycleTimer );
     }
 
-    if( ( MacCtx.MacCallbacks != NULL ) && ( MacCtx.MacCallbacks->MacProcessNotify != NULL ) )
-    {
-        MacCtx.MacCallbacks->MacProcessNotify( );
-    }
+    OnMacProcessNotify( );
 }
 
 void LoRaMacTestSetDutyCycleOn( bool enable )
