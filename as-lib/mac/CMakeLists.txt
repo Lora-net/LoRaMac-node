@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.23)
 
+if (NOT DEFINED LORAMAC_SUFFIX)
+    set(LORAMAC_SUFFIX "" CACHE STRING "Default suffix for LoRaMac Static Library builds")
+endif()
+
 project(loramac${LORAMAC_SUFFIX} C)
 
 if (NOT TARGET ${PROJECT_NAME})
