@@ -3,7 +3,9 @@ cmake_minimum_required(VERSION 3.23)
 project(loramac-board C)
 
 if (NOT TARGET ${PROJECT_NAME})
+
     add_library(${PROJECT_NAME} STATIC)
+
     target_sources(
             ${PROJECT_NAME}
 
@@ -31,5 +33,11 @@ if (NOT TARGET ${PROJECT_NAME})
             PRIVATE
             ${LORAMAC_SOURCE_DIR}/boards/mcu/utilities.c
     )
-    target_include_directories(${PROJECT_NAME} PUBLIC ${LORAMAC_SOURCE_DIR}/boards)
+
+    target_include_directories(
+            ${PROJECT_NAME}
+            PUBLIC
+            ${LORAMAC_SOURCE_DIR}/boards
+    )
+
 endif()
