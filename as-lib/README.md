@@ -17,4 +17,5 @@ This directory is provided to allow LoRaMac-node to be built as a static library
 
 ## TODO
 
-- Submodule update (for LR1110 radio and ATECC608A secure element)
+- FetchContent should not override GIT_SUBMODULES or lr1110-driver and atecc608a-tnglora-se/cryptoauthlib won't be loaded
+- AES_DEC_PREKEYED - why did I define this in the project, it may not be needed
