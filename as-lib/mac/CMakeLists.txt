@@ -14,10 +14,6 @@ if (NOT TARGET ${PROJECT_NAME})
     target_sources(
             ${PROJECT_NAME}
             PUBLIC
-            ${LORAMAC_SOURCE_DIR}/apps/LoRaMac/common/LmHandler/LmHandler.h
-            ${LORAMAC_SOURCE_DIR}/apps/LoRaMac/common/LmHandler/LmHandlerTypes.h
-            ${LORAMAC_SOURCE_DIR}/apps/LoRaMac/common/LmHandler/packages/LmhPackage.h
-            ${LORAMAC_SOURCE_DIR}/apps/LoRaMac/common/NvmDataMgmt.h
             ${LORAMAC_SOURCE_DIR}/mac/LoRaMac.h
             ${LORAMAC_SOURCE_DIR}/mac/LoRaMacAdr.h
             ${LORAMAC_SOURCE_DIR}/mac/LoRaMacClassB.h
@@ -40,8 +36,6 @@ if (NOT TARGET ${PROJECT_NAME})
             $<$<OR:$<BOOL:REGION_AU915>,$<BOOL:REGION_US915>>:${LORAMAC_SOURCE_DIR}/mac/region/RegionBaseUS.h>
 
             PRIVATE
-            ${LORAMAC_SOURCE_DIR}/apps/LoRaMac/common/LmHandler/LmHandler.c
-            ${LORAMAC_SOURCE_DIR}/apps/LoRaMac/common/NvmDataMgmt.c
             ${LORAMAC_SOURCE_DIR}/mac/LoRaMac.c
             ${LORAMAC_SOURCE_DIR}/mac/LoRaMacAdr.c
             ${LORAMAC_SOURCE_DIR}/mac/LoRaMacClassB.c
@@ -79,15 +73,11 @@ if (NOT TARGET ${PROJECT_NAME})
     target_compile_definitions(
             ${PROJECT_NAME}
             PUBLIC
-            ACTIVE_REGION                               # TODO: remove from lmHandler.c?
     )
 
     target_include_directories(
             ${PROJECT_NAME}
             PUBLIC
-            ${LORAMAC_SOURCE_DIR}/apps/LoRaMac/common/LmHandler
-            ${LORAMAC_SOURCE_DIR}/apps/LoRaMac/common/LmHandler/packages
-            ${LORAMAC_SOURCE_DIR}/apps/LoRaMac/common
             ${LORAMAC_SOURCE_DIR}/mac
             ${LORAMAC_SOURCE_DIR}/mac/region
     )
