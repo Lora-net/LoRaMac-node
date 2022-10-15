@@ -104,13 +104,13 @@ endif()
 
 set(LORAMAC_AS_LIB ON)
 set(LORAMAC_RADIO sx1276)
-set(LORAMAC_SUFFIX -Europe)
+set(LORAMAC_SUFFIX -Europe CACHE STRING "" FORCE)   # must force override
 set(REGION_EU868 ON)
 add_subdirectory(loramac_SOURCE_DIR loramac${LORAMAC_SUFFIX})
 
 set(REGION_EU868 OFF)   # NB: Override last pass
 set(REGION_US915 ON)
-set(LORAMAC_SUFFIX -US)
+set(LORAMAC_SUFFIX -US CACHE STRING "" FORCE)       # must force override
 add_subdirectory(loramac_SOURCE_DIR loramac${LORAMAC_SUFFIX})
 
 # You now have targets loramac-Europe and loramac-US to link to your own targets
