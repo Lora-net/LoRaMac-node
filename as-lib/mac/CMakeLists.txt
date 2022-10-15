@@ -33,7 +33,7 @@ if (NOT TARGET ${PROJECT_NAME})
             ${LORAMAC_SOURCE_DIR}/mac/secure-element-nvm.h
             ${LORAMAC_SOURCE_DIR}/mac/region/Region.h
             ${LORAMAC_SOURCE_DIR}/mac/region/RegionCommon.h
-            $<$<OR:$<BOOL:REGION_AU915>,$<BOOL:REGION_US915>>:${LORAMAC_SOURCE_DIR}/mac/region/RegionBaseUS.h>
+            $<$<OR:$<BOOL:LORAMAC_REGION_AU915>,$<BOOL:LORAMAC_REGION_US915>>:${LORAMAC_SOURCE_DIR}/mac/region/RegionBaseUS.h>
 
             PRIVATE
             ${LORAMAC_SOURCE_DIR}/mac/LoRaMac.c
@@ -68,7 +68,7 @@ if (NOT TARGET ${PROJECT_NAME})
             target_compile_definitions(
                     ${PROJECT_NAME}
                     PUBLIC
-                    $<$<BOOL:${REGION_${REGION}}>:REGION_${REGION}>
+                    $<$<BOOL:${LORAMAC_REGION_${REGION}}>:REGION_${REGION}>
             )
 
         endif()
