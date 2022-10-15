@@ -24,6 +24,25 @@ standard `LORAMAC_` prefix is applied to all options to aid interoperability wit
 - LORAMAC_RADIO:STRING Name of the radio driver, defaults to sx1272
 - LORAMAC_USE_RADIO_DEBUG:BOOL Enable Radio Debug GPIO's (default OFF)
 
+## Region support
+
+Note that unlike the `src` build, the supported regions are not configured as CMake cache options.  This is to
+support easier override when building multiple regions (where cache FORCE would be needed to override which).
+
+At least one region must be enabled, and there are no regions enabled by default.  A fatal CMake configure error
+will be generated if no regions are supported.
+
+- LORAMAC_REGION_EU868:BOOL Enable support for EU868
+- LORAMAC_REGION_US915:BOOL Enable support for US915
+- LORAMAC_REGION_CN779:BOOL Enable support for CN779
+- LORAMAC_REGION_EU433:BOOL Enable support for EU433
+- LORAMAC_REGION_AU915:BOOL Enable support for AU915
+- LORAMAC_REGION_AS923:BOOL Enable support for AS923
+- LORAMAC_REGION_CN470:BOOL Enable support for CN470
+- LORAMAC_REGION_KR920:BOOL Enable support for KR920
+- LORAMAC_REGION_IN865:BOOL Enable support for IN865
+- LORAMAC_REGION_RU864:BOOL Enable support for RU864
+
 ## Preparation for loading and building
 
 You must establish your toolchain prior to your first CMake `project()` call (which triggers toolchain detection). It
@@ -69,6 +88,8 @@ FetchContent should be used to load the project at CMake configure time (rather 
 
 `ExternalProject_Add` is not supported at this time.
 
+NB: If building multiple static libraries for regional variants, ensure that you set the previous passes region to OFF
+
 ```
 FetchContent_Declare(
   loramac
@@ -87,7 +108,7 @@ set(LORAMAC_SUFFIX -Europe)
 set(REGION_EU868 ON)
 add_subdirectory(loramac_SOURCE_DIR loramac${LORAMAC_SUFFIX})
 
-set(REGION_EU868 OFF)
+set(REGION_EU868 OFF)   # NB: Override last pass
 set(REGION_US915 ON)
 set(LORAMAC_SUFFIX -US)
 add_subdirectory(loramac_SOURCE_DIR loramac${LORAMAC_SUFFIX})

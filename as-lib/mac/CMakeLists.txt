@@ -46,11 +46,15 @@ if (NOT TARGET ${PROJECT_NAME})
             ${LORAMAC_SOURCE_DIR}/mac/LoRaMacSerializer.c
             ${LORAMAC_SOURCE_DIR}/mac/region/Region.c
             ${LORAMAC_SOURCE_DIR}/mac/region/RegionCommon.c
-            $<$<OR:$<BOOL:${REGION_AU915}>,$<BOOL:${REGION_US915}>>:${LORAMAC_SOURCE_DIR}/mac/region/RegionBaseUS.c>
+            $<$<OR:$<BOOL:${LORAMAC_REGION_AU915}>,$<BOOL:${LORAMAC_REGION_US915}>>:${LORAMAC_SOURCE_DIR}/mac/region/RegionBaseUS.c>
     )
 
+    set(ACTIVE_REGION_COUNT 0)
+
     foreach(REGION ${LORAMAC_REGION_LIST})
-        if (${REGION_${REGION}})
+        if (${LORAMAC_REGION_${REGION}})
+
+            MATH(EXPR ACTIVE_REGION_COUNT "${ACTIVE_REGION_COUNT}+1")
 
             target_sources(
                     ${PROJECT_NAME}
@@ -69,6 +73,10 @@ if (NOT TARGET ${PROJECT_NAME})
 
         endif()
     endforeach()
+
+    if (${ACTIVE_REGION_COUNT} LESS 1)
+        message(FATAL_ERROR "No LORAMAC_REGION_xxx's specified")
+    endif()
 
     target_compile_definitions(
             ${PROJECT_NAME}
