@@ -5,7 +5,6 @@ project(loramac-peripheral C)
 if (NOT TARGET ${PROJECT_NAME})
 
     option(LORAMAC_SECURE_ELEMENT_PRE_PROVISIONED "Secure-element pre-provisioning" ON)
-    option(LORAMAC_SOFT_SE_AES_DEC_PREKEYED "Whether SOFT SE AES is DEC Prekeyed" ON)
 
     set(LORAMAC_SECURE_ELEMENT_LIST SOFT_SE LR1110_SE ATECC608A_TNGLORA_SE)
     set(LORAMAC_SECURE_ELEMENT SOFT_SE CACHE STRING "Default secure element is SOFT_SE")
@@ -34,7 +33,6 @@ if (NOT TARGET ${PROJECT_NAME})
                 ${PROJECT_NAME}
                 PUBLIC
                 SOFT_SE
-                $<$<BOOL:${LORAMAC_SOFT_SE_AES_DEC_PREKEYED}>:AES_DEC_PREKEYED>
         )
         target_include_directories(
                 ${PROJECT_NAME}
