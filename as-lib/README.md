@@ -67,11 +67,13 @@ target_link_libraries(MyProject loramac)
 
 FetchContent should be used to load the project at CMake configure time (rather than build time using ExternalProject).
 
+`ExternalProject_Add` is not supported at this time.
+
 ```
 FetchContent_Declare(
   loramac
   GIT_REPOSITORY https://github.com/Lora-net/LoRaMac-node
-  GIT_TAG master
+  GIT_TAG master  # branch or version tag, such a v4.7.0
 )
 
 FetchContent_GetProperties(loramac)
