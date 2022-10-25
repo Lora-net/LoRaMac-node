@@ -71,31 +71,66 @@ void HardFault_Handler_C( unsigned int *args )
 }
 
 #if defined(__CC_ARM)
-__asm void HardFault_Handler(void)
-{
-    TST LR, #4
-    ITE EQ
-    MRSEQ r0, MSP
-    MRSNE r0, PSP
-    B __cpp(HardFault_Handler_C)
-}
+#warning "HardFault_Handler: ARMCC does not allow some of the required instructions to be inlined under C code."
+// To mimic the behavior provided for IAR and GCC one needs to create a hard_fault_handler.s file and add it to the Keil project.
+// Something similar to the below code should be added to hard_fault_handler.s
+// Refer to https://www.segger.com/downloads/application-notes/AN00016
+// @code
+//    AREA OSKERNEL, CODE, READONLY, ALIGN=2
+//    PRESERVE8
+//
+//    EXPORT HardFault_Handler
+//    IMPORT HardFault_Handler_C
+//
+//    THUMB
+//
+//    HardFault_Handler PROC
+//        MOVS R0, #4
+//        MOV R1, LR
+//        TST R0, R1 // Check EXC_RETURN in Link register bit 2.
+//        BNE Uses_PSP
+//        MRS R0, MSP // Stacking was using MSP.
+//        B Pass_StackPtr
+//        Uses_PSP:
+//        MRS R0, PSP // Stacking was using PSP
+//        Pass_StackPtr:
+//        ALIGN
+//        LDR R2,=HardFault_Handler_C
+//        BX  R2
+//        ENDP
+//    END
+// @code
 #elif defined(__ICCARM__)
 void HardFault_Handler(void)
 {
-    __asm("TST LR, #4");
-    __asm("ITE EQ");
-    __asm("MRSEQ r0, MSP");
-    __asm("MRSNE r0, PSP");
-    __asm("B HardFault_Handler_C");
+    // Refer to https://www.segger.com/downloads/application-notes/AN00016
+    __asm("MOVS R0, #4");
+    __asm("MOV R1, LR");
+    __asm("TST R0, R1"); // Check EXC_RETURN in Link register bit 2.
+    __asm("BNE Uses_PSP");
+    __asm("MRS R0, MSP"); // Stacking was using MSP.
+    __asm("B Pass_StackPtr");
+    __asm("Uses_PSP:");
+    __asm("MRS R0, PSP"); // Stacking was using PSP
+    __asm("Pass_StackPtr:");
+    __asm("LDR R2,=HardFault_Handler_C");
+    __asm("BX  R2");
 }
 #elif defined(__GNUC__)
 void HardFault_Handler(void)
 {
-    __asm volatile( "TST LR, #4" );
-    __asm volatile( "ITE EQ" );
-    __asm volatile( "MRSEQ R0, MSP" );
-    __asm volatile( "MRSNE R0, PSP" );
-    __asm volatile( "B HardFault_Handler_C" );
+    // Refer to https://www.segger.com/downloads/application-notes/AN00016
+    __asm volatile("MOVS R0, #4");
+    __asm volatile("MOV R1, LR");
+    __asm volatile("TST R0, R1"); // Check EXC_RETURN in Link register bit 2.
+    __asm volatile("BNE Uses_PSP");
+    __asm volatile("MRS R0, MSP");// Stacking was using MSP.
+    __asm volatile("B Pass_StackPtr");
+    __asm volatile("Uses_PSP:");
+    __asm volatile("MRS R0, PSP"); // Stacking was using PSP
+    __asm volatile("Pass_StackPtr:");
+    __asm volatile("LDR R2,=HardFault_Handler_C");
+    __asm volatile("BX  R2");
 }
 #else
     #warning Not supported compiler type
