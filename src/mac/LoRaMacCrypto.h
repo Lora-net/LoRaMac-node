@@ -53,7 +53,9 @@ extern "C"
 /*!
  * Indicates if LoRaWAN 1.1.x crypto scheme is enabled
  */
+#ifndef USE_LRWAN_1_1_X_CRYPTO
 #define USE_LRWAN_1_1_X_CRYPTO                      1
+#endif
 
 /*!
  * Indicates if a random devnonce must be used or not
