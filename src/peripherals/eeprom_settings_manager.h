@@ -43,7 +43,7 @@ extern "C"
     bool update_device_credentials_to_eeprom(network_keys_t keys, registered_devices_t registered_device);
     uint16_t read_current_keys(network_keys_t *current_keys, registered_devices_t registered_device);
     uint16_t save_lorawan_keys_to_eeprom_with_CRC(network_keys_t *current_keys, registered_devices_t registered_device);
-    uint8_t get_settings_crc();
+    uint8_t get_settings_crc(void);
 
 #ifdef __cplusplus
 }

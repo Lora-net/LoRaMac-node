@@ -423,11 +423,6 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\apps\LoRaMac\common\message_sender.c</FilePath>
             </File>
-            <File>
-              <FileName>region_nvm.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\src\apps\LoRaMac\common\region_nvm.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -842,6 +837,11 @@
               <FileName>i2c_middleware.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\peripherals\i2c_middleware.c</FilePath>
+            </File>
+            <File>
+              <FileName>eeprom_settings_manager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\peripherals\eeprom_settings_manager.c</FilePath>
             </File>
           </Files>
         </Group>

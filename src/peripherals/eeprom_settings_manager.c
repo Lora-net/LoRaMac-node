@@ -215,7 +215,7 @@ uint8_t get_settings_crc()
 	network_keys_t keys;
 	for (uint32_t key_index = 0; key_index < NUMBER_OF_REGISTERED_DEVICES; key_index++)
 	{
-		read_current_keys(&keys, key_index);
+		read_current_keys(&keys, (registered_devices_t)key_index);
 		crc = Crc8Update(crc, (uint8_t *)&keys.DevAddr, sizeof(keys.DevAddr));
 	}
 
