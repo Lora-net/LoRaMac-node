@@ -277,8 +277,8 @@ uint32_t BoardGetBatteryVoltage( void )
  */
 int32_t HW_GetTemperatureLevel_int(void)
 {
-    uint16_t temp_sensor_adc_value = AdcReadChannel(&Adc, ADC_CHANNEL_TEMPSENSOR);
     uint32_t Vdd_mV = BoardGetBatteryVoltage();
+    uint16_t temp_sensor_adc_value = AdcReadChannel(&Adc, ADC_CHANNEL_TEMPSENSOR);
     return __LL_ADC_CALC_TEMPERATURE(Vdd_mV, temp_sensor_adc_value, LL_ADC_RESOLUTION_12B);
 }
 
