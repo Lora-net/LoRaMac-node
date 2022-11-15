@@ -62,16 +62,24 @@
     ],
     "buildPresets": [
         {
+            "name": "parallel_build",
+            "description": "Build will all cores",
+            "displayName": "parallel_build",
+            "jobs": 0
+        },
+        {
             "name": "unittest_build",
             "description": "Build the unittest",
             "displayName": "unittest_build",
-            "configurePreset": "unittesting_configs"
+            "configurePreset": "unittesting_configs",
+            "inherits": "parallel_build"
         },
         {
             "name": "target_build",
             "description": "Build for the STM32l0 target",
             "displayName": "target_build",
-            "configurePreset": "on_target_configs"
+            "configurePreset": "on_target_configs",
+            "inherits": "parallel_build"
         }
     ],
     "testPresets": [
