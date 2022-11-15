@@ -12,6 +12,12 @@
 #ifndef __CALLBACKS_H__
 #define __CALLBACKS_H__
 
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include "LmHandler.h"
 #include "LmhpCompliance.h"
 #include "LmHandlerMsgDisplay.h"
@@ -35,5 +41,9 @@ void OnSysTimeUpdate(void);
 #endif
 
 void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __CALLBACKS_H__

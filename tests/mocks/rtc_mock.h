@@ -9,4 +9,14 @@
  * 
  */
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 void bump_rtc_tick();
+
+
+#ifdef __cplusplus
+}
+#endif
