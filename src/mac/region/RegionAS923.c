@@ -49,6 +49,12 @@
  */
 #define AS923_CARRIER_SENSE_TIME                    5
 
+/*!
+ * Specifies the reception bandwidth to be used while executing the LBT
+ * Max channel bandwidth is 200 kHz
+ */
+#define AS923_LBT_RX_BANDWIDTH            200000
+
 #ifndef REGION_AS923_DEFAULT_CHANNEL_PLAN
 #define REGION_AS923_DEFAULT_CHANNEL_PLAN CHANNEL_PLAN_GROUP_AS923_1
 #endif
@@ -68,8 +74,8 @@
 // -1.8MHz
 #define REGION_AS923_FREQ_OFFSET          ( ( ~( 0xFFFFB9B0 ) + 1 ) * 100 )
 
-#define AS923_MIN_RF_FREQUENCY            915000000
-#define AS923_MAX_RF_FREQUENCY            928000000
+#define AS923_MIN_RF_FREQUENCY            920000000
+#define AS923_MAX_RF_FREQUENCY            923000000
 
 #elif ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_3 )
 
@@ -78,7 +84,7 @@
 #define REGION_AS923_FREQ_OFFSET          ( ( ~( 0xFFFEFE30 ) + 1 ) * 100 )
 
 #define AS923_MIN_RF_FREQUENCY            915000000
-#define AS923_MAX_RF_FREQUENCY            928000000
+#define AS923_MAX_RF_FREQUENCY            921000000
 
 #elif ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_4 )
 
@@ -89,9 +95,9 @@
 #define AS923_MIN_RF_FREQUENCY            917000000
 #define AS923_MAX_RF_FREQUENCY            920000000
 
-#elif ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_1_JP )
+#elif ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_1_JP_CH24_CH38_LBT )
 
-// Channel plan CHANNEL_PLAN_GROUP_AS923_1_JP
+// Channel plan CHANNEL_PLAN_GROUP_AS923_1_JP_CH24_CH38_LBT
 
 #define REGION_AS923_FREQ_OFFSET          0
 
@@ -102,11 +108,38 @@
 #define AS923_MIN_RF_FREQUENCY            920600000
 #define AS923_MAX_RF_FREQUENCY            923400000
 
+#undef AS923_TX_MAX_DATARATE
+#define AS923_TX_MAX_DATARATE             DR_5
+
+#undef AS923_RX_MAX_DATARATE
+#define AS923_RX_MAX_DATARATE             DR_5
+
+#undef AS923_DEFAULT_MAX_EIRP
+#define AS923_DEFAULT_MAX_EIRP            13.0f
+
 /*!
- * Specifies the reception bandwidth to be used while executing the LBT
- * Max channel bandwidth is 200 kHz
+ * STD-T108 Ver1.4 does not require dwell-time enforcement when using LBT on channels 28 to 38
  */
-#define AS923_LBT_RX_BANDWIDTH            200000
+#undef AS923_DEFAULT_UPLINK_DWELL_TIME
+#define AS923_DEFAULT_UPLINK_DWELL_TIME   0
+
+#elif ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_1_JP_CH24_CH38_DC )
+
+/*
+ * STD-T108 Ver1.4 allows the use of channels 24 to 38 without LBT.
+ * However a duty cycle enforcement must be in place
+ */
+
+// Channel plan CHANNEL_PLAN_GROUP_AS923_1_JP_CH24_CH38_DC
+
+#define REGION_AS923_FREQ_OFFSET          0
+
+/*!
+ * Restrict AS923 frequencies to channels 24 to 38
+ * Center frequencies 920.6 MHz to 923.4 MHz @ 200 kHz max bandwidth
+ */
+#define AS923_MIN_RF_FREQUENCY            920600000
+#define AS923_MAX_RF_FREQUENCY            923400000
 
 #undef AS923_TX_MAX_DATARATE
 #define AS923_TX_MAX_DATARATE             DR_5
@@ -117,6 +150,59 @@
 #undef AS923_DEFAULT_MAX_EIRP
 #define AS923_DEFAULT_MAX_EIRP            13.0f
 
+/*!
+ * STD-T108 Ver1.4 does not require dwell-time enforcement when using DC on channels 28 to 38
+ */
+#undef AS923_DEFAULT_UPLINK_DWELL_TIME
+#define AS923_DEFAULT_UPLINK_DWELL_TIME   0
+
+/*!
+ * Enable duty cycle enforcement
+ */
+#undef AS923_DUTY_CYCLE_ENABLED
+#define AS923_DUTY_CYCLE_ENABLED          1
+
+#elif ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_1_JP_CH37_CH61_LBT_DC )
+
+/*
+ * STD-T108 Ver1.4 allows the use of channels 37 to 61 with LBT and DC.
+ * However dwell time enforcement must be enabled
+ */
+
+// Channel plan CHANNEL_PLAN_GROUP_AS923_1_JP_CH37_CH61_LBT_DC
+
+#define REGION_AS923_FREQ_OFFSET          0
+
+/*!
+ * Restrict AS923 frequencies to channels 37 to 61
+ * Center frequencies 922.4 MHz to 928.0 MHz @ 200 kHz max bandwidth
+ */
+#define AS923_MIN_RF_FREQUENCY            922400000
+#define AS923_MAX_RF_FREQUENCY            928000000
+
+#undef AS923_TX_MAX_DATARATE
+#define AS923_TX_MAX_DATARATE             DR_5
+
+#undef AS923_RX_MAX_DATARATE
+#define AS923_RX_MAX_DATARATE             DR_5
+
+#undef AS923_DEFAULT_MAX_EIRP
+#define AS923_DEFAULT_MAX_EIRP            13.0f
+
+/*!
+ * Enable duty cycle enforcement
+ */
+#undef AS923_DUTY_CYCLE_ENABLED
+#define AS923_DUTY_CYCLE_ENABLED          1
+
+/*!
+ * STD-T108 Ver1.4 requires a carrier sense time of at least 128 us on channels 37 to 61
+ */
+#undef AS923_CARRIER_SENSE_TIME
+#define AS923_CARRIER_SENSE_TIME          1
+
+#else
+#error	"Wrong default channel plan selected. Please review compiler options."
 #endif
 
 /*
@@ -431,7 +517,8 @@ void RegionAS923InitDefaults( InitDefaultsParams_t* params )
             // Update the channels mask
             RegionCommonChanMaskCopy( RegionNvmGroup2->ChannelsMask, RegionNvmGroup2->ChannelsDefaultMask, CHANNELS_MASK_SIZE );
 
-#if ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_1_JP )
+#if ( ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_1_JP_CH24_CH38_LBT ) || \
+      ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_1_JP_CH37_CH61_LBT_DC ) )
             RegionNvmGroup2->RssiFreeThreshold = AS923_RSSI_FREE_TH;
             RegionNvmGroup2->CarrierSenseTime = AS923_CARRIER_SENSE_TIME;
 #endif
@@ -989,7 +1076,8 @@ LoRaMacStatus_t RegionAS923NextChannel( NextChanParams_t* nextChanParams, uint8_
 
     if( status == LORAMAC_STATUS_OK )
     {
-#if ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_1_JP )
+#if ( ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_1_JP_CH24_CH38_LBT ) || \
+      ( REGION_AS923_DEFAULT_CHANNEL_PLAN == CHANNEL_PLAN_GROUP_AS923_1_JP_CH37_CH61_LBT_DC ) )
         // Executes the LBT algorithm when operating in Japan
         uint8_t channelNext = 0;
 
