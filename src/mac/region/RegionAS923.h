@@ -70,10 +70,22 @@ extern "C"
 #define CHANNEL_PLAN_GROUP_AS923_4                  4
 
 /*!
- * Channel plan group AS923-1 for Japan
+ * Channel plan group AS923-1 for Japan - channels 24 to 38 Listen Before Talk
  * AS923_FREQ_OFFSET = 0
  */
-#define CHANNEL_PLAN_GROUP_AS923_1_JP               5
+#define CHANNEL_PLAN_GROUP_AS923_1_JP_CH24_CH38_LBT 5
+
+/*!
+ * Channel plan group AS923-1 for Japan - channels 24 to 38 Duty Cycle
+ * AS923_FREQ_OFFSET = 0
+ */
+#define CHANNEL_PLAN_GROUP_AS923_1_JP_CH24_CH38_DC  6
+
+/*!
+ * Channel plan group AS923-1 for Japan - channels 37 to 61 Listen Before Talk + Duty Cycle
+ * AS923_FREQ_OFFSET = 0
+ */
+#define CHANNEL_PLAN_GROUP_AS923_1_JP_CH37_CH61_LBT_DC 7
 
 /*!
  * LoRaMac maximum number of channels
