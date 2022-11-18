@@ -114,9 +114,9 @@ The `DevEUI`, `Pin` and `JoinEUI` can be changed by editing the `se-identity.h` 
 
 #### atecc608a-tnglora-se
 
-The *atecc608a-tnglora-se* abstraction implementation handles all the required exchanges with the ATECC608A-TNGLORA secure-element.
+The *atecc608a-tnglora-se* abstraction implementation handles all the required exchanges with the ATECC608A-TNGLORA and ATECC608B-TNGLORA secure-elements.
 
-ATECC608A-TNGLORA secure-element is always pre-provisioned and its contents can't be changed.
+This secure-element is always pre-provisioned and its contents can't be changed.
 
 ### Building Process
 

@@ -3,7 +3,7 @@
  *
  * \brief ATECC608A-TNGLORA Secure Element hardware implementation
  *
- * \remark Current implementation only supports LoRaWAN 1.0.x version
+ * \remark Current implementation supports LoRaWAN 1.0.x and 1.1
  * 
  * The Clear BSD License
  * Copyright The Things Industries B.V. (c)2021. All rights reserved.
