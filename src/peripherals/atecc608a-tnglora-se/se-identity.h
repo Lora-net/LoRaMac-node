@@ -96,8 +96,7 @@ extern "C" {
  */
 #define TNGLORA_DEV_EUI_SLOT 10U
 #define TNGLORA_JOIN_EUI_SLOT 9U
-#define TNGLORA_APP_KEY_SLOT 0U
-#define TNGLORA_NWK_KEY_SLOT 0U
+#define TNGLORA_ROOT_KEYS_SLOT 0U
 #define TNGLORA_S_NWK_S_INT_KEY_SLOT 4U
 #define TNGLORA_F_NWK_S_INT_KEY_SLOT 5U
 #define TNGLORA_J_S_INT_KEY_SLOT 6U
@@ -106,7 +105,8 @@ extern "C" {
 #define TNGLORA_NWK_S_ENC_KEY_SLOT 3U
 #define TNGLORA_MC_APP_S_KEY_0_SLOT 11U
 #define TNGLORA_MC_NWK_S_KEY_0_SLOT 12U
-#define TNGLORA_APP_KEY_BLOCK_INDEX 1U
+#define TNGLORA_APP_KEY_BLOCK_INDEX 0U
+#define TNGLORA_NWK_KEY_BLOCK_INDEX 1U
 #define TNGLORA_REMAINING_KEYS_BLOCK_INDEX 0U
 
 #define ATECC608A_SE_KEY_LIST                                                                                          \
@@ -117,7 +117,7 @@ extern "C" {
              * WARNING: FOR 1.0.x DEVICES IT IS THE \ref LORAWAN_GEN_APP_KEY                                           \
              */                                                                                                        \
             .KeyID         = APP_KEY,                                                                                  \
-            .KeySlotNumber = TNGLORA_APP_KEY_SLOT,                                                                     \
+            .KeySlotNumber = TNGLORA_ROOT_KEYS_SLOT,                                                                     \
             .KeyBlockIndex = TNGLORA_APP_KEY_BLOCK_INDEX,                                                              \
         },                                                                                                             \
         {                                                                                                              \
@@ -126,12 +126,12 @@ extern "C" {
              * WARNING: FOR 1.0.x DEVICES IT IS THE \ref LORAWAN_APP_KEY                                               \
              */                                                                                                        \
             .KeyID         = NWK_KEY,                                                                                  \
-            .KeySlotNumber = TNGLORA_APP_KEY_SLOT,                                                                     \
-            .KeyBlockIndex = TNGLORA_APP_KEY_BLOCK_INDEX,                                                              \
+            .KeySlotNumber = TNGLORA_ROOT_KEYS_SLOT,                                                                     \
+            .KeyBlockIndex = TNGLORA_NWK_KEY_BLOCK_INDEX,                                                              \
         },                                                                                                             \
         {                                                                                                              \
             /*!                                                                                                        \
-             * Join session integrity key (Dynamically updated)                                                        \
+             * Join Server integrity key (Dynamically updated)                                                         \
              * WARNING: NOT USED FOR 1.0.x DEVICES                                                                     \
              */                                                                                                        \
             .KeyID         = J_S_INT_KEY,                                                                              \
@@ -140,7 +140,7 @@ extern "C" {
         },                                                                                                             \
         {                                                                                                              \
             /*!                                                                                                        \
-             * Join session encryption key (Dynamically updated)                                                       \
+             * Join Server encryption key (Dynamically updated)                                                        \
              * WARNING: NOT USED FOR 1.0.x DEVICES                                                                     \
              */                                                                                                        \
             .KeyID         = J_S_ENC_KEY,                                                                              \
