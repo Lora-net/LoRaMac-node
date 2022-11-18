@@ -3,7 +3,7 @@
  *
  * @brief     Secure Element hardware abstraction layer
  *
- * @remark    Current implementation only supports LoRaWAN 1.0.x version
+ * @remark    Current implementation supports LoRaWAN 1.0.x and 1.1
  * 
  * @copyright Copyright (c) 2020 The Things Industries B.V.
  * 
