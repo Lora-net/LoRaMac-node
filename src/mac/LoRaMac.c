@@ -79,18 +79,24 @@
 #define ADR_ACK_COUNTER_MAX                         0xFFFFFFFF
 
 /*!
+ * Delay required to simulate an ABP join like an OTAA join
+ */
+#define ABP_JOIN_PENDING_DELAY_MS                   10
+
+/*!
  * LoRaMac internal states
  */
 enum eLoRaMacState
 {
-    LORAMAC_IDLE          = 0x00000000,
-    LORAMAC_STOPPED       = 0x00000001,
-    LORAMAC_TX_RUNNING    = 0x00000002,
-    LORAMAC_RX            = 0x00000004,
-    LORAMAC_ACK_RETRY     = 0x00000010,
-    LORAMAC_TX_DELAYED    = 0x00000020,
-    LORAMAC_TX_CONFIG     = 0x00000040,
-    LORAMAC_RX_ABORT      = 0x00000080,
+    LORAMAC_IDLE             = 0x00000000,
+    LORAMAC_STOPPED          = 0x00000001,
+    LORAMAC_TX_RUNNING       = 0x00000002,
+    LORAMAC_RX               = 0x00000004,
+    LORAMAC_ACK_RETRY        = 0x00000010,
+    LORAMAC_TX_DELAYED       = 0x00000020,
+    LORAMAC_TX_CONFIG        = 0x00000040,
+    LORAMAC_RX_ABORT         = 0x00000080,
+    LORAMAC_ABP_JOIN_PENDING = 0x00000100,
 };
 
 /*
@@ -252,6 +258,10 @@ typedef struct sLoRaMacCtx
      * Start time of the response timeout
      */
     TimerTime_t ResponseTimeoutStartTime;
+    /*
+     * Timer required to simulate an ABP join like an OTAA join
+     */
+    TimerEvent_t AbpJoinPendingTimer;
     /*
      * Buffer containing the MAC layer commands
      */
@@ -988,10 +998,14 @@ static void ProcessRadioRxDone( void )
             }
 
             VerifyParams_t verifyRxDr;
-            bool rxDrValid = false;
-            verifyRxDr.DatarateParams.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
-            verifyRxDr.DatarateParams.DownlinkDwellTime = Nvm.MacGroup2.MacParams.DownlinkDwellTime;
-            rxDrValid = RegionVerify( Nvm.MacGroup2.Region, &verifyRxDr, PHY_RX_DR );
+            bool rxDrValid = true;
+
+            if( macMsgJoinAccept.DLSettings.Bits.RX2DataRate != 0x0F )
+            {
+                verifyRxDr.DatarateParams.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
+                verifyRxDr.DatarateParams.DownlinkDwellTime = Nvm.MacGroup2.MacParams.DownlinkDwellTime;
+                rxDrValid = RegionVerify( Nvm.MacGroup2.Region, &verifyRxDr, PHY_RX_DR );
+            }
 
             if( ( LORAMAC_CRYPTO_SUCCESS == macCryptoStatus ) && ( rxDrValid == true ) )
             {
@@ -1005,8 +1019,13 @@ static void ProcessRadioRxDone( void )
 
                 // DLSettings
                 Nvm.MacGroup2.MacParams.Rx1DrOffset = macMsgJoinAccept.DLSettings.Bits.RX1DRoffset;
-                Nvm.MacGroup2.MacParams.Rx2Channel.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
-                Nvm.MacGroup2.MacParams.RxCChannel.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
+
+                // Verify if we shall assign the new datarate
+                if( macMsgJoinAccept.DLSettings.Bits.RX2DataRate != 0x0F )
+                {
+                    Nvm.MacGroup2.MacParams.Rx2Channel.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
+                    Nvm.MacGroup2.MacParams.RxCChannel.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
+                }
 
                 // RxDelay
                 Nvm.MacGroup2.MacParams.ReceiveDelay1 = macMsgJoinAccept.RxDelay;
@@ -2278,6 +2297,12 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 rxParamSetupReq.DrOffset = ( payload[macIndex] >> 4 ) & 0x07;
                 rxParamSetupReq.Datarate = payload[macIndex] & 0x0F;
                 macIndex++;
+
+                if( rxParamSetupReq.Datarate == 0x0F )
+                {
+                    // Keep the current datarate
+                    rxParamSetupReq.Datarate = Nvm.MacGroup2.MacParams.Rx2Channel.Datarate;
+                }
 
                 rxParamSetupReq.Frequency = ( uint32_t ) payload[macIndex++];
                 rxParamSetupReq.Frequency |= ( uint32_t ) payload[macIndex++] << 8;
@@ -5198,10 +5223,41 @@ LoRaMacStatus_t LoRaMacMcChannelSetupRxParams( AddressIdentifier_t groupID, McRx
     return LORAMAC_STATUS_OK;
 }
 
+/*!
+ * \brief Function executed on AbpJoinPendingTimer timer event
+ */
+static void OnAbpJoinPendingTimerEvent( void *context )
+{
+    MacCtx.MacState &= ~LORAMAC_ABP_JOIN_PENDING;
+    MacCtx.MacFlags.Bits.MacDone = 1;
+    OnMacProcessNotify( );
+}
+
+/*!
+ * \brief Start ABP join simulation
+ */
+static void AbpJoinPendingStart( void )
+{
+    static bool initialized = false;
+
+    if( initialized == false )
+    {
+        initialized = true;
+        TimerInit( &MacCtx.AbpJoinPendingTimer, OnAbpJoinPendingTimerEvent );
+    }
+
+    MacCtx.MacState |= LORAMAC_ABP_JOIN_PENDING;
+
+    TimerStop( &MacCtx.AbpJoinPendingTimer );
+    TimerSetValue( &MacCtx.AbpJoinPendingTimer, ABP_JOIN_PENDING_DELAY_MS );
+    TimerStart( &MacCtx.AbpJoinPendingTimer );
+}
+
 LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
 {
     LoRaMacStatus_t status = LORAMAC_STATUS_SERVICE_UNKNOWN;
     MlmeConfirmQueue_t queueElement;
+    bool isAbpJoinPending = false;
     uint8_t macCmdPayload[2] = { 0x00, 0x00 };
 
     if( mlmeRequest == NULL )
@@ -5246,7 +5302,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
             {
                 ResetMacParameters( false );
 
-            Nvm.MacGroup1.ChannelsDatarate = RegionAlternateDr( Nvm.MacGroup2.Region, mlmeRequest->Req.Join.Datarate, ALTERNATE_DR );
+                Nvm.MacGroup1.ChannelsDatarate = RegionAlternateDr( Nvm.MacGroup2.Region, mlmeRequest->Req.Join.Datarate, ALTERNATE_DR );
 
                 queueElement.Status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
 
@@ -5271,8 +5327,7 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
                 Nvm.MacGroup2.NetworkActivation = mlmeRequest->Req.Join.NetworkActivation;
                 queueElement.Status = LORAMAC_EVENT_INFO_STATUS_OK;
                 queueElement.ReadyToHandle = true;
-                OnMacProcessNotify( );
-                MacCtx.MacFlags.Bits.MacDone = 1;
+                isAbpJoinPending = true;
                 status = LORAMAC_STATUS_OK;
             }
             break;
@@ -5393,6 +5448,10 @@ LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t* mlmeRequest )
     else
     {
         LoRaMacConfirmQueueAdd( &queueElement );
+        if( isAbpJoinPending == true )
+        {
+            AbpJoinPendingStart( );
+        }
     }
     return status;
 }
