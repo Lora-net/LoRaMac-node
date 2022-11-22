@@ -998,10 +998,14 @@ static void ProcessRadioRxDone( void )
             }
 
             VerifyParams_t verifyRxDr;
-            bool rxDrValid = false;
-            verifyRxDr.DatarateParams.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
-            verifyRxDr.DatarateParams.DownlinkDwellTime = Nvm.MacGroup2.MacParams.DownlinkDwellTime;
-            rxDrValid = RegionVerify( Nvm.MacGroup2.Region, &verifyRxDr, PHY_RX_DR );
+            bool rxDrValid = true;
+
+            if( macMsgJoinAccept.DLSettings.Bits.RX2DataRate != 0x0F )
+            {
+                verifyRxDr.DatarateParams.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
+                verifyRxDr.DatarateParams.DownlinkDwellTime = Nvm.MacGroup2.MacParams.DownlinkDwellTime;
+                rxDrValid = RegionVerify( Nvm.MacGroup2.Region, &verifyRxDr, PHY_RX_DR );
+            }
 
             if( ( LORAMAC_CRYPTO_SUCCESS == macCryptoStatus ) && ( rxDrValid == true ) )
             {
@@ -1015,8 +1019,13 @@ static void ProcessRadioRxDone( void )
 
                 // DLSettings
                 Nvm.MacGroup2.MacParams.Rx1DrOffset = macMsgJoinAccept.DLSettings.Bits.RX1DRoffset;
-                Nvm.MacGroup2.MacParams.Rx2Channel.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
-                Nvm.MacGroup2.MacParams.RxCChannel.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
+
+                // Verify if we shall assign the new datarate
+                if( macMsgJoinAccept.DLSettings.Bits.RX2DataRate != 0x0F )
+                {
+                    Nvm.MacGroup2.MacParams.Rx2Channel.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
+                    Nvm.MacGroup2.MacParams.RxCChannel.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
+                }
 
                 // RxDelay
                 Nvm.MacGroup2.MacParams.ReceiveDelay1 = macMsgJoinAccept.RxDelay;
@@ -2288,6 +2297,12 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
                 rxParamSetupReq.DrOffset = ( payload[macIndex] >> 4 ) & 0x07;
                 rxParamSetupReq.Datarate = payload[macIndex] & 0x0F;
                 macIndex++;
+
+                if( rxParamSetupReq.Datarate == 0x0F )
+                {
+                    // Keep the current datarate
+                    rxParamSetupReq.Datarate = Nvm.MacGroup2.MacParams.Rx2Channel.Datarate;
+                }
 
                 rxParamSetupReq.Frequency = ( uint32_t ) payload[macIndex++];
                 rxParamSetupReq.Frequency |= ( uint32_t ) payload[macIndex++] << 8;
