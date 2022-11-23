@@ -28,7 +28,7 @@ extern "C"
 {
 #endif
 
-#include "spi.h"
+#include "system/spi.h"
 
 // An Spi.c file has to be implmented under system directory.
 

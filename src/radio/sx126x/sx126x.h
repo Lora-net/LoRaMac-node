@@ -32,7 +32,7 @@ extern "C"
 #include <stdbool.h>
 #include <math.h>
 #include "gpio.h"
-#include "spi.h"
+#include "system/spi.h"
 #include "radio.h"
 
 #define SX1261                                      1
