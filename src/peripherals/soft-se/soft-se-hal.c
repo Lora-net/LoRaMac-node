@@ -23,7 +23,7 @@
  * \endcode
  *
  */
-#include "board.h"
+#include "boards/board.h"
 
 #include "soft-se-hal.h"
 

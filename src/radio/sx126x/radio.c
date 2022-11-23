@@ -28,7 +28,7 @@
 #include "radio.h"
 #include "sx126x.h"
 #include "sx126x-board.h"
-#include "board.h"
+#include "boards/board.h"
 
 /*!
  * \brief Initializes the radio

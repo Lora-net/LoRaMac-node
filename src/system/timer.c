@@ -21,7 +21,7 @@
  * \author    Gregory Cristian ( Semtech )
  */
 #include "utilities.h"
-#include "board.h"
+#include "boards/board.h"
 #include "rtc-board.h"
 #include "timer.h"
 
