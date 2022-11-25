@@ -83,7 +83,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 11)
 
-target_link_libraries(${PROJECT_NAME} m)
+# TODO: Remove this
+target_link_libraries(${PROJECT_NAME}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../boards/Tock/libtock-c/newlib/cortex-m/v7-m/libc.a
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../boards/Tock/libtock-c/newlib/cortex-m/v7-m/libm.a
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../boards/Tock/libtock-c/libtock/build/cortex-m4/libtock.a
+)
+
 
 #---------------------------------------------------------------------------------------
 # Debugging and Binutils
