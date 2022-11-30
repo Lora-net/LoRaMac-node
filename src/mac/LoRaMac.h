@@ -2921,6 +2921,13 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest );
  */
 LoRaMacStatus_t LoRaMacDeInitialization( void );
 
+/*!
+ * \brief   Resets the internal state machine.
+ *
+ * \details Resets the internal state machine to force the MAC to finalize a procedure.
+ */
+void LoRaMacReset( void );
+
 /*! \} defgroup LORAMAC */
 
 #ifdef __cplusplus
