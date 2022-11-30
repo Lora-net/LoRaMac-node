@@ -5709,3 +5709,21 @@ LoRaMacStatus_t LoRaMacDeInitialization( void )
         return LORAMAC_STATUS_BUSY;
     }
 }
+
+void LoRaMacReset( void )
+{
+    // Reset state machine
+    MacCtx.MacState &= ~LORAMAC_TX_RUNNING;
+    MacCtx.MacFlags.Bits.MacDone = 1;
+
+    // Stop Timers
+    TimerStop( &MacCtx.TxDelayedTimer );
+    TimerStop( &MacCtx.RxWindowTimer1 );
+    TimerStop( &MacCtx.RxWindowTimer2 );
+
+    // Stop retransmissions
+    MacCtx.ChannelsNbTransCounter = Nvm.MacGroup2.MacParams.ChannelsNbTrans;
+
+    // Inform application layer
+    OnMacProcessNotify( );
+}
