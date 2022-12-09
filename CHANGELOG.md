@@ -11,6 +11,68 @@ Please refer to [Releases pre-certification-results](https://github.com/Lora-net
 
 ## [Unreleased]
 
+## [4.7.0] - 2022-12-09
+
+### General
+
+- Release based on "LoRaWAN specification 1.0.4" and "LoRaWAN specification 1.1.0 + FCntDwn ERRATA" with "LoRaWAN Regional Parameters 2-1.0.3"
+- GitHub reported issues corrections.
+
+### Known limitations
+
+- SAMR34 platform does not implement NVM storage functionality. This is a requirement for LoRaWAN versions greater or equal to 1.0.4.
+  No work on this subject is forseen by the maintainers. Implementation proposals are welcome.
+
+### Added
+
+- Trigger NVM update on `MacGroup2.DutyCycleOn` change
+- Configure radio sync word upon state restoration from NVM
+- Added missing return status initialization for Class A
+- Added a check for `GroupId` in order to avoid out of bounds access
+- Make LBT RSSI free channel threshold and carrier sense time (CST) parameters configurable
+- Signal NVM data change in `LoRaMacMc*` functions
+- Teach `LoRaMacIsBusy` return false if the MAC is stopped
+- Added support for new release of ARIB STD-T108 Ver1.4 under AS923 region
+- Support LoRaWAN 1.1 with ATECC608A/B secure element
+- Added a function to reset the stack internal state machine
+- Added an option for MAC commands to verify against an explicit confirmation
+- Added a check to verify that `SystemMaxRxError` provided value is in the range 0..500 ms
+
+### Changed
+
+- Updated regions implementation to regional parameters RP2-1.0.3
+- Move AdrAckLimit and AdrAckDelay to NVM `MacGroup2`
+- Refactored and improved the way the duty-cycle is managed
+
+### Fixed
+
+- Fixed class B multicast handling in `LoRaMacClassBProcessMulticastSlot()`
+- Restore `RegionGroup2` in `RestoreNvmData`
+- Fix a duty cycle related deadlock in `ScheduleTx`
+- Fixed where `LastDownFCnt` update takes place for LoRaWAN 1.1.x
+- Fixes for class C activation and deactivation
+- Don't `memset` the TX/RX buffer when radio is set to receive mode
+- Fixed usage of wrong API for general purpose keys
+- Fixed and refactored JoinReq, `ReJoinType0Req`, `ReJoinType1Req`, `ReJoinType2Req` handling
+- Fixed Rx windows timer handling
+- Fixed FUOTA fragmentation implementation
+- Fixed time credits check as proposed
+- Fixed potential buffer overflow in `ProcessRadioRxDone` - [Security](###security)
+- Applied the proposed fix for the CRC check of empty `struct`
+- Fixed inconsistent handling of undefined callbacks
+- Fixed `HardFault_Handler` for Cortex-M0 targets
+- Fixed ABP join handling to be similar to OTAA join handling
+- Fixed issue with RX2 data rate in case of 0x0F for `RxParamSetupReq` and `JoinAccept`
+
+### Removed
+
+- Removed useless `FOptsLen` filed check
+- Removed unused `ACTIVE_REGION` pre-processing check
+
+### Security
+
+- Security breach found by Simon Wörner(@SWW13) please refer to security advisory - [security advisory - CVE-2022-39274](https://github.com/Lora-net/LoRaMac-node/security/advisories/GHSA-7vv8-73pc-63c2)
+
 ## [4.6.0] - 2022-01-11
 
 ### General

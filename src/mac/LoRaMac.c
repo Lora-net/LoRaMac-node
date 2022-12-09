@@ -998,18 +998,25 @@ static void ProcessRadioRxDone( void )
                 joinType = MLME_REJOIN_2;
             }
 
-            VerifyParams_t verifyRxDr;
-            bool rxDrValid = true;
-
-            if( macMsgJoinAccept.DLSettings.Bits.RX2DataRate != 0x0F )
+            if( LORAMAC_CRYPTO_SUCCESS == macCryptoStatus )
             {
-                verifyRxDr.DatarateParams.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
-                verifyRxDr.DatarateParams.DownlinkDwellTime = Nvm.MacGroup2.MacParams.DownlinkDwellTime;
-                rxDrValid = RegionVerify( Nvm.MacGroup2.Region, &verifyRxDr, PHY_RX_DR );
-            }
+                VerifyParams_t verifyRxDr;
 
-            if( ( LORAMAC_CRYPTO_SUCCESS == macCryptoStatus ) && ( rxDrValid == true ) )
-            {
+                if( macMsgJoinAccept.DLSettings.Bits.RX2DataRate != 0x0F )
+                {
+                    verifyRxDr.DatarateParams.Datarate = macMsgJoinAccept.DLSettings.Bits.RX2DataRate;
+                    verifyRxDr.DatarateParams.DownlinkDwellTime = Nvm.MacGroup2.MacParams.DownlinkDwellTime;
+                    if( RegionVerify( Nvm.MacGroup2.Region, &verifyRxDr, PHY_RX_DR ) == false )
+                    {
+                        // MLME handling
+                        if( LoRaMacConfirmQueueIsCmdActive( MLME_JOIN ) == true )
+                        {
+                            LoRaMacConfirmQueueSetStatus( LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL, MLME_JOIN );
+                        }
+                        break;
+                    }
+                }
+
                 // Network ID
                 Nvm.MacGroup2.NetID = ( uint32_t ) macMsgJoinAccept.NetID[0];
                 Nvm.MacGroup2.NetID |= ( ( uint32_t ) macMsgJoinAccept.NetID[1] << 8 );
