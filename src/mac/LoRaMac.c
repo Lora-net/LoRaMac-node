@@ -5495,7 +5495,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
     memset1( ( uint8_t* ) &MacCtx.McpsConfirm, 0, sizeof( MacCtx.McpsConfirm ) );
     MacCtx.McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
 
-    // Apply confirmed downlinks, if the device has not received a valid
+    // Apply confirmed uplinks, if the device has not received a valid
     // downlink after a join accept.
     if( ( Nvm.MacGroup2.NetworkActivation == ACTIVATION_TYPE_OTAA ) &&
         ( Nvm.MacGroup2.DeviceClass == CLASS_C ) &&
