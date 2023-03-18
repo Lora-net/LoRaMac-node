@@ -21,12 +21,12 @@
   "frameworks": "*",
   "platforms": "*",
   "build": {
-    "flags": {
+    "flags": [
       "-Isrc/system",
       "-Isrc/boards",
       "-Isrc/mac",
       "-Isrc/peripherals",
       "-Isrc/radio"
-    }
+    ]
   }
 }
