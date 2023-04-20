@@ -849,7 +849,9 @@ void SX1276Send( uint8_t *buffer, uint8_t size )
                 SX1276Write( REG_LR_INVERTIQ, ( ( SX1276Read( REG_LR_INVERTIQ ) & RFLR_INVERTIQ_TX_MASK & RFLR_INVERTIQ_RX_MASK ) | RFLR_INVERTIQ_RX_OFF | RFLR_INVERTIQ_TX_OFF ) );
                 SX1276Write( REG_LR_INVERTIQ2, RFLR_INVERTIQ2_OFF );
             }
-
+            //fix bug
+            SX1276Write(REG_LR_HOPCHANNEL, 0);
+            
             SX1276.Settings.LoRaPacketHandler.Size = size;
 
             // Initializes the payload size
