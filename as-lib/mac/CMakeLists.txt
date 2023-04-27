@@ -34,7 +34,7 @@ if (NOT TARGET ${PROJECT_NAME})
             ${LORAMAC_SOURCE_DIR}/mac/region/Region.h
             ${LORAMAC_SOURCE_DIR}/mac/region/RegionCommon.h
             $<$<OR:$<BOOL:LORAMAC_REGION_AU915>,$<BOOL:LORAMAC_REGION_US915>>:${LORAMAC_SOURCE_DIR}/mac/region/RegionBaseUS.h>
-            $<$<BOOL:LORAMAC_REGION_CN470>:
+            $<$<BOOL:${LORAMAC_REGION_CN470}>:
                 ${LORAMAC_SOURCE_DIR}/mac/region/RegionCN470A20.h
                 ${LORAMAC_SOURCE_DIR}/mac/region/RegionCN470B20.h
                 ${LORAMAC_SOURCE_DIR}/mac/region/RegionCN470A26.h
@@ -53,7 +53,7 @@ if (NOT TARGET ${PROJECT_NAME})
             ${LORAMAC_SOURCE_DIR}/mac/region/Region.c
             ${LORAMAC_SOURCE_DIR}/mac/region/RegionCommon.c
             $<$<OR:$<BOOL:${LORAMAC_REGION_AU915}>,$<BOOL:${LORAMAC_REGION_US915}>>:${LORAMAC_SOURCE_DIR}/mac/region/RegionBaseUS.c>
-            $<$<BOOL:LORAMAC_REGION_CN470>:
+            $<$<BOOL:${LORAMAC_REGION_CN470}>:
                 ${LORAMAC_SOURCE_DIR}/mac/region/RegionCN470A20.c
                 ${LORAMAC_SOURCE_DIR}/mac/region/RegionCN470B20.c
                 ${LORAMAC_SOURCE_DIR}/mac/region/RegionCN470A26.c
