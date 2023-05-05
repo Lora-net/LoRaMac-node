@@ -2276,11 +2276,8 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
 
                     } while( payload[macIndex++] == SRV_MAC_LINK_ADR_REQ );
 
-                    if( macIndex < commandsSize )
-                    {
-                        // Decrease the index such that it points to the next MAC command
-                        macIndex--;
-                    }
+                    // Decrease the index such that it points to the next MAC command
+                    macIndex--;
                 }
                 else
                 {
