@@ -1023,11 +1023,19 @@ static void LoRaMacClassBProcessPingSlot( void )
                         pingSlotTime += pingSlotRxConfig.WindowOffset;
                     }
                 }
-
-                // Start the timer if the ping slot time is in range
-                LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_IDLE );
-                TimerSetValue( &Ctx.PingSlotTimer, pingSlotTime );
-                TimerStart( &Ctx.PingSlotTimer );
+                if( pingSlotTime < CLASSB_BEACON_INTERVAL )
+                {
+                    // Start the timer if the ping slot time is in range
+                    LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_IDLE );
+                    TimerSetValue( &Ctx.PingSlotTimer, pingSlotTime );
+                    TimerStart( &Ctx.PingSlotTimer );
+                }
+                else
+                {
+                    LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
+                    TimerSetValue( &Ctx.PingSlotTimer, 1 );
+                    TimerStart( &Ctx.PingSlotTimer );
+                }
             }
             break;
         }
@@ -1196,11 +1204,19 @@ static void LoRaMacClassBProcessMulticastSlot( void )
                 {// Apply the window offset
                     multicastSlotTime += multicastSlotRxConfig.WindowOffset;
                 }
-
-                // Start the timer if the ping slot time is in range
-                LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_IDLE );
-                TimerSetValue( &Ctx.MulticastSlotTimer, multicastSlotTime );
-                TimerStart( &Ctx.MulticastSlotTimer );
+                if( multicastSlotTime < CLASSB_BEACON_INTERVAL )
+                {
+                    // Start the timer if the ping slot time is in range
+                    LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_IDLE );
+                    TimerSetValue( &Ctx.MulticastSlotTimer, multicastSlotTime );
+                    TimerStart( &Ctx.MulticastSlotTimer );
+                }
+                else
+                {
+                    LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
+                    TimerSetValue( &Ctx.MulticastSlotTimer, 1 );
+                    TimerStart( &Ctx.MulticastSlotTimer );
+                }
             }
             break;
         }
