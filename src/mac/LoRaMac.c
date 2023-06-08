@@ -1186,7 +1186,8 @@ static void ProcessRadioRxDone( void )
             }
 
             // Filter messages according to multicast downlink exceptions
-            if( ( multicast == 1 ) && ( ( fType != FRAME_TYPE_D ) ||
+            if( ( multicast == 1 ) && ( (macHdr.Bits.MType == FRAME_TYPE_DATA_CONFIRMED_DOWN ) ||
+                                        ( fType != FRAME_TYPE_D ) ||
                                         ( macMsgData.FHDR.FCtrl.Bits.Ack != 0 ) ||
                                         ( macMsgData.FHDR.FCtrl.Bits.AdrAckReq != 0 ) ) )
             {
