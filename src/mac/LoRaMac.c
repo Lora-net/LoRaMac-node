@@ -1215,6 +1215,19 @@ static void ProcessRadioRxDone( void )
                 return;
             }
 
+            if( multicast == 1 )
+            {
+                if( ( downLinkCounter < Nvm.MacGroup2.MulticastChannelList[addrID].ChannelParams.FCountMin )||
+                    ( downLinkCounter > Nvm.MacGroup2.MulticastChannelList[addrID].ChannelParams.FCountMax ) )
+                {
+                    // Other errors
+                    MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+                    MacCtx.McpsIndication.DownLinkCounter = downLinkCounter;
+                    PrepareRxDoneAbort( );
+                    return;
+                }
+            }
+
             macCryptoStatus = LoRaMacCryptoUnsecureMessage( addrID, address, fCntID, downLinkCounter, &macMsgData );
             if( macCryptoStatus != LORAMAC_CRYPTO_SUCCESS )
             {
