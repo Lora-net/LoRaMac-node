@@ -930,7 +930,7 @@ static void ProcessRadioRxDone( void )
             LoRaMacClassBPingSlotTimerEvent( NULL );
             MacCtx.McpsIndication.RxSlot = RX_SLOT_WIN_CLASS_B_PING_SLOT;
         }
-        else if( LoRaMacClassBIsMulticastExpected( ) == true )
+        if( LoRaMacClassBIsMulticastExpected( ) == true )
         {
             LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
             LoRaMacClassBMulticastSlotTimerEvent( NULL );
@@ -1145,7 +1145,7 @@ static void ProcessRadioRxDone( void )
                     MacCtx.McpsIndication.RxSlot = RX_SLOT_WIN_CLASS_B_PING_SLOT;
                     LoRaMacClassBSetFPendingBit( macMsgData.FHDR.DevAddr, ( uint8_t ) macMsgData.FHDR.FCtrl.Bits.FPending );
                 }
-                else if( LoRaMacClassBIsMulticastExpected( ) == true )
+                if( LoRaMacClassBIsMulticastExpected( ) == true )
                 {
                     LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
                     LoRaMacClassBMulticastSlotTimerEvent( NULL );
