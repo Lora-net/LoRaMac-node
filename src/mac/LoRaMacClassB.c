@@ -1185,7 +1185,7 @@ static void LoRaMacClassBProcessMulticastSlot( void )
                                       ( uint32_t ) Ctx.BeaconCtx.BeaconTimePrecision.SubSeconds );
 
                     RegionComputeRxWindowParameters( *Ctx.LoRaMacClassBParams.LoRaMacRegion,
-                                                    ClassBNvm->PingSlotCtx.Datarate,
+                                                    Ctx.PingSlotCtx.NextMulticastChannel->ChannelParams.RxParams.Params.ClassB.Datarate,
                                                     Ctx.LoRaMacClassBParams.LoRaMacParams->MinRxSymbols,
                                                     maxRxError,
                                                     &multicastSlotRxConfig );
