@@ -660,13 +660,19 @@ LmHandlerErrorStatus_t LmHandlerRequestClass( DeviceClass_t newClass )
             break;
         case CLASS_B:
             {
-                if( currentClass != CLASS_A )
+                if( IsClassBSwitchPending == false )
                 {
-                    errorStatus = LORAMAC_HANDLER_ERROR;
+                    if( currentClass != CLASS_A )
+                    {
+                        errorStatus = LORAMAC_HANDLER_ERROR;
+                    }
+                    // Beacon must first be acquired
+                    errorStatus = LmHandlerDeviceTimeReq( );
+                    if( errorStatus == LORAMAC_HANDLER_SUCCESS)
+                    {
+                        IsClassBSwitchPending = true;
+                    }
                 }
-                // Beacon must first be acquired
-                errorStatus = LmHandlerDeviceTimeReq( );
-                IsClassBSwitchPending = true;
             }
             break;
         case CLASS_C:

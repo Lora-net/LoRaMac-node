@@ -183,6 +183,11 @@ uint32_t Crc32Finalize( uint32_t crc );
 #define CRITICAL_SECTION_BEGIN( ) uint32_t mask; BoardCriticalSectionBegin( &mask )
 
 /*!
+ * Begin repeated critical section
+ */
+#define CRITICAL_SECTION_BEGIN_REPEAT( ) BoardCriticalSectionBegin( &mask )
+
+/*!
  * Ends critical section
  */
 #define CRITICAL_SECTION_END( ) BoardCriticalSectionEnd( &mask )
