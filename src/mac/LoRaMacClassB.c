@@ -687,14 +687,18 @@ void LoRaMacClassBSetBeaconState( BeaconState_t beaconState )
 void LoRaMacClassBSetPingSlotState( PingSlotState_t pingSlotState )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
+    CRITICAL_SECTION_BEGIN( );
     Ctx.PingSlotState = pingSlotState;
+    CRITICAL_SECTION_END( );
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
 void LoRaMacClassBSetMulticastSlotState( PingSlotState_t multicastSlotState )
 {
 #ifdef LORAMAC_CLASSB_ENABLED
+    CRITICAL_SECTION_BEGIN( );
     Ctx.MulticastSlotState = multicastSlotState;
+    CRITICAL_SECTION_END( );
 #endif // LORAMAC_CLASSB_ENABLED
 }
 
@@ -1006,7 +1010,7 @@ static void LoRaMacClassBProcessPingSlot( void )
                                *Ctx.LoRaMacClassBParams.LoRaMacDevAddr,
                                ClassBNvm->PingSlotCtx.PingPeriod,
                                &( Ctx.PingSlotCtx.PingOffset ) );
-            Ctx.PingSlotState = PINGSLOT_STATE_SET_TIMER;
+            LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_SET_TIMER );
         }
             // Intentional fall through
         case PINGSLOT_STATE_SET_TIMER:
@@ -1034,11 +1038,19 @@ static void LoRaMacClassBProcessPingSlot( void )
                         pingSlotTime += pingSlotRxConfig.WindowOffset;
                     }
                 }
-
-                // Start the timer if the ping slot time is in range
-                Ctx.PingSlotState = PINGSLOT_STATE_IDLE;
-                TimerSetValue( &Ctx.PingSlotTimer, pingSlotTime );
-                TimerStart( &Ctx.PingSlotTimer );
+                if( pingSlotTime < CLASSB_BEACON_INTERVAL )
+                {
+                    // Start the timer if the ping slot time is in range
+                    LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_IDLE );
+                    TimerSetValue( &Ctx.PingSlotTimer, pingSlotTime );
+                    TimerStart( &Ctx.PingSlotTimer );
+                }
+                else
+                {
+                    LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
+                    TimerSetValue( &Ctx.PingSlotTimer, 1 );
+                    TimerStart( &Ctx.PingSlotTimer );
+                }
             }
             break;
         }
@@ -1069,12 +1081,12 @@ static void LoRaMacClassBProcessPingSlot( void )
                 {
                     // Close multicast slot window, if necessary. Multicast slots have priority
                     loramac_radio_set_standby( );
-                    Ctx.MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+                    LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
                     TimerSetValue( &Ctx.MulticastSlotTimer, CLASSB_PING_SLOT_WINDOW );
                     TimerStart( &Ctx.MulticastSlotTimer );
                 }
 
-                Ctx.PingSlotState = PINGSLOT_STATE_RX;
+                LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_RX );
 
                 pingSlotRxConfig.Datarate = ClassBNvm->PingSlotCtx.Datarate;
                 pingSlotRxConfig.DownlinkDwellTime = Ctx.LoRaMacClassBParams.LoRaMacParams->DownlinkDwellTime;
@@ -1097,7 +1109,7 @@ static void LoRaMacClassBProcessPingSlot( void )
             else
             {
                 // Multicast slots have priority. Skip Rx
-                Ctx.PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+                LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
                 TimerSetValue( &Ctx.PingSlotTimer, CLASSB_PING_SLOT_WINDOW );
                 TimerStart( &Ctx.PingSlotTimer );
             }
@@ -1105,7 +1117,7 @@ static void LoRaMacClassBProcessPingSlot( void )
         }
         default:
         {
-            Ctx.PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+            LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
             break;
         }
     }
@@ -1158,7 +1170,7 @@ static void LoRaMacClassBProcessMulticastSlot( void )
                 }
                 cur++;
             }
-            Ctx.MulticastSlotState = PINGSLOT_STATE_SET_TIMER;
+            LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_SET_TIMER );
         }
             // Intentional fall through
         case PINGSLOT_STATE_SET_TIMER:
@@ -1196,7 +1208,7 @@ static void LoRaMacClassBProcessMulticastSlot( void )
                                       ( uint32_t ) Ctx.BeaconCtx.BeaconTimePrecision.SubSeconds );
 
                     RegionComputeRxWindowParameters( *Ctx.LoRaMacClassBParams.LoRaMacRegion,
-                                                    ClassBNvm->PingSlotCtx.Datarate,
+                                                    Ctx.PingSlotCtx.NextMulticastChannel->ChannelParams.RxParams.Params.ClassB.Datarate,
                                                     Ctx.LoRaMacClassBParams.LoRaMacParams->MinRxSymbols,
                                                     maxRxError,
                                                     &multicastSlotRxConfig );
@@ -1207,11 +1219,19 @@ static void LoRaMacClassBProcessMulticastSlot( void )
                 {// Apply the window offset
                     multicastSlotTime += multicastSlotRxConfig.WindowOffset;
                 }
-
-                // Start the timer if the ping slot time is in range
-                Ctx.MulticastSlotState = PINGSLOT_STATE_IDLE;
-                TimerSetValue( &Ctx.MulticastSlotTimer, multicastSlotTime );
-                TimerStart( &Ctx.MulticastSlotTimer );
+                if( multicastSlotTime < CLASSB_BEACON_INTERVAL )
+                {
+                    // Start the timer if the ping slot time is in range
+                    LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_IDLE );
+                    TimerSetValue( &Ctx.MulticastSlotTimer, multicastSlotTime );
+                    TimerStart( &Ctx.MulticastSlotTimer );
+                }
+                else
+                {
+                    LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
+                    TimerSetValue( &Ctx.MulticastSlotTimer, 1 );
+                    TimerStart( &Ctx.MulticastSlotTimer );
+                }
             }
             break;
         }
@@ -1222,7 +1242,7 @@ static void LoRaMacClassBProcessMulticastSlot( void )
             // Verify if the multicast channel is valid
             if( Ctx.PingSlotCtx.NextMulticastChannel == NULL )
             {
-                Ctx.MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+                LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
                 TimerSetValue( &Ctx.MulticastSlotTimer, 1 );
                 TimerStart( &Ctx.MulticastSlotTimer );
                 break;
@@ -1251,12 +1271,12 @@ static void LoRaMacClassBProcessMulticastSlot( void )
                 {
                     // Close ping slot window, if necessary. Multicast slots have priority
                     loramac_radio_set_standby( );
-                    Ctx.PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+                    LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
                     TimerSetValue( &Ctx.PingSlotTimer, CLASSB_PING_SLOT_WINDOW );
                     TimerStart( &Ctx.PingSlotTimer );
                 }
 
-                Ctx.MulticastSlotState = PINGSLOT_STATE_RX;
+                LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_RX );
 
                 multicastSlotRxConfig.Datarate = Ctx.PingSlotCtx.NextMulticastChannel->ChannelParams.RxParams.Params.ClassB.Datarate;
                 multicastSlotRxConfig.DownlinkDwellTime = Ctx.LoRaMacClassBParams.LoRaMacParams->DownlinkDwellTime;
@@ -1279,7 +1299,7 @@ static void LoRaMacClassBProcessMulticastSlot( void )
             else
             {
                 // Unicast slots have priority. Skip Rx
-                Ctx.MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+                LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
                 TimerSetValue( &Ctx.MulticastSlotTimer, CLASSB_PING_SLOT_WINDOW );
                 TimerStart( &Ctx.MulticastSlotTimer );
             }
@@ -1287,7 +1307,7 @@ static void LoRaMacClassBProcessMulticastSlot( void )
         }
         default:
         {
-            Ctx.MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+            LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
             break;
         }
     }
@@ -1812,11 +1832,11 @@ void LoRaMacClassBStartRxSlots( void )
 #ifdef LORAMAC_CLASSB_ENABLED
     if( ClassBNvm->PingSlotCtx.Ctrl.Assigned == 1 )
     {
-        Ctx.PingSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+        LoRaMacClassBSetPingSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
         TimerSetValue( &Ctx.PingSlotTimer, 1 );
         TimerStart( &Ctx.PingSlotTimer );
 
-        Ctx.MulticastSlotState = PINGSLOT_STATE_CALC_PING_OFFSET;
+        LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
         TimerSetValue( &Ctx.MulticastSlotTimer, 1 );
         TimerStart( &Ctx.MulticastSlotTimer );
     }
