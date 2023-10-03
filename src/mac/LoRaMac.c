@@ -930,7 +930,7 @@ static void ProcessRadioRxDone( void )
             LoRaMacClassBPingSlotTimerEvent( NULL );
             MacCtx.McpsIndication.RxSlot = RX_SLOT_WIN_CLASS_B_PING_SLOT;
         }
-        else if( LoRaMacClassBIsMulticastExpected( ) == true )
+        if( LoRaMacClassBIsMulticastExpected( ) == true )
         {
             LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
             LoRaMacClassBMulticastSlotTimerEvent( NULL );
@@ -1145,7 +1145,7 @@ static void ProcessRadioRxDone( void )
                     MacCtx.McpsIndication.RxSlot = RX_SLOT_WIN_CLASS_B_PING_SLOT;
                     LoRaMacClassBSetFPendingBit( macMsgData.FHDR.DevAddr, ( uint8_t ) macMsgData.FHDR.FCtrl.Bits.FPending );
                 }
-                else if( LoRaMacClassBIsMulticastExpected( ) == true )
+                if( LoRaMacClassBIsMulticastExpected( ) == true )
                 {
                     LoRaMacClassBSetMulticastSlotState( PINGSLOT_STATE_CALC_PING_OFFSET );
                     LoRaMacClassBMulticastSlotTimerEvent( NULL );
@@ -1186,7 +1186,8 @@ static void ProcessRadioRxDone( void )
             }
 
             // Filter messages according to multicast downlink exceptions
-            if( ( multicast == 1 ) && ( ( fType != FRAME_TYPE_D ) ||
+            if( ( multicast == 1 ) && ( (macHdr.Bits.MType == FRAME_TYPE_DATA_CONFIRMED_DOWN ) ||
+                                        ( fType != FRAME_TYPE_D ) ||
                                         ( macMsgData.FHDR.FCtrl.Bits.Ack != 0 ) ||
                                         ( macMsgData.FHDR.FCtrl.Bits.AdrAckReq != 0 ) ) )
             {
@@ -1212,6 +1213,19 @@ static void ProcessRadioRxDone( void )
                 MacCtx.McpsIndication.DownLinkCounter = downLinkCounter;
                 PrepareRxDoneAbort( );
                 return;
+            }
+
+            if( multicast == 1 )
+            {
+                if( ( downLinkCounter < Nvm.MacGroup2.MulticastChannelList[addrID].ChannelParams.FCountMin )||
+                    ( downLinkCounter > Nvm.MacGroup2.MulticastChannelList[addrID].ChannelParams.FCountMax ) )
+                {
+                    // Other errors
+                    MacCtx.McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+                    MacCtx.McpsIndication.DownLinkCounter = downLinkCounter;
+                    PrepareRxDoneAbort( );
+                    return;
+                }
             }
 
             macCryptoStatus = LoRaMacCryptoUnsecureMessage( addrID, address, fCntID, downLinkCounter, &macMsgData );

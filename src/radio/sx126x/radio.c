@@ -1261,7 +1261,7 @@ void RadioIrqProcess( void )
         SX126xClearIrqStatus( irqRegs );
 
         // Check if DIO1 pin is High. If it is the case revert IrqFired to true
-        CRITICAL_SECTION_BEGIN( );
+        CRITICAL_SECTION_BEGIN_REPEAT( );
         if( SX126xGetDio1PinState( ) == 1 )
         {
             IrqFired = true;

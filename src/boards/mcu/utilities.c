@@ -107,7 +107,7 @@ uint32_t Crc32( uint8_t *buffer, uint16_t length )
     for( uint16_t i = 0; i < length; ++i )
     {
         crc ^= ( uint32_t )buffer[i];
-        for( uint16_t i = 0; i < 8; i++ )
+        for( uint16_t j = 0; j < 8; j++ )
         {
             crc = ( crc >> 1 ) ^ ( reversedPolynom & ~( ( crc & 0x01 ) - 1 ) );
         }
@@ -137,7 +137,7 @@ uint32_t Crc32Update( uint32_t crcInit, uint8_t *buffer, uint16_t length )
     for( uint16_t i = 0; i < length; ++i )
     {
         crc ^= ( uint32_t )buffer[i];
-        for( uint16_t i = 0; i < 8; i++ )
+        for( uint16_t j = 0; j < 8; j++ )
         {
             crc = ( crc >> 1 ) ^ ( reversedPolynom & ~( ( crc & 0x01 ) - 1 ) );
         }
