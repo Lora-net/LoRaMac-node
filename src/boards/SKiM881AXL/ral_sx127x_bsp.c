@@ -109,13 +109,13 @@ void ral_sx127x_bsp_get_tx_cfg( const void* context, const ral_sx127x_bsp_tx_cfg
     }
     else
     {  // RFO
-        if( pwr < -4 )
+        if( pwr < -1 )
         {
-            pwr = -4;
+            pwr = -1;
         }
-        if( pwr > 15 )
+        if( pwr > 14 )
         {
-            pwr = 15;
+            pwr = 14;
         }
     }
 

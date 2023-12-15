@@ -127,6 +127,16 @@ void ral_sx127x_bsp_get_tx_cfg( const void* context, const ral_sx127x_bsp_tx_cfg
     }
     else
     {  // RFO
+#if defined( SX1272MB2DAS )
+        if( pwr < -1 )
+        {
+            pwr = -1;
+        }
+        if( pwr > 14 )
+        {
+            pwr = 14;
+        }
+#else
         if( pwr < -4 )
         {
             pwr = -4;
@@ -135,6 +145,7 @@ void ral_sx127x_bsp_get_tx_cfg( const void* context, const ral_sx127x_bsp_tx_cfg
         {
             pwr = 15;
         }
+#endif
     }
 
     output_params->chip_output_pwr_in_dbm_configured = pwr;
