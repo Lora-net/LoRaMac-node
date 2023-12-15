@@ -1,18 +1,9 @@
 # LoRaWAN end-device stack implementation and example projects
 
-      ______                              _
-     / _____)             _              | |
-    ( (____  _____ ____ _| |_ _____  ____| |__
-     \____ \| ___ |    (_   _) ___ |/ ___)  _ \
-     _____) ) ____| | | || |_| ____( (___| | | |
-    (______/|_____)_|_|_| \__)_____)\____)_| |_|
-        (C)2013-2022 Semtech
-
-     ___ _____ _   ___ _  _____ ___  ___  ___ ___
-    / __|_   _/_\ / __| |/ / __/ _ \| _ \/ __| __|
-    \__ \ | |/ _ \ (__| ' <| _| (_) |   / (__| _|
-    |___/ |_/_/ \_\___|_|\_\_| \___/|_|_\\___|___|
-    embedded.connectivity.solutions===============
+>**Subsequent to the availability of a new and feature enhanced LoRaWAN® stack within [LoRa Basics™ Modem](https://github.com/Lora-net/SWL2001), Semtech has decided to transition LoRaMac-Node to maintenance mode (critical bug fixes will still be supported).**
+>
+>**LoRa Basics™ Modem is the platform implementing new LoRaWAN features (i.e. Relay, CSMA) and will support future improvements introduced by the LoRa Alliance (e.g. LoRaWAN 1.2).
+While the formerly introduced LoRaMac-Node stack transitions to maintenance mode Semtech recommends customers to use [LoRa Basics™ Modem](https://github.com/Lora-net/SWL2001) for new designs.**
 
 ## Introduction
 
