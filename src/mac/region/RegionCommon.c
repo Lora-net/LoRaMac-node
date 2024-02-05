@@ -463,7 +463,7 @@ int8_t RegionCommonComputeTxPower( int8_t txPowerIndex, float maxEirp, float ant
 {
     int8_t phyTxPower = 0;
 
-    phyTxPower = ( int8_t )floor( ( maxEirp - ( txPowerIndex * 2U ) ) - antennaGain );
+    phyTxPower = ( int8_t )floorf( ( maxEirp - ( txPowerIndex * 2U ) ) - antennaGain );
 
     return phyTxPower;
 }
