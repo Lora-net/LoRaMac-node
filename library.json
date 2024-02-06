@@ -1,0 +1,26 @@
+{
+  "name": "LoRaMac-node",
+  "version": "1.0.0",
+  "description": "A \"Hello world\" program is a computer program that outputs \"Hello World\" (or some variant) on a display device",
+  "keywords": "planet, happiness, people",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/scarbajali/LoRaMac-node.git"
+  },
+  "authors":
+  [
+    {
+      "name": "Semtech",
+      "email": "xxx",
+      "url": "xxxx",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "frameworks": "*",
+  "platforms": "*",
+  "build": {
+    "extraScript": "extra_script.py"
+  }
+}
