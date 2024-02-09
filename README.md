@@ -53,6 +53,9 @@ The [Porting Guide](https://stackforce.github.io/LoRaMac-doc/LoRaMac-doc-v4.7.0/
 * SAMR34
   * [SAMR34 platform documentation](doc/SAMR34-platform.md)
 
+* Tock
+  * [Tock](doc/Tock.md)
+
 ## Getting Started
 
 ### Prerequisites

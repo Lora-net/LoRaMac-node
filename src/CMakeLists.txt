@@ -183,6 +183,17 @@ elseif(BOARD STREQUAL B-L072Z-LRWAN1)
 
     # Configure radio
     set(RADIO sx1276 CACHE INTERNAL "Radio sx1276 selected")
+
+elseif(BOARD STREQUAL Tock)
+    # Configure toolchain for Tock
+    set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/boards/Tock/libtock-c/userland_generic.ld)
+    include(tock)
+
+    # Build platform specific board implementation
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/Tock)
+
+    # Configure radio
+    set(RADIO sx126x CACHE INTERNAL "Radio sx126x selected")
 endif()
 
 #---------------------------------------------------------------------------------------
