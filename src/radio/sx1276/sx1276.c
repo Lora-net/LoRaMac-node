@@ -1125,7 +1125,9 @@ static void SX1276SetTx( uint32_t timeout )
 
     SX1276.Settings.State = RF_TX_RUNNING;
     TimerStart( &TxTimeoutTimer );
+    CRITICAL_SECTION_BEGIN();
     SX1276SetOpMode( RF_OPMODE_TRANSMITTER );
+    CRITICAL_SECTION_END();
 }
 
 void SX1276StartCad( void )
