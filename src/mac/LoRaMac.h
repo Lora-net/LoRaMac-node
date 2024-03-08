@@ -869,7 +869,7 @@ typedef struct sMcpsReqUnconfirmed
     /*!
      * Pointer to the buffer of the frame payload
      */
-    void* fBuffer;
+    const void* fBuffer;
     /*!
      * Size of the frame payload
      */
@@ -895,7 +895,7 @@ typedef struct sMcpsReqConfirmed
     /*!
      * Pointer to the buffer of the frame payload
      */
-    void* fBuffer;
+    const void* fBuffer;
     /*!
      * Size of the frame payload
      */
@@ -914,7 +914,7 @@ typedef struct sMcpsReqProprietary
     /*!
      * Pointer to the buffer of the frame payload
      */
-    void* fBuffer;
+    const void* fBuffer;
     /*!
      * Size of the frame payload
      */

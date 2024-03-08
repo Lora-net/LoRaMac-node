@@ -435,7 +435,7 @@ static void ProcessMacCommands( uint8_t* payload, uint8_t macIndex, uint8_t comm
  * \param [IN] fBufferSize MAC data buffer size
  * \retval status          Status of the operation.
  */
-LoRaMacStatus_t Send( LoRaMacHeader_t* macHdr, uint8_t fPort, void* fBuffer, uint16_t fBufferSize );
+LoRaMacStatus_t Send( LoRaMacHeader_t* macHdr, uint8_t fPort, const void* fBuffer, uint16_t fBufferSize );
 
 /*!
  * \brief LoRaMAC layer send join/rejoin request
@@ -457,7 +457,7 @@ LoRaMacStatus_t SendReJoinReq( JoinReqIdentifier_t joinReqType );
  * \param [IN] fBufferSize MAC data buffer size
  * \retval status          Status of the operation.
  */
-LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t* macHdr, LoRaMacFrameCtrl_t* fCtrl, uint8_t fPort, void* fBuffer, uint16_t fBufferSize );
+LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t* macHdr, LoRaMacFrameCtrl_t* fCtrl, uint8_t fPort, const void* fBuffer, uint16_t fBufferSize );
 
 /*
  * \brief Schedules the frame according to the duty cycle
@@ -2672,7 +2672,7 @@ static void ProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8_t comm
     }
 }
 
-LoRaMacStatus_t Send( LoRaMacHeader_t* macHdr, uint8_t fPort, void* fBuffer, uint16_t fBufferSize )
+LoRaMacStatus_t Send( LoRaMacHeader_t* macHdr, uint8_t fPort, const void* fBuffer, uint16_t fBufferSize )
 {
     LoRaMacFrameCtrl_t fCtrl;
     LoRaMacStatus_t status = LORAMAC_STATUS_PARAMETER_INVALID;
@@ -3291,7 +3291,7 @@ static void OpenContinuousRxCWindow( void )
     }
 }
 
-LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t* macHdr, LoRaMacFrameCtrl_t* fCtrl, uint8_t fPort, void* fBuffer, uint16_t fBufferSize )
+LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t* macHdr, LoRaMacFrameCtrl_t* fCtrl, uint8_t fPort, const void* fBuffer, uint16_t fBufferSize )
 {
     MacCtx.PktBufferLen = 0;
     MacCtx.NodeAckRequested = false;
@@ -3304,7 +3304,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t* macHdr, LoRaMacFrameCtrl_t* fCtrl
         fBufferSize = 0;
     }
 
-    memcpy1( MacCtx.AppData, ( uint8_t* ) fBuffer, fBufferSize );
+    memcpy1( MacCtx.AppData, ( const uint8_t* ) fBuffer, fBufferSize );
     MacCtx.AppDataSize = fBufferSize;
     MacCtx.PktBuffer[0] = macHdr->Value;
 
@@ -3385,7 +3385,7 @@ LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t* macHdr, LoRaMacFrameCtrl_t* fCtrl
         case FRAME_TYPE_PROPRIETARY:
             if( ( fBuffer != NULL ) && ( MacCtx.AppDataSize > 0 ) )
             {
-                memcpy1( MacCtx.PktBuffer + LORAMAC_MHDR_FIELD_SIZE, ( uint8_t* ) fBuffer, MacCtx.AppDataSize );
+                memcpy1( MacCtx.PktBuffer + LORAMAC_MHDR_FIELD_SIZE, ( const uint8_t* ) fBuffer, MacCtx.AppDataSize );
                 MacCtx.PktBufferLen = LORAMAC_MHDR_FIELD_SIZE + MacCtx.AppDataSize;
             }
             break;
@@ -5485,7 +5485,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
     LoRaMacHeader_t macHdr;
     VerifyParams_t verify;
     uint8_t fPort = 0;
-    void* fBuffer;
+    const void* fBuffer;
     uint16_t fBufferSize;
     int8_t datarate = DR_0;
     bool readyToSend = false;
