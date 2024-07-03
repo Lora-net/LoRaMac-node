@@ -1119,8 +1119,15 @@ void RadioAddRegisterToRetentionList( uint16_t registerAddress )
     // Read the address and registers already added to the list
     SX126xReadRegisters( REG_RETENTION_LIST_BASE_ADDRESS, buffer, 9 );
 
-    const uint8_t nbOfRegisters = buffer[0];
+    uint8_t nbOfRegisters = buffer[0];
     uint8_t* registerList   = &buffer[1];
+
+    // in case more than maximum read -> set to 0
+    if(nbOfRegisters > MAX_NB_REG_IN_RETENTION)
+    {
+        nbOfRegisters = 0;
+        buffer[0] = 0; // set also to zero - invalid value was read-out
+    }
 
     // Check if the register given as parameter is already added to the list
     for( uint8_t i = 0; i < nbOfRegisters; i++ )
