@@ -1568,6 +1568,9 @@ static void SX1276OnTimeoutIrq( void* context )
         // Reset the radio
         SX1276Reset( );
 
+        // Restore the channel frequency (RxChainCalibration reads 0 from reset registers)
+        SX1276SetChannel( SX1276.Settings.Channel);
+
         // Calibrate Rx chain
         RxChainCalibration( );
 
