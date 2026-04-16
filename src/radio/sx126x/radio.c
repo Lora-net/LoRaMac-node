@@ -1245,6 +1245,7 @@ void RadioOnRxTimeoutIrq( void* context )
 void RadioOnDioIrq( void* context )
 {
     IrqFired = true;
+    RadioIrqProcess();
 }
 
 void RadioIrqProcess( void )
