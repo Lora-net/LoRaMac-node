@@ -443,7 +443,7 @@ uint8_t RegionCommonLinkAdrReqVerifyParams( RegionCommonLinkAdrReqVerifyParams_t
 
 uint32_t RegionCommonComputeSymbolTimeLoRa( uint8_t phyDr, uint32_t bandwidthInHz )
 {
-    return ( 1 << phyDr ) * 1000000 / bandwidthInHz;
+    return ( ( uint32_t )1 << phyDr ) * 1000000U / bandwidthInHz;
 }
 
 uint32_t RegionCommonComputeSymbolTimeFsk( uint8_t phyDrInKbps )
