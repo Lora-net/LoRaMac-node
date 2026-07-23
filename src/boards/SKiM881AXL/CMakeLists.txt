@@ -35,6 +35,7 @@ list(APPEND ${PROJECT_NAME}_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/sx1272-board.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/sysIrqHandlers.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/uart-board.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/syscalls.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/../mcu/utilities.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/cmsis/arm-gcc/startup_stm32l081xx.s"
     "${CMAKE_CURRENT_SOURCE_DIR}/cmsis/system_stm32l0xx.c"
