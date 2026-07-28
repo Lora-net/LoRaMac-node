@@ -109,7 +109,8 @@ struct packet_generated_info
 extern uint8_t gAPP_KEY[32];
 /*!
  * Defines the application data transmission duty cycle. 60s, value in [ms].
- * (casa com o classA de 2021: APP_TX_DUTYCYCLE=60000; antes estava 5000 = 12x a carga.)
+ * Matches the reference Class A application: APP_TX_DUTYCYCLE = 60000. It had been set
+ * to 5000 here, i.e. twelve times the intended offered load.
  */
 #define APP_TX_DUTYCYCLE                            60000
 
@@ -378,13 +379,14 @@ int main(int argc, char const *argv[])
     }
 
     /*
-     * Instala a chave raiz POR NO' que o modelo manda no boot (SHA1("node-<mac>"), em gAPP_KEY).
-     * Sem isto todo device fica com a chave de demo do soft-se (2B7E1516...): como o JoinAccept
-     * nao carrega identificador do device e seu MIC usa a NwkKey, um device valida e aceita o
-     * JoinAccept destinado a OUTRO, adota o DevAddr alheio e passa a transmitir com chaves de
-     * sessao erradas -> o servidor descarta por MIC (gen>0, deliv=0).
-     * Tem que vir depois do LmHandlerInit (que inicializa o secure element) e antes do join.
-     * O servidor precisa ter a mesma chave: ver provision_keys.py.
+     * Install the per-node root key the model hands us at boot: SHA1("node-<mac>"), in
+     * gAPP_KEY. Without this every device keeps the soft-se demo key (2B7E1516...), and
+     * since a JoinAccept carries no device identifier while its MIC is computed with the
+     * NwkKey, a device happily validates and accepts the JoinAccept addressed to another
+     * one, adopts its DevAddr and transmits with the wrong session keys -- the server then
+     * drops those uplinks on MIC failure (generated > 0, delivered = 0).
+     * Must run after LmHandlerInit, which initialises the secure element, and before the
+     * join. The server needs the same key: see provision_devices.py.
      */
     SecureElementSetKey( NWK_KEY, gAPP_KEY );
     SecureElementSetKey( APP_KEY, gAPP_KEY );
@@ -496,9 +498,11 @@ static void OnRxData( LmHandlerAppData_t* appData, LmHandlerRxParams_t* params )
                 long long timestamp_us = (long long)tv.tv_sec * 1000000LL + tv.tv_usec;                
                 uint64_t *tx_time = (uint64_t *)appData->Buffer;                
                 LabscimSignalEmitDouble(gDownstreamLatencySignal, (double)(timestamp_us - tx_time[1]) / 1e6);
-                // reativado (era comentado): carimbo de uplink ENTREGUE end-to-end -- o count deste
-                // sinal / count de LoRaUpstreamPacketGenerated = PDR do artigo. Igual ao classA (main.c:884).
-                // tx_time[0] = tempo de envio do uplink em sim-time -> latencia round-trip coerente.
+                // Re-enabled (it had been commented out): stamps an uplink that was delivered
+                // end to end. The count of this signal over the count of
+                // LoRaUpstreamPacketGenerated is the packet delivery ratio, matching the
+                // reference Class A application. tx_time[0] holds the uplink send time in
+                // simulated time, which makes the round-trip latency consistent.
                 LabscimSignalEmitDouble(gUpstreamPacketLatencySignal, (double)(gCurrentTime - tx_time[0]) / 1e6);
             }
             //AppLedStateOn = appData->Buffer[0] & 0x01;
