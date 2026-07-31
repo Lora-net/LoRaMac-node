@@ -498,12 +498,28 @@ static void OnRxData( LmHandlerAppData_t* appData, LmHandlerRxParams_t* params )
                 long long timestamp_us = (long long)tv.tv_sec * 1000000LL + tv.tv_usec;                
                 uint64_t *tx_time = (uint64_t *)appData->Buffer;                
                 LabscimSignalEmitDouble(gDownstreamLatencySignal, (double)(timestamp_us - tx_time[1]) / 1e6);
-                // Re-enabled (it had been commented out): stamps an uplink that was delivered
-                // end to end. The count of this signal over the count of
-                // LoRaUpstreamPacketGenerated is the packet delivery ratio, matching the
-                // reference Class A application. tx_time[0] holds the uplink send time in
-                // simulated time, which makes the round-trip latency consistent.
-                LabscimSignalEmitDouble(gUpstreamPacketLatencySignal, (double)(gCurrentTime - tx_time[0]) / 1e6);
+                // Deliberately NOT emitting gUpstreamPacketLatencySignal here.
+                //
+                // There are two emitters of LoRaUpstreamPacketLatency. The one the
+                // reference results use is the gateway path: lora_pkt_fwd subscribes to the
+                // ChirpStack uplink event itself, computes the latency and the AoI in
+                // loragw_hal.c, and feeds LoRaPacketReceived back into the simulator, where
+                // labscim_signal_arrived() (below, ~line 720) stamps it. There "delivered"
+                // means the uplink reached the server -- no downlink involved, and AoI is
+                // emitted alongside.
+                //
+                // Emitting here instead makes "delivered" mean "the uplink reached the
+                // server AND an application echo came back", which silently folds downlink
+                // loss into the uplink numerator and reports a round-trip wall-clock time in
+                // place of a simulated-time uplink latency. It was re-enabled as a
+                // workaround for PDR 0, but the real cause of that was
+                // MQTTLoggerApplicationTopic still carrying the v3 form "application/1/..."
+                // while ChirpStack v4 publishes under an application UUID, so the gateway
+                // subscription matched nothing. That is fixed in the .ini files now.
+                //
+                // Checked against the reference .sca files: LoRaUpstreamPacketLatency equals
+                // the AoI count exactly in every run, and LoRaDownstreamPacketGenerated is 0
+                // everywhere -- there was never an application downlink.
             }
             //AppLedStateOn = appData->Buffer[0] & 0x01;
             //GpioWrite( &Led3, ( ( AppLedStateOn & 0x01 ) != 0 ) ? 1 : 0 );
