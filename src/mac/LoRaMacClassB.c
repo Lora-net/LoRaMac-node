@@ -1336,7 +1336,7 @@ bool LoRaMacClassBRxBeacon( uint8_t *payload, uint16_t size )
                 // Copy the param field for app layer
                 Ctx.LoRaMacClassBParams.MlmeIndication->BeaconInfo.Param = ( payload[phyParam.BeaconFormat.Rfu1Size] );
                 // Fetch the precise time value in milliseconds that will be used for Rx ping slot delay.
-                Ctx.BeaconCtx.BeaconTimePrecision.SubSeconds = BeaconPrecTimeValue[Ctx.LoRaMacClassBParams.MlmeIndication->BeaconInfo.Param];
+                Ctx.BeaconCtx.BeaconTimePrecision.SubSeconds = BeaconPrecTimeValue[Ctx.LoRaMacClassBParams.MlmeIndication->BeaconInfo.Param & 0x03];
 
                 // Read Time field from the frame
                 Ctx.BeaconCtx.BeaconTime.Seconds  = ( ( uint32_t )payload[phyParam.BeaconFormat.Rfu1Size + 1] ) & 0x000000FF;
