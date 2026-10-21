@@ -888,6 +888,10 @@ bool RegionEU433ChannelsRemove( ChannelRemoveParams_t* channelRemove  )
 {
     uint8_t id = channelRemove->ChannelId;
 
+    if( id >= EU433_MAX_NB_CHANNELS )
+    {
+        return false;
+    }
     if( id < EU433_NUMB_DEFAULT_CHANNELS )
     {
         return false;

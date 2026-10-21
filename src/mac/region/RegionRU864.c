@@ -887,6 +887,10 @@ bool RegionRU864ChannelsRemove( ChannelRemoveParams_t* channelRemove  )
 {
     uint8_t id = channelRemove->ChannelId;
 
+    if( id >= RU864_MAX_NB_CHANNELS )
+    {
+        return false;
+    }
     if( id < RU864_NUMB_DEFAULT_CHANNELS )
     {
         return false;

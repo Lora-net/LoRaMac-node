@@ -1004,7 +1004,7 @@ LoRaMacStatus_t RegionCN470ChannelAdd( ChannelAddParams_t* channelAdd )
 
 bool RegionCN470ChannelsRemove( ChannelRemoveParams_t* channelRemove  )
 {
-    return LORAMAC_STATUS_PARAMETER_INVALID;
+    return false;
 }
 
 uint8_t RegionCN470ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t drOffset )

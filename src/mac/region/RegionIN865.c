@@ -911,6 +911,10 @@ bool RegionIN865ChannelsRemove( ChannelRemoveParams_t* channelRemove  )
 {
     uint8_t id = channelRemove->ChannelId;
 
+    if( id >= IN865_MAX_NB_CHANNELS )
+    {
+        return false;
+    }
     if( id < IN865_NUMB_DEFAULT_CHANNELS )
     {
         return false;

@@ -922,6 +922,10 @@ bool RegionEU868ChannelsRemove( ChannelRemoveParams_t* channelRemove  )
 {
     uint8_t id = channelRemove->ChannelId;
 
+    if( id >= EU868_MAX_NB_CHANNELS )
+    {
+        return false;
+    }
     if( id < EU868_NUMB_DEFAULT_CHANNELS )
     {
         return false;
