@@ -1,9 +1,21 @@
 # LoRaWAN end-device stack implementation and example projects
 
->**Subsequent to the availability of a new and feature enhanced LoRaWAN® stack within [LoRa Basics™ Modem](https://github.com/Lora-net/SWL2001), Semtech has decided to transition LoRaMac-Node to maintenance mode (critical bug fixes will still be supported).**
+> [!WARNING]
+> ## âš ï¸ This project is archived and no longer maintained
 >
->**LoRa Basics™ Modem is the platform implementing new LoRaWAN features (i.e. Relay, CSMA) and will support future improvements introduced by the LoRa Alliance (e.g. LoRaWAN 1.2).
-While the formerly introduced LoRaMac-Node stack transitions to maintenance mode Semtech recommends customers to use [LoRa Basics™ Modem](https://github.com/Lora-net/SWL2001) for new designs.**
+> As of **November 2, 2026**, Semtech has archived LoRaMac-node. This repository is now **read-only**:
+> no new features, bug fixes, security fixes, issues, or pull requests will be accepted,
+> and Semtech does not provide support for this project.
+>
+> **Successor:** The [Unified Software Platform (USP)](https://github.com/Lora-net/usp) is Semtech's
+> actively maintained software platform for Semtech radios. It includes the
+> LoRa Basicsâ„¢ Modem LoRaWANÂ® stack, with features such as Relay and CSMA,
+> and will support future LoRa Alliance specifications (e.g. LoRaWAN 1.2).
+> Semtech recommends it for all new designs.
+>
+> **Existing users:** The code remains available under its [license](LICENSE) and
+> all releases and tags stay accessible. You are free to fork the project and
+> maintain your own version.
 
 ## Introduction
 
